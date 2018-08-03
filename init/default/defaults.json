@@ -1,0 +1,261 @@
+{
+    "internal_lights": false, 
+    "Cint_measure": [
+        true, 
+        1, 
+        1, 
+        200
+    ], 
+    "CintAC_measure": [
+        false, 
+        1, 
+        1, 
+        200
+    ], 
+    "chuck_temperature": 0, 
+    "Cac_measure": [
+        true, 
+        1, 
+        1, 
+        200
+    ], 
+    "temp_history": 3600, 
+    "temperature_measure": [
+        false, 
+        0, 
+        0, 
+        0
+    ], 
+    "IV_measure": [
+        true, 
+        -10.0, 
+        -60.0, 
+        12
+    ], 
+    "Rint_scan_measure": [
+        false, 
+        0, 
+        0, 
+        0
+    ], 
+    "Sensor_types": {
+        "IFX 6 inch": [
+            "Baby", 
+            "PSs", 
+            "Irrad35", 
+            "Irrad25", 
+            "PSs_Baby"
+        ], 
+        "HPK 6 inch": [
+            "Irradiation"
+        ], 
+        "IFX 8 inch": [
+            "SensorCenterBiasContact", 
+            "SensorBaby", 
+            "SensorIrradiation", 
+            "Sensor2S"
+        ]
+    }, 
+    "humidity_measure": [
+        false, 
+        0, 
+        0, 
+        0
+    ], 
+    "trans_matrix": null, 
+    "Measurement_running": false, 
+    "Idark_measure": [
+        true, 
+        1, 
+        1, 
+        200
+    ], 
+    "Longterm_IV_time": "1.0", 
+    "Current_sensor": "Baby", 
+    "Table_state": true, 
+    "humidity_sensors": "hum_sensors", 
+    "humidity_control": false, 
+    "Current_project": "IFX 6 inch", 
+    "measurement_order": [
+        "test_mode", 
+        "IVCV", 
+        "stripscan", 
+        "singlestrip"
+    ], 
+    "update_counter": 46, 
+    "lights_controller": "Brand Box", 
+    "strip_scan_time": 9.452639309, 
+    "IVCV_time": 56.60692029151892, 
+    "current_selected_browser_value": "Defaults", 
+    "IV_scan": [
+        0.0, 
+        1000.0
+    ], 
+    "Istrip_measure": [
+        true, 
+        1, 
+        1, 
+        200
+    ], 
+    "Air": "pressure_air", 
+    "Cac_scan_measure": [
+        false, 
+        0, 
+        0, 
+        0
+    ], 
+    "Bad_strips": 0, 
+    "height_movement": 300, 
+    "elrange": "200e-9", 
+    "Rpoly_measure": [
+        true, 
+        1, 
+        1, 
+        200
+    ], 
+    "current_hummax": 25, 
+    "external_lights": false, 
+    "Test_mode": false, 
+    "Rint_measure": [
+        true, 
+        1, 
+        1, 
+        200
+    ], 
+    "Stripscan_measure": [
+        true, 
+        -10.0, 
+        -50.0, 
+        10
+    ], 
+    "current_hummin": 20, 
+    "2410SMU": "SMU2", 
+    "Operator": [
+        "Dominic", 
+        "Axel", 
+        "Thomas", 
+        "Aileen", 
+        "Gabriel"
+    ], 
+    "Start_time": "NaN", 
+    "current_switching": {}, 
+    "temphum_controller": "Brand Box", 
+    "table_ready": false, 
+    "new_data": false, 
+    "Settings_name": "Defaults", 
+    "Idiel_measure": [
+        true, 
+        1, 
+        1, 
+        200
+    ], 
+    "Rint_MinMax": [
+        -1, 
+        1, 
+        0.1
+    ], 
+    "current_tempmin": 20, 
+    "bias_voltage": 0, 
+    "End_time": "NaN", 
+    "Cback_measure": [
+        false, 
+        1, 
+        1, 
+        200
+    ], 
+    "Thomas_mode": false, 
+    "last_plot_update": 1, 
+    "Switching": "Matrix", 
+    "current_tempmax": 25, 
+    "GUI_update_interval": 200.0, 
+    "IVSMU": "SMU1", 
+    "Current_directory": "C:/Users/silicon/Desktop/QTC_measRes/Intertstrip/VPX21779_18_irrad", 
+    "V0": null, 
+    "IV_longterm_measure": [
+        false, 
+        -10, 
+        -60.0, 
+        5
+    ], 
+    "Projects": [
+        "IFX 6 inch", 
+        "HPK 6 inch", 
+        "IFX 8 inch"
+    ], 
+    "Table_control": "Corvus", 
+    "GUI_render_order": [
+        "Main", 
+        "Settings", 
+        "Stripscan", 
+        "Switching", 
+        "DataBrowser", 
+        "Resources", 
+        "Alignment", 
+        "Singlestrip", 
+        "Info"
+    ], 
+    "Longterm_IV": [
+        0.0, 
+        0.0
+    ], 
+    "time_format": "%H:%M:%S", 
+    "current_selected_main_object": null, 
+    "current_strip": -1, 
+    "Table_stay_down": false, 
+    "joystick": false, 
+    "Environment_status": false, 
+    "temphum_update_intervall": 5000, 
+    "LCR": "LCR", 
+    "zlock": true, 
+    "Strip_measure": [
+        false, 
+        -10.0, 
+        -50.0, 
+        10.0
+    ], 
+    "Current_filename": "None", 
+    "Cint_scan_measure": [
+        false, 
+        0, 
+        0, 
+        0
+    ], 
+    "measurement_types": [
+        "IV", 
+        "CV", 
+        "Stripscan", 
+        "IV_longterm", 
+        "temperature", 
+        "humidity", 
+        "Cback", 
+        "Cint", 
+        "CintAC", 
+        "Rint", 
+        "Rpoly", 
+        "Istrip", 
+        "Idiel", 
+        "Cac", 
+        "Cback_scan", 
+        "Cint_scan", 
+        "Cac_scan", 
+        "Idark", 
+        "Rint_scan"
+    ], 
+    "Cback_scan_measure": [
+        false, 
+        0, 
+        0, 
+        0
+    ], 
+    "current_led_state": "Alignment", 
+    "CV_measure": [
+        true, 
+        -10.0, 
+        -50.0, 
+        10
+    ], 
+    "Current_operator": "Dominic", 
+    "Elmeter": "ELMETER", 
+    "Alignment": false, 
+    "table_is_moving": false
+}

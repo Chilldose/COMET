@@ -1,0 +1,12 @@
+# Ignore all .pyc files
+*.pyc
+*.log
+*.bat
+*Makefile
+
+
+
+# Ignore the content of some folders
+rubbish/**
+.idea/**
+doc/_build/**
