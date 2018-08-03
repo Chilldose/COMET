@@ -10,3 +10,4 @@
 rubbish/**
 .idea/**
 doc/_build/**
+doc/_static/**

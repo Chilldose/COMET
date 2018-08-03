@@ -1,0 +1,371 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Tutorials &mdash; UniDAQ 0.9.4 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API references" href="code.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> UniDAQ
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-add-a-new-gui-element">How to add a new GUI element</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-add-a-new-device">How to add a new device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-add-a-new-measurement">How to add a new measurement</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="code.html">API references</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">UniDAQ</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Tutorials</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/tutorial.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tutorials">
+<h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h1>
+<p>This tutorials should guide you through the process of generating your own customized GUI and measurement software.
+But before we can start with the fun part, delete all previous existing GUI elements and so on.
+To do that delete the content of the following folders, except for the <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> files.</p>
+<ul class="simple">
+<li>.init/devices</li>
+<li>.init/defaults</li>
+<li>.init/Pad_files</li>
+<li>.modules/QT_Designer_UI</li>
+<li>.modules/ui_plugins</li>
+</ul>
+<p>this makes a <em>tabula rasa</em> for your project</p>
+<p>the first thing we need now is a complete new <code class="docutils literal notranslate"><span class="pre">defaults.json</span></code> file, which is needed from the program in order to work</p>
+<p>I have set up one for you here, you can simply copy it</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;Settings_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Defaults&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;measurement_types&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;measurement_order&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="s2">&quot;update_counter&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">&quot;GUI_render_order&quot;</span><span class="p">:</span> <span class="p">[]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This file needs to be saved in <code class="docutils literal notranslate"><span class="pre">.init/defaults</span></code> and it is written in json.</p>
+<p>When you now try to run the program via</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">UniDAQ</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>you should get an empty GUI window with nothing in it.</p>
+<p>This is the start point for the rest of these tutorials</p>
+<div class="section" id="how-to-add-a-new-gui-element">
+<h2>How to add a new GUI element<a class="headerlink" href="#how-to-add-a-new-gui-element" title="Permalink to this headline">¶</a></h2>
+<p>Since our program has now no GUI at all, we first change that in order to see a progress when we add new devices in the next chapter.</p>
+<p>UniDAQ can work with <strong>QTDesigner</strong> <code class="docutils literal notranslate"><span class="pre">.ui</span></code> files.
+With the <a class="reference internal" href="installation.html#installation"><span class="std std-ref">Installation</span></a> of this software, which you have followed I hope, the so-called QtDesigner was installed as well.
+If features a simple GUI based program, in which you can generate your own GUI and save them in <code class="docutils literal notranslate"><span class="pre">.ui</span></code> format.</p>
+<p>You know can build your own GUI, or you use one of mine. Now I will use the <code class="docutils literal notranslate"><span class="pre">Device_connection_info.ui</span></code> file from the repository.
+It contains a GUI which dynamically shows all connected devices to UniDAQ</p>
+<p>Put the file in: <code class="docutils literal notranslate"><span class="pre">.modules/QT_Designer_UI</span></code></p>
+<p>Next we have to tell the Program to render this UI and in which order (when you have more than one UI). Open the <code class="docutils literal notranslate"><span class="pre">**defaults.json**</span></code>
+file from before and add in “GUI_render_order” the list entry “Resources”.</p>
+<p>Know we have to write some code, that the this UI has some logic. For this we generate a file in the folder <code class="docutils literal notranslate"><span class="pre">.modules/ui_plugins</span></code>.
+This file we call <code class="docutils literal notranslate"><span class="pre">Resources_window.py</span></code>.</p>
+<p>The minimal example to run just the GUI without anything else is as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>from PyQt5 import QtGui
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from .. import utilities
+
+# Logger and utilities
+l = logging.getLogger(__name__)
+hf = utilities.help_functions()
+
+class &lt;GUI_name&gt;_window:
+    def __init__(self, GUI_classes, layout):
+        self.variables = GUI_classes    # Containing all variables and methods from the parent class for example the state machine
+        self.layout = layout            # The layout class in which will be rendered
+
+        # Loading the UI plugin
+        &lt;GUI_name&gt;_widget = QWidget()
+        self.&lt;GUI_name&gt; = self.variables.load_QtUi_file(&quot;./modules/QT_Designer_UI/&lt;name_of_ui_file.ui&gt;&quot;, &lt;GUI_name&gt;_widget)
+        self.layout.addWidget(&lt;GUI_name&gt;_widget)
+</pre></div>
+</div>
+<p>In our case <strong>&lt;GUI_name&gt;</strong> would be <strong>Resources</strong> and <strong>&lt;name_of_ui_file.ui&gt;</strong> would be <strong>Device_connection_info.ui</strong>.
+After that it renders the GUI when you restart UniDAQ. But this code does not have and logic to it. You can add python
+member functions to it and access the ui classes e.g. buttons and so on via <code class="docutils literal notranslate"><span class="pre">&lt;GUI_name&gt;.foo()</span></code> etc.</p>
+<p>For simplicity use the file <code class="docutils literal notranslate"><span class="pre">Resources_window.py</span></code> from the repo and save it to the folder <code class="docutils literal notranslate"><span class="pre">.modules/ui_plugins</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you look at the code, you will see, that I did not complie to the code example above, on how to implement a new GUI element. This is due to some additional logic I have implemented. Go and check it out how it works!</p>
+</div>
+<p>If you restart UniDAQ you should see … nothing except for a little window tab called “Resources”. Wow, what an achievement!
+To change this nothingness, proceed to the next chapter and learn how to add a decvice.</p>
+</div>
+<div class="section" id="how-to-add-a-new-device">
+<h2>How to add a new device<a class="headerlink" href="#how-to-add-a-new-device" title="Permalink to this headline">¶</a></h2>
+<p>Now that we have a GUI which can display all devices in the framework, we should add a device and see what happens.
+To do that go into the folder <code class="docutils literal notranslate"><span class="pre">.init/devices</span></code> and create a .json file. The name of this file has no particular important
+meening in the framework. But to keep it all simples lets choose the name like whats the device called e.g. <code class="docutils literal notranslate"><span class="pre">Keithley2410.json</span></code>.</p>
+<p>In this file need the following entries, where the values of the key,value pairs is one of your choosing but the key is fixed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;Device_name&quot;</span><span class="p">:</span> <span class="s2">&quot;2410 Keithley SMU&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Device_type&quot;</span><span class="p">:</span> <span class="s2">&quot;SMU&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Display_name&quot;</span><span class="p">:</span> <span class="s2">&quot;SMU1&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Device_IDN&quot;</span><span class="p">:</span> <span class="s2">&quot;KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>All other entries are your choosing, key and value. You only have to remember them later on for the measurements.</p>
+<ul class="simple">
+<li><em>Device_name</em>: Is a name you can give the Device for internal Display</li>
+<li><em>Device_type</em>: Specifies the decvice</li>
+<li><em>Display_name</em>: Is the name for internal reference (only value which has to be different for all devices)</li>
+<li><em>Device_IDN</em>: Specifies the devices own IDN</li>
+</ul>
+<p>UniDAQ has the feature to run an initialization proceedure over all devices, when the software boots up. In order to use
+this feature a format has to be considered for the keys in the dictionary.</p>
+<p>If a key has the prefix <code class="docutils literal notranslate"><span class="pre">default_</span></code> it will be executed during initialization. If the additional prefix <code class="docutils literal notranslate"><span class="pre">imp:</span></code> is stated
+then this command will be executed before all other commands. Each <code class="docutils literal notranslate"><span class="pre">default_</span></code> needs to have a <code class="docutils literal notranslate"><span class="pre">set_</span></code> value to work (but not the other way round).
+Out of both a command will be build.</p>
+<p>Lets see an example to clarify. Imagine you want to initialize the instrument with voltage 0:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="s2">&quot;set_voltage&quot;</span><span class="p">:</span> <span class="s2">&quot;SOUR:VOLT:LEV &quot;</span><span class="p">,</span>
+    <span class="s2">&quot;default_voltage&quot;</span><span class="p">:</span> <span class="s2">&quot;0&quot;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The command which will be send to the device will be <em>SOUR:VOLT:LEV 0</em>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you add the item <code class="docutils literal notranslate"><span class="pre">&quot;&lt;alias_name&gt;&quot;:</span> <span class="pre">&quot;&lt;Display_name&gt;&quot;</span></code> to your <em>defaults.json</em> file you can rename the device internally, think of it like a internal, consistent notation.</p>
+</div>
+<p>Now that you have added all crucial commands for a device save it and restart UniDAQ, the result should look like</p>
+<img alt="UniDAQ" class="floatingflask" src="_images/UniDAQ_resources.png" />
+<p>In a very short time we have achieved alot, woudn’ ya say? You now can add as many GUI elements and devices as you want and also add
+the logic to it.</p>
+<p>I would recommend to keep the code you have written now. It may come handy to know what and how many devices are definde/connected
+to the framework.</p>
+<p>Furthermore, I would recommend to add further GUI elements from the repo, especially the “Data_Browser” will come in handy.
+With it you can browse all json files (and more) you have just created. Furthermore, you can manipulate, add and save the data
+easily.</p>
+</div>
+<div class="section" id="how-to-add-a-new-measurement">
+<h2>How to add a new measurement<a class="headerlink" href="#how-to-add-a-new-measurement" title="Permalink to this headline">¶</a></h2>
+<p>In this final tutorial I will show you how to add a measurement plugin as easily as the GUI plugins from the previous section.
+In order to not program a full GUI, please add the GUI elements <strong>Main_window.py</strong> and <strong>Settings_window.py</strong> as well as
+their UI files from the repo.</p>
+<p>First you need to implement a “Project”, this can be done if you open a new directory in <code class="docutils literal notranslate"><span class="pre">.init/Pad_files</span></code>, where
+the directory name resembles a “Project”.</p>
+<p>Padfile missing</p>
+<p>In order for them to work you have to add a few items into the <strong>defaults.json</strong> file, so please add</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+     <span class="s2">&quot;Operator&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Your name&quot;</span><span class="p">],</span>
+     <span class="s2">&quot;strip_scan_time&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+     <span class="s2">&quot;IVCV_time&quot;</span><span class="p">:</span> <span class="mi">10</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>With this you should be able to start UniDAQ again.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Since we have only a fracture of the original progam loaded, the program can experience some instabilities and crashes. Especially all table controls are susceptiple! So do not touch them, yet.</p>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="code.html" class="btn btn-neutral float-right" title="API references" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Dominic Bloech.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.9.4',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

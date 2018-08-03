@@ -1,0 +1,788 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>API references &mdash; UniDAQ 0.9.4 documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Tutorials" href="tutorial.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> UniDAQ
+          
+
+          
+          </a>
+
+          
+            
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API references</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#help-functions">Help Functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#new-thread">New Thread</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#log-file">LOG File</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#framework">Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#transformation">Transformation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#measurement-job-generation">Measurement Job Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#table-control">Table control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#switching-control">Switching control</a></li>
+</ul>
+</li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">UniDAQ</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>API references</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/code.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="api-references">
+<h1>API references<a class="headerlink" href="#api-references" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="help-functions">
+<h2>Help Functions<a class="headerlink" href="#help-functions" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="utilities.help_functions">
+<em class="property">class </em><code class="descclassname">utilities.</code><code class="descname">help_functions</code><a class="reference internal" href="_modules/utilities.html#help_functions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helpfull function is a multipurpose class with a variety of function and tasks.
+It contains functions regarding error handling an file generation as well as generating ramps (e.g. for bias ramps)
+For more information see he docs for the functions itself</p>
+<dl class="class">
+<dt id="utilities.help_functions.CAxisTime">
+<em class="property">class </em><code class="descname">CAxisTime</code><span class="sig-paren">(</span><em>orientation</em>, <em>pen=None</em>, <em>linkView=None</em>, <em>parent=None</em>, <em>maxTickLength=-5</em>, <em>showValues=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.CAxisTime"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.CAxisTime" title="Permalink to this definition">¶</a></dt>
+<dd><p>Over riding the tickString method by extending the class</p>
+<dl class="method">
+<dt id="utilities.help_functions.CAxisTime.int2dt">
+<code class="descname">int2dt</code><span class="sig-paren">(</span><em>ts_mult=1000.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.CAxisTime.int2dt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.CAxisTime.int2dt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert seconds value into datatime struct which can be used for x-axis labeeling</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.CAxisTime.tickStrings">
+<code class="descname">tickStrings</code><span class="sig-paren">(</span><em>values</em>, <em>scale</em>, <em>spacing</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.CAxisTime.tickStrings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.CAxisTime.tickStrings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generate the string labeling of X-axis from the seconds value of Y-axis</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.close_file">
+<code class="descname">close_file</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.close_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.close_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closed the file specified in param file</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.create_new_file">
+<code class="descname">create_new_file</code><span class="sig-paren">(</span><em>filename='default.txt'</em>, <em>filepath='default_path'</em>, <em>os_file=True</em>, <em>suffix='.txt'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.create_new_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.create_new_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simply creates a file</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>filename</strong> – </li>
+<li><strong>filepath</strong> – </li>
+<li><strong>os_file</strong> – </li>
+<li><strong>suffix</strong> – </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.flush_to_file">
+<code class="descname">flush_to_file</code><span class="sig-paren">(</span><em>file</em>, <em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.flush_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.flush_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Flushes data to a opend file
+Only strings or numbers allowed, Lists will work too but may cause data scrambling
+Only use this with created files from function ‘create_new_file’</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.get_thicks_for_timestamp_plot">
+<code class="descname">get_thicks_for_timestamp_plot</code><span class="sig-paren">(</span><em>time_array</em>, <em>max_number_of_thicks=10</em>, <em>format='%H:%M:%S'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.get_thicks_for_timestamp_plot"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.get_thicks_for_timestamp_plot" title="Permalink to this definition">¶</a></dt>
+<dd><p>This gives back a list of tuples for the thicks</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.get_timestring_from_int">
+<code class="descname">get_timestring_from_int</code><span class="sig-paren">(</span><em>time_array</em>, <em>format='%H:%M:%S'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.get_timestring_from_int"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.get_timestring_from_int" title="Permalink to this definition">¶</a></dt>
+<dd><p>Converts int time to timestring</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.int2dt">
+<code class="descname">int2dt</code><span class="sig-paren">(</span><em>ts</em>, <em>ts_mult=1000.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.int2dt"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.int2dt" title="Permalink to this definition">¶</a></dt>
+<dd><p>Convert seconds value into datatime struct which can be used for x-axis labeeling</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.open_file">
+<code class="descname">open_file</code><span class="sig-paren">(</span><em>filename='default.txt'</em>, <em>filepath='default_path'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.open_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.open_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Just opens a file and returns the file pointer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">File</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.raise_exception">
+<code class="descname">raise_exception</code><span class="sig-paren">(</span><em>method</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.raise_exception"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.raise_exception" title="Permalink to this definition">¶</a></dt>
+<dd><p>Intended to be used as decorator for pyQt functions in the case that errors are not correctly passed to the python interpret</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.ramp_voltage">
+<code class="descname">ramp_voltage</code><span class="sig-paren">(</span><em>VisaResource</em>, <em>instrument</em>, <em>order_code</em>, <em>max_value</em>, <em>ramp_steps</em>, <em>time_to_wait</em>, <em>ramp_up=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.ramp_voltage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.ramp_voltage" title="Permalink to this definition">¶</a></dt>
+<dd><p>Deprecated
+This function ramps a value by sending commands after a timeout. Usage, ramping voltage for a device</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>VisaResource</strong> – Device which gets the commands</li>
+<li><strong>instrument</strong> – </li>
+<li><strong>order_code</strong> – Code which has to be send</li>
+<li><strong>max_value</strong> – Maximum value from where to be ramped</li>
+<li><strong>ramp_steps</strong> – Stepssize</li>
+<li><strong>time_to_wait</strong> – waitingtime</li>
+<li><strong>ramp_up</strong> – Whether or not to ramp from abs up or down</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.ramp_voltage_job">
+<code class="descname">ramp_voltage_job</code><span class="sig-paren">(</span><em>queue</em>, <em>resource</em>, <em>order</em>, <em>voltage_Start</em>, <em>voltage_End</em>, <em>step</em>, <em>wait_time=0.2</em>, <em>complience=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.ramp_voltage_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.ramp_voltage_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>Only use this function for simple ramping for the main, never inside a measurement!!!</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.read_from_file">
+<code class="descname">read_from_file</code><span class="sig-paren">(</span><em>filename='default.txt'</em>, <em>filepath='default_path'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.read_from_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.read_from_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gives you the content of the file in an list, each list entry is one line of the file (datatype=string)
+Warning: File gets closed after reading</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.run_with_lock">
+<code class="descname">run_with_lock</code><span class="sig-paren">(</span><em>method</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.run_with_lock"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.run_with_lock" title="Permalink to this definition">¶</a></dt>
+<dd><p>Intended to be used as decorator for functions which need to be threadsave. Warning: all functions acquire the same lock, be carefull.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.timeit">
+<code class="descname">timeit</code><span class="sig-paren">(</span><em>method</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.timeit"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.timeit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Intended to be used as decorator for functions. It returns the time needed for the function to run</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>method</strong> – method to be timed</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">time needed by method</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.write_init_file">
+<code class="descname">write_init_file</code><span class="sig-paren">(</span><em>name</em>, <em>data</em>, <em>path=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.write_init_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.write_init_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function writes init files for devices and default files</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>name</strong> – Name of the file to be written to</li>
+<li><strong>data</strong> – Data in Dict format</li>
+<li><strong>path</strong> – Path where to write</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.help_functions.write_to_file">
+<code class="descname">write_to_file</code><span class="sig-paren">(</span><em>content</em>, <em>filename='default.txt'</em>, <em>filepath='default_path'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.write_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.write_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>This writes content to a file. Be aware, input must be of type ‘list’ each entry containing the information of one line</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="new-thread">
+<h2>New Thread<a class="headerlink" href="#new-thread" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="utilities.newThread">
+<em class="property">class </em><code class="descclassname">utilities.</code><code class="descname">newThread</code><span class="sig-paren">(</span><em>threadID</em>, <em>name</em>, <em>object__</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#newThread"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.newThread" title="Permalink to this definition">¶</a></dt>
+<dd><p>Creates new threads easy, it needs the thread ID a name, the function/class,
+which should run in a seperated thread and the arguments passed to the object</p>
+<dl class="method">
+<dt id="utilities.newThread.__init__">
+<code class="descname">__init__</code><span class="sig-paren">(</span><em>threadID</em>, <em>name</em>, <em>object__</em>, <em>*args</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#newThread.__init__"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.newThread.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>threadID</strong> – ID the thread should have</li>
+<li><strong>name</strong> – Give the thread a name you want</li>
+<li><strong>object</strong> – The object which should run in the new thread</li>
+<li><strong>args</strong> – Arguments passed to <a href="#id1"><span class="problematic" id="id2">object__</span></a></li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.newThread.get">
+<code class="descname">get</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#newThread.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.newThread.get" title="Permalink to this definition">¶</a></dt>
+<dd><p>returns the Object</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.newThread.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#newThread.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.newThread.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Starts running the thread</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="log-file">
+<h2>LOG File<a class="headerlink" href="#log-file" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="utilities.LogFile">
+<em class="property">class </em><code class="descclassname">utilities.</code><code class="descname">LogFile</code><span class="sig-paren">(</span><em>logging_level='debug'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#LogFile"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.LogFile" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles the Logfile for the whole framework</p>
+<dl class="method">
+<dt id="utilities.LogFile.get_logging_level">
+<code class="descname">get_logging_level</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#LogFile.get_logging_level"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.LogFile.get_logging_level" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks the logging level input. If it is a string -&gt; convert. Otherwise, do nothing</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="framework">
+<h2>Framework<a class="headerlink" href="#framework" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="utilities.Framework">
+<em class="property">class </em><code class="descclassname">utilities.</code><code class="descname">Framework</code><span class="sig-paren">(</span><em>values_from_GUI</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#Framework"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.Framework" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generall class for handling all Framework related tasks, like updating the GUI etc.</p>
+<dl class="method">
+<dt id="utilities.Framework.start_timer">
+<code class="descname">start_timer</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#Framework.start_timer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.Framework.start_timer" title="Permalink to this definition">¶</a></dt>
+<dd><p>Simply starts the timer</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">timer</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.Framework.update_">
+<code class="descname">update_</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#Framework.update_"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.Framework.update_" title="Permalink to this definition">¶</a></dt>
+<dd><p>Periodically updates the functions in self.functions list</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="transformation">
+<h2>Transformation<a class="headerlink" href="#transformation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="utilities.transformation">
+<em class="property">class </em><code class="descclassname">utilities.</code><code class="descname">transformation</code><a class="reference internal" href="_modules/utilities.html#transformation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.transformation" title="Permalink to this definition">¶</a></dt>
+<dd><p>Class which handles afine transformations in 3 dimensions for handling sensor to jig coordinate systems</p>
+<dl class="method">
+<dt id="utilities.transformation.vector_trans">
+<code class="descname">vector_trans</code><span class="sig-paren">(</span><em>v</em>, <em>T</em>, <em>V0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#transformation.vector_trans"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.transformation.vector_trans" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function transforms a Vector from the sensor system to the table system by vs*T+V0=vt</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="measurement-job-generation">
+<h2>Measurement Job Generation<a class="headerlink" href="#measurement-job-generation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="utilities.measurement_job_generation">
+<em class="property">class </em><code class="descclassname">utilities.</code><code class="descname">measurement_job_generation</code><span class="sig-paren">(</span><em>main_variables</em>, <em>queue_to_measurement_event_loop</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#measurement_job_generation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.measurement_job_generation" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles all measurement generation items</p>
+<dl class="method">
+<dt id="utilities.measurement_job_generation.generate_IVCV">
+<code class="descname">generate_IVCV</code><span class="sig-paren">(</span><em>header</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#measurement_job_generation.generate_IVCV"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.measurement_job_generation.generate_IVCV" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function generates all that has to do with IV or CV
+:param header: An additional header
+:return: the job dictionary</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.measurement_job_generation.generate_job">
+<code class="descname">generate_job</code><span class="sig-paren">(</span><em>additional_settings_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#measurement_job_generation.generate_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.measurement_job_generation.generate_job" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function handles all the work need to be done in order to generate a job
+:param additional_settings_dict: If any additional settings are in place</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.measurement_job_generation.generate_strip">
+<code class="descname">generate_strip</code><span class="sig-paren">(</span><em>header</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#measurement_job_generation.generate_strip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.measurement_job_generation.generate_strip" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function generate all tha has to do with strip scans
+:param header: Additional header
+:return: strip job dictionary</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="table-control">
+<h2>Table control<a class="headerlink" href="#table-control" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="utilities.table_control_class">
+<em class="property">class </em><code class="descclassname">utilities.</code><code class="descname">table_control_class</code><span class="sig-paren">(</span><em>main_variables</em>, <em>device</em>, <em>queue_to_GUI</em>, <em>shell</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles all interactions with the table. Movement, status etc.
+This class is designed to be running in different instances.</p>
+<dl class="method">
+<dt id="utilities.table_control_class.check_if_ready">
+<code class="descname">check_if_ready</code><span class="sig-paren">(</span><em>timeout=0</em>, <em>maxcounter=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class.check_if_ready"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class.check_if_ready" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks if the movement of the table is done or not
+:param timeout: Timeout how long to wait between the attempts
+:param maxcounter: How often does the function try to get an answer, -1 infinite
+:return: 0 if ok error if not</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.table_control_class.check_position">
+<code class="descname">check_position</code><span class="sig-paren">(</span><em>desired_pos</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class.check_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class.check_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks if two positions are equal or not</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>desired_pos</strong> – The position it should be</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">0 if ok error if not</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.table_control_class.get_current_position">
+<code class="descname">get_current_position</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class.get_current_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class.get_current_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Queries the current position of the table and writes it to the state machine</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.table_control_class.initiate_table">
+<code class="descname">initiate_table</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class.initiate_table"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class.initiate_table" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function triggers the table initiation</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">0 if ok error if not</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.table_control_class.move_down">
+<code class="descname">move_down</code><span class="sig-paren">(</span><em>lifting</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class.move_down"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class.move_down" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function moves the table down</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lifting</strong> – hight movement</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">none or errorcode</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.table_control_class.move_to">
+<code class="descname">move_to</code><span class="sig-paren">(</span><em>position</em>, <em>move_down=True</em>, <em>lifting=800</em>, <em>relative_move=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class.move_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class.move_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function moves the table to the desired position. position is a list of coordinates
+The move down parameter can prohibits a down and up movement with the move, !!!!USE WITH CARE!!!!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">None or errorcode</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.table_control_class.move_to_strip">
+<code class="descname">move_to_strip</code><span class="sig-paren">(</span><em>pad_file</em>, <em>strip</em>, <em>transfomation_class</em>, <em>T</em>, <em>V0</em>, <em>height_movement=800</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class.move_to_strip"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class.move_to_strip" title="Permalink to this definition">¶</a></dt>
+<dd><p>Moves to a specific strip</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>transfomation_class</strong> – </li>
+<li><strong>height_movement</strong> – How much should the table move down</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None or errorcode</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.table_control_class.move_up">
+<code class="descname">move_up</code><span class="sig-paren">(</span><em>lifting</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class.move_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class.move_up" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function moves the table up</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lifting</strong> – hight movement</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">none or errorcode</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.table_control_class.relative_move_to">
+<code class="descname">relative_move_to</code><span class="sig-paren">(</span><em>position</em>, <em>move_down=True</em>, <em>lifting=800</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class.relative_move_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class.relative_move_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function moves the table to the desired position (relative). position is a list of coordinates
+The move down parameter can prohibit a down and up movement with the move, !!!!USE WITH CARE!!!!</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">none or error code</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.table_control_class.set_axis">
+<code class="descname">set_axis</code><span class="sig-paren">(</span><em>axis_list</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class.set_axis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class.set_axis" title="Permalink to this definition">¶</a></dt>
+<dd><p>This sets the axis on or off. axis_list must contain a list of type [x=bool, y=bool, z=bool]</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.table_control_class.set_joystick_speed">
+<code class="descname">set_joystick_speed</code><span class="sig-paren">(</span><em>speed</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class.set_joystick_speed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class.set_joystick_speed" title="Permalink to this definition">¶</a></dt>
+<dd><p>This sets the speed for the joystick</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.table_control_class.stop_move">
+<code class="descname">stop_move</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class.stop_move"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class.stop_move" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function stops the table movement immediately</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="switching-control">
+<h2>Switching control<a class="headerlink" href="#switching-control" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="utilities.switching_control">
+<em class="property">class </em><code class="descclassname">utilities.</code><code class="descname">switching_control</code><span class="sig-paren">(</span><em>settings</em>, <em>devices</em>, <em>queue_to_main</em>, <em>shell</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#switching_control"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.switching_control" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles all switching controls of all switching matrices</p>
+<dl class="method">
+<dt id="utilities.switching_control.apply_specific_switching">
+<code class="descname">apply_specific_switching</code><span class="sig-paren">(</span><em>switching_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#switching_control.apply_specific_switching"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.switching_control.apply_specific_switching" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function takes a dict of type {“Switching”: [/switch nodes], ….} and switches to these specific type</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.switching_control.build_command">
+<code class="descname">build_command</code><span class="sig-paren">(</span><em>device</em>, <em>command_tuple</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#switching_control.build_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.switching_control.build_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the command correctly, so that device recognise the command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>device</strong> – device dictionary</li>
+<li><strong>command_tuple</strong> – command, value</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.switching_control.check_switching_action">
+<code class="descname">check_switching_action</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#switching_control.check_switching_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.switching_control.check_switching_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks what channels are closed on all switching devices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.switching_control.pick_switch_response">
+<code class="descname">pick_switch_response</code><span class="sig-paren">(</span><em>device</em>, <em>current_switching</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#switching_control.pick_switch_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.switching_control.pick_switch_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function picks the string response and returns a list.
+:param current_switching: is a string containing the current switching</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.switching_control.reset_switching">
+<code class="descname">reset_switching</code><span class="sig-paren">(</span><em>device='all'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#switching_control.reset_switching"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.switching_control.reset_switching" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function resets all switching or one device switching
+:param device: all oder device object:</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="utilities.switching_control.switch_to_measurement">
+<code class="descname">switch_to_measurement</code><span class="sig-paren">(</span><em>measurement</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#switching_control.switch_to_measurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.switching_control.switch_to_measurement" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function switches all switching systems to a specific measurement type</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>measurement</strong> – string e.g. “IV”, “CV” must be defined in the switching dict</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">true or false, so if switching was successfull or not</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="tutorial.html" class="btn btn-neutral" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Dominic Bloech.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.9.4',
+            LANGUAGE:'None',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
