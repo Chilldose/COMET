@@ -34,7 +34,7 @@ python main.py
 
 ## How to Use
 
-Since I have not got time to write the how to, this has to stay empty for now. But you can try to figure it out yourself. Its not that hard, since its has a GUI.
+There is a documentation and a section called "Tutorial", this will guide you through the process of how to use this software and it will give you even more additional information about the software. You can access the documention via this [Link](https://chilldose.github.io/UniDAQ/) or if you look into the folder ~/docs/index.html.
 
 
 
