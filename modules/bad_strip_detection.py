@@ -2,10 +2,9 @@
 # It is based on the bad strip detection of M. Valentan but was improved by D. Blöch
 
 import numpy as np
-from lms_line import *
 import math
 import copy
-import matplotlib as plt
+
 
 class bad_strip_detection:
     """Class which provides all necessary functions for bad strip detection, for more information on its capabilites
@@ -37,7 +36,7 @@ class bad_strip_detection:
         pass
 
     def temperatur_correction(self):
-        """Takes strips and makes a temperature correction of the strip """
+        """Takes strips and makes a temperature correction of the strip"""
         pass
 
     def generate_plot(self):
@@ -52,4 +51,22 @@ class bad_strip_detection:
 
     def do_analyzation(self):
         """This analyzes the data given and returns the error plots and text"""
+        pass
+
+    def do_online_cutoff_analysis(self):
+        """ Does the online cutoff analysis.
+        This function returns False if one or more strip values did not pass the specs. Can also work if only one value
+        after the other is passed.
+        """
+        pass
+
+    def do_online_badstrip_detection(self, events):
+        """
+        This functions calls the actual online bad strip detection analysis stripts and will return a False if one or
+        more strips show bad behavior.
+
+        :param events: Is a dictionary containing key: measurement and value: the measured value.
+                       if it is a list of dictionaries, the program will interpret cross relations as well
+        :return:
+        """
         pass

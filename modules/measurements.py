@@ -72,8 +72,10 @@ class measurement_class:
             # Start the light that the measurement is running
             self.external_light(self.devices["lights_controller"], True)
             self.make_measurement_plan()
-            sleep(0.5)
+            sleep(0.1)
             self.external_light(self.devices["lights_controller"], False)
+            self.close_measurement_files()
+
 
         else:
             l.info("Measurement was not conducted, due to failure in setup check!")
@@ -81,6 +83,13 @@ class measurement_class:
         # -------------------------------------------------------------------------------
 
         self.queue_to_event_loop.put({"Status":{"MEASUREMENT_FINISHED": True}}) # States that the measurement is finished
+
+    def close_measurement_files(self):
+        """
+        This function closes all measurement files which have been opend during a measurement run
+        """
+        for file in self.measurement_files.values():
+            file.close()
 
     def external_light(self, device_dict, bool):
         '''Turns the light on when measurements are running'''
@@ -104,16 +113,17 @@ class measurement_class:
 
 
     def estimate_duration(self, start_time):
-        # Estimate time
-        # Will not be correct, since CV usually is faster, but it is just a estimation.
-        # -----------------------------------------------------------------------------
-        # Start and end timer. all of this quick and dirty but it will suffice
-        #self.settings["Defaults"]["Start_time"] = datetime.datetime.now()
+        """Estimate time
+        Will not be correct, since CV usually is faster, but it is just a estimation.
+        -----------------------------------------------------------------------------
+        Start and end timer. all of this quick and dirty but it will suffice"""
+        # self.settings["Defaults"]["Start_time"] = datetime.datetime.now()
         est_end = 0
         for measurements in self.list_strip_measurements:
             # Loop over all strip measurements
             if measurements in self.job_details.get("stripscan", {}):
                 est_end += float(self.total_strips)*float(self.settings["Defaults"]["strip_scan_time"])
+                break # breaks out of loop if one measurement was found
 
 
         if "IV" in self.job_details.get("IVCV", {}):
@@ -268,11 +278,21 @@ class measurement_class:
         if do_anyway:
             stop = False
 
+        counter = 0
         while not steady_state and not stop and check_complience:
+
+            if counter > 5:
+                # If too many attempts where made
+                l.warning("Attempt to reach steady state was not successfull after 5 times")
+                self.queue_to_main.put({"Warning": "Attempt to reach steady state was not successfull after 5 times"})
+                return False
+
+            counter += 1
+
             values = []
             if complience:
                 if self.check_complience(device, float(complience)):
-                    self.main.stop_measurement = True
+                    self.stop_measurement()
                     return False
 
             for i in range(samples):
@@ -542,11 +562,10 @@ class measurement_class:
                 return False
 
 
-
-
-            #else:
-            #    self.queue_to_main.put({"MeasError": "An error occured while trying to discharge the decouplebox capacitors. No steady state could be reached. Please discharge them manually"})
-            #    l.error("An error occured while trying to discharge the decouplebox capacitors. No steady state could be reached. Please discharge them manually")
+    def stop_measurement(self):
+        """Stops the measurement"""
+        order = {"ABORT_MEASUREMENT": True}  # just for now
+        self.main.queue_to_main.put(order)
 
 
 if __name__ == "__main__":

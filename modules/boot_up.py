@@ -13,7 +13,8 @@ l = logging.getLogger(__name__)
 
 #This class checks if all modules are installed
 class check_installation:
-    '''This class checks if all necessary modules are installed. And tries to install missing modules'''
+    '''This class checks if all necessary modules are installed. And tries to install missing modules.
+    All this is a very simple and should not be used to verify anything. '''
 
     def __init__(self):
 
@@ -59,7 +60,15 @@ class check_installation:
                     print "Module " + modules + " is not installed."
 
 class loading_init_files:
-    '''This class is for loading all init files, pad files and default parameters.'''
+    '''This class is for loading all init files, pad files and default parameters.
+    This class is crucial for the program to work. All works within the init function of this class.
+    It generates three new dicts which can be accessed from the class as class attributes
+
+    self.devices_dict
+    self.pad_files_dict
+    self.default_values_dict
+
+    '''
 
     def __init__(self, hf):
 
@@ -169,9 +178,10 @@ class loading_init_files:
 
     def confloattry(self, value):
         """This function trys to convert a string to a float, else string is returned"""
-        if value.isdigit():
+
+        try:
             return float(value)
-        else:
+        except:
             return value
 
     def config_device_notation(self):
@@ -255,9 +265,11 @@ class loading_init_files:
         return dict
 
 class connect_to_devices:
-    '''This class simply handles the connections, returns a dictionary with all devices'''
+    '''This class simply handles the connections, generates a dictionary with all devices.
+    This can be accessed via self.get_new_device_dict()'''
 
     def __init__(self, vcw, device_dict):
+        """Actually does everythin on its own"""
 
         self.vcw = vcw
         self.device_dict = device_dict
@@ -331,6 +343,7 @@ class connect_to_devices:
         self.new_device_dict = self.append_resource_to_device_dict() # Appends the resources to the decice dict
 
     def get_new_device_dict(self):
+        """Returns all connected devices."""
         return self.new_device_dict
 
     def append_resource_to_device_dict(self): #better way
@@ -366,15 +379,26 @@ class connect_to_devices:
         #        print "No Visa resources listed for device " + device_dict[device]["Display_name"] + "."
 
 class update_defaults_dict:
-    '''This function checks if all values are included in the defaults values dict, for a working program'''
+    '''A class with two members. self.update takes an dict which updates the default values dict with the given fict.
+    The other one self.to_update returns a dict. This can be extended, if the default values dict needs additional
+    parameters.'''
 
     def update(self,dict):
+        """
+        Updates the defaults values dict
+        :param dict: the dictionary which will be updated to the default values dict
+        """
         for keys in self.to_update().keys():
             dict["Defaults"][keys] = self.to_update()[keys]
         return dict.copy()
 
 
     def to_update(self):
+        """
+        It only returns a dict of parametes, which are additional parameters for the state machine. Can be extendent
+        with importan items for the framework to work.
+        :return: dict
+        """
         return {"End_time": "NaN",
                 "Start_time": "NaN",
                 "Bad_strips": 0,

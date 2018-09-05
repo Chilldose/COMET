@@ -222,7 +222,6 @@ class help_functions:
         except IOError:
             print(str(filepath + filename) + " is not an existing file.")
 
-
     # Closes a file (just needs the file pointer)
     def close_file(self, file):
         """
@@ -336,13 +335,11 @@ class help_functions:
             VisaResource.write(instrument_to_write, str(order_code) + " " + str(0))
         # These function is for ramping up or down
 
-
     def int2dt(self, ts, ts_mult = 1e3):
         """
         Convert seconds value into datatime struct which can be used for x-axis labeeling
         """
         return datetime.datetime.utcfromtimestamp(float(ts) / ts_mult)
-
 
     def get_timestring_from_int(self, time_array, format = "%H:%M:%S"):
         """
@@ -352,7 +349,6 @@ class help_functions:
         for value in time_array:
             list.append((value, self.int2dt(value,1).strftime(format)))
         return list
-
 
     def get_thicks_for_timestamp_plot(self, time_array, max_number_of_thicks = 10, format = "%H:%M:%S"):
         """
@@ -367,7 +363,6 @@ class help_functions:
             for i in range(0, length, delta):
                 final_thicks.append((time_array[i], self.int2dt(time_array[i],1).strftime(format)))
         return final_thicks
-
 
     class CAxisTime(pg.AxisItem):
         """Over riding the tickString method by extending the class"""
@@ -450,7 +445,6 @@ class LogFile:
     """
     This class handles the Logfile for the whole framework
     """
-
     def __init__(self, logging_level = "debug"):
         """
         Initiates the logfile with the logging level
@@ -488,7 +482,6 @@ class LogFile:
 
         # Print welcome message
         self.LOG.critical(self.welcome_string)
-
 
     #Simply changes the string input to a int for the logging level
     def get_logging_level(self):
@@ -545,7 +538,6 @@ class transformation_old:
     def vector_transform(self,v,T):
         '''This function transform one vector into the basis of another'''
         return T.dot(v)
-
 
     def transformation_matrix(self, a, b):
         '''Calculates the transformation matrix of the system.
@@ -766,7 +758,6 @@ class measurement_job_generation:
             return final_dict
         else:
             return {} # If the dict consits only of one element (only the header)
-
 
 class table_control_class:
     '''This class handles all interactions with the table. Movement, status etc.

@@ -4,7 +4,11 @@ import cmd, types
 from threading import Thread
 
 class DAQShell(cmd.Cmd):
-    """This class is for the commandline interface of the DAQ software"""
+    """This class is for the commandline interface of the DAQ software.
+    Every function stated with 'do_' will be executable in the unidaq shell.
+    If you want to add additional functions, you can pass an callable object to
+    self.add_cmd_command(obj) and you also can access it in the shell.
+    Use list to show all available commands"""
     intro = '\n\nWelcome to the UniDAQ Shell.   \n' \
             'Type help or ? to list commands concerning generall help.\n' \
             'Type list to list all commands within the UniDAQ framework. \n' \
@@ -44,8 +48,6 @@ class DAQShell(cmd.Cmd):
         print "=================================================="
         print "For more information to the methods type help <topic>"
 
-
-
     def start(self):
         "Starts the actual thread in which the shell is running"
         cmd.Cmd.__init__(self)
@@ -71,7 +73,7 @@ class DAQShell(cmd.Cmd):
         return line
 
     def postcmd(self, retval, line):
-        """Just the pre command"""
+        """Just the post command"""
         if "list" not in line and line.split()[0] in self.list_of_objects_str:
             try:
                 print "Executed command:".ljust(30) + str(line)

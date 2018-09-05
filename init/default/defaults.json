@@ -84,8 +84,8 @@
     ], 
     "update_counter": 46, 
     "lights_controller": "Brand Box", 
-    "strip_scan_time": 9.452639309, 
-    "IVCV_time": 56.60692029151892, 
+    "strip_scan_time": 10.0, 
+    "IVCV_time": 1000., 
     "current_selected_browser_value": "Defaults", 
     "IV_scan": [
         0.0, 
@@ -131,6 +131,7 @@
     "current_hummin": 20, 
     "2410SMU": "SMU2", 
     "Operator": [
+    	"Markus",
         "Dominic", 
         "Axel", 
         "Thomas", 

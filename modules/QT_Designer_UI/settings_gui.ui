@@ -2169,5 +2169,53 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>doCint_checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frame_9</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>874</x>
+     <y>653</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>874</x>
+     <y>705</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doCback_checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frame_10</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>874</x>
+     <y>756</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>874</x>
+     <y>808</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doCintAC_checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frame_11</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>874</x>
+     <y>859</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>874</x>
+     <y>911</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>
