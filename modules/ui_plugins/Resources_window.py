@@ -70,12 +70,12 @@ class Resources_window:
                 instrument.device_name_label.setText(device_dict["Device_name"])
                 instrument.device_IDN_label.setText(device_dict["Device_IDN"])
 
-                if type(device_dict["Device_type"]) == list:
+                if type(device_dict.get("Device_type", "MissingNo")) == list:
                     device_type = ""
                     for items in device_dict["Device_type"]:
                         device_type += str(items) + ", "
                 else:
-                    device_type = str(device_dict["Device_type"])
+                    device_type = str(device_dict.get("Device_type", "MissingNo"))
                 instrument.device_assigned_to_label.setText(device_type)
 
                 # To be checked values

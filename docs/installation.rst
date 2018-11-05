@@ -44,4 +44,4 @@ try to start a resource manager ::
     >>> print(rm.list_resources())
 
 If this code does not yield any errors, UniDAQ was correctly installed on your system. And if some devices are already
-connected to your system these should be listed now.
+connected to your system these should be listed now..

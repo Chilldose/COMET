@@ -1,5 +1,4 @@
-{
-    "set_umotgrad": "setumotgrad", 
+{    "set_umotgrad": "setumotgrad", 
     "calibrate_motor": [
         "calibrate", 
         "rm"
@@ -33,7 +32,7 @@
     "default_motiondir": [
         "1 1", 
         "1 2", 
-        "0,3"
+        "0 3"
     ], 
     "default_mode": "0", 
     "table_xmin": "0.0", 
@@ -57,41 +56,29 @@
     ], 
     "set_speed": "setvel", 
     "table_xmax": "97300.0", 
-    "move_to": "move", 
+    "set_move_to": "move",
+    "CSV_move_to": "x,y,z",
     "selftest": "selftest", 
     "Connection_type": "RS232:1", 
     "all_done": "status", 
     "get_axis": "getaxis", 
     "set_motiondir": "setmotiondir", 
-    "relative_move_to": "rmove", 
+    "set_relative_move_to": "rmove",
+"CSV_relative_move_to": "x,y,z",
     "Baud_rate": "9600", 
-    "reset_device": [
-        "restore", 
-        "ico", 
-        "clear"
-    ], 
+    "reset_device": ["restore", "ico", "clear"],
     "get_position": "pos", 
-    "default_axis": [
-        "1 1", 
-        "1 2", 
-        "1 3"
-    ], 
+    "default_axis": ["1 1", "1 2", "1 3"], 
+"separator": " ",
     "Device_IDN": "Corvus 1 462 1 0", 
     "set_pitch": "setpitch", 
     "set_joystick": "joystick", 
     "table_zmin": "0.0", 
     "set_joysticktype": "setjoysticktype", 
     "Display_name": "Corvus", 
-    "default_umotmin": [
-        "1850 1", 
-        "1850 2", 
-        "1850 3"
-    ], 
+    "default_umotmin": ["1850 1", "1850 2", "1850 3"], 
     "device_IDN_query": "identify", 
-    "default_polepairs": [
-        "50 1", 
-        "50 2", 
-        "50 3"
-    ], 
-    "set_polepairs": "setpolepairs"
+    "default_polepairs": ["50 1", "50 2", "50 3"], 
+    "set_polepairs": "setpolepairs",
+    "execution_terminator": ""
 }

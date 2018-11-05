@@ -1,14 +1,14 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 2.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 2.7" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Tutorials &mdash; UniDAQ 0.9.4 documentation</title>
+  <title>Tutorials &mdash; UniDAQ beta documentation</title>
   
 
   
@@ -56,6 +56,10 @@
 
           
             
+            
+              <div class="version">
+                0.9.4
+              </div>
             
           
 
@@ -195,7 +199,7 @@ If features a simple GUI based program, in which you can generate your own GUI a
 It contains a GUI which dynamically shows all connected devices to UniDAQ</p>
 <p>Put the file in: <code class="docutils literal notranslate"><span class="pre">.modules/QT_Designer_UI</span></code></p>
 <p>Next we have to tell the Program to render this UI and in which order (when you have more than one UI). Open the <code class="docutils literal notranslate"><span class="pre">**defaults.json**</span></code>
-file from before and add in “GUI_render_order” the list entry “Resources”.</p>
+file from before and add in &quot;GUI_render_order&quot; the list entry &quot;Resources&quot;.</p>
 <p>Know we have to write some code, that the this UI has some logic. For this we generate a file in the folder <code class="docutils literal notranslate"><span class="pre">.modules/ui_plugins</span></code>.
 This file we call <code class="docutils literal notranslate"><span class="pre">Resources_window.py</span></code>.</p>
 <p>The minimal example to run just the GUI without anything else is as follows:</p>
@@ -227,7 +231,7 @@ member functions to it and access the ui classes e.g. buttons and so on via <cod
 <p class="first admonition-title">Note</p>
 <p class="last">If you look at the code, you will see, that I did not complie to the code example above, on how to implement a new GUI element. This is due to some additional logic I have implemented. Go and check it out how it works!</p>
 </div>
-<p>If you restart UniDAQ you should see … nothing except for a little window tab called “Resources”. Wow, what an achievement!
+<p>If you restart UniDAQ you should see ... nothing except for a little window tab called &quot;Resources&quot;. Wow, what an achievement!
 To change this nothingness, proceed to the next chapter and learn how to add a decvice.</p>
 </div>
 <div class="section" id="how-to-add-a-new-device">
@@ -270,11 +274,11 @@ Out of both a command will be build.</p>
 </div>
 <p>Now that you have added all crucial commands for a device save it and restart UniDAQ, the result should look like</p>
 <img alt="UniDAQ" class="floatingflask" src="_images/UniDAQ_resources.png" />
-<p>In a very short time we have achieved alot, woudn’ ya say? You now can add as many GUI elements and devices as you want and also add
+<p>In a very short time we have achieved alot, woudn' ya say? You now can add as many GUI elements and devices as you want and also add
 the logic to it.</p>
 <p>I would recommend to keep the code you have written now. It may come handy to know what and how many devices are definde/connected
 to the framework.</p>
-<p>Furthermore, I would recommend to add further GUI elements from the repo, especially the “Data_Browser” will come in handy.
+<p>Furthermore, I would recommend to add further GUI elements from the repo, especially the &quot;Data_Browser&quot; will come in handy.
 With it you can browse all json files (and more) you have just created. Furthermore, you can manipulate, add and save the data
 easily.</p>
 </div>
@@ -283,8 +287,8 @@ easily.</p>
 <p>In this final tutorial I will show you how to add a measurement plugin as easily as the GUI plugins from the previous section.
 In order to not program a full GUI, please add the GUI elements <strong>Main_window.py</strong> and <strong>Settings_window.py</strong> as well as
 their UI files from the repo.</p>
-<p>First you need to implement a “Project”, this can be done if you open a new directory in <code class="docutils literal notranslate"><span class="pre">.init/Pad_files</span></code>, where
-the directory name resembles a “Project”.</p>
+<p>First you need to implement a &quot;Project&quot;, this can be done if you open a new directory in <code class="docutils literal notranslate"><span class="pre">.init/Pad_files</span></code>, where
+the directory name resembles a &quot;Project&quot;.</p>
 <p>Padfile missing</p>
 <p>In order for them to work you have to add a few items into the <strong>defaults.json</strong> file, so please add</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
@@ -344,8 +348,8 @@ the directory name resembles a “Project”.</p>
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.9.4',
-            LANGUAGE:'None',
+            VERSION:'beta',
+            LANGUAGE:'Python 2.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

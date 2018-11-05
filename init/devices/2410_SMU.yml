@@ -8,7 +8,7 @@
     "set_measure_current": "SENS:FUNC 'CURR'", 
     "default_terminal": "REAR", 
     "Read": "READ?", 
-    "set_source_voltage": "SOUR:FUNC VOLT", 
+    "set_source_voltage": "SOUR:FUNC VOLT",
     "set_voltage_range": "SOUR:VOLT:RANG ", 
     "default_reading_mode": "CURR", 
     "Device_type": "SMU", 
@@ -24,7 +24,7 @@
     "default_voltage_range": "1000", 
     "set_complience": "SENS:CURR:PROT ", 
     "set_terminal": "ROUT:TERM", 
-    "Baud_rate": 57600, 
+    "Baud_rate": 57600,
     "set_voltage": "SOUR:VOLT:LEV ", 
     "Device_IDN": "KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H", 
     "imp:default_voltage_mode": "FIXED", 
@@ -32,5 +32,6 @@
     "default_complience": "100E-6", 
     "default_beep": "OFF", 
     "set_output": "OUTP ", 
-    "set_voltage_mode": "SOUR:VOLT:MODE "
+    "set_voltage_mode": "SOUR:VOLT:MODE ",
+    "set_reset_measure": ":SENS:FUNC:OFF: 'VOLT'"
 }

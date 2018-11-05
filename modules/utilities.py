@@ -17,7 +17,7 @@ import os, sys, os.path, re
 from time import sleep
 import time
 import threading
-import logging, json
+import logging, yaml
 from PyQt5 import QtCore
 import numpy as np
 from numpy.linalg import solve, norm, det, qr, inv
@@ -58,23 +58,23 @@ class help_functions:
         except:
             pass
 
-        if os.path.isfile(os.path.abspath(str(path) + str(name.split(".")[0]) + ".json")):
+        if os.path.isfile(os.path.abspath(str(path) + str(name.split(".")[0]) + ".yaml")):
 
-            os.remove(os.path.abspath(path + str(name.split(".")[0]) + ".json"))
+            os.remove(os.path.abspath(path + str(name.split(".")[0]) + ".yaml"))
             #directory = path[:len(path)-len(path.split("/")[-1])]
-            file = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".json")
+            file = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
 
-            json.dump(data, file, indent=4, ensure_ascii=False)
+            yaml.dump(data, file, indent=4, ensure_ascii=False)
 
             self.close_file(file)
 
-        elif not os.path.isfile(os.path.abspath(path + str(name.split(".")[0]) + ".json")):
+        elif not os.path.isfile(os.path.abspath(path + str(name.split(".")[0]) + ".yaml")):
 
             #directory = path[:len(path) - len(path.split("/")[-1])]
 
-            file = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".json")
+            file = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
 
-            json.dump(data, file, indent=4, ensure_ascii=False)
+            yaml.dump(data, file, indent=4)
 
             self.close_file(file)
 
@@ -299,42 +299,6 @@ class help_functions:
                                 "Complience": complience}}}
         queue.put(job)
 
-    # These function is for ramping up or down (not final)
-    def ramp_voltage(self, VisaResource, instrument, order_code, max_value, ramp_steps, time_to_wait, ramp_up=True):
-        """
-        Deprecated
-        This function ramps a value by sending commands after a timeout. Usage, ramping voltage for a device
-
-        :param VisaResource: Device which gets the commands
-        :param instrument:
-        :param order_code:  Code which has to be send
-        :param max_value: Maximum value from where to be ramped
-        :param ramp_steps: Stepssize
-        :param time_to_wait: waitingtime
-        :param ramp_up: Whether or not to ramp from abs up or down
-        :return:
-        """
-        print("Warning old ramp function was used!!!")
-
-        step_size = round(max_value / ramp_steps, 0)
-        instrument_to_write = VisaResource.myInstruments[instrument]
-
-        for voltage in range(ramp_steps + 1):
-
-            if ramp_up:
-                VisaResource.write(instrument_to_write, str(order_code) + " " + str(voltage * step_size))
-                sleep(time_to_wait)
-            else:
-                VisaResource.write(instrument_to_write, str(order_code) + " " + str((ramp_steps - voltage) * step_size))
-                sleep(time_to_wait)
-
-        if ramp_up:
-            VisaResource.write(instrument_to_write, str(order_code) + " " + str(max_value))
-
-        else:
-            VisaResource.write(instrument_to_write, str(order_code) + " " + str(0))
-        # These function is for ramping up or down
-
     def int2dt(self, ts, ts_mult = 1e3):
         """
         Convert seconds value into datatime struct which can be used for x-axis labeeling
@@ -378,6 +342,217 @@ class help_functions:
         def int2dt(ts, ts_mult=1e3):
             """Convert seconds value into datatime struct which can be used for x-axis labeeling"""
             return (datetime.utcfromtimestamp(float(ts) / ts_mult))
+
+    def build_command(self, device_dict, command_tuple):
+        """
+        This function correctly builds the command structure for devices.
+        You must pass the device object dictionary with all parameters and a command tuple, consisting of:
+        Command: A command specified in the device object.
+        Value: A string or a list of commands which are the value the command is send with. (Also possible '[a,b,c]' etc.)
+
+        If a syntax key is present in the device object like: 'syntax': '(@###)' the char between the # will be pre and appended, to the values, respectively
+        If a key has a corresponing CSV prepended, like get_position = pos and CSV_get_position = x,y,z, the value passed need
+        to have at least as much values, or the missing values WILL be filled with 0. (the CSV is actually not needed, this is for security reasons, so you dont forget something)
+        Furthermore, if a seperator key is present, you can specify how the CSV command is seperated, standard is a single space.
+        If the key command_order is specified either with 1 or -1 the logical order of the command is reversed, so with -1
+        the values are comming first then the actual command. When nothing is specified a 1 is assumed
+
+        If you pass a list in values, all of these will be generate a return list with each list values a complete command, even when you have a different separator specified
+        If you want a correct one specify a CSV command. Non list object will be ignored and alle appended to a long command
+
+        If you just pass a string, not a tuple only the command will be returned
+
+        If a terminator key is in the object, this will be automatically be appended
+
+        If the key: no_syntax_with_single_commmand is prevalent, the command build (when only a string is passed)will only return the command without syntax (if specified)
+
+        Return value is usually a string with the command. Except if your command consists of a list e.g you want:
+        device_dict[command] => ["comA", "comB"], then both commands will be build with the values and a list of both commands will be returned
+
+
+        :param device: device dictionary
+        :param command_tuple: (command, value), can also be a string for a final command
+        :return string or list, depending if dict[command] is a list or a string
+        """
+        command = " " # The final command which should be send in the end
+        return_list = [] # Is list of commands which can be returned if need be
+        only_command = False # Flag if only a command was passed, important if such a command doesnt need syntax!
+
+        if type(command_tuple) == unicode or type(command_tuple)== str or type(command_tuple)== float or type(command_tuple)== int:
+            command_tuple = (str(command_tuple),"") # so only tuple are now prevelent
+            only_command = True
+        elif type(command_tuple[1]) == list:
+            command_tuple = (command_tuple[0], [str(x) for x in command_tuple[1]]) # so no unicode is present
+
+        # Preparations
+        # look for a syntax (paranteses and so on)
+        if "syntax" in device_dict:
+            syntax = str(device_dict["syntax"])
+            syntax = syntax.split("###")
+            if not syntax[0]:
+                syntax = ["", ""]  # Most devices have no paranteses or whatsoever
+        else:
+            syntax = ["",""] # Most devices have no paranteses or whatsoever
+
+        #Looks if a separator is needed to sepatare mulitple orders
+        if "separator" in device_dict:
+            sepa = str(device_dict["separator"])
+        else:
+            sepa = " " # This should be the standard for most devices
+
+
+        if command_tuple[0] in device_dict:
+            # here all the magic happens
+            # First look if the order is swichted or not (command value, or value command)
+
+            # Check if multiple commands so list or so
+            if type(device_dict[command_tuple[0]]) == str or type(device_dict[command_tuple[0]]) == unicode:
+                command_list = [device_dict[command_tuple[0]]]
+            else:
+                command_list = device_dict[command_tuple[0]]
+
+            for command_item in command_list:
+                command_item = str(command_item)
+                command = ""
+
+                # Value -> Command
+                if int(device_dict.get("command_order", 1)) == -1:
+                    # Now look if a csv structure is necessary for the command to work
+                    start_ind = command_tuple[0].find("_")  # finds the index of the command, to search for
+                    if "CSV" + command_tuple[0][start_ind:] in device_dict:  # looks if an actual csv-command is there
+                        # Todo: test CSV command
+                        csv_commands = device_dict["CSV" + str(command_tuple[0])[start_ind:]]
+                        csv_commands = csv_commands.strip().strip("(").strip(")").strip("[").strip("]").strip()  # get rid of some caracters which should not be there
+                        csv_commands = csv_commands.split(",")  # now split it for easy access
+
+                        # Make sure you always got a list of the next commandblock will fail
+                        if type(command_tuple[1]) == list or type(command_tuple[1]) == tuple:
+                            value_list = command_tuple[1]
+                        elif type(command_tuple[1]) == str or type(command_tuple) == unicode:
+                            value_list = command_tuple[1].strip().strip("(").strip(")").strip("[").strip("]").strip().replace(" ", "")
+                            value_list = value_list.split(",")
+
+                        csv_list = ",".join(map(str,value_list)).strip().strip("(").strip(")").strip("[").strip("]").strip()
+                        csv_list = csv_list.split(",")
+
+                        for i, com in enumerate(csv_list):
+                            # here the input will be checked if enough parameters are passed for this command.
+                            # If not a 0 will be entered and a warning will be printed
+                            command += str(csv_list[i]).strip() + sepa
+
+                        if i+1 < len(csv_commands) and len(csv_commands)>1:
+                            for j in range(i+1, len(csv_commands)):  # Fill the rest of the missing paramters
+                                print "Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead."
+                                l.error("Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
+                                command += "0" + sepa
+
+                        command = command.strip(" ").strip(",")  # to get rid of last comma
+
+                    else:  # So if no CSV was found for this command, just build the command with the value and the separator
+                        # First check if a List is present or so
+                        if type(command_tuple[1]) == list or type(command_tuple[1]) == tuple:
+                            string = ""
+                            for item in command_tuple[1]:
+                                command =  syntax[1] + str(item) + " " + command_item
+                                command = command.strip()
+                                # Add a command terminator if one is needed and the last part of the syntax
+                                command += device_dict.get("execution_terminator", "")
+                                return_list.append(command)
+                            return return_list
+
+                        else: # If only a command was passed
+                            string = str(command_tuple[1])
+                            command += syntax[1] + str(string).strip()
+
+                            if only_command and device_dict.get("no_syntax_with_single_commmand", False) and syntax[1]!= " " and syntax[0]!= " ":
+                                command = command.replace(syntax[1], "")
+                                command = command.replace(syntax[0], "")
+
+                    #command += " " + str(device_dict[str(command_item)]).strip() + syntax[0]  # adds the order to the command
+                    command += " " + str(command_item).strip() + syntax[0]  # adds the order to the command
+                    # Add a command terminator if one is needed and the last part of the syntax
+                    command = command.strip()
+                    command += device_dict.get("execution_terminator", "")
+                    #command += syntax[0]  # adds the order to the command
+                    return_list.append(command)
+
+                #Command -> Value
+                else:
+                    command += str(command_item).strip() + " " + syntax[0] # adds the order to the command
+
+                    # Now look if a csv structure is necessary for the command to work
+                    start_ind = command_tuple[0].find("_") # finds the index of the command, to search for
+                    if "CSV" + command_tuple[0][start_ind:] in device_dict: # looks if an actual csv-command is there
+                        #Todo: test CSV command
+                        csv_commands = device_dict["CSV" + str(command_tuple[0])[start_ind:]]
+                        csv_commands = csv_commands.strip().strip("(").strip(")").strip("[").strip("]").strip() # get rid of some caracters which should not be there
+                        csv_commands = csv_commands.split(",")  # now split it for easy access
+
+                        # Make sure you always got a list of the next commandblock will fail
+                        if type(command_tuple[1]) == list or type(command_tuple[1]) == tuple:
+                            value_list = command_tuple[1]
+                        elif type(command_tuple[1])==str or type(command_tuple)==unicode:
+                            value_list = command_tuple[1].strip().strip("(").strip(")").strip("[").strip("]").strip().replace(" ", "")
+                            value_list = value_list.split(",")
+
+
+                        csv_list = ",".join(map(str,value_list)).strip().strip("(").strip(")").strip("[").strip("]").strip()
+                        csv_list = csv_list.split(",")
+
+                        for i, com in enumerate(csv_list):
+                            # here the input will be checked if enough parameters are passed for this command.
+                            # If not a 0 will be entered and a warning will be printed
+                            command += str(csv_list[i]).strip() + sepa + " "
+
+                        if i+1 < len(csv_commands) and len(csv_commands)>1:
+                            for j in range(i+1, len(csv_commands)):# Fill the rest of the missing paramters
+                                print "Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead."
+                                l.error("Warning: Not enough parameters passed for function: " + str(command_tuple[0]) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
+                                command += " " + "0" + sepa
+
+                        command = command.strip(" ").strip(",") # to get rid of last comma and space at the end if csv
+                        command +=  syntax[1]
+
+                    else: # So if no CSV was found for this command, just build the command with the value and the separator
+                        # First check if a List is present or so
+                        if type(command_tuple[1]) == list or type(command_tuple[1]) == tuple:
+                            string = ""
+                            for item in command_tuple[1]:
+                                command = str(item) + " " + command_item + syntax[1]
+                                command = command.strip()
+                                # Add a command terminator if one is needed and the last part of the syntax
+                                command += device_dict.get("execution_terminator", "")
+                                return_list.append(command)
+                            return return_list
+
+                        else: # If its just one value or no value
+                            string = str(command_tuple[1])
+                            command += string.strip() + syntax[1]
+                            command = command.strip()
+
+                            if only_command and device_dict.get("no_syntax_with_single_commmand", False) and syntax[1]!= " " and syntax[0]!= " ":
+                                command = command.replace(syntax[1], "")
+                                command = command.replace(syntax[0], "")
+
+                            # Add a command terminator if one is needed and the last part of the syntax
+                            command += device_dict.get("execution_terminator", "")
+                    return_list.append(command.strip())
+        else:
+            # If the command is not found in the device only command tuple will be send
+            print "Command " + str(command_tuple[0]) + " was not found in device! Unpredictable behavior may happen. No commad build!"
+            l.error("Command " + str(command_tuple[0]) + " was not found in device! Unpredictable behavior may happen. No commad build!")
+            return ""
+
+        # Add a command terminator if one is needed and the last part of the syntax
+        #command += device_dict.get("execution_terminator","")
+
+
+
+        # Todo: multiple commands return
+        if len(return_list) > 1:
+            return return_list
+        else:
+            return str(return_list[0])
 
 hf = help_functions()
 
@@ -452,8 +627,8 @@ class LogFile:
         """
 
         self.LOG_FORMAT = "%(levelname)s %(asctime)s in function %(funcName)s - %(message)s"
-        self.file_PATH = os.path.normpath(os.path.realpath(__file__)[:-30] + "/Logfiles/QTC_Logfile.log") # Filepath to Logfile directory
-        self.file_directory = os.path.normpath(os.path.realpath(__file__)[:-30] + "/Logfiles")
+        self.file_PATH = os.path.normpath(os.path.realpath(__file__)[:38] + "/Logfiles/QTC_Logfile.log") # Filepath to Logfile directory
+        self.file_directory = os.path.normpath(os.path.realpath(__file__)[:38] + "/Logfiles")
         self.logging_level = logging_level
         self.log_LEVELS = {"NOTSET": 0, "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50}
 
@@ -763,7 +938,7 @@ class table_control_class:
     '''This class handles all interactions with the table. Movement, status etc.
     This class is designed to be running in different instances.'''
 
-    def __init__(self, main_variables, device, queue_to_GUI, shell):
+    def __init__(self, main_variables, devices, queue_to_GUI, shell, vcw):
         """
 
         :param main_variables: Defaults dict
@@ -772,14 +947,16 @@ class table_control_class:
         :param shell: The UniDAQ shell object
         """
         self.variables = main_variables["Defaults"]
-        self.device = device
+        self.devices = devices
+        self.device = devices.get("Table_control", None)
         self.table_ready = self.variables["table_ready"]
         self.queue = queue_to_GUI
-        self.vcw = VisaConnectWizard.VisaConnectWizard()
+        self.vcw = vcw
         self.shell = None
+        self.build_command = hf.build_command
 
         try:
-            self.visa_resource = self.device["Visa_Resource"]
+            self.visa_resource = self.devices.get("Table_control",None)["Visa_Resource"]
             self.table_ready = True
         except:
             print ("Warning table control could not be initialized!")
@@ -788,48 +965,15 @@ class table_control_class:
             l.error("Table control could not be initialized!")
         self.zmove = self.variables["height_movement"]
 
-
-    def __build_command(self, order, values , command_order = 1):
-        '''
-        This function builds the correct orders together, it always returns a list,
-        if a order needs to be sended several times with different values
-        :param order: The actual command
-        :param values: List of values which need to be send alongside order
-        :param command_order: If the commands in the list should be sended reversed or not (-1, 1)
-
-        '''
-        if values:
-            if type(values) != list: # ensures we have a list
-                values_list = [values]
-            else:
-                values_list = values
-
-            full_command_list = []
-            if int(command_order) == 1:
-                for item in values_list:
-                    full_command_list.append(str(order)+ " " + str(item).strip())
-                return full_command_list
-
-            elif int(command_order) == -1:
-                for item in values_list:
-                    full_command_list.append(str(item) + " " + str(order))
-                return full_command_list
-
-            else:
-                l.error("Something went wrong with the building of the table command!")
-        else:
-            if type(order) != list: # ensures we have a list
-                return [order]
-            else:
-                return order
-
     def get_current_position(self):
         '''Queries the current position of the table and writes it to the state machine'''
         if self.table_ready:
-            while True: # Loop as long as there is a valid position from the corvus
+            max_attempts = 0
+            while max_attempts < 3: # Loop as long as there is a valid position from the corvus
                 try:
-                    command = self.__build_command(self.device["get_position"], "", self.device["command_order"])
-                    string = self.vcw.query(self.visa_resource, command[0],self.device.get("execution_terminator", "")).strip()
+                    string = "Error"
+                    command = self.build_command(self.device, "get_position")
+                    string = self.vcw.query(self.visa_resource, command).strip()
                     list = re.split('\s+', string)[:3]
                     self.device["x_pos"] = float(list[0])
                     self.device["y_pos"] = float(list[1])
@@ -837,6 +981,7 @@ class table_control_class:
                     return [float(i) for i in list]
                 except:
                     l.error("The corvus has replied with a non valid position string: " + str(string))
+                    max_attempts += 1
 
     def check_if_ready(self, timeout = 0, maxcounter = -1):
         '''
@@ -846,10 +991,10 @@ class table_control_class:
         :return: 0 if ok error if not
         '''
         # Alot of time can be wasted by the timeout of the visa read order
-        ready_command = self.__build_command(self.device["all_done"], "", self.device["command_order"])
+        ready_command = self.build_command(self.device, "all_done")
         counter = 0 # counter how often the read attempt will be carried out
         cal_not_done = True
-        self.vcw.write(self.visa_resource, ready_command[0], self.device.get("execution_terminator", ""))
+        self.vcw.write(self.visa_resource, ready_command)
         while cal_not_done:
             done = self.vcw.read(self.visa_resource)
 
@@ -858,25 +1003,25 @@ class table_control_class:
                 if counter > maxcounter:
                     cal_not_done = False #exits the loop after some attempts
 
-            if float(done) == -1: # case when corvus is busy and does not respond to anything
+            if float(done) == -1.: # case when corvus is busy and does not respond to anything
                 pass
 
-            elif float(done) == 1: # motors are in movement
-                self.vcw.write(self.visa_resource, ready_command[0], self.device.get("execution_terminator", "")) # writes the command again
+            elif float(done) == 1.: # motors are in movement
+                self.vcw.write(self.visa_resource, ready_command) # writes the command again
 
-            elif float(done) == 2: # joystick active
+            elif float(done) == 2.: # joystick active
                 cal_not_done = False
                 return {"RequestError": "Joystick of table control is active."}
 
-            elif float(done) == 4: # joystick active
+            elif float(done) == 4.: # joystick active
                 cal_not_done = False
                 return {"RequestError": "Table control is not switched on."}
 
-            elif float(done) > 4: # joystick active
+            elif float(done) > 4.: # joystick active
                 cal_not_done = False
                 return {"RequestError": "The table control reported an unknown error, with errorcode: " + str(done)}
 
-            elif float(done) == 0: # when corvus is read again
+            elif float(done) == 0.: # when corvus is read again
                 self.get_current_position()
                 cal_not_done = False
                 return 0
@@ -893,9 +1038,9 @@ class table_control_class:
         '''
         if self.table_ready and not self.variables["table_is_moving"]:
             self.variables["table_is_moving"] = True
-            commands = self.__build_command(self.device["calibrate_motor"], "", self.device["command_order"])
+            commands = self.build_command(self.device, ("calibrate_motor", ""))
             for order in commands:
-                self.vcw.write(self.visa_resource, order, self.device.get("execution_terminator", ""))
+                self.vcw.write(self.visa_resource, order)
                 errorcode = self.check_if_ready()
                 if errorcode == 0:
                         pos = self.get_current_position()
@@ -963,7 +1108,7 @@ class table_control_class:
             if not self.__already_there(pad_file, strip, transfomation_class, T, V0):
                 pad_pos = pad_file["data"][strip][1:4]
                 l.info("Moving to strip: {} at position {},{},{}.".format(strip, pad_pos[0], pad_pos[1], pad_pos[2]))
-                table_abs_pos = transfomation_class.vector_trans(pad_pos, T, V0)
+                table_abs_pos = list(transfomation_class.vector_trans(pad_pos, T, V0))
                 error = self.move_to(table_abs_pos, move_down=True, lifting = height_movement)
 
             self.variables["current_strip"] = int(strip+1)
@@ -993,30 +1138,33 @@ class table_control_class:
         if self.table_ready and not self.variables["table_is_moving"]:
             # get me the current position
             old_pos = self.get_current_position()
+            desired_pos = position[:]
 
             #Move the table down if necessary
             if move_down:
                 error = self.move_down(lifting)
+                if not relative_move:
+                    desired_pos[2] -= lifting # To counter the down movement
                 if error != 0:
                     return error
 
             # Change the state of the table
             self.variables["table_is_moving"] = True
-            pos_string = ""
+            #pos_string = ""
 
             # Build the position to move to
-            for i, pos in enumerate(position): # This is that the table is in the down position when moved
-                if move_down and i==2 and not relative_move:
-                    pos_string += str(float(pos)-float(lifting)) + " "
-                else:
-                    pos_string += str(pos) + " "
+            #for i, pos in enumerate(position): # This is that the table is in the down position when moved
+            #    if move_down and i==2 and not relative_move:
+            #        pos_string += str(float(pos)-float(lifting)) + " "
+            #    else:
+            #        pos_string += str(pos) + " "
 
             # Move the table to the position
             if relative_move:
-                move_command = self.__build_command(self.device["relative_move_to"], pos_string, self.device["command_order"])
+                move_command = self.build_command(self.device, ("set_relative_move_to", desired_pos))
             else:
-                move_command = self.__build_command(self.device["move_to"], pos_string, self.device["command_order"])
-            self.vcw.write(self.visa_resource, move_command[0], self.device.get("execution_terminator", ""))
+                move_command = self.build_command(self.device, ("set_move_to", desired_pos))
+            self.vcw.write(self.visa_resource, move_command)
             error = self.check_if_ready()
             if error != 0:
                 return error
@@ -1075,16 +1223,16 @@ class table_control_class:
         if self.table_ready:
 
             if bool:
-                command = self.__build_command(self.device["set_joystick"], "1", self.device["command_order"])
+                command = self.build_command(self.device, ("set_joystick", "1"))
             else:
-                command = self.__build_command(self.device["set_joystick"], "0", self.device["command_order"])
-            self.vcw.write(self.visa_resource, command[0], self.device.get("execution_terminator", ""))
+                command = self.build_command(self.device, ("set_joystick", "0"))
+            self.vcw.write(self.visa_resource, command)
 
     def set_joystick_speed(self, speed):
         '''This sets the speed for the joystick'''
         if self.table_ready:
-            command = self.__build_command(self.device["set_joy_speed"], str(speed), self.device["command_order"])
-            self.vcw.write(self.visa_resource, command[0], self.device.get("execution_terminator", ""))
+            command = self.build_command(self.device, ("set_joy_speed", str(speed)))
+            self.vcw.write(self.visa_resource, command)
 
     def set_axis(self, axis_list):
         '''This sets the axis on or off. axis_list must contain a list of type [x=bool, y=bool, z=bool]'''
@@ -1096,15 +1244,15 @@ class table_control_class:
                 else:
                     final_axis_list.append("0 " + str(i+1))
 
-            command = self.__build_command(self.device["set_axis"], final_axis_list, self.device["command_order"])
+            command = self.build_command(self.device, ("set_axis", final_axis_list))
             for com in command:
-                self.vcw.write(self.visa_resource, com, self.device.get("execution_terminator", ""))
+                self.vcw.write(self.visa_resource, com)
 
 
     def stop_move(self):
         '''This function stops the table movement immediately'''
         if self.table_ready:
-            command = self.__build_command(self.device["abort_movement"], "", self.device["command_order"])
+            command = self.build_command(self.device, ("abort_movement", ""))
             self.visa_resource.write(command)
 
 class switching_control:
@@ -1125,6 +1273,7 @@ class switching_control:
         self.devices = devices
         self.vcw = VisaConnectWizard.VisaConnectWizard()
         self.shell = None
+        self.build_command = hf.build_command
 
     def reset_switching(self, device="all"):
         '''
@@ -1140,12 +1289,15 @@ class switching_control:
 
     def check_switching_action(self):
         """Checks what channels are closed on all switching devices"""
+        current_switching = {}
         for devices in self.devices.values():
             if "Switching relay" in devices["Device_type"] and "Visa_Resource" in devices:
-                current_switching = str(self.vcw.query(devices["Visa_Resource"], devices["check_all_closed_channel"], devices.get("execution_terminator", ""))).strip()
-                current_switching = self.pick_switch_response(devices, current_switching)
+                command = self.build_command(devices, "check_all_closed_channel")
+                switching = str(self.vcw.query(devices, command)).strip()
+                switching = self.pick_switch_response(devices, switching)
+                current_switching.update({devices["Display_name"]: switching})
                 self.settings["Defaults"]["current_switching"][devices["Display_name"]] = current_switching
-                return current_switching
+        return current_switching
 
     def apply_specific_switching(self, switching_dict):
         """This function takes a dict of type {"Switching": [/switch nodes], ....} and switches to these specific type"""
@@ -1174,6 +1326,7 @@ class switching_control:
         :return: true or false, so if switching was successfull or not
         '''
 
+        #Todo: Brandbox is sended twice due to double occurance (humidity controller), but maybe its for the best, since the thing isnt working properly
         # First find measurement
         switching_success = False
         if measurement in self.settings["Switching"]:
@@ -1194,18 +1347,12 @@ class switching_control:
             self.message_to_main.put({"MeasError": "Measurement " + str(measurement) + " switching could not be found in defined switching schemes."})
             return False
 
-    def __send_switching_command(self, device, order, list_of_commands, syntax):
+    def __send_switching_command(self, device, order, list_of_commands):
         """Sends a switching command"""
         if list_of_commands:
             if list_of_commands[0]:
-                mult_commands = ""
-                for channel in list_of_commands:
-                    mult_commands += channel + ","
-                command = mult_commands[:-1]  # Get rid of last comma
-                if len(syntax) > 1:
-                    command = syntax[0] + command + syntax[1] # for the syntax
-                command = self.build_command(device, (order, command))
-                self.vcw.write(device["Visa_Resource"], command, device.get("execution_terminator", ""))  # Write new switching
+                command = self.build_command(device, (order, list_of_commands))
+                self.vcw.write(device, command)  # Write new switching
 
     def pick_switch_response(self, device, current_switching):
         '''
@@ -1213,9 +1360,9 @@ class switching_control:
         :param current_switching: is a string containing the current switching
 
         '''
-        syntax_list = device.get("switch_syntax", "")
+        syntax_list = device.get("syntax", "")
         if syntax_list:
-            syntax_list = syntax_list.split("channel")# gets me header an footer from syntax
+            syntax_list = syntax_list.split("###")# gets me header an footer from syntax
 
         # Warning 7001 keithley sometimes seperates values by , and sometimes by : !!!!!!!!!
         # Sometimes it also happens that it mixes everything -> this means that the channel from to are closed etc.
@@ -1251,8 +1398,10 @@ class switching_control:
             return current_switching.strip().split()  # now we have the right commands
 
     @hf.raise_exception
-    @hf.run_with_lock
+    #@hf.run_with_lock
     def change_switching(self, device, config): # Has to be a string command or a list of commands containing strings!!
+
+        #TODO: Switching better!!!
         '''
         Fancy name, but just sends the swithing command
 
@@ -1270,23 +1419,20 @@ class switching_control:
         else:
             self.message_to_main.put({"RequestError": "The VISA resource for device " + str(device["Display_name"]) + " could not be found. No switching possible."})
             return -1
-
-        current_switching = str(self.vcw.query(resource, device["check_all_closed_channel"], device.get("execution_terminator", ""))).strip()  # Get current switching
-        syntax_list = device.get("switch_syntax", "")
-        if syntax_list:
-            syntax_list = syntax_list.split("channel")# gets me header an footer from syntax
+        command = self.build_command(device, "check_all_closed_channel")
+        current_switching = str(self.vcw.query(resource, command)).strip()  # Get current switching
         current_switching = self.pick_switch_response(device, current_switching)
 
         to_open_channels = list(set(current_switching) - (set(configs)))  # all channels which need to be closed
         to_close_channels = configs
 
         # Close channels
-        self.__send_switching_command(device, device["set_close_channel"], to_close_channels, syntax_list)
+        self.__send_switching_command(device, "set_close_channel", to_close_channels)
 
         sleep(0.01) # Just for safety reasons because the brandbox is very slow
 
         # Open channels
-        self.__send_switching_command(device, device["set_open_channel"], to_open_channels, syntax_list)
+        self.__send_switching_command(device, "set_open_channel", to_open_channels)
 
         # Check if switching is done (basically the same proceedure like before only in the end there is a check
 
@@ -1294,12 +1440,11 @@ class switching_control:
         counter = 0
         while device_not_ready:
             current_switching = None
-            all_done = str(self.vcw.query(resource, device["operation_complete"], device.get("execution_terminator", ""))).strip()
+            command = self.build_command(device, "operation_complete")
+            all_done = str(self.vcw.query(resource, command)).strip()
             if all_done == "1" or all_done == "Done":
-                current_switching = str(self.vcw.query(resource, device["check_all_closed_channel"], device.get("execution_terminator", ""))).strip()
-                syntax_list = device.get("switch_syntax", "")
-                if syntax_list:
-                    syntax_list = syntax_list.split("channel")  # gets me header an footer from syntax
+                command = self.build_command(device, "check_all_closed_channel")
+                current_switching = str(self.vcw.query(device, command)).strip()
                 current_switching = self.pick_switch_response(device, current_switching)
                 self.settings["Defaults"]["current_switching"][device["Display_name"]] = current_switching
 
@@ -1319,20 +1464,22 @@ class switching_control:
         self.message_to_main.put({"RequestError": "No response from switching system: " + device["Display_name"]})
         return False
 
-    def build_command(self, device, command_tuple):
+    def build_command_depricated(self, device, command_tuple):
         """
-        Builds the command correctly, so that device recognise the command
+        Builds the command correctly, so that the device recognise the command
 
         :param device: device dictionary
-        :param command_tuple: command, value
+        :param command_tuple: (command, value), can also be a string for a final command
         """
         if type(command_tuple) == unicode:
             command_tuple = (str(command_tuple),) # so the correct casting is done
 
+        # Make a loop over all items in the device dict
         for key, value in device.items():
             try:
+                # Search for the command in the dict
                 if command_tuple[0] == value: # finds the correct value
-                    command_keyword = str(key.split("_")[-1])
+                    command_keyword = str(key.split("_")[-1]) # extract the keyword, the essence of the command
 
                     if ("CSV_command_" + command_keyword) in device: # searches for CSV command in dict
                         data_struct = device["CSV_command_" + command_keyword].split(",")
@@ -1364,19 +1511,417 @@ class switching_control:
 
 if __name__ == "__main__":
 
+    print "test"
 
-    trans = transformation()
+    device_dict = {
+    "set_source_current": "SOUR:FUNC CURR",
+    "Device_name": "2410 Keithley SMU",
+    "default_current_range": "10E-6",
+    "set_current_range": "SENS:CURR:RANG ",
+    "Flow_control": "ON",
+    "default_output": "OFF",
+    "set_measure_current": "SENS:FUNC 'CURR'",
+    "default_terminal": "REAR",
+    "Read": "READ?",
+    "set_source_voltage": "SOUR:FUNC VOLT",
+    "set_voltage_range": "SOUR:VOLT:RANG ",
+    "default_reading_mode": "CURR",
+    "Device_type": "SMU",
+    "imp:default_reading_count": "1",
+    "set_measurement_speed": "SENS:RES:NPLC ",
+    "set_beep": "SYST:BEEP:STAT",
+    "Connection_type": "GPIB:16",
+    "default_voltage": "0",
+    "Display_name": "SMU2",
+    "set_reading_mode": "FORM:ELEM ",
+    "set_reading_count": "TRIG:COUN ",
+    "set_measure_voltage": "SENS:FUNC 'VOLT'",
+    "default_voltage_range": "1000",
+    "set_complience": "SENS:CURR:PROT ",
+    "set_terminal": "ROUT:TERM",
+    "Baud_rate": 57600,
+    "set_voltage": "SOUR:VOLT:LEV ",
+    "Device_IDN": "KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H",
+    "imp:default_voltage_mode": "FIXED",
+    "default_measurement_speed": "1",
+    "default_complience": "100E-6",
+    "default_beep": "OFF",
+    "set_output": "OUTP ",
+    "set_voltage_mode": "SOUR:VOLT:MODE "
+        }
+
+    device_237 = {
+    "default_integration_time": "3",
+    "separator": ",",
+    "Device_name": "237 Keithley SMU",
+    "default_output_dataformat": "4,2,0",
+    "default_terminator": "0",
+    "default_local_sense": "0",
+    "set_local_sense": "O",
+    "imp:default_trigger": "2,0,0,0",
+    "Read": "H0",
+    "Device_type": "SMU",
+    "default_triggerONOFF": "1",
+    "set_measure_mode": "F",
+    "CSV_voltage": "voltage,range,delay",
+    "set_filter": "P",
+    "Connection_type": "GPIB:18",
+    "set_triggerONOFF": "R",
+    "default_voltage": "0,0,0",
+    "Display_name": "SMU1",
+    "set_terminator": "Y",
+    "default_output": "0",
+    "set_complience": "L",
+    "default_filter": "3",
+    "complience_range": "0",
+    "set_trigger": "T",
+    "set_voltage": "B",
+    "CSV_complience": "complience,range",
+    "voltage_range": "0",
+    "reset_device": [
+        "J0"
+    ],
+    "Device_IDN": "237A10",
+    "set_output_dataformat": "G",
+    "set_integration_time": "S",
+    "execution_terminator": "X",
+    "voltage_delay": "0",
+    "default_complience": "5E-6,0",
+    "logical_operation": "int",
+    "default_measure_mode": "0,0",
+    "device_IDN_query": "U0X",
+    "set_output": "N"
+    }
+
+    device_table = {
+    "set_umotgrad": "setumotgrad",
+    "calibrate_motor": [
+        "calibrate",
+        "rm"
+    ],
+    "abort_movement": "Ctrl C",
+    "set_acceleration": "setaccel",
+    "error_query": "geterror",
+    "table_zmax": "11100.0",
+    "Device_name": "ITK Corvus",
+    "default_joy_speed": "10000.0",
+    "command_order": "-1",
+    "get_speed": "getvel",
+    "current_speed": 10000.0,
+    "table_ymax": "193000.0",
+    "default_joysticktype": "3",
+    "get_pos_from_init": "devpos",
+    "set_axis": "setaxis",
+    "default_acceleration": "3000.0",
+    "default_pitch": [
+        "1.0 1",
+        "1.0 2",
+        "1.0 3",
+        "1.0 0"
+    ],
+    "default_dimension": "3",
+    "set_units": "setunit",
+    "set_mode": "mode",
+    "set_axis_scale": "scale",
+    "get_acceleration": "getaccel",
+    "default_speed": "10000.0",
+    "default_motiondir": [
+        "1 1",
+        "1 2",
+        "0,3"
+    ],
+    "default_mode": "0",
+    "table_xmin": "0.0",
+    "Device_type": "Motor control",
+    "default_joystick": "0",
+    "set_joy_speed": "setjoyspeed",
+    "set_umotmin": "setumotmin",
+    "default_axis_scale": "1.0 1.0 1.0",
+    "default_umotgrad": [
+        "55 1",
+        "55 2",
+        "55 3"
+    ],
+    "set_dimension": "setdim",
+    "table_ymin": "0.0",
+    "imp:default_units": [
+        "1 1",
+        "1 2",
+        "1 3",
+        "1 0"
+    ],
+    "set_speed": "setvel",
+    "table_xmax": "97300.0",
+    "set_move_to": "move",
+    "CSV_move_to": "x,y,z",
+    "selftest": "selftest",
+    "Connection_type": "RS232:1",
+    "all_done": "status",
+    "get_axis": "getaxis",
+    "set_motiondir": "setmotiondir",
+    "set_relative_move_to": "rmove",
+    "CSV_relative_move_to": "x,y,z",
+    "Baud_rate": "9600",
+    "reset_device": [
+        "restore",
+        "ico",
+        "clear"
+    ],
+    "get_position": "pos",
+    "default_axis": [
+        "1 1",
+        "1 2",
+        "1 3"
+    ],
+    "Device_IDN": "Corvus 1 462 1 0",
+    "set_pitch": "setpitch",
+    "set_joystick": "joystick",
+    "table_zmin": "0.0",
+    "set_joysticktype": "setjoysticktype",
+    "Display_name": "Corvus",
+    "default_umotmin": [
+        "1850 1",
+        "1850 2",
+        "1850 3"
+    ],
+    "device_IDN_query": "identify",
+    "default_polepairs": [
+        "50 1",
+        "50 2",
+        "50 3"
+    ],
+    "set_polepairs": "setpolepairs",
+    "separator": " "
+    }
+
+    device_switch = {
+        "Connection_type": "GPIB:14",
+        "default_open_channel": "all",
+        "Display_name": "Switching",
+        "Device_IDN": "KEITHLEY INSTRUMENTS INC.,MODEL 7001, 503327,A04  /A01",
+        "check_all_closed_channel": ":clos:STAT?",
+        "Device_name": "Matrix",
+        "check_channel": ":clos?",
+        "set_open_channel": ":open",
+        "set_open_all": ":open all",
+        "CSV_open_channel": "channel",
+        "CSV_close_channel": "channel",
+        "separator": ",",
+        "Device_type": "Switching relay",
+        "set_close_channel": ":clos",
+        "syntax": "(@###)",
+        "operation_complete": "*OPC?",
+        "no_syntax_with_single_commmand": True
+    }
+
+    device_object = {
+        "Connection_type": "GPIB:14",
+        "default_open_channel": "all",
+        "Display_name": "Switching",
+        "Device_IDN": "KEITHLEY INSTRUMENTS INC.,MODEL 7001, 503327,A04  /A01",
+        "check_all_closed_channel": ":clos:STAT?",
+        "Device_name": "Matrix",
+        "check_channel": ":clos?",
+        "set_open_channel": ":open",
+        "CSV_open_channel": "channel",
+        "CSV_close_channel": "channel",
+        "seperator": ",",
+        "Device_type": "Switching relay",
+        "set_close_channel": ":clos",
+        "syntax": "(@###)",
+        "operation_complete": "*OPC?",
+        "no_syntax_with_single_commmand": True
+            }
+
+    HV_dict = {
+    "Connection_type": "RS232:15",
+    "get_relay_state": "GET:",
+    "Display_name": "Brand Box",
+    "enviroment_query": "GET:ENV ?",
+    "bias_relay": "A",
+    "set_discharge": "SET:DISCHARGE",
+    "set_external_light": "SET:BOX_LED",
+    "Device_name": "HV_box",
+    "set_environement_control": "SET:CTRL",
+    "get_status": "*STB?",
+    "Device_IDN": "HV-Relay Controller V1.4/02.Oct.2018",
+    "check_all_open_channel": ":open:STAT?",
+    "set_open_channel": ":open",
+    "CSV_open_channel": "channel",
+    "CSV_close_channel": "channel",
+    "default_external_light": "OFF",
+    "default_open_channel": "A1,A2,B1,B2,C1,C2",
+    "set_close_channel": ":clos",
+    "get_lock_switch": "GET:TST",
+    "set_mode": "SET:MOD",
+    "set_relay": "SET:",
+    "check_all_closed_channel": ":clos:STAT?",
+    "check_channel": ":clos?",
+    "LCR_relay": "B",
+    "Device_type": [
+        "Switching relay",
+        "Light controller",
+        "Environment controller"
+    ],
+    "lock_switches": "SET:TST",
+    "operation_complete": "*OPC?",
+    "separator": ","
+}
+
+    dict_2657= {
+  "Device_name": "2657 Keithley SMU",
+  "Display_name": "Bias_SMU",
+  "Device_type": "SMU",
+  "Connection_type": "GPIB:26",
+  "Device_IDN": "Keithley Instruments Inc., Model 2657A, 4356871, 1.1.5",
+  "syntax": "",
+  "separator": ",",
+  "set_enable_beeper": "beeper.enable =",
+  "default_enable_beeper": "beeper.ON",
+  "set_beep": "beeper.beep",
+  "CSV_beep": "time, frequency",
+  "set_delay": "delay",
+  "clear_display": "display.clear()",
+  "get_annuciators": "print(display.getannuciators())",
+  "set_lock_SMU": "display.locallockout =",
+  "default_lock_SMU": "display.LOCK",
+  "set_display_measurement": "display.screen =",
+  "default_display_measurement": "display.SMUA",
+  "set_display_text": "display.settext",
+  "CSV_display_text": "text",
+  "display_clear": "display.clear()",
+  "display_dcamps": "display.smua.measure.func = display.MEASURE_DCAMPS",
+  "display_dcvolts": "display.smua.measure.func = display.MEASURE_DCVOLTS",
+  "display_dcohms": "display.smua.measure.func = display.MEASURE_DCOHMS",
+  "display_dcwatts": "display.smua.measure.func = display.MEASURE_DCWATTS",
+  "set_display_func": "display.smua.measure.func =",
+  "default_display_func": "display.MEASURE_DCAMPS",
+  "clear_errors": "errorqueue.clear()",
+  "get_error_count": "print(errorqueue.count)",
+  "get_next_error": "errorcode, message, severity = errorqueue.next() \n print(errorcode, message, severity)",
+  "exit_script": "exit()",
+  "initialize_lan": "lan.applysettings()",
+  "set_lan_autoconnect": "lan.autoconnect =",
+  "default_lan_autoconnect": "lan.ENABLE",
+  "set_DNS": "lan.config.dns.address[1] = '0.0.0.0'",
+  "set_domain": "lan.config.dns.domain = '0.0.0.0'",
+  "set_hostname": "lan.config.dns.hostname = '2657KeithleySMU'",
+  "set_verify_host": "lan.config.dns.verify =",
+  "default_verify_host": "lan.ENABLE",
+  "set_gateway": "lan.config.gateway =",
+  "default_gateway": "'192.168.0.1'",
+  "set_ipaddress": "lan.config.ipaddress =",
+  "default_ipaddress": "'192.168.0.100'",
+  "set_lan_config": "lan.config.method =",
+  "default_lan_config":  "lan.MANUAL",
+  "reset_lan_interface": "lan.reset()",
+  "device_IDN_query": "*IDN?",
+  "reset_device": ["*rst"],
+  "abort": "smua.abort()",
+  "store_calibration": "sma.cal.save()",
+  "calibrate_highsense": "smuX.contact.calibratehi()",
+  "calibrate_lo": "smuX.contact.calibratelo()",
+  "set_autorange_current": "smua.measure.autorangei =",
+  "default_autorange_current": "1",
+  "set_autorange_voltage": "smua.measure.autorangev =",
+  "default_autorange_voltage": "1",
+  "set_autozero": "smua.measure.autozero =",
+  "default_autozero": "smua.AUTOZERO_AUTO",
+  "set_measurement_count": "smua.measure.count =",
+  "default_measurement_count": "1",
+  "set_filter_count": "smua.measure.filter.count =",
+  "default_filter_count": "10",
+  "set_filter_enable": "smua.measure.filter.enable =",
+  "default_filter_enable": "smua.FILTER_ON",
+  "set_filter": "smua.measure.filter.type =",
+  "default_filter": "smua.FILTER_REPEAT_AVG",
+  "set_current_range_low": "smua.measure.lowrangei = ",
+  "set_voltage_range_low": "smua.measure.lowrangev = ",
+  "default_voltage_range_low": "1",
+  "default_current_range_low": "100e-12",
+  "set_NPLC": "smua.measure.nplc = ",
+  "default_NPLC": "5",
+  "Read_voltage": "print(smua.measure.v())",
+  "Read_current": "print(smua.measure.i())",
+  "Read_iv": "print(smua.measure.iv())",
+  "Read": "print(smua.measure.i())",
+  "set_source_current_autorange": "smua.source.autorangei = ",
+  "set_source_voltage_autorange": "smua.source.autorangev = ",
+  "default_source_current_autorange": "smua.AUTORANGE_ON",
+  "default_source_voltage_autorange": "smua.AUTORANGE_ON",
+  "set_source_func": "smua.source.func =",
+  "default_source_func": "smua.OUTPUT_DCVOLTS",
+  "set_voltage": "smua.source.levelv = ",
+  "set_source_level_volts": "smua.source.levelv = ",
+  "default_source_level_volts": "0",
+  "set_complience_current": "smua.source.limiti = ",
+  "set_complience": "smua.source.limiti = ",
+  "default_complience_current": "50e-6",
+  "set_complience_voltage": "smua.source.limiti = ",
+  "default_complience_voltage": "1000",
+  "set_offvoltage": "smua.source.offfunc =",
+  "default_offvoltage": "smua.OUTPUT_DCVOLTS",
+  "set_offcomplience": "smua.source.offlimiti = ",
+  "default_offcomplience": "50e-6",
+  "set_output": "smua.source.output = ",
+  "default_output": "smua.OUTPUT_OFF",
+  "no_syntax_with_single_commmand": True
+
+}
+
+    print str(hf.build_command(dict_2657, ("set_voltage", 0.0)))
+
+
+    print str(hf.build_command(HV_dict, ("set_discharge", "ON")))
+
+    print str(hf.build_command(device_switch, ("set_open_channel", "1!1!1, 1!2!3, 2!3!3, 3!5!6")))
+    print str(hf.build_command(device_switch, ("set_open_channel", "(1!1!1, 1!2!3, 2!3!3)")))
+    print str(hf.build_command(device_switch, ("set_open_channel", "[1!1!1, 1!2!3, 2!3!3]")))
+    print str(hf.build_command(device_switch, ("set_open_channel", "1!1!1")))
+    print str(hf.build_command(device_switch, ("set_open_channel", "all")))
+    print str(hf.build_command(device_switch, "set_open_all"))
+    print str(hf.build_command(device_switch, ("set_open_channel", "")))
+    print str(hf.build_command(device_switch, "check_all_closed_channel"))
+
+
+    print str(hf.build_command(device_table, ("set_move_to", "0, 0, 0")))
+    print str(hf.build_command(device_table, ("set_move_to", "[0, 0, 0]")))
+    print str(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
+    print str(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
+    print str(hf.build_command(device_table, ("set_move_to", [0, 0])))
+    print str(hf.build_command(device_table, ("set_relative_move_to", [0, 0, 0])))
+    print str(hf.build_command(device_table, ("set_axis", "1 1 1 2 1 3")))
+    print str(hf.build_command(device_table, ("set_axis", ["1 1", "1 2", "1 3"])))
+    print str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2", "1 3"))))
+    print str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2"))))
+    print str(hf.build_command(device_table, ("set_polepairs", ["50 1", "50 2", "50 3"])))
+    print str(hf.build_command(device_table, ("get_position")))
+    print str(hf.build_command(device_table, ("calibrate_motor", "")))
+
+
+    print str(hf.build_command(device_237, ("set_complience", "100e-6, 100e-5")))
+    print str(hf.build_command(device_237, ("set_complience", "(100e-6, 100e-5)")))
+    print str(hf.build_command(device_237, ("set_complience", "[100e-6, 100e-5]")))
+    print str(hf.build_command(device_237, ("set_complience", [100e-6, 100e-5])))
+    print str(hf.build_command(device_237, ("set_voltage", [100e-6])))
+    print str(hf.build_command(device_237, ("set_complience", [100e-6])))
+
+    print str(hf.build_command(device_dict, ("set_complience", "100e-6")))
+    print str(hf.build_command(device_dict, ("set_complience")))
+
+
+
+    #trans = transformation()
     # Just for testing the transformation
-    a1 = [350, 250, 12]
-    a2 = [600, 250, 15]
-    a3 = [350, 400, 12]
+    #a1 = [350, 250, 12]
+    #a2 = [600, 250, 15]
+    #a3 = [350, 400, 12]
 
-    b1 = [0, 0, 0]
-    b2 = [250, 0, 0]
-    b3 = [0, 150, 0]
+    #b1 = [0, 0, 0]
+    #b2 = [250, 0, 0]
+    #b3 = [0, 150, 0]
 
-    T, V0 = trans.transformation_matrix(b1,b2,b3,a1,a2,a3)
-    print (T)
-    print (V0)
-
-    print (trans.vector_trans([12,23, 0], T,V0))
+    #T, V0 = trans.transformation_matrix(b1,b2,b3,a1,a2,a3)
+    #print (T)
+    #print (V0)
+    #print (trans.vector_trans([12,23, 0], T,V0))

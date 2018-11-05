@@ -42,6 +42,22 @@ Switching control
 -----------------
 .. autoclass:: utilities.switching_control
 	:members:
+
+Check installation
+------------------
+.. autoclass:: boot_up.check_installation
+
+Load initialization files
+-------------------------
+.. autoclass:: boot_up.loading_init_files
+
+Connect to  devices
+-------------------
+.. autoclass:: boot_up.connect_to_devices
+
+Update state machine
+--------------------
+.. autoclass:: boot_up.update_defaults_dict
 	
 
 	

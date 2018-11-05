@@ -1,8 +1,34 @@
 import visa
-from time import sleep
 import logging
+import threading
+from time import sleep
 
+lock = threading.Lock()
 l = logging.getLogger(__name__)
+
+
+def run_with_lock(method):
+    """
+    Intended to be used as decorator for functions which need to be threadsave. Warning: all functions acquire the same lock, be carefull.
+
+
+    """
+
+    def with_lock(*args, **kw):
+        try:
+            # Try running the method
+            with lock:
+                l.debug("Lock acquired by program: " + str(method.__name__))
+                result = method(*args, **kw)
+            l.debug("Lock released by program: " + str(method.__name__))
+        # raise the exception and print the stack trace
+        except Exception as error:
+            print("A lock could not be acquired in " + str(method.__name__) + ". With Error:",
+                  repr(error))  # this is optional but sometime the raise does not work
+            raise  # this raises the error with stack backtrace
+        return result
+
+    return with_lock  # here the memberfunction timed will be called
 
 #Opens a connection to a VISA resource device (GPIB, USB, RS232, IP)
 
@@ -13,11 +39,10 @@ class VisaConnectWizard:
     It can be called with an argument, which defines the specific resource you want to connect to.
     Basic Functions are:
     connect_to_instruments(bool) - no argument: connects to all resources, False: lists all resources and let you decide which to connect to
-    show_instruments - gatters list of all resources
+    show_instruments - gathers list of all resources
     show_resources - lists all resources (needs show_instruments first)
     verify_ID(int) - shows ID of int device, no argument, shows all devices ID
     close_connections - closes all open connections
-    
     '''
 
 
@@ -36,6 +61,7 @@ class VisaConnectWizard:
         # Important ----------------------------------------------------------------
         # Opens a resource manager
         self.rm = visa.ResourceManager()
+        #visa.log_to_screen()
         # Important ----------------------------------------------------------------
 
         # Tries to connect to a GPIB interface if possible
@@ -111,7 +137,7 @@ class VisaConnectWizard:
         IDN = device_dict["Device_IDN"]
 
         # Query the IDN
-        IDN_query = self.query(resource, device_dict.get("device_IDN_query", "*IDN?"), device_dict.get("execution_terminator", ""))
+        IDN_query = self.query(resource, device_dict.get("device_IDN_query", "*IDN?"))
         if str(IDN) == str(IDN_query).strip():
             device_dict["Visa_Resource"] = resource
             l.info("Connection to the device: " + device_dict["Display_name"] + "is now reestablished")
@@ -193,7 +219,7 @@ class VisaConnectWizard:
                     self.connection_error(self.resource_names[dummy])
 
 
-    def config_resource(self, resources_name, resource, baudrate = 57600): # For different types of connections different configurations can be done
+    def config_resource(self, resources_name, resource, baudrate = 9600): # For different types of connections different configurations can be done
         # ASRL type resourses are RS232 they usually need some additional configuration
         # Furthermore this function is for a primitive configuration, we cannot know by now which device has which configuration. IDN is necessary for that,
         # but we can only ask for IDN if connection is valid.
@@ -209,6 +235,8 @@ class VisaConnectWizard:
             #resource.write_terminator = visa.constants.SerialTermination.termination_char
             #resource.read_terminator = visa.constants.SerialTermination.termination_char
             resource.xoxoff = self.xonoff
+            #resource.write_termination = '\r\n'
+            #resource.read_termination = '\r\n'
             #resource.values_format.is_big_endian = False
 
     #No response function
@@ -241,9 +269,10 @@ class VisaConnectWizard:
                     self.no_response(self.myInstruments[number])
                     return -1
 
-    #Makes a query to the resource (the same as first write than read)
+    @run_with_lock # So only one talker and listener can be there
     def query(self, resource_dict, code, terminator = ""):
-        reconnect = False
+        """Makes a query to the resource (the same as first write than read)"""
+        reconnect = True
 
         #Just check if a resource or object was passed and prepare everything
         if type(resource_dict) == dict: # Checks if dict or only resource
@@ -254,35 +283,68 @@ class VisaConnectWizard:
                 l.error("An key error occured in dict " + str(resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
                 return -1
             except Exception, e:
-                l.exception("An unknowen erro occured while accessing a Visa resource " + str(e))
+                l.exception("An unknowen error occured while accessing a Visa resource " + str(e))
                 return -1
         else:
             resource = resource_dict
 
-        resource.timeout = 5000.
+        l.info("Query command: " + str(code) + " to: " + str(resource))
+
+        #resource.timeout = 5000.
         try:
-            query = str(resource.query(str(code) + str(terminator))) # try to query
+            query = str(resource.query(str(code))) # try to query
+            l.info("Written command: " + str(code) + " to: " + str(resource) + " was answered with: " + str(query).strip())
             return query
+
         except Exception, e:
             # Try to reconnect to the device if no answer comes from the device in the timeout
             print "The query of device " + str(resource) + " with query " + str(code) + " failed with error: " + str(e)
             l.error("The query of device " + str(resource) + " with query " + str(code) + " failed with error: " + str(e))
 
             if reconnect and type(resource_dict) == dict:
-                if not self.reset_interface():
+                if not self.reset_interface(): # For GPIB devices
                     self.reconnect_to_device(resource_dict)
 
-                query = self.query(resource_dict["Visa_Resource"], code, terminator)
+                if "GPIB" not in str(resource): # For all other devices
+                    #self.reconnect_to_device(resource_dict)
+                    self.write(resource, "\r\n") # tries to reset it this way
+
+                query = self.query(resource_dict["Visa_Resource"], code)
+                l.info("Query command: " + str(code) + " to: " + str(resource) + " was answered with: " + str(query).strip())
                 return query
             else:
                 return -1 # if no response a -1 will be returned
 
     #Writes a value to the resource
-    def write(self, resource, code, terminator = ""):
+    def write(self, resource_dict, code, terminator = ""):
+        """Writes a vlaue to a resource, if a list is passed insted of a string all in the list will be send, one after another"""
+
+        if type(resource_dict) == dict: # Checks if dict or only resource
+            try:
+                resource = resource_dict["Visa_Resource"]
+            except KeyError:
+                l.error("An key error occured in dict " + str(resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
+                return -1
+            except Exception, e:
+                l.exception("An unknown error occured while accessing a Visa resource " + str(e))
+                return -1
+        else:
+            resource = resource_dict
+
         try:
-            full_command = str(code) + str(terminator)
-            resource.write(full_command)
-            return 0
+            # Now look if the code is a list or not
+            if type(code) == list:
+                for i in code:
+                    full_command = str(i) + str(terminator)
+                    resource.write(full_command)
+                    l.info("Write command: "+ str(full_command) + " to: " + str(resource))
+                return 0
+
+            else:
+                full_command = str(code) + str(terminator)
+                resource.write(full_command)
+                l.info("Write command: " + str(full_command) + " to: " + str(resource))
+                return 0
         except:
             return -1
 
@@ -314,6 +376,9 @@ class VisaConnectWizard:
         for commands in initiate_commands:
             self.write(resource, str(commands) + str(terminator))
             sleep(0.1) #A better way possible but gives the instrument its time
+
+
+
 
 
 class bcolors:

@@ -29,7 +29,7 @@ class GUI_event_loop:
         self.close_program = False
         self.measurement_running = False
         self.measurement_loop_running = True
-        self.error_types = ["Info","MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "Warning", "FatalError"]
+        self.error_types = ["Info","MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "Warning", "FatalError", "ThresholdError"]
         #self.measurement_types = ["IV", "IV_longterm", "CV", "R_int", "I_strip", "I_diel", "R_poly", "C_ac", "I_strip_overhang", "C_int", "I_dark", "humidity", "temperature", "Cback", "Cback_scan", "Cac_scan", "Cint_scan"]
         self.measurement_types = self.default_values_dict["Defaults"]["measurement_types"]
         self.event_types = ["MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED"]

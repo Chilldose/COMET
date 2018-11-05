@@ -167,7 +167,7 @@
          <item row="1" column="2">
           <widget class="QLabel" name="voltages_steps_label">
            <property name="text">
-            <string>steps</string>
+            <string>Voltage steps</string>
            </property>
           </widget>
          </item>
@@ -347,7 +347,7 @@
          <item row="1" column="2">
           <widget class="QLabel" name="voltages_steps_label_CV">
            <property name="text">
-            <string>steps</string>
+            <string>Voltage steps</string>
            </property>
           </widget>
          </item>
@@ -464,7 +464,7 @@
          <item row="1" column="2">
           <widget class="QLabel" name="voltages_steps_label_strip">
            <property name="text">
-            <string>steps</string>
+            <string>Voltage steps</string>
            </property>
           </widget>
          </item>

@@ -1,14 +1,14 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 2.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 2.7" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>API references &mdash; UniDAQ 0.9.4 documentation</title>
+  <title>API references &mdash; UniDAQ beta documentation</title>
   
 
   
@@ -56,6 +56,10 @@
           
             
             
+              <div class="version">
+                0.9.4
+              </div>
+            
           
 
           
@@ -92,6 +96,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#measurement-job-generation">Measurement Job Generation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#table-control">Table control</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#switching-control">Switching control</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#check-installation">Check installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#load-initialization-files">Load initialization files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#connect-to-devices">Connect to  devices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#update-state-machine">Update state machine</a></li>
 </ul>
 </li>
 </ul>
@@ -187,6 +195,41 @@ For more information see he docs for the functions itself</p>
 </dd></dl>
 
 <dl class="method">
+<dt id="utilities.help_functions.build_command">
+<code class="descname">build_command</code><span class="sig-paren">(</span><em>device_dict</em>, <em>command_tuple</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.build_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.build_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function correctly builds the command structure for devices.
+You must pass the device object dictionary with all parameters and a command tuple, consisting of:
+Command: A command specified in the device object.
+Value: A string or a list of commands which are the value the command is send with. (Also possible '[a,b,c]' etc.)</p>
+<p>If a syntax key is present in the device object like: 'syntax': '(&#64;###)' the char between the # will be pre and appended, to the values, respectively
+If a key has a corresponing CSV prepended, like get_position = pos and CSV_get_position = x,y,z, the value passed need
+to have at least as much values, or the missing values WILL be filled with 0. (the CSV is actually not needed, this is for security reasons, so you dont forget something)
+Furthermore, if a seperator key is present, you can specify how the CSV command is seperated, standard is a single space.
+If the key command_order is specified either with 1 or -1 the logical order of the command is reversed, so with -1
+the values are comming first then the actual command. When nothing is specified a 1 is assumed</p>
+<p>If you pass a list in values, all of these will be generate a return list with each list values a complete command, even when you have a different separator specified
+If you want a correct one specify a CSV command. Non list object will be ignored and alle appended to a long command</p>
+<p>If you just pass a string, not a tuple only the command will be returned</p>
+<p>If a terminator key is in the object, this will be automatically be appended</p>
+<p>If the key: no_syntax_with_single_commmand is prevalent, the command build (when only a string is passed)will only return the command without syntax (if specified)</p>
+<p>Return value is usually a string with the command. Except if your command consists of a list e.g you want:
+device_dict[command] =&gt; [&quot;comA&quot;, &quot;comB&quot;], then both commands will be build with the values and a list of both commands will be returned</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>device</strong> -- device dictionary</li>
+<li><strong>command_tuple</strong> -- (command, value), can also be a string for a final command</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<p>:return string or list, depending if dict[command] is a list or a string</p>
+</dd></dl>
+
+<dl class="method">
 <dt id="utilities.help_functions.close_file">
 <code class="descname">close_file</code><span class="sig-paren">(</span><em>file</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.close_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.close_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Closed the file specified in param file</p>
@@ -201,10 +244,10 @@ For more information see he docs for the functions itself</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>filename</strong> – </li>
-<li><strong>filepath</strong> – </li>
-<li><strong>os_file</strong> – </li>
-<li><strong>suffix</strong> – </li>
+<li><strong>filename</strong> -- </li>
+<li><strong>filepath</strong> -- </li>
+<li><strong>os_file</strong> -- </li>
+<li><strong>suffix</strong> -- </li>
 </ul>
 </td>
 </tr>
@@ -220,7 +263,7 @@ For more information see he docs for the functions itself</p>
 <code class="descname">flush_to_file</code><span class="sig-paren">(</span><em>file</em>, <em>message</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.flush_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.flush_to_file" title="Permalink to this definition">¶</a></dt>
 <dd><p>Flushes data to a opend file
 Only strings or numbers allowed, Lists will work too but may cause data scrambling
-Only use this with created files from function ‘create_new_file’</p>
+Only use this with created files from function 'create_new_file'</p>
 </dd></dl>
 
 <dl class="method">
@@ -262,33 +305,6 @@ Only use this with created files from function ‘create_new_file’</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="utilities.help_functions.ramp_voltage">
-<code class="descname">ramp_voltage</code><span class="sig-paren">(</span><em>VisaResource</em>, <em>instrument</em>, <em>order_code</em>, <em>max_value</em>, <em>ramp_steps</em>, <em>time_to_wait</em>, <em>ramp_up=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.ramp_voltage"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.ramp_voltage" title="Permalink to this definition">¶</a></dt>
-<dd><p>Deprecated
-This function ramps a value by sending commands after a timeout. Usage, ramping voltage for a device</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>VisaResource</strong> – Device which gets the commands</li>
-<li><strong>instrument</strong> – </li>
-<li><strong>order_code</strong> – Code which has to be send</li>
-<li><strong>max_value</strong> – Maximum value from where to be ramped</li>
-<li><strong>ramp_steps</strong> – Stepssize</li>
-<li><strong>time_to_wait</strong> – waitingtime</li>
-<li><strong>ramp_up</strong> – Whether or not to ramp from abs up or down</li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="utilities.help_functions.ramp_voltage_job">
 <code class="descname">ramp_voltage_job</code><span class="sig-paren">(</span><em>queue</em>, <em>resource</em>, <em>order</em>, <em>voltage_Start</em>, <em>voltage_End</em>, <em>step</em>, <em>wait_time=0.2</em>, <em>complience=0.0001</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.ramp_voltage_job"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.ramp_voltage_job" title="Permalink to this definition">¶</a></dt>
 <dd><p>Only use this function for simple ramping for the main, never inside a measurement!!!</p>
@@ -315,7 +331,7 @@ Warning: File gets closed after reading</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>method</strong> – method to be timed</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>method</strong> -- method to be timed</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">time needed by method</td>
 </tr>
@@ -332,9 +348,9 @@ Warning: File gets closed after reading</p>
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>name</strong> – Name of the file to be written to</li>
-<li><strong>data</strong> – Data in Dict format</li>
-<li><strong>path</strong> – Path where to write</li>
+<li><strong>name</strong> -- Name of the file to be written to</li>
+<li><strong>data</strong> -- Data in Dict format</li>
+<li><strong>path</strong> -- Path where to write</li>
 </ul>
 </td>
 </tr>
@@ -348,7 +364,7 @@ Warning: File gets closed after reading</p>
 <dl class="method">
 <dt id="utilities.help_functions.write_to_file">
 <code class="descname">write_to_file</code><span class="sig-paren">(</span><em>content</em>, <em>filename='default.txt'</em>, <em>filepath='default_path'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#help_functions.write_to_file"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.help_functions.write_to_file" title="Permalink to this definition">¶</a></dt>
-<dd><p>This writes content to a file. Be aware, input must be of type ‘list’ each entry containing the information of one line</p>
+<dd><p>This writes content to a file. Be aware, input must be of type 'list' each entry containing the information of one line</p>
 </dd></dl>
 
 </dd></dl>
@@ -369,10 +385,10 @@ which should run in a seperated thread and the arguments passed to the object</p
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>threadID</strong> – ID the thread should have</li>
-<li><strong>name</strong> – Give the thread a name you want</li>
-<li><strong>object</strong> – The object which should run in the new thread</li>
-<li><strong>args</strong> – Arguments passed to <a href="#id1"><span class="problematic" id="id2">object__</span></a></li>
+<li><strong>threadID</strong> -- ID the thread should have</li>
+<li><strong>name</strong> -- Give the thread a name you want</li>
+<li><strong>object</strong> -- The object which should run in the new thread</li>
+<li><strong>args</strong> -- Arguments passed to <a href="#id1"><span class="problematic" id="id2">object__</span></a></li>
 </ul>
 </td>
 </tr>
@@ -498,7 +514,7 @@ which should run in a seperated thread and the arguments passed to the object</p
 <h2>Table control<a class="headerlink" href="#table-control" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="utilities.table_control_class">
-<em class="property">class </em><code class="descclassname">utilities.</code><code class="descname">table_control_class</code><span class="sig-paren">(</span><em>main_variables</em>, <em>device</em>, <em>queue_to_GUI</em>, <em>shell</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">utilities.</code><code class="descname">table_control_class</code><span class="sig-paren">(</span><em>main_variables</em>, <em>devices</em>, <em>queue_to_GUI</em>, <em>shell</em>, <em>vcw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#table_control_class"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.table_control_class" title="Permalink to this definition">¶</a></dt>
 <dd><p>This class handles all interactions with the table. Movement, status etc.
 This class is designed to be running in different instances.</p>
 <dl class="method">
@@ -518,7 +534,7 @@ This class is designed to be running in different instances.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>desired_pos</strong> – The position it should be</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>desired_pos</strong> -- The position it should be</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">0 if ok error if not</td>
 </tr>
@@ -554,7 +570,7 @@ This class is designed to be running in different instances.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lifting</strong> – hight movement</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lifting</strong> -- hight movement</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">none or errorcode</td>
 </tr>
@@ -586,8 +602,8 @@ The move down parameter can prohibits a down and up movement with the move, !!!!
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>transfomation_class</strong> – </li>
-<li><strong>height_movement</strong> – How much should the table move down</li>
+<li><strong>transfomation_class</strong> -- </li>
+<li><strong>height_movement</strong> -- How much should the table move down</li>
 </ul>
 </td>
 </tr>
@@ -606,7 +622,7 @@ The move down parameter can prohibits a down and up movement with the move, !!!!
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lifting</strong> – hight movement</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>lifting</strong> -- hight movement</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">none or errorcode</td>
 </tr>
@@ -659,20 +675,20 @@ The move down parameter can prohibit a down and up movement with the move, !!!!U
 <dl class="method">
 <dt id="utilities.switching_control.apply_specific_switching">
 <code class="descname">apply_specific_switching</code><span class="sig-paren">(</span><em>switching_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#switching_control.apply_specific_switching"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.switching_control.apply_specific_switching" title="Permalink to this definition">¶</a></dt>
-<dd><p>This function takes a dict of type {“Switching”: [/switch nodes], ….} and switches to these specific type</p>
+<dd><p>This function takes a dict of type {&quot;Switching&quot;: [/switch nodes], ....} and switches to these specific type</p>
 </dd></dl>
 
 <dl class="method">
-<dt id="utilities.switching_control.build_command">
-<code class="descname">build_command</code><span class="sig-paren">(</span><em>device</em>, <em>command_tuple</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#switching_control.build_command"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.switching_control.build_command" title="Permalink to this definition">¶</a></dt>
-<dd><p>Builds the command correctly, so that device recognise the command</p>
+<dt id="utilities.switching_control.build_command_depricated">
+<code class="descname">build_command_depricated</code><span class="sig-paren">(</span><em>device</em>, <em>command_tuple</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/utilities.html#switching_control.build_command_depricated"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#utilities.switching_control.build_command_depricated" title="Permalink to this definition">¶</a></dt>
+<dd><p>Builds the command correctly, so that the device recognise the command</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
-<li><strong>device</strong> – device dictionary</li>
-<li><strong>command_tuple</strong> – command, value</li>
+<li><strong>device</strong> -- device dictionary</li>
+<li><strong>command_tuple</strong> -- (command, value), can also be a string for a final command</li>
 </ul>
 </td>
 </tr>
@@ -708,7 +724,7 @@ The move down parameter can prohibit a down and up movement with the move, !!!!U
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>measurement</strong> – string e.g. “IV”, “CV” must be defined in the switching dict</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>measurement</strong> -- string e.g. &quot;IV&quot;, &quot;CV&quot; must be defined in the switching dict</td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">true or false, so if switching was successfull or not</td>
 </tr>
@@ -716,6 +732,51 @@ The move down parameter can prohibit a down and up movement with the move, !!!!U
 </table>
 </dd></dl>
 
+</dd></dl>
+
+</div>
+<div class="section" id="check-installation">
+<h2>Check installation<a class="headerlink" href="#check-installation" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boot_up.check_installation">
+<em class="property">class </em><code class="descclassname">boot_up.</code><code class="descname">check_installation</code><a class="reference internal" href="_modules/boot_up.html#check_installation"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#boot_up.check_installation" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class checks if all necessary modules are installed. And tries to install missing modules.
+All this is a very simple and should not be used to verify anything.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="load-initialization-files">
+<h2>Load initialization files<a class="headerlink" href="#load-initialization-files" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boot_up.loading_init_files">
+<em class="property">class </em><code class="descclassname">boot_up.</code><code class="descname">loading_init_files</code><span class="sig-paren">(</span><em>hf</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boot_up.html#loading_init_files"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#boot_up.loading_init_files" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class is for loading all init files, pad files and default parameters.
+This class is crucial for the program to work. All works within the init function of this class.
+It generates three new dicts which can be accessed from the class as class attributes</p>
+<p>self.devices_dict
+self.pad_files_dict
+self.default_values_dict</p>
+</dd></dl>
+
+</div>
+<div class="section" id="connect-to-devices">
+<h2>Connect to  devices<a class="headerlink" href="#connect-to-devices" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boot_up.connect_to_devices">
+<em class="property">class </em><code class="descclassname">boot_up.</code><code class="descname">connect_to_devices</code><span class="sig-paren">(</span><em>vcw</em>, <em>device_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/boot_up.html#connect_to_devices"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#boot_up.connect_to_devices" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class simply handles the connections, generates a dictionary with all devices.
+This can be accessed via self.get_new_device_dict()</p>
+</dd></dl>
+
+</div>
+<div class="section" id="update-state-machine">
+<h2>Update state machine<a class="headerlink" href="#update-state-machine" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="boot_up.update_defaults_dict">
+<em class="property">class </em><code class="descclassname">boot_up.</code><code class="descname">update_defaults_dict</code><a class="reference internal" href="_modules/boot_up.html#update_defaults_dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#boot_up.update_defaults_dict" title="Permalink to this definition">¶</a></dt>
+<dd><p>A class with two members. self.update takes an dict which updates the default values dict with the given fict.
+The other one self.to_update returns a dict. This can be extended, if the default values dict needs additional
+parameters.</p>
 </dd></dl>
 
 </div>
@@ -761,8 +822,8 @@ The move down parameter can prohibit a down and up movement with the move, !!!!U
     <script type="text/javascript">
         var DOCUMENTATION_OPTIONS = {
             URL_ROOT:'./',
-            VERSION:'0.9.4',
-            LANGUAGE:'None',
+            VERSION:'beta',
+            LANGUAGE:'Python 2.7',
             COLLAPSE_INDEX:false,
             FILE_SUFFIX:'.html',
             HAS_SOURCE:  true,

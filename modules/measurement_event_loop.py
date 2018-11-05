@@ -207,19 +207,19 @@ class measurement_event_loop:
         # First try if visa_resource is valid
         success = False
         try:
-            first_try = vcw.query(resource["Visa_Resource"], query, resource.get("execution_terminator", ""))
+            first_try = vcw.query(resource["Visa_Resource"], query)
             if first_try:
                 success = True
 
         except Exception, e:
             l.error("The temperature and humidity controller seems not to be responding. Error:" + str(e))
 
-        @hf.run_with_lock
+        #@hf.run_with_lock
         def update_environement():
             '''This is the update function for temp hum query'''
             if not self.stop_measurement_loop:
                 try:
-                    values = vcw.query(resource["Visa_Resource"], query, resource.get("execution_terminator", ""))
+                    values = vcw.query(resource["Visa_Resource"], query)
                     values = values.split(",")
                     self.humidity_history.append(float(values[1])) #todo: memory leak since no values will be deleted
                     self.temperatur_history.append(float(values[0]))
@@ -246,7 +246,7 @@ class measurement_event_loop:
 
         #sended_commands = [] #list over all sendet commands, to prevent double sending
         for device in self.devices: # Loop over all devices
-            sended_commands = []  # list over all sendet commands, to prevent double sending
+            sended_commands = []  # list over all sended commands, to prevent double sending
             if self.devices[device].has_key("Visa_Resource"): # Looks if a Visa resource is assigned to the device.
 
                 # Initiate the instrument and resets it
@@ -271,7 +271,7 @@ class measurement_event_loop:
                             full_command = self.build_init_command(command, self.devices[device][keys], self.devices[device].get("command_order", 1))
 
                             for command in full_command:
-                                self.vcw.write(self.devices[device]["Visa_Resource"], command,self.devices[device].get("execution_terminator",""))  # Writes the command to the device
+                                self.vcw.write(self.devices[device]["Visa_Resource"], command, self.devices[device].get("execution_terminator",""))  # Writes the command to the device
                                 sleep(0.05)  # Waits a bit for the device to config itself
 
                             l.info("Device " + self.devices[device]["Display_name"] + str(command) + " to " + str(self.devices[device][keys]) + ".")
@@ -302,7 +302,8 @@ class measurement_event_loop:
 
 
     def build_init_command(self, order, values, command_order = 1):
-        '''This function builds the correct orders together, it always returns a list, if a order needs to be sended several times with different values'''
+        '''This function builds the correct orders together, it always returns a list, if a order needs to be sended several times with different values
+        It difffers to the normal build command function, it takes, exactly the string or list and sends it as it is.'''
         if type(values) != list: # ensures we have a list
             values_list = [values]
         else:

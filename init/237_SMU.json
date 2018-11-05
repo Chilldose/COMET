@@ -10,7 +10,7 @@
     "Device_type": "SMU", 
     "default_triggerONOFF": "1", 
     "set_measure_mode": "F", 
-    "CSV_command_voltage": "voltage,range,delay", 
+    "CSV_voltage": "voltage,range,delay", 
     "set_filter": "P", 
     "Connection_type": "GPIB:18", 
     "set_triggerONOFF": "R", 
@@ -23,7 +23,7 @@
     "complience_range": "0", 
     "set_trigger": "T", 
     "set_voltage": "B", 
-    "CSV_command_complience": "complience,range", 
+    "CSV_complience": "complience,range", 
     "voltage_range": "0", 
     "reset_device": [
         "J0"
@@ -37,5 +37,6 @@
     "logical_operation": "int", 
     "default_measure_mode": "0,0", 
     "device_IDN_query": "U0X", 
-    "set_output": "N"
+    "set_output": "N",
+	"separator": ","
 }

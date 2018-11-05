@@ -11,6 +11,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from .. import engineering_notation as en
 
 from .. import utilities
 
@@ -599,7 +600,7 @@ class Main_window:
             @hf.raise_exception
             def create_statistic_text(kwargs = None):
                 try:
-                    bias = "Bias Voltage: " + str(self.variables.default_values_dict["Defaults"]["bias_voltage"]) + " V" + "\n\n"
+                    bias = "Bias Voltage: " + str(en.EngNumber(float(self.variables.default_values_dict["Defaults"]["bias_voltage"]))) + "V" + "\n\n"
                 except:
                     bias = "Bias Voltage: NONE V" + "\n\n"
                 starttime = "Start time: " + str(self.variables.default_values_dict["Defaults"]["Start_time"]) + "\n\n"
@@ -841,7 +842,8 @@ class Main_window:
             if dry_air_btn.isChecked():
                 device_dict = self.variables.devices_dict["temphum_controller"]
                 try:
-                    answer = self.variables.vcw.query(device_dict, str(device_dict["set_environement_control"]) + " ON")
+                    command = self.variables.build_command(device_dict, ("set_environement_control", "ON"))
+                    answer = self.variables.vcw.query(device_dict, command)
                     if answer.upper().strip() != "DONE":
                         l.error("The environement controller did not responsed accordingly. Answer: " +str(answer).strip())
                         self.variables.message_to_main.put({"RequestError": "The environement controller did not responsed accordingly. Answer: " + str(answer).strip()})
@@ -856,7 +858,8 @@ class Main_window:
             else:
                 device_dict = self.variables.devices_dict["temphum_controller"]
                 try:
-                    answer = self.variables.vcw.query(device_dict, str(device_dict["set_environement_control"]) + " OFF")
+                    command = self.variables.build_command(device_dict, ("set_environement_control", "OFF"))
+                    answer = self.variables.vcw.query(device_dict, command)
                     if answer.upper().strip() != "DONE":
                         l.error("The environement controller did not responsed accordingly. Answer: " + str(answer).strip())
                         self.variables.message_to_main.put({"RequestError": "The environement controller did not responsed accordingly. Answer: " + str(answer).strip()})

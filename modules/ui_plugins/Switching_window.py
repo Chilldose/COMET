@@ -78,9 +78,7 @@ class Switching_window:
     @hf.raise_exception
     def update_GUI_switching_scheme(self, kwargs= None):
         '''This function updates the GUI switching scheme'''
-        self.switching_control.check_switching_action()
-        #self.manual_override_action(True) # No i can change the state
-        switching = self.settings.default_values_dict["Defaults"]["current_switching"]
+        switching = self.switching_control.check_switching_action()
         for name, scheme in switching.items(): # loop over all switching systems
             if name == "Brand Box":
                 # First reset all previous checked radio buttons
@@ -91,7 +89,7 @@ class Switching_window:
                 self.switching.C1.setChecked(False)
                 self.switching.C2.setChecked(False)
 
-                # Now set all whioch need to be set
+                # Now set all which need to be set
 
                 for item in scheme:
                     if item:

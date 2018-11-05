@@ -1,148 +1,57 @@
-#from modules.VisaConnectWizard import *
-from time import sleep
-from pyqtgraph.Qt import QtGui, QtCore
-import sys
-import pyqtgraph as pg
-import thread, Queue
+# -*- coding: utf-8 -*-
+"""
+Display an animated arrowhead following a curve.
+This example uses the CurveArrow class, which is a combination
+of ArrowItem and CurvePoint.
+
+To place a static arrow anywhere in a scene, use ArrowItem.
+To attach other types of item to a curve, use CurvePoint.
+"""
+
+import initExample ## Add path to library (just for examples; you do not need this)
+
 import numpy as np
-import datetime as date
-import os.path
-import random
+from pyqtgraph.Qt import QtGui, QtCore
+import pyqtgraph as pg
 
 
-#Variables
-#SMUdata = np.array([0,1], dtype=np.float32)
-SMUdata = []
-stop=False
-biasVoltage = 50
-ramp_steps = 3
-time_to_wait = 0.01 #sec
-create_new_files = True #creates new files every time the program starts
-save_to_file = True
-#For shared variables among threads
-q = Queue.Queue()
+app = QtGui.QApplication([])
 
-#Filenaming
-filename= 'current_measurement_' + str.replace(date.datetime.now().isoformat()[:9], '-','_') + '_0' #create filename dynamically
-counter = 1
+w = QtGui.QMainWindow()
+cw = pg.GraphicsLayoutWidget()
+w.show()
+w.resize(400,600)
+w.setCentralWidget(cw)
+w.setWindowTitle('pyqtgraph example: Arrow')
 
-while os.path.isfile(filename) and create_new_files: #checks if file exists
-    filename = filename[:-1] + str(counter) #if exists than change the last number in filename string
-    counter += 1
+p = cw.addPlot(row=0, col=0)
+p2 = cw.addPlot(row=1, col=0)
 
-
-if save_to_file: #opens file for writing
-    # Open a file
-    fd = os.open(filename, os.O_WRONLY | os.O_CREAT)
-
-
-def get_smu_data(data, file, q):
-
-    while not stop:
-        dummy = random.randint(1,10)
-        data = np.append(data,[dummy])
-        #print sys.getsizeof(file)
-        #print data
-        q.put(data)
-        # Write one string and append the data to file
-        string_to_write = str(date.datetime.now().isoformat()) + "\t" + str(dummy)
-        os.write(file, string_to_write)
-
-        # ensures that the data is written on HDD
-        os.fsync(file)
-
-        sleep(time_to_wait)
-    print "Stop taking data"
+## variety of arrow shapes
+a1 = pg.ArrowItem(angle=-160, tipAngle=60, headLen=40, tailLen=40, tailWidth=20, pen={'color': 'w', 'width': 3})
+a2 = pg.ArrowItem(angle=-120, tipAngle=30, baseAngle=20, headLen=40, tailLen=40, tailWidth=8, pen=None, brush='y')
+a3 = pg.ArrowItem(angle=-60, tipAngle=30, baseAngle=20, headLen=40, tailLen=None, brush=None)
+a4 = pg.ArrowItem(angle=-20, tipAngle=30, baseAngle=-30, headLen=40, tailLen=None)
+a2.setPos(10,0)
+a3.setPos(20,0)
+a4.setPos(30,0)
+p.addItem(a1)
+p.addItem(a2)
+p.addItem(a3)
+p.addItem(a4)
+p.setRange(QtCore.QRectF(-20, -10, 60, 20))
 
 
-#Plotting
-QtGui.QApplication.setGraphicsSystem('raster')
+## Animated arrow following curve
+c = p2.plot(x=np.sin(np.linspace(0, 2*np.pi, 1000)), y=np.cos(np.linspace(0, 6*np.pi, 1000)))
+a = pg.CurveArrow(c)
+a.setStyle(headLen=40)
+p2.addItem(a)
+anim = a.makeAnimation(loop=-1)
+anim.start()
 
-#app = QtGui.QApplication([])
-#mw = QtGui.QMainWindow()
-#mw.resize(800,800)
-
-win = pg.GraphicsWindow(title="Current over time")
-win.resize(1000,600)
-win.setWindowTitle('2410 SMU')
-
-# Enable antialiasing for prettier plots
-pg.setConfigOptions(antialias=True)
-
-p1 = win.addPlot(title="Current over time")
-p2 = win.addPlot(title="Current over time")
-p3 = win.addPlot(title="Current over time")
-p4 = win.addPlot(title="Current over time")
-p5 = win.addPlot(title="Current over time")
-p6 = win.addPlot(title="Current over time")
-p7 = win.addPlot(title="Current over time")
-p8 = win.addPlot(title="Current over time")
-p9 = win.addPlot(title="Current over time")
-p0 = win.addPlot(title="Current over time")
-curve0 = p0.plot(pen='y')
-curve1 = p1.plot(pen='y')
-curve2 = p2.plot(pen='y')
-curve3 = p3.plot(pen='y')
-curve4 = p4.plot(pen='y')
-curve5 = p5.plot(pen='y')
-curve6 = p6.plot(pen='y')
-curve7 = p7.plot(pen='y')
-curve8 = p8.plot(pen='y')
-curve9 = p9.plot(pen='y')
-ptr=0
-def update():
-    global curve, SMUdata, ptr, p6
-    #q.get() wartet bis es eine Antwort bekommt, daher steht es dort
-    try:
-        SMUdata = q.get_nowait()
-        #print "plot data: " + sys.getsizeof(SMUdata)
-
-    except:
-        pass
-    curve0.setData(SMUdata)
-    curve1.setData(SMUdata)
-    curve2.setData(SMUdata)
-    curve3.setData(SMUdata)
-    curve4.setData(SMUdata)
-    curve5.setData(SMUdata)
-    curve6.setData(SMUdata)
-    curve7.setData(SMUdata)
-    curve8.setData(SMUdata)
-    curve9.setData(SMUdata)
-
-   #print sys.getsizeof(pg)
-#    if ptr == 0:
-#        p6.enableAutoRange('xy', False)  ## stop auto-scaling after the first data set is plotted
-    ptr += 1
-
-timer = QtCore.QTimer()
-timer.timeout.connect(update)
-timer.start(50)
-
-
-def start_plotting():
-    ## Start Qt event loop unless running in interactive mode or using pyside.
-    if __name__ == '__main__':
-        if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
-            QtGui.QApplication.instance().exec_()
-
-
-thread.start_new_thread(get_smu_data, (SMUdata, fd, q))
-
-start_plotting()
-
-#for i in range(10):
-#    print SMUdata
-#    sleep(1)
-
-#while not stop:
-#    a = str(raw_input("End data taking? (y)"))
-#    if a == "y":
-#        stop=True
-#    else:
-#        print "Wrong input"
-
-
-stop=True
-
-
+## Start Qt event loop unless running in interactive mode or using pyside.
+if __name__ == '__main__':
+    import sys
+    if (sys.flags.interactive != 1) or not hasattr(QtCore, 'PYQT_VERSION'):
+        QtGui.QApplication.instance().exec_()

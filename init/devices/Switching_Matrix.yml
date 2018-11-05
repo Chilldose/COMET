@@ -6,9 +6,14 @@
     "check_all_closed_channel": ":clos:STAT?", 
     "Device_name": "Matrix", 
     "check_channel": ":clos?", 
-    "set_open_channel": ":open", 
+    "set_open_channel": ":open",
+    "CSV_open_channel": "channel",
+    "CSV_close_channel": "channel",
+    "seperator": ",",
     "Device_type": "Switching relay", 
     "set_close_channel": ":clos", 
-    "switch_syntax": "(@channel)", 
-    "operation_complete": "*OPC?"
+    "syntax": "(@###)",
+    "separator": ",",
+    "operation_complete": "*OPC?",
+    "no_syntax_with_single_commmand": true
 }

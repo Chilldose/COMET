@@ -63,7 +63,6 @@ class Alignment_window:
 
         self.variables.add_update_function(self.current_strip_lcd)
 
-
         self.what_to_do_text(-1) # Initializes the text
 
     def current_strip_lcd(self):
@@ -77,21 +76,29 @@ class Alignment_window:
 
     def move_to_strip_action(self):
         '''This is the action when the move to strip button is pressed'''
-        strip_to_move = self.alignment.move_to_strip_spin.value()
+        if not self.variables.default_values_dict["Defaults"]["table_is_moving"]:
+            strip_to_move = self.alignment.move_to_strip_spin.value()
 
-        if self.variables.default_values_dict["Defaults"]["Alignment"]:
-            error = self.variables.table.move_to_strip(self.sensor_pad_file, (int(strip_to_move)-1),
-                                                       self.trans,
-                                                       self.transformation_matrix, self.V0,
-                                                       self.variables.default_values_dict["Defaults"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
-                self.error_action(error)
+            if self.variables.default_values_dict["Defaults"]["Alignment"]:
+                error = self.variables.table.move_to_strip(self.sensor_pad_file, (int(strip_to_move)-1),
+                                                           self.trans,
+                                                           self.transformation_matrix, self.V0,
+                                                           self.variables.default_values_dict["Defaults"]["height_movement"])
+                if error:
+                    self.variables.message_to_main.put(error)
+                    self.error_action(error)
+                    return
+            else:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setText("No alignment is done, please make the alignment and try again...")
+                msg.setWindowTitle("Arrr, Pirate...")
+                msg.exec_()
                 return
         else:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
-            msg.setText("No alignment is done, please make the alignment and try again...")
+            msg.setText("Table is currently moving, please wait until movement is finished...")
             msg.setWindowTitle("Arrr, Pirate...")
             msg.exec_()
             return
@@ -107,6 +114,14 @@ class Alignment_window:
             msg.setIcon(QMessageBox.Information)
             msg.setText("The alignment procedure is currently running.")
             msg.setWindowTitle("Alignment in progress")
+            msg.exec_()
+            return
+
+        if not self.variables.default_values_dict["Defaults"]["Table_state"]:
+            msg = QMessageBox()
+            msg.setIcon(QMessageBox.Information)
+            msg.setText("It seems that no table is connected to this machine...")
+            msg.setWindowTitle("Sorry Bro...")
             msg.exec_()
             return
 
@@ -248,7 +263,7 @@ class Alignment_window:
 
             table_abs_pos = self.trans.vector_trans(relative_check_pos, T, V0)
 
-            error = self.variables.table.move_to(table_abs_pos, True, self.variables.default_values_dict["Defaults"].get("height_movement", 800))
+            error = self.variables.table.move_to(list(table_abs_pos), True, self.variables.default_values_dict["Defaults"].get("height_movement", 800))
             if error:
                 self.variables.message_to_main.put(error)
                 self.error_action(error)
@@ -381,13 +396,20 @@ class Alignment_window:
         '''This updates the static text of the gui, like sensor type'''
 
         # Set maxima and minima and value
-        self.alignment.ref_1.setRange(1, int(self.number_of_pads))
-        self.alignment.ref_2.setRange(1, int(self.number_of_pads))
-        self.alignment.ref_3.setRange(1, int(self.number_of_pads))
+        # Rare bug in spin boxes when a variable is assigned to the value and the range changes in a way that
+        # it wont match with the range, the value in the variable get changed. Therefore, always increase the range
+        # first and then change value, and then change range again.
+        self.alignment.ref_1.setRange(1, 10000)
+        self.alignment.ref_2.setRange(1, 10000)
+        self.alignment.ref_3.setRange(1, 10000)
 
         self.alignment.ref_1.setValue(int(self.reference_pads[0]))
         self.alignment.ref_2.setValue(int(self.reference_pads[1]))
         self.alignment.ref_3.setValue(int(self.reference_pads[2]))
+
+        self.alignment.ref_1.setRange(1, int(self.number_of_pads))
+        self.alignment.ref_2.setRange(1, int(self.number_of_pads))
+        self.alignment.ref_3.setRange(1, int(self.number_of_pads))
 
         self.first_ref = self.reference_pads_positions[0]
         self.secon_ref = self.reference_pads_positions[1]

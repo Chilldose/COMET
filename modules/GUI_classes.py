@@ -6,23 +6,21 @@
 # or the method will fail. Just add to the function foo(a) a None variable so foo(a, b=None) this will work in most cases
 
 
-import ast
-import json
+import importlib
 import os
 import os.path as osp
-import sys, importlib
+import sys
 from time import sleep
 
-import numpy as np
 import pyqtgraph as pq
+from PyQt5 import uic
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from PyQt5 import uic
 
 from GUI_event_loop import *
-
 from utilities import newThread, help_functions, measurement_job_generation
+from bad_strip_detection import *
 
 l = logging.getLogger(__name__)
 
@@ -61,6 +59,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.final_tabs = []
         self.ui_plugins = {}
         self.shell = shell
+        self.analysis = stripanalysis(self) # Not very good it is a loop condition
 
         # Load ui plugins
         self.load_plugins()

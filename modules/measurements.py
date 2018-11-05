@@ -9,10 +9,7 @@ from scipy import stats
 import importlib
 from utilities import *
 
-
 l = logging.getLogger(__name__)
-
-
 
 help = help_functions()
 vcw = VisaConnectWizard.VisaConnectWizard()
@@ -52,6 +49,9 @@ class measurement_class:
         self.write = None
         self.save_data = False
         self.env_waiting_time = 60*5 # Five minutes
+        self.build_command = help.build_command # think of it like a link
+        self.badstrip_dict = {}
+        self.skip_tests = True # This must always be False!!! only for debugging !!!
 
         # Make preps
         self.settings["Defaults"]["Start_time"] = str(datetime.datetime.now())
@@ -76,6 +76,11 @@ class measurement_class:
             self.external_light(self.devices["lights_controller"], False)
             self.close_measurement_files()
 
+        elif self.skip_tests: # This is just for debugging and can lead to unwanted behavior
+            self.make_measurement_plan()
+            self.close_measurement_files()
+
+
 
         else:
             l.info("Measurement was not conducted, due to failure in setup check!")
@@ -89,15 +94,15 @@ class measurement_class:
         This function closes all measurement files which have been opend during a measurement run
         """
         for file in self.measurement_files.values():
-            file.close()
+            os.close(file)
 
     def external_light(self, device_dict, bool):
         '''Turns the light on when measurements are running'''
         if bool:
-            self.change_value(device_dict, device_dict["set_external_light"], "ON")
+            self.change_value(device_dict, "set_external_light", "ON")
             self.settings["Defaults"]["external_lights"] = True
         else:
-            self.change_value(device_dict, device_dict["set_external_light"], "OFF")
+            self.change_value(device_dict, "set_external_light", "OFF")
             self.settings["Defaults"]["external_lights"] = False
 
     def write_data(self):
@@ -223,7 +228,7 @@ class measurement_class:
     def make_measurement_plan(self):
         '''This function recieves the orders from the main and creates a measurement plan.'''
 
-        # Check first if order of measurement is in place
+        # Check if order of measurement is in place
 
         if "measurement_order" in self.settings["Defaults"]:
             for measurement in self.settings["Defaults"]["measurement_order"]:
@@ -231,15 +236,11 @@ class measurement_class:
                 if self.main.stop_measurement:
                     break
                 if measurement in self.job_details and measurement in self.all_plugins:
-                    #job = self.job_details[measurement]
                     if self.save_data:  # First create files, if necessary.
                         filepath = self.job_details["Filepath"]
                         filename = str(measurement)[:3] + "_" + self.job_details["Filename"]
                         if "Header" in self.job_details:
                             self.measurement_files.update({measurement: self.create_data_file(self.job_details["Header"] + "\n", filepath, filename)})  # If a header is present create file with header
-                        #else:
-                        #    self.measurement_files.update({measurement: self.create_data_file("", filepath, filename)})  # If not, no header is added
-
 
                 elif measurement not in self.all_plugins and measurement in self.job_details:
                     l.error("Measurement " + str(measurement) + " was not found as a defined measurement module.")
@@ -296,7 +297,8 @@ class measurement_class:
                     return False
 
             for i in range(samples):
-                values.append(float(str(vcw.query(device, device["Read"], device.get("execution_terminator", ""))).split(",")[0]))
+                command = self.build_command(device, "Read")
+                values.append(float(str(vcw.query(device, command)).split(",")[0]))
                 sleep(wait)
 
             slope, intercept, r_value, p_value, std_err = stats.linregress([i for i in range(len(values))], values)
@@ -395,7 +397,7 @@ class measurement_class:
         voltage_step_list = self.ramp_value(voltage_Start, voltage_End, step)
 
         # Check if current bias voltage is inside this ramp and delete if necessary
-        bias_voltage = self.settings["Defaults"]["bias_voltage"]
+        bias_voltage = float(self.settings["Defaults"]["bias_voltage"])
 
         for i, voltage in enumerate(voltage_step_list):
             if abs(voltage) > abs(bias_voltage):
@@ -406,7 +408,7 @@ class measurement_class:
             self.change_value(resource, order, voltage)
             if self.check_complience(resource, complience):
                 return False
-            self.settings["Defaults"]["bias_voltage"] = float(voltage)  # changes the bias voltage
+            #self.settings["Defaults"]["bias_voltage"] = float(voltage)  # changes the bias voltage
             sleep(wait_time)
 
         return True
@@ -417,27 +419,26 @@ class measurement_class:
         if type(order) == list:
             for com in order:
                 command = self.build_command(device_dict, (com, value))
-                answ = vcw.query(device_dict["Visa_Resource"], command, device_dict.get("execution_terminator", "")) # writes the new order to the device
+                answ = vcw.query(device_dict["Visa_Resource"], command) # writes the new order to the device
         else:
             command = self.build_command(device_dict, (order, value))
-            answ = vcw.query(device_dict["Visa_Resource"], command,device_dict.get("execution_terminator", ""))  # writes the new order to the device
+            answ = vcw.query(device_dict["Visa_Resource"], command)  # writes the new order to the device
 
         answ = str(answ).strip()
         if answ == answer:
-            return True
+            return None
         else:
-            return False
+            return answ # For errorhandling it is the return from the device which was not the expected answer
 
     def change_value(self, device_dict, order, value=""):
         '''This function sends a command to a device and changes the state in the dictionary (state machine)'''
         if type(order) == list:
             for com in order:
                 command = self.build_command(device_dict, (com, value))
-                print command
-                vcw.write(device_dict["Visa_Resource"], command, device_dict.get("execution_terminator", "")) # writes the new order to the device
+                vcw.write(device_dict["Visa_Resource"], command) # writes the new order to the device
         else:
             command = self.build_command(device_dict, (order, value))
-            vcw.write(device_dict["Visa_Resource"], command,device_dict.get("execution_terminator", ""))  # writes the new order to the device
+            vcw.write(device_dict["Visa_Resource"], command)  # writes the new order to the device
 
     def check_complience(self, device, complience = None):
         '''This function checks if the current complience is reached'''
@@ -449,13 +450,13 @@ class measurement_class:
         except:
             l.error("Device " + str(device) + " has no complience set!")
 
-        command = self.build_command(device, device["Read"])
-        #print command
-        value = float(str(vcw.query(device, command, device.get("execution_terminator", ""))).split(",")[0])
-        #print "Current " + str(value)
-        if 0. < (abs(float(value)) - abs(float(complience)*0.99)):
-            l.error("Complience reached in instrument " + str(device["Display_name"]) + " at: "+ str(value) + ". Complience at " + str(complience))
-            self.queue_to_main.put({"MeasError": "Compliance reached. Value. " + str(value) + " A"})
+        command = self.build_command(device,"Read_iv")
+        #value = float(str(vcw.query(device, command)).split(",")[0]) #237SMU
+        value = str(vcw.query(device, command)).split("\t")
+        self.settings["Defaults"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
+        if 0. < (abs(float(value[0])) - abs(float(complience)*0.99)):
+            l.error("Complience reached in instrument " + str(device["Display_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(complience))
+            self.queue_to_main.put({"MeasError": "Compliance reached. Value. " + str(value[0]) + " A"})
             return True
         else:
             return False
@@ -463,14 +464,16 @@ class measurement_class:
     @help.timeit
     def config_setup(self, device, commands = []):
         '''This function configures the setup for a specific measurement.
-        Commands is a list of tuples, containing (command, values*,) if no value is defined only command will be send'''
+        Commands is a list of tuples, containing (command, values) if no value is defined only command will be send'''
 
         for command in commands:
             final_string = self.build_command(device, command)
-            vcw.write(device["Visa_Resource"], str(final_string), device.get("execution_terminator", ""))  # finally writes the command to the device
+            vcw.write(device["Visa_Resource"], str(final_string))  # finally writes the command to the device
 
 
-    def build_command(self, device, command_tuple):
+    def build_command_depricated(self, device, command_tuple):
+        print "You used an on build command, please use the one from utilities"
+        #Todo build command is two folded in here
         if type(command_tuple) == unicode or type(command_tuple) == str:
             command_tuple = (str(command_tuple),) # so the correct casting is done
 
@@ -519,8 +522,12 @@ class measurement_class:
             self.change_value(device_dict, termorder, terminal)
 
         # Set the switching for the discharge (a relay must be switched in the decouple box by applying 5V
-        sleep(1.) # Slow switching shit on BB
-        self.change_value_query(relay_dict, relay_dict["set_discharge"], "ON", "DONE")
+        #sleep(1.) # Slow switching shit on BB
+        error = self.change_value_query(relay_dict, "set_discharge", "ON", "DONE")
+        if error:
+            self.queue_to_main.put({"RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " +  str("DONE") + " got " + str(error) + " instead."})
+            l.error("Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " +  str("DONE") + " got " + str(error) + " instead.")
+            return False
         sleep(1.) # relay is really slow
 
         # Next discharge the capacitor by running a current measurement
@@ -531,22 +538,36 @@ class measurement_class:
 
         #if self.steady_state_check(device_dict, samples = 7, do_anyway = do_anyway):
             #self.change_value(device_dict, device_dict["set_output"], "OFF")
-        self.change_value(device_dict, device_dict["set_measure_voltage"])
-        self.change_value(device_dict, device_dict["set_output"], "ON")
+        self.change_value(device_dict, "set_source_current")
+        self.change_value(device_dict, "set_measure_voltage")
+        self.change_value(device_dict, "set_output", "ON")
         counter = 0
 
         while True:
             counter += 1
             voltage = []
             for i in range(3):
-                voltage.append(float(vcw.query(device_dict["Visa_Resource"], device_dict["Read"], device_dict.get("execution_terminator", ""))))
+                command = self.build_command(device_dict, "Read")
+                voltage.append(float(vcw.query(device_dict["Visa_Resource"], command)))
 
             if sum(voltage)/len(voltage) <= 0.3: # this is when we break the loop
-                self.change_value(device_dict, device_dict["set_output"], "OFF")
-                self.change_value(device_dict, termorder, device_dict["default_terminal"])
+                self.change_value(device_dict, "set_output", "OFF")
+                self.change_value(device_dict, "set_source_voltage")
+                self.change_value(device_dict, "set_measure_current")
+
+                self.change_value(device_dict, termorder, "REAR")
                 # return to default mode for this switching
                 sleep(1.)  # Slow switching shit on BB
-                self.change_value_query(relay_dict, relay_dict["set_discharge"], "OFF", "DONE")
+                error = self.change_value_query(relay_dict, "set_discharge", "OFF", "DONE")
+                if error:
+                    self.queue_to_main.put({
+                                               "RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
+                                                   "DONE") + " got " + str(error) + " instead."})
+                    l.error(
+                        "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
+                            "DONE") + " got " + str(error) + " instead.")
+
+                    return False
                 sleep(1.)  # relay is really slow
                 return True
             else:
@@ -556,9 +577,16 @@ class measurement_class:
                 self.queue_to_main.put({"FatalError": "The capacitor discharge failed more than 5 times. Discharge the capacitor manually!"})
                 # Set output to on for reading mode
                 command = self.build_command(device_dict, ("set_output", "OFF"))  # switch back to default terminal
-                vcw.write(device_dict["Visa_Resource"], command,device_dict.get("execution_terminator", ""))  # writes the new order to the device
+                vcw.write(device_dict["Visa_Resource"], command)  # writes the new order to the device
                 # return to default mode for this switching
-                self.change_value_query(relay_dict, relay_dict["set_discharge"], "OFF", "DONE")
+                error = self.change_value_query(relay_dict, "set_discharge", "OFF", "DONE")
+                if error:
+                    self.queue_to_main.put({"RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
+                                            "DONE") + " got " + str(error) + " instead."})
+                    l.error(
+                        "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
+                            "DONE") + " got " + str(error) + " instead.")
+
                 return False
 
 

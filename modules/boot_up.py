@@ -4,7 +4,7 @@
 # -Connects to all system relevant instruments
 # -Initialize statistics and state control
 
-import imp, os, threading, json
+import imp, os, threading, yaml
 import logging
 import numpy as np
 
@@ -96,7 +96,7 @@ class loading_init_files:
             #new_dict_name = self.check_for_device_name(line_strings, "Display_name")
             new_device_dict = self.create_dictionary(file, os.path.abspath(self.__install_path[:-19] + "/init/devices/"))
 
-            self.devices_dict.update({new_device_dict["Display_name"]: new_device_dict}) # Adds the new device in the dictionary
+            self.devices_dict.update({new_device_dict.get("Display_name", "MissingNo"): new_device_dict}) # Adds the new device in the dictionary
         # -----------------------------------------------------------------------------------------------------------------------------------------
         # -----------------------------------------------------------------------------------------------------------------------------------------
 
@@ -209,13 +209,13 @@ class loading_init_files:
 
 
     def create_dictionary(self, file, filepath):
-        '''Creates a dictionary with all values written in the file using json'''
+        '''Creates a dictionary with all values written in the file using yaml'''
 
         file_string = os.path.abspath(str(filepath) + "\\" + str(file))
-        json_file = open(file_string, "r")
-        dict = json.load(json_file)
-        json_file.close()
-        return dict
+        print "Loading file: " + str(file)
+        with open(file_string, "r") as yfile:
+            dict = yaml.load(yfile)
+            return dict
 
 
 #Debricated methods
@@ -404,7 +404,8 @@ class update_defaults_dict:
                 "Bad_strips": 0,
                 "Measurement_running": False,
                 "Alignment": False,
-                "trans_matrix": None,
+                "trans_matrix": np.array([[  1.00000000e+00,  -2.77555756e-17,   0.00000000e+00],
+                                          [  0.00000000e+00,   1.00000000e+00,   0.00000000e+00]]),
                 "Environment_status": False,
                 "external_lights": False,
                 "internal_lights": False,
@@ -446,8 +447,10 @@ class update_defaults_dict:
                 "joystick": False,
                 "zlock":    True,
                 "table_is_moving": False,
-                "V0": None,
-                "current_strip": -1
+                "V0": np.array([  39080.17955,  129591.,         2675.     ]),
+                "current_strip": -1,
+                "strip_scan_time": 10,
+                "IVCV_time": 300
                 }
 
 

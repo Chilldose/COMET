@@ -40,7 +40,7 @@ ci = check_installation()
 
 # Loading all modules
 print "Loading modules ... ",
-import os, visa, scipy, PyQt5, datetime, threading, Queue, sys, json, importlib, re, types
+import os, visa, scipy, PyQt5, datetime, threading, Queue, sys, yaml, importlib, re, types
 import pyqtgraph as pg
 import numpy as np
 from pyqtgraph.Qt import QtGui, QtCore
@@ -52,6 +52,7 @@ from modules.GUI_classes import *
 from modules.measurement_event_loop import *
 from modules.measurements import *
 from modules.cmd_inferface import *
+from modules.bad_strip_detection import *
 from threading import Thread
 from modules.engineering_notation import *
 print "Done \n"
@@ -78,7 +79,7 @@ devices_dict = connect_to_devices(vcw, stats.devices_dict).get_new_device_dict()
 print "Done \n"
 
 print "Starting the event loops ... "
-table = table_control_class(stats.default_values_dict, devices_dict.get("Table_control",None), message_to_main, shell)
+table = table_control_class(stats.default_values_dict, devices_dict, message_to_main, shell, vcw)
 if "Table_control" not in devices_dict:
     table = None
 switching = switching_control(stats.default_values_dict, devices_dict, message_to_main, shell)
@@ -138,15 +139,16 @@ print "Close visa connections..."
 l.info("Close visa connections...")
 vcw.close_connections()
 
-print "Save current settings..."
-try:
-    os.remove(str(os.path.abspath(os.path.realpath(__file__)[:-8] + "/init/default/" + "defaults.json")))
-except Exception, e:
-    print e
-for keys in update_defaults_dict().to_update().keys():
-    if keys in stats.default_values_dict["Defaults"]:
-        stats.default_values_dict["Defaults"].pop(keys)
-hf.write_init_file("defaults", stats.default_values_dict["Defaults"], str(os.path.abspath(os.path.realpath(__file__)[:-8] + "/init/default/")))
+#print "Save current settings..."
+#try:
+#    os.remove(str(os.path.abspath(os.path.realpath(__file__)[:-8] + "/init/default/" + "defaults.yaml")))
+#except Exception, e:
+#    print e
+#for keys in update_defaults_dict().to_update().keys():
+#    if keys in stats.default_values_dict["Defaults"]:
+#        stats.default_values_dict["Defaults"].pop(keys)
+#hf.write_init_file("defaults", stats.default_values_dict["Defaults"], str(os.path.abspath(os.path.realpath(__file__)[:-8] + "/init/default/")))
 
 print "Exiting Main Thread"
 l.info("Exiting Main Thread")
+sys.exit(0)
