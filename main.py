@@ -72,6 +72,8 @@ vcw = VisaConnectWizard.VisaConnectWizard()
 print "Done \n"
 
 
+
+
 # Tries to connect to all available devices in the network, it returns a dict of a dict
 # First dict contains the the device names as keys, the value is a dict containing key words of settings
 print "Try to connect to devices ...",
