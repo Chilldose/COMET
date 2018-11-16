@@ -1,4 +1,4 @@
-# Ignore all .pyc files
+# Ignore all .pyc files log files etc
 *.pyc
 *.log
 *.bat
@@ -9,3 +9,4 @@
 # Ignore the content of some folders
 rubbish/**
 .idea/**
+/init/device_confs/
