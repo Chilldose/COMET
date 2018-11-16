@@ -1,0 +1,292 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 2.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 2.7" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Structure &mdash; UniDAQ beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Installation" href="installation.html" />
+    <link rel="prev" title="Welcome to the UniDAQ documentation!" href="index.html" /> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> UniDAQ
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.9.4
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Structure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#main-structure">Main Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#measurement-event-loop">Measurement event loop</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="code.html">API references</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">UniDAQ</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Structure</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/programstructure.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="structure">
+<h1>Structure<a class="headerlink" href="#structure" title="Permalink to this headline">¶</a></h1>
+<p>The Framework is based on a multi-thread python environment. Since python is generally not thread-safe and race conditions
+are often a problem, several precautions have to be made to safely share data between the different threads. For more
+information on how to share data see chapter <span class="xref std std-ref">dataexchange</span>.</p>
+<div class="section" id="main-structure">
+<h2>Main Structure<a class="headerlink" href="#main-structure" title="Permalink to this headline">¶</a></h2>
+<p>The picture below shows the main flow-chart of the framework. I will now give a short summary what the program does during boot-up.</p>
+<p>It starts by loading all modules required for running, by also checking the availability of the modules. If the module cannot
+be found a message will be promped and a request will be made if it should be installed now.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">A restart of the program may be needed, in order for them to work.</p>
+</div>
+<p>Furthermore it prompts every action it takes while loading, think of it like some kind of rudimentary log system. After
+loading all modules the init files, like default values and device config files are loaded. Furthermore, the actual log-file will be initialized.
+After all this is done the framework tries to connect to all devices it has config files for and stores the information the state machine.</p>
+<p>Finally two threads are spawned, one beeing the GUI-Thread and one beeing the measurement event loop thread (see next section)</p>
+<p>Concerning the GUI-Thread: Here a event loop is established which can take on messages from other parts of the program, e.g.
+new data from a measurement or error messages or warnings.</p>
+<p>Furthermore, it starts a additional framework functions to continuously update plots and/or GUI elements. This functionality
+is provided by a NON-THREAD-SAVE state machine. This is necessary in order to not cripple the functionality or the speed of the program.
+In order to not have race conditions, the rule in the GUI-Thread is:</p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">Never change variables which do not directly belong to the GUI. Only access non member variables by read operations and check if the data is valid.</p>
+</div>
+<p>But <strong>DO NOT PANIC</strong> only a few variables are susceptible to race conditions (if you are using predefined work suits like the QTC-Software).
+If you are using a blank project, like it is described in the <a class="reference internal" href="tutorial.html#tutorials"><span class="std std-ref">Tutorials</span></a> section. EVERYTHING is safe and you can use it as you please.</p>
+<p>In order to stop the program you have to send the right signal to the GUI-event loop. This message reads as follows: <code class="docutils literal notranslate"><span class="pre">{&quot;Status&quot;:</span> <span class="pre">{&quot;CLOSE&quot;:</span> <span class="pre">True}}</span></code></p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">If the close program message is send from ANYWHERE in the program the program shuts down! But if a measurement is running, the program waits until the measurement is either finished or aborted correctly, it will not kill it.</p>
+</div>
+<img alt="Flowchart_main" class="floatingflask" src="_images/Flowchart_QTC.png" />
+</div>
+<div class="section" id="measurement-event-loop">
+<h2>Measurement event loop<a class="headerlink" href="#measurement-event-loop" title="Permalink to this headline">¶</a></h2>
+<p>The measurement event loop of the Framework is a core feature and is complex enough to justify a seperate chapter.</p>
+<p>It first initializes all class instances like tools for measurements and supply functions like the queue objects for data
+exchange. It furthermore initializes continous task, like the humidity and temperature control/surveillance. This continous tasks
+can be extended as well.</p>
+<p>After that a event loop is established which waits for incomming messages from other threads. If one such message arrives, e.g.
+a new measurement job, then the framwork take actions accordingly to the flow chart below.
+If a new measurement should be conducted, a new thread will be spawned which solely conducts the measurement and is seperated
+from the rest of the framework, except for a stop action flag. This is due to code robustness. Imagine another part of the
+code consumes a lot of resources and/or crashes. Since the measurement thread is handling devices this thread may never experience
+lags or something like that.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If a program bug is prevalent in the actual measurement routine this mechanism will not help. So be careful while programming the measurement routines!</p>
+</div>
+<p>Another type of message, which the framework can handle are, status update queries, these type of messages are not specific
+and can be extended. After gatering the required data, the thread sends the data back to the main thread.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This mechanism was mainly used in the early development phases and is now marked as depricated. Status updates are now handled via thread-safe data structures, which does not need message based data exchange.</p>
+</div>
+<img alt="Flowchart_meas_gen" class="floatingflask" src="_images/Flowchart_QTC_measurement_event_loop.png" />
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="installation.html" class="btn btn-neutral float-right" title="Installation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Welcome to the UniDAQ documentation!" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Dominic Bloech.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'beta',
+            LANGUAGE:'Python 2.7',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true,
+            SOURCELINK_SUFFIX: '.txt'
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  <script type="text/javascript" src="_static/js/theme.js"></script>
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

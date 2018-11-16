@@ -18,9 +18,13 @@ Contents
 .. toctree::
    :maxdepth: 1
 
-   gettingstarted
+   programstructure
    installation
+   gettingstarted
    tutorial
+   datastructure
+   dataexchange
+   measurementjobgen
 
 References
 ----------

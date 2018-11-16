@@ -5,18 +5,18 @@ Installation
 
 What you need
 ~~~~~~~~~~~~~
-**First** you need a python python 2.7 64 bit distribution. (32 bit works as well but will unstable)
+**First** you need a python python 2.7 64 bit distribution. (32 bit works as well but will be unstable)
 I recommended to use UniDAQ with an Anaconda python distribution which you can download here:
 
 `Download Anaconda here <https://www.anaconda.com/download/>`_
 
-.. warning:: Make sure to download the 64-bit version for your system!
+.. warning:: Make sure to download the 64-bit version!
 
-it will work with a normal pytho version too, but I have not tested it. Furthermore, i have set up an Anaconda environement,
+it will work with a normal python version too, but I have not tested it. Furthermore, i have set up an Anaconda environement,
 so you do not need to painfully install all modules by hand.
 
 
-**Secondly** you need to intall National Instrument VISA drivers. These drivers can be found here:
+**Secondly** you need to install National Instrument VISA drivers. These drivers can be found here:
 
 `NI-Visa drivers <http://www.ni.com/download/ni-visa-17.0/6646/en/>`_
 
@@ -43,5 +43,17 @@ try to start a resource manager ::
     >>> rm = visa.ResourceManager()
     >>> print(rm.list_resources())
 
-If this code does not yield any errors, UniDAQ was correctly installed on your system. And if some devices are already
-connected to your system these should be listed now..
+If this code does not yield any errors, PyVisa and the environement was correctly installed on your system. And if some devices are already
+connected to your system these should be listed now.
+
+Download the UniDAQ source code
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you just want the latest version of e.g. the SQC software download the corresponding branch from my GitHub repository.
+
+`Git repo <https://github.com/Chilldose/UniDAQ>`_.
+
+If you want to develop your own GUI and measurement routines make sure to download a blank project from the tutorial branch `here <https://github.com/Chilldose/UniDAQ/tree/tutorial>`_.
+
+Once you have the version you like, continue with the :ref:`gettingstarted` section.
+

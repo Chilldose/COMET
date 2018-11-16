@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Tutorials" href="tutorial.html" />
-    <link rel="prev" title="Getting Started" href="gettingstarted.html" /> 
+    <link rel="next" title="Getting Started" href="gettingstarted.html" />
+    <link rel="prev" title="Structure" href="programstructure.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -83,13 +83,18 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">Structure</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#what-you-need">What you need</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#once-installed-test">Once installed, test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#download-the-unidaq-source-code">Download the UniDAQ source code</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="code.html">API references</a></li>
@@ -161,16 +166,16 @@
 <span id="id1"></span><h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="what-you-need">
 <h2>What you need<a class="headerlink" href="#what-you-need" title="Permalink to this headline">¶</a></h2>
-<p><strong>First</strong> you need a python python 2.7 64 bit distribution. (32 bit works as well but will unstable)
+<p><strong>First</strong> you need a python python 2.7 64 bit distribution. (32 bit works as well but will be unstable)
 I recommended to use UniDAQ with an Anaconda python distribution which you can download here:</p>
 <p><a class="reference external" href="https://www.anaconda.com/download/">Download Anaconda here</a></p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Make sure to download the 64-bit version for your system!</p>
+<p class="last">Make sure to download the 64-bit version!</p>
 </div>
-<p>it will work with a normal pytho version too, but I have not tested it. Furthermore, i have set up an Anaconda environement,
+<p>it will work with a normal python version too, but I have not tested it. Furthermore, i have set up an Anaconda environement,
 so you do not need to painfully install all modules by hand.</p>
-<p><strong>Secondly</strong> you need to intall National Instrument VISA drivers. These drivers can be found here:</p>
+<p><strong>Secondly</strong> you need to install National Instrument VISA drivers. These drivers can be found here:</p>
 <p><a class="reference external" href="http://www.ni.com/download/ni-visa-17.0/6646/en/">NI-Visa drivers</a></p>
 <p>You will need drivers higher than 17.0 for UniDAQ to work properly. If you have installed a LabView version it is usually already
 installed on your pc. If so make sure in the NiMAX app what version of NI-Visa is installed on your system.</p>
@@ -195,8 +200,15 @@ try to start a resource manager</p>
 <span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">rm</span><span class="o">.</span><span class="n">list_resources</span><span class="p">())</span>
 </pre></div>
 </div>
-<p>If this code does not yield any errors, UniDAQ was correctly installed on your system. And if some devices are already
-connected to your system these should be listed now..</p>
+<p>If this code does not yield any errors, PyVisa and the environement was correctly installed on your system. And if some devices are already
+connected to your system these should be listed now.</p>
+</div>
+<div class="section" id="download-the-unidaq-source-code">
+<h2>Download the UniDAQ source code<a class="headerlink" href="#download-the-unidaq-source-code" title="Permalink to this headline">¶</a></h2>
+<p>If you just want the latest version of e.g. the SQC software download the corresponding branch from my GitHub repository.</p>
+<p><a class="reference external" href="https://github.com/Chilldose/UniDAQ">Git repo</a>.</p>
+<p>If you want to develop your own GUI and measurement routines make sure to download a blank project from the tutorial branch <a class="reference external" href="https://github.com/Chilldose/UniDAQ/tree/tutorial">here</a>.</p>
+<p>Once you have the version you like, continue with the <a class="reference internal" href="gettingstarted.html#gettingstarted"><span class="std std-ref">Getting Started</span></a> section.</p>
 </div>
 </div>
 
@@ -208,10 +220,10 @@ connected to your system these should be listed now..</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="tutorial.html" class="btn btn-neutral float-right" title="Tutorials" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="gettingstarted.html" class="btn btn-neutral float-right" title="Getting Started" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="gettingstarted.html" class="btn btn-neutral" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="programstructure.html" class="btn btn-neutral" title="Structure" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

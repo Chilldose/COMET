@@ -9,11 +9,12 @@ For more information on how to install see the :ref:`installation` guide.
 Setting Up The Environement
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-With python up and running you can run the the **environement_setup.py** file by::
+With python up and running, you can run the the **environement_setup.py** file by::
 
     python environement_setup.py
 
 this will (when Anaconda is installed) automatically install all required modules for the program to run. If you don't have Anaconda installed and don't want to use it, you can look in the "requirements.yml" file to see what dependencies the program needs.
+
 
 Running The Program
 ~~~~~~~~~~~~~~~~~~~

@@ -81,9 +81,13 @@
             
             
               <ul>
-<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../programstructure.html">Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dataexchange.html">Data Exchange</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../measurementjobgen.html">Measurement Job Generation</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../code.html">API references</a></li>
@@ -274,7 +278,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">pad_files_dict</span> <span class="o">=</span> <span class="n">pad_data_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-        <span class="c1"># Update the projects and sensors which are included and can be measured</span>
+        <span class="c1"># Update the projects and sensors which are included and can be measured (so no declaration needed prior)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">default_values_dict</span><span class="p">[</span><span class="s2">&quot;Defaults&quot;</span><span class="p">][</span><span class="s2">&quot;Sensor_types&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="k">for</span> <span class="n">project</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pad_files_dict</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">default_values_dict</span><span class="p">[</span><span class="s2">&quot;Defaults&quot;</span><span class="p">][</span><span class="s2">&quot;Sensor_types&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="nb">str</span><span class="p">(</span><span class="n">project</span><span class="p">):</span> <span class="p">[</span><span class="n">sensor</span> <span class="k">for</span> <span class="n">sensor</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pad_files_dict</span><span class="p">[</span><span class="n">project</span><span class="p">]]})</span>

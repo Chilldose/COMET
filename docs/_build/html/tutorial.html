@@ -28,8 +28,8 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API references" href="code.html" />
-    <link rel="prev" title="Installation" href="installation.html" /> 
+    <link rel="next" title="Data Structure" href="datastructure.html" />
+    <link rel="prev" title="Getting Started" href="gettingstarted.html" /> 
 
   
   <script src="_static/js/modernizr.min.js"></script>
@@ -83,14 +83,18 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-add-a-new-gui-element">How to add a new GUI element</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-add-a-new-device">How to add a new device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#how-to-add-a-new-measurement">How to add a new measurement</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="code.html">API references</a></li>
@@ -160,8 +164,9 @@
             
   <div class="section" id="tutorials">
 <h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h1>
-<p>This tutorials should guide you through the process of generating your own customized GUI and measurement software.
-But before we can start with the fun part, delete all previous existing GUI elements and so on.
+<p>This tutorials should guide you through the process of generating your own customized GUI and measurement routines.
+But before we can start download the blank project from the &quot;tutorial&quot; branch from the git repository as described in <a class="reference internal" href="installation.html#installation"><span class="std std-ref">Installation</span></a>.
+Or, delete all previous existing GUI elements and so on from a working suite.
 To do that delete the content of the following folders, except for the <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> files.</p>
 <ul class="simple">
 <li>.init/devices</li>
@@ -171,37 +176,65 @@ To do that delete the content of the following folders, except for the <code cla
 <li>.modules/ui_plugins</li>
 </ul>
 <p>this makes a <em>tabula rasa</em> for your project</p>
-<p>the first thing we need now is a complete new <code class="docutils literal notranslate"><span class="pre">defaults.json</span></code> file, which is needed from the program in order to work</p>
-<p>I have set up one for you here, you can simply copy it</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="s2">&quot;Settings_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Defaults&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;measurement_types&quot;</span><span class="p">:</span> <span class="p">[],</span>
-    <span class="s2">&quot;measurement_order&quot;</span><span class="p">:</span> <span class="p">[],</span>
-    <span class="s2">&quot;update_counter&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-    <span class="s2">&quot;GUI_render_order&quot;</span><span class="p">:</span> <span class="p">[]</span>
-<span class="p">}</span>
+<p>the first thing we need now is a complete new <code class="docutils literal notranslate"><span class="pre">defaults.yaml</span></code> file, which is needed by the framework.
+I have set up one for you here, you can simply copy it</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">---</span> <span class="c1"># Block of dict entries</span>
+
+<span class="c1"># Critical parameters</span>
+<span class="n">Settings_name</span><span class="p">:</span> <span class="n">Defaults</span> <span class="c1"># The name of the settings which will be shown in the framework and will be the addressing name</span>
+<span class="n">Operator</span><span class="p">:</span> <span class="c1"># The operators working on this machine</span>
+  <span class="o">-</span> <span class="n">You</span>
+
+
+<span class="n">Projects</span><span class="p">:</span> <span class="c1"># The project names of your sensor batches etc. musst be conform with the sensors entries</span>
+    <span class="o">-</span> <span class="n">Test</span> <span class="n">Project</span>
+
+<span class="n">measurement_order</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">IVscan</span>
+
+
+<span class="c1"># Optional parameters</span>
+
+<span class="n">GUI_render_order</span><span class="p">:</span> <span class="c1"># Give a render order if need be, otherwise all found gui elements will be rendered</span>
+    <span class="o">-</span> <span class="n">Main</span>
+
+<span class="c1"># Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name</span>
+<span class="n">IVSMU</span><span class="p">:</span> <span class="n">Bias_SMU</span>
 </pre></div>
 </div>
-<p>This file needs to be saved in <code class="docutils literal notranslate"><span class="pre">.init/defaults</span></code> and it is written in json.</p>
+<p>This file needs to be saved in <code class="docutils literal notranslate"><span class="pre">.init/defaults</span></code> and it is written in YAML (json works as well).</p>
 <p>When you now try to run the program via</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">UniDAQ</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
 <p>you should get an empty GUI window with nothing in it.</p>
 <p>This is the start point for the rest of these tutorials</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">I recommend to download a working copy from the git repository branch &quot;tutorial&quot;, since this will definetely work.</p>
+</div>
 <div class="section" id="how-to-add-a-new-gui-element">
 <h2>How to add a new GUI element<a class="headerlink" href="#how-to-add-a-new-gui-element" title="Permalink to this headline">¶</a></h2>
-<p>Since our program has now no GUI at all, we first change that in order to see a progress when we add new devices in the next chapter.</p>
+<p>Your program has now no GUI at all, if its want you wanted: Awesome. If not, we ought to change that.
+In order to do so we need to design a GUI.</p>
 <p>UniDAQ can work with <strong>QTDesigner</strong> <code class="docutils literal notranslate"><span class="pre">.ui</span></code> files.
 With the <a class="reference internal" href="installation.html#installation"><span class="std std-ref">Installation</span></a> of this software, which you have followed I hope, the so-called QtDesigner was installed as well.
 If features a simple GUI based program, in which you can generate your own GUI and save them in <code class="docutils literal notranslate"><span class="pre">.ui</span></code> format.</p>
-<p>You know can build your own GUI, or you use one of mine. Now I will use the <code class="docutils literal notranslate"><span class="pre">Device_connection_info.ui</span></code> file from the repository.
-It contains a GUI which dynamically shows all connected devices to UniDAQ</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">I will not go into details on how you build GUIs in QtDesigner, there are plenty of tutorial videos in the web.</p>
+</div>
+<p>You know can build your own GUI, or you use one of mine. I have precoded a minimal example of an IV GUI, you can find it in the <code class="docutils literal notranslate"><span class="pre">tutorial_templates</span></code> folder.
+Now I will use this <code class="docutils literal notranslate"><span class="pre">Main.ui</span></code> file from this folder.</p>
 <p>Put the file in: <code class="docutils literal notranslate"><span class="pre">.modules/QT_Designer_UI</span></code></p>
-<p>Next we have to tell the Program to render this UI and in which order (when you have more than one UI). Open the <code class="docutils literal notranslate"><span class="pre">**defaults.json**</span></code>
-file from before and add in &quot;GUI_render_order&quot; the list entry &quot;Resources&quot;.</p>
-<p>Know we have to write some code, that the this UI has some logic. For this we generate a file in the folder <code class="docutils literal notranslate"><span class="pre">.modules/ui_plugins</span></code>.
-This file we call <code class="docutils literal notranslate"><span class="pre">Resources_window.py</span></code>.</p>
+<p>Next we have to tell the Program to render this UI and in which order (when you have more than one UI). Open the <code class="docutils literal notranslate"><span class="pre">**defaults.yml**</span></code>
+file from before and add in the parameter <code class="docutils literal notranslate"><span class="pre">GUI_render_order</span></code> with a value of &quot;Main&quot;.</p>
+<p>Know we have to write some code so that the this UI has some logic. For this we generate a file in the folder <code class="docutils literal notranslate"><span class="pre">.modules/ui_plugins</span></code>.
+This file we call <code class="docutils literal notranslate"><span class="pre">Main_window.py</span></code>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">A final minimal example can also be found in the <code class="docutils literal notranslate"><span class="pre">tutorials_templates</span></code> folder.</p>
+</div>
 <p>The minimal example to run just the GUI without anything else is as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>from PyQt5 import QtGui
 from PyQt5.QtGui import *
@@ -209,7 +242,9 @@ from PyQt5.QtWidgets import *
 from .. import utilities
 
 # Logger and utilities
+# Adds the logger object to the namespace
 l = logging.getLogger(__name__)
+# Adds the utilitifunctions to the namespace
 hf = utilities.help_functions()
 
 class &lt;GUI_name&gt;_window:
@@ -223,23 +258,21 @@ class &lt;GUI_name&gt;_window:
         self.layout.addWidget(&lt;GUI_name&gt;_widget)
 </pre></div>
 </div>
-<p>In our case <strong>&lt;GUI_name&gt;</strong> would be <strong>Resources</strong> and <strong>&lt;name_of_ui_file.ui&gt;</strong> would be <strong>Device_connection_info.ui</strong>.
+<p>In our case <strong>&lt;GUI_name&gt;</strong> would be <strong>Main_window.py</strong> and <strong>&lt;name_of_ui_file.ui&gt;</strong> would be <strong>Main.ui</strong>.
 After that it renders the GUI when you restart UniDAQ. But this code does not have and logic to it. You can add python
 member functions to it and access the ui classes e.g. buttons and so on via <code class="docutils literal notranslate"><span class="pre">&lt;GUI_name&gt;.foo()</span></code> etc.</p>
-<p>For simplicity use the file <code class="docutils literal notranslate"><span class="pre">Resources_window.py</span></code> from the repo and save it to the folder <code class="docutils literal notranslate"><span class="pre">.modules/ui_plugins</span></code>.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If you look at the code, you will see, that I did not complie to the code example above, on how to implement a new GUI element. This is due to some additional logic I have implemented. Go and check it out how it works!</p>
-</div>
-<p>If you restart UniDAQ you should see ... nothing except for a little window tab called &quot;Resources&quot;. Wow, what an achievement!
-To change this nothingness, proceed to the next chapter and learn how to add a decvice.</p>
+<p>In <strong>Main.window.py</strong> are some predefined functions which give the GUI some logic for a simple IV measurement. Go check it out!</p>
+<p>If you restart UniDAQ you should see a window tab called &quot;Main&quot;. Wow, what an achievement!</p>
+<p>Now that we know how to add some GUI elements to our program we can proceed and add some devices too.</p>
 </div>
 <div class="section" id="how-to-add-a-new-device">
 <h2>How to add a new device<a class="headerlink" href="#how-to-add-a-new-device" title="Permalink to this headline">¶</a></h2>
+<p>Before we start with this tutorial be so kind and add the GUI <strong>Resources.ui</strong> and the respective <code class="docutils literal notranslate"><span class="pre">.py</span></code> from the templates.
+This will give you some feedback if a certain device is correctly connected to the framework or not. If you don't know how to add a GUI element to the framework, be sure to have done the previous tutorial point.</p>
 <p>Now that we have a GUI which can display all devices in the framework, we should add a device and see what happens.
-To do that go into the folder <code class="docutils literal notranslate"><span class="pre">.init/devices</span></code> and create a .json file. The name of this file has no particular important
-meening in the framework. But to keep it all simples lets choose the name like whats the device called e.g. <code class="docutils literal notranslate"><span class="pre">Keithley2410.json</span></code>.</p>
-<p>In this file need the following entries, where the values of the key,value pairs is one of your choosing but the key is fixed:</p>
+To do that go into the folder <code class="docutils literal notranslate"><span class="pre">.init/devices</span></code> and create a .yml file. The name of this file has no particular important
+meaning to the framework. But to keep it all simples lets choose the name like whats the device called e.g. <code class="docutils literal notranslate"><span class="pre">Keithley2410.yml</span></code>.</p>
+<p>This file need the following entries, where the values of the key,value pairs is one of your choosing but the key is fixed:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
     <span class="s2">&quot;Device_name&quot;</span><span class="p">:</span> <span class="s2">&quot;2410 Keithley SMU&quot;</span><span class="p">,</span>
     <span class="s2">&quot;Device_type&quot;</span><span class="p">:</span> <span class="s2">&quot;SMU&quot;</span><span class="p">,</span>
@@ -255,7 +288,7 @@ meening in the framework. But to keep it all simples lets choose the name like w
 <li><em>Display_name</em>: Is the name for internal reference (only value which has to be different for all devices)</li>
 <li><em>Device_IDN</em>: Specifies the devices own IDN</li>
 </ul>
-<p>UniDAQ has the feature to run an initialization proceedure over all devices, when the software boots up. In order to use
+<p>UniDAQ has the feature to run an initialization proceedure over a device, when the software boots up. In order to use
 this feature a format has to be considered for the keys in the dictionary.</p>
 <p>If a key has the prefix <code class="docutils literal notranslate"><span class="pre">default_</span></code> it will be executed during initialization. If the additional prefix <code class="docutils literal notranslate"><span class="pre">imp:</span></code> is stated
 then this command will be executed before all other commands. Each <code class="docutils literal notranslate"><span class="pre">default_</span></code> needs to have a <code class="docutils literal notranslate"><span class="pre">set_</span></code> value to work (but not the other way round).
@@ -270,38 +303,465 @@ Out of both a command will be build.</p>
 <p>The command which will be send to the device will be <em>SOUR:VOLT:LEV 0</em>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">If you add the item <code class="docutils literal notranslate"><span class="pre">&quot;&lt;alias_name&gt;&quot;:</span> <span class="pre">&quot;&lt;Display_name&gt;&quot;</span></code> to your <em>defaults.json</em> file you can rename the device internally, think of it like a internal, consistent notation.</p>
+<p class="last">If you add the item <code class="docutils literal notranslate"><span class="pre">&quot;&lt;alias_name&gt;&quot;:</span> <span class="pre">&quot;&lt;Display_name&gt;&quot;</span></code> to your <em>defaults.yml</em> file you can rename the device internally, think of it like a internal, consistent notation.</p>
 </div>
 <p>Now that you have added all crucial commands for a device save it and restart UniDAQ, the result should look like</p>
 <img alt="UniDAQ" class="floatingflask" src="_images/UniDAQ_resources.png" />
-<p>In a very short time we have achieved alot, woudn' ya say? You now can add as many GUI elements and devices as you want and also add
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you want a more detailed example, there is a full device configuration for a Keithley 2410 SMU in the templates folder.</p>
+</div>
+<p>In a very short time we have achieved a lot, woudn' ya say? You now can add as many GUI elements and devices as you want and also add
 the logic to it.</p>
-<p>I would recommend to keep the code you have written now. It may come handy to know what and how many devices are definde/connected
+<p>I would recommend to keep the code you have written now. It may come handy to know what and how many devices are defined/connected
 to the framework.</p>
 <p>Furthermore, I would recommend to add further GUI elements from the repo, especially the &quot;Data_Browser&quot; will come in handy.
-With it you can browse all json files (and more) you have just created. Furthermore, you can manipulate, add and save the data
+With it you can browse all yml files (and more) you have just created. Furthermore, you can manipulate, add and save the data
 easily.</p>
 </div>
 <div class="section" id="how-to-add-a-new-measurement">
 <h2>How to add a new measurement<a class="headerlink" href="#how-to-add-a-new-measurement" title="Permalink to this headline">¶</a></h2>
 <p>In this final tutorial I will show you how to add a measurement plugin as easily as the GUI plugins from the previous section.
-In order to not program a full GUI, please add the GUI elements <strong>Main_window.py</strong> and <strong>Settings_window.py</strong> as well as
-their UI files from the repo.</p>
+In order to not program a full GUI, please add the GUI elements <strong>Main_window.py</strong> as shown in the previous tutorials.</p>
 <p>First you need to implement a &quot;Project&quot;, this can be done if you open a new directory in <code class="docutils literal notranslate"><span class="pre">.init/Pad_files</span></code>, where
-the directory name resembles a &quot;Project&quot;.</p>
-<p>Padfile missing</p>
-<p>In order for them to work you have to add a few items into the <strong>defaults.json</strong> file, so please add</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-     <span class="s2">&quot;Operator&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;Your name&quot;</span><span class="p">],</span>
-     <span class="s2">&quot;strip_scan_time&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
-     <span class="s2">&quot;IVCV_time&quot;</span><span class="p">:</span> <span class="mi">10</span>
-<span class="p">}</span>
+the directory name resembles a &quot;Project&quot;. If you have downloaded the turorial branch, then there should be a project already in there.
+In this project you find a txt file, which resembles a pad file. Such a file includes information about a specific sensor. In this case a
+strip sensor. If you do not include xyz coordinates, such a file can be used as header information file, instead of an strip file.</p>
+<p>For completeness reasons I show you now such a pad file and how it generally looks like</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># This pad file is for the HPK irradiation sensor for the 6inch runs</span>
+
+<span class="n">Campaign</span><span class="p">:</span> <span class="n">Hamamatsu</span> <span class="mi">6</span><span class="n">inch</span> <span class="n">Irradiation</span>
+<span class="n">Creator</span><span class="p">:</span> <span class="n">Dominic</span> <span class="n">Bloech</span> <span class="mf">17.07</span><span class="o">.</span><span class="mi">2018</span>
+
+<span class="n">reference</span> <span class="n">pad</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">reference</span> <span class="n">pad</span><span class="p">:</span> <span class="mi">32</span>
+<span class="n">reference</span> <span class="n">pad</span><span class="p">:</span> <span class="mi">64</span>
+
+<span class="c1"># Additional parameters</span>
+<span class="n">implant_length</span><span class="p">:</span> <span class="mi">20036</span>
+<span class="n">metal_width</span><span class="p">:</span> <span class="mi">35</span>
+<span class="n">implant_width</span><span class="p">:</span> <span class="mi">22</span>
+<span class="n">metal_length</span><span class="p">:</span> <span class="mf">19332.35</span>
+<span class="n">pitch</span><span class="p">:</span> <span class="mi">90</span>
+<span class="n">thickness</span><span class="p">:</span> <span class="mi">240</span>
+<span class="nb">type</span><span class="p">:</span> <span class="n">p</span><span class="o">-</span><span class="nb">type</span>
+
+<span class="n">strip</span>        <span class="n">x</span>       <span class="n">y</span>       <span class="n">z</span>
+<span class="mi">1</span>        <span class="mi">0</span>   <span class="mi">0</span>       <span class="mi">0</span>
+<span class="mi">2</span>        <span class="mi">0</span>   <span class="mi">90</span>      <span class="mi">0</span>
+<span class="mi">3</span>        <span class="mi">0</span>   <span class="mi">180</span>     <span class="mi">0</span>
+<span class="mi">4</span>        <span class="mi">0</span>   <span class="mi">270</span>     <span class="mi">0</span>
+<span class="mi">5</span>        <span class="mi">0</span>   <span class="mi">360</span>     <span class="mi">0</span>
+<span class="mi">6</span>        <span class="mi">0</span>   <span class="mi">450</span>     <span class="mi">0</span>
+<span class="mi">7</span>        <span class="mi">0</span>   <span class="mi">540</span>     <span class="mi">0</span>
+<span class="mi">8</span>        <span class="mi">0</span>   <span class="mi">630</span>     <span class="mi">0</span>
+<span class="mi">9</span>        <span class="mi">0</span>   <span class="mi">720</span>     <span class="mi">0</span>
+<span class="mi">10</span>       <span class="mi">0</span>   <span class="mi">810</span>     <span class="mi">0</span>
+<span class="mi">11</span>       <span class="mi">0</span>   <span class="mi">900</span>     <span class="mi">0</span>
+<span class="mi">12</span>       <span class="mi">0</span>   <span class="mi">990</span>     <span class="mi">0</span>
+<span class="mi">13</span>       <span class="mi">0</span>   <span class="mi">1080</span>    <span class="mi">0</span>
+<span class="mi">14</span>       <span class="mi">0</span>   <span class="mi">1170</span>    <span class="mi">0</span>
 </pre></div>
 </div>
-<p>With this you should be able to start UniDAQ again.</p>
+<p>In order for them to work you have to add a few items into the <strong>defaults.yml</strong> file, so please add</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Operator</span><span class="p">:</span>
+   <span class="o">-</span> <span class="n">Your</span> <span class="n">Name</span>
+
+<span class="n">Projects</span><span class="p">:</span> <span class="c1"># The project names of your sensor batches etc. musst be conform with the sensors entries</span>
+     <span class="o">-</span> <span class="n">Test</span> <span class="n">Project</span>
+
+<span class="n">Sensor_types</span><span class="p">:</span> <span class="c1"># Different sensor types in the various projects</span>
+    <span class="n">Test</span> <span class="n">Project</span><span class="p">:</span>
+         <span class="o">-</span> <span class="n">Irradiation</span>
+
+<span class="n">measurement_types</span><span class="p">:</span> <span class="c1"># If this is prevalent, measurements can be added, these are the objects in which the measurement data can be stored.</span>
+   <span class="o">-</span> <span class="n">IV</span>
+</pre></div>
+</div>
+<p>With this you should be able to start UniDAQ again. (All these parameters are included in the tutorials default file)</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Since we have only a fracture of the original progam loaded, the program can experience some instabilities and crashes. Especially all table controls are susceptiple! So do not touch them, yet.</p>
+<p class="last">Since we have only a fracture of the original program loaded, the program can experience some instabilities and crashes. Especially all table controls are susceptiple! So do not touch them, yet.</p>
+</div>
+<p>Now comming to the fun part. Coding the actual measurement proceedure for a IV curve.
+Like it was with the other parts of this tutorial, adding a new measurement can be done via plugins.
+Simply add a &lt;name_of_your_measurement&gt;.py file into the folder <code class="docutils literal notranslate"><span class="pre">~/modules/measurement_plugins</span></code> and the program knows this measurement.</p>
+<p>A simple IV measurement plugin can already be found in this folder.</p>
+<div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
+  2
+  3
+  4
+  5
+  6
+  7
+  8
+  9
+ 10
+ 11
+ 12
+ 13
+ 14
+ 15
+ 16
+ 17
+ 18
+ 19
+ 20
+ 21
+ 22
+ 23
+ 24
+ 25
+ 26
+ 27
+ 28
+ 29
+ 30
+ 31
+ 32
+ 33
+ 34
+ 35
+ 36
+ 37
+ 38
+ 39
+ 40
+ 41
+ 42
+ 43
+ 44
+ 45
+ 46
+ 47
+ 48
+ 49
+ 50
+ 51
+ 52
+ 53
+ 54
+ 55
+ 56
+ 57
+ 58
+ 59
+ 60
+ 61
+ 62
+ 63
+ 64
+ 65
+ 66
+ 67
+ 68
+ 69
+ 70
+ 71
+ 72
+ 73
+ 74
+ 75
+ 76
+ 77
+ 78
+ 79
+ 80
+ 81
+ 82
+ 83
+ 84
+ 85
+ 86
+ 87
+ 88
+ 89
+ 90
+ 91
+ 92
+ 93
+ 94
+ 95
+ 96
+ 97
+ 98
+ 99
+100
+101
+102
+103
+104
+105
+106</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># This file conducts a simple IV measurement</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;../modules&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..VisaConnectWizard</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">..utilities</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">l</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="n">help</span> <span class="o">=</span> <span class="n">help_functions</span><span class="p">()</span>
+<span class="n">vcw</span> <span class="o">=</span> <span class="n">VisaConnectWizard</span><span class="o">.</span><span class="n">VisaConnectWizard</span><span class="p">()</span>
+
+<span class="nd">@help.timeit</span> <span class="c1"># Decorator for timing of a function (not crucial)</span>
+<span class="k">class</span> <span class="nc">IV_class</span><span class="p">:</span> <span class="c1"># Every measurement muss have a class named after the file AND the suffix &#39;_class&#39;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_class</span><span class="p">):</span>
+        <span class="c1"># Here all parameters can be definde, which are crucial for the module to work, you can add as much as you want</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span> <span class="o">=</span> <span class="n">main_class</span> <span class="c1"># Import the main parameters and functions</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">justlength</span> <span class="o">=</span> <span class="mi">24</span> <span class="c1"># paramerter for the writting to file</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_IV</span><span class="p">()</span> <span class="c1"># Starts the measurement</span>
+
+    <span class="k">def</span> <span class="nf">stop_everything</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stops the measurement, by sending a signal to the main loop, via a queue object&quot;&quot;&quot;</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ABORT_MEASUREMENT&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">queue_to_main</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+
+    <span class="nd">@help.timeit</span>
+    <span class="k">def</span> <span class="nf">do_IVCV</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This function conducts an IV measurements&#39;&#39;&#39;</span>
+        <span class="n">voltage_End</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">voltage_Start</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">voltage_steps</span> <span class="o">=</span> <span class="bp">None</span>
+        <span class="n">bias_SMU</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s2">&quot;IVSMU&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Defining the min/max/steps for the meausrement</span>
+        <span class="n">voltage_End</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;EndVolt&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">voltage_Start</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;StartVolt&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">voltage_steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Steps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+        <span class="c1"># Add the fileheader</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">save_data</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_files</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">][</span><span class="s2">&quot;header&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># writes correctly the units into the file</span>
+
+        <span class="c1"># Generates a voltagestep list</span>
+        <span class="n">voltage_step_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">ramp_value</span><span class="p">(</span><span class="n">voltage_Start</span><span class="p">,</span> <span class="n">voltage_End</span><span class="p">,</span> <span class="n">voltage_steps</span><span class="p">)</span>
+
+        <span class="c1"># Config the setup for IV</span>
+        <span class="n">complience</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Complience&quot;</span><span class="p">,</span> <span class="s2">&quot;50e-6&quot;</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">config_setup</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="p">[(</span><span class="s2">&quot;set_complience_current&quot;</span><span class="p">,</span> <span class="n">complience</span><span class="p">)])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_output&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Loop over all voltages which should be conducted</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">voltage</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">voltage_step_list</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">stop_measurement</span><span class="p">():</span> <span class="c1"># To shut down if necessary</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_voltage&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">voltage</span><span class="p">))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;Defaults&quot;</span><span class="p">][</span><span class="s2">&quot;bias_voltage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">voltage</span>  <span class="c1"># changes the bias voltage in the state machine</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">steady_state_check</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="n">max_slope</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">wait</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">samples</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">Rsq</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">complience</span><span class="o">=</span><span class="n">complience</span><span class="p">):</span> <span class="c1"># Is a dynamic waiting time for the measuremnts</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stop_everything</span><span class="p">()</span>
+
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">check_complience</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">complience</span><span class="p">)):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stop_everything</span><span class="p">()</span> <span class="c1"># stops the measurement if complience is reached</span>
+
+                <span class="n">string_to_write</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">I</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_IV</span><span class="p">(</span><span class="n">voltage</span><span class="p">,</span> <span class="n">bias_SMU</span><span class="p">,</span> <span class="n">samples</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">save_data</span><span class="p">:</span>
+                    <span class="n">string_to_write</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">justlength</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">justlength</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_files</span><span class="p">[</span><span class="s2">&quot;IVCV&quot;</span><span class="p">],</span> <span class="n">string_to_write</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># writes correctly the units into the fileself.main.IVCV_file, string_to_write)</span>
+
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">stop_measurement</span><span class="p">():</span> <span class="c1"># Stops the measurement if necessary</span>
+                <span class="k">break</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">save_data</span><span class="p">:</span> <span class="c1"># Closes the file after completion of measurement or abortion</span>
+            <span class="n">help</span><span class="o">.</span><span class="n">close_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">IVCV_file</span><span class="p">)</span>
+
+        <span class="c1"># After the measurement ramp down and switch of the SMU</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">ramp_voltage</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_voltage&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">voltage_step_list</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_voltage&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_output&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">None</span>
+
+    <span class="c1">#@help.timeit</span>
+    <span class="k">def</span> <span class="nf">do_IV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltage</span><span class="p">,</span> <span class="n">device_dict</span><span class="p">,</span> <span class="n">samples</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This function simply sends a request for reading a current value and process the data&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">stop_measurement</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">steady_state_check</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">max_slope</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">Rsq</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">complience</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">[</span><span class="s2">&quot;IVCV&quot;</span><span class="p">][</span><span class="s2">&quot;IV&quot;</span><span class="p">][</span><span class="s2">&quot;Complience&quot;</span><span class="p">]):</span>  <span class="c1"># Is a dynamic waiting time for the measuremnt</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stop_everything</span><span class="p">()</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Steady state could not be reached, shutdown of measurement&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">build_command</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="s2">&quot;Read&quot;</span><span class="p">)</span> <span class="c1"># returns 2 values!!!</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">vcw</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">command</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span>
+
+            <span class="n">current</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">])</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="c1"># Makes a mean out of it</span>
+            <span class="n">voltage</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>  <span class="c1"># Makes a mean out of it</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;Defaults&quot;</span><span class="p">][</span><span class="s2">&quot;bias_voltage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">voltage</span>  <span class="c1"># changes the bias voltage of the sate machine</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_data</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_data</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">voltage</span><span class="p">)])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_data</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_data</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">],[</span><span class="nb">float</span><span class="p">(</span><span class="n">current</span><span class="p">)])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">queue_to_main</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="s2">&quot;IV&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">voltage</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">current</span><span class="p">)]})</span>
+
+            <span class="k">return</span> <span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">voltage</span><span class="p">)</span>
+</pre></div>
+</td></tr></table></div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The mechanics and functions behind the actual measurement procedure is quiet big. Therefore, I will only talk about the here programmed example but note that the framework gives you a ton of functions to work with for measurement algorithm development. Please see for the deticated tutorial on that.</p>
+</div>
+<p>So lets go through this program in detail:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;../modules&#39;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">..VisaConnectWizard</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">..utilities</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="n">l</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+<span class="n">help</span> <span class="o">=</span> <span class="n">help_functions</span><span class="p">()</span>
+<span class="n">vcw</span> <span class="o">=</span> <span class="n">VisaConnectWizard</span><span class="o">.</span><span class="n">VisaConnectWizard</span><span class="p">()</span>
+
+<span class="nd">@help.timeit</span> <span class="c1"># Decorator for timing of a function (not crucial)</span>
+<span class="k">class</span> <span class="nc">IV_class</span><span class="p">:</span> <span class="c1"># Every measurement muss have a class named after the file AND the suffix &#39;_class&#39;</span>
+</pre></div>
+</div>
+<p>Here basic modules are loaded, you are not restricted to them. You can add and remove as much as you like.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@help.timeit</span> <span class="c1"># Decorator for timing of a function (not crucial)</span>
+<span class="k">class</span> <span class="nc">IV_class</span><span class="p">:</span> <span class="c1"># Every measurement muss have a class named after the file AND the suffix &#39;_class&#39;</span>
+</pre></div>
+</div>
+<p>Here the measurement class is initialized. It is important, that the class declaration has the same name as the file
+plus the suffix <code class="docutils literal notranslate"><span class="pre">_class</span></code>. So, lets say you want the measurement <strong>stripscan</strong>. Just generate a python file with name
+<code class="docutils literal notranslate"><span class="pre">stripscan.py</span></code> and declare the class</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">stripscan_class</span><span class="p">:</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_class</span><span class="p">):</span>
+    <span class="c1"># Here all parameters can be definde, which are crucial for the module to work, you can add as much as you want</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">main</span> <span class="o">=</span> <span class="n">main_class</span> <span class="c1"># Import the main parameters and functions</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">justlength</span> <span class="o">=</span> <span class="mi">24</span> <span class="c1"># paramerter for the writting to file</span>
+    <span class="n">time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_IV</span><span class="p">()</span> <span class="c1"># Starts the measurement</span>
+</pre></div>
+</div>
+<p>Here the init function of the class is defined. Make sure the init function does all the work, so when the interpreter jumps
+out of the module, the desired measurement was conducted.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">stop_everything</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+   <span class="sd">&quot;&quot;&quot;Stops the measurement, by sending a signal to the main loop, via a queue object&quot;&quot;&quot;</span>
+   <span class="n">order</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ABORT_MEASUREMENT&quot;</span><span class="p">:</span> <span class="bp">True</span><span class="p">}</span>
+   <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">queue_to_main</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This function is a message function to the main loop of the framework. If you put the on the <code class="docutils literal notranslate"><span class="pre">queue_to_main</span></code>. This message
+will be interpreted by the framework as a deep core directive/message. There are a lot of different messages you can send
+see the chapter about <strong>data exchange</strong> in the Framework for that.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nd">@help.timeit</span>
+ <span class="k">def</span> <span class="nf">do_IVMain</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+     <span class="sd">&#39;&#39;&#39;This function conducts an IV measurements&#39;&#39;&#39;</span>
+     <span class="n">voltage_End</span> <span class="o">=</span> <span class="bp">None</span>
+     <span class="n">voltage_Start</span> <span class="o">=</span> <span class="bp">None</span>
+     <span class="n">voltage_steps</span> <span class="o">=</span> <span class="bp">None</span>
+     <span class="n">bias_SMU</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">devices</span><span class="p">[</span><span class="s2">&quot;IVSMU&quot;</span><span class="p">]</span>
+
+     <span class="c1"># Defining the min/max/steps for the meausrement</span>
+     <span class="n">voltage_End</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;EndVolt&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+     <span class="n">voltage_Start</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;StartVolt&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+     <span class="n">voltage_steps</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Steps&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+     <span class="c1"># Add the fileheader</span>
+     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">save_data</span><span class="p">:</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_files</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">][</span><span class="s2">&quot;header&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># writes correctly the units into the file</span>
+
+     <span class="c1"># Generates a voltagestep list</span>
+     <span class="n">voltage_step_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">ramp_value</span><span class="p">(</span><span class="n">voltage_Start</span><span class="p">,</span> <span class="n">voltage_End</span><span class="p">,</span> <span class="n">voltage_steps</span><span class="p">)</span>
+
+     <span class="c1"># Config the setup for IV</span>
+     <span class="n">complience</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Complience&quot;</span><span class="p">,</span> <span class="s2">&quot;50e-6&quot;</span><span class="p">))</span>
+     <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">config_setup</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="p">[(</span><span class="s2">&quot;set_complience_current&quot;</span><span class="p">,</span> <span class="n">complience</span><span class="p">)])</span>
+     <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_output&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+
+     <span class="c1"># Loop over all voltages which should be conducted</span>
+     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">voltage</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">voltage_step_list</span><span class="p">):</span>
+         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">stop_measurement</span><span class="p">():</span> <span class="c1"># To shut down if necessary</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_voltage&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">voltage</span><span class="p">))</span>
+             <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;Defaults&quot;</span><span class="p">][</span><span class="s2">&quot;bias_voltage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">voltage</span>  <span class="c1"># changes the bias voltage in the state machine</span>
+             <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">steady_state_check</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="n">max_slope</span> <span class="o">=</span> <span class="mf">1e-6</span><span class="p">,</span> <span class="n">wait</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="n">samples</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">Rsq</span> <span class="o">=</span> <span class="mf">0.5</span><span class="p">,</span> <span class="n">complience</span><span class="o">=</span><span class="n">complience</span><span class="p">):</span> <span class="c1"># Is a dynamic waiting time for the measuremnts</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">stop_everything</span><span class="p">()</span>
+
+             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">check_complience</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">complience</span><span class="p">)):</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">stop_everything</span><span class="p">()</span> <span class="c1"># stops the measurement if complience is reached</span>
+
+             <span class="n">string_to_write</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+             <span class="n">I</span><span class="p">,</span> <span class="n">V</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">do_IV</span><span class="p">(</span><span class="n">voltage</span><span class="p">,</span> <span class="n">bias_SMU</span><span class="p">,</span> <span class="n">samples</span> <span class="o">=</span> <span class="mi">3</span><span class="p">)</span>
+             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">save_data</span><span class="p">:</span>
+                 <span class="n">string_to_write</span> <span class="o">+=</span> <span class="nb">str</span><span class="p">(</span><span class="n">I</span><span class="p">)</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">justlength</span><span class="p">)</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">V</span><span class="p">)</span><span class="o">.</span><span class="n">ljust</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">justlength</span><span class="p">)</span>
+
+             <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_files</span><span class="p">[</span><span class="s2">&quot;IVCV&quot;</span><span class="p">],</span> <span class="n">string_to_write</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># writes correctly the units into the fileself.main.IVCV_file, string_to_write)</span>
+
+         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">stop_measurement</span><span class="p">():</span> <span class="c1"># Stops the measurement if necessary</span>
+             <span class="k">break</span>
+
+     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">save_data</span><span class="p">:</span> <span class="c1"># Closes the file after completion of measurement or abortion</span>
+         <span class="n">help</span><span class="o">.</span><span class="n">close_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">IVCV_file</span><span class="p">)</span>
+
+     <span class="c1"># After the measurement ramp down and switch of the SMU</span>
+     <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">ramp_voltage</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_voltage&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">voltage_step_list</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span>
+     <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_voltage&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+     <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_output&quot;</span><span class="p">,</span> <span class="s2">&quot;0&quot;</span><span class="p">)</span>
+
+     <span class="k">return</span> <span class="bp">None</span>
+</pre></div>
+</div>
+<p>Here the actual background tasks for the IV curve are programmed. It shouldn't be hard to decifer it, to understand howe it works.</p>
+<p>One important part is the object <code class="docutils literal notranslate"><span class="pre">self.main.job_details</span></code>. This object contains all information about the sended job from the main framework.
+Think of it as a cook recipe for your measurement.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The <code class="docutils literal notranslate"><span class="pre">self.main.job_details</span></code> has no fixed size or naming. The content should follow basic rules described in the <strong>measurement generation</strong> topic, though.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add the fileheader</span>
+<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">save_data</span><span class="p">:</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here the header will be written to a file, if you specified the option (default).</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generates a voltagestep list</span>
+<span class="n">voltage_step_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">ramp_value</span><span class="p">(</span><span class="n">voltage_Start</span><span class="p">,</span> <span class="n">voltage_End</span><span class="p">,</span> <span class="n">voltage_steps</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now coming to one of the most important parts of the framework. The framework gives you a ton of build in functions and variables to work with.
+All of them can be accessed via the object <code class="docutils literal notranslate"><span class="pre">self.main</span></code> (if correctly stated in the init function).
+These functions can be used to automatise some task, which are usually need by a user. One of these functions is <code class="docutils literal notranslate"><span class="pre">ramp_value</span></code>.
+This function takes a start, end and step value and returns you a list, of values.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">For more information on these functions and how they work, see the reference manual or the corresponding topic in this doc.</p>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">do_IV</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">voltage</span><span class="p">,</span> <span class="n">device_dict</span><span class="p">,</span> <span class="n">samples</span> <span class="o">=</span> <span class="mi">5</span><span class="p">):</span>
+        <span class="sd">&#39;&#39;&#39;This function simply sends a request for reading a current value and process the data&#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">stop_measurement</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">steady_state_check</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">max_slope</span><span class="o">=</span><span class="mf">1e-6</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">samples</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span><span class="n">Rsq</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">complience</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">[</span><span class="s2">&quot;IVCV&quot;</span><span class="p">][</span><span class="s2">&quot;IV&quot;</span><span class="p">][</span><span class="s2">&quot;Complience&quot;</span><span class="p">]):</span>  <span class="c1"># Is a dynamic waiting time for the measuremnt</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">stop_everything</span><span class="p">()</span>
+                <span class="n">l</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Steady state could not be reached, shutdown of measurement&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">build_command</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="s2">&quot;Read&quot;</span><span class="p">)</span> <span class="c1"># returns 2 values!!!</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">vcw</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">command</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span>
+
+            <span class="n">current</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">])</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="c1"># Makes a mean out of it</span>
+            <span class="n">voltage</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>  <span class="c1"># Makes a mean out of it</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;Defaults&quot;</span><span class="p">][</span><span class="s2">&quot;bias_voltage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">voltage</span>  <span class="c1"># changes the bias voltage of the sate machine</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_data</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_data</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">voltage</span><span class="p">)])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_data</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_data</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">][</span><span class="mi">1</span><span class="p">],[</span><span class="nb">float</span><span class="p">(</span><span class="n">current</span><span class="p">)])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">queue_to_main</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="s2">&quot;IV&quot;</span><span class="p">:</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">voltage</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">current</span><span class="p">)]})</span>
+
+            <span class="k">return</span> <span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">voltage</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Here the loop over the voltage list is conducted, using build-in functions from the framework.
+The only interesting part is, when it calls the <code class="docutils literal notranslate"><span class="pre">do_IV(...)</span></code> function. The purpose of this function is to simply accuire a value
+from a device. Here an algorithm was used to mitigate noise effects. Furthermore, the aquiered data is put in objects provided by the framework
+to safely store the measured data, even if the script is crashing (<code class="docutils literal notranslate"><span class="pre">self.main.measurement_data[&quot;IV&quot;]</span></code>).</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This automated storage generation will only work, if you have stated the measurement in the defaults file under the parameter <code class="docutils literal notranslate"><span class="pre">measurement_types</span></code>.</p>
 </div>
 </div>
 </div>
@@ -314,10 +774,10 @@ the directory name resembles a &quot;Project&quot;.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="code.html" class="btn btn-neutral float-right" title="API references" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="datastructure.html" class="btn btn-neutral float-right" title="Data Structure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="installation.html" class="btn btn-neutral" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="gettingstarted.html" class="btn btn-neutral" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
