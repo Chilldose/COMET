@@ -61,6 +61,9 @@ dependencies:
   - wincertstore=0.2=py27hf04cefb_0
   - yaml=0.1.7=h3e6d941_2
   - zlib=1.2.11=hbc2faf4_2
+  - pyyaml
+  - cython
+  - numba
   - pip:
     - pyvisa==1.9.0
     - pyqtgraph==0.10.0
