@@ -1,8 +1,7 @@
 # This file manages the IV and CV measurement and it is intended to be used as a plugin for the QTC software
 
-import logging
 import sys
-import numpy as np
+
 sys.path.append('../modules')
 from ..VisaConnectWizard import *
 from ..utilities import *

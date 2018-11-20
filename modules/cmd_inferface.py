@@ -1,6 +1,6 @@
 # This module makes the program interact with the command line
 
-import cmd, types
+import cmd
 from threading import Thread
 
 class DAQShell(cmd.Cmd):

@@ -1,14 +1,8 @@
+import logging
 import os
-import os.path as osp
-import sys, importlib, logging
 
-import numpy as np
 import pyqtgraph as pq
-from PyQt5.QtCore import Qt
-from PyQt5 import QtGui
-from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from random import randint
 
 from .. import utilities
 

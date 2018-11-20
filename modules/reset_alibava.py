@@ -1,7 +1,8 @@
 # This file is for resetting the alibava module
 
-from VisaConnectWizard import * # this module must be found either in same ordner or in lib directory of python
 from time import sleep
+
+from VisaConnectWizard import *  # this module must be found either in same ordner or in lib directory of python
 
 
 def reset_alibava():

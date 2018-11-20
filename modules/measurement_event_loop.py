@@ -1,14 +1,11 @@
 # This starts the event loop for conducting measurements
 
 import Queue
-from utilities import *
-from measurements import *
-import threading
-import numpy as np
-from time import sleep
-import pyqtgraph as pg
-from VisaConnectWizard import *
 import logging
+
+from VisaConnectWizard import *
+from measurements import *
+
 l = logging.getLogger(__name__)
 
 # Defining the Queue Objects for data sharing need to be here, than the main knows them to!!!

@@ -1,11 +1,11 @@
 # This starts the event loop for the GUI
 #from GUI_classes import *
-from PyQt5.QtCore import QCoreApplication
-from PyQt5 import QtCore
-import numpy as np
 import logging
-import thread
-from utilities import newThread, Framework
+
+import numpy as np
+from PyQt5 import QtCore
+from PyQt5.QtCore import QCoreApplication
+
 l = logging.getLogger(__name__)
 
 

@@ -1,11 +1,8 @@
 # This file manages the dynamic waiting time measurements and it is intended to be used as a plugin for the QTC software
 
-import logging
 import sys
-import numpy as np
-from scipy import stats
+
 sys.path.append('../modules')
-from ..VisaConnectWizard import *
 from ..utilities import *
 l = logging.getLogger(__name__)
 

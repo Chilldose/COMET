@@ -1,14 +1,8 @@
 import ast
-import json
-import os
-import os.path as osp
-import sys, importlib, logging
+import logging
+import sys
 
-import numpy as np
-import pyqtgraph as pq
-from PyQt5.QtCore import Qt
-from PyQt5 import QtGui, QtCore, QtWidgets
-from PyQt5.QtGui import *
+from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import *
 
 from .. import utilities

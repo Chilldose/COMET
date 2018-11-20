@@ -1,12 +1,9 @@
 # Here the measurement procedures are defined
-import logging
-import numpy as np
-from VisaConnectWizard import *
-import os
-import time
-import datetime, math
-from scipy import stats
 import importlib
+
+from scipy import stats
+
+from VisaConnectWizard import *
 from utilities import *
 
 l = logging.getLogger(__name__)

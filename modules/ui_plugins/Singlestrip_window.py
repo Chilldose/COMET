@@ -1,19 +1,13 @@
-import ast
-import json
 import os
-import os.path as osp
-import sys, importlib, logging
-
-import numpy as np
-import pyqtgraph as pq
-from PyQt5.QtCore import Qt
-from PyQt5 import QtGui
-from PyQt5.QtGui import *
-from PyQt5.QtWidgets import *
-from .. import engineering_notation as en
+import logging
+import os
 import time
 
+from PyQt5.QtWidgets import *
+
+from .. import engineering_notation as en
 from .. import utilities
+
 l = logging.getLogger(__name__)
 
 hf = utilities.help_functions()

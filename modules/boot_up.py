@@ -4,8 +4,11 @@
 # -Connects to all system relevant instruments
 # -Initialize statistics and state control
 
-import imp, os, threading, yaml
+import imp
 import logging
+import os
+import yaml
+
 import numpy as np
 
 l = logging.getLogger(__name__)

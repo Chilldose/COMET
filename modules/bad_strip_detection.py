@@ -1,13 +1,16 @@
 # This python program gives functions for bad strip detection of silicon based sensors
 # It is based on the bad strip detection of M. Valentan. Improvements done by D. Bloech
 
-import yaml
 import logging
 import os
-import numpy as np
-from utilities import help_functions
+
 import numba as nb
+import numpy as np
+import yaml
 from scipy.stats import norm, stats
+
+from utilities import help_functions
+
 hf = help_functions()
 
 l = logging.getLogger(__name__)

@@ -7,7 +7,6 @@
 
 
 import importlib
-import os
 import os.path as osp
 import sys
 from time import sleep
@@ -19,8 +18,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 from GUI_event_loop import *
-from utilities import newThread, help_functions, measurement_job_generation
 from bad_strip_detection import *
+from utilities import newThread, measurement_job_generation
 
 l = logging.getLogger(__name__)
 

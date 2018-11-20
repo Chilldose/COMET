@@ -55,6 +55,12 @@ from modules.cmd_inferface import *
 from modules.bad_strip_detection import *
 from threading import Thread
 from modules.engineering_notation import *
+from modules.GUI_classes import *
+from modules.measurement_event_loop import *
+from modules.measurements import *
+from modules.cmd_inferface import *
+from modules.bad_strip_detection import *
+
 print "Done \n"
 
 

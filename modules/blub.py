@@ -1,6 +1,7 @@
-from pyqtgraph.Qt import QtGui, QtCore
 import numpy as np
 import pyqtgraph as pg
+from pyqtgraph.Qt import QtGui, QtCore
+
 pg.setConfigOptions(antialias=True)
 pg.setConfigOption('background', '#c7c7c7')
 pg.setConfigOption('foreground', '#000000')

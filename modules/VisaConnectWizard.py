@@ -1,7 +1,8 @@
-import visa
 import logging
 import threading
 from time import sleep
+
+import visa
 
 lock = threading.Lock()
 l = logging.getLogger(__name__)
