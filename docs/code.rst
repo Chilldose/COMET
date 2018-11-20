@@ -5,13 +5,13 @@ Help Functions
 --------------
 
 .. autoclass:: utilities.help_functions
-    :members:
+	:members:
 
 
 New Thread
 ----------
 .. autoclass:: utilities.newThread
-    :members: __init__, run, get
+	:members: __init__, run, get
 	
 LOG File
 --------

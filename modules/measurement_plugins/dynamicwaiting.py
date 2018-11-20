@@ -18,7 +18,7 @@ class dynamicwaiting_class:
         self.switching = self.main.switching
         self.biasSMU = self.main.IVSMU
         self.justlength = 24
-        time = self.do_dynamic_waiting()
+        self.do_dynamic_waiting()
 
     def stop_everything(self):
         """Stops the measurement"""

@@ -377,7 +377,7 @@ class help_functions:
         device_dict[command] => ["comA", "comB"], then both commands will be build with the values and a list of both commands will be returned
 
 
-        :param device: device dictionary
+        :param device_dict:
         :param command_tuple: (command, value), can also be a string for a final command
         :return string or list, depending if dict[command] is a list or a string
         """
@@ -1105,6 +1105,10 @@ class table_control_class:
         '''
         Moves to a specific strip
 
+        :param strip:
+        :param V0:
+        :param T:
+        :param pad_file:
         :param transfomation_class:
         :param height_movement: How much should the table move down
         :return: None or errorcode
@@ -1364,6 +1368,7 @@ class switching_control:
     def pick_switch_response(self, device, current_switching):
         '''
         This function picks the string response and returns a list.
+        :param device:
         :param current_switching: is a string containing the current switching
 
         '''
@@ -1412,6 +1417,7 @@ class switching_control:
         '''
         Fancy name, but just sends the swithing command
 
+        :param device:
         :param config: the list of nodes which need to be switched
         '''
         # TODO: check when switching was not possible that the programm shutsdown! Now the due to the brandbox this is switched off

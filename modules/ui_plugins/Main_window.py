@@ -82,7 +82,7 @@ class Main_window:
         self.settings()
         self.start_menu()
         self.temphum_plot()
-        self.table_control_obj = self.table_control()
+        self.table_control()
         self.table_move = self.table_move()
 
         # Plots
