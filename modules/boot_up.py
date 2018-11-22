@@ -277,7 +277,6 @@ class connect_to_devices:
         self.vcw = vcw
         self.device_dict = device_dict
 
-
         self.vcw.show_instruments() # Lists all devices which are connected to the PC
 
         for device in device_dict.keys():  # device_dict is a dictionary containing dictionaries
@@ -323,9 +322,14 @@ class connect_to_devices:
                         print "Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected."
 
 
-                elif "IP" in str(connection_type).upper():
-                    # This maneges the connections for IP devices
-                    pass
+                elif "TCP/IP::SOCKET::" in str(connection_type).upper():
+                    # This manages the connections for raw TCP/IP devices
+                    success = self.vcw.connect_to("TCPIP::SOCKET::" + connection_type.split("::")[3] + "::" + connection_type.split("::")[2], device_IDN, device_IDN=IDN_query)  # Connects to the device Its always ASRL*::INSTR
+                    if success:
+                        l.info("Connection established to device: " + str(device) + " at ")
+                    else:
+                        l.error("Connection could not be established to device: " + str(device))
+                        print "Connection could not be established to device: " + str(device)
 
                 # Add other connection types
 

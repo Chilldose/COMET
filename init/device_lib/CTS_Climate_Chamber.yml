@@ -1,0 +1,7 @@
+{
+    "Device_name": "CTS Climate Chamber",
+    "Device_type": "Climate Chamber",
+    "Connection_type": "TCP/IP::SOCKET::192.168.100.205::1080",
+    "Display_name": "Climate Chamber",
+    "Device_IDN": "????",
+}
