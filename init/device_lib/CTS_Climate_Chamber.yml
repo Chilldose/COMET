@@ -2,6 +2,30 @@
     "Device_name": "CTS Climate Chamber",
     "Device_type": "Climate Chamber",
     "Connection_type": "TCP/IP::SOCKET::192.168.100.205::1080",
+    "return_bytes": "14"
     "Display_name": "Climate Chamber",
     "Device_IDN": "????",
+    "Read_temp": "A0",
+    "Read_hum": "A1",
+    "Set_temp": "a0",
+    "Set_hum": "a1",
+    "Set_hum_ugrad": "u1",
+    "Set_temo_ugrad": "u0",
+    "Set_hum_dgrad": "d1",
+    "Set_temo_dgrad": "d0",
+    "isOnquery": "S",
+    "set_ON": "s1 1",
+    "set_ONOFF": "s1",
+    "default_ONOFF": "0"
+    "set_OFF": "s1 0",
+    "get_air": "z5",
+    "default_air": "0",
+    "default_dry": "0",
+    "default_deepdry": "0",
+    "get_dry": "z6",
+    "set_deepdry": "o07"
+    "set_dry": "o09"
+    "set_air": "o08"
+
+
 }
