@@ -634,8 +634,8 @@ class LogFile:
         """
 
         self.LOG_FORMAT = "%(levelname)s %(asctime)s in function %(funcName)s - %(message)s"
-        self.file_PATH = os.path.normpath(os.path.realpath(__file__)[:38] + "/Logfiles/QTC_Logfile.log") # Filepath to Logfile directory
-        self.file_directory = os.path.normpath(os.path.realpath(__file__)[:38] + "/Logfiles")
+        self.file_PATH = os.path.normpath(os.path.realpath(__file__)[:-21] + "/Logfiles/QTC_Logfile.log") # Filepath to Logfile directory
+        self.file_directory = os.path.normpath(os.path.realpath(__file__)[:-21] + "/Logfiles")
         self.logging_level = logging_level
         self.log_LEVELS = {"NOTSET": 0, "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50}
 

@@ -77,11 +77,30 @@ class loading_init_files:
 
         #Get all all files in the directories
         self.__install_path = os.path.realpath(__file__) # Obtain the install path of this module
-        self.list_device_init = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/devices/"))
-        self.list_default_values = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/default/"))
-        self.list_pad_files_folders = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/pad_files/"))
 
-        #print self.list_default_values
+        # Check if the folder devices already exists or create the folder
+        if os.path.isdir(os.path.normpath(self.__install_path[:-19] + "/init/devices/")):
+            self.list_device_init = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/devices/"))
+        else:
+            l.warning("Devices folder did not exist. Created one!")
+            os.makedirs(os.path.normpath(self.__install_path[:-19] + "/init/devices/"))
+            self.list_device_init = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/devices/"))
+
+        # Check if the folder defaults already exists or create the folder
+        if os.path.isdir(os.path.normpath(self.__install_path[:-19] + "/init/default/")):
+                self.list_default_values = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/default/"))
+        else:
+            l.warning("Defaults folder did not exist. Created one!")
+            os.makedirs(os.path.normpath(self.__install_path[:-19] + "/init/default/"))
+            self.list_default_values = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/default/"))
+
+        # Check if the folder defaults already exists or create the folder
+        if os.path.isdir(os.path.normpath(self.__install_path[:-19] + "/init/pad_files/")):
+            self.list_pad_files_folders = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/pad_files/"))
+        else:
+            l.warning("Pad files folder did not exist. Created one!")
+            os.makedirs(os.path.normpath(self.__install_path[:-19] + "/init/pad_files/"))
+            self.list_pad_files_folders = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/pad_files/"))
 
         # Dictionaries for the types of input files
         self.devices_dict = {}
