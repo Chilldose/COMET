@@ -218,7 +218,7 @@
        </font>
       </property>
       <property name="text">
-       <string>Device asigned to: </string>
+       <string>Device purpose: </string>
       </property>
      </widget>
     </item>
