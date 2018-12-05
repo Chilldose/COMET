@@ -1,9 +1,12 @@
 # Here the measurement procedures are defined
-import importlib
-
-from scipy import stats
-
+import logging
+import numpy as np
 from VisaConnectWizard import *
+import os
+import time
+import datetime, math
+from scipy import stats
+import importlib
 from utilities import *
 
 l = logging.getLogger(__name__)
@@ -426,6 +429,38 @@ class measurement_class:
             return None
         else:
             return answ # For errorhandling it is the return from the device which was not the expected answer
+
+    def send_to_device(self, device_dict, command):
+        """
+        This command just sends the command to the device. Warning it is not recommended to use this function. Use this
+        function only if you must!
+
+        :param device_dict: Dictionary of the device
+        :param command: The command you want to send to the device
+        :return: None
+        """
+
+        try:
+            vcw.write(device_dict["Visa_Resource"], str(command))  # writes the new order to the device
+        except Exception as e:
+            l.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command, device=device_dict, error=e))
+
+    def query_device(self, device_dict, command):
+        """
+        This command just sends the command to the device, and waits for an answer. Warning it is not recommended to use this function. Use this
+        function only if you must!
+
+        :param device_dict: Dictionary of the device
+        :param command: The command you want to send to the device
+        :return: Return string from the device
+        """
+
+        try:
+            return vcw.query(device_dict["Visa_Resource"], str(command))  # writes the new order to the device
+        except Exception as e:
+            l.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command,
+                                                                                                      device=device_dict,
+                                                                                                      error=e))
 
     def change_value(self, device_dict, order, value=""):
         '''This function sends a command to a device and changes the state in the dictionary (state machine)'''
