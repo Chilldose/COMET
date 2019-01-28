@@ -503,6 +503,8 @@ class measurement_class:
             vcw.write(device["Visa_Resource"], str(final_string))  # finally writes the command to the device
 
 
+
+
     def build_command_depricated(self, device, command_tuple):
         print "You used an on build command, please use the one from utilities"
         #Todo build command is two folded in here

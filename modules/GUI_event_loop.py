@@ -1,11 +1,11 @@
 # This starts the event loop for the GUI
 #from GUI_classes import *
-import logging
-
-import numpy as np
-from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
-
+from PyQt5 import QtCore
+import numpy as np
+import logging
+import thread
+from utilities import newThread, Framework
 l = logging.getLogger(__name__)
 
 
@@ -118,6 +118,7 @@ class GUI_event_loop:
 
             elif event == "CLOSE_PROGRAM":
 
+
                 if not self.measurement_running: #Prevents closing the program if a measurement is currently running
                     order = {"Status": {"CLOSE": True}}
                     self.close_program = True
@@ -143,10 +144,17 @@ class GUI_event_loop:
                 if type(message[measurement][0]) is not list:
                     self.meas_data[measurement][0] = np.append(self.meas_data[measurement][0], message[measurement][0])
                     self.meas_data[measurement][1] = np.append(self.meas_data[measurement][1], message[measurement][1])
-                else:
-                    self.meas_data[measurement][0] = message[measurement][0]
-                    self.meas_data[measurement][1] = message[measurement][1]
-
+                else:  # TODO: If something is not working with data delivered, dynamic waiting time measurement has changed here
+                    try:
+                        self.meas_data[measurement][0].append(np.array(message[measurement][0]))
+                        self.meas_data[measurement][1].append(np.array(message[measurement][1]))
+                    except Exception as e:
+                        l.warning("Warning passed wrong dimensional arrays to array. Array must have same dimensions. Errorcode: {error!s}. "
+                                  "WARNING: This error can happen ones in the beginning, when the datatype changes or a np array is not yet initialized".format(error=e))
+                        self.meas_data[measurement][0] = []
+                        self.meas_data[measurement][0].append(np.array(message[measurement][0]))
+                        self.meas_data[measurement][1] = []
+                        self.meas_data[measurement][1].append(np.array(message[measurement][1]))
             else:
                 l.error("Measurement " + str(measurement) + " could not be found in active data arrays. Data discarded.")
                 print "Measurement " + str(measurement) + " could not be found in active data arrays. Data discarded."

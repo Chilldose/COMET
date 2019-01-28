@@ -95,6 +95,7 @@ class Resources_window:
 
                 self.list_of_instruments.append(resources_widget)
 
+
             else:
                 pass
 

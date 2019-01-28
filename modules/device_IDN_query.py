@@ -1,10 +1,12 @@
 # This file is for checking the IDN of devices
 
+import visa
 from VisaConnectWizard import *
 
 vcw = VisaConnectWizard()
 
 vcw.show_instruments()
+
 
 print "Select resource"
 device_number = raw_input("Number: ")

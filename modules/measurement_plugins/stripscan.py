@@ -1,9 +1,9 @@
 # This file manages the stripscan measurements and it is intended to be used as a plugin for the QTC software
 
+import logging
 import sys
-
+import numpy as np
 from scipy import stats
-
 sys.path.append('../modules')
 from ..VisaConnectWizard import *
 from ..utilities import *
@@ -280,7 +280,8 @@ class stripscan_class:
                                     value = getattr(self, "do_"+measurement)(current_strip, self.samples)
 
                                     # In the end do a quick bad strip detection
-                                    badstrip = self.main.main.analysis.do_online_singlestrip_analysis((measurement, value))
+                                    #badstrip = self.main.main.analysis.do_online_singlestrip_analysis((measurement, value))
+                                    badstrip = False
                                     if badstrip:
                                         l.info("Badstrip detected at strip: " + str(current_strip) + " Error code: " + str(badstrip))
                                         self.main.queue_to_main.put({"Thresholderror": "Badstrip detected at strip: " + str(current_strip) + " Error code: " + str(badstrip)})
@@ -371,6 +372,7 @@ class stripscan_class:
                         self.main.write(file, string_to_write + "\n")
                     else:
                         break
+
 
     def __do_simple_measurement(self, str_name, device, xvalue = -1, samples = 5, write_to_main = True):
         '''
@@ -486,9 +488,9 @@ class stripscan_class:
 
     def do_Idiel(self, xvalue = -1, samples = 5, write_to_main = True):
         '''Does the idiel measurement'''
-        # TODO: Idiel wrong!!! elmeter instead of SMU2 umschreiben beim switching!!!!
-        device_dict = self.elmeter
-        config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_zero_check", "OFF")]
+        device_dict = self.SMU2
+        #config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_zero_check", "OFF")]
+        config_commands = [("set_voltage", "5.0"), ("set_output", "ON")]
 
         if not self.main.stop_measurement():
             if not self.switching.switch_to_measurement("Idiel"):
@@ -497,8 +499,9 @@ class stripscan_class:
             self.main.config_setup(device_dict, config_commands) # config the elmeter
             self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=2, Rsq=0.5, check_complience=False)  # Is a dynamic waiting time for the measuremnt
 
-            value = self.__do_simple_measurement("Idiel", device_dict, xvalue, samples,write_to_main=write_to_main)
-            self.main.config_setup(device_dict, [("set_zero_check", "ON")])  # unconfig elmeter
+            value = self.__do_simple_measurement("Idiel", device_dict, xvalue, samples, write_to_main=write_to_main)
+            #self.main.config_setup(device_dict, [("set_zero_check", "ON")])  # unconfig elmeter
+            self.main.config_setup(device_dict, [("set_voltage", "0"), ("set_output", "OFF")])  # unconfig elmeter
 
             return value
 

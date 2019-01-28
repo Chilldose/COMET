@@ -1,7 +1,8 @@
 # This file manages the IV and CV measurement and it is intended to be used as a plugin for the QTC software
 
+import logging
 import sys
-
+import numpy as np
 sys.path.append('../modules')
 from ..VisaConnectWizard import *
 from ..utilities import *
@@ -78,7 +79,7 @@ class IVCV_class:
 
         for i, voltage in enumerate(voltage_step_list):
             if not self.main.stop_measurement(): # To shut down if necessary
-                switch_success = self.switching.switch_to_measurement("IV")
+                #switch_success = self.switching.switch_to_measurement("IV")
                 self.main.change_value(bias_SMU, "set_voltage", str(voltage))
                 self.main.settings["Defaults"]["bias_voltage"] = voltage  # changes the bias voltage
                 if not self.main.steady_state_check(bias_SMU, max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=complience): # Is a dynamic waiting time for the measuremnts

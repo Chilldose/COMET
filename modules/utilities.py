@@ -13,25 +13,18 @@
 #Ramping
 # ramp_voltage
 
-import datetime
-import logging
-import os
-import os.path
-import re
-import sys
-import threading
-import time
-import yaml
+import os, sys, os.path, re
 from time import sleep
-
-import numpy as np
-import pyqtgraph as pg
+import time
+import threading
+import logging, yaml
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QApplication
-from numpy.linalg import norm, det, qr, inv
-
+import numpy as np
+from numpy.linalg import solve, norm, det, qr, inv
+import datetime
+import pyqtgraph as pg
 import VisaConnectWizard
-
+from PyQt5.QtWidgets import QApplication
 #from __future__ import print_function # Needed for the rtd functions that its written in 3
 
 l = logging.getLogger(__name__)
@@ -377,7 +370,7 @@ class help_functions:
         device_dict[command] => ["comA", "comB"], then both commands will be build with the values and a list of both commands will be returned
 
 
-        :param device_dict:
+        :param device: device dictionary
         :param command_tuple: (command, value), can also be a string for a final command
         :return string or list, depending if dict[command] is a list or a string
         """
@@ -587,6 +580,7 @@ class newThread(threading.Thread):  # This class inherite the functions of the t
         """
         return object__(*args)
 
+
     def run(self):
         """Starts running the thread"""
         print ("Starting thread: " + self.name) # run() is a member function of Thread() class. This will be called, when object thread will be started via thread.start()
@@ -634,8 +628,8 @@ class LogFile:
         """
 
         self.LOG_FORMAT = "%(levelname)s %(asctime)s in function %(funcName)s - %(message)s"
-        self.file_PATH = os.path.normpath(os.path.realpath(__file__)[:-21] + "/Logfiles/QTC_Logfile.log") # Filepath to Logfile directory
-        self.file_directory = os.path.normpath(os.path.realpath(__file__)[:-21] + "/Logfiles")
+        self.file_PATH = os.path.normpath(os.path.realpath(__file__)[:38] + "/Logfiles/QTC_Logfile.log") # Filepath to Logfile directory
+        self.file_directory = os.path.normpath(os.path.realpath(__file__)[:38] + "/Logfiles")
         self.logging_level = logging_level
         self.log_LEVELS = {"NOTSET": 0, "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50}
 
@@ -1105,10 +1099,6 @@ class table_control_class:
         '''
         Moves to a specific strip
 
-        :param strip:
-        :param V0:
-        :param T:
-        :param pad_file:
         :param transfomation_class:
         :param height_movement: How much should the table move down
         :return: None or errorcode
@@ -1347,6 +1337,8 @@ class switching_control:
                 for devices in self.devices.values():
                     if name in devices["Display_name"]:
                         device = devices
+                        if not switch_list:
+                            switch_list = []
                         switching_success = self.change_switching(device, switch_list)
                         device_found = True
                 if not device_found:
@@ -1368,7 +1360,6 @@ class switching_control:
     def pick_switch_response(self, device, current_switching):
         '''
         This function picks the string response and returns a list.
-        :param device:
         :param current_switching: is a string containing the current switching
 
         '''
@@ -1417,7 +1408,6 @@ class switching_control:
         '''
         Fancy name, but just sends the swithing command
 
-        :param device:
         :param config: the list of nodes which need to be switched
         '''
         # TODO: check when switching was not possible that the programm shutsdown! Now the due to the brandbox this is switched off
@@ -1521,6 +1511,34 @@ class switching_control:
             except Exception as e:
                 #print e
                 pass
+
+
+
+class show_cursor_position:
+    """This class provides a simple way to tooltip a plot item of type pyqtgraph plots (not yet finished)"""
+
+    def __init__(self, plotobject):
+        """
+
+        :param plotobject: The Plot object
+        """
+
+        self.plotItem = plotobject.getPlotItem()
+        self.tooltip_text = pg.TextItem(text='', color=(176, 23, 31))
+        self.tooltip_text.hide()
+        plotobject.addItem(self.tooltip_text, ignoreBounds=True)
+        self.proxy = pg.SignalProxy(plotobject.scene().sigMouseMoved, rateLimit=30, slot=self.onMove)
+
+    def onMove(self, pos):
+        mousePoint = self.plotItem.vb.mapSceneToView(pos[0])
+        #self.plotItem.mapToDevice(mousePoint)
+        if mousePoint:
+            self.tooltip_text.setText("     x={!s}\n     y={!s}".format(mousePoint.x(), mousePoint.y()))
+            self.tooltip_text.setPos(mousePoint)
+            self.tooltip_text.show()
+
+        else:
+            self.tooltip_text.hide()
 
 if __name__ == "__main__":
 

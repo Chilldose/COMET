@@ -1,17 +1,21 @@
 # This starts the event loop for conducting measurements
 
 import Queue
-import logging
-
-from VisaConnectWizard import *
+from utilities import *
 from measurements import *
-
+import threading
+import numpy as np
+from time import sleep
+import pyqtgraph as pg
+from VisaConnectWizard import *
+import logging
 l = logging.getLogger(__name__)
 
 # Defining the Queue Objects for data sharing need to be here, than the main knows them to!!!
 message_to_main = Queue.Queue()
 message_from_main = Queue.Queue()
 queue_to_GUI = Queue.Queue()
+
 
 
 class measurement_event_loop:
@@ -237,7 +241,7 @@ class measurement_event_loop:
 
 
     def init_devices(self, args=None):
-        '''This function makes the necessary configuration for all devices before any measuremnt can be conducted'''
+        '''This function makes the necessary configuration for all devices before any measurement can be conducted'''
         # Not very pretty
         self.message_to_main.put({"Info": "Initializing of instruments..."})
 

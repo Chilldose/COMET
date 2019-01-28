@@ -1,7 +1,8 @@
 # This module makes the program interact with the command line
 
-import cmd
+import cmd, types
 from threading import Thread
+
 
 class DAQShell(cmd.Cmd):
     """This class is for the commandline interface of the DAQ software.

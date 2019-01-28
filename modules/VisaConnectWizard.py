@@ -1,8 +1,7 @@
+import visa
 import logging
 import threading
 from time import sleep
-
-import visa
 
 lock = threading.Lock()
 l = logging.getLogger(__name__)
@@ -131,7 +130,7 @@ class VisaConnectWizard:
         try:
             self.close_connections(device_dict["Visa_Resource"])
         except:
-            l.info("While closing the connection to a non responsive device an error occured. Nothing to worry about ;)")
+            pass
 
         resource = self.rm.open_resource(resource_name)  # Tries opening the connection to a device
         self.config_resource(resource_name, resource, device_dict.get("Baudrate", None))
@@ -263,97 +262,13 @@ class VisaConnectWizard:
                         #self.close_connections(instrument) # Closes the connection to the not responding instruments
                 return 0
 
+
             else:
                 try:
                     return self.myInstruments[number].query(str(command))
                 except:
                     self.no_response(self.myInstruments[number])
                     return -1
-
-    def write_raw(self, resource_dict, code):
-        """
-        This function writes raw data to devices without termination or something. It is not recommended to use this
-        function except you really must!
-
-        :param resource_dict: The device object dict
-        :param code: The code you want to send
-        :return: Nothing
-        """
-
-        if type(resource_dict) == dict:  # Checks if dict or only resource
-            try:
-                resource = resource_dict["Visa_Resource"]
-            except KeyError:
-                l.error("An key error occured in dict " + str(
-                    resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
-                return -1
-            except Exception, e:
-                l.exception("An unknowen error occured while accessing a Visa resource " + str(e))
-                return -1
-        else:
-            resource = resource_dict
-
-        l.info("Write raw command: " + str(code) + " to: " + str(resource))
-        resource.write_raw(str(code))
-
-
-
-    def query_raw(self, resource_dict, code, return_bytes = 128, reconnect = True):
-        """
-        This function queries a device over a raw byte based connection, it is not recommended to use this function
-        except you have to e.g. SOCKET TCP/IP connections. Even there: DONT
-        Warning is the answer byte length wrong a timeout will happen and, depending on your coding ninja skills the
-        program will crash on this!!!
-
-        :param resource_dict: The device object dict
-        :param code: The code you want to send
-        :param return_bytes: The bytes expected to return from the device
-        :return: The answer from the device
-        """
-
-        # Just check if a resource or object was passed and prepare everything
-        reconnect = reconnect  # if dict a reconnection attempt is possible
-        if type(resource_dict) == dict:  # Checks if dict or only resource
-            try:
-                resource = resource_dict["Visa_Resource"]
-            except KeyError:
-                l.error("An key error occured in dict " + str(
-                    resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
-                return -1
-            except Exception, e:
-                l.exception("An unknowen error occured while accessing a Visa resource " + str(e))
-                return -1
-        else:
-            resource = resource_dict
-
-        l.info("Query raw command: " + str(code) + " to: " + str(resource))
-
-        try:
-            resource.write_raw(str(code))  # try to query
-            query = resource.read_bytes(int(return_bytes))
-            l.info("Written command: " + str(code) + " to: " + str(resource) + " was answered with: " + str(query).strip())
-            return query
-
-        except Exception, e:
-            # Try to reconnect to the device if no answer comes from the device in the timeout
-            #print "The query of device " + str(resource) + " with query " + str(code) + " failed with error: " + str(e) + ". This may happen when the connection was lost. Try to fix.."
-            l.error("The query of device " + str(resource) + " with query " + str(code) + " failed with error: " + str(e)) + ". This may happen when the connection was lost. Try to fix.."
-
-            if reconnect and type(resource_dict) == dict:
-                self.reconnect_to_device(resource_dict)
-
-                query = self.query_raw(resource_dict["Visa_Resource"], code, int(return_bytes), False)
-                if query != -1:
-                    l.info("Query command: " + str(code) + " to: " + str(resource) + " was answered with: " + str(query).strip() + ". Reconnecting to device WAS successful!")
-                    return query
-                else:
-                    l.error("The query of device " + str(resource) + " with query " + str(
-                        code) + " failed again, with error: " + str(
-                        e) + ". Reconnecting to device was not successful!")
-
-            else:
-                return -1  # if no response a -1 will be returned
-
 
     @run_with_lock # So only one talker and listener can be there
     def query(self, resource_dict, code, terminator = ""):

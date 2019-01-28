@@ -7,6 +7,7 @@
 
 
 import importlib
+import os
 import os.path as osp
 import sys
 from time import sleep
@@ -18,8 +19,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 from GUI_event_loop import *
+from utilities import newThread, help_functions, measurement_job_generation
 from bad_strip_detection import *
-from utilities import newThread, measurement_job_generation
 
 l = logging.getLogger(__name__)
 
@@ -83,6 +84,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         if self.white_plots:
             pq.setConfigOption('background', 'w')
             pq.setConfigOption('foreground', 'k')
+
 
         sleep(0.2) # That gives the threads time to initialize all values before missmatch in gui can occur
 
