@@ -79,6 +79,7 @@ class loading_init_files:
         self.list_default_values = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/default/"))
         self.list_pad_files_folders = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/pad_files/"))
 
+
         #print self.list_default_values
 
         # Dictionaries for the types of input files

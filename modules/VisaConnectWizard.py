@@ -10,8 +10,6 @@ l = logging.getLogger(__name__)
 def run_with_lock(method):
     """
     Intended to be used as decorator for functions which need to be threadsave. Warning: all functions acquire the same lock, be carefull.
-
-
     """
 
     def with_lock(*args, **kw):
@@ -31,7 +29,6 @@ def run_with_lock(method):
     return with_lock  # here the memberfunction timed will be called
 
 #Opens a connection to a VISA resource device (GPIB, USB, RS232, IP)
-
 class VisaConnectWizard:
     '''
     This Class is for connecting Rs232, GPIB, IP and USB devices via pyVisa.

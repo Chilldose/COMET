@@ -107,13 +107,6 @@ timer = frame.start_timer() # Starts the timer
 
 print "Starting shell..."
 shell.start()
-#print dir(shell.__class__)
-#shellThread = Thread(target= DAQShell)
-#shellThread.start()
-#threads.append(shellThread)
-
-
-
 
 print "Start rendering GUI..."
 GUI.app.exec_() # Starts the actual event loop for the GUI
@@ -124,7 +117,6 @@ l.info("Joining threads...")
 shell.onecmd("bye")
 for t in threads:
     t.join() # Synchronises the threads so that they finish all at ones.
-
 
 end_time = time.time()
 
