@@ -7,6 +7,7 @@
 import imp, os, threading, yaml
 import logging
 import numpy as np
+import glob
 
 l = logging.getLogger(__name__)
 
@@ -84,8 +85,8 @@ class loading_init_files:
         pad_files_dir = os.path.join(init_dir, "Pad_files")
 
         # Get all files in the directories
-        self.list_device_init = os.listdir(devices_dir)
-        self.list_default_values = os.listdir(default_dir)
+        self.list_device_init = map(os.path.basename, glob.glob(os.path.join(devices_dir, "*.yml")))
+        self.list_default_values = map(os.path.basename, glob.glob(os.path.join(default_dir, "*.yml")))
         self.list_pad_files_folders = os.listdir(pad_files_dir)
 
         #print self.list_default_values
@@ -151,7 +152,7 @@ class loading_init_files:
         header = []
         data = []
         for filename in list_of_files:
-            with open(os.path.abspath(path + "\\" + str(filename)), "r") as f:
+            with open(os.path.join(path, filename), "r") as f:
                 read_data = f.readlines()
                 #print read_data
 
@@ -221,11 +222,10 @@ class loading_init_files:
     def create_dictionary(self, filename, filepath):
         '''Creates a dictionary with all values written in the file using yaml'''
 
-        file_string = os.path.join(filepath, filename)
+        resource = os.path.join(filepath, filename)
         print "Loading file:", filename
-        with open(file_string, "r") as fp:
-            dictionary = yaml.load(fp)
-            return dictionary
+        with open(resource, "r") as fp:
+            return yaml.load(fp)
 
 
 #Debricated methods

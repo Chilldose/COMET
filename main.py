@@ -39,7 +39,7 @@ from modules.boot_up import *
 ci = check_installation()
 
 # Loading all modules
-print "Loading modules ... ",
+print "Loading modules ...",
 import os, visa, scipy, PyQt5, datetime, threading, Queue, sys, yaml, importlib, re, types
 import pyqtgraph as pg
 import numpy as np
