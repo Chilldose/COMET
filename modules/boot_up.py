@@ -221,11 +221,11 @@ class loading_init_files:
     def create_dictionary(self, filename, filepath):
         '''Creates a dictionary with all values written in the file using yaml'''
 
-        file_string = os.path.abspath(str(filepath) + "\\" + str(filename))
-        print "Loading file: " + str(filename)
-        with open(file_string, "r") as yfile:
-            dict = yaml.load(yfile)
-            return dict
+        file_string = os.path.join(filepath, filename)
+        print "Loading file:", filename
+        with open(file_string, "r") as fp:
+            dictionary = yaml.load(fp)
+            return dictionary
 
 
 #Debricated methods
