@@ -73,11 +73,20 @@ class loading_init_files:
 
     def __init__(self, hf):
 
-        #Get all all files in the directories
-        self.__install_path = os.path.realpath(__file__) # Obtain the install path of this module
-        self.list_device_init = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/devices/"))
-        self.list_default_values = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/default/"))
-        self.list_pad_files_folders = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/pad_files/"))
+        # Get project path
+        package_dir = os.path.dirname(os.path.realpath(__file__))
+        project_dir = os.path.dirname(package_dir)
+        init_dir = os.path.join(project_dir, "init")
+
+        # Get data dirs
+        devices_dir = os.path.join(init_dir, "device_lib")
+        default_dir = os.path.join(init_dir, "default")
+        pad_files_dir = os.path.join(init_dir, "Pad_files")
+
+        # Get all files in the directories
+        self.list_device_init = os.listdir(devices_dir)
+        self.list_default_values = os.listdir(default_dir)
+        self.list_pad_files_folders = os.listdir(pad_files_dir)
 
         #print self.list_default_values
 
@@ -93,9 +102,9 @@ class loading_init_files:
 
             l.info("Try reading device file: " + str(file))
 
-            #line_strings = hf.read_from_file(file, self.__install_path[:-19] + "/init/devices/") # Reads every line in the file, returns a list
+            #line_strings = hf.read_from_file(file, devices_dir) # Reads every line in the file, returns a list
             #new_dict_name = self.check_for_device_name(line_strings, "Display_name")
-            new_device_dict = self.create_dictionary(file, os.path.abspath(self.__install_path[:-19] + "/init/devices/"))
+            new_device_dict = self.create_dictionary(file, devices_dir)
 
             self.devices_dict.update({new_device_dict.get("Display_name", "MissingNo"): new_device_dict}) # Adds the new device in the dictionary
         # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -106,9 +115,9 @@ class loading_init_files:
         for file in self.list_default_values: # Loop over all files found
 
             l.info("Try reading settings file: " + str(file))
-            #line_strings = hf.read_from_file(file, self.__install_path[:-19] + "/init/default/") # Reads every line in the file, returns a list
+            #line_strings = hf.read_from_file(file, default_dir) # Reads every line in the file, returns a list
             #new_dict_name = self.check_for_device_name(line_strings, "Settings_name")
-            new_device_dict = self.create_dictionary(file, os.path.abspath(self.__install_path[:-19] + "/init/default/"))
+            new_device_dict = self.create_dictionary(file, default_dir)
 
             self.default_values_dict.update({new_device_dict["Settings_name"]: new_device_dict}) # Adds the new device in the dictionary
         # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -119,7 +128,7 @@ class loading_init_files:
         #First check if the foldes matches with the projects listed and asign to each other
         pad_data_dict = {}
         for folder in self.list_pad_files_folders:
-            pad_data_dict.update({str(folder): self.read_pad_files(os.path.abspath(self.__install_path[:-19] + "/init/pad_files/" + str(folder)))})
+            pad_data_dict.update({folder: self.read_pad_files(os.path.join(pad_files_dir, folder))})
 
         self.pad_files_dict = pad_data_dict.copy()
 
@@ -454,6 +463,3 @@ class update_defaults_dict:
                 "IVCV_time": 300,
                 "Rint_MinMax": [-1.,1.,0.1]
                 }
-
-
-

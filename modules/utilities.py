@@ -627,9 +627,12 @@ class LogFile:
         :param logging_level: None, debug, info, warning, error critical
         """
 
+        package_dir = os.path.dirname(os.path.realpath(__file__))
+        project_dir = os.path.dirname(package_dir)
+
         self.LOG_FORMAT = "%(levelname)s %(asctime)s in function %(funcName)s - %(message)s"
-        self.file_PATH = os.path.normpath(os.path.realpath(__file__)[:38] + "/Logfiles/QTC_Logfile.log") # Filepath to Logfile directory
-        self.file_directory = os.path.normpath(os.path.realpath(__file__)[:38] + "/Logfiles")
+        self.file_PATH = os.path.join(project_dir, "Logfiles", "QTC_Logfile.log") # Filepath to Logfile directory
+        self.file_directory = os.path.join(project_dir, "Logfiles")
         self.logging_level = logging_level
         self.log_LEVELS = {"NOTSET": 0, "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50}
 
