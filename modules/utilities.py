@@ -62,28 +62,28 @@ class help_functions:
 
             os.remove(os.path.abspath(path + str(name.split(".")[0]) + ".yaml"))
             #directory = path[:len(path)-len(path.split("/")[-1])]
-            file = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
+            filename = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
 
-            yaml.dump(data, file, indent=4, ensure_ascii=False)
+            yaml.dump(data, filename, indent=4, ensure_ascii=False)
 
-            self.close_file(file)
+            self.close_file(filename)
 
         elif not os.path.isfile(os.path.abspath(path + str(name.split(".")[0]) + ".yaml")):
 
             #directory = path[:len(path) - len(path.split("/")[-1])]
 
-            file = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
+            filename = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
 
-            yaml.dump(data, file, indent=4)
+            yaml.dump(data, filename, indent=4)
 
-            self.close_file(file)
+            self.close_file(filename)
 
 
             # Debricated
             #for items in data.items():
             #    if type(items[1]) != type([]):
             #        string = str(items[0]) + " = \"" + str(items[1]) + "\"\n"
-            #        os.write(file, str(string))
+            #        os.write(filename, str(string))
             #    else:
             #        string = str(items[0]) + " = \""
             #        for i in items[1]:
@@ -91,7 +91,7 @@ class help_functions:
             #        string = string[:-1]
             #        string += "\"\n"
             #        print string
-            #        os.write(file, string)
+            #        os.write(filename, string)
 
 
 
@@ -196,17 +196,17 @@ class help_functions:
             l.info("Filename changed to " + filename + ".")
 
         if os_file:
-            fd = os.open(os.path.abspath(filepath+filename), os.O_WRONLY | os.O_CREAT) # Creates the file
+            fp = os.open(os.path.abspath(filepath+filename), os.O_WRONLY | os.O_CREAT) # Creates the file
         else:
-            fd = open(os.path.abspath(filepath+filename), "w")
+            fp = open(os.path.abspath(filepath+filename), "w")
 
         l.info("Generated file: " + str(filename))
         print("Generated file: " + str(filename))
 
-        return fd
+        return fp
 
     # Opens a file for reading and writing
-    def open_file(self, filename="default.txt", filepath = "default_path"):
+    def open_file(self, filename="default.txt", filepath="default_path"):
         """
         Just opens a file and returns the file pointer
 
@@ -217,53 +217,53 @@ class help_functions:
             filepath = ""
 
         try:
-            fd = open(filepath + filename, 'r+') #Opens file for reading and writing
-            return fd
+            fp = open(filepath + filename, 'r+') #Opens file for reading and writing
+            return fp
         except IOError:
             print(str(filepath + filename) + " is not an existing file.")
 
     # Closes a file (just needs the file pointer)
-    def close_file(self, file):
+    def close_file(self, fp):
         """
-        Closed the file specified in param file
+        Closed the file specified in param fp
 
         """
         try:
             try:
-                os.close(file)
+                os.close(fp)
             except:
-                file.close()
+                fp.close()
         except GeneratorExit:
-            print("Closing the file: " + str(file) + " was not possible")
+            print("Closing the file: " + str(fp) + " was not possible")
         except:
-            print("Unknown error occured, while closing file " + str(file) + "Error: ", sys.exc_info()[0])
+            print("Unknown error occured, while closing file " + str(fp) + "Error: ", sys.exc_info()[0])
 
     # This flushes a string to a file
-    def flush_to_file(self, file, message):
+    def flush_to_file(self, fp, message):
         """
         Flushes data to a opend file
         Only strings or numbers allowed, Lists will work too but may cause data scrambling
         Only use this with created files from function 'create_new_file'
         """
-        os.write(file, str(message)) #Writes the message to file
-        os.fsync(file) # ensures that the data is written on HDD
+        os.write(fp, str(message)) #Writes the message to file
+        os.fsync(fp) # ensures that the data is written on HDD
 
     def write_to_file(self, content, filename="default.txt", filepath = "default_path"):
         """
         This writes content to a file. Be aware, input must be of type 'list' each entry containing the information of one line
         """
 
-        file = self.open_file(filename, filepath)
+        fp = self.open_file(filename, filepath)
 
         try:
             for line in content:
-                file.write(str(line))
+                fp.write(str(line))
         except IOError:
             print("Writing to file " + filename + " was not possible")
         except:
             print("Unknown error occured, while writing to file " + str(filename) + "Error: ", sys.exc_info()[0])
 
-        self.close_file(file)
+        self.close_file(fp)
 
     def read_from_file(self, filename="default.txt", filepath = "default_path"):
         """
@@ -271,17 +271,17 @@ class help_functions:
         Warning: File gets closed after reading
         """
 
-        file = self.open_file(filename, filepath)
+        fp = self.open_file(filename, filepath)
 
         try:
-            return file.readlines()
+            return fp.readlines()
         except IOError:
             print("Could not read from file.")
             return []
         except:
             print("Unknown error occured, while reading from file " + str(filename) + "Error: ", sys.exc_info()[0])
 
-        self.close_file(file)
+        self.close_file(fp)
 
     # These functions are for reading and writing to files------------------------------------
     # -------------------------------------------------------------------------------------end
