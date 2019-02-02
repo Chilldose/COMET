@@ -39,7 +39,7 @@ from modules.boot_up import *
 ci = check_installation()
 
 # Loading all modules
-print "Loading modules ... ",
+print "Loading modules ...",
 import os, visa, scipy, PyQt5, datetime, threading, Queue, sys, yaml, importlib, re, types
 import pyqtgraph as pg
 import numpy as np
@@ -141,13 +141,13 @@ vcw.close_connections()
 
 #print "Save current settings..."
 #try:
-#    os.remove(str(os.path.abspath(os.path.realpath(__file__)[:-8] + "/init/default/" + "defaults.yaml")))
+#    os.remove(os.path.join(os.path.dirname(os.path.realpath(__file__)), "init", "default", "defaults.yaml"))
 #except Exception, e:
 #    print e
 #for keys in update_defaults_dict().to_update().keys():
 #    if keys in stats.default_values_dict["Defaults"]:
 #        stats.default_values_dict["Defaults"].pop(keys)
-#hf.write_init_file("defaults", stats.default_values_dict["Defaults"], str(os.path.abspath(os.path.realpath(__file__)[:-8] + "/init/default/")))
+#hf.write_init_file("defaults", stats.default_values_dict["Defaults"], os.path.join(os.path.dirname(os.path.realpath(__file__)), "init", "default"))
 
 print "Exiting Main Thread"
 l.info("Exiting Main Thread")

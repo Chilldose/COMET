@@ -7,6 +7,7 @@
 import imp, os, threading, yaml
 import logging
 import numpy as np
+import glob
 
 l = logging.getLogger(__name__)
 
@@ -73,11 +74,20 @@ class loading_init_files:
 
     def __init__(self, hf):
 
-        #Get all all files in the directories
-        self.__install_path = os.path.realpath(__file__) # Obtain the install path of this module
-        self.list_device_init = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/devices/"))
-        self.list_default_values = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/default/"))
-        self.list_pad_files_folders = os.listdir(os.path.normpath(self.__install_path[:-19] + "/init/pad_files/"))
+        # Get project path
+        package_dir = os.path.dirname(os.path.realpath(__file__))
+        project_dir = os.path.dirname(package_dir)
+        init_dir = os.path.join(project_dir, "init")
+
+        # Get data dirs
+        devices_dir = os.path.join(init_dir, "device_lib")
+        default_dir = os.path.join(init_dir, "default")
+        pad_files_dir = os.path.join(init_dir, "Pad_files")
+
+        # Get all files in the directories
+        self.list_device_init = map(os.path.basename, glob.glob(os.path.join(devices_dir, "*.yml")))
+        self.list_default_values = map(os.path.basename, glob.glob(os.path.join(default_dir, "*.yml")))
+        self.list_pad_files_folders = os.listdir(pad_files_dir)
 
 
         #print self.list_default_values
@@ -90,13 +100,13 @@ class loading_init_files:
 
         # Read in files and create the dictionary for the devices---------------------------------------------------------------------------------
         #-----------------------------------------------------------------------------------------------------------------------------------------
-        for file in self.list_device_init: # Loop over all files found
+        for filename in self.list_device_init: # Loop over all files found
 
-            l.info("Try reading device file: " + str(file))
+            l.info("Try reading device file: " + str(filename))
 
-            #line_strings = hf.read_from_file(file, self.__install_path[:-19] + "/init/devices/") # Reads every line in the file, returns a list
+            #line_strings = hf.read_from_file(filename, devices_dir) # Reads every line in the file, returns a list
             #new_dict_name = self.check_for_device_name(line_strings, "Display_name")
-            new_device_dict = self.create_dictionary(file, os.path.abspath(self.__install_path[:-19] + "/init/devices/"))
+            new_device_dict = self.create_dictionary(filename, devices_dir)
 
             self.devices_dict.update({new_device_dict.get("Display_name", "MissingNo"): new_device_dict}) # Adds the new device in the dictionary
         # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -104,12 +114,12 @@ class loading_init_files:
 
         # Read in files and create the dictionary for the default values---------------------------------------------------------------------------
         # -----------------------------------------------------------------------------------------------------------------------------------------
-        for file in self.list_default_values: # Loop over all files found
+        for filename in self.list_default_values: # Loop over all files found
 
-            l.info("Try reading settings file: " + str(file))
-            #line_strings = hf.read_from_file(file, self.__install_path[:-19] + "/init/default/") # Reads every line in the file, returns a list
+            l.info("Try reading settings file: " + str(filename))
+            #line_strings = hf.read_from_file(filename, default_dir) # Reads every line in the file, returns a list
             #new_dict_name = self.check_for_device_name(line_strings, "Settings_name")
-            new_device_dict = self.create_dictionary(file, os.path.abspath(self.__install_path[:-19] + "/init/default/"))
+            new_device_dict = self.create_dictionary(filename, default_dir)
 
             self.default_values_dict.update({new_device_dict["Settings_name"]: new_device_dict}) # Adds the new device in the dictionary
         # -----------------------------------------------------------------------------------------------------------------------------------------
@@ -120,7 +130,7 @@ class loading_init_files:
         #First check if the foldes matches with the projects listed and asign to each other
         pad_data_dict = {}
         for folder in self.list_pad_files_folders:
-            pad_data_dict.update({str(folder): self.read_pad_files(os.path.abspath(self.__install_path[:-19] + "/init/pad_files/" + str(folder)))})
+            pad_data_dict.update({folder: self.read_pad_files(os.path.join(pad_files_dir, folder))})
 
         self.pad_files_dict = pad_data_dict.copy()
 
@@ -142,8 +152,8 @@ class loading_init_files:
         list_of_files = os.listdir(path)
         header = []
         data = []
-        for file in list_of_files:
-            with open(os.path.abspath(path + "\\" + str(file)), "r") as f:
+        for filename in list_of_files:
+            with open(os.path.join(path, filename), "r") as f:
                 read_data = f.readlines()
                 #print read_data
 
@@ -174,7 +184,7 @@ class loading_init_files:
 
             final_dict = {"reference_pads" : reference_pad_list, "header": header, "data": data_list}
             final_dict.update({"additional_params": new_param})
-            all_pad_files.update({str(file.split(".")[0]): final_dict})
+            all_pad_files.update({str(filename.split(".")[0]): final_dict})
 
         return all_pad_files
 
@@ -210,14 +220,13 @@ class loading_init_files:
                 pass # This is just for saftey reasons if a list occurs during searching (eg operator names)
 
 
-    def create_dictionary(self, file, filepath):
+    def create_dictionary(self, filename, filepath):
         '''Creates a dictionary with all values written in the file using yaml'''
 
-        file_string = os.path.abspath(str(filepath) + "\\" + str(file))
-        print "Loading file: " + str(file)
-        with open(file_string, "r") as yfile:
-            dict = yaml.load(yfile)
-            return dict
+        resource = os.path.join(filepath, filename)
+        print "Loading file:", filename
+        with open(resource, "r") as fp:
+            return yaml.load(fp)
 
 
 #Debricated methods
@@ -231,7 +240,7 @@ class loading_init_files:
                 dict_name = line.split('"')[1]  # Gets me the the actual string which is written between the "..."
                 break
         else: # If no break occured this will be displayed
-            print "Warning: No name for the device found! Device init file: " + str(file)
+            print "Warning: No name for the device found!"
 
         return dict_name
 
@@ -455,6 +464,3 @@ class update_defaults_dict:
                 "IVCV_time": 300,
                 "Rint_MinMax": [-1.,1.,0.1]
                 }
-
-
-
