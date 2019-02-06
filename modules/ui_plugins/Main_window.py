@@ -1,6 +1,6 @@
 
 import ast
-import json
+import yaml
 import os
 import os.path as osp
 import sys, importlib, logging
@@ -339,11 +339,11 @@ class Main_window:
                 file = fileDialog.getOpenFileName()
 
                 if file[0]:
-                    json_file = open(str(file[0]), "r")
-                    dict = json.load(json_file)
-                    json_file.close()
+                    file = open(str(file[0]), "r")
+                    dict = yaml.load(file)
+                    file.close()
 
-                    l.info("Loaded new measurement settings file: " + str(file[0]))
+                    #l.info("Loaded new measurement settings file: " + str(file[0]))
                     self.variables.default_values_dict["Defaults"].update(dict) # Updates the values of the dict, it either updates the values or adds them if not incluced
                     self.variables.ui_plugins["Settings_window"].configure_settings()
 
