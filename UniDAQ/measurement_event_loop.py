@@ -102,14 +102,14 @@ class measurement_event_loop:
     def translate_message(self, message):
         '''This function converts the message to a measurement list which can be processed'''
         try:
-                if message.has_key(self.order_types[0]): # So if Measurments should be conducted
+                if self.order_types[0] in message: # So if Measurments should be conducted
                     try:
                         self.measurements_to_conduct.update(message[self.order_types[0]]) # Assign the dict for the measurements
                     except:
                         l.error("Data type error while translating message for measurement event loop")
                         self.events.update({"DataError": "Data type error while translating message for measurement event loop"})
 
-                elif message.has_key(self.order_types[1]): # Status
+                elif self.order_types[1] in message: # Status
                     try:
                         self.status_query.update(message[self.order_types[1]])
                     except:
@@ -118,12 +118,12 @@ class measurement_event_loop:
 
                 else:
                     l.error("Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\"")
-                    self.events.update({"DataError": "Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\""})
+                    self.events.update({"DataError": "[1]Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\""})
 
 
         except:
             l.error("Wrong order delivered to measurement event loop. Order: " + "\"" + str(message)+ "\"")
-            self.events.update({"DataError": "Wrong order delivered to measurement event loop. Order: " + "\"" + str(message)+ "\""})
+            self.events.update({"DataError": "[2]Wrong order delivered to measurement event loop. Order: " + "\"" + str(message)+ "\""})
 
     def process_message(self):
         '''This function will do some actions in case of a valid new operation'''
@@ -165,7 +165,7 @@ class measurement_event_loop:
         if self.status_query != {}:
             # Here all actions are processed which can occur in the status query request
 
-            if self.status_query.has_key("CLOSE"): # Searches for a key and take actions, like closing all threads
+            if "CLOSE" in self.status_query: # Searches for a key and take actions, like closing all threads
                 self.stop_measurement = True # Sets flag
                 self.stop_measurement_loop = True # Bug: measurement_loop closes while the measurement thread proceed till it has finished it current task and then shuts down
                 # TODO: Done? wait until the measurement has shut down and than proceed
@@ -177,7 +177,7 @@ class measurement_event_loop:
 
                 l.info("Closing all measurements and shutdown program.")
 
-            elif self.status_query.has_key("MEASUREMENT_FINISHED"): # This comes from the measurement class
+            elif "MEASUREMENT_FINISHED" in self.status_query: # This comes from the measurement class
                 self.measurement_running = False # Now new measurements can be conducted
                 self.stop_measurement = False
                 if not self.skip_init:
@@ -185,10 +185,10 @@ class measurement_event_loop:
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
                 self.default_dict["Defaults"]["Measurement_running"] = False
 
-            elif self.status_query.has_key("MEASUREMENT_STATUS"): # Usually asked from the main to get status
+            elif "MEASUREMENT_STATUS" in self.status_query: # Usually asked from the main to get status
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
 
-            elif self.status_query.has_key("ABORT_MEASUREMENT"): # Ask if Measuremnt should be aborted
+            elif "ABORT_MEASUREMENT" in self.status_query: # Ask if Measuremnt should be aborted
                 self.stop_measurement = True  # Sets flag, but does not check
 
             else:
