@@ -62,28 +62,28 @@ class help_functions:
 
             os.remove(os.path.abspath(path + str(name.split(".")[0]) + ".yaml"))
             #directory = path[:len(path)-len(path.split("/")[-1])]
-            file = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
+            filename = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
 
-            yaml.dump(data, file, indent=4, ensure_ascii=False)
+            yaml.dump(data, filename, indent=4, ensure_ascii=False)
 
-            self.close_file(file)
+            self.close_file(filename)
 
         elif not os.path.isfile(os.path.abspath(path + str(name.split(".")[0]) + ".yaml")):
 
             #directory = path[:len(path) - len(path.split("/")[-1])]
 
-            file = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
+            filename = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
 
-            yaml.dump(data, file, indent=4)
+            yaml.dump(data, filename, indent=4)
 
-            self.close_file(file)
+            self.close_file(filename)
 
 
             # Debricated
             #for items in data.items():
             #    if type(items[1]) != type([]):
             #        string = str(items[0]) + " = \"" + str(items[1]) + "\"\n"
-            #        os.write(file, str(string))
+            #        os.write(filename, str(string))
             #    else:
             #        string = str(items[0]) + " = \""
             #        for i in items[1]:
@@ -91,7 +91,7 @@ class help_functions:
             #        string = string[:-1]
             #        string += "\"\n"
             #        print string
-            #        os.write(file, string)
+            #        os.write(filename, string)
 
 
 
@@ -196,17 +196,17 @@ class help_functions:
             l.info("Filename changed to " + filename + ".")
 
         if os_file:
-            fd = os.open(os.path.abspath(filepath+filename), os.O_WRONLY | os.O_CREAT) # Creates the file
+            fp = os.open(os.path.abspath(filepath+filename), os.O_WRONLY | os.O_CREAT) # Creates the file
         else:
-            fd = open(os.path.abspath(filepath+filename), "w")
+            fp = open(os.path.abspath(filepath+filename), "w")
 
         l.info("Generated file: " + str(filename))
         print("Generated file: " + str(filename))
 
-        return fd
+        return fp
 
     # Opens a file for reading and writing
-    def open_file(self, filename="default.txt", filepath = "default_path"):
+    def open_file(self, filename="default.txt", filepath="default_path"):
         """
         Just opens a file and returns the file pointer
 
@@ -217,53 +217,53 @@ class help_functions:
             filepath = ""
 
         try:
-            fd = open(filepath + filename, 'r+') #Opens file for reading and writing
-            return fd
+            fp = open(filepath + filename, 'r+') #Opens file for reading and writing
+            return fp
         except IOError:
             print(str(filepath + filename) + " is not an existing file.")
 
     # Closes a file (just needs the file pointer)
-    def close_file(self, file):
+    def close_file(self, fp):
         """
-        Closed the file specified in param file
+        Closed the file specified in param fp
 
         """
         try:
             try:
-                os.close(file)
+                os.close(fp)
             except:
-                file.close()
+                fp.close()
         except GeneratorExit:
-            print("Closing the file: " + str(file) + " was not possible")
+            print("Closing the file: " + str(fp) + " was not possible")
         except:
-            print("Unknown error occured, while closing file " + str(file) + "Error: ", sys.exc_info()[0])
+            print("Unknown error occured, while closing file " + str(fp) + "Error: ", sys.exc_info()[0])
 
     # This flushes a string to a file
-    def flush_to_file(self, file, message):
+    def flush_to_file(self, fp, message):
         """
         Flushes data to a opend file
         Only strings or numbers allowed, Lists will work too but may cause data scrambling
         Only use this with created files from function 'create_new_file'
         """
-        os.write(file, str(message)) #Writes the message to file
-        os.fsync(file) # ensures that the data is written on HDD
+        os.write(fp, str(message)) #Writes the message to file
+        os.fsync(fp) # ensures that the data is written on HDD
 
     def write_to_file(self, content, filename="default.txt", filepath = "default_path"):
         """
         This writes content to a file. Be aware, input must be of type 'list' each entry containing the information of one line
         """
 
-        file = self.open_file(filename, filepath)
+        fp = self.open_file(filename, filepath)
 
         try:
             for line in content:
-                file.write(str(line))
+                fp.write(str(line))
         except IOError:
             print("Writing to file " + filename + " was not possible")
         except:
             print("Unknown error occured, while writing to file " + str(filename) + "Error: ", sys.exc_info()[0])
 
-        self.close_file(file)
+        self.close_file(fp)
 
     def read_from_file(self, filename="default.txt", filepath = "default_path"):
         """
@@ -271,17 +271,17 @@ class help_functions:
         Warning: File gets closed after reading
         """
 
-        file = self.open_file(filename, filepath)
+        fp = self.open_file(filename, filepath)
 
         try:
-            return file.readlines()
+            return fp.readlines()
         except IOError:
             print("Could not read from file.")
             return []
         except:
             print("Unknown error occured, while reading from file " + str(filename) + "Error: ", sys.exc_info()[0])
 
-        self.close_file(file)
+        self.close_file(fp)
 
     # These functions are for reading and writing to files------------------------------------
     # -------------------------------------------------------------------------------------end
@@ -627,9 +627,12 @@ class LogFile:
         :param logging_level: None, debug, info, warning, error critical
         """
 
+        package_dir = os.path.dirname(os.path.realpath(__file__))
+        project_dir = os.path.dirname(package_dir)
+
         self.LOG_FORMAT = "%(levelname)s %(asctime)s in function %(funcName)s - %(message)s"
-        self.file_PATH = os.path.normpath(os.path.realpath(__file__)[:38] + "/Logfiles/QTC_Logfile.log") # Filepath to Logfile directory
-        self.file_directory = os.path.normpath(os.path.realpath(__file__)[:38] + "/Logfiles")
+        self.file_PATH = os.path.join(project_dir, "Logfiles", "QTC_Logfile.log") # Filepath to Logfile directory
+        self.file_directory = os.path.join(project_dir, "Logfiles")
         self.logging_level = logging_level
         self.log_LEVELS = {"NOTSET": 0, "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50}
 
@@ -708,73 +711,6 @@ class Framework:
                 l.error("Could not update framework " + function)
         #end = time.time()
         #print end - start
-
-class transformation_old:
-
-    def vector_transform(self,v,T):
-        '''This function transform one vector into the basis of another'''
-        return T.dot(v)
-
-    def transformation_matrix(self, a, b):
-        '''Calculates the transformation matrix of the system.
-        Via the equation T = P^-1 Q where P and Q are comming from the linear system s*T + V0 = v
-        a and must  be the linear hull (or simple three linear independent vecotrs)'''
-
-        P = np.transpose(np.array([[a[1][0]-a[0][0],a[2][0]-a[0][0]],
-                                  [a[1][1]-a[0][1],a[2][1]-a[0][1]]]))
-                     #[a[1][2]-a[0][2],a[2][2]-a[0][2]]]))
-
-        print(P.shape)
-
-        Pinvert = inv(P)
-
-        Q = np.transpose(np.array([ [b[1][0]-b[0][0],b[2][0]-b[0][0]],
-                                    [b[1][1]-b[0][1],b[2][1]-b[0][1]],
-                                    [b[1][2]-b[0][2],b[2][2]-b[0][2]]
-
-                                    ]))
-
-        print(Q.shape)
-        #T = solve(P, Q)
-
-        T = Pinvert.dot(Q)
-
-        print(T)
-
-        #print T.dot(np.transpose(a)[1])
-
-        #V0 = np.transpose(b)[1] - np.dot(np.transpose(a)[1],T)
-
-        #print V0
-
-        return
-
-    def linear_dependency(self, x):
-        '''Calculates if the matrizes a and b are linear independet.
-        a and b must be matrizes of type np.array([a1,a2,a3]), where ai are the corresponding linearhull.
-        '''
-
-        # Test linear dependency
-        detx = det(x)
-        if detx != 0:
-            return True
-        else:
-            return False
-
-    def qr_factorisation(self,x):
-        '''Calculates the qr factorisation of a matrix (linear indenendecy is requiered)
-        Basically it just calculates a Orthogonal matrix q and a upper triangula matrix r.
-        A=Q*R is the basic principal behind it.'''
-
-        q,r = qr(x)
-        return q
-
-    def renorm(self,x):
-        '''Renormalise the basis vektors of a matrix'''
-        for i in range(len(x)):
-            x[i]=x[i]/norm(x[i])
-
-        return x
 
 class transformation:
     """Class which handles afine transformations in 3 dimensions for handling sensor to jig coordinate systems"""
