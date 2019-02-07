@@ -1,0 +1,7 @@
+recursive-include docs *
+recursive-include init *.json *.yml *.txt
+environment_setup.py
+LICENSE.md
+README.md
+requirements.yml
+UniDAQ.py
