@@ -4,8 +4,6 @@ from PyQt5.QtCore import QCoreApplication
 from PyQt5 import QtCore
 import numpy as np
 import logging
-try: import thread # python2
-except ImportError: import _thread as thread # python3
 from .utilities import newThread, Framework
 l = logging.getLogger(__name__)
 
