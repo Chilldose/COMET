@@ -118,12 +118,12 @@ class measurement_event_loop:
 
                 else:
                     l.error("Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\"")
-                    self.events.update({"DataError": "[1]Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\""})
+                    self.events.update({"DataError": "Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\""})
 
 
         except:
             l.error("Wrong order delivered to measurement event loop. Order: " + "\"" + str(message)+ "\"")
-            self.events.update({"DataError": "[2]Wrong order delivered to measurement event loop. Order: " + "\"" + str(message)+ "\""})
+            self.events.update({"DataError": "Wrong order delivered to measurement event loop. Order: " + "\"" + str(message)+ "\""})
 
     def process_message(self):
         '''This function will do some actions in case of a valid new operation'''
