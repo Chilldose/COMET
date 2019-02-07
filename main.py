@@ -8,7 +8,7 @@ __email__   = "dominic.bloech@oeaw.ac.at"
 __date__    = "15.09.2017"
 __beta__    = "20.12.2017"
 __release__ = "28.05.2018"
-__version__ = "0.9.2"
+__version__ = "0.10.0"
 
 #---------------------------------------------------------------------------------------------------------------------------------------
 #---------------------------------------------------------------------------------------------------------------------------------------
@@ -28,7 +28,7 @@ threads = [] # List all active threads started from the main
 
 
 
-print "Initializing programm:"
+print "Initializing programm, version", __version__, "..."
 from UniDAQ.utilities import *
 log = LogFile("INFO") #Initiates the log file
 l = logging.getLogger(__name__) # gets me the logger

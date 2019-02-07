@@ -27,7 +27,7 @@ copyright = u'2018, Dominic Bloech'
 author = u'Dominic Bloech'
 
 # The short X.Y version
-version = u'0.9.4'
+version = u'0.10.0'
 # The full version, including alpha/beta/rc tags
 release = u'beta'
 
