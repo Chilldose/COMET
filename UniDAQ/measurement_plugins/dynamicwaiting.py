@@ -3,7 +3,7 @@
 import logging
 import time
 import sys
-sys.path.append('../modules')
+sys.path.append('../UniDAQ')
 from ..utilities import *
 l = logging.getLogger(__name__)
 
@@ -162,4 +162,3 @@ class dynamicwaiting_class:
         xvalues = [interval*x for x in range(len(yvalues))]
 
         return xvalues, yvalues
-

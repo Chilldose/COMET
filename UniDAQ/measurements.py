@@ -159,13 +159,13 @@ class measurement_class:
     def load_plugins(self):
         # Load all measurement functions
         #install_directory = os.getcwd() # Obtain the install path of this module
-        all_measurement_functions = os.listdir("./modules/measurement_plugins/")
+        all_measurement_functions = os.listdir("./UniDAQ/measurement_plugins/")
         all_measurement_functions = list(set([modules.split(".")[0] for modules in all_measurement_functions]))
 
         l.info("All measurement functions found: " + str(all_measurement_functions) + ".")
 
         for modules in all_measurement_functions:  # import all modules from all files in the plugins folder
-            self.all_plugins.update({modules: importlib.import_module("modules.measurement_plugins." + modules)})
+            self.all_plugins.update({modules: importlib.import_module("UniDAQ.measurement_plugins." + modules)})
 
     def create_data_file(self, header, filepath, filename="default"):
         file = help.create_new_file(filename, filepath) # Creates the file at the destination

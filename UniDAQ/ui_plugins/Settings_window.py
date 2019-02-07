@@ -29,7 +29,7 @@ class Settings_window:
         #self.measurements = ["IV_measure", "CV_measure", "Strip_measure", "Istrip_measure", "Idiel_measure", "Rpoly_measure", "Cac_measure", "Cback_measure", "Cint_measure", "Rint_measure"]
         # Settings tab
         settings_widget = QWidget()
-        self.settings = self.variables.load_QtUi_file("./modules/QT_Designer_UI/settings_gui.ui", settings_widget)
+        self.settings = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/settings_gui.ui", settings_widget)
         self.layout.addWidget(settings_widget)
 
         self.configure_settings()

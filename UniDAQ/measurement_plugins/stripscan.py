@@ -4,7 +4,7 @@ import logging
 import sys
 import numpy as np
 from scipy import stats
-sys.path.append('../modules')
+sys.path.append('../UniDAQ')
 from ..VisaConnectWizard import *
 from ..utilities import *
 l = logging.getLogger(__name__)

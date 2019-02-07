@@ -3,7 +3,7 @@
 import logging
 import sys
 import numpy as np
-sys.path.append('../modules')
+sys.path.append('../UniDAQ')
 from ..VisaConnectWizard import *
 from ..utilities import *
 l = logging.getLogger(__name__)
@@ -13,7 +13,7 @@ vcw = VisaConnectWizard.VisaConnectWizard()
 
 @help.timeit
 class IVCV_class:
-    
+
     def __init__(self, main_class):
         self.main = main_class
         self.switching = self.main.switching

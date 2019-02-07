@@ -44,7 +44,7 @@ class StripAnalysis_window:
 
         # Badstrip detection tab
         badstrip = QWidget()
-        self.badstrip = self.variables.load_QtUi_file("./modules/QT_Designer_UI/badstrip.ui", badstrip)
+        self.badstrip = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/badstrip.ui", badstrip)
         self.layout.addWidget(badstrip)
 
         # Config the plots and init everything

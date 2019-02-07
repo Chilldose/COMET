@@ -135,10 +135,10 @@ class GUI_classes(GUI_event_loop, QWidget):
     def load_plugins(self):
         # Load all measurement functions
         #install_directory = os.getcwd() # Obtain the install path of this module
-        self.ui_classes = os.listdir(os.path.normpath("modules/ui_plugins/"))
+        self.ui_classes = os.listdir(os.path.normpath("UniDAQ/ui_plugins/"))
         self.ui_classes = list(set([modules.split(".")[0] for modules in self.ui_classes]))
 
-        self.qt_designer_ui = os.listdir(os.path.normpath("modules/QT_Designer_UI"))
+        self.qt_designer_ui = os.listdir(os.path.normpath("UniDAQ/QT_Designer_UI"))
         self.qt_designer_ui = list(set([modules.split(".")[0] for modules in self.qt_designer_ui]))
 
         l.info("All Ui classes found: " + str(self.ui_classes) + ".")
@@ -147,7 +147,7 @@ class GUI_classes(GUI_event_loop, QWidget):
 
         for modules in self.ui_classes:  # import all modules from all files in the plugins folder
             if "__init__" not in modules:
-                self.all_plugin_modules.update({modules: importlib.import_module("modules.ui_plugins." + str(modules))})
+                self.all_plugin_modules.update({modules: importlib.import_module("UniDAQ.ui_plugins." + str(modules))})
 
 
     def updateWidget(self, widget):

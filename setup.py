@@ -17,5 +17,9 @@ setup(
     author_email="rhtbapat@gmail.com",
     url="https://github.com/Chilldose/UniDAQ",
     license=license,
-    packages=find_packages()
+    packages=find_packages(),
+    scripts=["main.py"],
+    package_data={
+        "UniDAQ": ["QT_Designer_UI/*.ui", "images/*"]
+    }
 )

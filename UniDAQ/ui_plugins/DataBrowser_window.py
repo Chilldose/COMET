@@ -359,7 +359,7 @@ class DataBrowser_window:
 
         # Data browser
         data_browser_widget = QWidget()
-        self.data_ui = self.variables.load_QtUi_file("./modules/QT_Designer_UI/Data_explorer.ui", data_browser_widget)
+        self.data_ui = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/Data_explorer.ui", data_browser_widget)
         #self.data_ui = Ui_data_browser()
         #self.data_ui.setupUi(data_browser_widget)
 

@@ -65,7 +65,7 @@ class Resources_window:
                 # Standard test labels
                 # instrument = Ui_device_info()  # Starts the init of the ui file
                 # instrument.setupUi(resources_widget)
-                instrument = self.variables.load_QtUi_file("./modules/QT_Designer_UI/Device_connection_info.ui",
+                instrument = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/Device_connection_info.ui",
                                                            resources_widget)
                 instrument.device_name_label.setText(device_dict["Device_name"])
                 instrument.device_IDN_label.setText(device_dict["Device_IDN"])

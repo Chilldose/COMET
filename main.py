@@ -29,11 +29,11 @@ threads = [] # List all active threads started from the main
 
 
 print "Initializing programm:"
-from modules.utilities import *
+from UniDAQ.utilities import *
 log = LogFile("INFO") #Initiates the log file
 l = logging.getLogger(__name__) # gets me the logger
 l.info("Logfile initiated")
-from modules.boot_up import *
+from UniDAQ.boot_up import *
 
 # Checking installation
 ci = check_installation()
@@ -46,20 +46,20 @@ import numpy as np
 from pyqtgraph.Qt import QtGui, QtCore
 from PyQt5.QtWidgets import QApplication, QWidget
 import datetime
-from modules.VisaConnectWizard import *
-from modules.GUI_event_loop import *
-from modules.GUI_classes import *
-from modules.measurement_event_loop import *
-from modules.measurements import *
-from modules.cmd_inferface import *
-from modules.bad_strip_detection import *
+from UniDAQ.VisaConnectWizard import *
+from UniDAQ.GUI_event_loop import *
+from UniDAQ.GUI_classes import *
+from UniDAQ.measurement_event_loop import *
+from UniDAQ.measurements import *
+from UniDAQ.cmd_inferface import *
+from UniDAQ.bad_strip_detection import *
 from threading import Thread
-from modules.engineering_notation import *
-from modules.GUI_classes import *
-from modules.measurement_event_loop import *
-from modules.measurements import *
-from modules.cmd_inferface import *
-from modules.bad_strip_detection import *
+from UniDAQ.engineering_notation import *
+from UniDAQ.GUI_classes import *
+from UniDAQ.measurement_event_loop import *
+from UniDAQ.measurements import *
+from UniDAQ.cmd_inferface import *
+from UniDAQ.bad_strip_detection import *
 
 print "Done \n"
 

@@ -46,7 +46,7 @@ class Alignment_window:
 
         # Settings tab
         alignment_widget = QWidget()
-        self.alignment = self.variables.load_QtUi_file("./modules/QT_Designer_UI/Alignment.ui", alignment_widget)
+        self.alignment = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/Alignment.ui", alignment_widget)
         self.table_move_ui = self.alignment # this is for the table control so it can be a copy from the other ui
         self.layout.addWidget(alignment_widget)
         self.table_move = self.table_move()
@@ -617,7 +617,3 @@ class Alignment_window:
 
         # Not sure if this function should be called all the time
         #self.variables.add_update_function(table_move_update)
-
-
-
-

@@ -31,7 +31,7 @@ class DynamicWaiting_window:
 
         # Dynamic waiting time detection tab
         dynamic = QWidget()
-        self.dynamic = self.variables.load_QtUi_file("./modules/QT_Designer_UI/dynamicwaiting.ui", dynamic)
+        self.dynamic = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/dynamicwaiting.ui", dynamic)
         self.layout.addWidget(dynamic)
 
         # Config the plots and init everything
@@ -146,6 +146,3 @@ class DynamicWaiting_window:
 
             except Exception as e:
                 l.warning("An exception in the Dynamic waiting time plot occured, with error {error!s}".format(error=e))
-
-
-
