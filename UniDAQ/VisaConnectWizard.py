@@ -32,7 +32,7 @@ def run_with_lock(method):
 class VisaConnectWizard:
     '''
     This Class is for connecting Rs232, GPIB, IP and USB devices via pyVisa.
-    
+
     It can be called with an argument, which defines the specific resource you want to connect to.
     Basic Functions are:
     connect_to_instruments(bool) - no argument: connects to all resources, False: lists all resources and let you decide which to connect to
@@ -87,7 +87,7 @@ class VisaConnectWizard:
             self.GPIB_interface.send_ifc()
             l.info("Reset of interface was successfull.")
             return True
-        except Exception, e:
+        except Exception as e:
             l.error("Reset of interface was not successfull. Error: " + str(e))
             return False
 
@@ -95,28 +95,28 @@ class VisaConnectWizard:
 
     #If connections fails this will be called
     def connection_error(self, failed_resource):
-        print bcolors.WARNING + "Attemp to connect to visa resource " + str(failed_resource) + " failed."  + bcolors.ENDC
+        print(bcolors.WARNING + "Attemp to connect to visa resource " + str(failed_resource) + " failed."  + bcolors.ENDC)
         l.error("Attemp to connect to visa resource " + str(failed_resource) + " failed.")
 
 
     #Lists all connected resources (no sniff)
     def show_resources(self):
-        print self.myInstruments
+        print(self.myInstruments)
 
     #Looks for all Instruments in the network and shows them
     def show_instruments(self):
         # Lists all available resources found
-        print "All available visa resources:"
+        print("All available visa resources:")
         self.resource_names = self.rm.list_resources()
 
         if self.resource_names == ():
-            print "Warning: No Visa resources found!"
+            print("Warning: No Visa resources found!")
             l.warning("No Visa resources found!")
             return -1
 
         # enumerate and print all resources
         for i, j in enumerate(self.resource_names):
-            print i, j
+            print("{} {}".format(i, j))
 
 
     def reconnect_to_device(self, device_dict):
@@ -154,7 +154,7 @@ class VisaConnectWizard:
 
             if IDN == str(self.verify_ID(len(self.myInstruments)-1, command=device_IDN)).strip(): # So that the last added device will be queried
                 self.myInstruments_dict.update({IDN: device_resource})  # Adds the device ID for each instrument into the dict
-                print str(device_resource) + " => " + IDN.strip("\n")  # Prints the IDN for each device
+                print(str(device_resource) + " => " + IDN.strip("\n"))  # Prints the IDN for each device
                 l.info(str(device_resource) + " => " + IDN.strip("\n"))
                 return 1 # this means success
 
@@ -238,7 +238,7 @@ class VisaConnectWizard:
 
     #No response function
     def no_response(self, instrument):
-        print 'The device ' + str(instrument) + " is not responing."
+        print('The device ' + str(instrument) + " is not responing.")
         l.warning('The device ' + str(instrument) + " is not responing.")
 
 
@@ -247,12 +247,12 @@ class VisaConnectWizard:
 
             if number == -1:
 
-                print "All IDN of devices:"
+                print("All IDN of devices:")
                 for instrument in self.myInstruments:
                     try:
                         device_IDN = instrument.query(str(command)) #Gets me the IDN for the device
                         self.myInstruments_dict.update({device_IDN: instrument}) # Adds the device ID for each instrument into the dict
-                        print str(instrument) + " => " + device_IDN.strip("\n") #Prints the IDN for each device
+                        print(str(instrument) + " => " + device_IDN.strip("\n")) #Prints the IDN for each device
                         l.info(str(instrument) + " => " + device_IDN.strip("\n"))
                     except:
                         self.no_response(str(instrument))
@@ -280,7 +280,7 @@ class VisaConnectWizard:
             except KeyError:
                 l.error("An key error occured in dict " + str(resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
                 return -1
-            except Exception, e:
+            except Exception as e:
                 l.exception("An unknowen error occured while accessing a Visa resource " + str(e))
                 return -1
         else:
@@ -294,9 +294,9 @@ class VisaConnectWizard:
             l.info("Written command: " + str(code) + " to: " + str(resource) + " was answered with: " + str(query).strip())
             return query
 
-        except Exception, e:
+        except Exception as e:
             # Try to reconnect to the device if no answer comes from the device in the timeout
-            print "The query of device " + str(resource) + " with query " + str(code) + " failed with error: " + str(e)
+            print("The query of device " + str(resource) + " with query " + str(code) + " failed with error: " + str(e))
             l.error("The query of device " + str(resource) + " with query " + str(code) + " failed with error: " + str(e))
 
             if reconnect and type(resource_dict) == dict:
@@ -323,7 +323,7 @@ class VisaConnectWizard:
             except KeyError:
                 l.error("An key error occured in dict " + str(resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
                 return -1
-            except Exception, e:
+            except Exception as e:
                 l.exception("An unknown error occured while accessing a Visa resource " + str(e))
                 return -1
         else:

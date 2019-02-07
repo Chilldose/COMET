@@ -43,11 +43,11 @@ class DAQShell(cmd.Cmd):
 
     def do_UniDAQ_functions(self, arg=None):
         """This function writes back all functions added for use in the UniDAQ framework"""
-        print "All functions provided by the UniDAQ framework:"
+        print("All functions provided by the UniDAQ framework:")
         for i in self.list_of_objects:
-            print str(i.__name__)
-        print "=================================================="
-        print "For more information to the methods type help <topic>"
+            print(i.__name__)
+        print("==================================================")
+        print("For more information to the methods type help <topic>")
 
     def start(self):
         "Starts the actual thread in which the shell is running"
@@ -61,7 +61,7 @@ class DAQShell(cmd.Cmd):
         try:
             self.cmdloop()
         except KeyboardInterrupt:
-            print "^C"
+            print("^C")
 
     def do_bye(self, arg):
         'Stops the UniDAQ shell'
@@ -70,18 +70,17 @@ class DAQShell(cmd.Cmd):
 
     def precmd(self, line):
         """Just the pre command"""
-        print "====================================="
+        print("=====================================")
         return line
 
     def postcmd(self, retval, line):
         """Just the post command"""
         if "list" not in line and line.split()[0] in self.list_of_objects_str:
             try:
-                print "Executed command:".ljust(30) + str(line)
-                print "Type of return value: ".ljust(30) + str(type(retval))
-                print str(retval)
+                print("Executed command:".ljust(30) + str(line))
+                print("Type of return value: ".ljust(30) + str(type(retval)))
+                print(str(retval))
             except:
                 pass
-        print "====================================="
+        print("=====================================")
         return False
-

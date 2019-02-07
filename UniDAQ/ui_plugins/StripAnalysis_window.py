@@ -98,7 +98,7 @@ class StripAnalysis_window:
             self.update_analysis_plots(self.plot_data.keys()[0])
         except Exception as e:
             l.error("An error occured while accessing data from the bad strip detection: " + str(e))
-            print "An error occured while accessing data from the bad strip detection: " + str(e)
+            print("An error occured while accessing data from the bad strip detection: " + str(e))
 
     def update_analysis_plots(self, current_item):
         """This function updats the combo box for the specific measurement which should be shown"""
@@ -111,7 +111,7 @@ class StripAnalysis_window:
             self.update_plot(self.badstrip.which_measurement.currentText())
         except Exception as e:
             l.error("An error occured while accessing data from the bad strip detection: " + str(e))
-            print "An error occured while accessing data from the bad strip detection: " + str(e)
+            print("An error occured while accessing data from the bad strip detection: " + str(e))
 
     def update_bins(self):
         """Updates the bins for the histogram"""

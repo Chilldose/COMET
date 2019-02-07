@@ -23,7 +23,7 @@ import numpy as np
 from numpy.linalg import solve, norm, det, qr, inv
 import datetime
 import pyqtgraph as pg
-import VisaConnectWizard
+from . import VisaConnectWizard
 from PyQt5.QtWidgets import QApplication
 #from __future__ import print_function # Needed for the rtd functions that its written in 3
 
@@ -90,7 +90,7 @@ class help_functions:
             #            string += str(i).strip("'").strip("[").strip("]") + ","
             #        string = string[:-1]
             #        string += "\"\n"
-            #        print string
+            #        print(string)
             #        os.write(filename, string)
 
 
@@ -442,7 +442,7 @@ class help_functions:
 
                         if i+1 < len(csv_commands) and len(csv_commands)>1:
                             for j in range(i+1, len(csv_commands)):  # Fill the rest of the missing paramters
-                                print "Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead."
+                                print("Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
                                 l.error("Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
                                 command += "0" + sepa
 
@@ -506,7 +506,7 @@ class help_functions:
 
                         if i+1 < len(csv_commands) and len(csv_commands)>1:
                             for j in range(i+1, len(csv_commands)):# Fill the rest of the missing paramters
-                                print "Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead."
+                                print("Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
                                 l.error("Warning: Not enough parameters passed for function: " + str(command_tuple[0]) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
                                 command += " " + "0" + sepa
 
@@ -539,7 +539,7 @@ class help_functions:
                     return_list.append(command.strip())
         else:
             # If the command is not found in the device only command tuple will be send
-            print "Command " + str(command_tuple[0]) + " was not found in device! Unpredictable behavior may happen. No commad build!"
+            print("Command " + str(command_tuple[0]) + " was not found in device! Unpredictable behavior may happen. No commad build!")
             l.error("Command " + str(command_tuple[0]) + " was not found in device! Unpredictable behavior may happen. No commad build!")
             return ""
 
@@ -583,7 +583,7 @@ class newThread(threading.Thread):  # This class inherite the functions of the t
 
     def run(self):
         """Starts running the thread"""
-        print ("Starting thread: " + self.name) # run() is a member function of Thread() class. This will be called, when object thread will be started via thread.start()
+        print("Starting thread: " + self.name) # run() is a member function of Thread() class. This will be called, when object thread will be started via thread.start()
         l.info("Starting thread: " + self.name)
         self.object__ = self.run_process(self.object__, self.args)
 
@@ -647,7 +647,7 @@ class LogFile:
         try:
             os.remove(self.file_PATH) # IS needed, because sometimes other modules like the visa modules would override the file and all logs are lost, so the log file is in appending mode and no data loss.
         except Exception as e:
-            print ("Old Logfile could not be deleted: " + str(e))
+            print("Old Logfile could not be deleted: " + str(e))
         # Check if the folder already exists or create the folder
         if os.path.isdir(self.file_directory):
             logging.basicConfig(filename=self.file_PATH, level=self.logging_level, format = self.LOG_FORMAT, filemode= 'a') # Overrides the old file (this is just for initialization)
@@ -708,9 +708,9 @@ class Framework:
             try:
                 function()
             except:
-                l.error("Could not update framework " + function)
+                l.error("Could not update framework: %s", function)
         #end = time.time()
-        #print end - start
+        #print(end - start)
 
 class transformation:
     """Class which handles afine transformations in 3 dimensions for handling sensor to jig coordinate systems"""
@@ -802,10 +802,10 @@ class measurement_job_generation:
         if self.variables["Current_filename"] and os.path.isdir(self.variables["Current_directory"]):
             self.final_job.update({"Header": header})
             self.queue_to_measure.put({"Measurement": self.final_job})
-            print ("Sendet job: " + str({"Measurement": self.final_job}))
+            print("Send job: " + str({"Measurement": self.final_job}))
         else:
             l.error("Please enter a valid path and name for the measurement file.")
-            print ("Please enter a valid path and name for the measurement file.")
+            print("Please enter a valid path and name for the measurement file.")
 
     def generate_IVCV(self, header):
         '''
@@ -896,7 +896,7 @@ class table_control_class:
             self.visa_resource = self.devices.get("Table_control",None)["Visa_Resource"]
             self.table_ready = True
         except:
-            print ("Warning table control could not be initialized!")
+            print("Warning table control could not be initialized!")
             self.table_ready = False
             self.queue.put({"RequestError": "Table seems not to be connected!"})
             l.error("Table control could not be initialized!")
@@ -1390,7 +1390,7 @@ class switching_control:
                 command_diff = list(set(configs).difference(set(current_switching)))
                 if len(command_diff) != 0:  #Checks if all the right channels are closed
                     l.error("Switching to " + str(configs) + " was not possible. Difference read: " + str(current_switching))
-                    print ("Switching to " + str(configs) + " was not possible. Difference read: " + str(current_switching))
+                    print("Switching to " + str(configs) + " was not possible. Difference read: " + str(current_switching))
                     device_not_ready = False
                     return False
                 device_not_ready = False
@@ -1430,7 +1430,7 @@ class switching_control:
 
                         if len(command_tuple[1:]) <= len(data_struct): # searches if additional data needs to be added
                             for data in data_struct[i+1:]:
-                                # print device[command_keyword + "_" + data]
+                                # print(device[command_keyword + "_" + data])
                                 if command_keyword + "_" + data in device:
                                     final_string += str(device[command_keyword + "_" + data]).upper() + ","
                                 else:
@@ -1445,7 +1445,7 @@ class switching_control:
                             return str(command_tuple[0])
 
             except Exception as e:
-                #print e
+                #print(e)
                 pass
 
 
@@ -1478,7 +1478,7 @@ class show_cursor_position:
 
 if __name__ == "__main__":
 
-    print "test"
+    print("test")
 
     device_dict = {
     "set_source_current": "SOUR:FUNC CURR",
@@ -1836,45 +1836,45 @@ if __name__ == "__main__":
 
 }
 
-    print str(hf.build_command(dict_2657, ("set_voltage", 0.0)))
+    print(str(hf.build_command(dict_2657, ("set_voltage", 0.0))))
 
 
-    print str(hf.build_command(HV_dict, ("set_discharge", "ON")))
+    print(str(hf.build_command(HV_dict, ("set_discharge", "ON"))))
 
-    print str(hf.build_command(device_switch, ("set_open_channel", "1!1!1, 1!2!3, 2!3!3, 3!5!6")))
-    print str(hf.build_command(device_switch, ("set_open_channel", "(1!1!1, 1!2!3, 2!3!3)")))
-    print str(hf.build_command(device_switch, ("set_open_channel", "[1!1!1, 1!2!3, 2!3!3]")))
-    print str(hf.build_command(device_switch, ("set_open_channel", "1!1!1")))
-    print str(hf.build_command(device_switch, ("set_open_channel", "all")))
-    print str(hf.build_command(device_switch, "set_open_all"))
-    print str(hf.build_command(device_switch, ("set_open_channel", "")))
-    print str(hf.build_command(device_switch, "check_all_closed_channel"))
-
-
-    print str(hf.build_command(device_table, ("set_move_to", "0, 0, 0")))
-    print str(hf.build_command(device_table, ("set_move_to", "[0, 0, 0]")))
-    print str(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
-    print str(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
-    print str(hf.build_command(device_table, ("set_move_to", [0, 0])))
-    print str(hf.build_command(device_table, ("set_relative_move_to", [0, 0, 0])))
-    print str(hf.build_command(device_table, ("set_axis", "1 1 1 2 1 3")))
-    print str(hf.build_command(device_table, ("set_axis", ["1 1", "1 2", "1 3"])))
-    print str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2", "1 3"))))
-    print str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2"))))
-    print str(hf.build_command(device_table, ("set_polepairs", ["50 1", "50 2", "50 3"])))
-    print str(hf.build_command(device_table, ("get_position")))
-    print str(hf.build_command(device_table, ("calibrate_motor", "")))
+    print(str(hf.build_command(device_switch, ("set_open_channel", "1!1!1, 1!2!3, 2!3!3, 3!5!6"))))
+    print(str(hf.build_command(device_switch, ("set_open_channel", "(1!1!1, 1!2!3, 2!3!3)"))))
+    print(str(hf.build_command(device_switch, ("set_open_channel", "[1!1!1, 1!2!3, 2!3!3]"))))
+    print(str(hf.build_command(device_switch, ("set_open_channel", "1!1!1"))))
+    print(str(hf.build_command(device_switch, ("set_open_channel", "all"))))
+    print(str(hf.build_command(device_switch, "set_open_all")))
+    print(str(hf.build_command(device_switch, ("set_open_channel", ""))))
+    print(str(hf.build_command(device_switch, "check_all_closed_channel")))
 
 
-    print str(hf.build_command(device_237, ("set_complience", "100e-6, 100e-5")))
-    print str(hf.build_command(device_237, ("set_complience", "(100e-6, 100e-5)")))
-    print str(hf.build_command(device_237, ("set_complience", "[100e-6, 100e-5]")))
-    print str(hf.build_command(device_237, ("set_complience", [100e-6, 100e-5])))
-    print str(hf.build_command(device_237, ("set_voltage", [100e-6])))
-    print str(hf.build_command(device_237, ("set_complience", [100e-6])))
+    print(str(hf.build_command(device_table, ("set_move_to", "0, 0, 0"))))
+    print(str(hf.build_command(device_table, ("set_move_to", "[0, 0, 0]"))))
+    print(str(hf.build_command(device_table, ("set_move_to", [0, 0, 0]))))
+    print(str(hf.build_command(device_table, ("set_move_to", [0, 0, 0]))))
+    print(str(hf.build_command(device_table, ("set_move_to", [0, 0]))))
+    print(str(hf.build_command(device_table, ("set_relative_move_to", [0, 0, 0]))))
+    print(str(hf.build_command(device_table, ("set_axis", "1 1 1 2 1 3"))))
+    print(str(hf.build_command(device_table, ("set_axis", ["1 1", "1 2", "1 3"]))))
+    print(str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2", "1 3")))))
+    print(str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2")))))
+    print(str(hf.build_command(device_table, ("set_polepairs", ["50 1", "50 2", "50 3"]))))
+    print(str(hf.build_command(device_table, ("get_position"))))
+    print(str(hf.build_command(device_table, ("calibrate_motor", ""))))
 
-    print str(hf.build_command(device_dict, ("set_complience", "100e-6")))
-    print str(hf.build_command(device_dict, ("set_complience")))
+
+    print(str(hf.build_command(device_237, ("set_complience", "100e-6, 100e-5"))))
+    print(str(hf.build_command(device_237, ("set_complience", "(100e-6, 100e-5)"))))
+    print(str(hf.build_command(device_237, ("set_complience", "[100e-6, 100e-5]"))))
+    print(str(hf.build_command(device_237, ("set_complience", [100e-6, 100e-5]))))
+    print(str(hf.build_command(device_237, ("set_voltage", [100e-6]))))
+    print(str(hf.build_command(device_237, ("set_complience", [100e-6]))))
+
+    print(str(hf.build_command(device_dict, ("set_complience", "100e-6"))))
+    print(str(hf.build_command(device_dict, ("set_complience"))))
 
 
 
@@ -1889,6 +1889,6 @@ if __name__ == "__main__":
     #b3 = [0, 150, 0]
 
     #T, V0 = trans.transformation_matrix(b1,b2,b3,a1,a2,a3)
-    #print (T)
-    #print (V0)
-    #print (trans.vector_trans([12,23, 0], T,V0))
+    #print(T)
+    #print(V0)
+    #print(trans.vector_trans([12,23, 0], T,V0))

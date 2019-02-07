@@ -10,6 +10,7 @@ import importlib
 import os
 import os.path as osp
 import sys
+import glob
 from time import sleep
 
 import pyqtgraph as pq
@@ -18,9 +19,9 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from GUI_event_loop import *
-from utilities import newThread, help_functions, measurement_job_generation
-from bad_strip_detection import *
+from .GUI_event_loop import *
+from .utilities import newThread, help_functions, measurement_job_generation
+from .bad_strip_detection import *
 
 l = logging.getLogger(__name__)
 
@@ -133,21 +134,30 @@ class GUI_classes(GUI_event_loop, QWidget):
         return UI
 
     def load_plugins(self):
+
+        def locate_modules(pattern):
+            """Returns list of modules names.
+            >>> locate_modules("/path/to/*.py")
+            ['foo', 'bar', 'baz']
+            """
+            modules = []
+            for filename in glob.glob(pattern):
+                module = os.path.basename(os.path.splitext(filename)[0])
+                if module not in ("__init__", "__pycache__"):
+                    modules.append(module)
+            return modules
+
         # Load all measurement functions
         #install_directory = os.getcwd() # Obtain the install path of this module
-        self.ui_classes = os.listdir(os.path.normpath("UniDAQ/ui_plugins/"))
-        self.ui_classes = list(set([modules.split(".")[0] for modules in self.ui_classes]))
-
-        self.qt_designer_ui = os.listdir(os.path.normpath("UniDAQ/QT_Designer_UI"))
-        self.qt_designer_ui = list(set([modules.split(".")[0] for modules in self.qt_designer_ui]))
+        self.ui_classes = locate_modules(os.path.normpath("UniDAQ/ui_plugins/*.py"))
+        self.qt_designer_ui = locate_modules(os.path.normpath("UniDAQ/QT_Designer_UI/*.ui"))
 
         l.info("All Ui classes found: " + str(self.ui_classes) + ".")
         l.info("All Qt Ui objects found: " + str(self.qt_designer_ui) + ".")
 
 
         for modules in self.ui_classes:  # import all modules from all files in the plugins folder
-            if "__init__" not in modules:
-                self.all_plugin_modules.update({modules: importlib.import_module("UniDAQ.ui_plugins." + str(modules))})
+            self.all_plugin_modules.update({modules: importlib.import_module("UniDAQ.ui_plugins." + str(modules))})
 
 
     def updateWidget(self, widget):

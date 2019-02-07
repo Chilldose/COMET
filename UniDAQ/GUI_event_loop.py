@@ -4,8 +4,9 @@ from PyQt5.QtCore import QCoreApplication
 from PyQt5 import QtCore
 import numpy as np
 import logging
-import thread
-from utilities import newThread, Framework
+try: import thread # python2
+except ImportError: import _thread as thread # python3
+from .utilities import newThread, Framework
 l = logging.getLogger(__name__)
 
 
@@ -157,7 +158,7 @@ class GUI_event_loop:
                         self.meas_data[measurement][1].append(np.array(message[measurement][1]))
             else:
                 l.error("Measurement " + str(measurement) + " could not be found in active data arrays. Data discarded.")
-                print "Measurement " + str(measurement) + " could not be found in active data arrays. Data discarded."
+                print("Measurement " + str(measurement) + " could not be found in active data arrays. Data discarded.")
 
 
     def process_pending_events(self):
@@ -179,5 +180,3 @@ class GUI_event_loop:
             self.default_values_dict["Defaults"]["new_data"] = False
 
         self.default_values_dict["Defaults"]["update_counter"] += 1
-
-

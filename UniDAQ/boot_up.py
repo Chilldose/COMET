@@ -8,6 +8,7 @@ import imp, os, threading, yaml
 import logging
 import numpy as np
 import glob
+import sys
 
 l = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ class check_installation:
 
     def __init__(self):
 
-        print "Checking installation ...",
+        sys.stdout.write("Checking installation ... ")
         self.needed_modules = ["numpy", "scipy", "visa", "PyQt5", "pyqtgraph"]
 
         for modules in self.needed_modules:
@@ -29,8 +30,8 @@ class check_installation:
                 imp.find_module(modules)
 
             except:
-                print "Module " + current_module + " or its dependencies are not installed."
-                print "Should it be installed?"
+                print("Module " + current_module + " or its dependencies are not installed.")
+                print("Should it be installed?")
                 answer = str(raw_input("yes/no \n"))
 
                 if answer == "yes":
@@ -42,8 +43,8 @@ class check_installation:
                         pip.main(["install", "PyQt"])
 
                 else:
-                    print "Module not installed. Warning: The code may not work properly."
-        print "Done \n"
+                    print("Module not installed. Warning: The code may not work properly.")
+        print("Done \n")
 
     def install_module(self, *modulenames): # Just in case you want to install additional modules on your own
 
@@ -56,9 +57,9 @@ class check_installation:
             for modules in modulenames:
                 try:
                     imp.find_module(modules)
-                    print "Module " + modules + " is installed."
+                    print("Module " + modules + " is installed.")
                 except:
-                    print "Module " + modules + " is not installed."
+                    print("Module " + modules + " is not installed.")
 
 class loading_init_files:
     '''This class is for loading all init files, pad files and default parameters.
@@ -90,7 +91,7 @@ class loading_init_files:
         self.list_pad_files_folders = os.listdir(pad_files_dir)
 
 
-        #print self.list_default_values
+        #print(self.list_default_values)
 
         # Dictionaries for the types of input files
         self.devices_dict = {}
@@ -155,7 +156,7 @@ class loading_init_files:
         for filename in list_of_files:
             with open(os.path.join(path, filename), "r") as f:
                 read_data = f.readlines()
-                #print read_data
+                #print(read_data)
 
             # first find the header
             for i, lines in enumerate(read_data):
@@ -203,7 +204,7 @@ class loading_init_files:
         for device in self.default_values_dict["Defaults"]: #  Gets me the internal names of all stated devices in the default file (or the keys) (only for the defaults file)
             # Searches for devices in the device list, returns false if not found (real device is the value dict of the device
             try:
-                if self.devices_dict.has_key(self.default_values_dict["Defaults"][device]) and self.default_values_dict["Defaults"][device] not in assigned_dicts:
+                if (self.default_values_dict["Defaults"][device] in self.devices_dict) and self.default_values_dict["Defaults"][device] not in assigned_dicts:
                     # syntax for changing keys in dictionaries dictionary[new_key] = dictionary.pop(old_key)
                     self.devices_dict[device]=self.devices_dict.pop(self.default_values_dict["Defaults"][device])
                     assigned_dicts.append(self.default_values_dict["Defaults"][device])
@@ -224,7 +225,7 @@ class loading_init_files:
         '''Creates a dictionary with all values written in the file using yaml'''
 
         resource = os.path.join(filepath, filename)
-        print "Loading file:", filename
+        print("Loading file: {}".format(filename))
         with open(resource, "r") as fp:
             return yaml.load(fp)
 
@@ -240,7 +241,7 @@ class loading_init_files:
                 dict_name = line.split('"')[1]  # Gets me the the actual string which is written between the "..."
                 break
         else: # If no break occured this will be displayed
-            print "Warning: No name for the device found!"
+            print("Warning: No name for the device found!")
 
         return dict_name
 
@@ -259,7 +260,7 @@ class loading_init_files:
 
                 if value.find(",") >= 0 and key != "Device_IDN": # Just searches if commas are in the line but dont do if it is the device IDN
                     value = map(lambda string: string.strip(), value.split(",")) # Creates a list separated by commas and strips it for withspaces
-                    #print value
+                    #print(value)
                     try:
                         for i, val in enumerate(value):
                             value[i] = float(val)
@@ -307,28 +308,28 @@ class connect_to_devices:
                             l.info("Connection established to device: " + str(device) + " at ")
                         else:
                             l.error("Connection could not be established to device: " + str(device))
-                            print "Connection could not be established to device: " + str(device)
+                            print("Connection could not be established to device: " + str(device))
 
                     else:
                         l.error("Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
-                        print "Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected."
+                        print("Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
 
 
                 elif "RS232" in str(connection_type).upper():
                     # This maneges the connections for Serial devices
 
                     if ("ASRL"+str(connection_type.split(":")[-1]) + "::INSTR") in self.vcw.resource_names: # Searches for a match in the resource list
-                        #print self.device_dict[device].get("Baud_rate", 57600)
+                        #print(self.device_dict[device].get("Baud_rate", 57600))
                         success = self.vcw.connect_to(self.vcw.resource_names.index("ASRL"+str(connection_type.split(":")[-1]) + "::INSTR"), device_IDN, baudrate=self.device_dict[device].get("Baud_rate", 57600), device_IDN=IDN_query) # Connects to the device Its always ASRL*::INSTR
                         if success:
                             l.info("Connection established to device: " + str(device) + " at ")
                         else:
                             l.error("Connection could not be established to device: " + str(device))
-                            print "Connection could not be established to device: " + str(device)
+                            print("Connection could not be established to device: " + str(device))
 
                     else:
                         l.error("Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
-                        print "Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected."
+                        print("Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
 
 
                 elif "IP" in str(connection_type).upper():
@@ -339,10 +340,10 @@ class connect_to_devices:
 
                 else:
                     l.info("No valid connection type found for device " + str(device) + ". Therefore no connection established. You may proceed but measurements will fail.")
-                    print "No valid connection type found for device " + str(device) + ". Therefore no connection established. You may proceed but measurements will fail."
+                    print("No valid connection type found for device " + str(device) + ". Therefore no connection established. You may proceed but measurements will fail.")
 
             except KeyError:
-                print "Device " + device_dict[device]["Display_name"] + " has no IDN."
+                print("Device " + device_dict[device]["Display_name"] + " has no IDN.")
                 l.error("Device " + device_dict[device]["Display_name"] + " has no IDN.")
 
 
@@ -369,7 +370,7 @@ class connect_to_devices:
                 try:
                     device_IDN = self.device_dict[device]["Device_IDN"] # gets me the IDN for each device loaded
                 except KeyError:
-                    print "Device " + self.device_dict[device]["Display_name"] + " has no IDN."
+                    print("Device " + self.device_dict[device]["Display_name"] + " has no IDN.")
                     l.error("Device " + self.device_dict[device]["Display_name"] + " has no IDN.")
 
                 resource = valid_resources.get(str(device_IDN).strip(), "Not listed")
@@ -377,17 +378,17 @@ class connect_to_devices:
 
                 if resource != "Not listed":
                     self.device_dict[device].update({"Visa_Resource": resource})  # If resource was found with same IDN the resource gets appended to the dict
-                    print "Device " + self.device_dict[device]["Display_name"] + " is assigned to " + str(resource) + " with IDN: " + str(device_IDN).strip()
+                    print("Device " + self.device_dict[device]["Display_name"] + " is assigned to " + str(resource) + " with IDN: " + str(device_IDN).strip())
                     l.info("Device " + self.device_dict[device]["Display_name"] + " is assigned to " + str(resource) + " with IDN: " + str(device_IDN).strip())
                 elif resource == "Not listed":
-                    print "Device " + self.device_dict[device]["Display_name"] + " could not be found in active resources."
+                    print("Device " + self.device_dict[device]["Display_name"] + " could not be found in active resources.")
                     l.error("Device " + self.device_dict[device]["Display_name"] + " could not be found in active resources.")
 
         return self.device_dict
         # Check if every device dict has its resource added
         #for device in device_dict.keys():
         #    if "Visa_Resource" not in device_dict[device]:
-        #        print "No Visa resources listed for device " + device_dict[device]["Display_name"] + "."
+        #        print("No Visa resources listed for device " + device_dict[device]["Display_name"] + ".")
 
 class update_defaults_dict:
     '''A class with two members. self.update takes an dict which updates the default values dict with the given fict.

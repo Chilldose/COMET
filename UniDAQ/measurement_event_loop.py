@@ -1,20 +1,23 @@
 # This starts the event loop for conducting measurements
 
-import Queue
-from utilities import *
-from measurements import *
+# Python2 compatible import for package queue
+try: import queue
+except ImportError: import Queue as queue
+
+from .utilities import *
+from .measurements import *
 import threading
 import numpy as np
 from time import sleep
 import pyqtgraph as pg
-from VisaConnectWizard import *
+from .VisaConnectWizard import *
 import logging
 l = logging.getLogger(__name__)
 
-# Defining the Queue Objects for data sharing need to be here, than the main knows them to!!!
-message_to_main = Queue.Queue()
-message_from_main = Queue.Queue()
-queue_to_GUI = Queue.Queue()
+# Defining the queue Objects for data sharing need to be here, than the main knows them to!!!
+message_to_main = queue.Queue()
+message_from_main = queue.Queue()
+queue_to_GUI = queue.Queue()
 
 
 
@@ -26,7 +29,7 @@ class measurement_event_loop:
     def __init__(self, device_dict, settings, pad_files, visa_connect, table, switching, shell):
         ''' Here all initializations can be done. '''
 
-        #Getting the Queue objects for safe data exchange
+        #Getting the queue objects for safe data exchange
         self.message_to_main = message_to_main
         self.message_from_main = message_from_main
         self.queue_to_GUI = queue_to_GUI
@@ -63,7 +66,7 @@ class measurement_event_loop:
         self.shell.add_cmd_command(self.init_devices)
 
         # Start Continuous measurements like temphum control
-        #self.data_from_continous_measurements = Queue.Queue() # Creates a queue object for the data transfer
+        #self.data_from_continous_measurements = queue.Queue() # Creates a queue object for the data transfer
         if "temphum_controller" in self.devices:
             self.measthread = newThread(2, "Temperatur and humidity control", self.temperatur_and_humidity, self.message_to_main, self.devices["temphum_controller"], self.devices["temphum_controller"]["enviroment_query"], self.default_dict["Defaults"]["temphum_update_intervall"])
             self.measthread.start() # Starts the thread
@@ -212,7 +215,7 @@ class measurement_event_loop:
             if first_try:
                 success = True
 
-        except Exception, e:
+        except Exception as e:
             l.error("The temperature and humidity controller seems not to be responding. Error:" + str(e))
 
         #@hf.run_with_lock
@@ -248,7 +251,7 @@ class measurement_event_loop:
         #sended_commands = [] #list over all sendet commands, to prevent double sending
         for device in self.devices: # Loop over all devices
             sended_commands = []  # list over all sended commands, to prevent double sending
-            if self.devices[device].has_key("Visa_Resource"): # Looks if a Visa resource is assigned to the device.
+            if "Visa_Resource" in self.devices[device]: # Looks if a Visa resource is assigned to the device.
 
                 # Initiate the instrument and resets it
                 if "reset_device" in self.devices[device]:

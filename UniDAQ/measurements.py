@@ -1,13 +1,13 @@
 # Here the measurement procedures are defined
 import logging
 import numpy as np
-from VisaConnectWizard import *
+from .VisaConnectWizard import *
 import os
 import time
 import datetime, math
 from scipy import stats
 import importlib
-from utilities import *
+from .utilities import *
 
 l = logging.getLogger(__name__)
 
@@ -251,14 +251,14 @@ class measurement_class:
 
                 # here the actuall measurement starts
                 if not abort:
-                    print "Starting measurement " + str(measurement)
+                    print("Starting measurement " + str(measurement))
                     l.info("Starting measurement " + str(measurement))
                     starttime = time.time()
                     getattr(self.all_plugins[measurement], str(measurement)+"_class")(self)
                     endtime = time.time()
 
                     deltaT = abs(starttime-endtime)
-                    print "The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds."
+                    print("The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds.")
                     l.info("The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds.")
 
         if "ramp_voltage" in self.job_details:
@@ -477,7 +477,7 @@ class measurement_class:
         try:
             if complience == None:
                 l.error("No complience set for measurement, default complience is used! This may cause deamage to the sensor!")
-                print "No complience set for measurement, default complience is used! This may cause deamage to the sensor!"
+                print("No complience set for measurement, default complience is used! This may cause deamage to the sensor!")
                 complience = device["default_complience"]
         except:
             l.error("Device " + str(device) + " has no complience set!")
@@ -506,7 +506,7 @@ class measurement_class:
 
 
     def build_command_depricated(self, device, command_tuple):
-        print "You used an on build command, please use the one from utilities"
+        print("You used an on build command, please use the one from utilities")
         #Todo build command is two folded in here
         if type(command_tuple) == unicode or type(command_tuple) == str:
             command_tuple = (str(command_tuple),) # so the correct casting is done
@@ -526,7 +526,7 @@ class measurement_class:
 
                         if len(command_tuple[1:]) <= len(data_struct): # searches if additional data needs to be added
                             for data in data_struct[i+1:]:
-                                # print device[command_keyword + "_" + data]
+                                # print(device[command_keyword + "_" + data])
                                 if command_keyword + "_" + data in device:
                                     final_string += str(device[command_keyword + "_" + data]).upper() + ","
                                 else:
@@ -540,7 +540,7 @@ class measurement_class:
                         else:
                             return str(command_tuple[0])
 
-            except Exception, e:
+            except Exception as e:
                 pass
 
 

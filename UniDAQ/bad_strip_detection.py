@@ -5,7 +5,7 @@ import yaml
 import logging
 import os
 import numpy as np
-from utilities import help_functions
+from .utilities import help_functions
 import numba as nb
 from scipy.stats import norm, stats
 hf = help_functions()
@@ -42,9 +42,10 @@ class stripanalysis:
             settings_file.close()
             l.info("Badstrip ini file " + str(filepath) + " was successfully loaded.")
             #l.info("Included sections in badstrip ini file" + str(self.settings.sections()))
-        except IOError, e:
-            print "IO error while accessing init file in badstrip detection, with error: " + str(e)
-            l.error("IO error while accessing init file in badstrip detection, with error: " + str(e))
+        except IOError as e:
+            message = "IO error while accessing init file in badstrip detection, with error: {}".format(e)
+            print(message)
+            l.error(message)
 
     def read_in_measurement_file(self, filepathes):
         """This function reads in a QTC measurement file and return a dictionary with the data in the file"""
@@ -60,8 +61,9 @@ class stripanalysis:
                 self.all_data.update({filename: data})
 
         except Exception as e:
-            print "Something went wrong while importing the file " + str(current_file) + " with error: " + str(e)
-            l.error("Something went wrong while importing the file " + str(current_file) + " with error: " + str(e))
+            message = "Something went wrong while importing the file '{}' with error: {}".format(current_file, e)
+            print(message)
+            l.error(message)
 
     def parse_file_data(self, filecontent):
         """This function parses the file content to the needed data type"""
@@ -142,14 +144,14 @@ class stripanalysis:
                 for meas, ydata in run["data"].items():
                     # Do the lms linefit for every measurement prevalent
                     if "Pad" not in meas: # Exclude the pad analysis
-                        print "Calculating lms line for: " + str(meas)
+                        print("Calculating lms line for: {}".format(meas))
                         time, res = self.do_lms_fit(xdata, ydata)
                         results["lms_fit"][meas] = res
                         results["report"][meas] = "LMS line fit: \n" \
                                                    "k= " + str(res[0]) + ",\t" +\
                                                    "d= " + str(res[1]) + "\n\n"
 
-                        print "Time taken for analysis: " + str(time)
+                        print("Time taken for analysis: {}".format(time))
 
                         # Generate Histogram----------------------------
 
@@ -177,7 +179,7 @@ class stripanalysis:
                 # When everything is finished switch flag to analysed
                 run["analysed"] = True
 
-        print "Analysis done"
+        print("Analysis done")
 
     def do_offline_singlestrip_analysis(self, meas, data):
             """This function just calls the online analysis for every strip and generates a report text"""
@@ -273,7 +275,7 @@ class stripanalysis:
         try:
             result = self.jit_lms(x, y, q)
         except Exception as e: # This happens when the pads are not numbers but should not concernt anyone
-            print "Error occured while calculating LMS line with error: " + str(e)
+            print("Error occured while calculating LMS line with error: {}".format(e))
             result = [1,1]
 
         return [result[0], result[1]]
@@ -318,5 +320,5 @@ class stripanalysis:
 
 if __name__ == "__main__":
     det = stripanalysis(None, "C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\UniDAQ\\init\\default\\badstrip.yml")
-    det.read_in_measurement_file(["C:\Users\dbloech\Desktop\str_VC740655_11_2SBaby_1.txt","C:\Users\dbloech\Desktop\str_VC740655_18_2SBaby_2.txt"])
+    det.read_in_measurement_file(["C:\\Users\\dbloech\\Desktop\\str_VC740655_11_2SBaby_1.txt","C:\\Users\\dbloech\\Desktop\\str_VC740655_18_2SBaby_2.txt"])
     det.do_analysis()

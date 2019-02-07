@@ -89,10 +89,10 @@ class DataBrowser_window:
                         try:
                             self.variables.default_values_dict["Defaults"]["current_selected_browser_value"] = item.text(0)
                             item = item.text(0)
-                            #print self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]
+                            #print(self.variables.default_values_dict["Defaults"]["current_selected_browser_value"])
                         except:
                             pass
-                            #print "Key Error is raised, the key 'current_selected_browser_value' could not be found"
+                            #print("Key Error is raised, the key 'current_selected_browser_value' could not be found")
 
                         for i in range(self.data_ui.key_value_tree.topLevelItemCount()):
                             self.data_ui.key_value_tree.takeTopLevelItem(0)
@@ -102,17 +102,17 @@ class DataBrowser_window:
                             self.data_ui.key_value_tree.topLevelItem(i).setText(0, self._translate("data_browser", keys))
                             self.data_ui.key_value_tree.topLevelItem(i).setText(1, self._translate("data_browser", str(self.variables.devices_dict[item][keys])))
                     #except KeyError:
-                        #print "Key Error is raised, the key 'current_selected_browser_value' could not be found"
+                        #print("Key Error is raised, the key 'current_selected_browser_value' could not be found")
                         #l.error("Key Error is raised, the key 'current_selected_browser_value' could not be found")
                     except:
                         pass
                         #l.error("Unknown error was raised during loading of device values" + str(sys.exc_info()[0]))
-                        #print "Unknown error was raised during loading of device values", sys.exc_info()[0]
+                        #print("Unknown error was raised during loading of device values", sys.exc_info()[0])
 
-                except Exception as error:
-                    print "Error type:", error
-                    #print "Trace: ", traceback #sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
-                    raise sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
+                except Exception as e:
+                    print("Error type: {}".format(e))
+                    #print("Trace: ", traceback) #sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
+                    raise # sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
 
         @hf.raise_exception
         def reload_devices_button_action(kwargs = None):
@@ -219,7 +219,7 @@ class DataBrowser_window:
                     item = item.text(0)
                 except:
                     pass
-                    #print "Key Error is raised, the key 'current_selected_browser_value' could not be found"
+                    #print("Key Error is raised, the key 'current_selected_browser_value' could not be found")
 
                 for i in range(self.data_ui.key_value_tree_2.topLevelItemCount()):
                     self.data_ui.key_value_tree_2.takeTopLevelItem(0)
@@ -229,12 +229,12 @@ class DataBrowser_window:
                     self.data_ui.key_value_tree_2.topLevelItem(i).setText(0, self._translate("data_browser", keys))
                     self.data_ui.key_value_tree_2.topLevelItem(i).setText(1, self._translate("data_browser", str(self.variables.default_values_dict[item][keys])))
             #except KeyError:
-                #print "Key Error is raised, the key 'current_selected_browser_value' could not be found"
+                #print("Key Error is raised, the key 'current_selected_browser_value' could not be found")
                 #l.error("Key Error is raised, the key 'current_selected_browser_value' could not be found")
             except:
                 pass
                 #l.error("Unknown error was raised during loading of device values" + str(sys.exc_info()[0]))
-                #print "Unknown error was raised during loading of device values", sys.exc_info()[0]
+                #print("Unknown error was raised during loading of device values", sys.exc_info()[0])
 
         @hf.raise_exception
         def reload_settings_button_action(kwargs = None):
