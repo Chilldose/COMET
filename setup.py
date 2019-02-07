@@ -10,7 +10,7 @@ with open("LICENSE.md") as f:
 
 setup(
     name="UniDAQ",
-    version="0.9.2",
+    version="0.10.0",
     description="A framework for automated DAQ for semiconductor device testing",
     long_description=readme,
     author="Dominic Blöch",
