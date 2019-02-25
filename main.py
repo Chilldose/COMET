@@ -26,20 +26,19 @@ import time
 start_time = time.time()
 threads = [] # List all active threads started from the main
 
-
-
-print "Initializing programm:"
 from modules.utilities import *
-log = LogFile("INFO") #Initiates the log file
+log = LogFile(os.getcwd() + os.path.normpath("\\Logfiles\\loggerConfig.yml")) #Initiates the log file
 l = logging.getLogger(__name__) # gets me the logger
-l.info("Logfile initiated")
+l.info("Logfile initiated...")
+l.critical("Initializing programm:")
+
 from modules.boot_up import *
 
 # Checking installation
 ci = check_installation()
 
 # Loading all modules
-print "Loading modules ...",
+l.critical("Loading modules ...")
 import os, visa, scipy, PyQt5, datetime, threading, Queue, sys, yaml, importlib, re, types
 import pyqtgraph as pg
 import numpy as np
@@ -61,32 +60,26 @@ from modules.measurements import *
 from modules.cmd_inferface import *
 from modules.bad_strip_detection import *
 
-print "Done \n"
-
-
 # Loading all init files and default files, as well as Pad files
-print "Loading setup files ...",
+l.critical("Loading setup files ...")
 stats = loading_init_files(hf)
 stats.default_values_dict = update_defaults_dict().update(stats.default_values_dict)
-print "Done \n"
 
 # Initializing all modules
-print "Initializing modules ...",
+l.critical("Initializing modules ...")
 shell = DAQShell()
 hf = help_functions()
 vcw = VisaConnectWizard.VisaConnectWizard()
-print "Done \n"
 
 
 
 
 # Tries to connect to all available devices in the network, it returns a dict of a dict
 # First dict contains the the device names as keys, the value is a dict containing key words of settings
-print "Try to connect to devices ...",
+l.critical("Try to connect to devices ...")
 devices_dict = connect_to_devices(vcw, stats.devices_dict).get_new_device_dict() # Connects to all devices and initiates them and returns the updated device_dict with the actual visa resources
-print "Done \n"
 
-print "Starting the event loops ... "
+l.critical("Starting the event loops ... ")
 table = table_control_class(stats.default_values_dict, devices_dict, message_to_main, shell, vcw)
 if "Table_control" not in devices_dict:
     table = None
@@ -97,34 +90,30 @@ threads.append(thread1)
 
 # Starts all threads in the list of threads (this starts correspond to the threading class!!!)
 map(lambda thread: thread.start(), threads)
-print "Done\n"
 
 
-print "Starting GUI ..."
+l.critical("Starting GUI ...")
 GUI = GUI_classes(message_from_main, message_to_main, devices_dict, stats.default_values_dict, stats.pad_files_dict, hf, vcw, queue_to_GUI, table, switching, shell)
 frame = Framework(GUI.give_framework_functions) # Init the framework for update plots etc.
 timer = frame.start_timer() # Starts the timer
 
-print "Starting shell..."
-shell.start()
+#l.critical("Starting shell...")
+#shell.start()
 
-print "Start rendering GUI..."
+l.critical("Start rendering GUI...")
 GUI.app.exec_() # Starts the actual event loop for the GUI
 
 # Wait for all threads to complete
-l.info("Joining threads...")
+l.critical("Joining threads...")
 # Close the shell by sending the by command
-shell.onecmd("bye")
+#shell.onecmd("bye")
 for t in threads:
     t.join() # Synchronises the threads so that they finish all at ones.
 
 end_time = time.time()
 
-print "Run time: " + str(round(end_time-start_time,2)) + " seconds."
-l.info("Run time: " + str(round(end_time-start_time,2)) + " seconds.")
-
-print "Reset all devices..."
-l.info("Reset all devices...")
+l.critical("Run time: " + str(round(end_time-start_time,2)) + " seconds.")
+l.critical("Reset all devices...")
 
 for device in devices_dict:  # Loop over all devices
     if devices_dict[device].has_key("Visa_Resource"):  # Looks if a Visa resource is assigned to the device.
@@ -135,20 +124,7 @@ for device in devices_dict:  # Loop over all devices
         else:
             vcw.initiate_instrument(devices_dict[device]["Visa_Resource"], ["*rst", "*cls", "TRAC:CLE"],devices_dict[device].get("execution_terminator", ""))
 
-print "Close visa connections..."
-l.info("Close visa connections...")
+l.critical("Close visa connections...")
 vcw.close_connections()
-
-#print "Save current settings..."
-#try:
-#    os.remove(os.path.join(os.path.dirname(os.path.realpath(__file__)), "init", "default", "defaults.yaml"))
-#except Exception, e:
-#    print e
-#for keys in update_defaults_dict().to_update().keys():
-#    if keys in stats.default_values_dict["Defaults"]:
-#        stats.default_values_dict["Defaults"].pop(keys)
-#hf.write_init_file("defaults", stats.default_values_dict["Defaults"], os.path.join(os.path.dirname(os.path.realpath(__file__)), "init", "default"))
-
-print "Exiting Main Thread"
-l.info("Exiting Main Thread")
+l.critical("Exiting Main Thread")
 sys.exit(0)

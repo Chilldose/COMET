@@ -9,8 +9,6 @@ from scipy import stats
 import importlib
 from utilities import *
 
-l = logging.getLogger(__name__)
-
 help = help_functions()
 vcw = VisaConnectWizard.VisaConnectWizard()
 
@@ -52,6 +50,8 @@ class measurement_class:
         self.build_command = help.build_command # think of it like a link
         self.badstrip_dict = {}
         self.skip_tests = True # This must always be False!!! only for debugging !!!
+        self.log = logging.getLogger(__name__)
+
 
         # Make preps
         self.settings["Defaults"]["Start_time"] = str(datetime.datetime.now())
@@ -83,7 +83,7 @@ class measurement_class:
 
 
         else:
-            l.info("Measurement was not conducted, due to failure in setup check!")
+            self.log.info("Measurement was not conducted, due to failure in setup check!")
         # Perfom the setup check and start the measurement
         # -------------------------------------------------------------------------------
 
@@ -148,7 +148,7 @@ class measurement_class:
         try:
             self.total_strips = len(self.pad_data[self.settings["Defaults"]["Current_project"]][str(self.current_sensor)]["data"])
         except:
-            l.error("Sensor " + str(self.current_sensor) + " not recognized. Can be due to missing pad file.")
+            self.log.error("Sensor " + str(self.current_sensor) + " not recognized. Can be due to missing pad file.")
             self.main.stop_measurement = True
             self.queue_to_main.put({"DataError": "Sensor " + str(self.current_sensor) + " not recognized. Can be due to missing pad file."})
             if "strip" in self.job_details:
@@ -162,7 +162,7 @@ class measurement_class:
         all_measurement_functions = os.listdir("./modules/measurement_plugins/")
         all_measurement_functions = list(set([modules.split(".")[0] for modules in all_measurement_functions]))
 
-        l.info("All measurement functions found: " + str(all_measurement_functions) + ".")
+        self.log.info("All measurement functions found: " + str(all_measurement_functions) + ".")
 
         for modules in all_measurement_functions:  # import all modules from all files in the plugins folder
             self.all_plugins.update({modules: importlib.import_module("modules.measurement_plugins." + modules)})
@@ -179,7 +179,7 @@ class measurement_class:
         for device in self.devices.values():
             if "Visa_Resource" not in device:
                 self.queue_to_main.put({"MEASUREMENT_FAILED": "Visa resources missing in device " + str(device["Display_name"])})
-                l.critical(device["Display_name"] + " has no Visa Resource assigned! Measurement cannot be conducted.")
+                self.log.critical(device["Display_name"] + " has no Visa Resource assigned! Measurement cannot be conducted.")
                 return True
 
         # Check if lights and environement is valid
@@ -188,7 +188,7 @@ class measurement_class:
             counter = 0
             lights_ON = True
             self.queue_to_main.put({"Info":"There seems to be light in the Box."})
-            l.info("Box seems to be open or the lights are still On in the Box")
+            self.log.info("Box seems to be open or the lights are still On in the Box")
             while lights_ON:
                 sleep(5)
                 if self.settings["Defaults"]["internal_lights"]:
@@ -196,7 +196,7 @@ class measurement_class:
                 else: lights_ON = False
 
                 if counter >= 3:
-                    l.critical("Box seems to be open or the lights are still On in the Box, aborting program")
+                    self.log.critical("Box seems to be open or the lights are still On in the Box, aborting program")
                     self.queue_to_main.put({"MeasError":"Box seems to be open or the lights are still On in the Box, aborting program"})
                     return True
 
@@ -243,7 +243,7 @@ class measurement_class:
                             self.measurement_files.update({measurement: self.create_data_file(self.job_details["Header"] + "\n", filepath, filename)})  # If a header is present create file with header
 
                 elif measurement not in self.all_plugins and measurement in self.job_details:
-                    l.error("Measurement " + str(measurement) + " was not found as a defined measurement module.")
+                    self.log.error("Measurement " + str(measurement) + " was not found as a defined measurement module.")
                     self.queue_to_main.put({"MEASUREMENT_FAILED": "Measurement " + str(measurement) + " was not found as a defined measurement module."})
                     abort = True
                 else:
@@ -251,15 +251,13 @@ class measurement_class:
 
                 # here the actuall measurement starts
                 if not abort:
-                    print "Starting measurement " + str(measurement)
-                    l.info("Starting measurement " + str(measurement))
+                    self.log.info("Starting measurement " + str(measurement))
                     starttime = time.time()
                     getattr(self.all_plugins[measurement], str(measurement)+"_class")(self)
                     endtime = time.time()
 
                     deltaT = abs(starttime-endtime)
-                    print "The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds."
-                    l.info("The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds.")
+                    self.log.info("The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds.")
 
         if "ramp_voltage" in self.job_details:
             params = self.job_details["ramp_voltage"]
@@ -284,7 +282,7 @@ class measurement_class:
 
             if counter > 5:
                 # If too many attempts where made
-                l.warning("Attempt to reach steady state was not successfull after 5 times")
+                self.log.warning("Attempt to reach steady state was not successfull after 5 times")
                 self.queue_to_main.put({"Warning": "Attempt to reach steady state was not successfull after 5 times"})
                 return False
 
@@ -443,7 +441,7 @@ class measurement_class:
         try:
             vcw.write(device_dict["Visa_Resource"], str(command))  # writes the new order to the device
         except Exception as e:
-            l.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command, device=device_dict, error=e))
+            self.log.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command, device=device_dict, error=e))
 
     def query_device(self, device_dict, command):
         """
@@ -458,7 +456,7 @@ class measurement_class:
         try:
             return vcw.query(device_dict["Visa_Resource"], str(command))  # writes the new order to the device
         except Exception as e:
-            l.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command,
+            self.log.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command,
                                                                                                       device=device_dict,
                                                                                                       error=e))
 
@@ -476,18 +474,17 @@ class measurement_class:
         '''This function checks if the current complience is reached'''
         try:
             if complience == None:
-                l.error("No complience set for measurement, default complience is used! This may cause deamage to the sensor!")
-                print "No complience set for measurement, default complience is used! This may cause deamage to the sensor!"
+                self.log.error("No complience set for measurement, default complience is used! This may cause deamage to the sensor!")
                 complience = device["default_complience"]
         except:
-            l.error("Device " + str(device) + " has no complience set!")
+            self.log.error("Device " + str(device) + " has no complience set!")
 
         command = self.build_command(device,"Read_iv")
         #value = float(str(vcw.query(device, command)).split(",")[0]) #237SMU
         value = str(vcw.query(device, command)).split("\t")
         self.settings["Defaults"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
         if 0. < (abs(float(value[0])) - abs(float(complience)*0.99)):
-            l.error("Complience reached in instrument " + str(device["Display_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(complience))
+            self.log.error("Complience reached in instrument " + str(device["Display_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(complience))
             self.queue_to_main.put({"MeasError": "Compliance reached. Value. " + str(value[0]) + " A"})
             return True
         else:
@@ -506,7 +503,6 @@ class measurement_class:
 
 
     def build_command_depricated(self, device, command_tuple):
-        print "You used an on build command, please use the one from utilities"
         #Todo build command is two folded in here
         if type(command_tuple) == unicode or type(command_tuple) == str:
             command_tuple = (str(command_tuple),) # so the correct casting is done
@@ -560,7 +556,7 @@ class measurement_class:
         error = self.change_value_query(relay_dict, "set_discharge", "ON", "DONE")
         if error:
             self.queue_to_main.put({"RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " +  str("DONE") + " got " + str(error) + " instead."})
-            l.error("Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " +  str("DONE") + " got " + str(error) + " instead.")
+            self.log.error("Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " +  str("DONE") + " got " + str(error) + " instead.")
             return False
         sleep(1.) # relay is really slow
 
@@ -597,7 +593,7 @@ class measurement_class:
                     self.queue_to_main.put({
                                                "RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
                                                    "DONE") + " got " + str(error) + " instead."})
-                    l.error(
+                    self.log.error(
                         "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
                             "DONE") + " got " + str(error) + " instead.")
 
@@ -617,7 +613,7 @@ class measurement_class:
                 if error:
                     self.queue_to_main.put({"RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
                                             "DONE") + " got " + str(error) + " instead."})
-                    l.error(
+                    self.log.error(
                         "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
                             "DONE") + " got " + str(error) + " instead.")
 

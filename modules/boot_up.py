@@ -9,17 +9,15 @@ import logging
 import numpy as np
 import glob
 
-l = logging.getLogger(__name__)
-
-
 #This class checks if all modules are installed
 class check_installation:
     '''This class checks if all necessary modules are installed. And tries to install missing modules.
     All this is a very simple and should not be used to verify anything. '''
 
     def __init__(self):
+        self.log = logging.getLogger(__name__)
 
-        print "Checking installation ...",
+        self.log.info("Checking installation ...")
         self.needed_modules = ["numpy", "scipy", "visa", "PyQt5", "pyqtgraph"]
 
         for modules in self.needed_modules:
@@ -29,8 +27,8 @@ class check_installation:
                 imp.find_module(modules)
 
             except:
-                print "Module " + current_module + " or its dependencies are not installed."
-                print "Should it be installed?"
+                self.log.critical("Module " + current_module + " or its dependencies are not installed.")
+                self.log.critical("Should it be installed?")
                 answer = str(raw_input("yes/no \n"))
 
                 if answer == "yes":
@@ -42,8 +40,7 @@ class check_installation:
                         pip.main(["install", "PyQt"])
 
                 else:
-                    print "Module not installed. Warning: The code may not work properly."
-        print "Done \n"
+                    self.log("Module not installed. Warning: The code may not work properly.")
 
     def install_module(self, *modulenames): # Just in case you want to install additional modules on your own
 
@@ -56,9 +53,9 @@ class check_installation:
             for modules in modulenames:
                 try:
                     imp.find_module(modules)
-                    print "Module " + modules + " is installed."
+                    self.log.info("Module " + modules + " is installed.")
                 except:
-                    print "Module " + modules + " is not installed."
+                    self.log.info("Module " + modules + " is not installed.")
 
 class loading_init_files:
     '''This class is for loading all init files, pad files and default parameters.
@@ -73,6 +70,8 @@ class loading_init_files:
 
 
     def __init__(self, hf):
+
+        self.log = logging.getLogger(__name__)
 
         # Get project path
         package_dir = os.path.dirname(os.path.realpath(__file__))
@@ -102,7 +101,7 @@ class loading_init_files:
         #-----------------------------------------------------------------------------------------------------------------------------------------
         for filename in self.list_device_init: # Loop over all files found
 
-            l.info("Try reading device file: " + str(filename))
+            self.log.info("Try reading device file: " + str(filename))
 
             #line_strings = hf.read_from_file(filename, devices_dir) # Reads every line in the file, returns a list
             #new_dict_name = self.check_for_device_name(line_strings, "Display_name")
@@ -116,7 +115,7 @@ class loading_init_files:
         # -----------------------------------------------------------------------------------------------------------------------------------------
         for filename in self.list_default_values: # Loop over all files found
 
-            l.info("Try reading settings file: " + str(filename))
+            self.log.info("Try reading settings file: " + str(filename))
             #line_strings = hf.read_from_file(filename, default_dir) # Reads every line in the file, returns a list
             #new_dict_name = self.check_for_device_name(line_strings, "Settings_name")
             new_device_dict = self.create_dictionary(filename, default_dir)
@@ -224,7 +223,7 @@ class loading_init_files:
         '''Creates a dictionary with all values written in the file using yaml'''
 
         resource = os.path.join(filepath, filename)
-        print "Loading file:", filename
+        self.log.info("Loading file:" + str(filename))
         with open(resource, "r") as fp:
             return yaml.load(fp)
 
@@ -240,7 +239,7 @@ class loading_init_files:
                 dict_name = line.split('"')[1]  # Gets me the the actual string which is written between the "..."
                 break
         else: # If no break occured this will be displayed
-            print "Warning: No name for the device found!"
+            self.log.warning("No name for the device found!")
 
         return dict_name
 
@@ -282,6 +281,7 @@ class connect_to_devices:
     def __init__(self, vcw, device_dict):
         """Actually does everythin on its own"""
 
+        self.log = logging.getLogger(__name__)
         self.vcw = vcw
         self.device_dict = device_dict
 
@@ -304,14 +304,11 @@ class connect_to_devices:
                     if ("GPIB0::"+str(connection_type.split(":")[-1]) + "::INSTR") in self.vcw.resource_names: # Searches for a match in the resource list
                         success = self.vcw.connect_to(self.vcw.resource_names.index("GPIB0::"+str(connection_type.split(":")[-1]) + "::INSTR"), device_IDN, device_IDN=IDN_query) # Connects to the device Its always ASRL*::INSTR
                         if success:
-                            l.info("Connection established to device: " + str(device) + " at ")
+                            self.log.info("Connection established to device: " + str(device) + " at ")
                         else:
-                            l.error("Connection could not be established to device: " + str(device))
-                            print "Connection could not be established to device: " + str(device)
-
+                            self.log.error("Connection could not be established to device: " + str(device))
                     else:
-                        l.error("Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
-                        print "Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected."
+                        self.log.error("Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
 
 
                 elif "RS232" in str(connection_type).upper():
@@ -321,14 +318,11 @@ class connect_to_devices:
                         #print self.device_dict[device].get("Baud_rate", 57600)
                         success = self.vcw.connect_to(self.vcw.resource_names.index("ASRL"+str(connection_type.split(":")[-1]) + "::INSTR"), device_IDN, baudrate=self.device_dict[device].get("Baud_rate", 57600), device_IDN=IDN_query) # Connects to the device Its always ASRL*::INSTR
                         if success:
-                            l.info("Connection established to device: " + str(device) + " at ")
+                            self.log.info("Connection established to device: " + str(device) + " at ")
                         else:
-                            l.error("Connection could not be established to device: " + str(device))
-                            print "Connection could not be established to device: " + str(device)
-
+                            self.log.error("Connection could not be established to device: " + str(device))
                     else:
-                        l.error("Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
-                        print "Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected."
+                        self.log.error("Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
 
 
                 elif "IP" in str(connection_type).upper():
@@ -338,12 +332,10 @@ class connect_to_devices:
                 # Add other connection types
 
                 else:
-                    l.info("No valid connection type found for device " + str(device) + ". Therefore no connection established. You may proceed but measurements will fail.")
-                    print "No valid connection type found for device " + str(device) + ". Therefore no connection established. You may proceed but measurements will fail."
+                    self.log.info("No valid connection type found for device " + str(device) + ". Therefore no connection established. You may proceed but measurements will fail.")
 
             except KeyError:
-                print "Device " + device_dict[device]["Display_name"] + " has no IDN."
-                l.error("Device " + device_dict[device]["Display_name"] + " has no IDN.")
+                self.log.error("Device " + device_dict[device]["Display_name"] + " has no IDN.")
 
 
 
@@ -369,19 +361,16 @@ class connect_to_devices:
                 try:
                     device_IDN = self.device_dict[device]["Device_IDN"] # gets me the IDN for each device loaded
                 except KeyError:
-                    print "Device " + self.device_dict[device]["Display_name"] + " has no IDN."
-                    l.error("Device " + self.device_dict[device]["Display_name"] + " has no IDN.")
+                    self.log.error("Device " + self.device_dict[device]["Display_name"] + " has no IDN.")
 
                 resource = valid_resources.get(str(device_IDN).strip(), "Not listed")
                 # Some kind of hack, it searches for the device IDN if not found "not listed" is returned
 
                 if resource != "Not listed":
                     self.device_dict[device].update({"Visa_Resource": resource})  # If resource was found with same IDN the resource gets appended to the dict
-                    print "Device " + self.device_dict[device]["Display_name"] + " is assigned to " + str(resource) + " with IDN: " + str(device_IDN).strip()
-                    l.info("Device " + self.device_dict[device]["Display_name"] + " is assigned to " + str(resource) + " with IDN: " + str(device_IDN).strip())
+                    self.log.info("Device " + self.device_dict[device]["Display_name"] + " is assigned to " + str(resource) + " with IDN: " + str(device_IDN).strip())
                 elif resource == "Not listed":
-                    print "Device " + self.device_dict[device]["Display_name"] + " could not be found in active resources."
-                    l.error("Device " + self.device_dict[device]["Display_name"] + " could not be found in active resources.")
+                    self.log.error("Device " + self.device_dict[device]["Display_name"] + " could not be found in active resources.")
 
         return self.device_dict
         # Check if every device dict has its resource added

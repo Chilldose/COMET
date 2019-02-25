@@ -10,8 +10,6 @@ import numba as nb
 from scipy.stats import norm, stats
 hf = help_functions()
 
-l = logging.getLogger(__name__)
-
 
 
 class stripanalysis:
@@ -25,6 +23,7 @@ class stripanalysis:
         self.all_data = {}
         self.jit_lms = nb.jit('UniTuple(float64[:], 2)(float64[:], float64[:], float64)', nopython=False)(self.lmsalgorithm)
         #self.jit_lms = self.lmsalgorithm
+        self.log = logging.getLogger(__name__)
 
         # First read in the ini file if necessary
         if not self.main:
@@ -34,17 +33,16 @@ class stripanalysis:
 
     def read_in_config_file(self, filepath = "analysis.ini"):
         """Reads the .ini file and returns the configparser typical dicts. If file could not be found IOError will be raised."""
-        l.info("Try reading badstrip ini file...")
+        self.log.info("Try reading badstrip ini file...")
         try:
             file_string = os.path.abspath(str(filepath))
             settings_file = open(file_string, "r")
             self.settings = yaml.load(settings_file)
             settings_file.close()
-            l.info("Badstrip ini file " + str(filepath) + " was successfully loaded.")
+            self.log.info("Badstrip ini file " + str(filepath) + " was successfully loaded.")
             #l.info("Included sections in badstrip ini file" + str(self.settings.sections()))
         except IOError, e:
-            print "IO error while accessing init file in badstrip detection, with error: " + str(e)
-            l.error("IO error while accessing init file in badstrip detection, with error: " + str(e))
+            self.log.error("IO error while accessing init file in badstrip detection, with error: " + str(e))
 
     def read_in_measurement_file(self, filepathes):
         """This function reads in a QTC measurement file and return a dictionary with the data in the file"""
@@ -60,8 +58,7 @@ class stripanalysis:
                 self.all_data.update({filename: data})
 
         except Exception as e:
-            print "Something went wrong while importing the file " + str(current_file) + " with error: " + str(e)
-            l.error("Something went wrong while importing the file " + str(current_file) + " with error: " + str(e))
+            self.log.error("Something went wrong while importing the file " + str(current_file) + " with error: " + str(e))
 
     def parse_file_data(self, filecontent):
         """This function parses the file content to the needed data type"""
@@ -142,14 +139,14 @@ class stripanalysis:
                 for meas, ydata in run["data"].items():
                     # Do the lms linefit for every measurement prevalent
                     if "Pad" not in meas: # Exclude the pad analysis
-                        print "Calculating lms line for: " + str(meas)
+                        self.log.info("Calculating lms line for: " + str(meas))
                         time, res = self.do_lms_fit(xdata, ydata)
                         results["lms_fit"][meas] = res
                         results["report"][meas] = "LMS line fit: \n" \
                                                    "k= " + str(res[0]) + ",\t" +\
                                                    "d= " + str(res[1]) + "\n\n"
 
-                        print "Time taken for analysis: " + str(time)
+                        self.log.info("Time taken for analysis: " + str(time))
 
                         # Generate Histogram----------------------------
 
@@ -177,7 +174,7 @@ class stripanalysis:
                 # When everything is finished switch flag to analysed
                 run["analysed"] = True
 
-        print "Analysis done"
+        self.log.info("Analysis done")
 
     def do_offline_singlestrip_analysis(self, meas, data):
             """This function just calls the online analysis for every strip and generates a report text"""
@@ -212,7 +209,7 @@ class stripanalysis:
                 return (measurement_tuple[0], [min_value,max_value], value)
 
         else:
-            l.error("Measurement: " + str(measurement_tuple[0] + "could not be found as analysable measurement, please add it."))
+            self.log.error("Measurement: " + str(measurement_tuple[0] + "could not be found as analysable measurement, please add it."))
             return ["Measurement not found", (None, None, None)]
 
     def do_online_cluster_analysis(self, list_of_strip_dicts):
@@ -263,17 +260,17 @@ class stripanalysis:
         y = np.array(y, dtype='f')
         # length check
         if len(x) != len(y):
-            l.error("LMS line regression error: Cannot analyse data arrays of different length.")
+            self.log.error("LMS line regression error: Cannot analyse data arrays of different length.")
             return -1
         # shape check
         if x.shape != y.shape:
-            l.error("LMS line regression error: Cannot analyse data arrays of different shape.")
+            self.log.error("LMS line regression error: Cannot analyse data arrays of different shape.")
             return -1
         # calculation
         try:
             result = self.jit_lms(x, y, q)
         except Exception as e: # This happens when the pads are not numbers but should not concernt anyone
-            print "Error occured while calculating LMS line with error: " + str(e)
+            self.log.error("Error occured while calculating LMS line with error: " + str(e))
             result = [1,1]
 
         return [result[0], result[1]]

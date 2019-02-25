@@ -6,7 +6,6 @@ import numpy as np
 import logging
 import thread
 from utilities import newThread, Framework
-l = logging.getLogger(__name__)
 
 
 class GUI_event_loop:
@@ -39,6 +38,7 @@ class GUI_event_loop:
         self.pending_events = {} # Messages which should processed after all other orders are processed
         self.help = help
         self.error_log = []
+        self.log = logging.getLogger(__name__)
 
         # Plot data
         #self.IV_data = np.array([])
@@ -59,7 +59,7 @@ class GUI_event_loop:
         ''' This function actually starts the event loop. '''
         while not self.stop_GUI_loop:
             message = self.message_to_main.get()  # This function waits until a message is received from the measurement loop!
-
+            self.log.info("Got message: " + str(message))
             self.translate_message(message)  # This translates the message
             self.process_message(message)  # Here the message will be processed
             self.process_pending_events()  # Here all events during message work will be send or done
@@ -149,15 +149,14 @@ class GUI_event_loop:
                         self.meas_data[measurement][0].append(np.array(message[measurement][0]))
                         self.meas_data[measurement][1].append(np.array(message[measurement][1]))
                     except Exception as e:
-                        l.warning("Warning passed wrong dimensional arrays to array. Array must have same dimensions. Errorcode: {error!s}. "
+                        self.log.warning("Warning passed wrong dimensional arrays to array. Array must have same dimensions. Errorcode: {error!s}. "
                                   "WARNING: This error can happen ones in the beginning, when the datatype changes or a np array is not yet initialized".format(error=e))
                         self.meas_data[measurement][0] = []
                         self.meas_data[measurement][0].append(np.array(message[measurement][0]))
                         self.meas_data[measurement][1] = []
                         self.meas_data[measurement][1].append(np.array(message[measurement][1]))
             else:
-                l.error("Measurement " + str(measurement) + " could not be found in active data arrays. Data discarded.")
-                print "Measurement " + str(measurement) + " could not be found in active data arrays. Data discarded."
+                self.log.error("Measurement " + str(measurement) + " could not be found in active data arrays. Data discarded.")
 
 
     def process_pending_events(self):
@@ -165,11 +164,11 @@ class GUI_event_loop:
 
         if not self.measurement_loop_running and not self.measurement_running and self.close_program:
             # This if checks if the program should be closed
-            l.info("Exiting GUI event loop")
+            self.log.info("Exiting GUI event loop")
             self.stop_GUI_loop = True # Stops the event loop
 
             QCoreApplication.instance().quit() # Stops the GUI
-            l.info("Exiting GUI")
+            self.log.info("Exiting GUI")
 
 
         #This function checks if updates of plots has been made and sets the variable back to False, so that no unnessesary plotting is done

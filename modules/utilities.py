@@ -18,6 +18,8 @@ from time import sleep
 import time
 import threading
 import logging, yaml
+import logging.config
+from logging.handlers import RotatingFileHandler
 from PyQt5 import QtCore
 import numpy as np
 from numpy.linalg import solve, norm, det, qr, inv
@@ -574,6 +576,7 @@ class newThread(threading.Thread):  # This class inherite the functions of the t
         self.name = name
         self.object__= object__
         self.args = args
+        self.log = logging.getLogger(__name__)
 
     def run_process(self, object__, args): # Just for clarification, not necessary.
         """
@@ -583,8 +586,7 @@ class newThread(threading.Thread):  # This class inherite the functions of the t
 
     def run(self):
         """Starts running the thread"""
-        print ("Starting thread: " + self.name) # run() is a member function of Thread() class. This will be called, when object thread will be started via thread.start()
-        l.info("Starting thread: " + self.name)
+        self.log.info("Starting thread: " + self.name)
         self.object__ = self.run_process(self.object__, self.args)
 
     def get(self):
@@ -621,19 +623,25 @@ class LogFile:
     """
     This class handles the Logfile for the whole framework
     """
-    def __init__(self, logging_level = "debug"):
+    def __init__(self, path='logger.yml', default_level=logging.INFO, env_key='LOG_CFG'):
         """
         Initiates the logfile with the logging level
+        :param path: Path to logger file
         :param logging_level: None, debug, info, warning, error critical
+        :param env_key: env_key
         """
 
-        package_dir = os.path.dirname(os.path.realpath(__file__))
-        project_dir = os.path.dirname(package_dir)
 
-        self.LOG_FORMAT = "%(levelname)s %(asctime)s in function %(funcName)s - %(message)s"
-        self.file_PATH = os.path.join(project_dir, "Logfiles", "QTC_Logfile.log") # Filepath to Logfile directory
-        self.file_directory = os.path.join(project_dir, "Logfiles")
-        self.logging_level = logging_level
+        value = os.getenv(env_key, None)
+        if value:
+            path = value
+        if os.path.exists(os.path.normpath(path)):
+            with open(path, 'rt') as f:
+                config = yaml.safe_load(f.read())
+            logging.config.dictConfig(config)
+        else:
+            logging.basicConfig(level=default_level)
+
         self.log_LEVELS = {"NOTSET": 0, "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50}
 
         self.welcome_string =  "\n" \
@@ -643,32 +651,10 @@ class LogFile:
                                 \ \_____\  \ \_____\  \ \_____\  \ \_\    \ \_\  \ \_____\  \ \_____\        \ \___\_\    \ \_\  \ \_____\ \n \
                                   \/_____/   \/_____/   \/_____/   \/_/     \/_/   \/_____/   \/_____/         \/___/_/     \/_/   \/_____\n\n\n"
 
-        self.get_logging_level()
-        try:
-            os.remove(self.file_PATH) # IS needed, because sometimes other modules like the visa modules would override the file and all logs are lost, so the log file is in appending mode and no data loss.
-        except Exception as e:
-            print ("Old Logfile could not be deleted: " + str(e))
-        # Check if the folder already exists or create the folder
-        if os.path.isdir(self.file_directory):
-            logging.basicConfig(filename=self.file_PATH, level=self.logging_level, format = self.LOG_FORMAT, filemode= 'a') # Overrides the old file (this is just for initialization)
-        else:
-            os.makedirs(self.file_directory)
-            logging.basicConfig(filename=self.file_PATH, level=self.logging_level, format = self.LOG_FORMAT, filemode= 'a') # Overrides the old file (this is just for initialization)
-
-
         # Create a logger Object
-        self.LOG = logging.getLogger()
-
+        self.LOG = logging.getLogger("Logfile")
         # Print welcome message
-        self.LOG.critical(self.welcome_string)
-
-    #Simply changes the string input to a int for the logging level
-    def get_logging_level(self):
-        ''' Checks the logging level input. If it is a string -> convert. Otherwise, do nothing'''
-        if type(self.logging_level) == type("string"):
-            self.logging_level=self.log_LEVELS.get(self.logging_level.upper(), "DEBUG")
-        else:
-            pass
+        self.LOG.info(self.welcome_string)
 
 class Framework:
     """
@@ -891,15 +877,15 @@ class table_control_class:
         self.vcw = vcw
         self.shell = None
         self.build_command = hf.build_command
+        self.log = logging.getLogger(__name__)
 
         try:
             self.visa_resource = self.devices.get("Table_control",None)["Visa_Resource"]
             self.table_ready = True
         except:
-            print ("Warning table control could not be initialized!")
             self.table_ready = False
             self.queue.put({"RequestError": "Table seems not to be connected!"})
-            l.error("Table control could not be initialized!")
+            self.log.error("Table control could not be initialized!")
         self.zmove = self.variables["height_movement"]
 
     def get_current_position(self):
@@ -917,7 +903,7 @@ class table_control_class:
                     self.device["z_pos"] = float(list[2])
                     return [float(i) for i in list]
                 except:
-                    l.error("The corvus has replied with a non valid position string: " + str(string))
+                    self.log.error("The corvus has replied with a non valid position string: " + str(string))
                     max_attempts += 1
 
     def check_if_ready(self, timeout = 0, maxcounter = -1):

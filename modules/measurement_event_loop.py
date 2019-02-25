@@ -9,7 +9,6 @@ from time import sleep
 import pyqtgraph as pg
 from VisaConnectWizard import *
 import logging
-l = logging.getLogger(__name__)
 
 # Defining the Queue Objects for data sharing need to be here, than the main knows them to!!!
 message_to_main = Queue.Queue()
@@ -31,6 +30,7 @@ class measurement_event_loop:
         self.message_from_main = message_from_main
         self.queue_to_GUI = queue_to_GUI
         self.shell = shell
+        self.log = logging.getLogger(__name__)
 
         # Generall state control of the measurement setup
         self.humidity_history = []
@@ -77,7 +77,7 @@ class measurement_event_loop:
         # Reinitalize all devices when shutting down
         self.init_devices()
 
-        l.info("Stoped measurement event loop")
+        self.log.info("Stoped measurement event loop")
         self.message_to_main.put({"MEASUREMENT_EVENT_LOOP_STOPED": True})
 
 
@@ -85,7 +85,7 @@ class measurement_event_loop:
 
     def start_loop(self):
         ''' This function actually starts the event loop. '''
-        l.info("Measurement event loop started.")
+        self.log.info("Measurement event loop started.")
         while not self.stop_measurement_loop or self.measurement_running:
 
             message = message_from_main.get() # This function waits until a message is received from the main!
@@ -103,23 +103,23 @@ class measurement_event_loop:
                     try:
                         self.measurements_to_conduct.update(message[self.order_types[0]]) # Assign the dict for the measurements
                     except:
-                        l.error("Data type error while translating message for measurement event loop")
+                        self.log.error("Data type error while translating message for measurement event loop")
                         self.events.update({"DataError": "Data type error while translating message for measurement event loop"})
 
                 elif message.has_key(self.order_types[1]): # Status
                     try:
                         self.status_query.update(message[self.order_types[1]])
                     except:
-                        l.error("Data type error while translating message for measurement event loop")
+                        self.log.error("Data type error while translating message for measurement event loop")
                         self.events.update({"DataError": "Data type error while translating message for measurement event loop"})
 
                 else:
-                    l.error("Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\"")
+                    self.log.error("Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\"")
                     self.events.update({"DataError": "Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\""})
 
 
         except:
-            l.error("Wrong order delivered to measurement event loop. Order: " + "\"" + str(message)+ "\"")
+            self.log.error("Wrong order delivered to measurement event loop. Order: " + "\"" + str(message)+ "\"")
             self.events.update({"DataError": "Wrong order delivered to measurement event loop. Order: " + "\"" + str(message)+ "\""})
 
     def process_message(self):
@@ -144,11 +144,11 @@ class measurement_event_loop:
                     self.init_devices() # Initiates the device anew (defined state)
                 measthread = newThread(3, "Conduct measurement", measurement_class, self, self.default_dict, self.pad_files, self.devices, self.message_to_main, self.message_from_main,  self.measurements_to_conduct.copy(), self.queue_to_GUI, self.table, self.switching, self.ask_to_stop) # Starts a thread for measuring
                 measthread.start()
-                l.info("Sended new measurement job. Orders: " + str(self.measurements_to_conduct))
+                self.log.info("Sended new measurement job. Orders: " + str(self.measurements_to_conduct))
                 self.measurements_to_conduct.clear() # Clears the measurement dict
 
         if self.measurements_to_conduct != {} and self.measurement_running:
-            l.warning("Tried making a new measurement. Measurement is running, no new job generation is possible.")
+            self.log.warning("Tried making a new measurement. Measurement is running, no new job generation is possible.")
             self.events.update({"MeasError": "Tried making a new measurement. Measurement is running, no new job generation possible."})
             self.measurements_to_conduct.clear()
 
@@ -172,7 +172,7 @@ class measurement_event_loop:
                 else:
                     self.events.update({"Shutdown": True})
 
-                l.info("Closing all measurements and shutdown program.")
+                self.log.info("Closing all measurements and shutdown program.")
 
             elif self.status_query.has_key("MEASUREMENT_FINISHED"): # This comes from the measurement class
                 self.measurement_running = False # Now new measurements can be conducted
@@ -189,7 +189,7 @@ class measurement_event_loop:
                 self.stop_measurement = True  # Sets flag, but does not check
 
             else:
-                l.warning("Status request not recognised " + str(self.status_query))
+                self.log.warning("Status request not recognised " + str(self.status_query))
                 self.events.update({"RequestError": "Status request not recognised " + str(self.status_query)})
 
         self.message_to_main.put(self.events.copy())  #
@@ -213,7 +213,7 @@ class measurement_event_loop:
                 success = True
 
         except Exception, e:
-            l.error("The temperature and humidity controller seems not to be responding. Error:" + str(e))
+            self.log.error("The temperature and humidity controller seems not to be responding. Error:" + str(e))
 
         #@hf.run_with_lock
         def update_environement():
@@ -235,9 +235,9 @@ class measurement_event_loop:
         if success:
             update_environement()
 
-            l.info("Humidity and temp control started...")
+            self.log.info("Humidity and temp control started...")
         else:
-            l.info("Humidity and temp control NOT started...")
+            self.log.info("Humidity and temp control NOT started...")
 
 
     def init_devices(self, args=None):
@@ -264,7 +264,7 @@ class measurement_event_loop:
                         command = command.strip()  # Strips whitespaces from the string
 
                         if command == "no value":
-                            l.warning("Default value " + keys.split("_", 1)[1] + " defined for " + device + " but no command for setting this value is defined")
+                            self.log.warning("Default value " + keys.split("_", 1)[1] + " defined for " + device + " but no command for setting this value is defined")
 
                         elif command != "no value" and command not in sended_commands:
                             sended_commands.append(command)
@@ -275,7 +275,7 @@ class measurement_event_loop:
                                 self.vcw.write(self.devices[device]["Visa_Resource"], command, self.devices[device].get("execution_terminator",""))  # Writes the command to the device
                                 sleep(0.05)  # Waits a bit for the device to config itself
 
-                            l.info("Device " + self.devices[device]["Display_name"] + str(command) + " to " + str(self.devices[device][keys]) + ".")
+                            self.log.info("Device " + self.devices[device]["Display_name"] + str(command) + " to " + str(self.devices[device][keys]) + ".")
 
         # Change the state of the device to Configured
 
@@ -287,7 +287,7 @@ class measurement_event_loop:
                         command = command.strip() # Strips whitespaces from the string
 
                         if command == "no value":
-                            l.warning("Default value " + keys.split("_", 1)[1] + " defined for " + device + " but no command for setting this value is defined")
+                            self.log.warning("Default value " + keys.split("_", 1)[1] + " defined for " + device + " but no command for setting this value is defined")
 
                         elif command != "no value" and command not in sended_commands:
                             sended_commands.append(command)
@@ -297,7 +297,7 @@ class measurement_event_loop:
                                 self.vcw.write(self.devices[device]["Visa_Resource"], command, self.devices[device].get("execution_terminator", "")) # Writes the command to the device
                                 sleep(0.05)  # Waits a bit for the device to config itself
 
-                            l.info("Device " + self.devices[device]["Display_name"] + " " + str(command) + " to " + str(self.devices[device][keys]) + ".")
+                            self.log.info("Device " + self.devices[device]["Display_name"] + " " + str(command) + " to " + str(self.devices[device][keys]) + ".")
 
         self.message_to_main.put({"Info": "Initializing DONE!"})
 
@@ -322,7 +322,7 @@ class measurement_event_loop:
             return full_command_list
 
         else:
-            l.error("Something went wrong with the building of the init command!")
+            self.log.error("Something went wrong with the building of the init command!")
 
     def ask_to_stop(self): # Just a simple return function if a measurement should be stopped
         return self.stop_measurement

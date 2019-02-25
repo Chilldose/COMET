@@ -22,8 +22,6 @@ from GUI_event_loop import *
 from utilities import newThread, help_functions, measurement_job_generation
 from bad_strip_detection import *
 
-l = logging.getLogger(__name__)
-
 hf = help_functions()
 
 class GUI_classes(GUI_event_loop, QWidget):
@@ -32,6 +30,7 @@ class GUI_classes(GUI_event_loop, QWidget):
 
         #Intialize the QT classes
         self.app = QApplication(sys.argv)
+        self.log = logging.getLogger(__name__)
 
         # Set Style of the GUI
         style = "Fusion"
@@ -99,11 +98,12 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.shell.add_cmd_command(self.reset_plot_data)
         self.shell.add_cmd_command(self.give_framework_functions)
 
-        l.info("Starting GUI ... ")
+        self.log.info("Starting GUI ... ")
 
     def add_rendering_function(self, widget, name):
         '''This function adds a widget for rendering'''
         self.final_tabs.append((widget,str(name)))
+        self.log.debug("Adding rendering function: " + str(name))
 
     def construct_ui(self):
         '''This function generates all ui elements in form of tab widgets'''
@@ -141,8 +141,8 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.qt_designer_ui = os.listdir(os.path.normpath("modules/QT_Designer_UI"))
         self.qt_designer_ui = list(set([modules.split(".")[0] for modules in self.qt_designer_ui]))
 
-        l.info("All Ui classes found: " + str(self.ui_classes) + ".")
-        l.info("All Qt Ui objects found: " + str(self.qt_designer_ui) + ".")
+        self.log.info("All Ui classes found: " + str(self.ui_classes) + ".")
+        self.log.info("All Qt Ui objects found: " + str(self.qt_designer_ui) + ".")
 
 
         for modules in self.ui_classes:  # import all modules from all files in the plugins folder
@@ -153,8 +153,11 @@ class GUI_classes(GUI_event_loop, QWidget):
     def updateWidget(self, widget):
         '''This function updates the QApplication'''
         widget.repaint()
+        self.log.debug("Updating widgets...")
 
     def begin_rendering(self):
+
+        self.log.debug("Starting rendering main window...")
 
         if "GUI_render_order" in self.default_values_dict["Defaults"]: # Renders taps in specific order
             for elements in self.default_values_dict["Defaults"]["GUI_render_order"]:
@@ -180,12 +183,14 @@ class GUI_classes(GUI_event_loop, QWidget):
 
     def add_update_function(self, func): # This function adds function objects to a list which will later on be executed by updated periodically
         self.functions.append(func)
+        self.log.debug("Added framework function: " + str(func))
 
     def give_framework_functions(self, args=None):
         return self.functions, self.update_interval
 
     def reset_plot_data(self, args=None):
 
+        self.log.debug("Resetting Plots...")
         for data in self.meas_data: # resets the plot data when new measurement is conducted (called by the start button)
             self.meas_data[data][0] = np.array([])
             self.meas_data[data][1] = np.array([])

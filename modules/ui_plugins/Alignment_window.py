@@ -15,13 +15,13 @@ from time import sleep
 
 from .. import utilities
 
-l = logging.getLogger(__name__)
-
 hf = utilities.help_functions()
 
 class Alignment_window:
 
     def __init__(self, GUI, layout):
+
+        self.log = logging.getLogger(__name__)
 
         self.previous_xloc = 0
         self.previous_yloc = 0
@@ -189,7 +189,7 @@ class Alignment_window:
                 self.update_static()
             except :
                 self.variables.message_to_main.put({"RequestError": "There was an error while accessing the pad file data. Is the pad file valid?"})
-                l.error("An error while accessing the pad files with error.")
+                self.log.error("An error while accessing the pad files with error.")
                 self.error_action("An error while accessing the pad files with error.")
 
 
