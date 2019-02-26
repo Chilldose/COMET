@@ -20,7 +20,7 @@ handlers:
     formatter: standard
     filename: 'Logfiles/QTC_Logfile.log'
     maxBytes: 10485760 # 10MB - 70 MB are about 2 Weeks of logs 
-    backupCount: 10
+    backupCount: 5
     encoding: utf8
 
 loggers:
