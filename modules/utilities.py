@@ -29,21 +29,29 @@ import VisaConnectWizard
 from PyQt5.QtWidgets import QApplication
 import logging
 import Queue
-import globals
+from globals import *
 #from __future__ import print_function # Needed for the rtd functions that its written in 3
 
 l = logging.getLogger(__name__)
 lock = threading.Lock()
 
-class QueueEmitHandler:
+class QueueEmitHandler(logging.Handler):
     def __init__(self, queue):
-        self.queue = setattr(queue)
+        self.queue = eval(queue)
+        self.level = 0
+        self.log_LEVELS = {"NOTSET": 0, "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50}
+        logging.Handler.__init__(self)
 
 
     def emit(self, record):
-        #msg = {ErrorCode: Message}
-        #self.queue.put(msg)
-        pass
+        if record.levelno == self.level:
+            msg = {"Error": record.message}
+            self.queue.put(msg)
+
+    def setLevel(self, level):
+        """Warning this set level works different to the logging levels from the logging modules
+        It only loggs the specific level!!!"""
+        self.level = level
 
 
 class help_functions:

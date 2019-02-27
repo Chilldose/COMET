@@ -22,10 +22,11 @@ handlers:
     maxBytes: 10485760 # 10MB - 70 MB are about 2 Weeks of logs 
     backupCount: 5
     encoding: utf8
-  #errorHandler:
-    #class: modules.utilities.QueueEmitHandler # Self written handler for messages.
+  errorHandler:
+    class: modules.utilities.QueueEmitHandler # Self written handler for messages.
+    level: ERROR
     #alternate: cfg://handlers.file # So it takes everything from this handler, others can be here as well
-    #queue: queue_to_GUI # The queueobject it writes to
+    queue: message_to_main # The queueobject it writes to
 
 
 loggers:
@@ -37,4 +38,4 @@ loggers:
 
 root:
   level: DEBUG # This is some kind of global minimum logging level
-  handlers: [default, file]
+  handlers: [default, file, errorHandler]
