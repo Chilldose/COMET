@@ -23,10 +23,12 @@ __version__ = "0.9.2"
 #---------------------------------------------------------------------------------------------------------------------------------------
 
 import time
+import __init__
 start_time = time.time()
 threads = [] # List all active threads started from the main
 
 from modules.utilities import *
+from modules.globals import *
 log = LogFile(os.getcwd() + os.path.normpath("\\Logfiles\\loggerConfig.yml")) #Initiates the log file
 l = logging.getLogger(__name__) # gets me the logger
 l.info("Logfile initiated...")

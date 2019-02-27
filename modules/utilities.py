@@ -27,10 +27,24 @@ import datetime
 import pyqtgraph as pg
 import VisaConnectWizard
 from PyQt5.QtWidgets import QApplication
+import logging
+import Queue
+import globals
 #from __future__ import print_function # Needed for the rtd functions that its written in 3
 
 l = logging.getLogger(__name__)
 lock = threading.Lock()
+
+class QueueEmitHandler:
+    def __init__(self, queue):
+        self.queue = setattr(queue)
+
+
+    def emit(self, record):
+        #msg = {ErrorCode: Message}
+        #self.queue.put(msg)
+        pass
+
 
 class help_functions:
     """Helpfull function is a multipurpose class with a variety of function and tasks.
