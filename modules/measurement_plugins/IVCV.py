@@ -16,6 +16,7 @@ class IVCV_class:
     
     def __init__(self, main_class):
         self.main = main_class
+        self.log = logging.getLogger(__name__)
         self.switching = self.main.switching
         self.justlength = 24
         time = self.do_IVCV()
@@ -23,6 +24,7 @@ class IVCV_class:
 
     def stop_everything(self):
         """Stops the measurement"""
+        self.log.critical("IVCV measurement called immediate stop of execution")
         order = {"ABORT_MEASUREMENT": True}  # just for now
         self.main.queue_to_main.put(order)
 
@@ -124,12 +126,13 @@ class IVCV_class:
     def do_IV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a current value and process the data'''
         if not self.main.stop_measurement():
+            self.log.debug("IV measurement started...")
             if not self.switching.switch_to_measurement("IV"):
                 self.stop_everything()
                 return
             if not self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=4,Rsq=0.5, complience=self.main.job_details["IVCV"]["IV"]["Complience"]):  # Is a dynamic waiting time for the measuremnt
                 self.stop_everything()
-                l.warning("Steady state could not be reached, shutdown of measurement")
+                self.log.warning("Steady state could not be reached, shutdown of measurement")
                 return
             values = []
             for i in range(samples):
@@ -151,12 +154,13 @@ class IVCV_class:
     def do_CV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a capacity value (or more precicely the amplitude and the phase shift) and process the data'''
         if not self.main.stop_measurement():
+            self.log.debug("CV measurement started...")
             if not self.switching.switch_to_measurement("CV"):
                 self.stop_everything()
                 return
             if not self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0.05, samples=3, Rsq=0.5, complience=None):  # Is a dynamic waiting time for the measuremnts
                 self.stop_everything()
-                l.warning("Steady state could not be reached, shutdown of measurement")
+                self.log.warning("Steady state could not be reached, shutdown of measurement")
                 return
             values = []
             for i in range(samples):

@@ -10,7 +10,7 @@ formatters:
 handlers:
   # Define a default handler, you can add more if you need them
   default:
-    level: DEBUG
+    level: INFO
     class: logging.StreamHandler
     formatter: STDOut
     stream: ext://sys.stdout
@@ -26,7 +26,7 @@ handlers:
     class: modules.utilities.QueueEmitHandler # Self written handler for messages.
     level: ERROR
     #alternate: cfg://handlers.file # So it takes everything from this handler, others can be here as well
-    queue: message_to_main # The queueobject it writes to
+    queue: message_to_main # The queueobject it writes to, currently its a str not the object
 
 
 loggers:

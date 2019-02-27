@@ -95,13 +95,16 @@ class measurement_class:
         """
         for file in self.measurement_files.values():
             os.close(file)
+            self.log.info("Closed measurement file: {!s}".format(file))
 
     def external_light(self, device_dict, bool):
         '''Turns the light on when measurements are running'''
         if bool:
+            self.log.debug("Switched on external lights...")
             self.change_value(device_dict, "set_external_light", "ON")
             self.settings["Defaults"]["external_lights"] = True
         else:
+            self.log.debug("Switched off external lights...")
             self.change_value(device_dict, "set_external_light", "OFF")
             self.settings["Defaults"]["external_lights"] = False
 
@@ -147,6 +150,7 @@ class measurement_class:
         # Try find the strip number of the sensor.
         try:
             self.total_strips = len(self.pad_data[self.settings["Defaults"]["Current_project"]][str(self.current_sensor)]["data"])
+            self.log.debug("Extracted strip number is: {!s}".format(self.total_strips))
         except:
             self.log.error("Sensor " + str(self.current_sensor) + " not recognized. Can be due to missing pad file.")
             self.main.stop_measurement = True
@@ -168,12 +172,14 @@ class measurement_class:
             self.all_plugins.update({modules: importlib.import_module("modules.measurement_plugins." + modules)})
 
     def create_data_file(self, header, filepath, filename="default"):
+        self.log.debug("Creating new data file with name: {!s}".format(filename))
         file = help.create_new_file(filename, filepath) # Creates the file at the destination
         help.flush_to_file(file, header) # Writes the header to the file
         return file # Finally returns the file object
 
     def check_setup(self):
         '''This function checks if all requirements are met for successful measurement'''
+        self.log.debug("Conducting setup check...")
         abort = False # Variable to quantify if abort program or not
         # Check if all devices have a visa resource assigned otherwise
         for device in self.devices.values():
@@ -221,7 +227,6 @@ class measurement_class:
                                 return True
                     else:
                         return True
-
         return abort
 
 
@@ -229,7 +234,7 @@ class measurement_class:
         '''This function recieves the orders from the main and creates a measurement plan.'''
 
         # Check if order of measurement is in place
-
+        self.log.debug("Generating measurement plan...")
         if "measurement_order" in self.settings["Defaults"]:
             for measurement in self.settings["Defaults"]["measurement_order"]:
                 abort = False
@@ -275,6 +280,7 @@ class measurement_class:
             stop = True
 
         if do_anyway:
+            self.log.warning("Overwriting steady_state_check is not advices. Use with caution")
             stop = False
 
         counter = 0
@@ -295,6 +301,7 @@ class measurement_class:
                     return False
 
             for i in range(samples):
+                self.log.debug("Conducting steady state check...")
                 command = self.build_command(device, "Read")
                 values.append(float(str(vcw.query(device, command)).split(",")[0]))
                 sleep(wait)
@@ -387,6 +394,7 @@ class measurement_class:
 
     def ramp_voltage(self, resource, order, voltage_Start, voltage_End, step, wait_time = 0.05, complience=100e-6):
         '''This functions ramps the voltage of a device'''
+        self.log.info("Start ramping voltage...")
         voltage_End = float(voltage_End)
         voltage_Start = float(voltage_Start)
         step = float(step)
@@ -547,6 +555,7 @@ class measurement_class:
         '''This function checks if the capacitor of the decouple box is correctly discharged
         First is input is the device which measure something and relay_dict is the relay which need to be switched'''
 
+        self.log.info("Discharging capacitors...")
         # First switch the smu terminals front/rear
         if termorder:
             self.change_value(device_dict, termorder, terminal)
@@ -622,10 +631,6 @@ class measurement_class:
 
     def stop_measurement(self):
         """Stops the measurement"""
+        self.log.critical("Measurement stop sended by framework...")
         order = {"ABORT_MEASUREMENT": True}  # just for now
         self.main.queue_to_main.put(order)
-
-
-if __name__ == "__main__":
-
-    pass

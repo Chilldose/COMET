@@ -316,10 +316,10 @@ class VisaConnectWizard:
             try:
                 resource = resource_dict["Visa_Resource"]
             except KeyError:
-                self.log.error("An key error occured in dict " + str(resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
+                self.log.error("A key error occured in dict " + str(resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
                 return -1
             except Exception, e:
-                self.log.exception("An unknown error occured while accessing a Visa resource " + str(e))
+                self.log.error("An unknown error occured while accessing a Visa resource " + str(e))
                 return -1
         else:
             resource = resource_dict

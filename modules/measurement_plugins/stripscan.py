@@ -23,6 +23,7 @@ class stripscan_class:
         :param main_class:
         """
         self.main = main_class
+        self.log = logging.getLogger(__name__)
         self.switching = self.main.switching
         self.current_voltage = self.main.settings["Defaults"]["bias_voltage"]
         self.voltage_End = self.main.job_details["stripscan"]["EndVolt"]
@@ -140,6 +141,7 @@ class stripscan_class:
     def do_preparations_for_stripscan(self):
         """This function prepares the setup, like ramping the voltage and steady state check
         """
+        self.log.debug("Stripscan: Preparing everything for stripscans")
         if self.main.save_data and "frequencyscan" not in self.main.job_details["stripscan"]:
             self.main.write(self.main.measurement_files["stripscan"], self.main.job_details["stripscan"].get("Additional Header", ""))  # TODO: pretty useless, an additional header to the file if necessary
 
@@ -181,10 +183,11 @@ class stripscan_class:
 
     def do_singlestrip(self, job):
         """This function conducts the measurements defined for a single strip measurement"""
+        self.log.debug("Stripscan: Singlestrip now started")
         self.do_preparations_for_stripscan()
 
         if not self.main.stop_measurement():
-            measurement_header = "Pad".ljust(self.justlength)  # indicates the measuremnt
+            measurement_header = "Pad".ljust(self.justlength)  # indicates the measurement
             unit_header = "#".ljust(self.justlength)  # indicates the units for the measurement
 
             # Now add the new header to the file
@@ -214,9 +217,6 @@ class stripscan_class:
                     if value:
                         self.main.queue_to_main.put({str(measurement): [int(job["Strip"]), float(value)]})
 
-
-
-
             # Write new line
             if self.main.save_data:
                 self.main.write(self.main.measurement_files["stripscan"], "\n")
@@ -227,7 +227,6 @@ class stripscan_class:
         Its ment to be used only once during the initiatior of the class'''
 
         self.do_preparations_for_stripscan()
-
 
         if not self.main.stop_measurement():
             # generate the list of strips per measurement which should be conducted and the units and so on for the

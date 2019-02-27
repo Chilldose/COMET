@@ -1079,6 +1079,7 @@ class table_control_class:
 
         :return: None or errorcode
         '''
+        self.log.debug("Try moving table to {!s}".format(position))
         if self.table_ready and not self.variables["table_is_moving"]:
             # get me the current position
             old_pos = self.get_current_position()
@@ -1131,6 +1132,7 @@ class table_control_class:
                 return error
 
             self.variables["table_is_moving"] = False
+            self.log.debug("Successfully moved table to {!s}".format(position))
             return 0
 
     def move_up(self, lifting):
@@ -1140,6 +1142,7 @@ class table_control_class:
         :param lifting:  hight movement
         :return: none or errorcode
         '''
+        self.log.debug("Moving table up by {!s} microns".format(lifting))
         if not self.variables["Table_state"]:
             errorcode = self.move_to([0,0,lifting], False, 0, True)
             if not errorcode:
@@ -1154,6 +1157,7 @@ class table_control_class:
         :param lifting:  hight movement
         :return: none or errorcode
         '''
+        self.log.debug("Moving table down by {!s} microns".format(lifting))
         if self.variables["Table_state"]:
             errorcode = self.move_to([0,0,-lifting], False, 0, True)
             if not errorcode:
@@ -1272,7 +1276,7 @@ class switching_control:
         '''
 
         #Todo: Brandbox is sended twice due to double occurance (humidity controller), but maybe its for the best, since the thing isnt working properly
-        # First find measurement
+        #First find measurement
         switching_success = False
         if measurement in self.settings["Switching"]:
             # When measurement was found
@@ -1288,6 +1292,7 @@ class switching_control:
                 if not device_found:
                     self.message_to_main.put({"RequestError": "Switching device: " + str(name) + " was not found in active resources. No switching done!"})
                     return False
+            self.log.info("Switched to measurement: {!s}".format(str(measurement)))
             return switching_success
         else:
             self.log.error("Measurement " + str(measurement) + " switching could not be found in defined switching schemes.")

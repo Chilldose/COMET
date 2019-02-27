@@ -223,7 +223,7 @@ class loading_init_files:
         '''Creates a dictionary with all values written in the file using yaml'''
 
         resource = os.path.join(filepath, filename)
-        self.log.info("Loading file:" + str(filename))
+        #self.log.info("Loading file:" + str(filename))
         with open(resource, "r") as fp:
             return yaml.load(fp)
 
