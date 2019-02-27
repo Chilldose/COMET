@@ -21,6 +21,8 @@ import logging, yaml
 import logging.config
 from logging.handlers import RotatingFileHandler
 from PyQt5 import QtCore
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 import numpy as np
 from numpy.linalg import solve, norm, det, qr, inv
 import datetime

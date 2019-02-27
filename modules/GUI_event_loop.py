@@ -2,10 +2,12 @@
 #from GUI_classes import *
 from PyQt5.QtCore import QCoreApplication
 from PyQt5 import QtCore
+from PyQt5.QtWidgets import QMessageBox
 import numpy as np
 import logging
 import thread
 from utilities import newThread, Framework
+from globals import *
 
 
 class GUI_event_loop:
@@ -29,6 +31,7 @@ class GUI_event_loop:
         self.measurement_running = False
         self.measurement_loop_running = True
         self.error_types = ["Info","MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "Warning", "FatalError", "ThresholdError", "ERROR", "Error"]
+        self.fatal_errors = ["MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "FatalError", "ThresholdError"]
         #self.measurement_types = ["IV", "IV_longterm", "CV", "R_int", "I_strip", "I_diel", "R_poly", "C_ac", "I_strip_overhang", "C_int", "I_dark", "humidity", "temperature", "Cback", "Cback_scan", "Cac_scan", "Cint_scan"]
         self.measurement_types = self.default_values_dict["Defaults"]["measurement_types"]
         self.event_types = ["MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED"]
@@ -96,12 +99,15 @@ class GUI_event_loop:
                 prepend = '<font color=\"orange\">'
             self.error_log.append(prepend + str(error).upper() + ": " + str(message[str(error)]) + "</font> <br/>")
 
-            # If a fatal error occurs a pop up should be displayed TODO:make the error pop up working
-            if error.upper() == "FATALERROR":
-                #thread.start_new_thread(self.main.error_pop_up, (str(message[str(error)]),))
-                #self.main.error_pop_up(str(message[str(error)]))
-                pass # TODO: make warning pop up work
-
+            # TODO: Pop up messages would be great here
+            #if error in self.fatal_errors:
+                #self.ErrorBox = QMessageBox(None)
+                # ErrorBox.setIcon(QMessageBox.Warning)
+                # ErrorBox.setText(event)
+                # ErrorBox.setWindowTitle("Really bad error occured")
+                #self.ErrorBox.setStandardButtons(QMessageBox.Ok)
+                #self.ErrorBox.exec_()
+                #self.main.ErrorEvent("sdfsdf")
 
 
         for event in self.event_list: #besser if "dfdf" in self.events oder? TODO vlt hier die abfrage der events anders machen

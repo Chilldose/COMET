@@ -5,6 +5,7 @@ global message_to_main
 global message_from_main
 global queue_to_GUI
 
+
 message_to_main = Queue.Queue()
 message_from_main = Queue.Queue()
 queue_to_GUI = Queue.Queue()

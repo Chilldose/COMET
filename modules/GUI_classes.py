@@ -24,6 +24,23 @@ from bad_strip_detection import *
 
 hf = help_functions()
 
+class MessageBox(QWidget):
+    def __init__(self, parent=None, app=None):
+        QWidget.__init__(self, parent)
+
+        self.setGeometry(300, 300, 250, 150)
+        self.setWindowTitle('message box')
+        self.currentBox = None
+        #self.app = self.main.app
+
+    def ErrorEvent(self, event):
+        ErrorBox = QMessageBox(None)
+        #ErrorBox.setIcon(QMessageBox.Warning)
+        #ErrorBox.setText(event)
+        #ErrorBox.setWindowTitle("Really bad error occured")
+        ErrorBox.setStandardButtons(QMessageBox.Ok)
+        ErrorBox.exec_()
+
 class GUI_classes(GUI_event_loop, QWidget):
 
     def __init__(self, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, help, visa, queue_to_GUI, table, switching, shell):
@@ -60,6 +77,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.shell = shell
         self.analysis = stripanalysis(self) # Not very good it is a loop condition
 
+
         # Load ui plugins
         self.load_plugins()
 
@@ -74,10 +92,8 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.QTabWidget_obj = QTabWidget()
         self.QTabWidget_obj.setWindowFlags(Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint) # Only minimize and maximize button are active
         self.QTabWidget_obj.resize(1900, 1000) # in pixels
-
-        # Initialise and start the GUI_event_loop
-        event_loop_thread = newThread(2, "GUI_event_loop", GUI_event_loop.__init__, self, self, self.message_from_main, self.message_to_main, self.devices_dict, self.default_values_dict, self.pad_files_dict, self.help, self.vcw, self.meas_data)
-        event_loop_thread.start()
+        self.messageBoxes = MessageBox(self.QTabWidget_obj) # For the message boxes
+        self.messageBoxes.show()
 
         # For Thomas, because he does not like black plots
         if self.white_plots:
@@ -94,9 +110,15 @@ class GUI_classes(GUI_event_loop, QWidget):
 
         self.add_update_function(self.process_pending_events)
 
+        # Initialise and start the GUI_event_loop
+        self.event_loop_thread = newThread(2, "GUI_event_loop", GUI_event_loop.__init__, self, self, self.message_from_main,
+                                      self.message_to_main, self.devices_dict, self.default_values_dict,
+                                      self.pad_files_dict, self.help, self.vcw, self.meas_data)
+        self.event_loop_thread.start()
+
         # Add the cmd options
-        self.shell.add_cmd_command(self.reset_plot_data)
-        self.shell.add_cmd_command(self.give_framework_functions)
+        #self.shell.add_cmd_command(self.reset_plot_data)
+        #self.shell.add_cmd_command(self.give_framework_functions)
 
         self.log.info("Starting GUI ... ")
 
@@ -200,17 +222,3 @@ class GUI_classes(GUI_event_loop, QWidget):
         # This functions need to be called in case that no clear statement is set during plotting
         #for plot in self.plots:
             #plot.clear()
-
-    def error_pop_up(self, message):
-        msg = QMessageBox()
-        msg.setIcon(QMessageBox.Warning)
-        msg.setText(message)
-        msg.setWindowTitle("Really bad error occured")
-        msg.exec_()
-
-class MyWin(QMainWindow):
-    def __init__(self, parent=None):
-        super(MyWin, self).__init__(parent)
-        self.setWindowTitle("My Window")
-        self.setWindowIcon(QtGui.QIcon('logo.png'))
-        self.show()
