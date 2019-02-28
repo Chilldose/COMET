@@ -37,7 +37,7 @@ __email__ = "dominic.bloech@oeaw.ac.at"
 __date__ = "15.09.2017"
 __beta__ = "20.12.2017"
 __release__ = "28.05.2018"
-__version__ = "0.9.2"
+__version__ = "0.10.0"
 
 def main():
     """Main application entry point."""
