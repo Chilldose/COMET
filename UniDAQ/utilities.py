@@ -18,12 +18,14 @@ from time import sleep
 import time
 import threading
 import logging, yaml
+import logging.config
+from logging.handlers import RotatingFileHandler
 from PyQt5 import QtCore
 import numpy as np
 from numpy.linalg import solve, norm, det, qr, inv
 import datetime
 import pyqtgraph as pg
-from . import VisaConnectWizard
+import VisaConnectWizard
 from PyQt5.QtWidgets import QApplication
 #from __future__ import print_function # Needed for the rtd functions that its written in 3
 
@@ -36,7 +38,7 @@ class help_functions:
     For more information see he docs for the functions itself"""
 
     def __init__(self ):
-        pass
+        self.log = logging.getLogger(__name__)
 
 
     def write_init_file(self, name, data, path = ""):
@@ -90,7 +92,7 @@ class help_functions:
             #            string += str(i).strip("'").strip("[").strip("]") + ","
             #        string = string[:-1]
             #        string += "\"\n"
-            #        print(string)
+            #        print string
             #        os.write(filename, string)
 
 
@@ -132,7 +134,7 @@ class help_functions:
                 result = method(*args, **kw)
             # raise the exception and print the stack trace
             except Exception as error:
-                print("Some error occured in the function " + str(method.__name__) +". With Error:", repr(error))  # this is optional but sometime the raise does not work
+                self.log.error("Some error occured in the function " + str(method.__name__) +". With Error:", repr(error))  # this is optional but sometime the raise does not work
                 raise  # this raises the error with stack backtrack
             return result
 
@@ -150,12 +152,12 @@ class help_functions:
             try:
                 # Try running the method
                 with lock:
-                    l.debug("Lock acquired by program: " + str(method.__name__))
+                    self.log.debug("Lock acquired by program: " + str(method.__name__))
                     result = method(*args, **kw)
-                l.debug("Lock released by program: " + str(method.__name__))
+                self.log.debug("Lock released by program: " + str(method.__name__))
             # raise the exception and print the stack trace
             except Exception as error:
-                print("A lock could not be acquired in "  + str(method.__name__) +". With Error:", repr(error)) # this is optional but sometime the raise does not work
+                self.log.error("A lock could not be acquired in "  + str(method.__name__) +". With Error:", repr(error)) # this is optional but sometime the raise does not work
                 raise  # this raises the error with stack backtrace
             return result
 
@@ -186,22 +188,19 @@ class help_functions:
 
         #First check if Filename already exists, when so, add a counter to the file.
         if os.path.isfile(os.path.abspath(filepath+filename)):
-            print("Warning filename " + str(filename) + " already exists!")
-            l.warning("Warning filename " + str(filename) + " already exists!")
+            self.log.warning("Warning filename " + str(filename) + " already exists!")
             filename = filename[:-4] + "_" + str(counter) + ".txt" # Adds sufix to filename
             while os.path.isfile(os.path.abspath(filepath+filename)):  # checks if file exists
                 filename = filename[:-5] + str(counter)  + ".txt"  # if exists than change the last number in filename string
                 counter += 1
-            print("Filename changed to " + filename + ".")
-            l.info("Filename changed to " + filename + ".")
+            self.log.info("Filename changed to " + filename + ".")
 
         if os_file:
             fp = os.open(os.path.abspath(filepath+filename), os.O_WRONLY | os.O_CREAT) # Creates the file
         else:
             fp = open(os.path.abspath(filepath+filename), "w")
 
-        l.info("Generated file: " + str(filename))
-        print("Generated file: " + str(filename))
+        self.log.info("Generated file: " + str(filename))
 
         return fp
 
@@ -220,7 +219,7 @@ class help_functions:
             fp = open(filepath + filename, 'r+') #Opens file for reading and writing
             return fp
         except IOError:
-            print(str(filepath + filename) + " is not an existing file.")
+            self.log.error(str(filepath + filename) + " is not an existing file.")
 
     # Closes a file (just needs the file pointer)
     def close_file(self, fp):
@@ -234,9 +233,9 @@ class help_functions:
             except:
                 fp.close()
         except GeneratorExit:
-            print("Closing the file: " + str(fp) + " was not possible")
+            self.log.error("Closing the file: " + str(fp) + " was not possible")
         except:
-            print("Unknown error occured, while closing file " + str(fp) + "Error: ", sys.exc_info()[0])
+            self.log.error("Unknown error occured, while closing file " + str(fp) + "Error: ", sys.exc_info()[0])
 
     # This flushes a string to a file
     def flush_to_file(self, fp, message):
@@ -259,9 +258,9 @@ class help_functions:
             for line in content:
                 fp.write(str(line))
         except IOError:
-            print("Writing to file " + filename + " was not possible")
+            self.log.error("Writing to file " + filename + " was not possible")
         except:
-            print("Unknown error occured, while writing to file " + str(filename) + "Error: ", sys.exc_info()[0])
+            self.log.error("Unknown error occured, while writing to file " + str(filename) + "Error: ", sys.exc_info()[0])
 
         self.close_file(fp)
 
@@ -276,10 +275,10 @@ class help_functions:
         try:
             return fp.readlines()
         except IOError:
-            print("Could not read from file.")
+            self.log.error("Could not read from file.")
             return []
         except:
-            print("Unknown error occured, while reading from file " + str(filename) + "Error: ", sys.exc_info()[0])
+            self.log.error("Unknown error occured, while reading from file " + str(filename) + "Error: ", sys.exc_info()[0])
 
         self.close_file(fp)
 
@@ -442,8 +441,7 @@ class help_functions:
 
                         if i+1 < len(csv_commands) and len(csv_commands)>1:
                             for j in range(i+1, len(csv_commands)):  # Fill the rest of the missing paramters
-                                print("Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
-                                l.error("Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
+                                self.log.error("Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
                                 command += "0" + sepa
 
                         command = command.strip(" ").strip(",")  # to get rid of last comma
@@ -506,8 +504,7 @@ class help_functions:
 
                         if i+1 < len(csv_commands) and len(csv_commands)>1:
                             for j in range(i+1, len(csv_commands)):# Fill the rest of the missing paramters
-                                print("Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
-                                l.error("Warning: Not enough parameters passed for function: " + str(command_tuple[0]) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
+                                self.log.warning("Not enough parameters passed for function: " + str(command_tuple[0]) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
                                 command += " " + "0" + sepa
 
                         command = command.strip(" ").strip(",") # to get rid of last comma and space at the end if csv
@@ -539,8 +536,7 @@ class help_functions:
                     return_list.append(command.strip())
         else:
             # If the command is not found in the device only command tuple will be send
-            print("Command " + str(command_tuple[0]) + " was not found in device! Unpredictable behavior may happen. No commad build!")
-            l.error("Command " + str(command_tuple[0]) + " was not found in device! Unpredictable behavior may happen. No commad build!")
+            self.log.error("Command " + str(command_tuple[0]) + " was not found in device! Unpredictable behavior may happen. No commad build!")
             return ""
 
         # Add a command terminator if one is needed and the last part of the syntax
@@ -574,6 +570,7 @@ class newThread(threading.Thread):  # This class inherite the functions of the t
         self.name = name
         self.object__= object__
         self.args = args
+        self.log = logging.getLogger(__name__)
 
     def run_process(self, object__, args): # Just for clarification, not necessary.
         """
@@ -583,8 +580,7 @@ class newThread(threading.Thread):  # This class inherite the functions of the t
 
     def run(self):
         """Starts running the thread"""
-        print("Starting thread: " + self.name) # run() is a member function of Thread() class. This will be called, when object thread will be started via thread.start()
-        l.info("Starting thread: " + self.name)
+        self.log.info("Starting thread: " + self.name)
         self.object__ = self.run_process(self.object__, self.args)
 
     def get(self):
@@ -603,13 +599,14 @@ class newThread_(QtCore.QThread):  # This class inherite the functions of the th
         self.name = name
         self.object__= object__
         self.args = args
+        self.log = logging.getLogger(__name__)
 
     def run_process(self, object__, args): # Just for clarification, not necessary.
         return object__(*args)
 
     def run(self):
-        print ("Starting thread: " + self.name) # run() is a member function of Thread() class. This will be called, when object thread will be started via thread.start()
-        l.info("Starting thread: " + self.name)
+        # run() is a member function of Thread() class. This will be called, when object thread will be started via thread.start()
+        self.log.info("Starting thread: " + self.name)
         self.object__ = self.run_process(self.object__, self.args)
 
     @staticmethod
@@ -621,19 +618,25 @@ class LogFile:
     """
     This class handles the Logfile for the whole framework
     """
-    def __init__(self, logging_level = "debug"):
+    def __init__(self, path='logger.yml', default_level=logging.INFO, env_key='LOG_CFG'):
         """
         Initiates the logfile with the logging level
+        :param path: Path to logger file
         :param logging_level: None, debug, info, warning, error critical
+        :param env_key: env_key
         """
 
-        package_dir = os.path.dirname(os.path.realpath(__file__))
-        project_dir = os.path.dirname(package_dir)
 
-        self.LOG_FORMAT = "%(levelname)s %(asctime)s in function %(funcName)s - %(message)s"
-        self.file_PATH = os.path.join(project_dir, "Logfiles", "QTC_Logfile.log") # Filepath to Logfile directory
-        self.file_directory = os.path.join(project_dir, "Logfiles")
-        self.logging_level = logging_level
+        value = os.getenv(env_key, None)
+        if value:
+            path = value
+        if os.path.exists(os.path.normpath(path)):
+            with open(path, 'rt') as f:
+                config = yaml.safe_load(f.read())
+            logging.config.dictConfig(config)
+        else:
+            logging.basicConfig(level=default_level)
+
         self.log_LEVELS = {"NOTSET": 0, "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50}
 
         self.welcome_string =  "\n" \
@@ -643,32 +646,10 @@ class LogFile:
                                 \ \_____\  \ \_____\  \ \_____\  \ \_\    \ \_\  \ \_____\  \ \_____\        \ \___\_\    \ \_\  \ \_____\ \n \
                                   \/_____/   \/_____/   \/_____/   \/_/     \/_/   \/_____/   \/_____/         \/___/_/     \/_/   \/_____\n\n\n"
 
-        self.get_logging_level()
-        try:
-            os.remove(self.file_PATH) # IS needed, because sometimes other modules like the visa modules would override the file and all logs are lost, so the log file is in appending mode and no data loss.
-        except Exception as e:
-            print("Old Logfile could not be deleted: " + str(e))
-        # Check if the folder already exists or create the folder
-        if os.path.isdir(self.file_directory):
-            logging.basicConfig(filename=self.file_PATH, level=self.logging_level, format = self.LOG_FORMAT, filemode= 'a') # Overrides the old file (this is just for initialization)
-        else:
-            os.makedirs(self.file_directory)
-            logging.basicConfig(filename=self.file_PATH, level=self.logging_level, format = self.LOG_FORMAT, filemode= 'a') # Overrides the old file (this is just for initialization)
-
-
         # Create a logger Object
-        self.LOG = logging.getLogger()
-
+        self.LOG = logging.getLogger("Logfile")
         # Print welcome message
-        self.LOG.critical(self.welcome_string)
-
-    #Simply changes the string input to a int for the logging level
-    def get_logging_level(self):
-        ''' Checks the logging level input. If it is a string -> convert. Otherwise, do nothing'''
-        if type(self.logging_level) == type("string"):
-            self.logging_level=self.log_LEVELS.get(self.logging_level.upper(), "DEBUG")
-        else:
-            pass
+        self.LOG.info(self.welcome_string)
 
 class Framework:
     """
@@ -682,6 +663,7 @@ class Framework:
 
         self.functions, self.update_interval = values_from_GUI()
         self.timer = None
+        self.log = logging.getLogger(__name__)
 
     def start_timer(self):  # Bug timer gets not called due to a lock somewhere else
         """
@@ -689,7 +671,7 @@ class Framework:
 
         :return: timer
         """
-        l.info("Framework initialized")
+        self.log.info("Framework initialized")
         timer = QtCore.QTimer()
         timer.timeout.connect(self.update_)
         timer.start(self.update_interval)
@@ -708,12 +690,15 @@ class Framework:
             try:
                 function()
             except:
-                l.error("Could not update framework: %s", function)
+                self.log.error("Could not update framework " + function)
         #end = time.time()
-        #print(end - start)
+        #print end - start
 
 class transformation:
     """Class which handles afine transformations in 3 dimensions for handling sensor to jig coordinate systems"""
+
+    def __init__(self):
+        self.log = logging.getLogger(__name__)
 
     @hf.raise_exception
     def transformation_matrix(self, s1, s2, s3, t1, t2 ,t3):
@@ -751,7 +736,7 @@ class transformation:
             # Offset
             V0 = np.subtract(t2,np.transpose(s2[0:2]).dot(T))
         except Exception as e:
-            l.error("An error occured during the transformation with error: " + str(e))
+            self.log.error("An error occured during the transformation with error: " + str(e))
             return -1, -1
 
         return T, V0
@@ -773,6 +758,7 @@ class measurement_job_generation:
         self.variables = main_variables["Defaults"]
         self.queue_to_measure = queue_to_measurement_event_loop
         self.final_job = {}
+        self.log = logging.getLogger(__name__)
 
     def generate_job(self, additional_settings_dict):
         '''
@@ -802,10 +788,9 @@ class measurement_job_generation:
         if self.variables["Current_filename"] and os.path.isdir(self.variables["Current_directory"]):
             self.final_job.update({"Header": header})
             self.queue_to_measure.put({"Measurement": self.final_job})
-            print("Send job: " + str({"Measurement": self.final_job}))
+            self.log.info("Sendet job: " + str({"Measurement": self.final_job}))
         else:
-            l.error("Please enter a valid path and name for the measurement file.")
-            print("Please enter a valid path and name for the measurement file.")
+            self.log.error("Please enter a valid path and name for the measurement file.")
 
     def generate_IVCV(self, header):
         '''
@@ -891,15 +876,15 @@ class table_control_class:
         self.vcw = vcw
         self.shell = None
         self.build_command = hf.build_command
+        self.log = logging.getLogger(__name__)
 
         try:
             self.visa_resource = self.devices.get("Table_control",None)["Visa_Resource"]
             self.table_ready = True
         except:
-            print("Warning table control could not be initialized!")
             self.table_ready = False
             self.queue.put({"RequestError": "Table seems not to be connected!"})
-            l.error("Table control could not be initialized!")
+            self.log.error("Table control could not be initialized!")
         self.zmove = self.variables["height_movement"]
 
     def get_current_position(self):
@@ -917,7 +902,7 @@ class table_control_class:
                     self.device["z_pos"] = float(list[2])
                     return [float(i) for i in list]
                 except:
-                    l.error("The corvus has replied with a non valid position string: " + str(string))
+                    self.log.error("The corvus has replied with a non valid position string: " + str(string))
                     max_attempts += 1
 
     def check_if_ready(self, timeout = 0, maxcounter = -1):
@@ -1005,7 +990,7 @@ class table_control_class:
         for i, pos in enumerate(new_pos):
             if abs(float(pos) - float(desired_pos[i])) > 0.5: # up to a half micrometer
                 errorcode = {"MeasError": "Table movement failed. Position: " + str(new_pos) + " is not equal to desired position: " + str(desired_pos)}
-                l.error("Table movement failed. Position: " + str(new_pos) + " is not equal to desired position: " + str(desired_pos))
+                self.log.error("Table movement failed. Position: " + str(new_pos) + " is not equal to desired position: " + str(desired_pos))
                 return errorcode
         return 0
 
@@ -1044,7 +1029,7 @@ class table_control_class:
         if transformation != []:
             if not self.__already_there(pad_file, strip, transfomation_class, T, V0):
                 pad_pos = pad_file["data"][strip][1:4]
-                l.info("Moving to strip: {} at position {},{},{}.".format(strip, pad_pos[0], pad_pos[1], pad_pos[2]))
+                self.log.info("Moving to strip: {} at position {},{},{}.".format(strip, pad_pos[0], pad_pos[1], pad_pos[2]))
                 table_abs_pos = list(transfomation_class.vector_trans(pad_pos, T, V0))
                 error = self.move_to(table_abs_pos, move_down=True, lifting = height_movement)
 
@@ -1211,6 +1196,7 @@ class switching_control:
         self.vcw = VisaConnectWizard.VisaConnectWizard()
         self.shell = None
         self.build_command = hf.build_command
+        self.log = logging.getLogger(__name__)
 
     def reset_switching(self, device="all"):
         '''
@@ -1248,7 +1234,7 @@ class switching_control:
                     devices_found += 1
 
         if num_devices != devices_found:
-            l.error("At least one switching was not possible, no devices for switching included/connected")
+            self.log.error("At least one switching was not possible, no devices for switching included/connected")
             self.message_to_main.put({"MeasError": "At least one switching was not possible, no devices for switching included/connected"})
             switching_success = False
 
@@ -1282,7 +1268,7 @@ class switching_control:
                     return False
             return switching_success
         else:
-            l.error("Measurement " + str(measurement) + " switching could not be found in defined switching schemes.")
+            self.log.error("Measurement " + str(measurement) + " switching could not be found in defined switching schemes.")
             self.message_to_main.put({"MeasError": "Measurement " + str(measurement) + " switching could not be found in defined switching schemes."})
             return False
 
@@ -1308,7 +1294,7 @@ class switching_control:
         # Todo: implement the : exception
 
         if ":" in current_switching:
-            l.error("The switching syntax for this is not yet implemented, discrepancies do occure from displayed to actually switched case. TODO")
+            self.log.error("The switching syntax for this is not yet implemented, discrepancies do occure from displayed to actually switched case. TODO")
             if "," in current_switching: # if this shitty mix happens
                 current_switching = current_switching.replace(",", ":")
             if len(syntax_list) > 1:
@@ -1389,8 +1375,7 @@ class switching_control:
 
                 command_diff = list(set(configs).difference(set(current_switching)))
                 if len(command_diff) != 0:  #Checks if all the right channels are closed
-                    l.error("Switching to " + str(configs) + " was not possible. Difference read: " + str(current_switching))
-                    print("Switching to " + str(configs) + " was not possible. Difference read: " + str(current_switching))
+                    self.log.error("Switching to " + str(configs) + " was not possible. Difference read: " + str(current_switching))
                     device_not_ready = False
                     return False
                 device_not_ready = False
@@ -1399,7 +1384,7 @@ class switching_control:
                 device_not_ready = False
             counter += 1
 
-        l.error("No response from switching system: " + device["Display_name"])
+        self.log.error("No response from switching system: " + device["Display_name"])
         self.message_to_main.put({"RequestError": "No response from switching system: " + device["Display_name"]})
         return False
 
@@ -1430,7 +1415,7 @@ class switching_control:
 
                         if len(command_tuple[1:]) <= len(data_struct): # searches if additional data needs to be added
                             for data in data_struct[i+1:]:
-                                # print(device[command_keyword + "_" + data])
+                                # print device[command_keyword + "_" + data]
                                 if command_keyword + "_" + data in device:
                                     final_string += str(device[command_keyword + "_" + data]).upper() + ","
                                 else:
@@ -1445,7 +1430,7 @@ class switching_control:
                             return str(command_tuple[0])
 
             except Exception as e:
-                #print(e)
+                #print e
                 pass
 
 
@@ -1464,6 +1449,7 @@ class show_cursor_position:
         self.tooltip_text.hide()
         plotobject.addItem(self.tooltip_text, ignoreBounds=True)
         self.proxy = pg.SignalProxy(plotobject.scene().sigMouseMoved, rateLimit=30, slot=self.onMove)
+        self.log = logging.getLogger(__name__)
 
     def onMove(self, pos):
         mousePoint = self.plotItem.vb.mapSceneToView(pos[0])
@@ -1476,9 +1462,29 @@ class show_cursor_position:
         else:
             self.tooltip_text.hide()
 
+def reset_devices(devices_dict, vcw):
+    """Reset all devices."""
+    for device in devices_dict:
+        # Looks if a Visa resource is assigned to the device.
+        if devices_dict[device].has_key("Visa_Resource"):
+
+            # Initiate the instrument and resets it
+            if "reset_device" in devices_dict[device]:
+                vcw.initiate_instrument(
+                    devices_dict[device]["Visa_Resource"],
+                    devices_dict[device]["reset_device"],
+                    devices_dict[device].get("execution_terminator", "")
+                )
+            else:
+                vcw.initiate_instrument(
+                    devices_dict[device]["Visa_Resource"],
+                    ["*rst", "*cls", "TRAC:CLE"],
+                    devices_dict[device].get("execution_terminator", "")
+                )
+
 if __name__ == "__main__":
 
-    print("test")
+    print "test"
 
     device_dict = {
     "set_source_current": "SOUR:FUNC CURR",
@@ -1836,45 +1842,45 @@ if __name__ == "__main__":
 
 }
 
-    print(str(hf.build_command(dict_2657, ("set_voltage", 0.0))))
+    print str(hf.build_command(dict_2657, ("set_voltage", 0.0)))
 
 
-    print(str(hf.build_command(HV_dict, ("set_discharge", "ON"))))
+    print str(hf.build_command(HV_dict, ("set_discharge", "ON")))
 
-    print(str(hf.build_command(device_switch, ("set_open_channel", "1!1!1, 1!2!3, 2!3!3, 3!5!6"))))
-    print(str(hf.build_command(device_switch, ("set_open_channel", "(1!1!1, 1!2!3, 2!3!3)"))))
-    print(str(hf.build_command(device_switch, ("set_open_channel", "[1!1!1, 1!2!3, 2!3!3]"))))
-    print(str(hf.build_command(device_switch, ("set_open_channel", "1!1!1"))))
-    print(str(hf.build_command(device_switch, ("set_open_channel", "all"))))
-    print(str(hf.build_command(device_switch, "set_open_all")))
-    print(str(hf.build_command(device_switch, ("set_open_channel", ""))))
-    print(str(hf.build_command(device_switch, "check_all_closed_channel")))
-
-
-    print(str(hf.build_command(device_table, ("set_move_to", "0, 0, 0"))))
-    print(str(hf.build_command(device_table, ("set_move_to", "[0, 0, 0]"))))
-    print(str(hf.build_command(device_table, ("set_move_to", [0, 0, 0]))))
-    print(str(hf.build_command(device_table, ("set_move_to", [0, 0, 0]))))
-    print(str(hf.build_command(device_table, ("set_move_to", [0, 0]))))
-    print(str(hf.build_command(device_table, ("set_relative_move_to", [0, 0, 0]))))
-    print(str(hf.build_command(device_table, ("set_axis", "1 1 1 2 1 3"))))
-    print(str(hf.build_command(device_table, ("set_axis", ["1 1", "1 2", "1 3"]))))
-    print(str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2", "1 3")))))
-    print(str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2")))))
-    print(str(hf.build_command(device_table, ("set_polepairs", ["50 1", "50 2", "50 3"]))))
-    print(str(hf.build_command(device_table, ("get_position"))))
-    print(str(hf.build_command(device_table, ("calibrate_motor", ""))))
+    print str(hf.build_command(device_switch, ("set_open_channel", "1!1!1, 1!2!3, 2!3!3, 3!5!6")))
+    print str(hf.build_command(device_switch, ("set_open_channel", "(1!1!1, 1!2!3, 2!3!3)")))
+    print str(hf.build_command(device_switch, ("set_open_channel", "[1!1!1, 1!2!3, 2!3!3]")))
+    print str(hf.build_command(device_switch, ("set_open_channel", "1!1!1")))
+    print str(hf.build_command(device_switch, ("set_open_channel", "all")))
+    print str(hf.build_command(device_switch, "set_open_all"))
+    print str(hf.build_command(device_switch, ("set_open_channel", "")))
+    print str(hf.build_command(device_switch, "check_all_closed_channel"))
 
 
-    print(str(hf.build_command(device_237, ("set_complience", "100e-6, 100e-5"))))
-    print(str(hf.build_command(device_237, ("set_complience", "(100e-6, 100e-5)"))))
-    print(str(hf.build_command(device_237, ("set_complience", "[100e-6, 100e-5]"))))
-    print(str(hf.build_command(device_237, ("set_complience", [100e-6, 100e-5]))))
-    print(str(hf.build_command(device_237, ("set_voltage", [100e-6]))))
-    print(str(hf.build_command(device_237, ("set_complience", [100e-6]))))
+    print str(hf.build_command(device_table, ("set_move_to", "0, 0, 0")))
+    print str(hf.build_command(device_table, ("set_move_to", "[0, 0, 0]")))
+    print str(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
+    print str(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
+    print str(hf.build_command(device_table, ("set_move_to", [0, 0])))
+    print str(hf.build_command(device_table, ("set_relative_move_to", [0, 0, 0])))
+    print str(hf.build_command(device_table, ("set_axis", "1 1 1 2 1 3")))
+    print str(hf.build_command(device_table, ("set_axis", ["1 1", "1 2", "1 3"])))
+    print str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2", "1 3"))))
+    print str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2"))))
+    print str(hf.build_command(device_table, ("set_polepairs", ["50 1", "50 2", "50 3"])))
+    print str(hf.build_command(device_table, ("get_position")))
+    print str(hf.build_command(device_table, ("calibrate_motor", "")))
 
-    print(str(hf.build_command(device_dict, ("set_complience", "100e-6"))))
-    print(str(hf.build_command(device_dict, ("set_complience"))))
+
+    print str(hf.build_command(device_237, ("set_complience", "100e-6, 100e-5")))
+    print str(hf.build_command(device_237, ("set_complience", "(100e-6, 100e-5)")))
+    print str(hf.build_command(device_237, ("set_complience", "[100e-6, 100e-5]")))
+    print str(hf.build_command(device_237, ("set_complience", [100e-6, 100e-5])))
+    print str(hf.build_command(device_237, ("set_voltage", [100e-6])))
+    print str(hf.build_command(device_237, ("set_complience", [100e-6])))
+
+    print str(hf.build_command(device_dict, ("set_complience", "100e-6")))
+    print str(hf.build_command(device_dict, ("set_complience")))
 
 
 
@@ -1889,6 +1895,6 @@ if __name__ == "__main__":
     #b3 = [0, 150, 0]
 
     #T, V0 = trans.transformation_matrix(b1,b2,b3,a1,a2,a3)
-    #print(T)
-    #print(V0)
-    #print(trans.vector_trans([12,23, 0], T,V0))
+    #print (T)
+    #print (V0)
+    #print (trans.vector_trans([12,23, 0], T,V0))

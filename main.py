@@ -1,147 +1,167 @@
+#!/usr/bin/env python
 
+"""
+UniDAQ
 
-#import os
-#os.system("conda info --envs")
+This program is developed for IV/CV measurements as well as strip scan
+measurements for the QTC setup at HEPHY Vienna.
+All rights are to the Programmer(s) and the HEPHY Vienna.
+Distributing/using this software without permission of the programmer will be
+punished!
+ - Punishments: Death by hanging, Decapitation and/or ethernal contemption
+ - Should the defendant demand trail by combat, than the combat will be three
+   rounds of "rock-paper-scissors-lizard-spock".
+   If the defendant should win, he/she can use the software as he/she wishes,
+   otherwise he/she will be punished as described before.
+"""
 
-__author__  = "Dominic Bloech"
-__email__   = "dominic.bloech@oeaw.ac.at"
-__date__    = "15.09.2017"
-__beta__    = "20.12.2017"
-__release__ = "28.05.2018"
-__version__ = "0.10.0"
-
-#---------------------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------------------
-# This program is developed for IV/CV measurements as well as strip scan measurements for the QTC setup at HEPHY Vienna.
-# All rights are to the Programmer(s) and the HEPHY Vienna.
-# Distributing/using this software without permission of the programmer will be punished!
-# - Punishments: Death by hanging, Decapitation and/or ethernal contemption
-# - Should the defendant demand trail by combat, than the combat will be three rounds of "rock-paper-scissors-lizard-spock"
-#   If the defendant should win, he/she can use the software as he/she wishes, otherwise he/she will be punished as described before.
-#---------------------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------------------
-#---------------------------------------------------------------------------------------------------------------------------------------
-
+import logging
 import time
-import sys, os
+import sys
+import os
 
-print("Initializing UniDAQ, version {} ...".format(__version__))
-from UniDAQ.utilities import *
-from UniDAQ.boot_up import *
+from UniDAQ import utilities
+from UniDAQ import boot_up
+from UniDAQ.GUI_classes import GUI_classes
+from UniDAQ.cmd_inferface import DAQShell
+from UniDAQ.VisaConnectWizard import VisaConnectWizard
+from UniDAQ.measurement_event_loop import (
+    measurement_event_loop,
+    message_to_main,
+    message_from_main,
+    queue_to_GUI
+)
+
+__author__ = "Dominic Bloech"
+__email__ = "dominic.bloech@oeaw.ac.at"
+__date__ = "15.09.2017"
+__beta__ = "20.12.2017"
+__release__ = "28.05.2018"
+__version__ = "0.9.2"
 
 def main():
-    """Main application routine."""
+    """Main application entry point."""
+
+    # Create timestamp
     start_time = time.time()
 
-    log = LogFile("INFO") #Initiates the log file
-    l = logging.getLogger(__name__) # gets me the logger
-    l.info("Logfile initiated")
+    # Initialize logger using configuration
+    rootdir = os.path.dirname(os.path.abspath(__file__))
+    config = os.path.join(rootdir, "Logfiles", "loggerConfig.yml")
+    utilities.LogFile(config)
+
+    # Get logger
+    log = logging.getLogger(__name__)
+    log.info("Logfile initiated...")
+    log.critical("Initializing programm:")
+
+    # Creating help functions
+    hfs = utilities.help_functions()
 
     # Checking installation
-    check_installation()
-
-    # Loading all modules
-    sys.stdout.write("Loading modules ... ")
-    from UniDAQ.VisaConnectWizard import VisaConnectWizard
-    from UniDAQ.boot_up import loading_init_files
-    from UniDAQ.cmd_inferface import DAQShell
-    from UniDAQ.GUI_classes import GUI_classes
-    from UniDAQ import measurement_event_loop as event_loop
-    print("Done \n")
-
+    boot_up.check_installation()
 
     # Loading all init files and default files, as well as Pad files
-    print("Loading setup files ...")
-    hf = help_functions()
-    stats = loading_init_files(hf)
-    stats.default_values_dict = update_defaults_dict().update(stats.default_values_dict)
-    print("Done \n")
+    log.critical("Loading setup files ...")
+    stats = boot_up.loading_init_files(hfs)
+    stats.default_values_dict = boot_up.update_defaults_dict().update(stats.default_values_dict)
 
     # Initializing all modules
-    sys.stdout.write("Initializing modules ... ")
+    log.critical("Initializing modules ...")
     shell = DAQShell()
     vcw = VisaConnectWizard()
-    print("Done \n")
 
-    # Tries to connect to all available devices in the network, it returns a dict of a dict
-    # First dict contains the the device names as keys, the value is a dict containing key words of settings
-    print("Try to connect to devices ...")
-    devices_dict = connect_to_devices(vcw, stats.devices_dict).get_new_device_dict() # Connects to all devices and initiates them and returns the updated device_dict with the actual visa resources
-    print("Done \n")
+    # Tries to connect to all available devices in the network, it returns a dict of
+    # a dict. First dict contains the the device names as keys, the value is a dict
+    # containing key words of settings
+    log.critical("Try to connect to devices ...")
+    # Connects to all devices and initiates them and returns the updated device_dict
+    # with the actual visa resources
+    devices_dict = boot_up.connect_to_devices(vcw, stats.devices_dict).get_new_device_dict()
 
-    threads = [] # List all active threads started from the main
-
-    print("Starting the event loops ... ")
-    table = table_control_class(stats.default_values_dict, devices_dict, event_loop.message_to_main, shell, vcw)
+    log.critical("Starting the event loops ... ")
+    table = utilities.table_control_class(
+        stats.default_values_dict,
+        devices_dict,
+        message_to_main,
+        shell,
+        vcw
+    )
     if "Table_control" not in devices_dict:
         table = None
-    switching = switching_control(stats.default_values_dict, devices_dict, event_loop.message_to_main, shell)
-    thread1 = newThread(1, "Measurement event loop", event_loop.measurement_event_loop, devices_dict, stats.default_values_dict, stats.pad_files_dict, vcw, table, switching, shell) # Starts a new Thread for the measurement event loop
-    # Add threads to thread list and starts running it
-    threads.append(thread1)
+    switching = utilities.switching_control(
+        stats.default_values_dict,
+        devices_dict,
+        message_to_main,
+        shell
+    )
 
-    # Starts all threads in the list of threads (this starts correspond to the threading class!!!)
+    # Holds all active threads started from the main
+    threads = []
+
+    # Starts a new Thread for the measurement event loop
+    thread = utilities.newThread(
+        1,
+        "Measurement event loop",
+        measurement_event_loop,
+        devices_dict,
+        stats.default_values_dict,
+        stats.pad_files_dict,
+        vcw,
+        table,
+        switching,
+        shell
+    )
+    # Add threads to thread list and starts running it
+    threads.append(thread)
+
+    # Starts all threads (this starts correspond to the threading class!!!)
     for thread in threads:
         thread.start()
-    time.sleep(.25)
-    print("Done\n")
 
-    print("Starting GUI ...")
-    GUI = GUI_classes(event_loop.message_from_main, event_loop.message_to_main, devices_dict, stats.default_values_dict, stats.pad_files_dict, hf, vcw, event_loop.queue_to_GUI, table, switching, shell)
-    frame = Framework(GUI.give_framework_functions) # Init the framework for update plots etc.
-    timer = frame.start_timer() # Starts the timer
+    log.critical("Starting GUI ...")
+    gui = GUI_classes(
+        message_from_main,
+        message_to_main,
+        devices_dict,
+        stats.default_values_dict,
+        stats.pad_files_dict,
+        hfs,
+        vcw,
+        queue_to_GUI,
+        table,
+        switching,
+        shell
+    )
+    # Init the framework for update plots etc.
+    frame = utilities.Framework(gui.give_framework_functions)
+    # Starts the timer
+    frame.start_timer()
 
-    print("Starting shell...")
-    shell.start()
+    #log.critical("Starting shell...")
+    #shell.start()
 
-    print("Start rendering GUI...")
-    GUI.app.exec_() # Starts the actual event loop for the GUI
+    log.critical("Start rendering GUI...")
+    gui.app.exec_() # Starts the actual event loop for the GUI
 
     # Wait for all threads to complete
-    l.info("Joining threads...")
+    log.critical("Joining threads...")
     # Close the shell by sending the by command
-    shell.onecmd("bye")
-    for t in threads:
-        t.join() # Synchronises the threads so that they finish all at ones.
+    #shell.onecmd("bye")
+    for thread in threads:
+        thread.join() # Synchronises the threads so that they finish all at ones.
 
     end_time = time.time()
 
-    message = "Run time: {} seconds.".format(round(end_time - start_time, 2))
-    print(message)
-    l.info(message)
+    log.critical("Run time: %s seconds.", round(end_time-start_time, 2))
+    log.critical("Reset all devices...")
 
-    message = "Reset all devices..."
-    print(message)
-    l.info(message)
+    # Reset all devices
+    utilities.reset_devices(devices_dict, vcw)
 
-    for device in devices_dict:  # Loop over all devices
-        if "Visa_Resource" in devices_dict[device]:  # Looks if a Visa resource is assigned to the device.
-
-            # Initiate the instrument and resets it
-            if "reset_device" in devices_dict[device]:
-                vcw.initiate_instrument(devices_dict[device]["Visa_Resource"], devices_dict[device]["reset_device"], devices_dict[device].get("execution_terminator", ""))
-            else:
-                vcw.initiate_instrument(devices_dict[device]["Visa_Resource"], ["*rst", "*cls", "TRAC:CLE"],devices_dict[device].get("execution_terminator", ""))
-
-    message = "Close visa connections..."
-    print(message)
-    l.info(message)
+    log.critical("Close visa connections...")
     vcw.close_connections()
-
-    #print("Save current settings...")
-    #try:
-    #    os.remove(os.path.join(os.path.dirname(os.path.realpath(__file__)), "init", "default", "defaults.yaml"))
-    #except Exception as e:
-    #    print(e)
-    #for keys in update_defaults_dict().to_update().keys():
-    #    if keys in stats.default_values_dict["Defaults"]:
-    #        stats.default_values_dict["Defaults"].pop(keys)
-    #hf.write_init_file("defaults", stats.default_values_dict["Defaults"], os.path.join(os.path.dirname(os.path.realpath(__file__)), "init", "default"))
-
-    message = "Exiting Main Thread"
-    print(message)
-    l.info(message)
-
+    log.critical("Exiting Main Thread")
     sys.exit(0)
 
 if __name__ == '__main__':
