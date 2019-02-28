@@ -15,8 +15,6 @@ from .. import engineering_notation as en
 
 from .. import utilities
 
-l = logging.getLogger(__name__)
-
 hf = utilities.help_functions()
 
 class Main_window:
@@ -26,6 +24,7 @@ class Main_window:
         self.variables = GUI_classes
         #self.widgets = widgets
         self.layout = layout
+        self.log = logging.getLogger(__name__)
 
         # Orientation and placement
         # 15 times 15 tiles
@@ -361,7 +360,7 @@ class Main_window:
                 if file[0]:
                     # gets me all settings which are to be saved
                     hf.write_init_file(file[0], self.variables.ui_plugins["Settings_window"].get_all_settings())
-                    l.info("Settings file successfully written to: " + str(file))
+                    self.log.info("Settings file successfully written to: " + str(file))
 
             def load_valid_sensors_for_project(project_name):
                 '''This function loads the valid sensors for each project'''
@@ -375,7 +374,7 @@ class Main_window:
                     self.variables.default_values_dict["Defaults"]["Current_sensor"] = sensor_comboBox.currentText()
 
                 except:
-                    l.error("No sensors defined for project: " + str(sen))
+                    self.log.error("No sensors defined for project: " + str(sen))
                     self.variables.default_values_dict["Defaults"]["Current_sensor"] = "None"
                     self.variables.message_to_main({"RequestError": "No sensors defined for project: " + str(sen)})
 
@@ -854,11 +853,11 @@ class Main_window:
                     command = hf.build_command(device_dict, ("set_environement_control", "ON"))
                     answer = self.variables.vcw.write(device_dict, command)
                     if answer == -1:
-                        l.error("The environement controller did not responsed accordingly. Answer: " +str(answer).strip())
+                        self.log.error("The environement controller did not responsed accordingly. Answer: " +str(answer).strip())
                         self.variables.message_to_main.put({"RequestError": "The environement controller did not responsed accordingly. Answer: " + str(answer).strip()})
                         return 0
                 except:
-                    l.error("An error occured while changing the environement control")
+                    self.log.error("An error occured while changing the environement control")
                     self.variables.message_to_main.put({"RequestError": "An error occured while changing the environement control"})
                     return 0
                 dry_air_btn.setText("Humidity ctl. on")
@@ -870,11 +869,11 @@ class Main_window:
                     command = hf.build_command(device_dict, ("set_environement_control", "OFF"))
                     answer = self.variables.vcw.write(device_dict, command)
                     if answer == -1:
-                        l.error("The environement controller did not responsed accordingly. Answer: " + str(answer).strip())
+                        self.log.error("The environement controller did not responsed accordingly. Answer: " + str(answer).strip())
                         self.variables.message_to_main.put({"RequestError": "The environement controller did not responsed accordingly. Answer: " + str(answer).strip()})
                         return 0
                 except:
-                    l.error("An error occured while changing the environement control")
+                    self.log.error("An error occured while changing the environement control")
                     self.variables.message_to_main.put({"RequestError": "An error occured while changing the environement control"})
                     return 0
                 dry_air_btn.setText("Humidity ctl. off")

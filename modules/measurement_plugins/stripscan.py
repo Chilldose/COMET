@@ -7,7 +7,6 @@ from scipy import stats
 sys.path.append('../UniDAQ')
 from ..VisaConnectWizard import *
 from ..utilities import *
-l = logging.getLogger(__name__)
 
 help = help_functions()
 vcw = VisaConnectWizard.VisaConnectWizard()
@@ -54,6 +53,7 @@ class stripscan_class:
         self.sensor_pad_data = self.main.pad_data[self.job["Project"]][self.job["Sensor"]]
         self.justlength = 24
         self.rintslopes = [] # here all values from the rint is stored
+        self.log = logging.getLogger(__name__)
 
 
         # Preconfig the electrometer for current measurements, zero corr etc.
@@ -283,7 +283,7 @@ class stripscan_class:
                                     #badstrip = self.main.main.analysis.do_online_singlestrip_analysis((measurement, value))
                                     badstrip = False
                                     if badstrip:
-                                        l.info("Badstrip detected at strip: " + str(current_strip) + " Error code: " + str(badstrip))
+                                        self.log.info("Badstrip detected at strip: " + str(current_strip) + " Error code: " + str(badstrip))
                                         self.main.queue_to_main.put({"Thresholderror": "Badstrip detected at strip: " + str(current_strip) + " Error code: " + str(badstrip)})
                                         # Add the bad strip to the list of bad strips
                                         if str(current_strip) in self.main.badstrip_dict:
@@ -415,7 +415,7 @@ class stripscan_class:
                 #todo: richtiger wert nehemen
                 Istrip = self.main.measurement_data["Istrip"][1][-1]
             else:# If no Istrip then aquire a value
-                l.info("No Istrip value for Rpoly calculation could be found, Istrip measurement will be conducted on strip {}".format(int(xvalue)))
+                self.log.info("No Istrip value for Rpoly calculation could be found, Istrip measurement will be conducted on strip {}".format(int(xvalue)))
                 Istrip = self.do_Istrip(xvalue, samples, False)
                 # Iges = Ipoly+Istrip
             value = float(value)-float(Istrip) # corrected current value

@@ -13,8 +13,6 @@ from PyQt5.QtWidgets import *
 
 from .. import utilities
 
-l = logging.getLogger(__name__)
-
 hf = utilities.help_functions()
 
 
@@ -28,6 +26,8 @@ class DataBrowser_window:
 
         #self.variables.default_values_dict["Defaults"].update({"current_selected_browser_value": None, "current_selected_main_object": None})
         self._translate = QtCore.QCoreApplication.translate
+
+        self.log = logging.getLogger(__name__)
 
         @hf.raise_exception
         def pad_browser_update():
@@ -149,7 +149,7 @@ class DataBrowser_window:
                         msg = QMessageBox()
                         msg.setIcon(QMessageBox.Critical)
                         msg.about(None, "Error", "Could not interpret input \"" + str(self.data_ui.value_edit.text()) +"\" \n it seems that this is not a valid literal.")
-                        l.error("Could not interpret input " + str(self.data_ui.value_edit.text()) +" it seems that this is not a valid literal." )
+                        self.log.error("Could not interpret input " + str(self.data_ui.value_edit.text()) +" it seems that this is not a valid literal." )
 
                     #try:
                         #Try making a list out of the input
@@ -283,7 +283,7 @@ class DataBrowser_window:
                         msg = QMessageBox()
                         msg.setIcon(QMessageBox.Critical)
                         msg.about(None, "Error", "Could not interpret input \"" + str(self.data_ui.value_edit_2.text()) +"\" \n it seems that this is not a valid literal.")
-                        l.error("Could not interpret input " + str(self.data_ui.value_edit_2.text()) +" it seems that this is not a valid literal." )
+                        self.log.error("Could not interpret input " + str(self.data_ui.value_edit_2.text()) +" it seems that this is not a valid literal." )
 
                     reload_settings_button_action()
                     #try:

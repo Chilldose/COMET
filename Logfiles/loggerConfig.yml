@@ -1,0 +1,35 @@
+---
+# This are the configurations for the logger
+version: 1
+disable_existing_logger: False
+formatters:
+  standard:
+    format: '%(asctime)-15s - %(levelname)-10s - %(name)-40s - %(message)s'
+  STDOut:
+    format: '%(levelname)-10s - %(name)-40s - %(message)s'
+handlers:
+  # Define a default handler, you can add more if you need them
+  default:
+    level: DEBUG
+    class: logging.StreamHandler
+    formatter: STDOut
+    stream: ext://sys.stdout
+  file:
+    class: logging.handlers.RotatingFileHandler
+    level: DEBUG
+    formatter: standard
+    filename: 'Logfiles/QTC_Logfile.log'
+    maxBytes: 10485760 # 10MB - 70 MB are about 2 Weeks of logs 
+    backupCount: 5
+    encoding: utf8
+
+loggers:
+  # Define the behavior of a specific logger, in this case the utility, which then can be seperatly switched off.
+  utilities:
+    handlers: [default]
+    level: INFO
+    propagate: False
+
+root:
+  level: DEBUG # This is some kind of global minimum logging level
+  handlers: [default, file]

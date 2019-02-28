@@ -130,8 +130,7 @@ class DynamicWaiting_window:
                                   )
         self.final_job.update({"Header": header})
         self.variables.message_from_main.put({"Measurement": self.final_job})
-        l.info("Send job: " + str({"Measurement": self.final_job}))
-        print("Send job: " + str({"Measurement": self.final_job}))
+        l.info("Sendet job: " + str({"Measurement": self.final_job}))
 
     @hf.raise_exception
     def update(self, kwargs=None):

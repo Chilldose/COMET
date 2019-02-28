@@ -241,10 +241,9 @@ class Singlestrip_window:
         if self.variables.default_values_dict["Defaults"]["Current_filename"] and os.path.isdir(self.variables.default_values_dict["Defaults"]["Current_directory"]):
             self.final_job.update({"Header": header})
             self.variables.message_from_main.put({"Measurement": self.final_job})
-            print("Sendet job: " + str({"Measurement": self.final_job}))
+            l.info("Sendet job: " + str({"Measurement": self.final_job}))
         else:
             l.error("Please enter a valid path and name for the measurement file.")
-            print("Please enter a valid path and name for the measurement file.")
 
     def stop_button_action(self):
         order = {"ABORT_MEASUREMENT": True}  # just for now
