@@ -11,14 +11,6 @@ from VisaConnectWizard import *
 import logging
 from globals import *
 
-# Defining the Queue Objects for data sharing need to be here, than the main knows them to!!!
-# TODO: This is very bad implemented and causes confusions find a better way to implement queues!!!!
-#message_to_main = Queue.Queue()
-#message_from_main = Queue.Queue()
-#queue_to_GUI = Queue.Queue()
-
-
-
 class measurement_event_loop:
     ''' This class is for starting and managing the event loop fro the measurements. It starts the syncronised connection betweent ifself and the
         GUI event loop. Message based on dictionaries. '''
@@ -81,8 +73,6 @@ class measurement_event_loop:
 
         self.log.info("Stoped measurement event loop")
         self.message_to_main.put({"MEASUREMENT_EVENT_LOOP_STOPED": True})
-
-
 
 
     def start_loop(self):

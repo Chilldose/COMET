@@ -12,8 +12,6 @@ from utilities import *
 help = help_functions()
 vcw = VisaConnectWizard.VisaConnectWizard()
 
-
-
 class measurement_class:
     def __init__(self, meas_loop, main_defaults, pad_data, devices, queue_to_main, queue_to_event_loop, job_details, queue_to_GUI, table, switching, stop_measurement):
         self.queue_to_main = queue_to_main
@@ -546,10 +544,6 @@ class measurement_class:
 
             except Exception, e:
                 pass
-
-
-
-
 
     def capacitor_discharge(self, device_dict, relay_dict, termorder = None, terminal = None, do_anyway=False):
         '''This function checks if the capacitor of the decouple box is correctly discharged

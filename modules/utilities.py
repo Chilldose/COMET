@@ -595,6 +595,8 @@ class newThread(threading.Thread):  # This class inherite the functions of the t
         self.object__= object__
         self.args = args
         self.log = logging.getLogger(__name__)
+        self.log.info("Initialized new thread with ID: {!s}, Name: {!s} and Object: {!s}".format(
+            self.threadID, self.name, self.object__))
 
     def run_process(self, object__, args): # Just for clarification, not necessary.
         """
