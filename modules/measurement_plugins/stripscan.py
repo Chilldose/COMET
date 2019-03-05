@@ -426,7 +426,7 @@ class stripscan_class:
                 self.main.measurement_data[str("Rpoly")][1] = np.append(self.main.measurement_data[str("Rpoly")][1],[float(rpoly)])
                 self.main.queue_to_main.put({str("Rpoly"): [float(xvalue), float(rpoly)]})
 
-            self.main.config_setup(device_dict, [("set_output", "OFF")])
+            self.main.config_setup(device_dict, [("set_output", "OFF"), ("set_voltage", 0)])
 
             return rpoly
 
@@ -489,18 +489,18 @@ class stripscan_class:
         '''Does the idiel measurement'''
         device_dict = self.SMU2
         #config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_zero_check", "OFF")]
-        config_commands = [("set_voltage", "5.0"), ("set_output", "ON")]
+        config_commands = [("set_source_voltage", ""), ("set_measure_current", ""), ("set_current_range", 1.0E-6), ("set_complience", 1.0E-6), ("set_voltage", "5.0"), ("set_output", "ON")]
 
         if not self.main.stop_measurement():
             if not self.switching.switch_to_measurement("Idiel"):
                 self.stop_everything()
                 return
             self.main.config_setup(device_dict, config_commands) # config the elmeter
-            self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=2, Rsq=0.5, check_complience=False)  # Is a dynamic waiting time for the measuremnt
-
+            self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=5, Rsq=0.5, check_complience=False)  # Is a dynamic waiting time for the measuremnt
+            sleep(0.5) # Dynamic waiting time does not work here, idont know why
             value = self.__do_simple_measurement("Idiel", device_dict, xvalue, samples, write_to_main=write_to_main)
             #self.main.config_setup(device_dict, [("set_zero_check", "ON")])  # unconfig elmeter
-            self.main.config_setup(device_dict, [("set_voltage", "0"), ("set_output", "OFF")])  # unconfig elmeter
+            self.main.config_setup(device_dict, [("set_voltage", "0"), ("set_output", "OFF"), ("set_current_range", device_dict.get("default_current_range",10E6))])  # unconfig elmeter
 
             return value
 
