@@ -5,7 +5,6 @@ import glob
 import yaml
 from functools import partial
 from distutils.dir_util import copy_tree
-from time import sleep
 
 class Ui_MainWindow(object):
 
@@ -67,7 +66,7 @@ def configureSetup(widget):
     copy_tree(setup_config_path, os.path.join(project_dir, "UniDAQ\\init"))
 
     QApplication.quit() # Quits the setup
-    sleep(0.5) # Because it takes some time to get rid of the window in the memory
+    #sleep(0.5) # Because it takes some time to get rid of the window in the memory
 
 
 
