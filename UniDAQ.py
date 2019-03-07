@@ -38,7 +38,6 @@ class Ui_MainWindow(object):
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
-
         self.OkButton.clicked.connect(partial(configureSetup, self))
 
     def retranslateUi(self, MainWindow):
