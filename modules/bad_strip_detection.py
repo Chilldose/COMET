@@ -29,7 +29,7 @@ class stripanalysis:
         if not self.main:
             self.read_in_config_file(filepath)
         else:
-            self.settings = self.main.default_values_dict["Badstrip"]
+            self.settings = self.main.default_values_dict.get("Badstrip", {})
 
     def read_in_config_file(self, filepath = "analysis.ini"):
         """Reads the .ini file and returns the configparser typical dicts. If file could not be found IOError will be raised."""

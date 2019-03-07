@@ -80,7 +80,7 @@ class loading_init_files:
 
         # Get data dirs
         devices_dir = os.path.join(init_dir, "device_lib")
-        default_dir = os.path.join(init_dir, "default")
+        default_dir = os.path.join(init_dir, "config")
         pad_files_dir = os.path.join(init_dir, "Pad_files")
 
         # Get all files in the directories
@@ -225,7 +225,7 @@ class loading_init_files:
         resource = os.path.join(filepath, filename)
         #self.log.info("Loading file:" + str(filename))
         with open(resource, "r") as fp:
-            return yaml.load(fp)
+            return yaml.safe_load(fp)
 
 
 #Debricated methods

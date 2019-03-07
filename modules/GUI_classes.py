@@ -84,7 +84,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         # Measurement data for plotting
         # Data type Dict for what kind of measurement (keys) values are tupel of numpy arrays (x,y)
         # Extend as you please in the init file
-        for measurments in self.default_values_dict["Defaults"]["measurement_types"]:
+        for measurments in self.default_values_dict["Defaults"].get("measurement_types",[]):
             self.meas_data.update({measurments: [np.array([]), np.array([])]})
 
 
@@ -129,8 +129,8 @@ class GUI_classes(GUI_event_loop, QWidget):
 
     def construct_ui(self):
         '''This function generates all ui elements in form of tab widgets'''
-
         for modules in self.all_plugin_modules:
+            self.log.info("Constructing UI module: {!s}".format(modules))
             # QWidget object
             QWidgets = QWidget()
             layout = QGridLayout()  # Just a layout type
@@ -168,7 +168,9 @@ class GUI_classes(GUI_event_loop, QWidget):
 
 
         for modules in self.ui_classes:  # import all modules from all files in the plugins folder
-            if "__init__" not in modules:
+            # Only load those modules which are needed in the GUI
+            if "__init__" not in modules and modules[:-7] in self.default_values_dict["Defaults"].get("GUI_render_order", []):
+                self.log.info("Loading UI module: {!s}".format(modules))
                 self.all_plugin_modules.update({modules: importlib.import_module("modules.ui_plugins." + str(modules))})
 
 
@@ -185,6 +187,7 @@ class GUI_classes(GUI_event_loop, QWidget):
             for elements in self.default_values_dict["Defaults"]["GUI_render_order"]:
                 for ui_obj in self.final_tabs: # Not very pretty
                     if elements in ui_obj:
+                        self.log.info("Adding UI module to widget: {!s}".format(elements))
                         self.QTabWidget_obj.addTab(ui_obj[0], ui_obj[1])  # elements consits of a tupel object, first is the ui object the second the name of the tab
 
         else: # If no order is implied, also renders all plugins found
