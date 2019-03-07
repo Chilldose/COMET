@@ -286,8 +286,7 @@ class measurement_class:
 
             if counter > 5:
                 # If too many attempts where made
-                self.log.warning("Attempt to reach steady state was not successfull after 5 times")
-                self.queue_to_main.put({"Warning": "Attempt to reach steady state was not successfull after 5 times"})
+                self.log.error("Attempt to reach steady state was not successfully after 5 times")
                 return False
 
             counter += 1
@@ -298,18 +297,17 @@ class measurement_class:
                     self.stop_measurement()
                     return False
 
+            command = self.build_command(device, "Read")
             for i in range(samples):
                 self.log.debug("Conducting steady state check...")
-                command = self.build_command(device, "Read")
                 values.append(float(str(vcw.query(device, command)).split(",")[0]))
                 sleep(wait)
 
             slope, intercept, r_value, p_value, std_err = stats.linregress([i for i in range(len(values))], values)
 
-            if std_err <= 1e-6:
-                if abs(slope) <= abs(max_slope):
-                    steady_state = True
-                    return True
+            if std_err <= 1e-6 and abs(slope) <= abs(max_slope):
+                steady_state = True
+                return True
 
     def ramp_value_log10(self, min_value, max_value, deltasteps):
         '''This function takes a min and max value, deltasteps and generates a list of values in log10 format with each deltasteps values per decade'''

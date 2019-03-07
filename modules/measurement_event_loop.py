@@ -191,7 +191,6 @@ class measurement_event_loop:
 
     def temperatur_and_humidity(self, queue_to_main, resource, query, update_intervall = 5000):
         '''This starts the background and continuous tasks like humidity and temperature control'''
-
         resource = resource
         query = query
         update_intervall = float(update_intervall)
@@ -220,13 +219,12 @@ class measurement_event_loop:
                     self.default_dict["Defaults"]["chuck_temperature"] =  float(values[3])
                     self.default_dict["Defaults"]["internal_lights"] = True if int(values[2]) == 1 else False
                     queue_to_main.put({"temperature": [float(time.time()), float(values[0])], "humidity": [float(time.time()), float(values[1])]})
-                except:
-                    l.error("The temperature and humidity controller seems not to be responding.")
+                except Exception as err:
+                    self.log.error("The temperature and humidity controller seems not to be responding. Error: {!s}".format(err))
                 threading.Timer(update_intervall/1000., update_environement).start() # This ensures the function will be called again
 
         if success:
             update_environement()
-
             self.log.info("Humidity and temp control started...")
         else:
             self.log.info("Humidity and temp control NOT started...")
@@ -241,7 +239,7 @@ class measurement_event_loop:
         for device in self.devices: # Loop over all devices
             sended_commands = []  # list over all sended commands, to prevent double sending
             if self.devices[device].has_key("Visa_Resource"): # Looks if a Visa resource is assigned to the device.
-
+                self.log.info("Initializing instrument: {!s}".format(device.get("Display_name", "NoName")))
                 # Initiate the instrument and resets it
                 if "reset_device" in self.devices[device]:
                     self.vcw.initiate_instrument(self.devices[device]["Visa_Resource"], self.devices[device]["reset_device"], self.devices[device].get("execution_terminator", ""))

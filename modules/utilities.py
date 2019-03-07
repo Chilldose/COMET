@@ -1282,6 +1282,7 @@ class switching_control:
         #Todo: Brandbox is sended twice due to double occurance (humidity controller), but maybe its for the best, since the thing isnt working properly
         #First find measurement
         switching_success = False
+        self.log.info("Switching to measurement: {!s}".format(str(measurement)))
         if measurement in self.settings["Switching"]:
             # When measurement was found
             for name, switch_list in self.settings["Switching"][measurement].items():
@@ -1292,15 +1293,15 @@ class switching_control:
                         if not switch_list:
                             switch_list = []
                         switching_success = self.change_switching(device, switch_list)
+                        if not switching_success:
+                            self.log.debug("Switching was not possible!")
                         device_found = True
                 if not device_found:
-                    self.message_to_main.put({"RequestError": "Switching device: " + str(name) + " was not found in active resources. No switching done!"})
+                    self.log.error("Switching device: " + str(name) + " was not found in active resources. No switching done!")
                     return False
-            self.log.info("Switched to measurement: {!s}".format(str(measurement)))
             return switching_success
         else:
             self.log.error("Measurement " + str(measurement) + " switching could not be found in defined switching schemes.")
-            self.message_to_main.put({"MeasError": "Measurement " + str(measurement) + " switching could not be found in defined switching schemes."})
             return False
 
     def __send_switching_command(self, device, order, list_of_commands):

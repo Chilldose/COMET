@@ -282,7 +282,7 @@ class VisaConnectWizard:
         else:
             resource = resource_dict
 
-        self.log.info("Query command: " + str(code) + " to: " + str(resource))
+        #self.log.info("Query command: " + str(code) + " to: " + str(resource))
 
         #resource.timeout = 5000.
         try:
