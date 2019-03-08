@@ -19,6 +19,17 @@ setup(
     url="https://github.com/Chilldose/UniDAQ",
     license=license,
     packages=find_packages(),
+    setup_requires=[
+        'llvmlite',
+        'numba',
+        'numpy',
+        'PyQt5',
+        'PyQt5-sip',
+        'pyqtgraph',
+        'PyVISA',
+        'PyYAML',
+        'scipy',
+    ],
     entry_points={
         'gui_scripts': [
             'UniDAQ = UniDAQ.main:main'
