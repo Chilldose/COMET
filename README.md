@@ -30,12 +30,11 @@ If you installed the program using pip just run:
 UniDAQ
 ```
 
-If you run a development version locally, execute the `main.py` module:
+If you run a development version locally, execute the `main` module (not the file):
 
 ```
-python UniDAQ/main.py
+python -m UniDAQ.main
 ```
-
 
 ## How to Use
 
