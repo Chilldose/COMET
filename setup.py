@@ -21,7 +21,7 @@ setup(
     packages=find_packages(),
     entry_points={
         'gui_scripts': [
-            'UniDAQ = UnIDAQ.main:main'
+            'UniDAQ = UniDAQ.main:main'
         ]
     },
     package_data={
