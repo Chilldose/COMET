@@ -1,40 +1,45 @@
 # UniDAQ
 
-This software was developed by Dominic Blöch during his Phd Thesis at the HEPHY Vienna. It features a GUI implemenentation of a semiconductor Sensor testsoftware.
-With it it is possible to "plugin" measurements devices via config files. Furthermore, measurements schemes and GUI objects can also easaly be pluged in.
+This software was developed by Dominic Blöch during his Phd Thesis at the HEPHY Vienna. It features a GUI implementation of a semiconductor Sensor test software.
+With it it is possible to "plugin" measurements devices via config files. Furthermore, measurements schemes and GUI objects can also easily be plugged in.
 
 ## Getting Started
 
-In order to run this program you need a Python Anaconda distribution and the NI-Visa drivers. For more information on versions see Chapter "What you need".
+In order to run this program you need either Anaconda2 or Python3 and the NI-Visa drivers. For more information on versions see Chapter "What you need".
 
-### Setting Up The Environement
+### Installation
 
-With python up and running you can run the the "environement_setup.py" file by.
+With python up and running you can install the application using pip.
 
+```bash
+pip install git+https://github.com/chilldose/UniDAQ@0.10.0
 ```
-python environement_setup.py
-```
 
-this will (when Anaconda is installed) automatically install all required modules for the program to run. If you don't have Anaconda installed and don't want to use it, you can look in the "requirements.yml" file to see what dependencies the program needs.
+this will automatically install all required dependencies for the program to run.
+To install the required dependencies manually (for development) use `requirements.txt` file.
+
+```bash
+pip install -r requirements.txt
+```
 
 ## Running The Program
 
-Now it should be possible to run the program by:
+If you installed the program using pip just run:
+
+```bash
+UniDAQ
+```
+
+If you run a development version locally, execute the `main.py` module:
 
 ```
-python UniDAQ.py
-```
-
-If you do not have Anaconda installed, start the program via 
-
-```
-python main.py
+python UniDAQ/main.py
 ```
 
 
 ## How to Use
 
-There is a documentation and a section called "Tutorial", this will guide you through the process of how to use this software and it will give you even more additional information about the software. You can access the documention via this [Link](https://chilldose.github.io/UniDAQ/) or if you look into the folder ~/docs/index.html.
+There is a documentation and a section called "Tutorial", this will guide you through the process of how to use this software and it will give you even more additional information about the software. You can access the documentation via this [Link](https://chilldose.github.io/UniDAQ/) or if you look into the folder ~/docs/index.html.
 
 
 
@@ -78,5 +83,5 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* Thanks to my friends for their help 
+* Thanks to my friends for their help
 * The foodora pizza delivery guy with the long beard

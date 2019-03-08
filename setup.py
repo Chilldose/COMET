@@ -1,6 +1,5 @@
-# -*- coding: utf-8 -*-
-
 from setuptools import setup, find_packages
+import imp
 
 with open("README.md") as f:
     readme = f.read()
@@ -8,9 +7,11 @@ with open("README.md") as f:
 with open("LICENSE.md") as f:
     license = f.read()
 
+version = imp.load_source('UniDAQ.main', 'UniDAQ/__init__.py').__version__
+
 setup(
     name="UniDAQ",
-    version="0.10.0",
+    version=version,
     description="A framework for automated DAQ for semiconductor device testing",
     long_description=readme,
     author="Dominic Blöch",
@@ -18,8 +19,15 @@ setup(
     url="https://github.com/Chilldose/UniDAQ",
     license=license,
     packages=find_packages(),
-    scripts=["main.py"],
+    entry_points={
+        'gui_scripts': [
+            'UniDAQ = UnIDAQ.main:main'
+        ]
+    },
     package_data={
-        "UniDAQ": ["QT_Designer_UI/*.ui", "images/*"]
+        "UniDAQ": [
+            "QT_Designer_UI/*.ui",
+            "images/*"
+        ]
     }
 )

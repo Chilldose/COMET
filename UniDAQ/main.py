@@ -20,24 +20,17 @@ import time
 import sys
 import os
 
-from UniDAQ import utilities
-from UniDAQ import boot_up
-from UniDAQ.GUI_classes import GUI_classes
-from UniDAQ.cmd_inferface import DAQShell
-from UniDAQ.VisaConnectWizard import VisaConnectWizard
-from UniDAQ.measurement_event_loop import (
+from . import utilities
+from . import boot_up
+from .GUI_classes import GUI_classes
+from .cmd_inferface import DAQShell
+from .VisaConnectWizard import VisaConnectWizard
+from .measurement_event_loop import (
     measurement_event_loop,
     message_to_main,
     message_from_main,
     queue_to_GUI
 )
-
-__author__ = "Dominic Bloech"
-__email__ = "dominic.bloech@oeaw.ac.at"
-__date__ = "15.09.2017"
-__beta__ = "20.12.2017"
-__release__ = "28.05.2018"
-__version__ = "0.10.0"
 
 def main():
     """Main application entry point."""
