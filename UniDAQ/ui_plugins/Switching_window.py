@@ -33,7 +33,7 @@ class Switching_window:
 
         # Settings tab
         switching_widget = QWidget()
-        self.switching = self.settings.load_QtUi_file("./UniDAQ/QT_Designer_UI/Switching.ui", switching_widget)
+        self.switching = self.settings.load_QtUi_file("Switching.ui", switching_widget)
         self.layout.addWidget(switching_widget)
 
         self.set_radio_buttons_checkable(False)

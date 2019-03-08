@@ -75,7 +75,7 @@ class Main_window:
 
         # Additional Widgets for UI
         self.table_widget = QWidget()
-        self.table_move_ui = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/table_control.ui", self.table_widget)
+        self.table_move_ui = self.variables.load_QtUi_file("table_control.ui", self.table_widget)
         #self.table_move_ui = Ui_table_control(self.table_widget)
 
 

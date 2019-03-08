@@ -23,6 +23,9 @@ from .GUI_event_loop import *
 from .utilities import newThread, help_functions, measurement_job_generation
 from .bad_strip_detection import *
 
+QT_UI_DIR = 'QT_Designer_UI'
+"""Name of directory containing all plugin UI files."""
+
 hf = help_functions()
 
 class GUI_classes(GUI_event_loop, QWidget):
@@ -120,12 +123,12 @@ class GUI_classes(GUI_event_loop, QWidget):
 
             self.add_rendering_function(QWidgets, str(modules).split("_")[0])
 
-    def load_QtUi_file(self, Qt_ui_file, widget):
-        '''This function just adds a qt generated Ui (ui file needed)'''
-        qtCreatorFile = os.path.abspath(str(Qt_ui_file))
+    def load_QtUi_file(self, filename, widget):
+        '''This function returns a qt generated Ui object.'''
+        package_dir = os.path.normpath(os.path.dirname(__file__))
+        qtCreatorFile = os.path.join(package_dir, QT_UI_DIR, filename)
         Ui_Window, QtBaseClass = uic.loadUiType(qtCreatorFile)
-        UI = self.add_QtUi_to_window(Ui_Window, widget)
-        return UI
+        return self.add_QtUi_to_window(Ui_Window, widget)
 
     def add_QtUi_to_window(self, Qt_ui_class, widget):
         '''This function just adds a qt generated Ui (python file needed)'''
@@ -151,7 +154,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         #install_directory = os.getcwd() # Obtain the install path of this module
         package_dir = os.path.normpath(os.path.dirname(__file__))
         self.ui_classes = locate_modules(os.path.join(package_dir, 'ui_plugins', '*.py'))
-        self.qt_designer_ui = locate_modules(os.path.join(package_dir, 'QT_Designer_UI', '*.ui'))
+        self.qt_designer_ui = locate_modules(os.path.join(package_dir, QT_UI_DIR, '*.ui'))
 
         self.log.info("Located %s Ui classes:", len(self.ui_classes))
         for module in self.ui_classes:

@@ -37,7 +37,7 @@ class Stripscan_window:
 
         # Settings tab
         stripscan_widget = QWidget()
-        self.stripscan = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/stripscan.ui", stripscan_widget)
+        self.stripscan = self.variables.load_QtUi_file("stripscan.ui", stripscan_widget)
         self.layout.addWidget(stripscan_widget)
         self.strip = -1
         self.new_meas = True

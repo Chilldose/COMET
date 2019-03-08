@@ -32,7 +32,7 @@ class Singlestrip_window:
 
         # Settings tab
         singlestrip_widget = QWidget()
-        self.single_strip = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/singlestrip.ui", singlestrip_widget)
+        self.single_strip = self.variables.load_QtUi_file("singlestrip.ui", singlestrip_widget)
         self.layout.addWidget(singlestrip_widget)
 
         self.capacitance_measurements = ["Cback", "Cint", "Cac"]
