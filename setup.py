@@ -19,7 +19,7 @@ setup(
     url="https://github.com/Chilldose/UniDAQ",
     license=license,
     packages=find_packages(),
-    setup_requires=[
+    install_requires=[
         'llvmlite',
         'numba',
         'numpy',
