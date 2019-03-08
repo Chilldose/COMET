@@ -149,11 +149,16 @@ class GUI_classes(GUI_event_loop, QWidget):
 
         # Load all measurement functions
         #install_directory = os.getcwd() # Obtain the install path of this module
-        self.ui_classes = locate_modules(os.path.normpath("UniDAQ/ui_plugins/*.py"))
-        self.qt_designer_ui = locate_modules(os.path.normpath("UniDAQ/QT_Designer_UI/*.ui"))
+        package_dir = os.path.normpath(os.path.dirname(__file__))
+        self.ui_classes = locate_modules(os.path.join(package_dir, 'ui_plugins', '*.py'))
+        self.qt_designer_ui = locate_modules(os.path.join(package_dir, 'QT_Designer_UI', '*.ui'))
 
-        self.log.info("All Ui classes found: " + str(self.ui_classes) + ".")
-        self.log.info("All Qt Ui objects found: " + str(self.qt_designer_ui) + ".")
+        self.log.info("Located %s Ui classes:", len(self.ui_classes))
+        for module in self.ui_classes:
+            self.log.info(module)
+        self.log.info("Located %s Qt Ui objects:", len(self.qt_designer_ui))
+        for module in self.qt_designer_ui:
+            self.log.info(module)
 
 
         for modules in self.ui_classes:  # import all modules from all files in the plugins folder
