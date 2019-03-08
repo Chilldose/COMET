@@ -43,7 +43,7 @@ class help_functions:
 
     def write_init_file(self, name, data, path = ""):
         """
-        This function writes init files for devices and default files
+        This function writes config files for devices and default files
 
         :param name: Name of the file to be written to
         :param data: Data in Dict format

@@ -179,7 +179,7 @@ class VisaConnectWizard:
                     self.rm.open_resource(instrument) # Tries opening the resourse
                     self.myInstruments.append(self.rm.open_resource(instrument)) # If valid, append it to the List
                     self.config_resource(instrument, self.myInstruments[-1]) # Makes a first configuration of the instrument (not for all resource types necessary)
-                    #Warning: this are only preset values, they may differ to init files now
+                    #Warning: this are only preset values, they may differ to config files now
                 except:
                     self.connection_error(instrument)
 

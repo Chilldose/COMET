@@ -1,5 +1,4 @@
 recursive-include docs *
-recursive-include init *.json *.yml *.txt
 include environment_setup.py
 include LICENSE.md
 include README.md

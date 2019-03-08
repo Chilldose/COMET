@@ -145,7 +145,7 @@ class StripAnalysis_window:
     def reconfig_plot(self, Title, plot_settings):
         '''Reconfigs the plot for the different plots
         :param - Title must be string, containing the name of the plot (title)
-        :param - plot_settings must be a tuple consisting elements like it is in the init defined
+        :param - plot_settings must be a tuple consisting elements like it is in the config defined
                         "Idark": (["Pad", "#"], ["Current", "A"], [False, False], True)
         '''
         self.badstrip.strip_plot.setTitle("Strip results on: " + str(Title))

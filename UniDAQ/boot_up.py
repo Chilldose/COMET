@@ -1,6 +1,6 @@
 #This modules are for boot up purposes.
 # -It checks the validity of the installation and installs missing packages on its own
-# -Loads the init files for the instrumentds etc.
+# -Loads the config files for the instrumentds etc.
 # -Connects to all system relevant instruments
 # -Initialize statistics and state control
 
@@ -59,7 +59,7 @@ class check_installation:
                     self.log.info("Module " + modules + " is not installed.")
 
 class loading_init_files:
-    '''This class is for loading all init files, pad files and default parameters.
+    '''This class is for loading all config files, pad files and default parameters.
     This class is crucial for the program to work. All works within the init function of this class.
     It generates three new dicts which can be accessed from the class as class attributes
 
@@ -76,8 +76,7 @@ class loading_init_files:
 
         # Get project path
         package_dir = os.path.dirname(os.path.realpath(__file__))
-        project_dir = os.path.dirname(package_dir)
-        init_dir = os.path.join(project_dir, "init")
+        init_dir = os.path.join(package_dir, "config")
 
         # Get data dirs
         devices_dir = os.path.join(init_dir, "device_lib")
@@ -232,7 +231,7 @@ class loading_init_files:
 #Debricated methods
 
     def check_for_device_name_debricated(self, line_strings, key_name):
-        '''Searches for a device name in the init files'''
+        '''Searches for a device name in the config files'''
 
         dict_name = ""
         for line in line_strings:  # Loop over each lines to find the display name

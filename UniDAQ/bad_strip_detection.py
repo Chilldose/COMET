@@ -42,7 +42,7 @@ class stripanalysis:
             self.log.info("Badstrip ini file " + str(filepath) + " was successfully loaded.")
             #l.info("Included sections in badstrip ini file" + str(self.settings.sections()))
         except IOError as e:
-            self.log.error("IO error while accessing init file in badstrip detection, with error: " + str(e))
+            self.log.error("IO error while accessing config file in badstrip detection, with error: " + str(e))
 
     def read_in_measurement_file(self, filepathes):
         """This function reads in a QTC measurement file and return a dictionary with the data in the file"""
@@ -314,6 +314,6 @@ class stripanalysis:
 
 
 if __name__ == "__main__":
-    det = stripanalysis(None, "C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\UniDAQ\\init\\default\\badstrip.yml")
+    det = stripanalysis(None, "C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\UniDAQ\\UnIDAQ\\config\\default\\badstrip.yml")
     det.read_in_measurement_file(["C:\\Users\\dbloech\\Desktop\\str_VC740655_11_2SBaby_1.txt","C:\\Users\\dbloech\\Desktop\\str_VC740655_18_2SBaby_2.txt"])
     det.do_analysis()

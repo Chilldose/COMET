@@ -54,7 +54,7 @@ def main():
     # Checking installation
     boot_up.check_installation()
 
-    # Loading all init files and default files, as well as Pad files
+    # Loading all config files and default files, as well as Pad files
     log.critical("Loading setup files ...")
     stats = boot_up.loading_init_files(hfs)
     stats.default_values_dict = boot_up.update_defaults_dict().update(stats.default_values_dict)

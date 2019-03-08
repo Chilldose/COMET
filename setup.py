@@ -26,6 +26,10 @@ setup(
     },
     package_data={
         "UniDAQ": [
+            "config/*.json",
+            "config/default/*.yml",
+            "config/device_lib/*.yml",
+            "config/Pad_files/*/*.txt",
             "QT_Designer_UI/*.ui",
             "images/*"
         ]

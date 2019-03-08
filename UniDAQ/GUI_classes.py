@@ -66,7 +66,7 @@ class GUI_classes(GUI_event_loop, QWidget):
 
         # Measurement data for plotting
         # Data type Dict for what kind of measurement (keys) values are tupel of numpy arrays (x,y)
-        # Extend as you please in the init file
+        # Extend as you please in the config file
         for measurments in self.default_values_dict["Defaults"]["measurement_types"]:
             self.meas_data.update({measurments: [np.array([]), np.array([])]})
 
