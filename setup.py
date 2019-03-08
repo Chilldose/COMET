@@ -27,6 +27,7 @@ setup(
         'PyQt5-sip',
         'pyqtgraph',
         'PyVISA',
+        'PyVISA-py',
         'PyYAML',
         'scipy',
     ],
