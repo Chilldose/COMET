@@ -1,7 +1,7 @@
 # Here the measurement procedures are defined
 import logging
 import numpy as np
-from .VisaConnectWizard import *
+from .VisaConnectWizard import VisaConnectWizard
 import os
 import time
 import datetime, math
@@ -10,7 +10,7 @@ import importlib
 from .utilities import *
 
 help = help_functions()
-vcw = VisaConnectWizard.VisaConnectWizard()
+vcw = VisaConnectWizard()
 
 
 

@@ -25,7 +25,7 @@ import numpy as np
 from numpy.linalg import solve, norm, det, qr, inv
 import datetime
 import pyqtgraph as pg
-import VisaConnectWizard
+from .VisaConnectWizard import VisaConnectWizard
 from PyQt5.QtWidgets import QApplication
 #from __future__ import print_function # Needed for the rtd functions that its written in 3
 
@@ -1193,7 +1193,7 @@ class switching_control:
         self.settings = settings
         self.message_to_main = queue_to_main
         self.devices = devices
-        self.vcw = VisaConnectWizard.VisaConnectWizard()
+        self.vcw = VisaConnectWizard()
         self.shell = None
         self.build_command = hf.build_command
         self.log = logging.getLogger(__name__)
@@ -1466,7 +1466,7 @@ def reset_devices(devices_dict, vcw):
     """Reset all devices."""
     for device in devices_dict:
         # Looks if a Visa resource is assigned to the device.
-        if devices_dict[device].has_key("Visa_Resource"):
+        if "Visa_Resource" in devices_dict[device]:
 
             # Initiate the instrument and resets it
             if "reset_device" in devices_dict[device]:
@@ -1484,7 +1484,7 @@ def reset_devices(devices_dict, vcw):
 
 if __name__ == "__main__":
 
-    print "test"
+    print("test")
 
     device_dict = {
     "set_source_current": "SOUR:FUNC CURR",
@@ -1842,45 +1842,45 @@ if __name__ == "__main__":
 
 }
 
-    print str(hf.build_command(dict_2657, ("set_voltage", 0.0)))
+    print(hf.build_command(dict_2657, ("set_voltage", 0.0)))
 
 
-    print str(hf.build_command(HV_dict, ("set_discharge", "ON")))
+    print(hf.build_command(HV_dict, ("set_discharge", "ON")))
 
-    print str(hf.build_command(device_switch, ("set_open_channel", "1!1!1, 1!2!3, 2!3!3, 3!5!6")))
-    print str(hf.build_command(device_switch, ("set_open_channel", "(1!1!1, 1!2!3, 2!3!3)")))
-    print str(hf.build_command(device_switch, ("set_open_channel", "[1!1!1, 1!2!3, 2!3!3]")))
-    print str(hf.build_command(device_switch, ("set_open_channel", "1!1!1")))
-    print str(hf.build_command(device_switch, ("set_open_channel", "all")))
-    print str(hf.build_command(device_switch, "set_open_all"))
-    print str(hf.build_command(device_switch, ("set_open_channel", "")))
-    print str(hf.build_command(device_switch, "check_all_closed_channel"))
-
-
-    print str(hf.build_command(device_table, ("set_move_to", "0, 0, 0")))
-    print str(hf.build_command(device_table, ("set_move_to", "[0, 0, 0]")))
-    print str(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
-    print str(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
-    print str(hf.build_command(device_table, ("set_move_to", [0, 0])))
-    print str(hf.build_command(device_table, ("set_relative_move_to", [0, 0, 0])))
-    print str(hf.build_command(device_table, ("set_axis", "1 1 1 2 1 3")))
-    print str(hf.build_command(device_table, ("set_axis", ["1 1", "1 2", "1 3"])))
-    print str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2", "1 3"))))
-    print str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2"))))
-    print str(hf.build_command(device_table, ("set_polepairs", ["50 1", "50 2", "50 3"])))
-    print str(hf.build_command(device_table, ("get_position")))
-    print str(hf.build_command(device_table, ("calibrate_motor", "")))
+    print(hf.build_command(device_switch, ("set_open_channel", "1!1!1, 1!2!3, 2!3!3, 3!5!6")))
+    print(hf.build_command(device_switch, ("set_open_channel", "(1!1!1, 1!2!3, 2!3!3)")))
+    print(hf.build_command(device_switch, ("set_open_channel", "[1!1!1, 1!2!3, 2!3!3]")))
+    print(hf.build_command(device_switch, ("set_open_channel", "1!1!1")))
+    print(hf.build_command(device_switch, ("set_open_channel", "all")))
+    print(hf.build_command(device_switch, "set_open_all"))
+    print(hf.build_command(device_switch, ("set_open_channel", "")))
+    print(hf.build_command(device_switch, "check_all_closed_channel"))
 
 
-    print str(hf.build_command(device_237, ("set_complience", "100e-6, 100e-5")))
-    print str(hf.build_command(device_237, ("set_complience", "(100e-6, 100e-5)")))
-    print str(hf.build_command(device_237, ("set_complience", "[100e-6, 100e-5]")))
-    print str(hf.build_command(device_237, ("set_complience", [100e-6, 100e-5])))
-    print str(hf.build_command(device_237, ("set_voltage", [100e-6])))
-    print str(hf.build_command(device_237, ("set_complience", [100e-6])))
+    print(hf.build_command(device_table, ("set_move_to", "0, 0, 0")))
+    print(hf.build_command(device_table, ("set_move_to", "[0, 0, 0]")))
+    print(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
+    print(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
+    print(hf.build_command(device_table, ("set_move_to", [0, 0])))
+    print(hf.build_command(device_table, ("set_relative_move_to", [0, 0, 0])))
+    print(hf.build_command(device_table, ("set_axis", "1 1 1 2 1 3")))
+    print(hf.build_command(device_table, ("set_axis", ["1 1", "1 2", "1 3"])))
+    print(hf.build_command(device_table, ("set_axis", ("1 1", "1 2", "1 3"))))
+    print(hf.build_command(device_table, ("set_axis", ("1 1", "1 2"))))
+    print(hf.build_command(device_table, ("set_polepairs", ["50 1", "50 2", "50 3"])))
+    print(hf.build_command(device_table, ("get_position")))
+    print(hf.build_command(device_table, ("calibrate_motor", "")))
 
-    print str(hf.build_command(device_dict, ("set_complience", "100e-6")))
-    print str(hf.build_command(device_dict, ("set_complience")))
+
+    print(hf.build_command(device_237, ("set_complience", "100e-6, 100e-5")))
+    print(hf.build_command(device_237, ("set_complience", "(100e-6, 100e-5)")))
+    print(hf.build_command(device_237, ("set_complience", "[100e-6, 100e-5]")))
+    print(hf.build_command(device_237, ("set_complience", [100e-6, 100e-5])))
+    print(hf.build_command(device_237, ("set_voltage", [100e-6])))
+    print(hf.build_command(device_237, ("set_complience", [100e-6])))
+
+    print(hf.build_command(device_dict, ("set_complience", "100e-6")))
+    print(hf.build_command(device_dict, ("set_complience")))
 
 
 

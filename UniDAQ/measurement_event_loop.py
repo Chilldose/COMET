@@ -215,7 +215,7 @@ class measurement_event_loop:
             if first_try:
                 success = True
 
-        except Exception, e:
+        except Exception as e:
             self.log.error("The temperature and humidity controller seems not to be responding. Error:" + str(e))
 
         #@hf.run_with_lock
