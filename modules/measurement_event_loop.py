@@ -1,15 +1,15 @@
 # This starts the event loop for conducting measurements
 
-import Queue
-from utilities import *
-from measurements import *
+import queue
+from . import utilities
+from . measurements import *
 import threading
 import numpy as np
 from time import sleep
 import pyqtgraph as pg
-from VisaConnectWizard import *
+from . VisaConnectWizard import *
 import logging
-from globals import *
+from . globals import *
 
 class measurement_event_loop:
     ''' This class is for starting and managing the event loop fro the measurements. It starts the syncronised connection betweent ifself and the

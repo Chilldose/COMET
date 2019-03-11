@@ -101,7 +101,7 @@ class VisaConnectWizard:
 
     #Lists all connected resources (no sniff)
     def show_resources(self):
-        print self.myInstruments
+        print(self.myInstruments)
 
     #Looks for all Instruments in the network and shows them
     def show_instruments(self):
@@ -115,7 +115,7 @@ class VisaConnectWizard:
 
         # enumerate and print all resources
         for i, j in enumerate(self.resource_names):
-            print i, j
+            print(i, j)
 
 
     def reconnect_to_device(self, device_dict):

@@ -23,54 +23,28 @@ __version__ = "0.9.2"
 #---------------------------------------------------------------------------------------------------------------------------------------
 
 import time
-import __init__
+from . import __init__
 start_time = time.time()
 threads = [] # List all active threads started from the main
 
-from modules.utilities import *
-from modules.globals import *
+from .modules.utilities import LogFile, help_functions
+from .modules.boot_up import loading_init_files, update_defaults_dict
+from .modules.VisaConnectWizard import VisaConnectWizard
+from .modules import globals
+import logging, os
 log = LogFile(os.getcwd() + os.path.normpath("\\Logfiles\\loggerConfig.yml")) #Initiates the log file
 l = logging.getLogger(__name__) # gets me the logger
 l.info("Logfile initiated...")
 l.critical("Initializing programm:")
 
-from modules.boot_up import *
-
-# Checking installation
-ci = check_installation()
-
-# Loading all modules
-l.critical("Loading modules ...")
-import os, visa, scipy, PyQt5, datetime, threading, Queue, sys, yaml, importlib, re, types
-import pyqtgraph as pg
-import numpy as np
-from pyqtgraph.Qt import QtGui, QtCore
-from PyQt5.QtWidgets import QApplication, QWidget
-import datetime
-from modules.VisaConnectWizard import *
-from modules.GUI_event_loop import *
-from modules.GUI_classes import *
-from modules.measurement_event_loop import *
-from modules.measurements import *
-from modules.cmd_inferface import *
-from modules.bad_strip_detection import *
-from threading import Thread
-from modules.engineering_notation import *
-from modules.GUI_classes import *
-from modules.measurement_event_loop import *
-from modules.measurements import *
-from modules.cmd_inferface import *
-from modules.bad_strip_detection import *
-
 # Loading all init files and default files, as well as Pad files
 l.critical("Loading setup files ...")
+hf = help_functions()
 stats = loading_init_files(hf)
 stats.default_values_dict = update_defaults_dict().update(stats.default_values_dict)
 
 # Initializing all modules
 l.critical("Initializing modules ...")
-shell = DAQShell()
-hf = help_functions()
 vcw = VisaConnectWizard.VisaConnectWizard()
 
 

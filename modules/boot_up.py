@@ -4,58 +4,10 @@
 # -Connects to all system relevant instruments
 # -Initialize statistics and state control
 
-import imp, os, threading, yaml
+import importlib, os, threading, yaml
 import logging
 import numpy as np
 import glob
-
-#This class checks if all modules are installed
-class check_installation:
-    '''This class checks if all necessary modules are installed. And tries to install missing modules.
-    All this is a very simple and should not be used to verify anything. '''
-
-    def __init__(self):
-        self.log = logging.getLogger(__name__)
-
-        self.log.info("Checking installation ...")
-        self.needed_modules = ["numpy", "scipy", "visa", "PyQt5", "pyqtgraph"]
-
-        for modules in self.needed_modules:
-
-            try:
-                current_module = modules
-                imp.find_module(modules)
-
-            except:
-                self.log.critical("Module " + current_module + " or its dependencies are not installed.")
-                self.log.critical("Should it be installed?")
-                answer = str(raw_input("yes/no \n"))
-
-                if answer == "yes":
-                    import pip
-                    if current_module != "PyQt5":
-                        pip.main(["install", current_module])
-
-                    elif current_module != "PyQt5":
-                        pip.main(["install", "PyQt"])
-
-                else:
-                    self.log("Module not installed. Warning: The code may not work properly.")
-
-    def install_module(self, *modulenames): # Just in case you want to install additional modules on your own
-
-        for modules in modulenames:
-            import pip
-            pip.main(["install", modules])
-
-    def check_module(self, *modulenames): # If you want to check for a specific module
-
-            for modules in modulenames:
-                try:
-                    imp.find_module(modules)
-                    self.log.info("Module " + modules + " is installed.")
-                except:
-                    self.log.info("Module " + modules + " is not installed.")
 
 class loading_init_files:
     '''This class is for loading all init files, pad files and default parameters.

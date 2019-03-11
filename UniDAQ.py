@@ -6,6 +6,8 @@ import yaml
 from functools import partial
 from distutils.dir_util import copy_tree
 
+
+
 class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
@@ -82,8 +84,8 @@ def main():
 
     # Get config dirs
     config_dir = os.path.join(init_dir, "config")
-    list_configs = map(os.path.basename, glob.glob(os.path.join(config_dir, "defaults.yml")))
-    setup_configs = map(os.path.basename, [d for d in os.listdir(setup_dir) if os.path.isdir(os.path.join(setup_dir, d))])
+    list_configs = list(map(os.path.basename, glob.glob(os.path.join(config_dir, "defaults.yml"))))
+    setup_configs = list(map(os.path.basename, [d for d in os.listdir(setup_dir) if os.path.isdir(os.path.join(setup_dir, d))]))
 
     if len(list_configs)==1:
         with open(os.path.join(config_dir, list_configs[0]), "r") as fp:
