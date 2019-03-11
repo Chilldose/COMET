@@ -1,0 +1,6 @@
+recursive-include docs *
+include environment_setup.py
+include LICENSE.md
+include README.md
+include requirements.yml
+include UniDAQ.py

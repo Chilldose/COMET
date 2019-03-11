@@ -9,8 +9,8 @@ To do that delete the content of the following folders, except for the ``__init_
 - .init/devices
 - .init/defaults
 - .init/Pad_files
-- .modules/QT_Designer_UI
-- .modules/ui_plugins
+- .UniDAQ/QT_Designer_UI
+- .UniDAQ/ui_plugins
 
 this makes a *tabula rasa* for your project
 
@@ -67,12 +67,12 @@ If features a simple GUI based program, in which you can generate your own GUI a
 You know can build your own GUI, or you use one of mine. I have precoded a minimal example of an IV GUI, you can find it in the ``tutorial_templates`` folder.
 Now I will use this ``Main.ui`` file from this folder.
 
-Put the file in: ``.modules/QT_Designer_UI``
+Put the file in: ``.UniDAQ/QT_Designer_UI``
 
 Next we have to tell the Program to render this UI and in which order (when you have more than one UI). Open the ``**defaults.yml**``
 file from before and add in the parameter ``GUI_render_order`` with a value of "Main".
 
-Know we have to write some code so that the this UI has some logic. For this we generate a file in the folder ``.modules/ui_plugins``.
+Know we have to write some code so that the this UI has some logic. For this we generate a file in the folder ``.UniDAQ/ui_plugins``.
 This file we call ``Main_window.py``.
 
 .. note:: A final minimal example can also be found in the ``tutorials_templates`` folder.
@@ -97,7 +97,7 @@ The minimal example to run just the GUI without anything else is as follows: ::
 
             # Loading the UI plugin
             <GUI_name>_widget = QWidget()
-            self.<GUI_name> = self.variables.load_QtUi_file("./modules/QT_Designer_UI/<name_of_ui_file.ui>", <GUI_name>_widget)
+            self.<GUI_name> = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/<name_of_ui_file.ui>", <GUI_name>_widget)
             self.layout.addWidget(<GUI_name>_widget)
 
 In our case **<GUI_name>** would be **Main_window.py** and **<name_of_ui_file.ui>** would be **Main.ui**.
@@ -240,7 +240,7 @@ With this you should be able to start UniDAQ again. (All these parameters are in
 
 Now comming to the fun part. Coding the actual measurement proceedure for a IV curve.
 Like it was with the other parts of this tutorial, adding a new measurement can be done via plugins.
-Simply add a <name_of_your_measurement>.py file into the folder ``~/modules/measurement_plugins`` and the program knows this measurement.
+Simply add a <name_of_your_measurement>.py file into the folder ``~/UniDAQ/measurement_plugins`` and the program knows this measurement.
 
 A simple IV measurement plugin can already be found in this folder.
 
@@ -252,7 +252,7 @@ A simple IV measurement plugin can already be found in this folder.
    import logging
    import sys
    import numpy as np
-   sys.path.append('../modules')
+   sys.path.append('../UniDAQ')
    from ..VisaConnectWizard import *
    from ..utilities import *
    l = logging.getLogger(__name__)
@@ -363,7 +363,7 @@ So lets go through this program in detail:
    import logging
    import sys
    import numpy as np
-   sys.path.append('../modules')
+   sys.path.append('../UniDAQ')
    from ..VisaConnectWizard import *
    from ..utilities import *
    l = logging.getLogger(__name__)
