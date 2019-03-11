@@ -6,8 +6,6 @@ import yaml
 from functools import partial
 from distutils.dir_util import copy_tree
 
-
-
 class Ui_MainWindow(object):
 
     def setupUi(self, MainWindow):
@@ -60,30 +58,27 @@ def configureSetup(widget):
     """Loads the Setup and conigures if"""
     # todo: better way possible, but I am tired
     package_dir = os.path.dirname(os.path.realpath(__file__))
-    project_dir = os.path.dirname(package_dir)
-    setup_dir = os.path.join(project_dir, "UniDAQ\\init\\Setup_configs")
+    setup_dir = os.path.join(package_dir, "UniDAQ\\config\\Setup_configs")
     value = widget.comboBox_config.currentText()
     setup_config_path = os.path.join(setup_dir,value)
-    copy_tree(setup_config_path, os.path.join(project_dir, "UniDAQ\\init"))
+    copy_tree(setup_config_path, os.path.join(package_dir, "UniDAQ\\config"))
 
     QApplication.quit() # Quits the setup
     #sleep(0.5) # Because it takes some time to get rid of the window in the memory
 
 
 
-def main():
+def Loadmain():
     """This function looks if settings have already been done, otherwise it configs everything and starts the env"""
 
-    os.system("activate UniDAQenv") # Start the environement for the Software
+    #os.system("activate UniDAQenv") # Start the environement for the Software
 
     # Look if setup has been configured
     package_dir = os.path.dirname(os.path.realpath(__file__))
-    project_dir = os.path.dirname(package_dir)
-    init_dir = os.path.join(project_dir, "UniDAQ\\init")
-    setup_dir =  os.path.join(project_dir, "UniDAQ\\init\\Setup_configs")
+    setup_dir =  os.path.join(package_dir, "UniDAQ\\config\\Setup_configs")
 
     # Get config dirs
-    config_dir = os.path.join(init_dir, "config")
+    config_dir = os.path.join(package_dir, "UniDAQ\\config\\config")
     list_configs = list(map(os.path.basename, glob.glob(os.path.join(config_dir, "defaults.yml"))))
     setup_configs = list(map(os.path.basename, [d for d in os.listdir(setup_dir) if os.path.isdir(os.path.join(setup_dir, d))]))
 
@@ -110,5 +105,6 @@ def main():
         app.exec_()
 
 if __name__ == '__main__':
+    Loadmain()
+    from UniDAQ.main import main# This starts the actual measurement software
     main()
-    import main # This starts the actual measurement software

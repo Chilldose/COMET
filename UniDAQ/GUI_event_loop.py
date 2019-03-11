@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QMessageBox
 import numpy as np
 import logging
 from .utilities import newThread, Framework
-from globals import *
+from .globals import *
 
 
 class GUI_event_loop:

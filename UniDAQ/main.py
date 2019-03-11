@@ -52,7 +52,7 @@ def main():
     hfs = utilities.help_functions()
 
     # Checking installation
-    boot_up.check_installation()
+    #boot_up.check_installation()
 
     # Loading all config files and default files, as well as Pad files
     log.critical("Loading setup files ...")

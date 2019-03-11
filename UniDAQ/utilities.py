@@ -39,7 +39,7 @@ lock = threading.Lock()
 
 class QueueEmitHandler(logging.Handler):
     def __init__(self, queue):
-        self.queue = eval(queue)
+        self.queue = getattr(globals,queue)
         self.level = 0
         self.log_LEVELS = {"NOTSET": 0, "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50}
         logging.Handler.__init__(self)
