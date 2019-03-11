@@ -70,7 +70,8 @@ I use the [SemVer](http://semver.org/) for versioning.
 
 ## Authors
 
-* **Dominic Blöch** - *Initial work* - [Chilldose](https://github.com/Chilldose)
+* **Dominic Blöch** - *Initial work and Developer* - [Chilldose](https://github.com/Chilldose)
+* **Bernhard Arnold** - *Developer* - [arnobaer](https://github.com/arnobaer)
 
 Beta Tester:
 
