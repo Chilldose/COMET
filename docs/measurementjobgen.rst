@@ -99,4 +99,3 @@ A small example:
     def show_the_job():
         """Simply prints the job details"""
         print(self.main.job_details)
-

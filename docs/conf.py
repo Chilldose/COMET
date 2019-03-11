@@ -14,8 +14,8 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../modules'))
-sys.path.insert(0, os.path.abspath('modules'))
+sys.path.insert(0, os.path.abspath('../UniDAQ'))
+sys.path.insert(0, os.path.abspath('UniDAQ'))
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 
@@ -27,7 +27,7 @@ copyright = u'2018, Dominic Bloech'
 author = u'Dominic Bloech'
 
 # The short X.Y version
-version = u'0.9.4'
+version = u'0.10.0'
 # The full version, including alpha/beta/rc tags
 release = u'beta'
 
