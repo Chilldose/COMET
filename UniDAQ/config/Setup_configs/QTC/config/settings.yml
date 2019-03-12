@@ -1,7 +1,7 @@
 --- # Block of dict entries
 
     # Critical parameters
-    Settings_name: Defaults # The name of the settings which will be shown in the framework and will be the addressing name
+    Settings_name: settings # The name of the settings which will be shown in the framework and will be the addressing name (settings here is important)
     Operator: # The operators working on this machine
       - Dominic
       - Viktoria
@@ -92,4 +92,4 @@
         Air: pressure_air
         LCR: LCR
         2410SMU: SMU2
-    lights_controller: Brand Box
+        lights_controller: Brand Box

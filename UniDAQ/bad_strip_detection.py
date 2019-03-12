@@ -6,7 +6,7 @@ import logging
 import os
 import numpy as np
 from .utilities import help_functions
-import numba as nb
+#import numba as nb
 from scipy.stats import norm, stats
 hf = help_functions()
 
@@ -21,7 +21,7 @@ class stripanalysis:
         self.main = main_obj
         self.settings = None
         self.all_data = {}
-        self.jit_lms = nb.jit('UniTuple(float64[:], 2)(float64[:], float64[:], float64)', nopython=False)(self.lmsalgorithm)
+        #self.jit_lms = nb.jit('UniTuple(float64[:], 2)(float64[:], float64[:], float64)', nopython=False)(self.lmsalgorithm)
         #self.jit_lms = self.lmsalgorithm
         self.log = logging.getLogger(__name__)
 
