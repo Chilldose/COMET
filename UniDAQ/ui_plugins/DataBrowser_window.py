@@ -23,8 +23,6 @@ class DataBrowser_window:
         # Variables
         self.variables = GUI_classes
         self.layout = layout
-
-        #self.variables.default_values_dict["Defaults"].update({"current_selected_browser_value": None, "current_selected_main_object": None})
         self._translate = QtCore.QCoreApplication.translate
 
         self.log = logging.getLogger(__name__)
@@ -87,9 +85,9 @@ class DataBrowser_window:
                         self.data_ui.key_edit.setText("")
                         self.data_ui.value_edit.setText("")
                         try:
-                            self.variables.default_values_dict["Defaults"]["current_selected_browser_value"] = item.text(0)
+                            self.variables.default_values_dict["settings"]["current_selected_browser_value"] = item.text(0)
                             item = item.text(0)
-                            #print(self.variables.default_values_dict["Defaults"]["current_selected_browser_value"])
+                            #print(self.variables.default_values_dict["settings"]["current_selected_browser_value"])
                         except:
                             pass
                             #print("Key Error is raised, the key 'current_selected_browser_value' could not be found")
@@ -97,26 +95,20 @@ class DataBrowser_window:
                         for i in range(self.data_ui.key_value_tree.topLevelItemCount()):
                             self.data_ui.key_value_tree.takeTopLevelItem(0)
 
-                        for i, keys in enumerate(self.variables.devices_dict[str(self.variables.default_values_dict["Defaults"]["current_selected_browser_value"])].keys()):
+                        for i, keys in enumerate(self.variables.devices_dict[str(self.variables.default_values_dict["settings"]["current_selected_browser_value"])].keys()):
                             QtWidgets.QTreeWidgetItem(self.data_ui.key_value_tree)
                             self.data_ui.key_value_tree.topLevelItem(i).setText(0, self._translate("data_browser", keys))
                             self.data_ui.key_value_tree.topLevelItem(i).setText(1, self._translate("data_browser", str(self.variables.devices_dict[item][keys])))
-                    #except KeyError:
-                        #print("Key Error is raised, the key 'current_selected_browser_value' could not be found")
-                        #l.error("Key Error is raised, the key 'current_selected_browser_value' could not be found")
                     except:
                         pass
-                        #l.error("Unknown error was raised during loading of device values" + str(sys.exc_info()[0]))
-                        #print("Unknown error was raised during loading of device values", sys.exc_info()[0])
 
                 except Exception as e:
                     print("Error type: {}".format(e))
-                    #print("Trace: ", traceback) #sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
                     raise # sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
 
         @hf.raise_exception
         def reload_devices_button_action(kwargs = None):
-            device = str(self.variables.default_values_dict["Defaults"]["current_selected_browser_value"])
+            device = str(self.variables.default_values_dict["settings"]["current_selected_browser_value"])
 
             if device != "None":
                 load_device_values(device)
@@ -126,20 +118,20 @@ class DataBrowser_window:
             fileDialog = QFileDialog()
             path = fileDialog.getOpenFileName()[0]
             if path:
-                device = self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]
+                device = self.variables.default_values_dict["settings"]["current_selected_browser_value"]
                 hf.write_init_file(str(path.split("/")[-1].split(".")[0]), self.variables.devices_dict[device], str(path[:-len(path.split("/")[-1])]))
 
         @hf.raise_exception
         def add_item_device_button(kwargs = None):
-            if self.data_ui.key_edit.text() not in self.variables.devices_dict[self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]]:
-                self.variables.devices_dict[self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]][self.data_ui.key_edit.text()] = self.data_ui.value_edit.text()
+            if self.data_ui.key_edit.text() not in self.variables.devices_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]]:
+                self.variables.devices_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]][self.data_ui.key_edit.text()] = self.data_ui.value_edit.text()
                 reload_devices_button_action()
 
         @hf.raise_exception
         def change_value_devices_button(kwargs = None):
 
-            if self.data_ui.key_edit.text() and self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]:
-                settings = self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]
+            if self.data_ui.key_edit.text() and self.variables.default_values_dict["settings"]["current_selected_browser_value"]:
+                settings = self.variables.default_values_dict["settings"]["current_selected_browser_value"]
 
                 if settings in self.variables.devices_dict and self.data_ui.key_edit.text() in self.variables.devices_dict[settings]: # Has to be so, otherwise mismatch can happen
                     try:
@@ -150,29 +142,6 @@ class DataBrowser_window:
                         msg.setIcon(QMessageBox.Critical)
                         msg.about(None, "Error", "Could not interpret input \"" + str(self.data_ui.value_edit.text()) +"\" \n it seems that this is not a valid literal.")
                         self.log.error("Could not interpret input " + str(self.data_ui.value_edit.text()) +" it seems that this is not a valid literal." )
-
-                    #try:
-                        #Try making a list out of the input
-                     #   if self.data_ui.value_edit.text().find(",") > 0:
-                    #        list = str(self.data_ui.value_edit.text().strip("[").strip("]")).strip("\"").split(",")
-                    #        list = map(lambda x: x.strip().strip("'"), list)
-                    #        try:
-                    #            list = map(float, list) # tries to convert to float
-                     #       except:
-                    #            pass
-
-                    #        self.variables.devices_dict[settings][self.data_ui.key_edit.text()] = list
-                    #        reload_devices_button_action()
-                    #        return
-
-                    #except:
-                    #    pass
-
-
-                    #try:
-                    #    value = float(self.data_ui.value_edit.text())
-                    #except:
-                    #    value = self.data_ui.value_edit.text()
 
                     finally:
                         reload_devices_button_action()
@@ -187,10 +156,10 @@ class DataBrowser_window:
 
         @hf.raise_exception
         def remove_item_device_button(kwargs = None):
-            if self.data_ui.key_edit.text() in self.variables.devices_dict[self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]]:
+            if self.data_ui.key_edit.text() in self.variables.devices_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]]:
                 reply = QMessageBox.question(None, 'Warning', "Are you sure to remove the selected item?",QMessageBox.Yes, QMessageBox.No)
                 if reply == QMessageBox.Yes:
-                    self.variables.devices_dict[self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]].pop(self.data_ui.key_edit.text(),None)
+                    self.variables.devices_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]].pop(self.data_ui.key_edit.text(),None)
                     reload_devices_button_action()
             else:
                 QMessageBox.question(None, 'Warning', "Hold on there Pirate!!! You try to delete an element which does not exist.", QMessageBox.Ok)
@@ -215,7 +184,7 @@ class DataBrowser_window:
                 self.data_ui.value_edit.setText("")
 
                 try:
-                    self.variables.default_values_dict["Defaults"]["current_selected_browser_value"] = item.text(0)
+                    self.variables.default_values_dict["settings"]["current_selected_browser_value"] = item.text(0)
                     item = item.text(0)
                 except:
                     pass
@@ -228,17 +197,12 @@ class DataBrowser_window:
                     QtWidgets.QTreeWidgetItem(self.data_ui.key_value_tree_2)
                     self.data_ui.key_value_tree_2.topLevelItem(i).setText(0, self._translate("data_browser", keys))
                     self.data_ui.key_value_tree_2.topLevelItem(i).setText(1, self._translate("data_browser", str(self.variables.default_values_dict[item][keys])))
-            #except KeyError:
-                #print("Key Error is raised, the key 'current_selected_browser_value' could not be found")
-                #l.error("Key Error is raised, the key 'current_selected_browser_value' could not be found")
             except:
                 pass
-                #l.error("Unknown error was raised during loading of device values" + str(sys.exc_info()[0]))
-                #print("Unknown error was raised during loading of device values", sys.exc_info()[0])
 
         @hf.raise_exception
         def reload_settings_button_action(kwargs = None):
-            device = str(self.variables.default_values_dict["Defaults"]["current_selected_browser_value"])
+            device = str(self.variables.default_values_dict["settings"]["current_selected_browser_value"])
 
             if device != "None":
                 self.variables.ui_plugins["Settings_window"].load_new_settings()  # reloads the settings made
@@ -258,21 +222,21 @@ class DataBrowser_window:
             fileDialog = QFileDialog()
             path = fileDialog.getOpenFileName()[0]
             if path:
-                settings = self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]
+                settings = self.variables.default_values_dict["settings"]["current_selected_browser_value"]
                 hf.write_init_file(str(path.split("/")[-1].split(".")[0]), self.variables.default_values_dict[settings], str(path[:-len(path.split("/")[-1])]))
 
         @hf.raise_exception
         def add_item_settings_button(kwargs = None):
 
-            if self.data_ui.key_edit_2.text() not in self.variables.default_values_dict[self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]]:
-                self.variables.default_values_dict[self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]][self.data_ui.key_edit_2.text()] = self.data_ui.value_edit_2.text()
+            if self.data_ui.key_edit_2.text() not in self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]]:
+                self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]][self.data_ui.key_edit_2.text()] = self.data_ui.value_edit_2.text()
                 reload_settings_button_action()
 
         @hf.raise_exception
         def change_value_settings_button(kwargs = None):
 
-            if self.data_ui.key_edit_2.text() and self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]:
-                settings = self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]
+            if self.data_ui.key_edit_2.text() and self.variables.default_values_dict["settings"]["current_selected_browser_value"]:
+                settings = self.variables.default_values_dict["settings"]["current_selected_browser_value"]
 
                 if settings in self.variables.default_values_dict and self.data_ui.key_edit_2.text() in self.variables.default_values_dict[settings]: # Has to be so, otherwise mismatch can happen
                     try:
@@ -286,25 +250,6 @@ class DataBrowser_window:
                         self.log.error("Could not interpret input " + str(self.data_ui.value_edit_2.text()) +" it seems that this is not a valid literal." )
 
                     reload_settings_button_action()
-                    #try:
-                    #    #Try making a list out of the input
-                    #    if self.data_ui.value_edit_2.text().find(",") >0:
-                    #        list = str(self.data_ui.value_edit_2.text().strip("[").strip("]")).strip("\"").split(",")
-                    #        list = map(lambda x: x.strip().strip("'"), list)
-                    #        try:
-                    #            list = map(float, list) # tries to convert to float
-                    #        except:
-                    #            pass
-
-                    #        self.variables.default_values_dict[settings][self.data_ui.key_edit_2.text()] = list
-                    #        reload_settings_button_action()
-                    #        return
-                    #except:
-                    #    pass
-                    #try:
-                    #    value = float(self.data_ui.value_edit_2.text())
-                    #except:
-                    #    value = self.data_ui.value_edit_2.text()
 
                 else:
                     reply = QMessageBox.question(None, 'Warning',"This Key is not included in the dictionary. Would you like to add it to the dictionary?", QMessageBox.Yes, QMessageBox.No)
@@ -316,52 +261,17 @@ class DataBrowser_window:
 
         @hf.raise_exception
         def remove_item_settings_button(kwargs = None):
-            if self.data_ui.key_edit_2.text() in self.variables.default_values_dict[self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]]:
+            if self.data_ui.key_edit_2.text() in self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]]:
                 reply = QMessageBox.question(None, 'Warning', "Are you sure to remove the selected item?",QMessageBox.Yes, QMessageBox.No)
                 if reply == QMessageBox.Yes:
-                    self.variables.default_values_dict[self.variables.default_values_dict["Defaults"]["current_selected_browser_value"]].pop(self.data_ui.key_edit_2.text(),None)
+                    self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]].pop(self.data_ui.key_edit_2.text(),None)
                     reload_settings_button_action()
             else:
                 QMessageBox.question(None, 'Warning', "Hold on there Pirate!!! You try to delete an element which does not exist.", QMessageBox.Ok)
 
-        # pad files
-
-        #def pad_browser_update():
-        #    for i, pad in enumerate(self.variables.default_values_dict.keys()):
-        #        QtWidgets.QTreeWidgetItem(self.data_ui.settings_selector_2)
-        #        self.data_ui.settings_selector_2.topLevelItem(i).setText(0, self._translate("data_browser", str(devices)))
-
-        #def load_pad_values(item):
-        #            try:
-
-        #                self.data_ui.key_edit.setText("")
-        #                self.data_ui.value_edit.setText("")
-
-        #                try:
-        #                    self.variables.default_values_dict["Defaults"]["current_selected_browser_value"] = item.text(0)
-        #                    item = item.text(0)
-        #                except:
-        #                   pass
-
-        #                for i in range(self.data_ui.key_value_tree_2.topLevelItemCount()):
-        #                    self.data_ui.key_value_tree_2.takeTopLevelItem(0)
-
-        #               for i, keys in enumerate(self.variables.default_values_dict[item].keys()):
-        #                    QtWidgets.QTreeWidgetItem(self.data_ui.key_value_tree_2)
-        #                    self.data_ui.key_value_tree_2.topLevelItem(i).setText(0, self._translate("data_browser", keys))
-        #                    self.data_ui.key_value_tree_2.topLevelItem(i).setText(1, self._translate("data_browser", str(
-        #                        self.variables.default_values_dict[item][keys])))
-        #            except:
-        #                pass
-
-
-
-
         # Data browser
         data_browser_widget = QWidget()
         self.data_ui = self.variables.load_QtUi_file("Data_explorer.ui", data_browser_widget)
-        #self.data_ui = Ui_data_browser()
-        #self.data_ui.setupUi(data_browser_widget)
 
         settings_browser_update()
         devices_browser_update()
@@ -411,7 +321,7 @@ class DataBrowser_window:
 
         elif parent.upper() == "DEFAULTS" or parent.upper() == "DEFAULT":
             try:
-                return str(self.variables.default_values_dict["Defaults"][sub][key])
+                return str(self.variables.default_values_dict["settings"][sub][key])
             except KeyError as e:
                 return "An key error occured: " + str(e)
 

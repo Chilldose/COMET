@@ -37,7 +37,7 @@ class measurement_class:
         self.CV_data = np.array([])
         self.IV_longterm_data = np.array([])
         self.time_const = 1 # sec
-        self.current_sensor = self.settings["Defaults"]["Current_sensor"]
+        self.current_sensor = self.settings["settings"]["Current_sensor"]
         self.all_plugins = {}
         self.total_strips = None
         self.measurement_files = {}
@@ -52,14 +52,14 @@ class measurement_class:
 
 
         # Make preps
-        self.settings["Defaults"]["Start_time"] = str(datetime.datetime.now())
+        self.settings["settings"]["Start_time"] = str(datetime.datetime.now())
         self.load_plugins()
         self.find_stripnumber()
         self.estimate_duration(datetime.datetime.now())
         self.write_data()
 
         # Build all data arrays
-        for data_files in self.settings["Defaults"]["measurement_types"]:
+        for data_files in self.settings["settings"]["measurement_types"]:
             self.measurement_data.update({data_files: [[np.zeros(0)], [np.zeros(0)]]})
 
         #self.make_measurement_plan()
@@ -100,11 +100,11 @@ class measurement_class:
         if bool:
             self.log.debug("Switched on external lights...")
             self.change_value(device_dict, "set_external_light", "ON")
-            self.settings["Defaults"]["external_lights"] = True
+            self.settings["settings"]["external_lights"] = True
         else:
             self.log.debug("Switched off external lights...")
             self.change_value(device_dict, "set_external_light", "OFF")
-            self.settings["Defaults"]["external_lights"] = False
+            self.settings["settings"]["external_lights"] = False
 
     def write_data(self):
         # Save data
@@ -123,22 +123,22 @@ class measurement_class:
         Will not be correct, since CV usually is faster, but it is just a estimation.
         -----------------------------------------------------------------------------
         Start and end timer. all of this quick and dirty but it will suffice"""
-        # self.settings["Defaults"]["Start_time"] = datetime.datetime.now()
+        # self.settings["settings"]["Start_time"] = datetime.datetime.now()
         est_end = 0
         for measurements in self.list_strip_measurements:
             # Loop over all strip measurements
             if measurements in self.job_details.get("stripscan", {}):
-                est_end += float(self.total_strips)*float(self.settings["Defaults"]["strip_scan_time"])
+                est_end += float(self.total_strips)*float(self.settings["settings"]["strip_scan_time"])
                 break # breaks out of loop if one measurement was found
 
 
         if "IV" in self.job_details.get("IVCV", {}):
-            est_end += float(self.settings["Defaults"]["IVCV_time"])
+            est_end += float(self.settings["settings"]["IVCV_time"])
         if "CV" in self.job_details.get("IVCV", {}):
-            est_end += float(self.settings["Defaults"]["IVCV_time"])
+            est_end += float(self.settings["settings"]["IVCV_time"])
 
         est_end = start_time + datetime.timedelta(seconds=est_end)
-        self.settings["Defaults"]["End_time"] = str(est_end)
+        self.settings["settings"]["End_time"] = str(est_end)
         # Estimate time
         # Will not be correct, since CV usually is faster, but it is just a estimation.
         # -----------------------------------------------------------------------------
@@ -147,7 +147,7 @@ class measurement_class:
     def find_stripnumber(self):
         # Try find the strip number of the sensor.
         try:
-            self.total_strips = len(self.pad_data[self.settings["Defaults"]["Current_project"]][str(self.current_sensor)]["data"])
+            self.total_strips = len(self.pad_data[self.settings["settings"]["Current_project"]][str(self.current_sensor)]["data"])
             self.log.debug("Extracted strip number is: {!s}".format(self.total_strips))
         except:
             self.log.error("Sensor " + str(self.current_sensor) + " not recognized. Can be due to missing pad file.")
@@ -187,7 +187,7 @@ class measurement_class:
                 return True
 
         # Check if lights and environement is valid
-        if self.settings["Defaults"]["internal_lights"]:
+        if self.settings["settings"]["internal_lights"]:
             # Wait a few seconds for the controller to send the data if the box was open previously
             counter = 0
             lights_ON = True
@@ -195,7 +195,7 @@ class measurement_class:
             self.log.info("Box seems to be open or the lights are still On in the Box")
             while lights_ON:
                 sleep(5)
-                if self.settings["Defaults"]["internal_lights"]:
+                if self.settings["settings"]["internal_lights"]:
                     counter += 1
                 else: lights_ON = False
 
@@ -204,9 +204,9 @@ class measurement_class:
                     self.queue_to_main.put({"MeasError":"Box seems to be open or the lights are still On in the Box, aborting program"})
                     return True
 
-        if self.settings["Defaults"]["humidity_control"]:
-            min = self.settings["Defaults"]["current_hummin"]
-            max = self.settings["Defaults"]["current_hummax"]
+        if self.settings["settings"]["humidity_control"]:
+            min = self.settings["settings"]["current_hummin"]
+            max = self.settings["settings"]["current_hummax"]
 
             if (self.main.humidity_history[-1] < min or self.main.humidity_history[-1] > max): # If something is wrong
                 self.queue_to_main.put({"Info":"The humidity levels not reached. Wait until state is reached. Waiting time: " + str(self.env_waiting_time)})
@@ -233,8 +233,8 @@ class measurement_class:
 
         # Check if order of measurement is in place
         self.log.debug("Generating measurement plan...")
-        if "measurement_order" in self.settings["Defaults"]:
-            for measurement in self.settings["Defaults"]["measurement_order"]:
+        if "measurement_order" in self.settings["settings"]:
+            for measurement in self.settings["settings"]["measurement_order"]:
                 abort = False
                 if self.main.stop_measurement:
                     break
@@ -266,7 +266,7 @@ class measurement_class:
             params = self.job_details["ramp_voltage"]
             self.ramp_voltage(params["Resource"], params["Order"], params["StartVolt"], params["EndVolt"], params["Steps"], params["Wait"], params["Complience"])
 
-        if self.settings["Defaults"]["Test_mode"]:
+        if self.settings["settings"]["Test_mode"]:
             getattr(self.all_plugins["test_mode"],"test_mode_class")(self)
 
     def steady_state_check(self, device, max_slope = 0.001, wait = 0.2, samples = 4, Rsq = 0.95, complience = 50e-6, do_anyway = False, check_complience=True): # Not yet implemented
@@ -399,7 +399,7 @@ class measurement_class:
         voltage_step_list = self.ramp_value(voltage_Start, voltage_End, step)
 
         # Check if current bias voltage is inside this ramp and delete if necessary
-        bias_voltage = float(self.settings["Defaults"]["bias_voltage"])
+        bias_voltage = float(self.settings["settings"]["bias_voltage"])
 
         for i, voltage in enumerate(voltage_step_list):
             if abs(voltage) > abs(bias_voltage):
@@ -410,7 +410,7 @@ class measurement_class:
             self.change_value(resource, order, voltage)
             if self.check_complience(resource, complience):
                 return False
-            #self.settings["Defaults"]["bias_voltage"] = float(voltage)  # changes the bias voltage
+            #self.settings["settings"]["bias_voltage"] = float(voltage)  # changes the bias voltage
             sleep(wait_time)
 
         return True
@@ -486,7 +486,7 @@ class measurement_class:
         command = self.build_command(device,"Read_iv")
         #value = float(str(vcw.query(device, command)).split(",")[0]) #237SMU
         value = str(vcw.query(device, command)).split("\t")
-        self.settings["Defaults"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
+        self.settings["settings"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
         if 0. < (abs(float(value[0])) - abs(float(complience)*0.99)):
             self.log.error("Complience reached in instrument " + str(device["Display_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(complience))
             self.queue_to_main.put({"MeasError": "Compliance reached. Value. " + str(value[0]) + " A"})

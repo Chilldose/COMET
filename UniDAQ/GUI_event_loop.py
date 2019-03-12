@@ -32,7 +32,7 @@ class GUI_event_loop:
         self.error_types = ["Info","MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "Warning", "FatalError", "ThresholdError", "ERROR", "Error"]
         self.fatal_errors = ["MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "FatalError", "ThresholdError"]
         #self.measurement_types = ["IV", "IV_longterm", "CV", "R_int", "I_strip", "I_diel", "R_poly", "C_ac", "I_strip_overhang", "C_int", "I_dark", "humidity", "temperature", "Cback", "Cback_scan", "Cac_scan", "Cint_scan"]
-        self.measurement_types = self.default_values_dict["Defaults"].get("measurement_types", [])
+        self.measurement_types = self.default_values_dict["settings"].get("measurement_types", [])
         self.event_types = ["MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED"]
         self.error_list = []
         self.measurement_list = []
@@ -141,11 +141,11 @@ class GUI_event_loop:
             # Handles all data for coming from the measurements
         for measurement in self.measurement_list:
 
-            self.default_values_dict["Defaults"]["new_data"] = True  # Initiates the update of the plots
-            self.default_values_dict["Defaults"]["last_plot_update"] = self.default_values_dict["Defaults"]["update_counter"]
+            self.default_values_dict["settings"]["new_data"] = True  # Initiates the update of the plots
+            self.default_values_dict["settings"]["last_plot_update"] = self.default_values_dict["settings"]["update_counter"]
 
             # Correctly write the data to the arrays for plotting
-            if measurement in self.default_values_dict["Defaults"]["measurement_types"]:
+            if measurement in self.default_values_dict["settings"]["measurement_types"]:
                 if type(message[measurement][0]) is not list:
                     self.meas_data[measurement][0] = np.append(self.meas_data[measurement][0], message[measurement][0])
                     self.meas_data[measurement][1] = np.append(self.meas_data[measurement][1], message[measurement][1])
@@ -178,8 +178,8 @@ class GUI_event_loop:
 
         #This function checks if updates of plots has been made and sets the variable back to False, so that no unnessesary plotting is done
         #Will be called as last update function
-        if self.default_values_dict["Defaults"]["new_data"] and (self.default_values_dict["Defaults"]["update_counter"] > self.default_values_dict["Defaults"]["last_plot_update"]):
-            self.default_values_dict["Defaults"]["last_plot_update"] = self.default_values_dict["Defaults"]["update_counter"]
-            self.default_values_dict["Defaults"]["new_data"] = False
+        if self.default_values_dict["settings"]["new_data"] and (self.default_values_dict["settings"]["update_counter"] > self.default_values_dict["settings"]["last_plot_update"]):
+            self.default_values_dict["settings"]["last_plot_update"] = self.default_values_dict["settings"]["update_counter"]
+            self.default_values_dict["settings"]["new_data"] = False
 
-        self.default_values_dict["Defaults"]["update_counter"] += 1
+        self.default_values_dict["settings"]["update_counter"] += 1

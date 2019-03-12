@@ -64,7 +64,7 @@ class dynamicwaiting_class:
                     self.stop_everything()
 
         # Ramp down and switch all off
-        self.current_voltage = self.main.main.default_dict["Defaults"]["bias_voltage"]
+        self.current_voltage = self.main.main.default_dict["settings"]["bias_voltage"]
         self.main.ramp_voltage(self.biasSMU, "set_voltage", self.current_voltage, 0, 20, 0.01)
         self.main.change_value(self.biasSMU, "set_voltage", "0")
         self.main.change_value(self.biasSMU, "set_output", "0")
@@ -95,7 +95,7 @@ class dynamicwaiting_class:
         self.main.change_value(self.biasSMU, "set_output", "1")
 
         if self.main.steady_state_check(self.biasSMU, max_slope=1e-6, wait=0, samples=3, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
-            self.current_voltage = self.main.main.default_dict["Defaults"]["bias_voltage"]
+            self.current_voltage = self.main.main.default_dict["settings"]["bias_voltage"]
         else:
             self.stop_everything()
 

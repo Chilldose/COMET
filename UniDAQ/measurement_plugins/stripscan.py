@@ -25,7 +25,7 @@ class stripscan_class:
         self.main = main_class
         self.log = logging.getLogger(__name__)
         self.switching = self.main.switching
-        self.current_voltage = self.main.settings["Defaults"]["bias_voltage"]
+        self.current_voltage = self.main.settings["settings"]["bias_voltage"]
         self.voltage_End = self.main.job_details["stripscan"]["EndVolt"]
         self.voltage_Start = self.main.job_details["stripscan"]["StartVolt"]
         self.voltage_steps = self.main.job_details["stripscan"]["Steps"]
@@ -42,14 +42,14 @@ class stripscan_class:
                       ("Rint", "res[Ohm]"), ("Cac", "cap[F]"),
                       ("Cint", "cap[F]"), ("Cback", "cap[F]")]
         self.strips = self.main.total_strips # now the program knows the total number of strips
-        self.current_strip = self.main.main.default_dict["Defaults"]["current_strip"] # Current pad position of the table
-        #self.T = self.main.main.default_dict["Defaults"]["T"]
-        #self.V0 = self.main.main.default_dict["Defaults"]["V0"]
-        self.height = self.main.main.default_dict["Defaults"]["height_movement"]
+        self.current_strip = self.main.main.default_dict["settings"]["current_strip"] # Current pad position of the table
+        #self.T = self.main.main.default_dict["settings"]["T"]
+        #self.V0 = self.main.main.default_dict["settings"]["V0"]
+        self.height = self.main.main.default_dict["settings"]["height_movement"]
         self.samples = 3
         self.last_istrip_pad = -1 # Number of the last pad on which a I strip was conducted, important for rpoly
-        self.T = self.main.main.default_dict["Defaults"]["trans_matrix"]
-        self.V0 = self.main.main.default_dict["Defaults"]["V0"]
+        self.T = self.main.main.default_dict["settings"]["trans_matrix"]
+        self.V0 = self.main.main.default_dict["settings"]["V0"]
         self.job = self.main.job_details
         self.sensor_pad_data = self.main.pad_data[self.job["Project"]][self.job["Sensor"]]
         self.justlength = 24
@@ -167,13 +167,13 @@ class stripscan_class:
 
         # Ramps the voltage, if ramp voltage returns false something went wrong -> stop
         if not self.main.ramp_voltage(self.bias_SMU, "set_voltage", self.voltage_Start, self.voltage_End, self.voltage_steps, wait_time = 1, complience=self.complience):
-            self.current_voltage = self.main.main.default_dict["Defaults"]["bias_voltage"]
+            self.current_voltage = self.main.main.default_dict["settings"]["bias_voltage"]
             self.stop_everything()
 
         #If everything works make steady state check
         else:
             if self.main.steady_state_check(self.bias_SMU, max_slope = 1e-6, wait = 0, samples = 3, Rsq = 0.5, complience=self.complience): # Is a dynamic waiting time for the measuremnts
-                self.current_voltage = self.main.main.default_dict["Defaults"]["bias_voltage"]
+                self.current_voltage = self.main.main.default_dict["settings"]["bias_voltage"]
                 if self.main.check_complience(self.bias_SMU, self.complience): #if complience is reached stop everything
                     self.stop_everything()
             else:
@@ -296,7 +296,7 @@ class stripscan_class:
                                             self.main.badstrip_dict[str(current_strip)].update(badstrip)
                                         else:
                                             self.main.badstrip_dict[str(current_strip)] = badstrip
-                                            self.main.main.default_dict["Defaults"]["Bad_strips"] += 1 # increment the counter
+                                            self.main.main.default_dict["settings"]["Bad_strips"] += 1 # increment the counter
 
 
                                     # Write this to the file
@@ -320,8 +320,8 @@ class stripscan_class:
 
 
                     if abs(float(start - time.time())) > 1.: # Rejects all measurements which are to short to be real measurements
-                        delta = float(self.main.main.default_dict["Defaults"]["strip_scan_time"]) + abs(start - time.time())
-                        self.main.main.default_dict["Defaults"]["strip_scan_time"] = str(delta / 2.)  # updates the time for strip measurement
+                        delta = float(self.main.main.default_dict["settings"]["strip_scan_time"]) + abs(start - time.time())
+                        self.main.main.default_dict["settings"]["strip_scan_time"] = str(delta / 2.)  # updates the time for strip measurement
 
 
     def do_frequencyscan(self, measurement_obj, strip, device_dict, samples, startfreq, endfreq, steps, voltage):
@@ -455,7 +455,7 @@ class stripscan_class:
             self.main.config_setup(device_dict, config_commands)  # config the elmeter
             self.main.change_value(voltage_device, "set_output", "ON") # Sets the output of the device to on
 
-            rintsettings = self.main.main.default_dict["Defaults"]["Rint_MinMax"]
+            rintsettings = self.main.main.default_dict["settings"]["Rint_MinMax"]
             minvoltage = rintsettings[0]
             maxvoltage = rintsettings[1]
             steps = rintsettings[2]

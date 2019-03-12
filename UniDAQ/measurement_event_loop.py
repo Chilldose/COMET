@@ -69,7 +69,7 @@ class measurement_event_loop:
         # Start Continuous measurements like temphum control
         #self.data_from_continous_measurements = queue.Queue() # Creates a queue object for the data transfer
         if "temphum_controller" in self.devices:
-            self.measthread = newThread(2, "Temperatur and humidity control", self.temperatur_and_humidity, self.message_to_main, self.devices["temphum_controller"], self.devices["temphum_controller"]["enviroment_query"], self.default_dict["Defaults"]["temphum_update_intervall"])
+            self.measthread = newThread(2, "Temperatur and humidity control", self.temperatur_and_humidity, self.message_to_main, self.devices["temphum_controller"], self.devices["temphum_controller"]["enviroment_query"], self.default_dict["settings"]["temphum_update_intervall"])
             self.measthread.start() # Starts the thread
 
         # Create the measurement object
@@ -132,7 +132,7 @@ class measurement_event_loop:
         #---------------------------------------------------------------------------------------------------------------
         if self.measurements_to_conduct != {} and not self.measurement_running: # If the dict is not empty and no measurement is running
 
-            if "stripscan" in self.measurements_to_conduct and not self.default_dict["Defaults"]["Alignment"]:  # if not only IV or CV should be done
+            if "stripscan" in self.measurements_to_conduct and not self.default_dict["settings"]["Alignment"]:  # if not only IV or CV should be done
                 self.events.update({"MeasError": "Alignement is missing! "})
                 self.measurements_to_conduct.clear()
 
@@ -141,7 +141,7 @@ class measurement_event_loop:
                 self.stop_measurement = False
                 self.skip_init = self.measurements_to_conduct.get("skip_init", False)
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})  # That the GUI knows that a Measuremnt is running
-                self.default_dict["Defaults"]["Measurement_running"] = True
+                self.default_dict["settings"]["Measurement_running"] = True
                 if not self.skip_init:
                     self.init_devices() # Initiates the device anew (defined state)
                 measthread = newThread(3, "Conduct measurement", measurement_class, self, self.default_dict, self.pad_files, self.devices, self.message_to_main, self.message_from_main,  self.measurements_to_conduct.copy(), self.queue_to_GUI, self.table, self.switching, self.ask_to_stop) # Starts a thread for measuring
@@ -182,7 +182,7 @@ class measurement_event_loop:
                 if not self.skip_init:
                     self.init_devices()
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
-                self.default_dict["Defaults"]["Measurement_running"] = False
+                self.default_dict["settings"]["Measurement_running"] = False
 
             elif "MEASUREMENT_STATUS" in self.status_query: # Usually asked from the main to get status
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
@@ -226,8 +226,8 @@ class measurement_event_loop:
                     self.humidity_history.append(float(values[1])) #todo: memory leak since no values will be deleted
                     self.temperatur_history.append(float(values[0]))
                     # Write the pt100 and light status and environement in the box to the global variables
-                    self.default_dict["Defaults"]["chuck_temperature"] =  float(values[3])
-                    self.default_dict["Defaults"]["internal_lights"] = True if int(values[2]) == 1 else False
+                    self.default_dict["settings"]["chuck_temperature"] =  float(values[3])
+                    self.default_dict["settings"]["internal_lights"] = True if int(values[2]) == 1 else False
                     queue_to_main.put({"temperature": [float(time.time()), float(values[0])], "humidity": [float(time.time()), float(values[1])]})
                 except Exception as err:
                     self.log.error("The temperature and humidity controller seems not to be responding. Error: {!s}".format(err))

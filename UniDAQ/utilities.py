@@ -781,7 +781,7 @@ class measurement_job_generation:
         :param main_variables: Simply the state machine variables ('defaults')
         :param queue_to_measurement_event_loop:
         """
-        self.variables = main_variables["Defaults"]
+        self.variables = main_variables["settings"]
         self.queue_to_measure = queue_to_measurement_event_loop
         self.final_job = {}
         self.log = logging.getLogger(__name__)
@@ -894,7 +894,7 @@ class table_control_class:
         :param queue_to_GUI:
         :param shell: The UniDAQ shell object
         """
-        self.variables = main_variables["Defaults"]
+        self.variables = main_variables["settings"]
         self.devices = devices
         self.device = devices.get("Table_control", None)
         self.table_ready = self.variables["table_ready"]
@@ -1249,7 +1249,7 @@ class switching_control:
                 switching = str(self.vcw.query(devices, command)).strip()
                 switching = self.pick_switch_response(devices, switching)
                 current_switching.update({devices["Display_name"]: switching})
-                self.settings["Defaults"]["current_switching"][devices["Display_name"]] = current_switching
+                self.settings["settings"]["current_switching"][devices["Display_name"]] = current_switching
         return current_switching
 
     def apply_specific_switching(self, switching_dict):
@@ -1403,7 +1403,7 @@ class switching_control:
                 command = self.build_command(device, "check_all_closed_channel")
                 current_switching = str(self.vcw.query(device, command)).strip()
                 current_switching = self.pick_switch_response(device, current_switching)
-                self.settings["Defaults"]["current_switching"][device["Display_name"]] = current_switching
+                self.settings["settings"]["current_switching"][device["Display_name"]] = current_switching
 
                 command_diff = list(set(configs).difference(set(current_switching)))
                 if len(command_diff) != 0:  #Checks if all the right channels are closed

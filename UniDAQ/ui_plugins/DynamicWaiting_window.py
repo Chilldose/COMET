@@ -108,10 +108,10 @@ class DynamicWaiting_window:
         self.final_job = additional_settings_dict
 
         header = "# Measurement file: \n " \
-                 "# Campaign: " + self.variables.default_values_dict["Defaults"]["Current_project"] + "\n " \
-                 "# Sensor Type: " + self.variables.default_values_dict["Defaults"]["Current_sensor"] + "\n " \
-                 "# ID: " + self.variables.default_values_dict["Defaults"]["Current_filename"] + "\n " +\
-                 "# Operator: " + self.variables.default_values_dict["Defaults"]["Current_operator"] + "\n " \
+                 "# Campaign: " + self.variables.default_values_dict["settings"]["Current_project"] + "\n " \
+                 "# Sensor Type: " + self.variables.default_values_dict["settings"]["Current_sensor"] + "\n " \
+                 "# ID: " + self.variables.default_values_dict["settings"]["Current_filename"] + "\n " +\
+                 "# Operator: " + self.variables.default_values_dict["settings"]["Current_operator"] + "\n " \
                  "# Date: " + str(time.asctime()) + "\n\n"
 
 
@@ -134,7 +134,7 @@ class DynamicWaiting_window:
 
     @hf.raise_exception
     def update(self, kwargs=None):
-        if self.variables.default_values_dict["Defaults"]["new_data"]:
+        if self.variables.default_values_dict["settings"]["new_data"]:
             try:
                 self.dynamic.current_plot.clear()
                 for i, vstepdata in enumerate(self.variables.meas_data["dynamicwaiting"][0]):

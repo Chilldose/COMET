@@ -66,12 +66,12 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.default_values_dict = default_values_dict
         self.pad_files_dict = pad_files_dict
         self.functions = []
-        self.update_interval = float(self.default_values_dict["Defaults"].get("GUI_update_interval", 100.))  # msec
+        self.update_interval = float(self.default_values_dict["settings"].get("GUI_update_interval", 100.))  # msec
         self.queue_to_GUI = queue_to_GUI
         self.table = table
         self.switching = switching
         self.job = measurement_job_generation(self.default_values_dict, self.message_from_main)
-        self.white_plots = default_values_dict["Defaults"].get("Thomas_mode", False)
+        self.white_plots = default_values_dict["settings"].get("Thomas_mode", False)
         self.meas_data = {}
         self.all_plugin_modules = {}
         self.qt_designer_ui = []
@@ -88,7 +88,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         # Measurement data for plotting
         # Data type Dict for what kind of measurement (keys) values are tupel of numpy arrays (x,y)
         # Extend as you please in the config file
-        for measurments in self.default_values_dict["Defaults"].get("measurement_types",[]):
+        for measurments in self.default_values_dict["settings"].get("measurement_types",[]):
             self.meas_data.update({measurments: [np.array([]), np.array([])]})
 
 
@@ -199,8 +199,8 @@ class GUI_classes(GUI_event_loop, QWidget):
 
         self.log.debug("Starting rendering main window...")
 
-        if "GUI_render_order" in self.default_values_dict["Defaults"]: # Renders taps in specific order
-            for elements in self.default_values_dict["Defaults"]["GUI_render_order"]:
+        if "GUI_render_order" in self.default_values_dict["settings"]: # Renders taps in specific order
+            for elements in self.default_values_dict["settings"]["GUI_render_order"]:
                 for ui_obj in self.final_tabs: # Not very pretty
                     if elements in ui_obj:
                         self.log.info("Adding UI module to widget: {!s}".format(elements))
@@ -236,7 +236,7 @@ class GUI_classes(GUI_event_loop, QWidget):
             self.meas_data[data][0] = np.array([])
             self.meas_data[data][1] = np.array([])
 
-        self.default_values_dict["Defaults"]["new_data"] = True
+        self.default_values_dict["settings"]["new_data"] = True
 
         # This functions need to be called in case that no clear statement is set during plotting
         #for plot in self.plots:

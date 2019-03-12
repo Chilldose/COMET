@@ -82,13 +82,14 @@
         - Info
 
     # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name
-    temphum_controller: Brand Box
-    Elmeter: ELMETER
-    Switching: Matrix
-    IVSMU: Bias_SMU
-    Table_control: Corvus
-    humidity_sensors: hum_sensors
-    Air: pressure_air
-    LCR: LCR
-    2410SMU: SMU2
+    Aliases:
+        temphum_controller: Brand Box
+        Elmeter: ELMETER
+        Switching: Matrix
+        IVSMU: Bias_SMU
+        Table_control: Corvus
+        humidity_sensors: hum_sensors
+        Air: pressure_air
+        LCR: LCR
+        2410SMU: SMU2
     lights_controller: Brand Box

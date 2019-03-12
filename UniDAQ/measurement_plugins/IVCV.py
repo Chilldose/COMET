@@ -20,7 +20,7 @@ class IVCV_class:
         self.switching = self.main.switching
         self.justlength = 24
         time = self.do_IVCV()
-        self.main.main.default_dict["Defaults"]["IVCV_time"] = str(time[1])
+        self.main.main.default_dict["settings"]["IVCV_time"] = str(time[1])
 
     def stop_everything(self):
         """Stops the measurement"""
@@ -83,7 +83,7 @@ class IVCV_class:
             if not self.main.stop_measurement(): # To shut down if necessary
                 #switch_success = self.switching.switch_to_measurement("IV")
                 self.main.change_value(bias_SMU, "set_voltage", str(voltage))
-                self.main.settings["Defaults"]["bias_voltage"] = voltage  # changes the bias voltage
+                self.main.settings["settings"]["bias_voltage"] = voltage  # changes the bias voltage
                 if not self.main.steady_state_check(bias_SMU, max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=complience): # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
 
@@ -143,7 +143,7 @@ class IVCV_class:
             current = sum([float(x[0]) for x in values])/len(values) # Makes a mean out of it
             voltage = sum([float(x[1]) for x in values]) / len(values)  # Makes a mean out of it
 
-            self.main.settings["Defaults"]["bias_voltage"] = voltage  # changes the bias voltage
+            self.main.settings["settings"]["bias_voltage"] = voltage  # changes the bias voltage
 
             self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], [float(voltage)])
             self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1],[float(current)])
