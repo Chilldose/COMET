@@ -12,12 +12,12 @@ from time import sleep
 import pyqtgraph as pg
 from .VisaConnectWizard import *
 import logging
-from . globals import *
+from .globals import message_to_main, message_from_main, queue_to_GUI
 
 # Defining the queue Objects for data sharing need to be here, than the main knows them to!!!
-message_to_main = queue.Queue()
-message_from_main = queue.Queue()
-queue_to_GUI = queue.Queue()
+#message_to_main = queue.Queue()
+#message_from_main = queue.Queue()
+#queue_to_GUI = queue.Queue()
 
 
 

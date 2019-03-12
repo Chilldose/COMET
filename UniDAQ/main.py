@@ -57,7 +57,7 @@ def main():
     # Loading all config files and default files, as well as Pad files
     log.critical("Loading setup files ...")
     stats = boot_up.loading_init_files(hfs)
-    stats.default_values_dict = boot_up.update_defaults_dict().update(stats.configs["config"])
+    stats.default_values_dict = boot_up.update_defaults_dict(stats.configs["config"], stats.configs["config"]["framework_variables"])
 
     # Initializing all modules
     log.critical("Initializing modules ...")

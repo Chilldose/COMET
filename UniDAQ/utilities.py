@@ -31,7 +31,7 @@ from .VisaConnectWizard import VisaConnectWizard
 from PyQt5.QtWidgets import QApplication
 import logging
 import queue
-from . import globals
+from .globals import message_to_main, message_from_main, queue_to_GUI
 #from __future__ import print_function # Needed for the rtd functions that its written in 3
 
 l = logging.getLogger(__name__)
@@ -39,7 +39,7 @@ lock = threading.Lock()
 
 class QueueEmitHandler(logging.Handler):
     def __init__(self, queue):
-        self.queue = getattr(globals,queue)
+        self.queue = eval(queue)
         self.level = 0
         self.log_LEVELS = {"NOTSET": 0, "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50}
         logging.Handler.__init__(self)

@@ -238,76 +238,12 @@ class connect_to_devices:
         #    if "Visa_Resource" not in device_dict[device]:
         #        print("No Visa resources listed for device " + device_dict[device]["Display_name"] + ".")
 
-class update_defaults_dict:
-    '''A class with two members. self.update takes an dict which updates the default values dict with the given fict.
-    The other one self.to_update returns a dict. This can be extended, if the default values dict needs additional
-    parameters.'''
 
-    def update(self,dict):
+def update_defaults_dict(dict, additional_dict):
         """
         Updates the defaults values dict
         :param dict: the dictionary which will be updated to the default values dict
         """
-        dict["settings"].update(self.to_update())
+        additional_dict.pop("Settings_name")
+        return dict["settings"].update(additional_dict)
 
-
-    def to_update(self):
-        """
-        It only returns a dict of parametes, which are additional parameters for the state machine. Can be extendent
-        with importan items for the framework to work.
-        :return: dict
-        """
-        return {"End_time": "NaN",
-                "Start_time": "NaN",
-                "Bad_strips": 0,
-                "Measurement_running": False,
-                "Alignment": False,
-                "trans_matrix": np.array([[ 0.95085078,  0.00807139,  0.        ],
-                                            [-0.00098357,  0.98345749,  0.        ]]),
-                "Environment_status": False,
-                "external_lights": False,
-                "internal_lights": False,
-                "chuck_temperature": 0,
-                "humidity_control": False,
-                "current_tempmin": 20,
-                "current_tempmax": 25,
-                "current_hummin": 20,
-                "current_hummax": 25,
-                "Table_state": True,
-                 "current_selected_browser_value": None,
-                 "current_selected_main_object": None,
-                 "Current_sensor": None,
-                 "Current_operator": None,
-                 "Current_filename": None,
-                 "Current_project": None,
-                "update_counter": 0,
-                "last_plot_update": 0,
-                "current_led_state": None,
-                 "new_data": True,
-                "IV_measure": [True, -10.0,-60.0, 12],  #do_it, min voltage, complience, steps
-                "CV_measure": [True, -10.0, -50.0, 10],  # do_it,min voltage, complience, steps
-                "Stripscan_measure": [True, -10.0, -50.0, 10],  #do_it,min voltage, complience, steps
-                "Idiel_measure": [True, 1, 1, 200],  # do_it, every, start, stop
-                "Rpoly_measure": [True, 1, 1, 200],  # do_it, every, start, stop
-                "Cac_measure": [True, 1, 1, 200],  # do_it, every, start, stop
-                "Idark_measure": [True, 1, 1, 200],  # do_it, every, start, stop
-                "Rint_measure": [True, 1, 1, 200],  # do_it, every, start, stop
-                "Cint_measure": [True, 1, 1, 200],  # do_it, every, start, stop
-                "Cback_measure": [False, 1, 1, 200],  # do_it, every, start, stop
-                "Istrip_measure": [True, 1, 1, 200],  # do_it, every, start, stop
-                "IV_longterm_measure": [False, -10, -60.0, 5],  # do_it, min voltage, complience, steps
-                "CintAC_measure": [False, 1, 1, 200],
-                "Table_stay_down": False,
-                "height_movement": 300, # height movement of the table when moving the table
-                "table_ready": False,
-                "bias_voltage": 0,
-                "current_switching": {},
-                "joystick": False,
-                "zlock":    True,
-                "table_is_moving": False,
-                "V0": np.array( [ 68516.76686,   7866.83842,   6611.13939]),
-                "current_strip": -1,
-                "strip_scan_time": 10,
-                "IVCV_time": 300,
-                "Rint_MinMax": [-1.,1.,0.1]
-                }
