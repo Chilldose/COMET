@@ -26,6 +26,8 @@ class Main_window:
         self.layout = layout
         self.log = logging.getLogger(__name__)
 
+
+
         # Orientation and placement
         # 15 times 15 tiles
 
@@ -400,7 +402,7 @@ class Main_window:
             if "Current_project" in self.variables.default_values_dict["settings"]:
                 self.variables.default_values_dict["settings"]["Current_project"] = self.variables.default_values_dict["settings"]["Projects"][0] # That one project is definetly choosen
             else:
-                self.variables.default_values_dict["settings"].update({"Current_project": self.variables.default_values_dict["settings"]["Projects"][0]})
+                self.variables.default_values_dict["settings"].update({"Current_project": self.variables.default_values_dict["settings"].get("Projects", ["No Projects"])[0]})
 
 
             # Sensore selection
@@ -412,8 +414,11 @@ class Main_window:
 
             sensor_comboBox = QComboBox() # Creates a combo box
 
-            for projects in self.variables.default_values_dict["settings"]["Sensor_types"][self.variables.default_values_dict["settings"]["Current_project"]]:
-                sensor_comboBox.addItem(str(projects)) # Adds all items to the combo box
+            sensor_types = self.variables.default_values_dict["settings"].get("Sensor_types", None)
+            current_project = self.variables.default_values_dict["settings"].get("Current_project", None)
+            if current_project and sensor_types:
+                for projects in self.variables.default_values_dict["settings"]["Sensor_types"][self.variables.default_values_dict["settings"]["Current_project"]]:
+                    sensor_comboBox.addItem(str(projects)) # Adds all items to the combo box
             sensor_comboBox.activated[str].connect(sensor_selector_action)
 
             if "Current_sensor" in self.variables.default_values_dict["settings"]:
@@ -422,9 +427,11 @@ class Main_window:
                 except:
                     self.variables.default_values_dict["settings"]["Current_sensor"] = "None"
             else:
-                self.variables.default_values_dict["settings"].update({"Current_sensor": self.variables.default_values_dict["settings"]["Sensor_types"][self.variables.default_values_dict["settings"]["Current_project"]][0]})
-
-
+                if current_project and sensor_types:
+                    self.variables.default_values_dict["settings"].update({
+                        "Current_sensor": self.variables.default_values_dict["settings"]["Sensor_types"][self.variables.default_values_dict["settings"]["Current_project"]][0]})
+                else:
+                    self.variables.default_values_dict["settings"].update({"Current_sensor": "None"})
             # Measurement name selection
 
             # Label of the input file
@@ -453,7 +460,7 @@ class Main_window:
 
             op_comboBox = QComboBox() # Creates a combo box
 
-            for projects in self.variables.default_values_dict["settings"]["Operator"]:
+            for projects in self.variables.default_values_dict["settings"].get("Operator", "None"):
                 op_comboBox.addItem(str(projects)) # Adds all items to the combo box
 
             op_comboBox.activated[str].connect(operator_selector_action)
@@ -461,7 +468,7 @@ class Main_window:
             if "Current_operator" in self.variables.default_values_dict["settings"]:
                 self.variables.default_values_dict["settings"]["Current_operator"] = self.variables.default_values_dict["settings"]["Operator"][0] # That one project is definetly choosen
             else:
-                self.variables.default_values_dict["settings"].update({"Current_operator": self.variables.default_values_dict["settings"]["Operator"][0]})
+                self.variables.default_values_dict["settings"].update({"Current_operator": self.variables.default_values_dict["settings"].get("Operator", ["None",])[0]})
 
             # Save path selector
 
@@ -603,11 +610,11 @@ class Main_window:
                     bias = "Bias Voltage: " + str(en.EngNumber(float(self.variables.default_values_dict["settings"]["bias_voltage"]))) + "V" + "\n\n"
                 except:
                     bias = "Bias Voltage: NONE V" + "\n\n"
-                starttime = "Start time: " + str(self.variables.default_values_dict["settings"]["Start_time"]) + "\n\n"
-                eastend = "East. end time: " + str(self.variables.default_values_dict["settings"]["End_time"]) + "\n\n"
-                striptime = "Strip meas. time: " + str(round(float(self.variables.default_values_dict["settings"]["strip_scan_time"]),2)) + " sec" +  "\n\n"
-                badstrips = "Bad strips: " + str(self.variables.default_values_dict["settings"]["Bad_strips"]) + "\n\n"
-                currentstrip = "Current strip: " + str(self.variables.default_values_dict["settings"]["current_strip"]) + "\n\n"
+                starttime = "Start time: " + str(self.variables.default_values_dict["settings"].get("Start_time", None)) + "\n\n"
+                eastend = "East. end time: " + str(self.variables.default_values_dict["settings"].get("End_time", None)) + "\n\n"
+                striptime = "Strip meas. time: " + str(round(float(self.variables.default_values_dict["settings"].get("strip_scan_time", 0)),2)) + " sec" +  "\n\n"
+                badstrips = "Bad strips: " + str(self.variables.default_values_dict["settings"].get("Bad_strips", None)) + "\n\n"
+                currentstrip = "Current strip: " + str(self.variables.default_values_dict["settings"].get("current_strip", None)) + "\n\n"
 
                 return str( starttime + eastend + striptime + currentstrip + badstrips + bias)
 
@@ -1003,16 +1010,16 @@ class Main_window:
         # Config
 
         tempmin.setRange(15,35)
-        tempmin.setValue(float(self.variables.default_values_dict["settings"]["current_tempmin"]))
+        tempmin.setValue(float(self.variables.default_values_dict["settings"].get("current_tempmin", 0)))
         tempmax.setRange(15, 35)
-        tempmax.setValue(float(self.variables.default_values_dict["settings"]["current_tempmax"]))
+        tempmax.setValue(float(self.variables.default_values_dict["settings"].get("current_tempmax", 0)))
         tempmin.valueChanged.connect(valuechange)
         tempmax.valueChanged.connect(valuechange)
 
         hummin.setRange(0, 70)
-        hummin.setValue(float(self.variables.default_values_dict["settings"]["current_hummin"]))
+        hummin.setValue(float(self.variables.default_values_dict["settings"].get("current_hummin", 0)))
         hummax.setRange(0, 70)
-        hummax.setValue(float(self.variables.default_values_dict["settings"]["current_hummax"]))
+        hummax.setValue(float(self.variables.default_values_dict["settings"].get("current_hummax", 0)))
         hummin.valueChanged.connect(valuechange)
         hummax.valueChanged.connect(valuechange)
 

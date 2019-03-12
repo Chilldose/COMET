@@ -25,6 +25,12 @@ class DataBrowser_window:
         self.layout = layout
         self._translate = QtCore.QCoreApplication.translate
 
+
+
+        # If no Padfiles etc exist
+        if not self.variables.pad_files_dict:
+            self.variables.pad_files_dict = {}
+
         self.log = logging.getLogger(__name__)
 
         @hf.raise_exception

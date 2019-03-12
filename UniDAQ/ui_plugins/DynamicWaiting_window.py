@@ -23,6 +23,8 @@ class DynamicWaiting_window:
         self.variables = GUI
         self.layout = layout
 
+
+
         self.setpg = pq
         self.voltage_step = 0
         # Generate Colormap for plots

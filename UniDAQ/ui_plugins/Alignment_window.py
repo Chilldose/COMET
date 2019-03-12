@@ -210,7 +210,7 @@ class Alignment_window:
             relative_movepos = [x1 - x2 for (x1, x2) in zip(sensor_second_pos, sensor_first_pos)]
             #No add the strip length to the y axis for aliognement reasons
             #relative_movepos[1] = relative_movepos[1] + self.sensor_pad_file["strip_length"]
-            error = self.variables.table.relative_move_to(relative_movepos, True, self.variables.default_values_dict["settings"].get("height_movement",800))
+            error = self.variables.table.relative_move_to(relative_movepos, True, self.variables.default_values_dict["settings"]["height_movement"])
             if error:
                 self.variables.message_to_main.put(error)
                 self.error_action(error)
@@ -228,7 +228,7 @@ class Alignment_window:
             sensor_first_pos = self.reference_pads_positions[1]  # this gives me absolute positions
             sensor_second_pos = self.reference_pads_positions[2]  # this gives me absolute positions
             relative_movepos = [x1 - x2 for (x1, x2) in zip(sensor_second_pos, sensor_first_pos)]
-            error = self.variables.table.relative_move_to(relative_movepos, True,self.variables.default_values_dict["settings"].get("height_movement", 800))
+            error = self.variables.table.relative_move_to(relative_movepos, True,self.variables.default_values_dict["settings"]["height_movement"])
             if error:
                 self.variables.message_to_main.put(error)
                 self.error_action(error)
@@ -262,7 +262,7 @@ class Alignment_window:
 
             table_abs_pos = self.trans.vector_trans(relative_check_pos, T, V0)
 
-            error = self.variables.table.move_to(list(table_abs_pos), True, self.variables.default_values_dict["settings"].get("height_movement", 800))
+            error = self.variables.table.move_to(list(table_abs_pos), True, self.variables.default_values_dict["settings"]["height_movement"])
             if error:
                 self.variables.message_to_main.put(error)
                 self.error_action(error)

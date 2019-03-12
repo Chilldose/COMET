@@ -6,7 +6,7 @@ import logging
 import os
 import numpy as np
 from .utilities import help_functions
-#import numba as nb
+import numba as nb
 from scipy.stats import norm, stats
 hf = help_functions()
 
@@ -14,7 +14,7 @@ hf = help_functions()
 
 class stripanalysis:
     """Class which provides all necessary functions for bad strip detection, for more information on its capabilites
-    look at the reference manual. Written by Dominic Bloech, based on Manfred Valentan"""
+    look at the reference manual. Written by Dominic Bloech, based on Manfred Valentans bad strip detection"""
 
     def __init__(self, main_obj, filepath = "analysis.ini"):
         """Just some initialization stuff"""
@@ -88,7 +88,7 @@ class stripanalysis:
                 try: # try to convert to number
                     dat[j] = float(singleentry.strip())
                 except:
-                    dat[j] = singleentry.strip()
+                    dat[j] = np.nan # singleentry.strip()
             if len(dat) == len(parsed_obj[0]):
                 parsed_data.append(dat)
 
@@ -96,18 +96,10 @@ class stripanalysis:
         for i, meas in enumerate(parsed_obj[0]):
             data_lists.append([parsed_data[x][i] for x in range(len(parsed_data))])
             # Construct dict
-            data_dict.update({str(meas): data_lists[i]})
+            data_dict.update({str(meas): np.array(data_lists[i])})
 
         return_dict = {"data": data_dict, "header": header, "measurements": parsed_obj[0], "units": parsed_obj[1]}
         return return_dict
-
-    def single_defect_detection(self):
-        """Detects if the given strip has a defect, common only to itself and returns what kind of defect it prob. is"""
-        pass
-
-    def cluster_defect_detection(self):
-        """Detects errors common to multiple strips"""
-        pass
 
     def temperatur_correction(self):
         """Takes strips and makes a temperature correction of the strip"""
@@ -120,108 +112,53 @@ class stripanalysis:
 
         return time, res
 
+    def median(self, data):
+        """Returns the median of values"""
+        return np.median(data)
+
+
+    def find_bad_DC_contact(self):
+        """Looks for low Istrip and High Rpoly and determines bac DC needle contacts"""
+        pass
+
+
     @hf.raise_exception
     def do_analysis(self):
         """This will run the analysis for all measurements loaded, which have not been analysed yet"""
 
-        for run in self.all_data.values(): # Loop over all measurements
-            if not run["analysed"]: # Exclude the ones which are already analysed
-                # Add a new entrie for the analysis results and get xdata
-                results = run["analysis_results"] = {
-                                                        "lms_fit": {},
-                                                        "histogram": {},
-                                                        "pdf": {},
-                                                        "report": {},
-                                                        "threshold": {}
-                                                    }
-                xdata = range(len(run["data"]["Pad"]))
-                #Loop over all measurement types
-                for meas, ydata in run["data"].items():
-                    # Do the lms linefit for every measurement prevalent
-                    if "Pad" not in meas: # Exclude the pad analysis
-                        self.log.info("Calculating lms line for: " + str(meas))
-                        time, res = self.do_lms_fit(xdata, ydata)
-                        results["lms_fit"][meas] = res
-                        results["report"][meas] = "LMS line fit: \n" \
-                                                   "k= " + str(res[0]) + ",\t" +\
-                                                   "d= " + str(res[1]) + "\n\n"
+        self.log.info("Starting Analysis...")
 
-                        self.log.info("Time taken for analysis: " + str(time))
+        for data in self.all_data:
+            working_data = self.all_data[data]["data"].copy()
+            # Remove nan values
+            for subdata in working_data:
+                working_data[subdata] = working_data[subdata][~np.isnan(working_data[subdata])]
 
-                        # Generate Histogram----------------------------
+            Idark_median = self.median(working_data["Idark"])
 
-                        # Remove outliner if necessary
-                        if self.settings["remove_outliner"]:
-                            ydata = self.remove_outliner(ydata) # Warning this changes the length of the array!!!
+            # Look for low Istrip and High Rpoly, DC needle contact issues
 
-                        # Make actual histogram
-                        x,y = self.do_histogram(ydata, 50)
-                        results["histogram"][meas] = [x,y]
+            # Look for high Idiel, pin holes
 
-                        # Generate PDF
-                        pdf = self.do_normaldist(ydata, 50)
-                        results["report"][meas] += "Normal distribution: \n" \
-                                                   "mu= " + str(pdf[0]) + ",\t" +\
-                                                   "std= " + str(pdf[1])+ "\n\n"
-                        results["pdf"][meas] = pdf
+            # No pinhole, Cac and Rpoly - out of bounds, no AC needle contact
 
-                        # Make singlestrip threshold analysis
-                        bad_strips = self.do_offline_singlestrip_analysis(meas, ydata)
-                        results["report"][meas] += "Threshold analysis: \n" +\
-                                                   "Total number of bad strips: " + str(len(bad_strips)) + "\n\n"
-                        results["threshold"][meas] = bad_strips
+            # Piecewise LMS fit and relative Threshold calculation
 
-                # When everything is finished switch flag to analysed
-                run["analysed"] = True
+            # 2x Istrip, 0.5x Rpoly, implant short
+
+            # 2x Cac, 2 Idiel, metal short
+
+            # High Istrip, high current (faulty strip)
+
+            # Low Cac - bad capacitance
+
+            # High Rpoly, Resistor interrupt
+
+            # lower Cac as usuall D~normal,
+            #   Proportional to Istrip, implant open, given by deviation of Istrip
+            #   No: metal open, given by deviation of Cac
 
         self.log.info("Analysis done")
-
-    def do_offline_singlestrip_analysis(self, meas, data):
-            """This function just calls the online analysis for every strip and generates a report text"""
-            bad_strips = []
-            for i, val in enumerate(data):
-                result = self.do_online_singlestrip_analysis((meas, val))
-                if result:
-                    bad_strips.append((i, result[2]))
-            return bad_strips
-
-
-
-
-    def do_online_singlestrip_analysis(self, measurement_tuple):
-        """ Does the online cutoff analysis.
-        This function returns False if one or more strip values did not pass the specs. Can also work if only one value
-        after the other is passed.
-
-        :param measurement_tuple this must be a tuple containing (Measurement_name, value)
-        :return None if all is alright, list [type, (measurement, [critical values], meas value)]
-        """
-        # First find the measurement and what are the
-        if measurement_tuple[0] in self.settings:
-            # Check if the value is inside the boundaries
-            value = measurement_tuple[1] # Just for readability
-            meas = measurement_tuple[0]
-            min_value = float(self.settings[meas][1][0])
-            max_value = float(self.settings[meas][1][1])
-            if value <= max_value and value >= min_value:
-                return None
-            else:
-                return (measurement_tuple[0], [min_value,max_value], value)
-
-        else:
-            self.log.error("Measurement: " + str(measurement_tuple[0] + "could not be found as analysable measurement, please add it."))
-            return ["Measurement not found", (None, None, None)]
-
-    def do_online_cluster_analysis(self, list_of_strip_dicts):
-        """
-        This functions calls the actual online bad strip detection analysis stripts and will return a False if one or
-        more strips show bad behavior.
-
-        :param events: Is a dictionary containing key: measurement and value: the measured value.
-                       if it is a list of dictionaries, the program will interpret cross relations as well
-        :return:
-        """
-        pass
 
     def lmsalgorithm(self, x, y, q):
         # initialisations
@@ -302,16 +239,15 @@ class stripanalysis:
         Uses the zscore algorithm"""
 
         # Method by z-score
-        z = np.abs(stats.zscore(ydata))
-        final_list = np.array(ydata)[(z < self.settings["outlier_std"])]
+        data = ydata[np.logical_not(np.isnan(ydata))]
+        z = np.abs(stats.zscore(data))
+        final_list = np.array(data)[(z < self.settings["outlier_std"])]
 
         # Method by std deviation (not very robust)
         # final_list = [x for x in ydata if (x > mu - self.settings["outlier_std"] * std)]
         # final_list = [x for x in final_list if (x < mu + self.settings["outlier_std"] * std)]
 
         return final_list
-
-
 
 if __name__ == "__main__":
     det = stripanalysis(None, "C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\UniDAQ\\UniDAQ\\config\\default\\badstrip.yml")

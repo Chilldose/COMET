@@ -897,7 +897,7 @@ class table_control_class:
         self.variables = main_variables["settings"]
         self.devices = devices
         self.device = devices.get("Table_control", None)
-        self.table_ready = self.variables["table_ready"]
+        self.table_ready = self.variables.get("table_ready", False)
         self.queue = queue_to_GUI
         self.vcw = vcw
         self.shell = None
@@ -907,11 +907,12 @@ class table_control_class:
         try:
             self.visa_resource = self.devices.get("Table_control",None)["Visa_Resource"]
             self.table_ready = True
+            self.zmove = self.variables["height_movement"]
         except:
             self.table_ready = False
             self.queue.put({"RequestError": "Table seems not to be connected!"})
             self.log.error("Table control could not be initialized!")
-        self.zmove = self.variables["height_movement"]
+
 
     def get_current_position(self):
         '''Queries the current position of the table and writes it to the state machine'''
@@ -1042,7 +1043,7 @@ class table_control_class:
         return True
 
 
-    def move_to_strip(self, pad_file, strip, transfomation_class, T, V0, height_movement = 800):
+    def move_to_strip(self, pad_file, strip, transfomation_class, T, V0, height_movement):
         '''
         Moves to a specific strip
 

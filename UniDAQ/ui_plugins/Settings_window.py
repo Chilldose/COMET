@@ -32,7 +32,8 @@ class Settings_window:
         self.settings = self.variables.load_QtUi_file("settings_gui.ui", settings_widget)
         self.layout.addWidget(settings_widget)
 
-        self.configure_settings()
+        if self.measurements:
+            self.configure_settings()
 
         # Add the shell commands
         self.variables.shell.add_cmd_command(self.load_new_settings)

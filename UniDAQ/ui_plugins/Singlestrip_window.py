@@ -41,6 +41,7 @@ class Singlestrip_window:
 
         self.trans = utilities.transformation()
 
+
         # Config plot
         self.plot_config()
 
@@ -149,7 +150,7 @@ class Singlestrip_window:
         # This clear here erases all data from the viewbox each time this function is called and draws all points again!
         # Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage
         # With the clear statement medium cpu und low memory usage
-        if self.variables.default_values_dict["settings"]["new_data"]:
+        if self.variables.default_values_dict["settings"].get("new_data", False):
             if len(self.variables.meas_data[self.plot_data + "_scan"][0]) == len(self.variables.meas_data[self.plot_data + "_scan"][1]):  # sometimes it happens that the values are not yet ready
                 if self.variables.meas_data[self.plot_data + "_scan"]:
                     self.single_strip.single_strip_plot.plot(self.variables.meas_data[self.plot_data + "_scan"][0], self.variables.meas_data[self.plot_data + "_scan"][1], pen="y", clear=True)

@@ -244,6 +244,7 @@ def update_defaults_dict(dict, additional_dict):
         Updates the defaults values dict
         :param dict: the dictionary which will be updated to the default values dict
         """
-        additional_dict.pop("Settings_name")
+        if "Settings_name" in additional_dict:
+            additional_dict.pop("Settings_name")
         return dict["settings"].update(additional_dict)
 

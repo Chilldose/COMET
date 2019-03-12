@@ -95,9 +95,9 @@ class StripAnalysis_window:
         self.badstrip.which_plot.clear()
         try:
             self.badstrip.which_plot.addItems(self.plot_data.keys())
-            self.update_analysis_plots(self.plot_data.keys()[0])
+            self.update_analysis_plots(list(self.plot_data.keys())[0])
         except Exception as e:
-            l.error("An error occured while accessing data from the bad strip detection: " + str(e))
+            l.error("An error occured during updating measurement selector: " + str(e))
 
     def update_analysis_plots(self, current_item):
         """This function updats the combo box for the specific measurement which should be shown"""
@@ -169,18 +169,18 @@ class StripAnalysis_window:
         self.reconfig_plot(measurement_name, self.measurement_dict[measurement_name])
         measurement = self.badstrip.which_plot.currentText()
         ydata = self.plot_data[measurement]["data"][measurement_name]
-        xdata = range(len(self.plot_data[measurement]["data"]["Pad"]))
-        if ydata: # Checks if data is available or if all is empty
+        xdata = np.arange(len(self.plot_data[measurement]["data"]["Pad"]))
+        if ydata.any(): # Checks if data is available or if all is empty
             if len(xdata) == len(ydata):  # sometimes it happens that the values are not yet ready (fucking multithreading)
 
                 # Make the normal line Plot
-                self.badstrip.strip_plot.plot(xdata, ydata, pen="r", clear=True, width=8)
+                self.badstrip.strip_plot.plot(xdata, ydata, pen="r", clear=True, width=8, connect="finite")
 
                 # Make the histogram of the data
                 # y, x = np.histogram(np.array(ydata), bins=int(self.bins))
-                yout =self.variables.analysis.remove_outliner(ydata)
+                yout = self.variables.analysis.remove_outliner(ydata)
                 x, y = self.variables.analysis.do_histogram(yout, self.bins)
-                self.badstrip.strip_plot_histogram.plot(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80), clear=True)
+                self.badstrip.strip_plot_histogram.plot(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80), clear=True, connect="finite")
 
                 if self.plot_data[measurement]["analysed"]:
                     anadata = self.plot_data[measurement]["analysis_results"]

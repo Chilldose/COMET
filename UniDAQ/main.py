@@ -57,7 +57,7 @@ def main():
     # Loading all config files and default files, as well as Pad files
     log.critical("Loading setup files ...")
     stats = boot_up.loading_init_files(hfs)
-    stats.default_values_dict = boot_up.update_defaults_dict(stats.configs["config"], stats.configs["config"]["framework_variables"])
+    stats.default_values_dict = boot_up.update_defaults_dict(stats.configs["config"], stats.configs["config"].get("framework_variables", {}))
 
     # Initializing all modules
     log.critical("Initializing modules ...")
@@ -70,7 +70,7 @@ def main():
     log.critical("Try to connect to devices ...")
     # Connects to all devices and initiates them and returns the updated device_dict
     # with the actual visa resources
-    devices_dict = boot_up.connect_to_devices(vcw, stats.configs["device_lib"]).get_new_device_dict()
+    devices_dict = boot_up.connect_to_devices(vcw, stats.configs.get("device_lib",{})).get_new_device_dict()
 
     log.critical("Starting the event loops ... ")
     table = utilities.table_control_class(
@@ -99,7 +99,7 @@ def main():
         measurement_event_loop,
         devices_dict,
         stats.configs["config"],
-        stats.configs["Pad_files"],
+        stats.configs.get("Pad_files"),
         vcw,
         table,
         switching,
@@ -118,7 +118,7 @@ def main():
         message_to_main,
         devices_dict,
         stats.configs["config"],
-        stats.configs["Pad_files"],
+        stats.configs.get("Pad_files"),
         hfs,
         vcw,
         queue_to_GUI,

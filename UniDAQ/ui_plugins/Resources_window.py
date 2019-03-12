@@ -17,6 +17,8 @@ class Resources_window:
 
         self.variables = GUI
         self.layout = layout
+
+
         self.list_of_instruments = []
         self.possible_states = [("INIT", "QFrame { background :rgb(0, 0, 255) }"),
                                 ("CONFIGURED", "QFrame { background :rgb(0, 255, 0) }"),

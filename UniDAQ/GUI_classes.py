@@ -187,7 +187,8 @@ class GUI_classes(GUI_event_loop, QWidget):
 
 
         for modules in self.ui_classes:  # import all modules from all files in the plugins folder
-            self.all_plugin_modules.update({modules: importlib.import_module("UniDAQ.ui_plugins." + str(modules))})
+            if modules.split("_")[0] in self.default_values_dict["settings"]["GUI_render_order"]:
+                self.all_plugin_modules.update({modules: importlib.import_module("UniDAQ.ui_plugins." + str(modules))})
 
 
     def updateWidget(self, widget):

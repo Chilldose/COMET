@@ -178,6 +178,7 @@ class GUI_event_loop:
 
         #This function checks if updates of plots has been made and sets the variable back to False, so that no unnessesary plotting is done
         #Will be called as last update function
+        #print(self.default_values_dict["settings"])
         if self.default_values_dict["settings"]["new_data"] and (self.default_values_dict["settings"]["update_counter"] > self.default_values_dict["settings"]["last_plot_update"]):
             self.default_values_dict["settings"]["last_plot_update"] = self.default_values_dict["settings"]["update_counter"]
             self.default_values_dict["settings"]["new_data"] = False
