@@ -361,8 +361,13 @@
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
+        <property name="font">
+         <font>
+          <pointsize>10</pointsize>
+         </font>
+        </property>
         <property name="autoFillBackground">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
         <property name="styleSheet">
          <string notr="true">background-color: rgb(255, 255, 255);</string>
@@ -372,6 +377,9 @@
         </property>
         <property name="alignment">
          <set>Qt::AlignJustify|Qt::AlignTop</set>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
         </property>
         <property name="margin">
          <number>15</number>

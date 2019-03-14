@@ -66,18 +66,27 @@ class StripAnalysis_window:
         self.badstrip.cb_Save_plots.clicked.connect(self.export_action)
         self.badstrip.analyse_button.clicked.connect(self.analyse_action)
 
-
+    @hf.raise_exception
     def analyse_action(self):
         """This starts the analysis of the loaded measurements"""
         self.variables.analysis.do_analysis()
         measurement = self.badstrip.which_measurement.currentText()
         self.update_plot(measurement)
+        self.update_results_text()
 
 
     def export_action(self):
         self.variables.default_values_dict["Badstrip"]["export_results"] = self.badstrip.cb_Save_results.isChecked()
         self.variables.default_values_dict["Badstrip"]["export_plot"] = self.badstrip.cb_Save_plots.isChecked()
 
+    @hf.raise_exception
+    def update_results_text(self):
+        """Updates the result text for a measurement"""
+
+        # Get selected measurement
+        measurement = self.badstrip.which_plot.currentText()
+        if "Analysis_conclusion" in self.variables.analysis.all_data[measurement]:
+            self.badstrip.report_lable.setText(self.variables.analysis.all_data[measurement]["Analysis_conclusion"])
 
     @hf.raise_exception
     def update_stats(self, kwargs = None):
@@ -96,6 +105,7 @@ class StripAnalysis_window:
         try:
             self.badstrip.which_plot.addItems(self.plot_data.keys())
             self.update_analysis_plots(list(self.plot_data.keys())[0])
+            self.update_results_text()
         except Exception as e:
             l.error("An error occured during updating measurement selector: " + str(e))
 
@@ -108,6 +118,7 @@ class StripAnalysis_window:
             # Get the current selected measurement
             self.badstrip.which_measurement.addItems(self.plot_data[current_item]["measurements"][1:])
             self.update_plot(self.badstrip.which_measurement.currentText())
+            self.update_results_text()
         except Exception as e:
             l.error("An error occured while accessing data from the bad strip detection: " + str(e))
 

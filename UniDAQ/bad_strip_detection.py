@@ -3,7 +3,7 @@
 
 import yaml
 import logging
-import os
+import os, io
 import numpy as np
 from time import time
 #from .utilities import help_functions
@@ -23,6 +23,11 @@ class stripanalysis:
         self.settings = None
         self.all_data = {}
         self.log = logging.getLogger(__name__)
+        self.log.setLevel(logging.INFO)
+
+
+
+
 
         # First read in the ini file if necessary
         if not self.main:
@@ -32,13 +37,13 @@ class stripanalysis:
 
     def read_in_config_file(self, filepath = "analysis.ini"):
         """Reads the .ini file and returns the configparser typical dicts. If file could not be found IOError will be raised."""
-        self.log.info("Try reading badstrip ini file...")
+        self.log.info("Try reading badstrip config file...")
         try:
             file_string = os.path.abspath(str(filepath))
             settings_file = open(file_string, "r")
             self.settings = yaml.load(settings_file)
             settings_file.close()
-            self.log.info("Badstrip ini file " + str(filepath) + " was successfully loaded.")
+            self.log.info("Badstrip config file " + str(filepath) + " was successfully loaded.")
             #l.info("Included sections in badstrip ini file" + str(self.settings.sections()))
         except IOError as e:
             self.log.error("IO error while accessing config file in badstrip detection, with error: " + str(e))
@@ -161,6 +166,7 @@ class stripanalysis:
                 strip=totalStripCurrent * (self.stripNum / measStripNum),
                 Idark=Idark,
                 ratio=abs(totalStripCurrent * (self.stripNum / measStripNum))/abs(Idark)))
+
         else:
             self.log.warning("The ratio between the sum of Istrip to Idark is: {}".format(
             abs(totalStripCurrent * (self.stripNum / measStripNum))/abs(Idark)
@@ -171,7 +177,7 @@ class stripanalysis:
         highIdiel = np.nonzero(np.abs(Idiel) > self.settings["IdielThresholdCurrent"])[0]
 
         if len(highIdiel):
-            self.log.error("Possible pinholes found on strips: {}".format(highIdiel))
+            self.log.warning("Possible pinholes found on strips: {}".format(highIdiel))
         else:
             self.log.info("No pinholes found.")
 
@@ -353,9 +359,24 @@ class stripanalysis:
     def do_analysis(self):
         """This will run the analysis for all measurements loaded, which have not been analysed yet"""
 
-        self.log.info("Starting Analysis...")
+        self.log.info("Starting badstrip analysis...")
 
         for data in self.all_data:
+
+            ### Setup the console handler with a StringIO object
+            log_capture_string = io.StringIO()
+            ch = logging.StreamHandler(log_capture_string)
+            ch.setLevel(logging.INFO)
+
+            ### Optionally add a formatter
+            formatter = logging.Formatter('%(message)s')
+            ch.setFormatter(formatter)
+
+            ### Add the console handler to the logger
+            self.log.addHandler(ch)
+
+            self.log.info("Badstrip analysis results for file: {}".format(data))
+            # Generate entry for conclusion text
             working_data = self.all_data[data]["data"].copy()
             self.stripNum = len(working_data["Istrip"])
             # Remove nan values
@@ -383,8 +404,8 @@ class stripanalysis:
 
             # Piecewise LMS fit and relative Threshold calculation for all datasets
             piecewiselms = {}
-            for data in working_data:
-                piecewiselms[data] = self.do_piecewise_lms_fit(data,
+            for sdata in working_data:
+                piecewiselms[sdata] = self.do_piecewise_lms_fit(sdata,
                                                                 working_data,
                                                                 cutted_array,
                                                                 self.settings["LMSsize"],
@@ -421,7 +442,16 @@ class stripanalysis:
                 self.find_metal_and_implant_open(LowCap, working_data, piecewiselms,
                                                cutted_array, self.settings["LMSsize"], self.settings["LowCap"])
 
-        self.log.info("Analysis done")
+            # Get all generated messages as an variable
+            ### Pull the contents back into a string and close the stream
+            log_contents = log_capture_string.getvalue()
+            #log_capture_string.close()
+            log_capture_string.truncate(0)
+            log_capture_string.seek(0)
+
+            # Push the output to the data as analysis results
+            self.all_data[data]["Analysis_conclusion"] = log_contents
+            self.all_data[data]["analysed"] = True
 
 
     #@hf.timeit
