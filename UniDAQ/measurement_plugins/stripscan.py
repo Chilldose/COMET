@@ -43,8 +43,6 @@ class stripscan_class:
                       ("Cint", "cap[F]"), ("Cback", "cap[F]")]
         self.strips = self.main.total_strips # now the program knows the total number of strips
         self.current_strip = self.main.main.default_dict["settings"]["current_strip"] # Current pad position of the table
-        #self.T = self.main.main.default_dict["settings"]["T"]
-        #self.V0 = self.main.main.default_dict["settings"]["V0"]
         self.height = self.main.main.default_dict["settings"]["height_movement"]
         self.samples = 3
         self.last_istrip_pad = -1 # Number of the last pad on which a I strip was conducted, important for rpoly
@@ -270,13 +268,12 @@ class stripscan_class:
                         self.main.write(self.main.measurement_files["stripscan"], str(self.sensor_pad_data["data"][current_strip-1][0]).ljust(self.justlength))  # writes the strip to the file
                     for measurement in self.measurement_order:
                         if measurement in self.main.job_details["stripscan"] and not self.main.main.stop_measurement: # looks if measurement should be done
-
                             # Now conduct the measurement
                             # But first check if this strip should be measured with this specific measurement
                             if current_strip in self.main.job_details["stripscan"][measurement]["strip_list"]:
                                 self.main.table.move_to_strip(self.sensor_pad_data, self.current_strip-1, trans, self.T, self.V0, self.height)
-
                                 if not self.main.stop_measurement() and not self.main.check_complience(self.bias_SMU, self.complience):
+                                    value = 0
                                     try:
                                         self.log.info("Conducting measurement: {!s}".format(measurement))
                                         value = getattr(self, "do_"+measurement)(current_strip, self.samples)
@@ -285,26 +282,31 @@ class stripscan_class:
                                     except Exception as err:
                                         self.log.fatal("During strip measurement {!s} a fatal error occured: {!s}".format(measurement, err), exc_info=True)  # log exception info at FATAL log level
 
-                                    # In the end do a quick bad strip detection
-                                    #badstrip = self.main.main.analysis.do_online_singlestrip_analysis((measurement, value))
-                                    badstrip = False
-                                    if badstrip:
-                                        self.log.info("Badstrip detected at strip: " + str(current_strip) + " Error code: " + str(badstrip))
-                                        self.main.queue_to_main.put({"Thresholderror": "Badstrip detected at strip: " + str(current_strip) + " Error code: " + str(badstrip)})
-                                        # Add the bad strip to the list of bad strips
-                                        if str(current_strip) in self.main.badstrip_dict:
-                                            self.main.badstrip_dict[str(current_strip)].update(badstrip)
-                                        else:
-                                            self.main.badstrip_dict[str(current_strip)] = badstrip
-                                            self.main.main.default_dict["settings"]["Bad_strips"] += 1 # increment the counter
-
-
                                     # Write this to the file
                                     if value and self.main.save_data:
-                                        self.main.write(self.main.measurement_files["stripscan"], str(float(value)).ljust(self.justlength)) # Writes the value to the file
+                                        self.main.write(self.main.measurement_files["stripscan"],
+                                                str(float(value)).ljust(self.justlength))  # Writes the value to the file
                             else:
                                 if self.main.save_data:
-                                    self.main.write(self.main.measurement_files["stripscan"], "--".ljust(self.justlength)) # Writes nothing if no value is aquired
+                                    self.main.write(self.main.measurement_files["stripscan"], "--".ljust(
+                                        self.justlength))  # Writes nothing if no value is aquired
+
+                    # In the end do a quick bad strip detection
+                    try:
+                        badstrip = self.main.main.analysis.do_contact_check(self.main.measurement_data)
+                    except Exception as e:
+                        self.log.error("An error happend while performing the bad contact determination with error: "
+                                       "{}".format(e))
+                        badstrip = False
+
+                    if badstrip:
+                        self.log.error("Bad contact of needles detected!: " + str(current_strip))
+                        # Add the bad strip to the list of bad strips
+                        if str(current_strip) in self.main.badstrip_dict:
+                            self.main.badstrip_dict[str(current_strip)].update(badstrip)
+                        else:
+                            self.main.badstrip_dict[str(current_strip)] = badstrip
+                            self.main.main.default_dict["settings"]["Bad_strips"] += 1 # increment the counter
 
                     if not self.main.stop_measurement():
                         # After all measurements are conducted write the environment variables to the file

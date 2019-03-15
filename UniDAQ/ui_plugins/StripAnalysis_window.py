@@ -51,6 +51,10 @@ class StripAnalysis_window:
         self.plot_config()
         self.update_stats()
 
+        # Set margins of things
+        self.badstrip.scrollArea.setContentsMargins(0, 0, 0, 0)
+        self.badstrip.report_lable.setContentsMargins(0, 0, 0, 0)
+
         # Asign the buttons
         self.badstrip.Button_changeload.clicked.connect(self.load_measurement_action)
         self.badstrip.Button_changeload.clicked.connect(self.update_stats)
@@ -65,14 +69,16 @@ class StripAnalysis_window:
         self.badstrip.cb_Save_results.clicked.connect(self.export_action)
         self.badstrip.cb_Save_plots.clicked.connect(self.export_action)
         self.badstrip.analyse_button.clicked.connect(self.analyse_action)
+        #self.badstrip.save_plots_button.clicked.connect(self.export_plots)
 
-    @hf.raise_exception
     def analyse_action(self):
         """This starts the analysis of the loaded measurements"""
-        self.variables.analysis.do_analysis()
-        measurement = self.badstrip.which_measurement.currentText()
-        self.update_plot(measurement)
-        self.update_results_text()
+        if self.badstrip.which_plot.currentText():
+
+            self.variables.analysis.do_analysis()
+            measurement = self.badstrip.which_measurement.currentText()
+            self.update_plot(measurement)
+            self.update_results_text()
 
 
     def export_action(self):
@@ -87,7 +93,10 @@ class StripAnalysis_window:
         measurement = self.badstrip.which_plot.currentText()
         if "Analysis_conclusion" in self.variables.analysis.all_data[measurement]:
             self.badstrip.report_lable.setText(self.variables.analysis.all_data[measurement]["Analysis_conclusion"])
-
+            self.badstrip.radioData.setChecked(True)
+        else:
+            self.badstrip.report_lable.setText("")
+            self.badstrip.radioData.setChecked(False)
     @hf.raise_exception
     def update_stats(self, kwargs = None):
         """Updates the text of the loaded files and such shit"""
@@ -193,8 +202,9 @@ class StripAnalysis_window:
                 x, y = self.variables.analysis.do_histogram(yout, self.bins)
                 self.badstrip.strip_plot_histogram.plot(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80), clear=True, connect="finite")
 
-                if self.plot_data[measurement]["analysed"]:
-                    anadata = self.plot_data[measurement]["analysis_results"]
+                if self.plot_data[measurement]["analysed"] and False:
+                    # Todo: plot the lms piecewise here as well
+                    anadata = self.plot_data[measurement]
 
                     # Plot Lms line
                     # containst first and last point for the slope y = kx+d
@@ -220,6 +230,7 @@ class StripAnalysis_window:
 
                     # Update report text
                     self.badstrip.report_lable.setText(anadata["report"][measurement_name])
+        return self.badstrip.strip_plot, self.badstrip.strip_plot_histogram
 
 
 
@@ -249,3 +260,26 @@ class StripAnalysis_window:
         self.output_directory = str(directory)
         self.badstrip.label_output.setText(str(directory))
         l.info("Changed analysis output file to: " + str(directory))
+
+    def export_plots(self):
+        """Exports all current plots to the output directory, as well as the Analysis results text"""
+        # create an exporter instance, as an argument give it
+        # the item you wish to export
+        # Todo: some bug is here with the exporting
+        import pyqtgraph as pg
+        import pyqtgraph.exporters.SVGExporter
+
+        old_measurement = self.badstrip.which_measurement.currentText()
+        old_plot = self.badstrip.which_plot.currentText()
+        for meas in self.plot_data[old_plot]["data"].keys(): # Loop over all possible plots
+            if meas != "Pad":
+                plot, hist = self.update_plot(meas)
+                win = pg.GraphicsLayoutWidget()
+                for i, pl in enumerate([plot, hist]):
+                    plt = win.addPlot(row=i, col=0)
+                    plt.addItem(pl.plotItem)
+                exporter = pg.exporters.ImageExporter(win.scene())
+                # set export parameters if needed
+                exporter.params['width'] = 1000
+                # save to file
+                exporter.export('fileName.png')

@@ -63,6 +63,7 @@ class measurement_class:
         for data_files in self.settings["settings"]["measurement_types"]:
             self.measurement_data.update({data_files: [[np.zeros(0)], [np.zeros(0)]]})
 
+
         #self.make_measurement_plan()
 
         # Perfom the setup check and start the measurement

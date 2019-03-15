@@ -211,8 +211,11 @@ class DataBrowser_window:
             device = str(self.variables.default_values_dict["settings"]["current_selected_browser_value"])
 
             if device != "None":
-                self.variables.ui_plugins["Settings_window"].load_new_settings()  # reloads the settings made
                 load_settings_values(device)
+                try: # Todo: legacy which is dependent from another gui
+                    self.variables.ui_plugins["Settings_window"].load_new_settings()  # reloads the settings made
+                except:
+                    pass
 
 
         @hf.raise_exception

@@ -24,16 +24,16 @@ class stripanalysis:
         self.all_data = {}
         self.log = logging.getLogger(__name__)
         self.log.setLevel(logging.INFO)
-
-
-
-
+        self.config_file = filepath
 
         # First read in the ini file if necessary
         if not self.main:
             self.read_in_config_file(filepath)
         else:
             self.settings = self.main.default_values_dict.get("Badstrip", {})
+
+    def reload_config_file(self):
+        self.read_in_config_file(self.config_file)
 
     def read_in_config_file(self, filepath = "analysis.ini"):
         """Reads the .ini file and returns the configparser typical dicts. If file could not be found IOError will be raised."""
@@ -218,6 +218,18 @@ class stripanalysis:
         found = np.concatenate(found)
         return found
 
+    def do_contact_check(self, measurement):
+        """Quickly checks if AC and DC needle have contact or not"""
+        # Todo: only report back faulty strips which have not jetzt been reported
+        if len(measurement["Istrip"][1] > 10):
+            DCerror = self.find_bad_DC_contact(measurement["Istrip"][1], measurement["Rpoly"][1])
+            ACerror = self.find_bad_AC_contact(measurement["Cac"][1], measurement["Rpoly"][1], [])
+
+            if len(DCerror) or len(ACerror):
+                return True
+            else:
+                return False
+
 
     def find_bad_DC_contact(self, Istrip, Rpoly):
         """Looks for low Istrip and High Rpoly and determines bac DC needle contacts
@@ -314,7 +326,7 @@ class stripanalysis:
             highI = self.compare_closeness(Istrip[Ista:Isto], Ilms, Ixval[Ista:Isto], factor=factors[0])
             lowR = self.compare_closeness(Rpoly[Rsta:Rsto], Rlms, Rxval[Rsta:Rsto], factor=factors[1])
             # Find intersect
-            intersect.append(np.nonzero(np.logical_and(highI, lowR))[0]+Ista) # If data cut is not the same für istrip and rpoly error happens
+            intersect.append(np.nonzero(np.logical_and(highI, lowR))[0]+Ista) # If data cut is not the same for istrip and rpoly error happens
         intersect = np.concatenate(intersect)
         return intersect
 
@@ -442,16 +454,22 @@ class stripanalysis:
                 self.find_metal_and_implant_open(LowCap, working_data, piecewiselms,
                                                cutted_array, self.settings["LMSsize"], self.settings["LowCap"])
 
+            # Check if parameters are within the specs
+            self.check_if_in_specs(working_data)
+
             # Get all generated messages as an variable
             ### Pull the contents back into a string and close the stream
             log_contents = log_capture_string.getvalue()
-            #log_capture_string.close()
-            log_capture_string.truncate(0)
-            log_capture_string.seek(0)
 
             # Push the output to the data as analysis results
             self.all_data[data]["Analysis_conclusion"] = log_contents
             self.all_data[data]["analysed"] = True
+            if __name__ == "__main__":
+                print(log_contents)
+
+            # log_capture_string.close()
+            log_capture_string.truncate(0)
+            log_capture_string.seek(0)
 
 
     #@hf.timeit
@@ -520,6 +538,32 @@ class stripanalysis:
 
         return final_list
 
+    def check_if_in_specs(self, data):
+        """
+        Checks if the measurement data is inside the specs for e.g. CMS tracker
+        :param data: data dict with all measurements
+        :return: dict with all measurements containing (inside_specs, median_ok, glob_len)
+        """
+        return_dict = {}
+        for meas, dat in data.items():
+            if meas in self.settings:
+                #Calc median
+                medi = np.median(dat)
+                inside_specs = np.where(np.logical_and(dat > float(self.settings[meas][1][0]), # Looks which strips are inside
+                                                      dat < float(self.settings[meas][1][1])))[0]
+                median_ok = np.where(np.logical_and(dat < medi * (1+self.settings[meas][2]/100), # Looks which strips are inside median
+                                                    dat > medi * (1-self.settings[meas][2]/100)))[0]
+                glob_len = len(dat)
+
+                self.log.warning("{}% of the strips are inside {} specifications.".format(round((
+                                                                        len(inside_specs)/glob_len)*100,1), meas))
+                self.log.warning("{}% of the strips are inside median({meas})+-{perc}%".format(round((
+                                                                        len(median_ok)/glob_len)*100,1),
+                                                                        meas=meas,
+                                                                        perc=self.settings[meas][2]))
+                return_dict[meas] = (inside_specs, median_ok, glob_len)
+        return return_dict
+
 # This function works as a decorator to measure the time of function to execute
 def timeit(method):
         """
@@ -573,3 +617,4 @@ if __name__ == "__main__":
     det = stripanalysis(None, "C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\UniDAQ\\UniDAQ\\config\\config\\badstrip.yml")
     det.read_in_measurement_file(["C:\\Users\\dbloech\\Desktop\\str_VPX28442_2S_04.txt"])
     det.do_analysis()
+

@@ -43,21 +43,20 @@
 
   # Pad parameter
   # Parameters {Name of measurement: [Nominal value, -[dmin, dmax], varianz in percent of mean}
-  # All parameters will be normalized to the implant/metal length, respectively
   Rpoly:
     - 1500000
     - [1200000, 1800000]
-    - 0.5
+    - 5
 
   Istrip:
     - 1e-9
     - [-5e-9,0]
-    - 0.5
+    - 20
 
   Idiel:
     - 1e-12
     - [-1e-9,1e-9]
-    - 20.0
+    - 20
 
   Idark:
     - 5e-6
@@ -67,7 +66,7 @@
   Cint:
     - 100e-12
     - [50e-12, 130e-12]
-    - 0.5
+    - 5
 
   Rint:
     - 100e9
@@ -78,19 +77,19 @@
   Cac:
     - 1.4e-10
     - [0.8e-10, 2e-10]
-    - 0.5
+    - 5
 
   # Termperature
   Temperature:
     - 23
-    - [22, 24]
-    - 0.5
+    - [20, 23]
+    - 10
 
   # Humidity
   Humidity:
     - 22
     - [18, 27]
-    - 0.5
+    - 10
 
   # Plot sections parameters
   do_plot: True # Should plots be done or not
