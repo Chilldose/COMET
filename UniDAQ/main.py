@@ -40,7 +40,7 @@ def main():
 
     # Initialize logger using configuration
     rootdir = os.path.dirname(os.path.abspath(__file__))
-    config = os.path.join(rootdir, "Logfiles", "loggerConfig.yml")
+    config = os.path.join(rootdir, "loggerConfig.yml")
     utilities.LogFile(config)
 
     # Get logger
