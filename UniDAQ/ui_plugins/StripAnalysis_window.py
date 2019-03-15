@@ -71,6 +71,58 @@ class StripAnalysis_window:
         self.badstrip.analyse_button.clicked.connect(self.analyse_action)
         #self.badstrip.save_plots_button.clicked.connect(self.export_plots)
 
+
+    def update_specs_bars(self, data_label, data):
+        """Adds specs bars for the absolute values and median +- values"""
+        # Add a ViewBox below with two rectangles
+        vb = self.badstrip.strip_plot
+        ax = vb.getAxis('bottom').range
+        ay = vb.getAxis('left').range
+
+        settings = self.variables.default_values_dict["Badstrip"]
+        median = np.median(data[np.logical_not(np.isnan(data))])
+
+
+
+        if (ay[0]-ay[1]) > 0:
+            # If y axis is flipped
+            # Absolute values cut
+            r1 = self.setpg.QtGui.QGraphicsRectItem(ax[0], float(settings[data_label][1][1]),
+                                                    abs(ax[0]-ax[1]), # width
+                                            -abs(float(settings[data_label][1][1])-float(settings[data_label][1][0])))
+            # Median +- box
+            r2 = self.setpg.QtGui.QGraphicsRectItem(ax[0], median * (1 - float(settings[data_label][2]) / 100),
+                                                    abs(ax[0] - ax[1]),
+                                                    -abs(median * (1 - float(settings[data_label][2]) / 100)-
+                                                        median * (1 + float(settings[data_label][2]) / 100)))
+        else:
+            # If y axis is NOT flipped
+            r1 = self.setpg.QtGui.QGraphicsRectItem(ax[0], float(settings[data_label][1][0]),
+                                                    abs(ax[0] - ax[1]),  # width
+                                                    abs(float(settings[data_label][1][1]) - float(
+                                                        settings[data_label][1][0])))
+            # Median +- box
+            r2 = self.setpg.QtGui.QGraphicsRectItem(ax[0], median * (1 + float(settings[data_label][2]) / 100),
+                                                    abs(ax[0] - ax[1]),
+                                                    abs(median * (1 - float(settings[data_label][2]) / 100) -
+                                                        median * (1 + float(settings[data_label][2]) / 100)))
+        r1.setPen(self.setpg.mkPen(None))
+        r1.setOpacity(0.2)
+        r1.setBrush(self.setpg.mkBrush('g'))
+        vb.addItem(r1)
+
+        r2.setPen(self.setpg.mkPen(None))
+        r2.setOpacity(0.2)
+        r2.setBrush(self.setpg.mkBrush('y'))
+        vb.addItem(r2)
+
+        # Make the ViewBox flat
+        #vb.setMaximumHeight(70)
+
+        # Force x-axis to match the plot above
+        vb.setXLink(vb)
+
+
     def analyse_action(self):
         """This starts the analysis of the loaded measurements"""
         if self.badstrip.which_plot.currentText():
@@ -146,6 +198,10 @@ class StripAnalysis_window:
         self.badstrip.strip_plot.showAxis('right', show=True)
         self.badstrip.strip_plot.plotItem.showGrid(x=True, y=True)
         #self.badstrip.badstrip_plot.plotItem.setLogMode(False, True)
+        # Force x-axis to be always auto-scaled
+        self.badstrip.strip_plot.setMouseEnabled(x=False)
+        self.badstrip.strip_plot.enableAutoRange(x=True)
+        self.badstrip.strip_plot.enableAutoRange(y=True)
 
         self.badstrip.strip_plot_histogram.setTitle("Histogram results on: No measurement selected")
         self.badstrip.strip_plot_histogram.setLabel('left', "count", units='#')
@@ -154,7 +210,7 @@ class StripAnalysis_window:
         self.badstrip.strip_plot_histogram.showAxis('right', show=True)
         self.badstrip.strip_plot_histogram.plotItem.showGrid(x=True, y=True)
 
-        # For sencond plot item on histogram plot
+        # For second plot item on histogram plot (the pdf of the gauss)
         plot = self.badstrip.strip_plot_histogram.plotItem
         plot.scene().addItem(self.pdf_viewbox)  # inserts the second plot into the scene of the first
         self.pdf_viewbox.setGeometry(plot.vb.sceneBoundingRect())
@@ -186,10 +242,10 @@ class StripAnalysis_window:
         # This clear here erases all data from the viewbox each time this function is called and draws all points again!
         # Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage
         # With the clear statement medium cpu und low memory usage
-        self.reconfig_plot(measurement_name, self.measurement_dict[measurement_name])
         measurement = self.badstrip.which_plot.currentText()
         ydata = self.plot_data[measurement]["data"][measurement_name]
         xdata = np.arange(len(self.plot_data[measurement]["data"]["Pad"]))
+        self.reconfig_plot(measurement_name, self.measurement_dict[measurement_name])
         if ydata.any(): # Checks if data is available or if all is empty
             if len(xdata) == len(ydata):  # sometimes it happens that the values are not yet ready (fucking multithreading)
 
@@ -201,6 +257,8 @@ class StripAnalysis_window:
                 yout = self.variables.analysis.remove_outliner(ydata)
                 x, y = self.variables.analysis.do_histogram(yout, self.bins)
                 self.badstrip.strip_plot_histogram.plot(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80), clear=True, connect="finite")
+
+                self.update_specs_bars(measurement_name, ydata)
 
                 if self.plot_data[measurement]["analysed"] and False:
                     # Todo: plot the lms piecewise here as well
