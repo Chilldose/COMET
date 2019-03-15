@@ -659,6 +659,11 @@ class LogFile:
         if os.path.exists(os.path.normpath(path)):
             with open(path, 'rt') as f:
                 config = yaml.safe_load(f.read())
+                # If directory is non existent create it
+                # Todo: Here a dir will be made after installation, so if this prohibited go to the other dir
+                pathtologfile = config["handlers"]["file"]["filename"].split("/")
+                if not os.path.isdir(os.path.join(os.getcwd(),*pathtologfile[:-1])):
+                    os.mkdir(os.path.join(os.getcwd(),*pathtologfile[:-1]))
             logging.config.dictConfig(config)
         else:
             logging.basicConfig(level=default_level)
