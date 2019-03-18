@@ -64,6 +64,7 @@ def main():
     shell = DAQShell()
     vcw = VisaConnectWizard()
 
+
     # Tries to connect to all available devices in the network, it returns a dict of
     # a dict. First dict contains the the device names as keys, the value is a dict
     # containing key words of settings

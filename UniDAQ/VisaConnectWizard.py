@@ -44,7 +44,7 @@ class VisaConnectWizard:
 
 
     # initialization
-    def __init__(self,*arg):
+    def __init__(self,*arg, backend = "NI"):
 
         # constants
         self.myInstruments = [] #contains list of all instruments connected to
@@ -55,10 +55,19 @@ class VisaConnectWizard:
         self.xonoff = True
         self.GPIB_interface = None
         self.log = logging.getLogger(__name__)
+        self.backend = backend # Defines the backend which should be used "NI" for the national instruments and "py" for pure python
 
         # Important ----------------------------------------------------------------
         # Opens a resource manager
-        self.rm = visa.ResourceManager()
+        if self.backend != "py":
+            self.rm = visa.ResourceManager()
+            try:
+                self.rm.list_resources() # Check if resouce listing works, if not use pure python implementation
+            except:
+                self.log.error("PyVisa with NI routines seems not to be working, falling back to pure python VISA")
+                self.rm = visa.ResourceManager("@py")
+        else:
+            self.rm = visa.ResourceManager("@py")
         #visa.log_to_screen()
         # Important ----------------------------------------------------------------
 
