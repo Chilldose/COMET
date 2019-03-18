@@ -551,8 +551,8 @@ class stripanalysis:
                 medi = np.median(dat)
                 inside_specs = np.where(np.logical_and(dat > float(self.settings[meas][1][0]), # Looks which strips are inside
                                                       dat < float(self.settings[meas][1][1])))[0]
-                median_ok = np.where(np.logical_and(dat < medi * (1+self.settings[meas][2]/100), # Looks which strips are inside median
-                                                    dat > medi * (1-self.settings[meas][2]/100)))[0]
+                median_ok = np.where(np.logical_and(abs(dat) < abs(medi * (1+self.settings[meas][2]/100)), # Looks which strips are inside median
+                                                    abs(dat) > abs(medi * (1-self.settings[meas][2]/100))))[0]
                 glob_len = len(dat)
 
                 self.log.warning("{}% of the strips are inside {} specifications.".format(round((

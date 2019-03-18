@@ -22,6 +22,7 @@ class StripAnalysis_window:
 
         self.variables = GUI
         self.layout = layout
+                                # Label: X-Axis, Y-Axis, Logx, Logy, InvertY
         self.measurement_dict = {"Idark": (["Pad", "#"], ["Current", "A"], [False, False], True),
                                  "Idiel": (["Pad", "#"], ["Current", "A"], [False, False], True),
                                  "Istrip": (["Pad", "#"], ["Current", "A"], [False, False], True),
@@ -84,7 +85,7 @@ class StripAnalysis_window:
 
 
 
-        if (ay[0]-ay[1]) > 0:
+        if self.measurement_dict[data_label][3]:
             # If y axis is flipped
             # Absolute values cut
             r1 = self.setpg.QtGui.QGraphicsRectItem(ax[0], float(settings[data_label][1][1]),
@@ -104,7 +105,7 @@ class StripAnalysis_window:
             # Median +- box
             r2 = self.setpg.QtGui.QGraphicsRectItem(ax[0], median * (1 + float(settings[data_label][2]) / 100),
                                                     abs(ax[0] - ax[1]),
-                                                    abs(median * (1 - float(settings[data_label][2]) / 100) -
+                                                    -abs(median * (1 - float(settings[data_label][2]) / 100) -
                                                         median * (1 + float(settings[data_label][2]) / 100)))
         r1.setPen(self.setpg.mkPen(None))
         r1.setOpacity(0.2)
@@ -288,9 +289,9 @@ class StripAnalysis_window:
 
                     # Update report text
                     self.badstrip.report_lable.setText(anadata["report"][measurement_name])
+
+        self.badstrip.strip_plot.enableAutoRange(y=True)
         return self.badstrip.strip_plot, self.badstrip.strip_plot_histogram
-
-
 
     def files_selector_action(self):
         """Select files and return the filepointer"""
