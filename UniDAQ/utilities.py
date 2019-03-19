@@ -30,6 +30,7 @@ import pyqtgraph as pg
 from .VisaConnectWizard import VisaConnectWizard
 from PyQt5.QtWidgets import QApplication
 import logging
+from .engineering_notation import EngUnit
 import queue
 from .globals import message_to_main, message_from_main, queue_to_GUI
 #from __future__ import print_function # Needed for the rtd functions that its written in 3
@@ -1493,7 +1494,7 @@ class show_cursor_position:
         mousePoint = self.plotItem.vb.mapSceneToView(pos[0])
         #self.plotItem.mapToDevice(mousePoint)
         if mousePoint:
-            self.tooltip_text.setText("     x={!s}\n     y={!s}".format(mousePoint.x(), mousePoint.y()))
+            self.tooltip_text.setText("     x={!s}\n     y={!s}".format(int(round(mousePoint.x(),0)), EngUnit(mousePoint.y())))
             self.tooltip_text.setPos(mousePoint)
             self.tooltip_text.show()
 

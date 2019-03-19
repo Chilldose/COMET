@@ -59,7 +59,7 @@ class stripanalysis:
                 # Add filename and rest of the dict important values
                 filename = os.path.basename(str(files)).split(".")[0][4:]
                 data.update({"analysed": False, "plots": False})
-                self.all_data.update({filename: data})
+                self.all_data.update({filename: data}) # So nothing get deletet if additional file are loaded
 
         except Exception as e:
             self.log.error("Something went wrong while importing the file " + str(current_file) + " with error: " + str(e))
@@ -301,7 +301,7 @@ class stripanalysis:
 
         if len(intersect):
             if shift:
-                highIdiel = self.shift_strip_numbering("Cap", intersect, shift)
+                highIdiel = self.shift_strip_numbering("Cac", intersect, shift)
             self.log.error("Possible bad AC needle contact found on strips: {}".format(intersect))
         else:
             self.log.info("AC needle contact seems to be fine")
@@ -422,117 +422,118 @@ class stripanalysis:
         self.log.info("Starting badstrip analysis...")
 
         for data in self.all_data:
+            if not self.all_data[data]["analysed"]:
 
-            ### Setup the console handler with a StringIO object
-            log_capture_string = io.StringIO()
-            ch = logging.StreamHandler(log_capture_string)
-            ch.setLevel(logging.INFO)
+                ### Setup the console handler with a StringIO object
+                log_capture_string = io.StringIO()
+                ch = logging.StreamHandler(log_capture_string)
+                ch.setLevel(logging.INFO)
 
-            ### Optionally add a formatter
-            formatter = logging.Formatter('%(message)s')
-            ch.setFormatter(formatter)
+                ### Optionally add a formatter
+                formatter = logging.Formatter('%(message)s')
+                ch.setFormatter(formatter)
 
-            ### Add the console handler to the logger
-            self.log.addHandler(ch)
+                ### Add the console handler to the logger
+                self.log.addHandler(ch)
 
-            self.log.info("Badstrip analysis results for file: {}".format(data))
-            # Generate entry for conclusion text
-            working_data = self.all_data[data]["data"].copy()
-            self.stripNum = len(working_data["Istrip"])
-            # Remove nan values
-            working_data, cutted_array = self.remove_nan(working_data)
+                self.log.info("Badstrip analysis results for file: {}".format(data))
+                # Generate entry for conclusion text
+                working_data = self.all_data[data]["data"].copy()
+                self.stripNum = len(working_data["Istrip"])
+                # Remove nan values
+                working_data, cutted_array = self.remove_nan(working_data)
 
-            Idark_median = self.median(working_data["Idark"])
+                Idark_median = self.median(working_data["Idark"])
 
-            # Check if summ of Istrip is nearly the Idark
-            self.check_sum_of_Istrip(working_data["Istrip"], Idark_median)
+                # Check if summ of Istrip is nearly the Idark
+                self.check_sum_of_Istrip(working_data["Istrip"], Idark_median)
 
-            # Look for low Istrip and High Rpoly, DC needle contact issues
-            badDC, badCint, badCap = self.find_bad_DC_contact(working_data["Istrip"],
-                                                              working_data["Rpoly"],
-                                                              working_data["Cint"],
-                                                              working_data["Cac"],
-                                                              cutted_array) # last value optional, used to calc the shift in the strip number
+                # Look for low Istrip and High Rpoly, DC needle contact issues
+                badDC, badCint, badCap = self.find_bad_DC_contact(working_data["Istrip"],
+                                                                  working_data["Rpoly"],
+                                                                  working_data["Cint"],
+                                                                  working_data["Cac"],
+                                                                  cutted_array) # last value optional, used to calc the shift in the strip number
 
-            # Look for high Idiel, pin holes
-            pinholes = self.find_pinhole(working_data["Idiel"], cutted_array)
+                # Look for high Idiel, pin holes
+                pinholes = self.find_pinhole(working_data["Idiel"], cutted_array)
 
-            # No pinhole, Cac and Rpoly - out of bounds, no AC needle contact
-            badAC = self.find_bad_AC_contact(working_data["Cac"],
-                                             working_data["Rpoly"],
-                                             pinholes,
-                                             cutted_array)
+                # No pinhole, Cac and Rpoly - out of bounds, no AC needle contact
+                badAC = self.find_bad_AC_contact(working_data["Cac"],
+                                                 working_data["Rpoly"],
+                                                 pinholes,
+                                                 cutted_array)
 
-            # Piecewise LMS fit and relative Threshold calculation for all datasets
-            piecewiselms = {}
-            for sdata in working_data:
-                piecewiselms[sdata] = self.do_piecewise_lms_fit(sdata,
-                                                                working_data,
-                                                                cutted_array,
-                                                                self.settings["LMSsize"],
-                                                                )
+                # Piecewise LMS fit and relative Threshold calculation for all datasets
+                piecewiselms = {}
+                for sdata in working_data:
+                    piecewiselms[sdata] = self.do_piecewise_lms_fit(sdata,
+                                                                    working_data,
+                                                                    cutted_array,
+                                                                    self.settings["LMSsize"],
+                                                                    )
 
-            # 2x Istrip, 0.5x Rpoly, implant short
-            implant = self.find_implant_short(working_data,
+                # 2x Istrip, 0.5x Rpoly, implant short
+                implant = self.find_implant_short(working_data,
+                                                  piecewiselms,
+                                                  cutted_array,
+                                                  self.settings["LMSsize"],
+                                                  cutted_array)
+
+                # 2x Cac, 2x Idiel, metal short
+                metal = self.find_metal_short(working_data,
                                               piecewiselms,
                                               cutted_array,
                                               self.settings["LMSsize"],
                                               cutted_array)
 
-            # 2x Cac, 2x Idiel, metal short
-            metal = self.find_metal_short(working_data,
-                                          piecewiselms,
-                                          cutted_array,
-                                          self.settings["LMSsize"],
-                                          cutted_array)
+                # High Istrip, high current (faulty strip)
+                HighI = self.threshold_comparison("Istrip",
+                                                  working_data, piecewiselms,
+                                                  cutted_array, self.settings["LMSsize"],
+                                                  self.settings["HighIstrip"])
+                if len(HighI):
+                    HighI = self.shift_strip_numbering("Istrip", HighI, cutted_array)
+                    self.log.warning("High current strips found at: {}".format( HighI))
 
-            # High Istrip, high current (faulty strip)
-            HighI = self.threshold_comparison("Istrip",
-                                              working_data, piecewiselms,
-                                              cutted_array, self.settings["LMSsize"],
-                                              self.settings["HighIstrip"])
-            if len(HighI):
-                HighI = self.shift_strip_numbering("Istrip", HighI, cutted_array)
-                self.log.warning("High current strips found at: {}".format( HighI))
+                # Low Cac - bad capacitance
+                LowCap = self.threshold_comparison("Cac", working_data, piecewiselms,
+                                                  cutted_array,self.settings["LMSsize"], self.settings["LowCap"], bigger=False)
+                if len(LowCap):
+                    LowCap = self.shift_strip_numbering("Cac", LowCap, cutted_array)
+                    self.log.warning("Low capacitance strips found at: {}".format(LowCap))
 
-            # Low Cac - bad capacitance
-            LowCap = self.threshold_comparison("Cac", working_data, piecewiselms,
-                                              cutted_array,self.settings["LMSsize"], self.settings["LowCap"], bigger=False)
-            if len(LowCap):
-                LowCap = self.shift_strip_numbering("Cac", LowCap, cutted_array)
-                self.log.warning("Low capacitance strips found at: {}".format(LowCap))
+                # High Rpoly, Resistor interrupt
+                HighR = self.threshold_comparison("Rpoly", working_data, piecewiselms,
+                                                   cutted_array, self.settings["LMSsize"], self.settings["HighRpoly"])
+                if len(HighR):
+                    HighR = self.shift_strip_numbering("Cac", HighR, cutted_array)
+                    self.log.warning("Rpoly issue strips found at: {}".format(HighR))
 
-            # High Rpoly, Resistor interrupt
-            HighR = self.threshold_comparison("Rpoly", working_data, piecewiselms,
-                                               cutted_array, self.settings["LMSsize"], self.settings["HighRpoly"])
-            if len(HighR):
-                HighR = self.shift_strip_numbering("Cac", HighR, cutted_array)
-                self.log.warning("Rpoly issue strips found at: {}".format(HighR))
+                # lower Cac as usual D~normal,
+                if len(LowCap):
+                    #   Proportional to Istrip, implant open, given by deviation of Istrip
+                    #   No: metal open, given by deviation of Cac
+                    self.find_metal_and_implant_open(LowCap, working_data, piecewiselms,
+                                                   cutted_array, self.settings["LMSsize"],
+                                                     self.settings["LowCap"], cutted_array)
 
-            # lower Cac as usual D~normal,
-            if len(LowCap):
-                #   Proportional to Istrip, implant open, given by deviation of Istrip
-                #   No: metal open, given by deviation of Cac
-                self.find_metal_and_implant_open(LowCap, working_data, piecewiselms,
-                                               cutted_array, self.settings["LMSsize"],
-                                                 self.settings["LowCap"], cutted_array)
+                # Check if parameters are within the specs
+                self.check_if_in_specs(working_data)
 
-            # Check if parameters are within the specs
-            self.check_if_in_specs(working_data)
+                # Get all generated messages as an variable
+                ### Pull the contents back into a string and close the stream
+                log_contents = log_capture_string.getvalue()
 
-            # Get all generated messages as an variable
-            ### Pull the contents back into a string and close the stream
-            log_contents = log_capture_string.getvalue()
+                # Push the output to the data as analysis results
+                self.all_data[data]["Analysis_conclusion"] = log_contents
+                self.all_data[data]["analysed"] = True
+                if __name__ == "__main__":
+                    print(log_contents)
 
-            # Push the output to the data as analysis results
-            self.all_data[data]["Analysis_conclusion"] = log_contents
-            self.all_data[data]["analysed"] = True
-            if __name__ == "__main__":
-                print(log_contents)
-
-            # log_capture_string.close()
-            log_capture_string.truncate(0)
-            log_capture_string.seek(0)
+                # log_capture_string.close()
+                log_capture_string.truncate(0)
+                log_capture_string.seek(0)
 
 
     #@hf.timeit
@@ -686,6 +687,6 @@ def lmsalgorithm(x, y, q):
 
 if __name__ == "__main__":
     det = stripanalysis(None, "C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\UniDAQ\\UniDAQ\\config\\config\\badstrip.yml")
-    det.read_in_measurement_file(["C:\\Users\\dbloech\\Desktop\\str_VPX28442_2S_04_side1_merged.txt"])
+    det.read_in_measurement_file(["C:\\Users\\dbloech\\Desktop\\str_VPX28442_14_2S_side1_merged.txt"])
     det.do_analysis()
 

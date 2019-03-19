@@ -181,6 +181,8 @@ class StripAnalysis_window:
             self.badstrip.which_measurement.addItems(self.plot_data[current_item]["measurements"][1:])
             self.update_plot(self.badstrip.which_measurement.currentText())
             self.update_results_text()
+            # Add tooltip functionality
+            self.tooltip = utilities.show_cursor_position(self.badstrip.strip_plot)
         except Exception as e:
             l.error("An error occured while accessing data from the bad strip detection: " + str(e))
 
@@ -203,6 +205,9 @@ class StripAnalysis_window:
         self.badstrip.strip_plot.setMouseEnabled(x=False)
         self.badstrip.strip_plot.enableAutoRange(x=True)
         self.badstrip.strip_plot.enableAutoRange(y=True)
+
+        # Add tooltip functionality
+        self.tooltip = utilities.show_cursor_position(self.badstrip.strip_plot)
 
         self.badstrip.strip_plot_histogram.setTitle("Histogram results on: No measurement selected")
         self.badstrip.strip_plot_histogram.setLabel('left', "count", units='#')
