@@ -249,54 +249,55 @@ class StripAnalysis_window:
         # Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage
         # With the clear statement medium cpu und low memory usage
         measurement = self.badstrip.which_plot.currentText()
-        ydata = self.plot_data[measurement]["data"][measurement_name]
-        xdata = np.arange(len(self.plot_data[measurement]["data"]["Pad"]))
-        self.reconfig_plot(measurement_name, self.measurement_dict[measurement_name])
-        if ydata.any(): # Checks if data is available or if all is empty
-            if len(xdata) == len(ydata):  # sometimes it happens that the values are not yet ready (fucking multithreading)
+        if measurement:
+            ydata = self.plot_data[measurement]["data"][measurement_name]
+            xdata = np.arange(len(self.plot_data[measurement]["data"]["Pad"]))
+            self.reconfig_plot(measurement_name, self.measurement_dict[measurement_name])
+            if ydata.any(): # Checks if data is available or if all is empty
+                if len(xdata) == len(ydata):  # sometimes it happens that the values are not yet ready (fucking multithreading)
 
-                # Make the normal line Plot
-                self.badstrip.strip_plot.plot(xdata, ydata, pen="r", clear=True, width=8, connect="finite")
+                    # Make the normal line Plot
+                    self.badstrip.strip_plot.plot(xdata, ydata, pen="r", clear=True, width=8, connect="finite")
 
-                # Make the histogram of the data
-                # y, x = np.histogram(np.array(ydata), bins=int(self.bins))
-                yout, ind = self.variables.analysis.remove_outliner(ydata)
-                x, y = self.variables.analysis.do_histogram(yout, self.bins)
-                self.badstrip.strip_plot_histogram.plot(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80), clear=True, connect="finite")
+                    # Make the histogram of the data
+                    # y, x = np.histogram(np.array(ydata), bins=int(self.bins))
+                    yout, ind = self.variables.analysis.remove_outliner(ydata)
+                    x, y = self.variables.analysis.do_histogram(yout, self.bins)
+                    self.badstrip.strip_plot_histogram.plot(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80), clear=True, connect="finite")
 
-                self.update_specs_bars(measurement_name, ydata)
+                    self.update_specs_bars(measurement_name, ydata)
 
-                if self.plot_data[measurement]["analysed"] and False:
-                    # Todo: plot the lms piecewise here as well
-                    anadata = self.plot_data[measurement]
+                    if self.plot_data[measurement]["analysed"] and False:
+                        # Todo: plot the lms piecewise here as well
+                        anadata = self.plot_data[measurement]
 
-                    # Plot Lms line
-                    # containst first and last point for the slope y = kx+d
-                    k = float(anadata["lms_fit"][measurement_name][0])
-                    d = float(anadata["lms_fit"][measurement_name][1])
-                    lmsdata = [[0, len(xdata)],[d, k*len(xdata)+d]]
-                    self.badstrip.strip_plot.plot(lmsdata[0], lmsdata[1], pen="g")
+                        # Plot Lms line
+                        # containst first and last point for the slope y = kx+d
+                        k = float(anadata["lms_fit"][measurement_name][0])
+                        d = float(anadata["lms_fit"][measurement_name][1])
+                        lmsdata = [[0, len(xdata)],[d, k*len(xdata)+d]]
+                        self.badstrip.strip_plot.plot(lmsdata[0], lmsdata[1], pen="g")
 
-                    # Plot pdf in the histogram plot
-                    pdfdata = anadata["pdf"][measurement_name]
-                    self.pdf_viewbox.clear()
-                    plot_item = self.setpg.PlotCurveItem(pdfdata[2], pdfdata[3],
-                                                    pen={'color': "g", 'width': 2},
-                                                    clear=True)
-                    self.pdf_viewbox.addItem(plot_item)
-                    del plot_item  # the plot class needs a plot item which can be rendered, to avoid a mem leak delete the created plot item or 20k ram will be used
-                    # hum_plot_obj.addItem(setpg.plot(self.variables.meas_data["humidity"][0],self.variables.meas_data["humidity"][1],pen={'color': "b", 'width': 2}, clear=True))
-                      # resize the second plot!
-                    #self.eq_text = self.setpg.TextItem(text="Some text", border='#000000', fill='#ccffff')
-                    #self.eq_text.setParentItem(self.pdf_viewbox)
-                    #self.eq_text.setPos(pdfdata[2][np.argmax(pdfdata[3])], y.max() * 0.9)
-                    self.pdf_viewbox.setGeometry(self.badstrip.strip_plot_histogram.plotItem.vb.sceneBoundingRect())
+                        # Plot pdf in the histogram plot
+                        pdfdata = anadata["pdf"][measurement_name]
+                        self.pdf_viewbox.clear()
+                        plot_item = self.setpg.PlotCurveItem(pdfdata[2], pdfdata[3],
+                                                        pen={'color': "g", 'width': 2},
+                                                        clear=True)
+                        self.pdf_viewbox.addItem(plot_item)
+                        del plot_item  # the plot class needs a plot item which can be rendered, to avoid a mem leak delete the created plot item or 20k ram will be used
+                        # hum_plot_obj.addItem(setpg.plot(self.variables.meas_data["humidity"][0],self.variables.meas_data["humidity"][1],pen={'color': "b", 'width': 2}, clear=True))
+                          # resize the second plot!
+                        #self.eq_text = self.setpg.TextItem(text="Some text", border='#000000', fill='#ccffff')
+                        #self.eq_text.setParentItem(self.pdf_viewbox)
+                        #self.eq_text.setPos(pdfdata[2][np.argmax(pdfdata[3])], y.max() * 0.9)
+                        self.pdf_viewbox.setGeometry(self.badstrip.strip_plot_histogram.plotItem.vb.sceneBoundingRect())
 
-                    # Update report text
-                    self.badstrip.report_lable.setText(anadata["report"][measurement_name])
+                        # Update report text
+                        self.badstrip.report_lable.setText(anadata["report"][measurement_name])
 
-        self.badstrip.strip_plot.enableAutoRange(y=True)
-        return self.badstrip.strip_plot, self.badstrip.strip_plot_histogram
+            self.badstrip.strip_plot.enableAutoRange(y=True)
+            return self.badstrip.strip_plot, self.badstrip.strip_plot_histogram
 
     def files_selector_action(self):
         """Select files and return the filepointer"""
