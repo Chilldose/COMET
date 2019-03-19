@@ -493,22 +493,22 @@ class stripanalysis:
                                                   cutted_array, self.settings["LMSsize"],
                                                   self.settings["HighIstrip"])
                 if len(HighI):
-                    HighI = self.shift_strip_numbering("Istrip", HighI, cutted_array)
-                    self.log.warning("High current strips found at: {}".format( HighI))
+                    HighINew = self.shift_strip_numbering("Istrip", HighI, cutted_array)
+                    self.log.warning("High current strips found at: {}".format( HighINew))
 
                 # Low Cac - bad capacitance
                 LowCap = self.threshold_comparison("Cac", working_data, piecewiselms,
                                                   cutted_array,self.settings["LMSsize"], self.settings["LowCap"], bigger=False)
                 if len(LowCap):
-                    LowCap = self.shift_strip_numbering("Cac", LowCap, cutted_array)
-                    self.log.warning("Low capacitance strips found at: {}".format(LowCap))
+                    LowCapNew = self.shift_strip_numbering("Cac", LowCap, cutted_array)
+                    self.log.warning("Low capacitance strips found at: {}".format(LowCapNew))
 
                 # High Rpoly, Resistor interrupt
                 HighR = self.threshold_comparison("Rpoly", working_data, piecewiselms,
                                                    cutted_array, self.settings["LMSsize"], self.settings["HighRpoly"])
                 if len(HighR):
-                    HighR = self.shift_strip_numbering("Cac", HighR, cutted_array)
-                    self.log.warning("Rpoly issue strips found at: {}".format(HighR))
+                    HighRNew = self.shift_strip_numbering("Cac", HighR, cutted_array)
+                    self.log.warning("Rpoly issue strips found at: {}".format(HighRNew))
 
                 # lower Cac as usual D~normal,
                 if len(LowCap):

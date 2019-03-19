@@ -15,7 +15,7 @@ setup(
     description="A framework for automated DAQ for semiconductor device testing",
     long_description=readme,
     author="Dominic Blöch",
-    author_email="rhtbapat@gmail.com",
+    author_email="dominic.bloech@oeaw.ac.at",
     url="https://github.com/Chilldose/UniDAQ",
     license=license,
     packages=find_packages(),
