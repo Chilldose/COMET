@@ -63,11 +63,13 @@ class VisaConnectWizard:
             self.rm = visa.ResourceManager()
             try:
                 self.rm.list_resources() # Check if resouce listing works, if not use pure python implementation
+                self.log.info("PyVisa uses the NI-Visa backend.")
             except:
                 self.log.error("PyVisa with NI routines seems not to be working, falling back to pure python VISA")
                 self.rm = visa.ResourceManager("@py")
         else:
             self.rm = visa.ResourceManager("@py")
+            self.log.info("PyVisa uses the pure python backend")
         #visa.log_to_screen()
         # Important ----------------------------------------------------------------
 

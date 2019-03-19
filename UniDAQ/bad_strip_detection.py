@@ -159,10 +159,10 @@ class stripanalysis:
         # Check if sum of current is considerably bigger than the Idark
         if abs(totalStripCurrent * (self.stripNum / measStripNum)) > abs(Idark) * self.settings["MeasStripvsTotal"]:
             self.log.warning("Single strip current and total current deviating more than specified: \n"
-                             "This can be an indicator that the Bias needle has a bad contact"
-                             "Sum of Strip current: {strip} \n"
-                             "Total Idark (median): {Idark} \n"
-                             "Ratio:                {ratio} \n".format(
+                             "This can be an indicator that the Bias needle has a bad contact \n"
+                             "Sum of Strip current: {strip:>30} \n"
+                             "Total Idark (median): {Idark:>30} \n"
+                             "Ratio:                {ratio:>30} \n".format(
                 strip=totalStripCurrent * (self.stripNum / measStripNum),
                 Idark=Idark,
                 ratio=abs(totalStripCurrent * (self.stripNum / measStripNum))/abs(Idark)))
@@ -172,11 +172,13 @@ class stripanalysis:
             abs(totalStripCurrent * (self.stripNum / measStripNum))/abs(Idark)
             ))
 
-    def find_pinhole(self, Idiel):
+    def find_pinhole(self, Idiel, shift = None):
         """Looks if high Idiel is prevalent and determines if pinhole is prevalent"""
         highIdiel = np.nonzero(np.abs(Idiel) > self.settings["IdielThresholdCurrent"])[0]
 
         if len(highIdiel):
+            if shift:
+                highIdiel = self.shift_strip_numbering("Idiel", highIdiel, shift)
             self.log.warning("Possible pinholes found on strips: {}".format(highIdiel))
         else:
             self.log.info("No pinholes found.")
@@ -231,7 +233,7 @@ class stripanalysis:
                 return False
 
 
-    def find_bad_DC_contact(self, Istrip, Rpoly):
+    def find_bad_DC_contact(self, Istrip, Rpoly, Cint, Cap, shift=None):
         """Looks for low Istrip and High Rpoly and determines bac DC needle contacts
         Furthermore calculates some statistics which can be accounted for bad DC needle contact"""
 
@@ -244,16 +246,42 @@ class stripanalysis:
         HighRpoly = np.nonzero(Rpoly > medianRpoly*self.settings["Rpolyfactor"])
 
         # Find intersect
-        intersect = np.intersect1d(lowIstrip[0], HighRpoly[0])
+        intersectDC1 = np.intersect1d(lowIstrip[0], HighRpoly[0])
 
-        if len(intersect):
-            self.log.error("Possible bad DC needle contact on strips: {}".format(intersect))
+        # Do the cross validation between Cap and Cint to find bad DC2 contact
+        # Theory is Cint is very susceptiple to a non perfect contact, as well as the Cap measurement.
+
+        noOut, ind_bad_Cint = self.remove_outliner(Cint)
+        noOut, ind_bad_Cap = self.remove_outliner(Cap)
+
+        # Todo: further actions needed? Outliner enough? Could add some clustering as well. Could look if clusters intersect for Cint and Cap and print that out?
+        if len(ind_bad_Cap) > self.settings["maximumCapOutliner"]:
+            self.log.error("The number of outliner in the capacitance measurement indicates a non optimal DC1 needle contact.")
+        if len(ind_bad_Cint) > self.settings["maximumCapOutliner"]:
+            self.log.error("The number of outliner in the interstrip capacitance measurement indicates a non optimal DC2 needle contact.")
+
+
+        if len(intersectDC1):
+            if shift:
+                intersectDC1 = self.shift_strip_numbering("Istrip", intersectDC1, shift)
+            self.log.error("Possible bad DC1 needle contact on strips: {}".format(intersectDC1)) # +1 because index starts at 0
         else:
             self.log.info("DC needle contact seem to be alright.")
 
-        return intersect
+        return intersectDC1, ind_bad_Cint, ind_bad_Cap
 
-    def find_bad_AC_contact(self, Cap, Rpoly, pinholes):
+    def shift_strip_numbering(self,label, to_shift, shift_array):
+        truth_table = shift_array[label]
+        start, shift = 0, 0
+        shifted_array = []
+        for ind in to_shift:
+            shift += np.count_nonzero(~truth_table[start:ind-1])
+            start = ind
+            shifted_array.append(ind+shift)
+        return shifted_array
+
+
+    def find_bad_AC_contact(self, Cap, Rpoly, pinholes, shift = None):
         """Finds out if a bad AC contact is prevalent"""
         #nCap = np.delete(Cap, pinholes) # Exclude pinholes in this calculations
         #nRpoly = np.delete(Rpoly, pinholes) # Exclude pinholes in this calculations
@@ -272,6 +300,8 @@ class stripanalysis:
         intersect = np.setdiff1d(intersect, pinholes)
 
         if len(intersect):
+            if shift:
+                highIdiel = self.shift_strip_numbering("Cap", intersect, shift)
             self.log.error("Possible bad AC needle contact found on strips: {}".format(intersect))
         else:
             self.log.info("AC needle contact seems to be fine")
@@ -330,42 +360,60 @@ class stripanalysis:
         intersect = np.concatenate(intersect)
         return intersect
 
-    def find_metal_and_implant_open(self, strips, data, lms_fit, cutted, piecesize, factor=1.):
+    def find_metal_and_implant_open(self, strips, data, lms_fit, cutted, piecesize, factor=1., shift=None):
         """Finds metal opens"""
 
         # Istrip threshold comparison
-        lowerIstrip = self.threshold_comparison("Istrip", data, lms_fit, cutted, piecesize, factor, bigger=False)
+        lowerIstrip = self.threshold_comparison("Istrip", data, lms_fit, cutted, piecesize, factor, bigger=False) # Since we have negative Istrip
         # Find possible metal open, by finding values in lowerIstrip which are not common to strips
         implant_open = np.intersect1d(lowerIstrip,strips)
         metal_open = np.setdiff1d(strips, implant_open)
 
         if len(implant_open):
+            if shift:
+                implant_open = self.shift_strip_numbering("Istrip", implant_open, shift)
             self.log.warning("Possible implant open located at strips: {}".format(implant_open))
 
         if len(metal_open):
+            if shift:
+                metal_open = self.shift_strip_numbering("Istrip", metal_open, shift)
             self.log.warning("Possible metal open located at strips: {}".format(metal_open))
 
 
-    def find_implant_short(self, data, lms_data, cutted, piecesize):
+    def find_implant_short(self, data, lms_data, cutted, piecesize, shift=None):
         """Finds implant shorts"""
 
         implant_shorts = self.find_relation(("Istrip", "Rpoly"), (2.,0.5), data, lms_data, cutted, piecesize)
 
         if len(implant_shorts):
+            if shift:
+                implant_shorts = self.shift_strip_numbering("Istrip", implant_shorts, shift)
             self.log.warning("Potential implant short found at strips: {}".format(implant_shorts))
         else:
             self.log.info("No implant shorts found.")
 
-    def find_metal_short(self, data, lms_data, cutted, piecesize):
+    def find_metal_short(self, data, lms_data, cutted, piecesize, shift=None):
         """Finds implant shorts"""
 
-        implant_shorts = self.find_relation(("Cac", "Idiel"), (2.,2.), data, lms_data, cutted, piecesize)
+        metal_shorts = self.find_relation(("Cac", "Idiel"), (2.,2.), data, lms_data, cutted, piecesize)
 
-        if len(implant_shorts):
-            self.log.warning("Potential metal short found at strips: {}".format(implant_shorts))
+        if len(metal_shorts):
+            if shift:
+                metal_shorts = self.shift_strip_numbering("Idiel", metal_shorts, shift)
+            self.log.warning("Potential metal short found at strips: {}".format(metal_shorts))
         else:
             self.log.info("No metal shorts found.")
 
+    def remove_nan(self, data):
+        """Removes nan values from any labeld data arrays"""
+        working_data = {}
+        cutted_array = {}
+        for subdata in data:
+            # Todo: Shift in data due to this here if some nans are in between
+            tokeep = ~np.isnan(data[subdata])
+            working_data[subdata] = data[subdata][tokeep]
+            cutted_array[subdata] = tokeep
+        return working_data, cutted_array
 
     #@hf.raise_exception
     def do_analysis(self):
@@ -392,13 +440,7 @@ class stripanalysis:
             working_data = self.all_data[data]["data"].copy()
             self.stripNum = len(working_data["Istrip"])
             # Remove nan values
-            cutted_array = {}
-
-            for subdata in working_data:
-                # Todo: Shift in data due to this here if some nans are in between
-                tokeep = ~np.isnan(working_data[subdata])
-                working_data[subdata] = working_data[subdata][tokeep]
-                cutted_array[subdata] = tokeep
+            working_data, cutted_array = self.remove_nan(working_data)
 
             Idark_median = self.median(working_data["Idark"])
 
@@ -406,13 +448,20 @@ class stripanalysis:
             self.check_sum_of_Istrip(working_data["Istrip"], Idark_median)
 
             # Look for low Istrip and High Rpoly, DC needle contact issues
-            badDC = self.find_bad_DC_contact(working_data["Istrip"],working_data["Rpoly"])
+            badDC, badCint, badCap = self.find_bad_DC_contact(working_data["Istrip"],
+                                                              working_data["Rpoly"],
+                                                              working_data["Cint"],
+                                                              working_data["Cac"],
+                                                              cutted_array) # last value optional, used to calc the shift in the strip number
 
             # Look for high Idiel, pin holes
-            pinholes = self.find_pinhole(working_data["Idiel"])
+            pinholes = self.find_pinhole(working_data["Idiel"], cutted_array)
 
             # No pinhole, Cac and Rpoly - out of bounds, no AC needle contact
-            badAC = self.find_bad_AC_contact(working_data["Cac"],working_data["Rpoly"], pinholes)
+            badAC = self.find_bad_AC_contact(working_data["Cac"],
+                                             working_data["Rpoly"],
+                                             pinholes,
+                                             cutted_array)
 
             # Piecewise LMS fit and relative Threshold calculation for all datasets
             piecewiselms = {}
@@ -424,35 +473,49 @@ class stripanalysis:
                                                                 )
 
             # 2x Istrip, 0.5x Rpoly, implant short
-            implant = self.find_implant_short(working_data, piecewiselms, cutted_array, self.settings["LMSsize"])
+            implant = self.find_implant_short(working_data,
+                                              piecewiselms,
+                                              cutted_array,
+                                              self.settings["LMSsize"],
+                                              cutted_array)
 
             # 2x Cac, 2x Idiel, metal short
-            metal = self.find_metal_short(working_data, piecewiselms, cutted_array, self.settings["LMSsize"])
+            metal = self.find_metal_short(working_data,
+                                          piecewiselms,
+                                          cutted_array,
+                                          self.settings["LMSsize"],
+                                          cutted_array)
 
             # High Istrip, high current (faulty strip)
-            HighI = self.threshold_comparison("Istrip", working_data, piecewiselms,
-                                              cutted_array, self.settings["LMSsize"], self.settings["HighIstrip"])
+            HighI = self.threshold_comparison("Istrip",
+                                              working_data, piecewiselms,
+                                              cutted_array, self.settings["LMSsize"],
+                                              self.settings["HighIstrip"])
             if len(HighI):
+                HighI = self.shift_strip_numbering("Istrip", HighI, cutted_array)
                 self.log.warning("High current strips found at: {}".format( HighI))
 
             # Low Cac - bad capacitance
             LowCap = self.threshold_comparison("Cac", working_data, piecewiselms,
                                               cutted_array,self.settings["LMSsize"], self.settings["LowCap"], bigger=False)
             if len(LowCap):
+                LowCap = self.shift_strip_numbering("Cac", LowCap, cutted_array)
                 self.log.warning("Low capacitance strips found at: {}".format(LowCap))
 
             # High Rpoly, Resistor interrupt
             HighR = self.threshold_comparison("Rpoly", working_data, piecewiselms,
                                                cutted_array, self.settings["LMSsize"], self.settings["HighRpoly"])
             if len(HighR):
-                self.log.warning("High Rpoly strips found at: {}".format(HighR))
+                HighR = self.shift_strip_numbering("Cac", HighR, cutted_array)
+                self.log.warning("Rpoly issue strips found at: {}".format(HighR))
 
-            # lower Cac as usuall D~normal,
+            # lower Cac as usual D~normal,
             if len(LowCap):
                 #   Proportional to Istrip, implant open, given by deviation of Istrip
                 #   No: metal open, given by deviation of Cac
                 self.find_metal_and_implant_open(LowCap, working_data, piecewiselms,
-                                               cutted_array, self.settings["LMSsize"], self.settings["LowCap"])
+                                               cutted_array, self.settings["LMSsize"],
+                                                 self.settings["LowCap"], cutted_array)
 
             # Check if parameters are within the specs
             self.check_if_in_specs(working_data)
@@ -531,12 +594,18 @@ class stripanalysis:
         data = ydata[np.logical_not(np.isnan(ydata))]
         z = np.abs(stats.zscore(data))
         final_list = np.array(data)[(z < self.settings["outlier_std"])]
+        indizes_outliner = np.argwhere(z >= self.settings["outlier_std"])
 
         # Method by std deviation (not very robust)
         # final_list = [x for x in ydata if (x > mu - self.settings["outlier_std"] * std)]
         # final_list = [x for x in final_list if (x < mu + self.settings["outlier_std"] * std)]
 
-        return final_list
+        return final_list, indizes_outliner
+
+    def get_correct_strip_numbering(self, indi, Padnumbering):
+        """Returns the correct strip numbering for array, since nan values are cutted out during calculations
+        Which implies a shit to the data"""
+        return Padnumbering[indi]
 
     def check_if_in_specs(self, data):
         """
@@ -555,10 +624,12 @@ class stripanalysis:
                                                     abs(dat) > abs(medi * (1-self.settings[meas][2]/100))))[0]
                 glob_len = len(dat)
 
-                self.log.warning("{}% of the strips are inside {} specifications.".format(round((
-                                                                        len(inside_specs)/glob_len)*100,1), meas))
-                self.log.warning("{}% of the strips are inside median({meas})+-{perc}%".format(round((
-                                                                        len(median_ok)/glob_len)*100,1),
+                self.log.warning("{}% of the strips are NOT inside {} specifications.".format(round(
+                                                                        (1-(len(inside_specs)/glob_len))*100
+                                                                                                ,2), meas))
+                self.log.warning("{}% of the strips are NOT inside median({meas})+-{perc}%".format(round(
+                                                                        (1-(len(median_ok)/glob_len))*100
+                                                                                                     ,2),
                                                                         meas=meas,
                                                                         perc=self.settings[meas][2]))
                 return_dict[meas] = (inside_specs, median_ok, glob_len)
@@ -615,6 +686,6 @@ def lmsalgorithm(x, y, q):
 
 if __name__ == "__main__":
     det = stripanalysis(None, "C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\UniDAQ\\UniDAQ\\config\\config\\badstrip.yml")
-    det.read_in_measurement_file(["C:\\Users\\dbloech\\Desktop\\str_VPX28442_2S_04.txt"])
+    det.read_in_measurement_file(["C:\\Users\\dbloech\\Desktop\\str_VPX28442_2S_04_side1_merged.txt"])
     det.do_analysis()
 

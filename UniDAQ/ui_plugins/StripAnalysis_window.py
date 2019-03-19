@@ -255,7 +255,7 @@ class StripAnalysis_window:
 
                 # Make the histogram of the data
                 # y, x = np.histogram(np.array(ydata), bins=int(self.bins))
-                yout = self.variables.analysis.remove_outliner(ydata)
+                yout, ind = self.variables.analysis.remove_outliner(ydata)
                 x, y = self.variables.analysis.do_histogram(yout, self.bins)
                 self.badstrip.strip_plot_histogram.plot(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80), clear=True, connect="finite")
 

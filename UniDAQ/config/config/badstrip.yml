@@ -22,6 +22,7 @@
   Istripfactor: 3 # Factor at which it is considered to be a low Istrip
   Rpolyfactor: 3 # Factor at which it is considered to be a high Rpoly
   Capfactor: 1.5 # Factor at which it is considered to be a out of bounds Cap
+  maximumCapOutliner: 30 # Maximum number to look for non optimal/bad DC 1 and 2 needle contact in the Capacitance measurements
 
   ## Pinhole
   IdielThresholdCurrent: 0.5e-9 # Current at which we say it is charateristic for a pinhole
