@@ -5,8 +5,6 @@ from PyQt5.QtWidgets import *
 
 l = logging.getLogger(__name__)
 
-
-
 class Resources_window:
     """This window handles the resources tab"""
 
@@ -17,9 +15,9 @@ class Resources_window:
 
 
         self.list_of_instruments = []
-        self.possible_states = [("INIT", "QFrame { background :rgb(0, 0, 255) }"),
-                                ("CONFIGURED", "QFrame { background :rgb(0, 255, 0) }"),
-                                ("ERROR", "QFrame { background :rgb(255, 0, 0) }")]
+        self.possible_states = [("INIT", "QFrame { background :rgb(232, 239, 26) }"),
+                                ("CONFIGURED", "QFrame { background :rgb(36, 216, 93) }"),
+                                ("ERROR", "QFrame { background :rgb(214, 40, 49) }")]
 
         self.device_widget = QtWidgets.QFrame()
         self.device_widget.setGeometry(QtCore.QRect(10, 10, 1000, 1800))
@@ -45,8 +43,8 @@ class Resources_window:
         """This function changes the state of a device"""
         for states in self.possible_states:
             if state.upper() == states[0]:  # makes a list out of the states
-                device.device_state_label.setText(states[0])
-                device.device_state_label.setStyleSheet(states[1])
+                #device.setText(states[0])
+                device.setStyleSheet(states[1])
 
     def get_all_instruments(self):
         """Gets all instruments which are listed"""
@@ -81,15 +79,16 @@ class Resources_window:
                 if "Visa_Resource" in device_dict:
                     instrument.device_connected_at_label.setText(str(device_dict["Visa_Resource"]))
                     instrument.device_connected_label.setText("CONNECTED")
+                    self.device_state(instrument.device_connected_label, "CONFIGURED")
                     # instrument.device_connected_checkbox.setChecked(True) # legacy
-                    instrument.device_connected_label.setStyleSheet("QFrame { background :rgb(0, 255, 0) }")
+                    #instrument.device_connected_label.setStyleSheet("QFrame { background :rgb(0, 255, 0) }")
                 else:
                     instrument.device_connected_at_label.setText("None")
                     instrument.device_connected_label.setText("NOT CONNECTED")
-                    # self.device_state(instrument, "ERROR")
+                    self.device_state(instrument.device_connected_label, "ERROR")
                     # instrument.device_state_label.setText("ERROR")
                     # instrument.device_connected_checkbox.setChecked(False) #legacy
-                    instrument.device_connected_label.setStyleSheet("QFrame { background :rgb(255, 0, 0) }")
+                    #instrument.device_connected_label.setStyleSheet("QFrame { background :rgb(255, 0, 0) }")
                     # instrument.device_state_label.setStyleSheet("QFrame { background :rgb(255, 0, 0) }")
 
                 self.list_of_instruments.append(resources_widget)
