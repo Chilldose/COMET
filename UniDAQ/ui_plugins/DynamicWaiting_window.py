@@ -23,7 +23,9 @@ class DynamicWaiting_window:
         self.variables = GUI
         self.layout = layout
 
-
+        self.ticksStyle = {"pixelsize": 10}
+        self.labelStyle = {'color': '#FFF', 'font-size': '18px'}
+        self.titleStyle = {'color': '#FFF', 'size': '15pt'}
 
         self.setpg = pq
         self.voltage_step = 0
@@ -60,13 +62,15 @@ class DynamicWaiting_window:
 
     def plot_config(self):
         '''This function configurates the plot'''
-        self.dynamic.current_plot.setTitle("Dynamic IV waiting time analysis")
-        self.dynamic.current_plot.setLabel('left', "current", units='A')
-        self.dynamic.current_plot.setLabel('bottom', "time", units='s')
+        self.dynamic.current_plot.setTitle("Dynamic IV waiting time analysis", **self.titleStyle)
+        self.dynamic.current_plot.setLabel('left', "current", units='A', **self.labelStyle)
+        self.dynamic.current_plot.setLabel('bottom', "time", units='s', **self.labelStyle)
         self.dynamic.current_plot.showAxis('top', show=True)
         self.dynamic.current_plot.showAxis('right', show=True)
         self.dynamic.current_plot.plotItem.showGrid(x=True, y=True)
         self.dynamic.current_plot.getPlotItem().invertY(True)
+
+        hf.change_axis_ticks(self.dynamic.current_plot, self.ticksStyle)
 
     def update_stats(self):
         """This function updates the progress bar"""

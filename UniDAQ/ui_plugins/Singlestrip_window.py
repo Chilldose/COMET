@@ -30,6 +30,14 @@ class Singlestrip_window:
         self.layout = layout
         self.HV_on = False
 
+        self.ticksStyle = {"pixelsize": 10}
+        self.labelStyle = {'color': '#FFF', 'font-size': '18px'}
+        self.titleStyle = {'color': '#FFF', 'size': '15pt'}
+
+        self.ticksStyle = {"pixelsize": 10}
+        self.labelStyle = {'color': '#FFF', 'font-size': '18px'}
+        self.titleStyle = {'color': '#FFF', 'size': '15pt'}
+
         # Settings tab
         singlestrip_widget = QWidget()
         self.single_strip = self.variables.load_QtUi_file("singlestrip.ui", singlestrip_widget)
@@ -129,19 +137,21 @@ class Singlestrip_window:
 
     def plot_config(self):
         '''This function configurates the plot'''
-        self.single_strip.single_strip_plot.setTitle("Single strip plot")
-        self.single_strip.single_strip_plot.setLabel('left', "current", units='A')
-        self.single_strip.single_strip_plot.setLabel('bottom', "voltage", units='V')
+        self.single_strip.single_strip_plot.setTitle("Single strip plot", **self.titleStyle)
+        self.single_strip.single_strip_plot.setLabel('left', "current", units='A', **self.labelStyle)
+        self.single_strip.single_strip_plot.setLabel('bottom', "voltage", units='V', **self.labelStyle)
         self.single_strip.single_strip_plot.showAxis('top', show=True)
         self.single_strip.single_strip_plot.showAxis('right', show=True)
         self.single_strip.single_strip_plot.plotItem.showGrid(x=True, y=True)
         #self.single_strip.single_strip_plot.plotItem.setLogMode(False, True)
 
+        hf.change_axis_ticks(self.single_strip.single_strip_plot, self.ticksStyle)
+
     def reconfig_plot(self, Title, xAxis, yAxis, logscale):
         '''Reconfigs the plot for the different plots'''
-        self.single_strip.single_strip_plot.setTitle(str(Title))
-        self.single_strip.single_strip_plot.setLabel('left', str(xAxis[0]), units=str(xAxis[1]))
-        self.single_strip.single_strip_plot.setLabel('bottom', str(yAxis[0]), units=str(yAxis[1]))
+        self.single_strip.single_strip_plot.setTitle(str(Title), **self.titleStyle)
+        self.single_strip.single_strip_plot.setLabel('left', str(xAxis[0]), units=str(xAxis[1]), **self.labelStyle)
+        self.single_strip.single_strip_plot.setLabel('bottom', str(yAxis[0]), units=str(yAxis[1]), **self.labelStyle)
         self.single_strip.single_strip_plot.plotItem.setLogMode(x=logscale[0], y=logscale[1])
 
     @hf.raise_exception

@@ -25,6 +25,11 @@ class Stripscan_window:
 
         self.variables = GUI_classes
         self.layout = layout
+
+        self.ticksStyle = {"pixelsize": 10}
+        self.labelStyle = {'color': '#FFF', 'font-size': '13px'}
+        self.titleStyle = {'color': '#FFF', 'size': '10pt'}
+
         self.measurement_list = [("Idark", ["Pad", "#"], ["Current", "A"], [False, False], True),
                                  ("Idiel", ["Pad", "#"], ["Current", "A"], [False, False], True),
                                  ("Istrip", ["Pad", "#"], ["Current", "A"], [False, False], True),
@@ -57,14 +62,16 @@ class Stripscan_window:
     def config_plot(self, Title, xAxis, yAxis, logscale, inverty = False):
         '''configs the plot for the different plots'''
         object = getattr(self.stripscan, Title.lower()+"_plot")
-        object.setTitle(str(Title))
-        object.setLabel('bottom', str(xAxis[0]), units=str(xAxis[1]))
-        object.setLabel('left', str(yAxis[0]), units=str(yAxis[1]))
+        object.setTitle(str(Title), **self.titleStyle)
+        object.setLabel('bottom', str(xAxis[0]), units=str(xAxis[1]), **self.labelStyle)
+        object.setLabel('left', str(yAxis[0]), units=str(yAxis[1]), **self.labelStyle)
         object.showAxis('top', show=True)
         object.showAxis('right', show=True)
         object.setLogMode(x=logscale[0], y=logscale[1])
         object.setContentsMargins(0., 0., 0., 0.)
         object.getPlotItem().invertY(inverty)
+
+        hf.change_axis_ticks(object, self.ticksStyle)
 
 
     def update_plots(self):
@@ -75,7 +82,7 @@ class Stripscan_window:
             for meas in self.measurement_list:
                 plot_item = getattr(self.stripscan, meas[0].lower()+"_plot") # gets me the plot item
                 if len(self.variables.meas_data[meas[0]][0]) == len(self.variables.meas_data[meas[0]][1]):  # sometimes it happens that the values are not yet ready
-                    plot_item.plot(self.variables.meas_data[meas[0]][0], self.variables.meas_data[meas[0]][1], pen="y", clear=True)
+                    plot_item.plot(self.variables.meas_data[meas[0]][0], self.variables.meas_data[meas[0]][1], pen="#e53d46", clear=True)
 
 
 

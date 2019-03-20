@@ -103,6 +103,11 @@ class GUI_classes(GUI_event_loop, QWidget):
         if self.white_plots:
             pq.setConfigOption('background', 'w')
             pq.setConfigOption('foreground', 'k')
+        else:
+            pq.setConfigOption('background', '#3b4047')
+            pq.setConfigOption('foreground', '#bec4ce')
+            pq.setConfigOption('antialias', True)
+            pq.setConfigOption('crashWarning', True)
 
 
         sleep(0.2) # That gives the threads time to initialize all values before missmatch in gui can occur

@@ -26,7 +26,9 @@ class Main_window:
         self.layout = layout
         self.log = logging.getLogger(__name__)
 
-
+        self.ticksStyle = {"pixelsize": 10}
+        self.labelStyle = {'color': '#FFF', 'font-size': '18px'}
+        self.titleStyle = {'color': '#FFF', 'size': '15pt'}
 
         # Orientation and placement
         # 15 times 15 tiles
@@ -765,10 +767,10 @@ class Main_window:
         x = np.zeros(1)
         y = np.zeros(1)
 
-        iv_plot = pq.PlotWidget(title = "IV curve")
+        iv_plot = pq.PlotWidget(title = "IV curve", **self.titleStyle)
 
-        iv_plot.setLabel('left', "current", units='A')
-        iv_plot.setLabel('bottom', "voltage", units='V')
+        iv_plot.setLabel('left', "current", units='A', **self.labelStyle)
+        iv_plot.setLabel('bottom', "voltage", units='V', **self.labelStyle)
         iv_plot.showAxis('top', show=True)
         iv_plot.showAxis('right', show=True)
         iv_plot.getPlotItem().invertX(True)
@@ -777,7 +779,9 @@ class Main_window:
         iv_plot.setMinimumHeight(350)
         iv_plot.setMaximumHeight(350)
 
-        iv_plot.plot(pen="y")
+        hf.change_axis_ticks(iv_plot, self.ticksStyle)
+
+        iv_plot.plot(pen="#cddb32")
 
         self.layout.addWidget(iv_plot, self.IV_posy, self.IV_posx, self.IV_ysize, self.IV_ysize)
 
@@ -800,10 +804,10 @@ class Main_window:
         x = np.zeros(1)
         y = np.zeros(1)
 
-        cv_plot = pq.PlotWidget(title = "CV curve")
+        cv_plot = pq.PlotWidget(title = "CV curve", **self.titleStyle)
 
-        cv_plot.setLabel('left', "1/c^2", units='arb. units')
-        cv_plot.setLabel('bottom', "voltage", units='V')
+        cv_plot.setLabel('left', "1/c^2", units='arb. units', **self.labelStyle)
+        cv_plot.setLabel('bottom', "voltage", units='V', **self.labelStyle)
         cv_plot.showAxis('top', show=True)
         cv_plot.showAxis('right', show=True)
         cv_plot.getPlotItem().invertX(True)
@@ -811,8 +815,9 @@ class Main_window:
         cv_plot.setMinimumHeight(350)
         cv_plot.setMaximumHeight(350)
 
+        hf.change_axis_ticks(cv_plot, self.ticksStyle)
 
-        cv_plot.plot(x,y, pen="b")
+        cv_plot.plot(x,y, pen="#3d8edb")
         self.layout.addWidget(cv_plot, self.CV_posy, self.CV_posx, self.CV_ysize, self.CV_ysize)
 
         def depletion_volt(value):

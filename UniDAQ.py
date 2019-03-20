@@ -66,8 +66,6 @@ def configureSetup(widget):
     QApplication.quit() # Quits the setup
     #sleep(0.5) # Because it takes some time to get rid of the window in the memory
 
-
-
 def Loadmain():
     """This function looks if settings have already been done, otherwise it configs everything and starts the env"""
 

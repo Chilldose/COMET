@@ -22,7 +22,7 @@ import logging.config
 from logging.handlers import RotatingFileHandler
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import *
-from PyQt5.QtGui import *
+from PyQt5 import QtGui
 import numpy as np
 from numpy.linalg import solve, norm, det, qr, inv
 import datetime
@@ -366,6 +366,15 @@ class help_functions:
         def int2dt(ts, ts_mult=1e3):
             """Convert seconds value into datatime struct which can be used for x-axis labeeling"""
             return (datetime.utcfromtimestamp(float(ts) / ts_mult))
+
+    def change_axis_ticks(self, plot, stylesheet=None):
+        """Changes the pen and style of plot axis and labels"""
+        font = QtGui.QFont()
+        font.setPointSize(stylesheet["pixelsize"])
+        plot.getAxis("bottom").tickFont = font
+        plot.getAxis("top").tickFont = font
+        plot.getAxis("right").tickFont = font
+        plot.getAxis("left").tickFont = font
 
     def build_command(self, device_dict, command_tuple):
         """

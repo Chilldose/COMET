@@ -41,7 +41,10 @@ class StripAnalysis_window:
         self.output_directory = self.variables.default_values_dict["Badstrip"].get("output_folder", str(os.getcwd()))
         self.bins = 100
         self.setpg = pq
-        self.pdf_viewbox = self.setpg.ViewBox()
+        self.ticksStyle = {"pixelsize": 10}
+        self.labelStyle = {'color': '#FFF', 'font-size': '24px'}
+        self.titleStyle = {'color': '#FFF', 'size': '15pt'}
+        #self.pdf_viewbox = self.setpg.ViewBox()
 
         # Badstrip detection tab
         badstrip = QWidget()
@@ -181,8 +184,6 @@ class StripAnalysis_window:
             self.badstrip.which_measurement.addItems(self.plot_data[current_item]["measurements"][1:])
             self.update_plot(self.badstrip.which_measurement.currentText())
             self.update_results_text()
-            # Add tooltip functionality
-            self.tooltip = utilities.show_cursor_position(self.badstrip.strip_plot)
         except Exception as e:
             l.error("An error occured while accessing data from the bad strip detection: " + str(e))
 
@@ -194,12 +195,13 @@ class StripAnalysis_window:
 
     def plot_config(self):
         '''This function configurates the strip plot'''
-        self.badstrip.strip_plot.setTitle("Strip results on: No measurement selected")
-        self.badstrip.strip_plot.setLabel('left', "current", units='A')
-        self.badstrip.strip_plot.setLabel('bottom', "voltage", units='V')
+        self.badstrip.strip_plot.setTitle("Strip results on: No measurement selected", **self.titleStyle)
+        self.badstrip.strip_plot.setLabel('left', "current", units='A', **self.labelStyle)
+        self.badstrip.strip_plot.setLabel('bottom', "voltage", units='V', **self.labelStyle)
         self.badstrip.strip_plot.showAxis('top', show=True)
         self.badstrip.strip_plot.showAxis('right', show=True)
         self.badstrip.strip_plot.plotItem.showGrid(x=True, y=True)
+
         #self.badstrip.badstrip_plot.plotItem.setLogMode(False, True)
         # Force x-axis to be always auto-scaled
         self.badstrip.strip_plot.setMouseEnabled(x=False)
@@ -209,19 +211,22 @@ class StripAnalysis_window:
         # Add tooltip functionality
         self.tooltip = utilities.show_cursor_position(self.badstrip.strip_plot)
 
-        self.badstrip.strip_plot_histogram.setTitle("Histogram results on: No measurement selected")
-        self.badstrip.strip_plot_histogram.setLabel('left', "count", units='#')
-        self.badstrip.strip_plot_histogram.setLabel('bottom', "current", units='A')
+        self.badstrip.strip_plot_histogram.setTitle("Histogram results on: No measurement selected", **self.titleStyle)
+        self.badstrip.strip_plot_histogram.setLabel('left', "count", units='#', **self.labelStyle)
+        self.badstrip.strip_plot_histogram.setLabel('bottom', "current", units='A', **self.labelStyle)
         self.badstrip.strip_plot_histogram.showAxis('top', show=True)
         self.badstrip.strip_plot_histogram.showAxis('right', show=True)
         self.badstrip.strip_plot_histogram.plotItem.showGrid(x=True, y=True)
 
         # For second plot item on histogram plot (the pdf of the gauss)
-        plot = self.badstrip.strip_plot_histogram.plotItem
-        plot.scene().addItem(self.pdf_viewbox)  # inserts the second plot into the scene of the first
-        self.pdf_viewbox.setGeometry(plot.vb.sceneBoundingRect())
-        plot.getAxis('right').linkToView(self.pdf_viewbox)  # links the second y axis to the second plot
-        self.pdf_viewbox.setXLink(plot)  # sync the x axis of both plots
+        #plot = self.badstrip.strip_plot_histogram.plotItem
+        #plot.scene().addItem(self.pdf_viewbox)  # inserts the second plot into the scene of the first
+        #self.pdf_viewbox.setGeometry(plot.vb.sceneBoundingRect())
+        #plot.getAxis('right').linkToView(self.pdf_viewbox)  # links the second y axis to the second plot
+        #self.pdf_viewbox.setXLink(plot)  # sync the x axis of both plots
+
+        hf.change_axis_ticks(self.badstrip.strip_plot,self.ticksStyle)
+        hf.change_axis_ticks(self.badstrip.strip_plot_histogram,self.ticksStyle)
 
 
     def reconfig_plot(self, Title, plot_settings):
@@ -230,18 +235,18 @@ class StripAnalysis_window:
         :param - plot_settings must be a tuple consisting elements like it is in the config defined
                         "Idark": (["Pad", "#"], ["Current", "A"], [False, False], True)
         '''
-        self.badstrip.strip_plot.setTitle("Strip results on: " + str(Title))
-        self.badstrip.strip_plot.setLabel('bottom', str(plot_settings[0][0]), units=str(plot_settings[0][1]))
-        self.badstrip.strip_plot.setLabel('left', str(plot_settings[1][0]), units=str(plot_settings[1][1]))
+        self.badstrip.strip_plot.setTitle("Strip results on: " + str(Title), **self.titleStyle)
+        self.badstrip.strip_plot.setLabel('bottom', str(plot_settings[0][0]), units=str(plot_settings[0][1]), **self.labelStyle)
+        self.badstrip.strip_plot.setLabel('left', str(plot_settings[1][0]), units=str(plot_settings[1][1]), **self.labelStyle)
         self.badstrip.strip_plot.plotItem.setLogMode(x=plot_settings[2][0], y=plot_settings[2][1])
         self.badstrip.strip_plot.getPlotItem().invertY(plot_settings[3])
 
-        self.badstrip.strip_plot_histogram.setTitle("Histogram results on: " + str(Title))
-        self.badstrip.strip_plot_histogram.setLabel('left', "Count", units="#")
-        self.badstrip.strip_plot_histogram.setLabel('bottom', str(plot_settings[1][0]), units=str(plot_settings[1][1]))
+        self.badstrip.strip_plot_histogram.setTitle("Histogram results on: " + str(Title), **self.titleStyle)
+        self.badstrip.strip_plot_histogram.setLabel('left', "Count", units="#", **self.labelStyle)
+        self.badstrip.strip_plot_histogram.setLabel('bottom', str(plot_settings[1][0]), units=str(plot_settings[1][1]), **self.labelStyle)
         self.badstrip.strip_plot_histogram.plotItem.setLogMode(x=plot_settings[2][0], y=plot_settings[2][1])
         self.badstrip.strip_plot_histogram.getPlotItem().invertX(plot_settings[3])
-        self.pdf_viewbox.invertX(plot_settings[3])
+        #self.pdf_viewbox.invertX(plot_settings[3])
 
     def update_plot(self, measurement_name):
         '''This handles the update of the plot'''
@@ -279,24 +284,25 @@ class StripAnalysis_window:
                         self.badstrip.strip_plot.plot(lmsdata[0], lmsdata[1], pen="g")
 
                         # Plot pdf in the histogram plot
-                        pdfdata = anadata["pdf"][measurement_name]
-                        self.pdf_viewbox.clear()
-                        plot_item = self.setpg.PlotCurveItem(pdfdata[2], pdfdata[3],
-                                                        pen={'color': "g", 'width': 2},
-                                                        clear=True)
-                        self.pdf_viewbox.addItem(plot_item)
-                        del plot_item  # the plot class needs a plot item which can be rendered, to avoid a mem leak delete the created plot item or 20k ram will be used
+                        #pdfdata = anadata["pdf"][measurement_name]
+                        #self.pdf_viewbox.clear()
+                        #plot_item = self.setpg.PlotCurveItem(pdfdata[2], pdfdata[3],
+                        #                                pen={'color': "g", 'width': 2},
+                        #                                clear=True)
+                        #self.pdf_viewbox.addItem(plot_item)
+                        #del plot_item  # the plot class needs a plot item which can be rendered, to avoid a mem leak delete the created plot item or 20k ram will be used
                         # hum_plot_obj.addItem(setpg.plot(self.variables.meas_data["humidity"][0],self.variables.meas_data["humidity"][1],pen={'color': "b", 'width': 2}, clear=True))
                           # resize the second plot!
                         #self.eq_text = self.setpg.TextItem(text="Some text", border='#000000', fill='#ccffff')
                         #self.eq_text.setParentItem(self.pdf_viewbox)
                         #self.eq_text.setPos(pdfdata[2][np.argmax(pdfdata[3])], y.max() * 0.9)
-                        self.pdf_viewbox.setGeometry(self.badstrip.strip_plot_histogram.plotItem.vb.sceneBoundingRect())
+                        #self.pdf_viewbox.setGeometry(self.badstrip.strip_plot_histogram.plotItem.vb.sceneBoundingRect())
 
                         # Update report text
                         self.badstrip.report_lable.setText(anadata["report"][measurement_name])
 
             self.badstrip.strip_plot.enableAutoRange(y=True)
+            self.tooltip = utilities.show_cursor_position(self.badstrip.strip_plot)
             return self.badstrip.strip_plot, self.badstrip.strip_plot_histogram
 
     def files_selector_action(self):
