@@ -11,10 +11,9 @@ from PyQt5.QtWidgets import *
 from random import randint
 
 
-from .. import utilities
+from ..utilities import change_axis_ticks, show_cursor_position, raise_exception
 
 l = logging.getLogger(__name__)
-hf = utilities.help_functions()
 
 class StripAnalysis_window:
 
@@ -141,7 +140,7 @@ class StripAnalysis_window:
         self.variables.default_values_dict["Badstrip"]["export_results"] = self.badstrip.cb_Save_results.isChecked()
         self.variables.default_values_dict["Badstrip"]["export_plot"] = self.badstrip.cb_Save_plots.isChecked()
 
-    @hf.raise_exception
+    @raise_exception
     def update_results_text(self):
         """Updates the result text for a measurement"""
 
@@ -153,7 +152,7 @@ class StripAnalysis_window:
         else:
             self.badstrip.report_lable.setText("")
             self.badstrip.radioData.setChecked(False)
-    @hf.raise_exception
+    @raise_exception
     def update_stats(self, kwargs = None):
         """Updates the text of the loaded files and such shit"""
         self.badstrip.label_output.setText(self.output_directory)
@@ -209,7 +208,7 @@ class StripAnalysis_window:
         self.badstrip.strip_plot.enableAutoRange(y=True)
 
         # Add tooltip functionality
-        self.tooltip = utilities.show_cursor_position(self.badstrip.strip_plot)
+        self.tooltip = show_cursor_position(self.badstrip.strip_plot)
 
         self.badstrip.strip_plot_histogram.setTitle("Histogram results on: No measurement selected", **self.titleStyle)
         self.badstrip.strip_plot_histogram.setLabel('left', "count", units='#', **self.labelStyle)
@@ -225,8 +224,8 @@ class StripAnalysis_window:
         #plot.getAxis('right').linkToView(self.pdf_viewbox)  # links the second y axis to the second plot
         #self.pdf_viewbox.setXLink(plot)  # sync the x axis of both plots
 
-        hf.change_axis_ticks(self.badstrip.strip_plot,self.ticksStyle)
-        hf.change_axis_ticks(self.badstrip.strip_plot_histogram,self.ticksStyle)
+        change_axis_ticks(self.badstrip.strip_plot,self.ticksStyle)
+        change_axis_ticks(self.badstrip.strip_plot_histogram,self.ticksStyle)
 
 
     def reconfig_plot(self, Title, plot_settings):
@@ -302,7 +301,7 @@ class StripAnalysis_window:
                         self.badstrip.report_lable.setText(anadata["report"][measurement_name])
 
             self.badstrip.strip_plot.enableAutoRange(y=True)
-            self.tooltip = utilities.show_cursor_position(self.badstrip.strip_plot)
+            self.tooltip = show_cursor_position(self.badstrip.strip_plot)
             return self.badstrip.strip_plot, self.badstrip.strip_plot_histogram
 
     def files_selector_action(self):

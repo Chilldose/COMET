@@ -12,11 +12,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 
-from .. import utilities
+from ..utilities import raise_exception, change_axis_ticks, get_thicks_for_timestamp_plot
 
 l = logging.getLogger(__name__)
-
-hf = utilities.help_functions()
 
 
 class Stripscan_window:
@@ -71,7 +69,7 @@ class Stripscan_window:
         object.setContentsMargins(0., 0., 0., 0.)
         object.getPlotItem().invertY(inverty)
 
-        hf.change_axis_ticks(object, self.ticksStyle)
+        change_axis_ticks(object, self.ticksStyle)
 
 
     def update_plots(self):
@@ -128,7 +126,7 @@ class Stripscan_window:
         self.stripscan.end_time.setText(self.variables.default_values_dict["settings"]["End_time"])  # sets the display to the desired value
         self.stripscan.strip_time.setText(str(self.variables.default_values_dict["settings"]["strip_scan_time"]))  # sets the display to the desired value
 
-    @hf.raise_exception
+    @raise_exception
     def reset_stat(self, kwargs=None):
         '''Resets the statistics panel'''
         if self.new_meas and self.variables.default_values_dict["settings"]["Measurement_running"] or True:
@@ -219,7 +217,7 @@ class Stripscan_window:
                         data_array[arrays][1] = data_array[arrays][1][array_elm_to_drop:]
             except:
                 pass
-        @hf.raise_exception
+        @raise_exception
         def update_temphum_plots(kwargs = None):
             # for rooms in self.rooms:
             if self.variables.default_values_dict["settings"]["new_data"]:
@@ -229,7 +227,7 @@ class Stripscan_window:
 
                 ax = p1.getAxis('bottom')  # This is the trick
                 __cut_arrays(self.variables.meas_data, float(self.variables.default_values_dict["settings"].get("temp_history", 3600)), ["temperature", "humidity"])
-                ax.setTicks([hf.get_thicks_for_timestamp_plot(self.variables.meas_data["temperature"][0], 5, self.variables.default_values_dict["settings"]["time_format"])])
+                ax.setTicks([get_thicks_for_timestamp_plot(self.variables.meas_data["temperature"][0], 5, self.variables.default_values_dict["settings"]["time_format"])])
 
                 try:
                     if len(self.variables.meas_data["temperature"][0]) == len(self.variables.meas_data["humidity"][1]):  # sometimes it happens that the values are not yet ready
@@ -259,7 +257,7 @@ class Stripscan_window:
         y = np.zeros(1)
 
         setpg = pq
-        #date_axis = hf.CAxisTime(orientation='bottom')  # Correctly generates the time axis
+        #date_axis = CAxisTime(orientation='bottom')  # Correctly generates the time axis
         hum_plot_obj = setpg.ViewBox()  # generate new plot item
         temphum_plot = pq.PlotWidget()
         config_temphum_plot(temphum_plot, hum_plot_obj, setpg)  # config the plot items

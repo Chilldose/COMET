@@ -4,11 +4,11 @@ import logging
 import time
 import sys
 sys.path.append('../UniDAQ')
-from ..utilities import *
+from ..utilities import timeit, transformation
+from ..VisaConnectWizard import VisaConnectWizard
 l = logging.getLogger(__name__)
 
-help = help_functions()
-vcw = VisaConnectWizard.VisaConnectWizard()
+vcw = VisaConnectWizard()
 trans = transformation()
 ttime = time
 
@@ -40,7 +40,7 @@ class dynamicwaiting_class:
         order = {"ABORT_MEASUREMENT": True}  # just for now
         self.main.queue_to_main.put(order)
 
-    @hf.timeit
+    @timeit
     def do_dynamic_waiting(self):
         """
         This function does everything concerning the dynamic waiting time measurement

@@ -18,7 +18,7 @@ class loading_init_files:
     '''
 
 
-    def __init__(self, hf):
+    def __init__(self):
 
         self.log = logging.getLogger(__name__)
 

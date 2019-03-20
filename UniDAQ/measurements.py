@@ -3,14 +3,13 @@ import logging
 import numpy as np
 from .VisaConnectWizard import VisaConnectWizard
 import os
-import time
+from time import sleep, time
 import datetime, math
 from scipy import stats
 import importlib
-from .utilities import *
 
+from .utilities import timeit
 
-help = help_functions()
 vcw = VisaConnectWizard()
 
 class measurement_class:
@@ -257,9 +256,9 @@ class measurement_class:
                 # here the actuall measurement starts
                 if not abort:
                     self.log.info("Starting measurement " + str(measurement))
-                    starttime = time.time()
+                    starttime = time()
                     getattr(self.all_plugins[measurement], str(measurement)+"_class")(self)
-                    endtime = time.time()
+                    endtime = time()
 
                     deltaT = abs(starttime-endtime)
                     self.log.info("The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds.")
@@ -496,7 +495,7 @@ class measurement_class:
         else:
             return False
 
-    @help.timeit
+    @timeit
     def config_setup(self, device, commands = []):
         '''This function configures the setup for a specific measurement.
         Commands is a list of tuples, containing (command, values) if no value is defined only command will be send'''
@@ -510,7 +509,7 @@ class measurement_class:
 
     def build_command_depricated(self, device, command_tuple):
         #Todo build command is two folded in here
-        if type(command_tuple) == unicode or type(command_tuple) == str:
+        if type(command_tuple) == type(u"") or type(command_tuple) == str:
             command_tuple = (str(command_tuple),) # so the correct casting is done
 
         for key, value in device.items():

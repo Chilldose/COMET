@@ -13,9 +13,8 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from .. import engineering_notation as en
 
-from .. import utilities
+from ..utilities import raise_exception, change_axis_ticks, build_command, write_init_file, get_thicks_for_timestamp_plot
 
-hf = utilities.help_functions()
 
 class Main_window:
 
@@ -111,7 +110,7 @@ class Main_window:
                 self.table_move_ui.table_ind.setStyleSheet("background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
             pass
 
-        @hf.raise_exception
+        @raise_exception
         def adjust_table_speed(kwargs = None): # must be here because of reasons
             '''This function adjusts the speed of the table'''
             speed = int(float(self.variables.devices_dict["Table_control"]["default_joy_speed"])/100. * float(self.table_move_ui.Table_speed.value()))
@@ -186,7 +185,7 @@ class Main_window:
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
-        @hf.raise_exception
+        @raise_exception
         def enable_table_control(bool):
             '''This function enables the table and the joystick frame'''
             if bool:
@@ -296,7 +295,7 @@ class Main_window:
         # Not sure if this function should be called all the time
         #self.variables.add_update_function(table_move_update)
 
-    @hf.raise_exception
+    @raise_exception
     def settings(self, kwargs=None):
             '''Here the settings for project operator etc is included'''
             # Create sublayout
@@ -350,7 +349,7 @@ class Main_window:
                     self.variables.default_values_dict["settings"].update(dict) # Updates the values of the dict, it either updates the values or adds them if not incluced
                     self.variables.ui_plugins["Settings_window"].configure_settings()
 
-            @hf.raise_exception
+            @raise_exception
             def save_measurement_settings_file(kwargs = None):
                 ''' This function saves a mesuerment settings file'''
 
@@ -363,7 +362,7 @@ class Main_window:
 
                 if file[0]:
                     # gets me all settings which are to be saved
-                    hf.write_init_file(file[0], self.variables.ui_plugins["Settings_window"].get_all_settings())
+                    write_init_file(file[0], self.variables.ui_plugins["Settings_window"].get_all_settings())
                     self.log.info("Settings file successfully written to: " + str(file))
 
             def load_valid_sensors_for_project(project_name):
@@ -528,7 +527,7 @@ class Main_window:
             # Add the layout to the main layout
             self.layout.addLayout(setting_layout, self.proj_posy, self.proj_posx, self.proj_ysize, self.proj_xsize)
 
-    @hf.raise_exception
+    @raise_exception
     def start_menu(self,kwargs = None):
             '''Here all start stop buttons are included'''
 
@@ -549,7 +548,7 @@ class Main_window:
 
 
             # Orders
-            @hf.raise_exception
+            @raise_exception
             def exit_order(kwargs = None):
                 reply = QMessageBox.question(None, 'Warning', "Are you sure to quit?", QMessageBox.Yes, QMessageBox.No)
                 if reply == QMessageBox.Yes:
@@ -563,7 +562,7 @@ class Main_window:
                     msg.exec_()
 
 
-            @hf.raise_exception
+            @raise_exception
             def Start_order(kwargs = None):
                 if self.variables.default_values_dict["settings"]["Current_filename"] and os.path.isdir(self.variables.default_values_dict["settings"]["Current_directory"]):
                     if not self.variables.default_values_dict["settings"]["Measurement_running"]:
@@ -588,12 +587,12 @@ class Main_window:
                 else:
                     reply = QMessageBox.information(None, 'Warning', "Please enter a valid filepath and filename.", QMessageBox.Ok)
 
-            @hf.raise_exception
+            @raise_exception
             def Stop_order(kwargs = None):
                 order = {"ABORT_MEASUREMENT": True} # just for now
                 self.variables.message_to_main.put(order)
 
-            @hf.raise_exception
+            @raise_exception
             def Load_order(kwargs = None):
                 '''This function loads an old measurement file and displays it if no measurement is curently conducted'''
 
@@ -606,7 +605,7 @@ class Main_window:
                 else:
                     reply = QMessageBox.information(None, 'Warning', "You cannot load a measurement files while data taking is in progress.", QMessageBox.Ok)
 
-            @hf.raise_exception
+            @raise_exception
             def create_statistic_text(kwargs = None):
                 try:
                     bias = "Bias Voltage: " + str(en.EngNumber(float(self.variables.default_values_dict["settings"]["bias_voltage"]))) + "V" + "\n\n"
@@ -779,14 +778,14 @@ class Main_window:
         iv_plot.setMinimumHeight(350)
         iv_plot.setMaximumHeight(350)
 
-        hf.change_axis_ticks(iv_plot, self.ticksStyle)
+        change_axis_ticks(iv_plot, self.ticksStyle)
 
         iv_plot.plot(pen="#cddb32")
 
         self.layout.addWidget(iv_plot, self.IV_posy, self.IV_posx, self.IV_ysize, self.IV_ysize)
 
         #self.variables.plots.append(iv_plot) #Appeds the plot to the list of all plots
-        @hf.raise_exception
+        @raise_exception
         def update(kwargs = None):
             # This clear here erases all data from the viewbox each time this function is called and draws all points again!
             #Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage
@@ -815,7 +814,7 @@ class Main_window:
         cv_plot.setMinimumHeight(350)
         cv_plot.setMaximumHeight(350)
 
-        hf.change_axis_ticks(cv_plot, self.ticksStyle)
+        change_axis_ticks(cv_plot, self.ticksStyle)
 
         cv_plot.plot(x,y, pen="#3d8edb")
         self.layout.addWidget(cv_plot, self.CV_posy, self.CV_posx, self.CV_ysize, self.CV_ysize)
@@ -834,7 +833,7 @@ class Main_window:
 
         self.variables.add_update_function(update)
 
-    @hf.raise_exception
+    @raise_exception
     def temphum_plot(self, kwargs = None):
         '''Also button corresponding to temphum plot included'''
 
@@ -851,8 +850,8 @@ class Main_window:
             self.variables.default_values_dict["settings"]["current_hummin"] = hummin.value()
             self.variables.default_values_dict["settings"]["current_hummax"] = hummax.value()
 
-            max = hf.build_command(self.variables.devices_dict["temphum_controller"], ("set_hummax", hummax.value()))
-            min = hf.build_command(self.variables.devices_dict["temphum_controller"], ("set_hummin", hummin.value()))
+            max = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummax", hummax.value()))
+            min = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummin", hummin.value()))
 
             self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], max)
             self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], min)
@@ -862,7 +861,7 @@ class Main_window:
             if dry_air_btn.isChecked():
                 device_dict = self.variables.devices_dict["temphum_controller"]
                 try:
-                    command = hf.build_command(device_dict, ("set_environement_control", "ON"))
+                    command = build_command(device_dict, ("set_environement_control", "ON"))
                     answer = self.variables.vcw.write(device_dict, command)
                     if answer == -1:
                         self.log.error("The environement controller did not responsed accordingly. Answer: " +str(answer).strip())
@@ -878,7 +877,7 @@ class Main_window:
             else:
                 device_dict = self.variables.devices_dict["temphum_controller"]
                 try:
-                    command = hf.build_command(device_dict, ("set_environement_control", "OFF"))
+                    command = build_command(device_dict, ("set_environement_control", "OFF"))
                     answer = self.variables.vcw.write(device_dict, command)
                     if answer == -1:
                         self.log.error("The environement controller did not responsed accordingly. Answer: " + str(answer).strip())
@@ -955,7 +954,7 @@ class Main_window:
 
                 ax = p1.getAxis('bottom')  # This is the trick
                 __cut_arrays(self.variables.meas_data, float(self.variables.default_values_dict["settings"].get("temp_history", 3600)), ["temperature", "humidity"])
-                ax.setTicks([hf.get_thicks_for_timestamp_plot(self.variables.meas_data["temperature"][0], 5, self.variables.default_values_dict["settings"]["time_format"])])
+                ax.setTicks([get_thicks_for_timestamp_plot(self.variables.meas_data["temperature"][0], 5, self.variables.default_values_dict["settings"]["time_format"])])
 
                 try:
                     if len(self.variables.meas_data["temperature"][0]) == len(self.variables.meas_data["humidity"][1]):  # sometimes it happens that the values are not yet ready
@@ -985,7 +984,7 @@ class Main_window:
         y = np.zeros(1)
 
         setpg = pq
-        #date_axis = hf.CAxisTime(orientation='bottom')  # Correctly generates the time axis
+        #date_axis = CAxisTime(orientation='bottom')  # Correctly generates the time axis
         hum_plot_obj = setpg.ViewBox()  # generate new plot item
         temphum_plot = pq.PlotWidget()
         config_plot(temphum_plot, hum_plot_obj, setpg)  # config the plot items
@@ -1190,7 +1189,7 @@ class Main_window:
                 #self.table_move.table_move_update()
 
 
-        @hf.raise_exception
+        @raise_exception
         def move_zero_order(kwargs = None):
             '''Moves the table to the zero position '''
             self.variables.table.set_joystick(False)

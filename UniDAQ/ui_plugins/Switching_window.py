@@ -13,12 +13,11 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 
-from .. import utilities
+from ..utilities import raise_exception
 from .. import VisaConnectWizard
 
 l = logging.getLogger(__name__)
 
-hf = utilities.help_functions()
 vcw = VisaConnectWizard.VisaConnectWizard()
 
 class Switching_window:
@@ -76,7 +75,7 @@ class Switching_window:
                         for j in range(1, 5):  # Zeilen
                             for k in range(1, 6):  # Spalten
                                 getattr(self.switching, "m" + str(i) + str(j) + str(k)).setEnabled(checkable)
-    @hf.raise_exception
+    @raise_exception
     def update_GUI_switching_scheme(self, kwargs= None):
         '''This function updates the GUI switching scheme'''
         switching = self.switching_control.check_switching_action()
@@ -118,7 +117,7 @@ class Switching_window:
                 self.update_GUI_switching_scheme()
 
 
-    @hf.raise_exception
+    @raise_exception
     def apply_switching_button_action(self, *kwargs):
         if self.switching.IV_radio.isChecked():
             self.switching_control.switch_to_measurement("IV")

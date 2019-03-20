@@ -56,17 +56,7 @@ class QueueEmitHandler(logging.Handler):
         It only loggs the specific level!!!"""
         self.level = level
 
-
-class help_functions:
-    """Helpfull function is a multipurpose class with a variety of function and tasks.
-    It contains functions regarding error handling an file generation as well as generating ramps (e.g. for bias ramps)
-    For more information see he docs for the functions itself"""
-
-    def __init__(self ):
-        self.log = logging.getLogger(__name__)
-
-
-    def write_init_file(self, name, data, path = ""):
+def write_init_file( name, data, path = ""):
         """
         This function writes config files for devices and default files
 
@@ -89,21 +79,21 @@ class help_functions:
 
             os.remove(os.path.abspath(path + str(name.split(".")[0]) + ".yaml"))
             #directory = path[:len(path)-len(path.split("/")[-1])]
-            filename = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
+            filename = create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
 
             yaml.dump(data, filename, indent=4, ensure_ascii=False)
 
-            self.close_file(filename)
+            close_file(filename)
 
         elif not os.path.isfile(os.path.abspath(path + str(name.split(".")[0]) + ".yaml")):
 
             #directory = path[:len(path) - len(path.split("/")[-1])]
 
-            filename = self.create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
+            filename = create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
 
             yaml.dump(data, filename, indent=4)
 
-            self.close_file(filename)
+            close_file(filename)
 
 
             # Debricated
@@ -126,7 +116,8 @@ class help_functions:
             return -1
 
     # This function works as a decorator to measure the time of function to execute
-    def timeit(self, method):
+
+def timeit( method):
         """
         Intended to be used as decorator for functions. It returns the time needed for the function to run
 
@@ -149,7 +140,8 @@ class help_functions:
     #-----------------------------------------------------------------------------------------
 
     # This function works as a decorator to raise errors if python interpretor does not do that automatically
-    def raise_exception(self, method):
+
+def raise_exception( method):
         """
         Intended to be used as decorator for pyQt functions in the case that errors are not correctly passed to the python interpret
         """
@@ -159,7 +151,7 @@ class help_functions:
                 result = method(*args, **kw)
             # raise the exception and print the stack trace
             except Exception as error:
-                self.log.error("Some error occured in the function " + str(method.__name__) +". With Error:", repr(error))  # this is optional but sometime the raise does not work
+                l.error("Some error occured in the function " + str(method.__name__) +". With Error:", repr(error))  # this is optional but sometime the raise does not work
                 raise  # this raises the error with stack backtrack
             return result
 
@@ -167,7 +159,7 @@ class help_functions:
 
         # This function works as a decorator to raise errors if python interpretor does not do that automatically
 
-    def run_with_lock(self, method):
+def run_with_lock( method):
         """
         Intended to be used as decorator for functions which need to be threadsave. Warning: all functions acquire the same lock, be carefull.
 
@@ -177,19 +169,20 @@ class help_functions:
             try:
                 # Try running the method
                 with lock:
-                    self.log.debug("Lock acquired by program: " + str(method.__name__))
+                    l.debug("Lock acquired by program: " + str(method.__name__))
                     result = method(*args, **kw)
-                self.log.debug("Lock released by program: " + str(method.__name__))
+                l.debug("Lock released by program: " + str(method.__name__))
             # raise the exception and print the stack trace
             except Exception as error:
-                self.log.error("A lock could not be acquired in "  + str(method.__name__) +". With Error:", repr(error)) # this is optional but sometime the raise does not work
+                l.error("A lock could not be acquired in "  + str(method.__name__) +". With Error:", repr(error)) # this is optional but sometime the raise does not work
                 raise  # this raises the error with stack backtrace
             return result
 
         return with_lock  # here the memberfunction timed will be called
 
     # Creates a new file
-    def create_new_file(self, filename="default.txt", filepath = "default_path", os_file=True, suffix = ".txt"):
+
+def create_new_file( filename="default.txt", filepath = "default_path", os_file=True, suffix = ".txt"):
         """
         Simply creates a file
 
@@ -213,24 +206,25 @@ class help_functions:
 
         #First check if Filename already exists, when so, add a counter to the file.
         if os.path.isfile(os.path.abspath(filepath+filename)):
-            self.log.warning("Warning filename " + str(filename) + " already exists!")
+            l.warning("Warning filename " + str(filename) + " already exists!")
             filename = filename[:-4] + "_" + str(counter) + ".txt" # Adds sufix to filename
             while os.path.isfile(os.path.abspath(filepath+filename)):  # checks if file exists
                 filename = filename[:-5] + str(counter)  + ".txt"  # if exists than change the last number in filename string
                 counter += 1
-            self.log.info("Filename changed to " + filename + ".")
+            l.info("Filename changed to " + filename + ".")
 
         if os_file:
             fp = os.open(os.path.abspath(filepath+filename), os.O_WRONLY | os.O_CREAT) # Creates the file
         else:
             fp = open(os.path.abspath(filepath+filename), "w")
 
-        self.log.info("Generated file: " + str(filename))
+        l.info("Generated file: " + str(filename))
 
         return fp
 
     # Opens a file for reading and writing
-    def open_file(self, filename="default.txt", filepath="default_path"):
+
+def open_file( filename="default.txt", filepath="default_path"):
         """
         Just opens a file and returns the file pointer
 
@@ -244,10 +238,11 @@ class help_functions:
             fp = open(filepath + filename, 'r+') #Opens file for reading and writing
             return fp
         except IOError:
-            self.log.error(str(filepath + filename) + " is not an existing file.")
+            l.error(str(filepath + filename) + " is not an existing file.")
 
     # Closes a file (just needs the file pointer)
-    def close_file(self, fp):
+
+def close_file( fp):
         """
         Closed the file specified in param fp
 
@@ -258,12 +253,13 @@ class help_functions:
             except:
                 fp.close()
         except GeneratorExit:
-            self.log.error("Closing the file: " + str(fp) + " was not possible")
+            l.error("Closing the file: " + str(fp) + " was not possible")
         except:
-            self.log.error("Unknown error occured, while closing file " + str(fp) + "Error: ", sys.exc_info()[0])
+            l.error("Unknown error occured, while closing file " + str(fp) + "Error: ", sys.exc_info()[0])
 
     # This flushes a string to a file
-    def flush_to_file(self, fp, message):
+
+def flush_to_file( fp, message):
         """
         Flushes data to a opend file
         Only strings or numbers allowed, Lists will work too but may cause data scrambling
@@ -272,45 +268,45 @@ class help_functions:
         os.write(fp, str(message)) #Writes the message to file
         os.fsync(fp) # ensures that the data is written on HDD
 
-    def write_to_file(self, content, filename="default.txt", filepath = "default_path"):
+def write_to_file( content, filename="default.txt", filepath = "default_path"):
         """
         This writes content to a file. Be aware, input must be of type 'list' each entry containing the information of one line
         """
 
-        fp = self.open_file(filename, filepath)
+        fp = open_file(filename, filepath)
 
         try:
             for line in content:
                 fp.write(str(line))
         except IOError:
-            self.log.error("Writing to file " + filename + " was not possible")
+            l.error("Writing to file " + filename + " was not possible")
         except:
-            self.log.error("Unknown error occured, while writing to file " + str(filename) + "Error: ", sys.exc_info()[0])
+            l.error("Unknown error occured, while writing to file " + str(filename) + "Error: ", sys.exc_info()[0])
 
-        self.close_file(fp)
+        close_file(fp)
 
-    def read_from_file(self, filename="default.txt", filepath = "default_path"):
+def read_from_file( filename="default.txt", filepath = "default_path"):
         """
         Gives you the content of the file in an list, each list entry is one line of the file (datatype=string)
         Warning: File gets closed after reading
         """
 
-        fp = self.open_file(filename, filepath)
+        fp = open_file(filename, filepath)
 
         try:
             return fp.readlines()
         except IOError:
-            self.log.error("Could not read from file.")
+            l.error("Could not read from file.")
             return []
         except:
-            self.log.error("Unknown error occured, while reading from file " + str(filename) + "Error: ", sys.exc_info()[0])
+            l.error("Unknown error occured, while reading from file " + str(filename) + "Error: ", sys.exc_info()[0])
 
-        self.close_file(fp)
+        close_file(fp)
 
     # These functions are for reading and writing to files------------------------------------
     # -------------------------------------------------------------------------------------end
 
-    def ramp_voltage_job(self, queue, resource, order, voltage_Start, voltage_End, step, wait_time = 0.2, complience=100e-6):
+def ramp_voltage_job( queue, resource, order, voltage_Start, voltage_End, step, wait_time = 0.2, complience=100e-6):
         """
         Only use this function for simple ramping for the main, never inside a measurement!!!
         """
@@ -323,51 +319,51 @@ class help_functions:
                                 "Complience": complience}}}
         queue.put(job)
 
-    def int2dt(self, ts, ts_mult = 1e3):
+def int2dt( ts, ts_mult = 1e3):
         """
         Convert seconds value into datatime struct which can be used for x-axis labeeling
         """
         return datetime.datetime.utcfromtimestamp(float(ts) / ts_mult)
 
-    def get_timestring_from_int(self, time_array, format = "%H:%M:%S"):
+def get_timestring_from_int( time_array, format = "%H:%M:%S"):
         """
         Converts int time to timestring
         """
         list = []
         for value in time_array:
-            list.append((value, self.int2dt(value,1).strftime(format)))
+            list.append((value, int2dt(value,1).strftime(format)))
         return list
 
-    def get_thicks_for_timestamp_plot(self, time_array, max_number_of_thicks = 10, format = "%H:%M:%S"):
+def get_thicks_for_timestamp_plot( time_array, max_number_of_thicks = 10, format = "%H:%M:%S"):
         """
         This gives back a list of tuples for the thicks
         """
         final_thicks = []
         if len(time_array) <= max_number_of_thicks:
-            final_thicks = self.get_timestring_from_int(time_array, format)
+            final_thicks = get_timestring_from_int(time_array, format)
         else:
             length = len(time_array)
             delta = int(length/max_number_of_thicks)
             for i in range(0, length, delta):
-                final_thicks.append((time_array[i], self.int2dt(time_array[i],1).strftime(format)))
+                final_thicks.append((time_array[i], int2dt(time_array[i],1).strftime(format)))
         return final_thicks
 
-    class CAxisTime(pg.AxisItem):
+class CAxisTime(pg.AxisItem):
         """Over riding the tickString method by extending the class"""
 
             # @param[in] values List of time.
             # @param[in] scale Not used.
             # @param[in] spacing Not used.
-        def tickStrings(self, values, scale, spacing):
+        def tickStrings( values, scale, spacing):
             """Generate the string labeling of X-axis from the seconds value of Y-axis"""
             # sending a list of values in format "HH:MM:SS.SS" generated from Total seconds.
-            return [(self.int2dt(value).strftime("%H:%M:%S.%f"))[:-4] for value in values]
+            return [(int2dt(value).strftime("%H:%M:%S.%f"))[:-4] for value in values]
 
         def int2dt(ts, ts_mult=1e3):
             """Convert seconds value into datatime struct which can be used for x-axis labeeling"""
             return (datetime.utcfromtimestamp(float(ts) / ts_mult))
 
-    def change_axis_ticks(self, plot, stylesheet=None):
+def change_axis_ticks( plot, stylesheet=None):
         """Changes the pen and style of plot axis and labels"""
         font = QtGui.QFont()
         font.setPointSize(stylesheet["pixelsize"])
@@ -376,7 +372,7 @@ class help_functions:
         plot.getAxis("right").tickFont = font
         plot.getAxis("left").tickFont = font
 
-    def build_command(self, device_dict, command_tuple):
+def build_command( device_dict, command_tuple):
         """
         This function correctly builds the command structure for devices.
         You must pass the device object dictionary with all parameters and a command tuple, consisting of:
@@ -411,7 +407,7 @@ class help_functions:
         return_list = [] # Is list of commands which can be returned if need be
         only_command = False # Flag if only a command was passed, important if such a command doesnt need syntax!
 
-        if type(command_tuple) == unicode or type(command_tuple)== str or type(command_tuple)== float or type(command_tuple)== int:
+        if type(command_tuple) == type(u"Unicode") or type(command_tuple)== str or type(command_tuple)== float or type(command_tuple)== int:
             command_tuple = (str(command_tuple),"") # so only tuple are now prevelent
             only_command = True
         elif type(command_tuple[1]) == list:
@@ -439,7 +435,7 @@ class help_functions:
             # First look if the order is swichted or not (command value, or value command)
 
             # Check if multiple commands so list or so
-            if type(device_dict[command_tuple[0]]) == str or type(device_dict[command_tuple[0]]) == unicode:
+            if type(device_dict[command_tuple[0]]) == str or type(device_dict[command_tuple[0]]) == type(u"Unicode"):
                 command_list = [device_dict[command_tuple[0]]]
             else:
                 command_list = device_dict[command_tuple[0]]
@@ -461,7 +457,7 @@ class help_functions:
                         # Make sure you always got a list of the next commandblock will fail
                         if type(command_tuple[1]) == list or type(command_tuple[1]) == tuple:
                             value_list = command_tuple[1]
-                        elif type(command_tuple[1]) == str or type(command_tuple) == unicode:
+                        elif type(command_tuple[1]) == str or type(command_tuple) == type(u"Unicode"):
                             value_list = command_tuple[1].strip().strip("(").strip(")").strip("[").strip("]").strip().replace(" ", "")
                             value_list = value_list.split(",")
 
@@ -475,7 +471,7 @@ class help_functions:
 
                         if i+1 < len(csv_commands) and len(csv_commands)>1:
                             for j in range(i+1, len(csv_commands)):  # Fill the rest of the missing paramters
-                                self.log.error("Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
+                                l.error("Warning: Not enough parameters passed for function: " + str(command_item) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
                                 command += "0" + sepa
 
                         command = command.strip(" ").strip(",")  # to get rid of last comma
@@ -523,7 +519,7 @@ class help_functions:
                         # Make sure you always got a list of the next commandblock will fail
                         if type(command_tuple[1]) == list or type(command_tuple[1]) == tuple:
                             value_list = command_tuple[1]
-                        elif type(command_tuple[1])==str or type(command_tuple)==unicode:
+                        elif type(command_tuple[1])==str or type(command_tuple)==type(u"Unicode"):
                             value_list = command_tuple[1].strip().strip("(").strip(")").strip("[").strip("]").strip().replace(" ", "")
                             value_list = value_list.split(",")
 
@@ -538,7 +534,7 @@ class help_functions:
 
                         if i+1 < len(csv_commands) and len(csv_commands)>1:
                             for j in range(i+1, len(csv_commands)):# Fill the rest of the missing paramters
-                                self.log.warning("Not enough parameters passed for function: " + str(command_tuple[0]) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
+                                l.warning("Not enough parameters passed for function: " + str(command_tuple[0]) + " the command must consist of " + str(csv_commands) + " '" + str(csv_commands[j]) + "' is missing! Inserted 0 instead.")
                                 command += " " + "0" + sepa
 
                         command = command.strip(" ").strip(",") # to get rid of last comma and space at the end if csv
@@ -570,7 +566,7 @@ class help_functions:
                     return_list.append(command.strip())
         else:
             # If the command is not found in the device only command tuple will be send
-            self.log.error("Command " + str(command_tuple[0]) + " was not found in device! Unpredictable behavior may happen. No commad build!")
+            l.error("Command " + str(command_tuple[0]) + " was not found in device! Unpredictable behavior may happen. No commad build!")
             return ""
 
         # Add a command terminator if one is needed and the last part of the syntax
@@ -583,8 +579,6 @@ class help_functions:
             return return_list
         else:
             return str(return_list[0])
-
-hf = help_functions()
 
 class newThread(threading.Thread):  # This class inherite the functions of the threading class
     '''Creates new threads easy, it needs the thread ID a name, the function/class,
@@ -741,7 +735,7 @@ class transformation:
     def __init__(self):
         self.log = logging.getLogger(__name__)
 
-    @hf.raise_exception
+    @raise_exception
     def transformation_matrix(self, s1, s2, s3, t1, t2 ,t3):
         """Calculates the transformation matrix of the system.
         Via the equation T = P^-1 Q where P and Q are coming from the linear system s*T + V0 = v
@@ -916,7 +910,7 @@ class table_control_class:
         self.queue = queue_to_GUI
         self.vcw = vcw
         self.shell = None
-        self.build_command = hf.build_command
+        self.build_command = build_command
         self.log = logging.getLogger(__name__)
 
         try:
@@ -1185,7 +1179,7 @@ class table_control_class:
             return errorcode
         return 0
 
-    @hf.raise_exception
+    @raise_exception
     def set_joystick(self, bool):
         '''This enables or disables the joystick'''
         if self.table_ready:
@@ -1241,7 +1235,7 @@ class switching_control:
         self.devices = devices
         self.vcw = VisaConnectWizard()
         self.shell = None
-        self.build_command = hf.build_command
+        self.build_command = build_command
         self.log = logging.getLogger(__name__)
 
     def reset_switching(self, device="all"):
@@ -1370,8 +1364,8 @@ class switching_control:
         else:
             return current_switching.strip().split()  # now we have the right commands
 
-    @hf.raise_exception
-    #@hf.run_with_lock
+    @raise_exception
+    #@run_with_lock
     def change_switching(self, device, config): # Has to be a string command or a list of commands containing strings!!
 
         #TODO: Switching better!!!
@@ -1382,7 +1376,7 @@ class switching_control:
         '''
         # TODO: check when switching was not possible that the programm shutsdown! Now the due to the brandbox this is switched off
 
-        if type(config) == unicode or type(config) == str:
+        if type(config) == type(u"Unicode") or type(config) == str:
             configs = [config]
         else:
             configs = config
@@ -1443,7 +1437,7 @@ class switching_control:
         :param device: device dictionary
         :param command_tuple: (command, value), can also be a string for a final command
         """
-        if type(command_tuple) == unicode:
+        if type(command_tuple) == type(u"Unicode"):
             command_tuple = (str(command_tuple),) # so the correct casting is done
 
         # Make a loop over all items in the device dict
@@ -1890,85 +1884,85 @@ if __name__ == "__main__":
 
 }
     #
-    # print(str(hf.build_command(dict_2657, ("set_voltage", 0.0)))
+    # print(str(build_command(dict_2657, ("set_voltage", 0.0)))
     #
     #
-    # print str(hf.build_command(HV_dict, ("set_discharge", "ON")))
+    # print str(build_command(HV_dict, ("set_discharge", "ON")))
     #
-    # print str(hf.build_command(device_switch, ("set_open_channel", "1!1!1, 1!2!3, 2!3!3, 3!5!6")))
-    # print str(hf.build_command(device_switch, ("set_open_channel", "(1!1!1, 1!2!3, 2!3!3)")))
-    # print str(hf.build_command(device_switch, ("set_open_channel", "[1!1!1, 1!2!3, 2!3!3]")))
-    # print str(hf.build_command(device_switch, ("set_open_channel", "1!1!1")))
-    # print str(hf.build_command(device_switch, ("set_open_channel", "all")))
-    # print str(hf.build_command(device_switch, "set_open_all"))
-    # print str(hf.build_command(device_switch, ("set_open_channel", "")))
-    # print str(hf.build_command(device_switch, "check_all_closed_channel"))
-    #
-    #
-    # print str(hf.build_command(device_table, ("set_move_to", "0, 0, 0")))
-    # print str(hf.build_command(device_table, ("set_move_to", "[0, 0, 0]")))
-    # print str(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
-    # print str(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
-    # print str(hf.build_command(device_table, ("set_move_to", [0, 0])))
-    # print str(hf.build_command(device_table, ("set_relative_move_to", [0, 0, 0])))
-    # print str(hf.build_command(device_table, ("set_axis", "1 1 1 2 1 3")))
-    # print str(hf.build_command(device_table, ("set_axis", ["1 1", "1 2", "1 3"])))
-    # print str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2", "1 3"))))
-    # print str(hf.build_command(device_table, ("set_axis", ("1 1", "1 2"))))
-    # print str(hf.build_command(device_table, ("set_polepairs", ["50 1", "50 2", "50 3"])))
-    # print str(hf.build_command(device_table, ("get_position")))
-    # print str(hf.build_command(device_table, ("calibrate_motor", "")))
+    # print str(build_command(device_switch, ("set_open_channel", "1!1!1, 1!2!3, 2!3!3, 3!5!6")))
+    # print str(build_command(device_switch, ("set_open_channel", "(1!1!1, 1!2!3, 2!3!3)")))
+    # print str(build_command(device_switch, ("set_open_channel", "[1!1!1, 1!2!3, 2!3!3]")))
+    # print str(build_command(device_switch, ("set_open_channel", "1!1!1")))
+    # print str(build_command(device_switch, ("set_open_channel", "all")))
+    # print str(build_command(device_switch, "set_open_all"))
+    # print str(build_command(device_switch, ("set_open_channel", "")))
+    # print str(build_command(device_switch, "check_all_closed_channel"))
     #
     #
-    # print str(hf.build_command(device_237, ("set_complience", "100e-6, 100e-5")))
-    # print str(hf.build_command(device_237, ("set_complience", "(100e-6, 100e-5)")))
-    # print str(hf.build_command(device_237, ("set_complience", "[100e-6, 100e-5]")))
-    # print str(hf.build_command(device_237, ("set_complience", [100e-6, 100e-5])))
-    # print str(hf.build_command(device_237, ("set_voltage", [100e-6])))
-    # print str(hf.build_command(device_237, ("set_complience", [100e-6])))
+    # print str(build_command(device_table, ("set_move_to", "0, 0, 0")))
+    # print str(build_command(device_table, ("set_move_to", "[0, 0, 0]")))
+    # print str(build_command(device_table, ("set_move_to", [0, 0, 0])))
+    # print str(build_command(device_table, ("set_move_to", [0, 0, 0])))
+    # print str(build_command(device_table, ("set_move_to", [0, 0])))
+    # print str(build_command(device_table, ("set_relative_move_to", [0, 0, 0])))
+    # print str(build_command(device_table, ("set_axis", "1 1 1 2 1 3")))
+    # print str(build_command(device_table, ("set_axis", ["1 1", "1 2", "1 3"])))
+    # print str(build_command(device_table, ("set_axis", ("1 1", "1 2", "1 3"))))
+    # print str(build_command(device_table, ("set_axis", ("1 1", "1 2"))))
+    # print str(build_command(device_table, ("set_polepairs", ["50 1", "50 2", "50 3"])))
+    # print str(build_command(device_table, ("get_position")))
+    # print str(build_command(device_table, ("calibrate_motor", "")))
     #
-    # print str(hf.build_command(device_dict, ("set_complience", "100e-6")))
-    # print str(hf.build_command(device_dict, ("set_complience")))
+    #
+    # print str(build_command(device_237, ("set_complience", "100e-6, 100e-5")))
+    # print str(build_command(device_237, ("set_complience", "(100e-6, 100e-5)")))
+    # print str(build_command(device_237, ("set_complience", "[100e-6, 100e-5]")))
+    # print str(build_command(device_237, ("set_complience", [100e-6, 100e-5])))
+    # print str(build_command(device_237, ("set_voltage", [100e-6])))
+    # print str(build_command(device_237, ("set_complience", [100e-6])))
+    #
+    # print str(build_command(device_dict, ("set_complience", "100e-6")))
+    # print str(build_command(device_dict, ("set_complience")))
 
-    print(hf.build_command(dict_2657, ("set_voltage", 0.0)))
-
-
-    print(hf.build_command(HV_dict, ("set_discharge", "ON")))
-
-    print(hf.build_command(device_switch, ("set_open_channel", "1!1!1, 1!2!3, 2!3!3, 3!5!6")))
-    print(hf.build_command(device_switch, ("set_open_channel", "(1!1!1, 1!2!3, 2!3!3)")))
-    print(hf.build_command(device_switch, ("set_open_channel", "[1!1!1, 1!2!3, 2!3!3]")))
-    print(hf.build_command(device_switch, ("set_open_channel", "1!1!1")))
-    print(hf.build_command(device_switch, ("set_open_channel", "all")))
-    print(hf.build_command(device_switch, "set_open_all"))
-    print(hf.build_command(device_switch, ("set_open_channel", "")))
-    print(hf.build_command(device_switch, "check_all_closed_channel"))
+    print(build_command(dict_2657, ("set_voltage", 0.0)))
 
 
-    print(hf.build_command(device_table, ("set_move_to", "0, 0, 0")))
-    print(hf.build_command(device_table, ("set_move_to", "[0, 0, 0]")))
-    print(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
-    print(hf.build_command(device_table, ("set_move_to", [0, 0, 0])))
-    print(hf.build_command(device_table, ("set_move_to", [0, 0])))
-    print(hf.build_command(device_table, ("set_relative_move_to", [0, 0, 0])))
-    print(hf.build_command(device_table, ("set_axis", "1 1 1 2 1 3")))
-    print(hf.build_command(device_table, ("set_axis", ["1 1", "1 2", "1 3"])))
-    print(hf.build_command(device_table, ("set_axis", ("1 1", "1 2", "1 3"))))
-    print(hf.build_command(device_table, ("set_axis", ("1 1", "1 2"))))
-    print(hf.build_command(device_table, ("set_polepairs", ["50 1", "50 2", "50 3"])))
-    print(hf.build_command(device_table, ("get_position")))
-    print(hf.build_command(device_table, ("calibrate_motor", "")))
+    print(build_command(HV_dict, ("set_discharge", "ON")))
+
+    print(build_command(device_switch, ("set_open_channel", "1!1!1, 1!2!3, 2!3!3, 3!5!6")))
+    print(build_command(device_switch, ("set_open_channel", "(1!1!1, 1!2!3, 2!3!3)")))
+    print(build_command(device_switch, ("set_open_channel", "[1!1!1, 1!2!3, 2!3!3]")))
+    print(build_command(device_switch, ("set_open_channel", "1!1!1")))
+    print(build_command(device_switch, ("set_open_channel", "all")))
+    print(build_command(device_switch, "set_open_all"))
+    print(build_command(device_switch, ("set_open_channel", "")))
+    print(build_command(device_switch, "check_all_closed_channel"))
 
 
-    print(hf.build_command(device_237, ("set_complience", "100e-6, 100e-5")))
-    print(hf.build_command(device_237, ("set_complience", "(100e-6, 100e-5)")))
-    print(hf.build_command(device_237, ("set_complience", "[100e-6, 100e-5]")))
-    print(hf.build_command(device_237, ("set_complience", [100e-6, 100e-5])))
-    print(hf.build_command(device_237, ("set_voltage", [100e-6])))
-    print(hf.build_command(device_237, ("set_complience", [100e-6])))
+    print(build_command(device_table, ("set_move_to", "0, 0, 0")))
+    print(build_command(device_table, ("set_move_to", "[0, 0, 0]")))
+    print(build_command(device_table, ("set_move_to", [0, 0, 0])))
+    print(build_command(device_table, ("set_move_to", [0, 0, 0])))
+    print(build_command(device_table, ("set_move_to", [0, 0])))
+    print(build_command(device_table, ("set_relative_move_to", [0, 0, 0])))
+    print(build_command(device_table, ("set_axis", "1 1 1 2 1 3")))
+    print(build_command(device_table, ("set_axis", ["1 1", "1 2", "1 3"])))
+    print(build_command(device_table, ("set_axis", ("1 1", "1 2", "1 3"))))
+    print(build_command(device_table, ("set_axis", ("1 1", "1 2"))))
+    print(build_command(device_table, ("set_polepairs", ["50 1", "50 2", "50 3"])))
+    print(build_command(device_table, ("get_position")))
+    print(build_command(device_table, ("calibrate_motor", "")))
 
-    print(hf.build_command(device_dict, ("set_complience", "100e-6")))
-    print(hf.build_command(device_dict, ("set_complience")))
+
+    print(build_command(device_237, ("set_complience", "100e-6, 100e-5")))
+    print(build_command(device_237, ("set_complience", "(100e-6, 100e-5)")))
+    print(build_command(device_237, ("set_complience", "[100e-6, 100e-5]")))
+    print(build_command(device_237, ("set_complience", [100e-6, 100e-5])))
+    print(build_command(device_237, ("set_voltage", [100e-6])))
+    print(build_command(device_237, ("set_complience", [100e-6])))
+
+    print(build_command(device_dict, ("set_complience", "100e-6")))
+    print(build_command(device_dict, ("set_complience")))
 
 
 

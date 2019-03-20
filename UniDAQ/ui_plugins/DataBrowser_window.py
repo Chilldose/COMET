@@ -11,9 +11,8 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
-from .. import utilities
+from ..utilities import raise_exception, write_init_file
 
-hf = utilities.help_functions()
 
 
 class DataBrowser_window:
@@ -33,7 +32,7 @@ class DataBrowser_window:
 
         self.log = logging.getLogger(__name__)
 
-        @hf.raise_exception
+        @raise_exception
         def pad_browser_update():
             items = []
             for i, pad_files in enumerate(self.variables.pad_files_dict.keys()):
@@ -43,7 +42,7 @@ class DataBrowser_window:
                     QtWidgets.QTreeWidgetItem(items[i])
                     self.data_ui.Padfile_selector_3.topLevelItem(i).child(j).setText(0, self._translate("data_browser", str(childs)))
 
-        @hf.raise_exception
+        @raise_exception
         def load_padfile_to_screen(item, kwargs=None):
             '''This function loads the pad file to screen'''
 
@@ -75,14 +74,14 @@ class DataBrowser_window:
                 self.data_ui.pad_text.setText(self._translate("data_browser", text))
 
         # functions for the device tab
-        @hf.raise_exception
+        @raise_exception
         def devices_browser_update():
                 for i, devices in enumerate(self.variables.devices_dict.keys()):
                     QtWidgets.QTreeWidgetItem(self.data_ui.device_selector)
                     self.data_ui.device_selector.topLevelItem(i).setText(0, self._translate("data_browser", str(devices)))
 
 
-        @hf.raise_exception
+        @raise_exception
         def load_device_values(item, kwargs = None):
                 '''Loads the big list of values'''
 
@@ -112,28 +111,28 @@ class DataBrowser_window:
                     print("Error type: {}".format(e))
                     raise # sys.exc_info()[0], sys.exc_info()[1], sys.exc_info()[2]
 
-        @hf.raise_exception
+        @raise_exception
         def reload_devices_button_action(kwargs = None):
             device = str(self.variables.default_values_dict["settings"]["current_selected_browser_value"])
 
             if device != "None":
                 load_device_values(device)
 
-        @hf.raise_exception
+        @raise_exception
         def save_devices_button_action(kwargs = None):
             fileDialog = QFileDialog()
             path = fileDialog.getOpenFileName()[0]
             if path:
                 device = self.variables.default_values_dict["settings"]["current_selected_browser_value"]
-                hf.write_init_file(str(path.split("/")[-1].split(".")[0]), self.variables.devices_dict[device], str(path[:-len(path.split("/")[-1])]))
+                write_init_file(str(path.split("/")[-1].split(".")[0]), self.variables.devices_dict[device], str(path[:-len(path.split("/")[-1])]))
 
-        @hf.raise_exception
+        @raise_exception
         def add_item_device_button(kwargs = None):
             if self.data_ui.key_edit.text() not in self.variables.devices_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]]:
                 self.variables.devices_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]][self.data_ui.key_edit.text()] = self.data_ui.value_edit.text()
                 reload_devices_button_action()
 
-        @hf.raise_exception
+        @raise_exception
         def change_value_devices_button(kwargs = None):
 
             if self.data_ui.key_edit.text() and self.variables.default_values_dict["settings"]["current_selected_browser_value"]:
@@ -160,7 +159,7 @@ class DataBrowser_window:
                     else:
                         pass
 
-        @hf.raise_exception
+        @raise_exception
         def remove_item_device_button(kwargs = None):
             if self.data_ui.key_edit.text() in self.variables.devices_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]]:
                 reply = QMessageBox.question(None, 'Warning', "Are you sure to remove the selected item?",QMessageBox.Yes, QMessageBox.No)
@@ -170,19 +169,19 @@ class DataBrowser_window:
             else:
                 QMessageBox.question(None, 'Warning', "Hold on there Pirate!!! You try to delete an element which does not exist.", QMessageBox.Ok)
 
-        @hf.raise_exception
+        @raise_exception
         def import_clicked_value_devices(item,kwargs = None):
             self.data_ui.key_edit.setText(item.text(0))
             self.data_ui.value_edit.setText(item.text(1))
 
         # settings tab
-        @hf.raise_exception
+        @raise_exception
         def settings_browser_update(kwargs = None):
             for i, devices in enumerate(self.variables.default_values_dict.keys()):
                 QtWidgets.QTreeWidgetItem(self.data_ui.settings_selector_2)
                 self.data_ui.settings_selector_2.topLevelItem(i).setText(0, self._translate("data_browser", str(devices)))
 
-        @hf.raise_exception
+        @raise_exception
         def load_settings_values(item,kwargs = None):
             '''Here they key value edit is loaded'''
             try:
@@ -206,7 +205,7 @@ class DataBrowser_window:
             except:
                 pass
 
-        @hf.raise_exception
+        @raise_exception
         def reload_settings_button_action(kwargs = None):
             device = str(self.variables.default_values_dict["settings"]["current_selected_browser_value"])
 
@@ -218,30 +217,30 @@ class DataBrowser_window:
                     pass
 
 
-        @hf.raise_exception
+        @raise_exception
         def import_clicked_value_settings(item,kwargs = None):
             '''This imports the values from the item to the edit lines'''
             self.data_ui.key_edit_2.setText(item.text(0))
             self.data_ui.value_edit_2.setText(item.text(1))
 
 
-        @hf.raise_exception
+        @raise_exception
         def save_settings_button_action(kwargs = None):
 
             fileDialog = QFileDialog()
             path = fileDialog.getOpenFileName()[0]
             if path:
                 settings = self.variables.default_values_dict["settings"]["current_selected_browser_value"]
-                hf.write_init_file(str(path.split("/")[-1].split(".")[0]), self.variables.default_values_dict[settings], str(path[:-len(path.split("/")[-1])]))
+                write_init_file(str(path.split("/")[-1].split(".")[0]), self.variables.default_values_dict[settings], str(path[:-len(path.split("/")[-1])]))
 
-        @hf.raise_exception
+        @raise_exception
         def add_item_settings_button(kwargs = None):
 
             if self.data_ui.key_edit_2.text() not in self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]]:
                 self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]][self.data_ui.key_edit_2.text()] = self.data_ui.value_edit_2.text()
                 reload_settings_button_action()
 
-        @hf.raise_exception
+        @raise_exception
         def change_value_settings_button(kwargs = None):
 
             if self.data_ui.key_edit_2.text() and self.variables.default_values_dict["settings"]["current_selected_browser_value"]:
@@ -268,7 +267,7 @@ class DataBrowser_window:
                     else:
                         pass
 
-        @hf.raise_exception
+        @raise_exception
         def remove_item_settings_button(kwargs = None):
             if self.data_ui.key_edit_2.text() in self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]]:
                 reply = QMessageBox.question(None, 'Warning', "Are you sure to remove the selected item?",QMessageBox.Yes, QMessageBox.No)

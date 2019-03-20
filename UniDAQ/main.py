@@ -48,15 +48,9 @@ def main():
     log.info("Logfile initiated...")
     log.critical("Initializing programm:")
 
-    # Creating help functions
-    hfs = utilities.help_functions()
-
-    # Checking installation
-    #boot_up.check_installation()
-
     # Loading all config files and default files, as well as Pad files
     log.critical("Loading setup files ...")
-    stats = boot_up.loading_init_files(hfs)
+    stats = boot_up.loading_init_files()
     stats.default_values_dict = boot_up.update_defaults_dict(stats.configs["config"], stats.configs["config"].get("framework_variables", {}))
 
     # Initializing all modules
@@ -120,7 +114,6 @@ def main():
         devices_dict,
         stats.configs["config"],
         stats.configs.get("Pad_files"),
-        hfs,
         vcw,
         queue_to_GUI,
         table,

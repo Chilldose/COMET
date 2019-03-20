@@ -12,11 +12,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 
-from .. import utilities
+from ..utilities import raise_exception
 
 l = logging.getLogger(__name__)
-
-hf = utilities.help_functions()
 
 class Settings_window:
 

@@ -20,13 +20,12 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 from .GUI_event_loop import *
-from .utilities import newThread, help_functions, measurement_job_generation
+from .utilities import newThread, measurement_job_generation
 from .bad_strip_detection import *
 
 QT_UI_DIR = 'QT_Designer_UI'
 """Name of directory containing all plugin UI files."""
 
-hf = help_functions()
 
 class MessageBox(QWidget):
     def __init__(self, parent=None, app=None):
@@ -47,7 +46,7 @@ class MessageBox(QWidget):
 
 class GUI_classes(GUI_event_loop, QWidget):
 
-    def __init__(self, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, help, visa, queue_to_GUI, table, switching, shell):
+    def __init__(self, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, visa, queue_to_GUI, table, switching, shell):
 
         #Intialize the QT classes
         self.app = QApplication(sys.argv)
@@ -58,7 +57,6 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.app.setStyle(QStyleFactory.create(style))
 
         # Some Variables
-        self.help = help
         self.message_to_main = message_to_main
         self.message_from_main = message_from_main
         self.vcw = visa
@@ -122,7 +120,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         # Initialise and start the GUI_event_loop
         self.event_loop_thread = newThread(2, "GUI_event_loop", GUI_event_loop.__init__, self, self, self.message_from_main,
                                       self.message_to_main, self.devices_dict, self.default_values_dict,
-                                      self.pad_files_dict, self.help, self.vcw, self.meas_data)
+                                      self.pad_files_dict, self.vcw, self.meas_data)
         self.event_loop_thread.start()
 
         # Add the cmd options

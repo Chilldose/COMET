@@ -14,16 +14,15 @@ from .. import engineering_notation as en
 import time
 
 
-from .. import utilities
+from ..utilities import raise_exception, ramp_voltage_job, transformation, change_axis_ticks
 l = logging.getLogger(__name__)
 
-hf = utilities.help_functions()
 
 
 
 class Singlestrip_window:
 
-    @hf.raise_exception
+    @raise_exception
     def __init__(self, GUI, layout):
 
         self.variables = GUI
@@ -47,7 +46,7 @@ class Singlestrip_window:
         self.resistance_measurements = ["Rint"]
         self.plot_data = None
 
-        self.trans = utilities.transformation()
+        self.trans = transformation()
 
 
         # Config plot
@@ -78,14 +77,14 @@ class Singlestrip_window:
         Complience = self.single_strip.complience_strip.value()
 
         if not self.HV_on:
-            hf.ramp_voltage_job(self.variables.message_from_main, self.variables.devices_dict["IVSMU"], bias_voltage,
+            ramp_voltage_job(self.variables.message_from_main, self.variables.devices_dict["IVSMU"], bias_voltage,
                                 EndVolt, Steps, 0.3, Complience)
         else:
-            hf.ramp_voltage_job(self.variables.message_from_main, self.variables.devices_dict["IVSMU"], bias_voltage,
+            ramp_voltage_job(self.variables.message_from_main, self.variables.devices_dict["IVSMU"], bias_voltage,
                                 0, Steps, 0.3, Complience)
 
 
-    @hf.raise_exception
+    @raise_exception
     def move_to_strip_action(self, kwargs=None):
         '''Moves the table to the desired strip'''
         if self.variables.default_values_dict["settings"]["Alignement"]:
@@ -106,7 +105,7 @@ class Singlestrip_window:
                 msg.exec_()
                 return
 
-    @hf.raise_exception
+    @raise_exception
     def update_text(self, kwargs = None):
         """This function updates the stext for the measurements"""
         if self.variables.default_values_dict["settings"]["new_data"]: # New data available ?
@@ -145,7 +144,7 @@ class Singlestrip_window:
         self.single_strip.single_strip_plot.plotItem.showGrid(x=True, y=True)
         #self.single_strip.single_strip_plot.plotItem.setLogMode(False, True)
 
-        hf.change_axis_ticks(self.single_strip.single_strip_plot, self.ticksStyle)
+        change_axis_ticks(self.single_strip.single_strip_plot, self.ticksStyle)
 
     def reconfig_plot(self, Title, xAxis, yAxis, logscale):
         '''Reconfigs the plot for the different plots'''
@@ -154,7 +153,7 @@ class Singlestrip_window:
         self.single_strip.single_strip_plot.setLabel('bottom', str(yAxis[0]), units=str(yAxis[1]), **self.labelStyle)
         self.single_strip.single_strip_plot.plotItem.setLogMode(x=logscale[0], y=logscale[1])
 
-    @hf.raise_exception
+    @raise_exception
     def update_plot(self, kwargs = None):
         '''This handles the update of the plot'''
         # This clear here erases all data from the viewbox each time this function is called and draws all points again!
@@ -165,7 +164,7 @@ class Singlestrip_window:
                 if self.variables.meas_data[self.plot_data + "_scan"]:
                     self.single_strip.single_strip_plot.plot(self.variables.meas_data[self.plot_data + "_scan"][0], self.variables.meas_data[self.plot_data + "_scan"][1], pen="y", clear=True)
 
-    @hf.raise_exception
+    @raise_exception
     def start_button_action(self,kwargs=None):
         '''Starts the single strip measuremnts'''
         if self.variables.default_values_dict["settings"]["Current_filename"] and os.path.isdir(self.variables.default_values_dict["settings"]["Current_directory"]):

@@ -13,9 +13,8 @@ from PyQt5.QtWidgets import *
 from random import randint
 from time import sleep
 
-from .. import utilities
+from ..utilities import raise_exception, transformation
 
-hf = utilities.help_functions()
 
 class Alignment_window:
 
@@ -42,7 +41,7 @@ class Alignment_window:
         self.transformation_matrix = self.variables.default_values_dict["settings"]["trans_matrix"]
         self.V0 = self.variables.default_values_dict["settings"]["V0"]
         self.layout = layout
-        self.trans = utilities.transformation()
+        self.trans = transformation()
 
         # Settings tab
         alignment_widget = QWidget()
@@ -103,7 +102,7 @@ class Alignment_window:
             return
 
 
-    @hf.raise_exception
+    @raise_exception
     def start_alignment_action(self, kwargs = None):
         '''This function starts the whole alignement proceedure'''
 
@@ -161,7 +160,7 @@ class Alignment_window:
         if step == 5:
             self.alignment_started = False
 
-    @hf.raise_exception
+    @raise_exception
     def set_checkboxes(self, list):
         '''This function sets the checkboxes for the checklist'''
         for i, state in enumerate(list):
@@ -436,7 +435,7 @@ class Alignment_window:
                 self.table_move_ui.table_ind.setStyleSheet("background : grey; border-radius: 25px;border: 1px solid black;border-radius: 5px")
 
 
-        @hf.raise_exception
+        @raise_exception
         def adjust_table_speed(kwargs = None): # must be here because of reasons
             '''This function adjusts the speed of the table'''
             speed = int(float(self.variables.devices_dict["Table_control"]["default_joy_speed"])/100. * float(self.table_move_ui.Table_speed.value()))
@@ -511,7 +510,7 @@ class Alignment_window:
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
-        @hf.raise_exception
+        @raise_exception
         def enable_table_control(bool):
             '''This function enables the table and the joystick frame'''
             if bool:

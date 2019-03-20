@@ -11,10 +11,9 @@ from PyQt5.QtWidgets import *
 from random import randint
 import time
 
-from .. import utilities
+from ..utilities import raise_exception, show_cursor_position, change_axis_ticks
 
 l = logging.getLogger(__name__)
-hf = utilities.help_functions()
 
 class DynamicWaiting_window:
 
@@ -56,7 +55,7 @@ class DynamicWaiting_window:
 
 
         # Add tooltip functionality
-        self.tooltip = utilities.show_cursor_position(self.dynamic.current_plot)
+        self.tooltip = show_cursor_position(self.dynamic.current_plot)
         #self.proxy = self.setpg.SignalProxy(self.dynamic.current_plot.scene().sigMouseMoved, rateLimit=60, slot=self.tooltip.onMove)
 
 
@@ -70,7 +69,7 @@ class DynamicWaiting_window:
         self.dynamic.current_plot.plotItem.showGrid(x=True, y=True)
         self.dynamic.current_plot.getPlotItem().invertY(True)
 
-        hf.change_axis_ticks(self.dynamic.current_plot, self.ticksStyle)
+        change_axis_ticks(self.dynamic.current_plot, self.ticksStyle)
 
     def update_stats(self):
         """This function updates the progress bar"""
@@ -138,7 +137,7 @@ class DynamicWaiting_window:
         self.variables.message_from_main.put({"Measurement": self.final_job})
         l.info("Sendet job: " + str({"Measurement": self.final_job}))
 
-    @hf.raise_exception
+    @raise_exception
     def update(self, kwargs=None):
         if self.variables.default_values_dict["settings"]["new_data"]:
             try:

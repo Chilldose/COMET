@@ -3,11 +3,8 @@ import logging
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import *
 
-from .. import utilities
-
 l = logging.getLogger(__name__)
 
-hf = utilities.help_functions()
 
 
 class Resources_window:

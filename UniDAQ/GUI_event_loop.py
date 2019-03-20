@@ -13,7 +13,7 @@ class GUI_event_loop:
     ''' This class is for starting and managing the event loop for the GUI. It starts the syncronised connection betweent ifself and the
         measurement event loop. Message based on dictionaries. '''
 
-    def __init__(self, main, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, help, visa, meas_data):
+    def __init__(self, main, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, visa, meas_data):
 
         # Initialise the GUI class, classes
         #GUI_classes.__init__(self)
@@ -38,7 +38,6 @@ class GUI_event_loop:
         self.measurement_list = []
         self.event_list = [] # Messages send to the loop
         self.pending_events = {} # Messages which should processed after all other orders are processed
-        self.help = help
         self.error_log = []
         self.log = logging.getLogger(__name__)
 
