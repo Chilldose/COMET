@@ -172,6 +172,7 @@ class Alignment_window:
         if step == -1:
             # reset all elements
             self.set_checkboxes([False, False, False, False, False])
+            self.variables.default_values_dict["settings"]["Alignment"] = False # So I cannot do a measuremnt until the alignment is done
 
         if step == 0:
             # Reset some elements and set new elements
