@@ -8,28 +8,6 @@
       - Thomas
       - Marco
 
-    Projects: # The project names of your sensor batches etc. musst be conform with the sensors entries
-        - IFX 6 inch
-        - HPK 6 inch
-        - IFX 8 inch
-
-    Sensor_types: # Different sensor types in the various projects
-        IFX 6 inch:
-            - Baby
-            - PSs
-            - Irrad35
-            - Irrad25
-            - PSs_Baby
-
-        HPK 6 inch:
-            - Irradiation
-
-        IFX 8 inch:
-            - SensorCenterBiasContact
-            - SensorBaby
-            - SensorIrradiation
-            - Sensor2S
-
     measurement_types: # Different measurement types which can be conducted
         - IV
         - CV

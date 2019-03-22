@@ -371,24 +371,15 @@ class Main_window:
                 sensor_comboBox.clear()
                 try:
                     # self.variables.default_values_dict["settings"]["Sensor_types"][project_name]
-                    for sen in self.variables.default_values_dict["settings"]["Sensor_types"][project_name]:
-                        sensor_comboBox.addItem(str(sen))  # Adds all items to the combo box
+                    sensor_comboBox.addItems(list(self.variables.pad_files_dict[project_name].keys()))  # Adds all items to the combo box
                     # Select the first element to be right, if possible
                     self.variables.default_values_dict["settings"]["Current_sensor"] = sensor_comboBox.currentText()
 
                 except:
-                    self.log.error("No sensors defined for project: " + str(sen))
+                    self.log.error("No sensors defined for project: " + str(project_name))
                     self.variables.default_values_dict["settings"]["Current_sensor"] = "None"
-                    self.variables.message_to_main({"RequestError": "No sensors defined for project: " + str(sen)})
-
-
-
-
-
-
 
             # Project selector
-
             # Label of the Error Log
             proj_label = QLabel()
             proj_label.setText("Select project")
@@ -396,12 +387,12 @@ class Main_window:
 
             proj_comboBox = QComboBox() # Creates a combo box
 
-            for projects in self.variables.default_values_dict["settings"]["Projects"]:
+            for projects in self.variables.pad_files_dict:
                 proj_comboBox.addItem(str(projects)) # Adds all projects to the combo box
             proj_comboBox.activated[str].connect(project_selector_action)
 
             if "Current_project" in self.variables.default_values_dict["settings"]:
-                self.variables.default_values_dict["settings"]["Current_project"] = self.variables.default_values_dict["settings"]["Projects"][0] # That one project is definetly choosen
+                self.variables.default_values_dict["settings"]["Current_project"] = list(self.variables.pad_files_dict.keys())[0] # That one project is definetly choosen
             else:
                 self.variables.default_values_dict["settings"].update({"Current_project": self.variables.default_values_dict["settings"].get("Projects", ["No Projects"])[0]})
 
@@ -415,22 +406,19 @@ class Main_window:
 
             sensor_comboBox = QComboBox() # Creates a combo box
 
-            sensor_types = self.variables.default_values_dict["settings"].get("Sensor_types", None)
             current_project = self.variables.default_values_dict["settings"].get("Current_project", None)
-            if current_project and sensor_types:
-                for projects in self.variables.default_values_dict["settings"]["Sensor_types"][self.variables.default_values_dict["settings"]["Current_project"]]:
-                    sensor_comboBox.addItem(str(projects)) # Adds all items to the combo box
+            sensor_comboBox.addItems(self.variables.pad_files_dict[current_project]) # Adds all items to the combo box
             sensor_comboBox.activated[str].connect(sensor_selector_action)
 
             if "Current_sensor" in self.variables.default_values_dict["settings"]:
                 try:
-                    self.variables.default_values_dict["settings"]["Current_sensor"] = self.variables.default_values_dict["settings"]["Sensor_types"][self.variables.default_values_dict["settings"]["Current_project"]][0] # That one project is definetly choosen
+                    self.variables.default_values_dict["settings"]["Current_sensor"] = list(self.variables.pad_files_dict[current_project])[0] # That one project is definetly choosen
                 except:
                     self.variables.default_values_dict["settings"]["Current_sensor"] = "None"
             else:
-                if current_project and sensor_types:
+                if current_project and self.variables.pad_files_dict:
                     self.variables.default_values_dict["settings"].update({
-                        "Current_sensor": self.variables.default_values_dict["settings"]["Sensor_types"][self.variables.default_values_dict["settings"]["Current_project"]][0]})
+                        "Current_sensor": list(self.variables.pad_files_dict[current_project])[0]})
                 else:
                     self.variables.default_values_dict["settings"].update({"Current_sensor": "None"})
             # Measurement name selection
