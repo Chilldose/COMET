@@ -51,7 +51,6 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.queue_to_GUI = queue_to_GUI
         self.table = table
         self.switching = switching
-        self.job = measurement_job_generation(self.default_values_dict, self.message_from_main)
         self.white_plots = default_values_dict["settings"].get("Thomas_mode", False)
         self.meas_data = {}
         self.all_plugin_modules = {}
