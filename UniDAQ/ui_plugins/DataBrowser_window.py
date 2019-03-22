@@ -270,7 +270,7 @@ class DataBrowser_window:
                             pass
             except:
                 self.log.error("It seems you are trying to change nothing. Welcome to the club Bro.")
-                
+
         @raise_exception
         def remove_item_settings_button(kwargs = None):
             try:

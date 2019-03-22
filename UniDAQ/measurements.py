@@ -8,7 +8,7 @@ import datetime, math
 from scipy import stats
 import importlib
 
-from .utilities import timeit
+from .utilities import timeit, build_command, flush_to_file, create_new_file
 
 vcw = VisaConnectWizard()
 
@@ -45,7 +45,7 @@ class measurement_class:
         self.write = None
         self.save_data = False
         self.env_waiting_time = 60*5 # Five minutes
-        self.build_command = help.build_command # think of it like a link
+        self.build_command = build_command # think of it like a link
         self.badstrip_dict = {}
         self.skip_tests = True # This must always be False!!! only for debugging !!!
         self.log = logging.getLogger(__name__)
@@ -69,10 +69,16 @@ class measurement_class:
         # -------------------------------------------------------------------------------
         if not self.check_setup(): # Checks if measuremnts can be conducted or not if True: an critical error occured
             # Start the light that the measurement is running
-            self.external_light(self.devices["lights_controller"], True)
+            if "lights_controller" in self.devices:
+                self.external_light(self.devices["lights_controller"], True)
+            else:
+                self.log.info("No external lights controller found")
             self.make_measurement_plan()
             sleep(0.1)
-            self.external_light(self.devices["lights_controller"], False)
+            if "lights_controller" in self.devices:
+                self.external_light(self.devices["lights_controller"], False)
+            else:
+                self.log.info("No external lights controller found")
             self.close_measurement_files()
 
         elif self.skip_tests: # This is just for debugging and can lead to unwanted behavior
@@ -112,7 +118,7 @@ class measurement_class:
         # -----------------------------------------------------------------------------
         if "Save_data" in self.job_details:
             self.save_data = self.job_details["Save_data"]
-            self.write = help.flush_to_file
+            self.write = flush_to_file
         else:
             self.save_data = False
         # Save data
@@ -172,8 +178,8 @@ class measurement_class:
 
     def create_data_file(self, header, filepath, filename="default"):
         self.log.debug("Creating new data file with name: {!s}".format(filename))
-        file = help.create_new_file(filename, filepath) # Creates the file at the destination
-        help.flush_to_file(file, header) # Writes the header to the file
+        file = create_new_file(filename, filepath) # Creates the file at the destination
+        flush_to_file(file, header) # Writes the header to the file
         return file # Finally returns the file object
 
     def check_setup(self):
@@ -255,9 +261,12 @@ class measurement_class:
 
                 # here the actuall measurement starts
                 if not abort:
-                    self.log.info("Starting measurement " + str(measurement))
+                    self.log.info("Trying to start measurement " + str(measurement))
                     starttime = time()
-                    getattr(self.all_plugins[measurement], str(measurement)+"_class")(self)
+                    if measurement in self.all_plugins:
+                        getattr(self.all_plugins[measurement], str(measurement)+"_class")(self)
+                    else:
+                        self.log.error("Measurement {} could not be found as a measurement plugin.".format(measurement))
                     endtime = time()
 
                     deltaT = abs(starttime-endtime)

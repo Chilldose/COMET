@@ -5,13 +5,12 @@ import sys
 import numpy as np
 sys.path.append('../UniDAQ')
 from ..VisaConnectWizard import *
-from ..utilities import *
+from ..utilities import timeit, close_file
 l = logging.getLogger(__name__)
 
-help = help_functions()
 vcw = VisaConnectWizard.VisaConnectWizard()
 
-@help.timeit
+@timeit
 class IVCV_class:
 
     def __init__(self, main_class):
@@ -28,7 +27,7 @@ class IVCV_class:
         order = {"ABORT_MEASUREMENT": True}  # just for now
         self.main.queue_to_main.put(order)
 
-    @help.timeit
+    @timeit
     def do_IVCV(self):
         '''This function conducts IVCV measurements.'''
         job_list = []
@@ -113,7 +112,7 @@ class IVCV_class:
                 break
 
         if self.main.save_data: # Closes the file after completion of measurement or abortion
-            help.close_file(self.main.IVCV_file)
+            close_file(self.main.IVCV_file)
 
         self.main.ramp_voltage(bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01)
         self.main.change_value(bias_SMU, "set_voltage", "0")
@@ -122,7 +121,7 @@ class IVCV_class:
 
         return None
 
-    #@help.timeit
+    #@timeit
     def do_IV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a current value and process the data'''
         if not self.main.stop_measurement():
@@ -150,7 +149,7 @@ class IVCV_class:
             self.main.queue_to_main.put({"IV": [float(voltage), float(current)]})
 
 
-    #@help.timeit
+    #@timeit
     def do_CV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a capacity value (or more precicely the amplitude and the phase shift) and process the data'''
         if not self.main.stop_measurement():

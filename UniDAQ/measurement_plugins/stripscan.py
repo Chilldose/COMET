@@ -6,9 +6,8 @@ import numpy as np
 from scipy import stats
 sys.path.append('../UniDAQ')
 from ..VisaConnectWizard import *
-from ..utilities import *
+from ..utilities import timeit, transformation
 
-help = help_functions()
 vcw = VisaConnectWizard.VisaConnectWizard()
 trans = transformation()
 
@@ -220,7 +219,7 @@ class stripscan_class:
             if self.main.save_data:
                 self.main.write(self.main.measurement_files["stripscan"], "\n")
 
-    @help.timeit
+    @timeit
     def do_stripscan(self):
         '''This function manages all stripscan measurements, also the frequency scan things
         Its ment to be used only once during the initiatior of the class'''

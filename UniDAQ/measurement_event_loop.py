@@ -249,7 +249,7 @@ class measurement_event_loop:
         for device in self.devices: # Loop over all devices
             sended_commands = []  # list over all sended commands, to prevent double sending
             if "Visa_Resource" in self.devices[device]: # Looks if a Visa resource is assigned to the device.
-                self.log.info("Initializing instrument: {!s}".format(device.get("Display_name", "NoName")))
+                self.log.info("Initializing instrument: {!s}".format(self.devices[device].get("Display_name", "NoName")))
                 # Initiate the instrument and resets it
                 if "reset_device" in self.devices[device]:
                     self.vcw.initiate_instrument(self.devices[device]["Visa_Resource"], self.devices[device]["reset_device"], self.devices[device].get("execution_terminator", ""))
