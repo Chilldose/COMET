@@ -1,11 +1,13 @@
 import logging
 
 from UniDAQ.core.measurement import Measurement
-from UniDAQ.core.measurement import MeasurementProcess
+from UniDAQ.core.process import Process
 
 from UniDAQ.VisaConnectWizard import VisaConnectWizard as DeviceManager
 
-class ProcessY(MeasurementProcess):
+class ProcessY(Process):
+
+    default_delay = 0.1
 
     def is_alive(self):
         return self.iteration < 4
@@ -16,7 +18,7 @@ class ProcessY(MeasurementProcess):
         logging.info("X=%s Y=%s", x, y)
         # self.parent.manager.getDevice('table').move(x, y)
 
-class ProcessX(MeasurementProcess):
+class ProcessX(Process):
 
     def is_alive(self):
         return self.iteration < 4

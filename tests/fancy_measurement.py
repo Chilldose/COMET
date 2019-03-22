@@ -3,18 +3,12 @@ import time
 import random
 import sys, os
 
-from UniDAQ.core.measurement import (
-    StopProcessIteration,
-    SkipProcessIteration,
-    StopMeasurement
-)
-
-from UniDAQ.core.measurement import Measurement
-from UniDAQ.core.measurement import MeasurementProcess
+from UniDAQ.core.process import Process, StopProcessIteration, SkipProcessIteration
+from UniDAQ.core.measurement import Measurement, StopMeasurement
 
 from UniDAQ.VisaConnectWizard import VisaConnectWizard as DeviceManager
 
-class MySubProcess(MeasurementProcess):
+class MySubProcess(Process):
 
     default_delay = .75
 
@@ -37,7 +31,7 @@ class MySubProcess(MeasurementProcess):
         sys.stdout.write("done.")
         sys.stdout.write(os.linesep)
 
-class MyProcess(MeasurementProcess):
+class MyProcess(Process):
 
     def is_alive(self):
         return self.iteration < 10
