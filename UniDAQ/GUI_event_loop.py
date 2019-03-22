@@ -1,22 +1,25 @@
 # This starts the event loop for the GUI
 #from GUI_classes import *
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtCore import QCoreApplication, QThread, pyqtSignal
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMessageBox
 import numpy as np
 import logging
-from .utilities import newThread, Framework
 from .globals import message_to_main, message_from_main, queue_to_GUI
+from .utilities import ErrorMessageBoxHandler
 
 
-class GUI_event_loop:
+class GUI_event_loop(QThread):
     ''' This class is for starting and managing the event loop for the GUI. It starts the syncronised connection betweent ifself and the
         measurement event loop. Message based on dictionaries. '''
+
+    # Create the signal for errBox handling
+    Errsig = pyqtSignal(str)
 
     def __init__(self, main, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, visa, meas_data):
 
         # Initialise the GUI class, classes
-        #GUI_classes.__init__(self)
+        super().__init__()
 
         self.main = main
         self.message_to_main = message_to_main
@@ -31,7 +34,6 @@ class GUI_event_loop:
         self.measurement_loop_running = True
         self.error_types = ["Info","MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "Warning", "FatalError", "ThresholdError", "ERROR", "Error"]
         self.fatal_errors = ["MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "FatalError", "ThresholdError"]
-        #self.measurement_types = ["IV", "IV_longterm", "CV", "R_int", "I_strip", "I_diel", "R_poly", "C_ac", "I_strip_overhang", "C_int", "I_dark", "humidity", "temperature", "Cback", "Cback_scan", "Cac_scan", "Cint_scan"]
         self.measurement_types = self.default_values_dict["settings"].get("measurement_types", [])
         self.event_types = ["MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED"]
         self.error_list = []
@@ -42,10 +44,9 @@ class GUI_event_loop:
         self.log = logging.getLogger(__name__)
 
         # Plot data
-        #self.IV_data = np.array([])
-        #self.IV_longterm_data = np.array([])
         self.meas_data = meas_data # This is a dict with keys like "IV" rtc and than [np.array, np.array] for x,y
 
+    def run(self):
         # Start additional timer for pending events, so that the GUI can shutdown properly
         timer = QtCore.QTimer()
         timer.timeout.connect(self.process_pending_events)
@@ -54,16 +55,16 @@ class GUI_event_loop:
         # Start the event loop
         self.start_loop()
 
-
-
     def start_loop(self):
         ''' This function actually starts the event loop. '''
+        self.log.info("Starting GUI event loop...")
         while not self.stop_GUI_loop:
             message = self.message_to_main.get()  # This function waits until a message is received from the measurement loop!
             self.log.info("Got message: " + str(message))
             self.translate_message(message)  # This translates the message
             self.process_message(message)  # Here the message will be processed
             self.process_pending_events()  # Here all events during message work will be send or done
+
 
     def translate_message(self, message):
         '''This function converts the message to a measurement list which can be processed'''
@@ -93,20 +94,11 @@ class GUI_event_loop:
                 prepend = '<font color=\"green\">'
             elif "ERROR" in error.upper():
                 prepend = '<font color=\"red\">'
+                # Emit the signal
+                self.Errsig.emit(str(message[str(error)]))
             elif "WARNING" in error.upper():
                 prepend = '<font color=\"orange\">'
             self.error_log.append(prepend + str(error).upper() + ": " + str(message[str(error)]) + "</font> <br/>")
-
-            # TODO: Pop up messages would be great here
-            #if error in self.fatal_errors:
-                #self.ErrorBox = QMessageBox(None)
-                # ErrorBox.setIcon(QMessageBox.Warning)
-                # ErrorBox.setText(event)
-                # ErrorBox.setWindowTitle("Really bad error occured")
-                #self.ErrorBox.setStandardButtons(QMessageBox.Ok)
-                #self.ErrorBox.exec_()
-                #self.main.ErrorEvent("sdfsdf")
-
 
         for event in self.event_list: #besser if "dfdf" in self.events oder? TODO vlt hier die abfrage der events anders machen
 

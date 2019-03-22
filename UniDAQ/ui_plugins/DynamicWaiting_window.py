@@ -51,7 +51,7 @@ class DynamicWaiting_window:
         self.dynamic.output_file.setText("test.txt")
 
         # Add the plot function to the framework
-        self.variables.add_update_function(self.update)
+        #self.variables.add_update_function(self.update)
 
 
         # Add tooltip functionality
@@ -146,7 +146,5 @@ class DynamicWaiting_window:
                     if vstepdata.any(): # To exclude exception spawning when measurement is not conducted
                         self.dynamic.current_plot.plot(vstepdata, self.variables.meas_data["dynamicwaiting"][1][i], pen=self.setpg.mkPen(tuple(self.cmapLookup[i])))
                         # Todo: Update the progress bar
-
-
             except Exception as e:
                 l.warning("An exception in the Dynamic waiting time plot occured, with error {error!s}".format(error=e))

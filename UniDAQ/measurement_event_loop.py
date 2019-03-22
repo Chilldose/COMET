@@ -133,7 +133,8 @@ class measurement_event_loop:
         if self.measurements_to_conduct != {} and not self.measurement_running: # If the dict is not empty and no measurement is running
 
             if "stripscan" in self.measurements_to_conduct and not self.default_dict["settings"]["Alignment"]:  # if not only IV or CV should be done
-                self.events.update({"MeasError": "Alignement is missing! "})
+                #self.events.update({"MeasError": "Alignement is missing! "})
+                self.log.error("Alignment is missing!")
                 self.measurements_to_conduct.clear()
 
             if self.measurements_to_conduct:
@@ -150,8 +151,7 @@ class measurement_event_loop:
                 self.measurements_to_conduct.clear() # Clears the measurement dict
 
         if self.measurements_to_conduct != {} and self.measurement_running:
-            self.log.warning("Tried making a new measurement. Measurement is running, no new job generation is possible.")
-            self.events.update({"MeasError": "Tried making a new measurement. Measurement is running, no new job generation possible."})
+            self.log.error("Tried making a new measurement. Measurement is running, no new job generation possible.")
             self.measurements_to_conduct.clear()
 
 

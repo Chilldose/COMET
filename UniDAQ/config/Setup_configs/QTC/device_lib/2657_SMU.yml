@@ -29,6 +29,7 @@
   "clear_errors": "errorqueue.clear()",
   "get_error_count": "print(errorqueue.count)",
   "get_next_error": "errorcode, message, severity = errorqueue.next() \n print(errorcode, message, severity)",
+  "imp:default_queueclear": "dataqueue.clear()",
   "exit_script": "exit()",
   "initialize_lan": "lan.applysettings()",
   "set_lan_autoconnect": "lan.autoconnect =",
@@ -85,15 +86,20 @@
   "set_source_level_volts": "smua.source.levelv = ",
   "default_source_level_volts": "0",
   "set_complience_current": "smua.source.limiti = ",
-  "set_complience": "smua.source.limiti = ",
   "default_complience_current": "50e-6",
-  "set_complience_voltage": "smua.source.limiti = ",
+  "set_complience": "smua.source.limiti = ",
+  "set_complience_voltage": "smua.source.limitv = ",
   "default_complience_voltage": "1000",
   "set_offvoltage": "smua.source.offfunc =",
   "default_offvoltage": "smua.OUTPUT_DCVOLTS",
   "set_offcomplience": "smua.source.offlimiti = ",
   "default_offcomplience": "50e-6",
   "set_output": "smua.source.output = ",
-  "default_output": "smua.OUTPUT_OFF"
+  "default_output": "smua.OUTPUT_OFF",
+  "set_current_range": "smua.measure.rangei = ",
+  "set_measurement_delay": "smua.measure.delay = ",
+  "default_measurement_delay": "smua.DELAY_AUTO",
+  "set_measurement_delay_factor": "smua.measure.delayfactor =",
+  "default_measurement_delay_factor": "1.0"
 
 }

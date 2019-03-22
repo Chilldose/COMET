@@ -31,12 +31,23 @@ from .measurement_event_loop import (
     message_from_main,
     queue_to_GUI
 )
+from PyQt5.QtWidgets import QApplication, QStyleFactory
 
 def main():
     """Main application entry point."""
 
     # Create timestamp
     start_time = time.time()
+
+    # Create app
+    app = QApplication(sys.argv)
+    # Set Style of the GUI
+    style = "Fusion"
+    app.setStyle(QStyleFactory.create(style))
+    app.setQuitOnLastWindowClosed(False)
+
+    # Config the except hook
+    new_except_hook = utilities.except_hook_Qt()
 
     # Initialize logger using configuration
     rootdir = os.path.dirname(os.path.abspath(__file__))
@@ -108,7 +119,7 @@ def main():
         thread.start()
 
     log.critical("Starting GUI ...")
-    gui = GUI_classes(
+    gui = GUI_classes(app,
         message_from_main,
         message_to_main,
         devices_dict,

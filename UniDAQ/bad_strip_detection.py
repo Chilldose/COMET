@@ -6,10 +6,9 @@ import logging
 import os, io
 import numpy as np
 from time import time
-#from .utilities import help_functions
 from numba import jit
 from scipy.stats import norm, stats
-#hf = help_functions()
+from .engineering_notation import  EngNumber
 
 
 
@@ -158,14 +157,17 @@ class stripanalysis:
 
         # Check if sum of current is considerably bigger than the Idark
         if abs(totalStripCurrent * (self.stripNum / measStripNum)) > abs(Idark) * self.settings["MeasStripvsTotal"]:
+            strip = str(EngNumber(totalStripCurrent * (self.stripNum / measStripNum)))
+            Idarks = str(EngNumber(float(Idark)))
+            ratio = str(EngNumber(abs(totalStripCurrent * (self.stripNum / measStripNum)) / abs(Idark)))
             self.log.warning("Single strip current and total current deviating more than specified: \n"
                              "This can be an indicator that the Bias needle has a bad contact \n"
-                             "Sum of Strip current: {strip:>30} \n"
-                             "Total Idark (median): {Idark:>30} \n"
+                             "Sum of Strip current: {strip:>30}A \n"
+                             "Total Idark (median): {Idark:>30}A \n"
                              "Ratio:                {ratio:>30} \n".format(
-                strip=totalStripCurrent * (self.stripNum / measStripNum),
-                Idark=Idark,
-                ratio=abs(totalStripCurrent * (self.stripNum / measStripNum))/abs(Idark)))
+                                                                            strip=strip,
+                                                                            Idark=Idarks,
+                                                                            ratio=ratio))
 
         else:
             self.log.warning("The ratio between the sum of Istrip to Idark is: {}".format(
@@ -687,6 +689,6 @@ def lmsalgorithm(x, y, q):
 
 if __name__ == "__main__":
     det = stripanalysis(None, "C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\UniDAQ\\UniDAQ\\config\\config\\badstrip.yml")
-    det.read_in_measurement_file(["C:\\Users\\dbloech\\Desktop\\str_VPX28442_14_2S_side1_merged.txt"])
+    det.read_in_measurement_file(["C:\\Users\\dbloech\\Desktop\\str_VPX28442_18_2S_side1_merged.txt"])
     det.do_analysis()
 

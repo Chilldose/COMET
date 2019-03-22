@@ -60,7 +60,7 @@
         - dynamicwaiting
 
     # Optional parameters
-    Thomas_mode: true # Shows white plots instead of black plots, because Thomas does not like black plots
+    Thomas_mode: false # Shows white plots instead of black plots, because Thomas does not like black plots
     temp_history: 3600 # How much should be shown in the humidity history in seconds
     temphum_update_intervall: 5000 # Update intervall of the humidity controll in ms
     time_format: "%H:%M:%S" # Time format of the humidity control

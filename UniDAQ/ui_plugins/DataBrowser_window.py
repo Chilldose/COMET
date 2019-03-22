@@ -235,48 +235,54 @@ class DataBrowser_window:
 
         @raise_exception
         def add_item_settings_button(kwargs = None):
-
-            if self.data_ui.key_edit_2.text() not in self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]]:
-                self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]][self.data_ui.key_edit_2.text()] = self.data_ui.value_edit_2.text()
-                reload_settings_button_action()
+            try:
+                if self.data_ui.key_edit_2.text() not in self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]]:
+                    self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]][self.data_ui.key_edit_2.text()] = self.data_ui.value_edit_2.text()
+                    reload_settings_button_action()
+            except:
+                self.log.error("It seems like you are trying to add nothing. Don't be a procastionator and add something usefull.")
 
         @raise_exception
         def change_value_settings_button(kwargs = None):
+            try:
+                if self.data_ui.key_edit_2.text() and self.variables.default_values_dict["settings"]["current_selected_browser_value"]:
+                    settings = self.variables.default_values_dict["settings"]["current_selected_browser_value"]
 
-            if self.data_ui.key_edit_2.text() and self.variables.default_values_dict["settings"]["current_selected_browser_value"]:
-                settings = self.variables.default_values_dict["settings"]["current_selected_browser_value"]
+                    if settings in self.variables.default_values_dict and self.data_ui.key_edit_2.text() in self.variables.default_values_dict[settings]: # Has to be so, otherwise mismatch can happen
+                        try:
+                            conv_object = ast.literal_eval(self.data_ui.value_edit_2.text())
+                            self.variables.default_values_dict[settings][self.data_ui.key_edit_2.text()] = conv_object
 
-                if settings in self.variables.default_values_dict and self.data_ui.key_edit_2.text() in self.variables.default_values_dict[settings]: # Has to be so, otherwise mismatch can happen
-                    try:
-                        conv_object = ast.literal_eval(self.data_ui.value_edit_2.text())
-                        self.variables.default_values_dict[settings][self.data_ui.key_edit_2.text()] = conv_object
+                        except:
+                            msg = QMessageBox()
+                            msg.setIcon(QMessageBox.Critical)
+                            msg.about(None, "Error", "Could not interpret input \"" + str(self.data_ui.value_edit_2.text()) +"\" \n it seems that this is not a valid literal.")
+                            self.log.error("Could not interpret input " + str(self.data_ui.value_edit_2.text()) +" it seems that this is not a valid literal." )
 
-                    except:
-                        msg = QMessageBox()
-                        msg.setIcon(QMessageBox.Critical)
-                        msg.about(None, "Error", "Could not interpret input \"" + str(self.data_ui.value_edit_2.text()) +"\" \n it seems that this is not a valid literal.")
-                        self.log.error("Could not interpret input " + str(self.data_ui.value_edit_2.text()) +" it seems that this is not a valid literal." )
+                        reload_settings_button_action()
 
-                    reload_settings_button_action()
-
-                else:
-                    reply = QMessageBox.question(None, 'Warning',"This Key is not included in the dictionary. Would you like to add it to the dictionary?", QMessageBox.Yes, QMessageBox.No)
-
-                    if reply == QMessageBox.Yes:
-                        add_item_settings_button()
                     else:
-                        pass
+                        reply = QMessageBox.question(None, 'Warning',"This Key is not included in the dictionary. Would you like to add it to the dictionary?", QMessageBox.Yes, QMessageBox.No)
 
+                        if reply == QMessageBox.Yes:
+                            add_item_settings_button()
+                        else:
+                            pass
+            except:
+                self.log.error("It seems you are trying to change nothing. Welcome to the club Bro.")
+                
         @raise_exception
         def remove_item_settings_button(kwargs = None):
-            if self.data_ui.key_edit_2.text() in self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]]:
-                reply = QMessageBox.question(None, 'Warning', "Are you sure to remove the selected item?",QMessageBox.Yes, QMessageBox.No)
-                if reply == QMessageBox.Yes:
-                    self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]].pop(self.data_ui.key_edit_2.text(),None)
-                    reload_settings_button_action()
-            else:
-                QMessageBox.question(None, 'Warning', "Hold on there Pirate!!! You try to delete an element which does not exist.", QMessageBox.Ok)
-
+            try:
+                if self.data_ui.key_edit_2.text() in self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]]:
+                    reply = QMessageBox.question(None, 'Warning', "Are you sure to remove the selected item?",QMessageBox.Yes, QMessageBox.No)
+                    if reply == QMessageBox.Yes:
+                        self.variables.default_values_dict[self.variables.default_values_dict["settings"]["current_selected_browser_value"]].pop(self.data_ui.key_edit_2.text(),None)
+                        reload_settings_button_action()
+                else:
+                    QMessageBox.question(None, 'Warning', "Hold on there Pirate!!! You try to delete an element which does not exist.", QMessageBox.Ok)
+            except:
+                self.log.error("You cannot delete nothing... Please select first a value to delete.")
         # Data browser
         data_browser_widget = QWidget()
         self.data_ui = self.variables.load_QtUi_file("Data_explorer.ui", data_browser_widget)

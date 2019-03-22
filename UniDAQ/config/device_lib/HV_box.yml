@@ -9,7 +9,7 @@
     "Device_name": "HV_box", 
     "set_environement_control": "SET:CTRL", 
     "get_status": "*STB?", 
-    "Device_IDN": "HV-Relay Controller V1.4/02.Oct.2018", 
+    "Device_IDN": "HV-Relay Controller V1.5/09.Oct.2018",
     "check_all_open_channel": ":open:STAT?", 
     "set_open_channel": ":open",
     "CSV_open_channel": "channel",
@@ -30,5 +30,7 @@
     ], 
     "lock_switches": "SET:TST", 
     "operation_complete": "*OPC?",
-    "separator": ","
+    "separator": ",",
+    "set_hummin": "SET:HUM_MIN",
+    "set_hummax": "SET:HUM_MAX"
 }

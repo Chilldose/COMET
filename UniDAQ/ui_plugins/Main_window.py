@@ -707,7 +707,7 @@ class Main_window:
 
             def error_update():
                 error_text = ""
-                last_errors = self.variables.error_log[-16:]
+                last_errors = self.variables.event_loop_thread.error_log[-16:]
                 for errors in last_errors:
                     error_text += errors + "\n"
 

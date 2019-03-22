@@ -115,7 +115,7 @@ class Alignment_window:
             msg.exec_()
             return
 
-        if not self.variables.default_values_dict["settings"]["Table_state"]:
+        if not self.variables.table.table_ready:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
             msg.setText("It seems that no table is connected to this machine...")

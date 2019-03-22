@@ -14,21 +14,18 @@
 # ramp_voltage
 
 import os, sys, os.path, re
-from time import sleep
+from time import sleep, time
 import time
 import threading
-import logging, yaml
+import yaml
 import logging.config
-from logging.handlers import RotatingFileHandler
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import *
-from PyQt5 import QtGui
+from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtWidgets import QApplication, QDialog, QPushButton
 import numpy as np
-from numpy.linalg import solve, norm, det, qr, inv
+from numpy.linalg import inv
 import datetime
 import pyqtgraph as pg
 from .VisaConnectWizard import VisaConnectWizard
-from PyQt5.QtWidgets import QApplication
 import logging
 from .engineering_notation import EngUnit
 import queue
@@ -38,13 +35,79 @@ from .globals import message_to_main, message_from_main, queue_to_GUI
 l = logging.getLogger(__name__)
 lock = threading.Lock()
 
+
+def raise_exception(method):
+    """
+    Intended to be used as decorator for pyQt functions in the case that errors are not correctly passed to the python interpret
+    """
+
+    def raise_ex(*args, **kw):
+        try:
+            # Try running the method
+            result = method(*args, **kw)
+        # raise the exception and print the stack trace
+        except Exception as error:
+            l.error("Some error occured in the function " + str(method.__name__) + ". With Error:",
+                    repr(error))  # this is optional but sometime the raise does not work
+            raise  # this raises the error with stack backtrack
+        return result
+
+    return raise_ex  # here the memberfunction timed will be called
+
+    # This function works as a decorator to raise errors if python interpretor does not do that automatically
+
+class ErrorMessageBoxHandler:
+    """This class shows an error message to the user which then can be quit"""
+
+    def __init__(self, message=None, title="COMET encountered an Error", QiD=None):
+        """
+        If you pass a message to the init only this message will be shown. To accumulate several messages to prevent
+        message spamming use the function new_message within the instance
+        :param message:
+        """
+        self.last_message_time = time.time()
+        self.message_buffer = ""
+        self.timeout = 0.1 # seconds
+        self.title = title
+        self.timer = QtCore.QTimer()
+        self.timer.setSingleShot(True)
+        self.timer.timeout.connect(self.show_messages)
+        self.error_dialog = QtWidgets.QErrorMessage(QiD)
+        self.error_dialog.setModal(False)
+        self.error_dialog.setWindowTitle(title)
+        self.error_dialog.setGeometry((1920-450)/2, (1080-250)/2, 450, 250)
+        self.start = time.time()
+
+        if message:
+            self.message_buffer = message
+            self.show_messages()
+
+    def new_message(self, message):
+        """Adds a new message"""
+        self.message_buffer += str(message) + "\n"
+        display_message = True if (time.time()-self.last_message_time) >= self.timeout else False
+        self.last_message_time = time.time()
+        if display_message:
+            self.show_messages()
+        else:
+            self.timer.start(int(self.timeout*1000))
+
+    def show_messages(self):
+        """Simply shows all messages"""
+        #message = "".join(self.message_buffer)
+        self.error_dialog.showMessage(self.message_buffer)
+        self.error_dialog.activateWindow()
+        self.message_buffer = ""
+
+
+
+
 class QueueEmitHandler(logging.Handler):
     def __init__(self, queue):
         self.queue = eval(queue)
         self.level = 0
         self.log_LEVELS = {"NOTSET": 0, "DEBUG": 10, "INFO": 20, "WARNING": 30, "ERROR": 40, "CRITICAL": 50}
         logging.Handler.__init__(self)
-
 
     def emit(self, record):
         if record.levelno == self.level:
@@ -55,6 +118,20 @@ class QueueEmitHandler(logging.Handler):
         """Warning this set level works different to the logging levels from the logging modules
         It only loggs the specific level!!!"""
         self.level = level
+
+class except_hook_Qt:
+    """Define a new exception hook to displaye correct exception even for Qt, it shows the exception on screen as well"""
+    def __init__(self):
+        self.old_hook = sys.excepthook
+        sys.excepthook = self.catch_exceptions
+
+    def catch_exceptions(self, cls, exception, traceback):
+            self.old_hook(cls, exception, traceback)
+            QtWidgets.QMessageBox.critical(None,
+                                           "An exception was raised",
+                                           "Exception type: {}\n"
+                                           "Exception: {}\n"
+                                           "Traceback: {}".format(cls, exception, traceback))
 
 def write_init_file( name, data, path = ""):
         """
@@ -78,11 +155,8 @@ def write_init_file( name, data, path = ""):
         if os.path.isfile(os.path.abspath(str(path) + str(name.split(".")[0]) + ".yaml")):
 
             os.remove(os.path.abspath(path + str(name.split(".")[0]) + ".yaml"))
-            #directory = path[:len(path)-len(path.split("/")[-1])]
             filename = create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
-
             yaml.dump(data, filename, indent=4, ensure_ascii=False)
-
             close_file(filename)
 
         elif not os.path.isfile(os.path.abspath(path + str(name.split(".")[0]) + ".yaml")):
@@ -141,23 +215,7 @@ def timeit( method):
 
     # This function works as a decorator to raise errors if python interpretor does not do that automatically
 
-def raise_exception( method):
-        """
-        Intended to be used as decorator for pyQt functions in the case that errors are not correctly passed to the python interpret
-        """
-        def raise_ex(*args, **kw):
-            try:
-                #Try running the method
-                result = method(*args, **kw)
-            # raise the exception and print the stack trace
-            except Exception as error:
-                l.error("Some error occured in the function " + str(method.__name__) +". With Error:", repr(error))  # this is optional but sometime the raise does not work
-                raise  # this raises the error with stack backtrack
-            return result
 
-        return raise_ex# here the memberfunction timed will be called
-
-        # This function works as a decorator to raise errors if python interpretor does not do that automatically
 
 def run_with_lock( method):
         """
@@ -580,7 +638,8 @@ def build_command( device_dict, command_tuple):
         else:
             return str(return_list[0])
 
-class newThread(threading.Thread):  # This class inherite the functions of the threading class
+#class newThread(threading.Thread):  # This class inherite the functions of the threading class
+class newThread(QtCore.QThread):  # This class inherite the functions of the threading class
     '''Creates new threads easy, it needs the thread ID a name, the function/class,
     which should run in a seperated thread and the arguments passed to the object'''
 
@@ -592,7 +651,7 @@ class newThread(threading.Thread):  # This class inherite the functions of the t
         :param args: Arguments passed to object__
         """
 
-        threading.Thread.__init__(self)  # Opens the threading class
+        QtCore.QThread.__init__(self)  # Opens the threading class
 
         self.threadID = threadID
         self.name = name
@@ -725,7 +784,7 @@ class Framework:
             try:
                 function()
             except:
-                self.log.error("Could not update framework " + function)
+                self.log.error("Could not update framework " + str(function))
         #end = time.time()
         #print end - start
 

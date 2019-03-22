@@ -22,39 +22,22 @@ from PyQt5.QtWidgets import *
 from .GUI_event_loop import *
 from .utilities import newThread, measurement_job_generation
 from .bad_strip_detection import *
+from .utilities import ErrorMessageBoxHandler
 
 QT_UI_DIR = 'QT_Designer_UI'
 """Name of directory containing all plugin UI files."""
 
 
-class MessageBox(QWidget):
-    def __init__(self, parent=None, app=None):
-        QWidget.__init__(self, parent)
-
-        self.setGeometry(300, 300, 250, 150)
-        self.setWindowTitle('message box')
-        self.currentBox = None
-        #self.app = self.main.app
-
-    def ErrorEvent(self, event):
-        ErrorBox = QMessageBox(None)
-        #ErrorBox.setIcon(QMessageBox.Warning)
-        #ErrorBox.setText(event)
-        #ErrorBox.setWindowTitle("Really bad error occured")
-        ErrorBox.setStandardButtons(QMessageBox.Ok)
-        ErrorBox.exec_()
-
 class GUI_classes(GUI_event_loop, QWidget):
 
-    def __init__(self, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, visa, queue_to_GUI, table, switching, shell):
+    def __init__(self, app, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, visa, queue_to_GUI, table, switching, shell):
 
         #Intialize the QT classes
-        self.app = QApplication(sys.argv)
+        self.app = app
         self.log = logging.getLogger(__name__)
 
-        # Set Style of the GUI
-        style = "Fusion"
-        self.app.setStyle(QStyleFactory.create(style))
+        # Handler for error messages
+        self.errMsg = ErrorMessageBoxHandler()
 
         # Some Variables
         self.message_to_main = message_to_main
@@ -80,6 +63,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.analysis = stripanalysis(self) # Not very good it is a loop condition
 
 
+
         # Load ui plugins
         self.load_plugins()
 
@@ -94,8 +78,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.QTabWidget_obj = QTabWidget()
         self.QTabWidget_obj.setWindowFlags(Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint) # Only minimize and maximize button are active
         self.QTabWidget_obj.resize(1900, 1000) # in pixels
-        self.messageBoxes = MessageBox(self.QTabWidget_obj) # For the message boxes
-        self.messageBoxes.show()
+        self.errMsg = ErrorMessageBoxHandler(QiD=self.QTabWidget_obj)
 
         # For Thomas, because he does not like black plots
         if self.white_plots:
@@ -118,16 +101,19 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.add_update_function(self.process_pending_events)
 
         # Initialise and start the GUI_event_loop
-        self.event_loop_thread = newThread(2, "GUI_event_loop", GUI_event_loop.__init__, self, self, self.message_from_main,
+        self.event_loop_thread = GUI_event_loop(self, self.message_from_main,
                                       self.message_to_main, self.devices_dict, self.default_values_dict,
                                       self.pad_files_dict, self.vcw, self.meas_data)
+        self.event_loop_thread.Errsig.connect(self.errMsg.new_message)
         self.event_loop_thread.start()
+
 
         # Add the cmd options
         #self.shell.add_cmd_command(self.reset_plot_data)
         #self.shell.add_cmd_command(self.give_framework_functions)
 
         self.log.info("Starting GUI ... ")
+
 
     def add_rendering_function(self, widget, name):
         '''This function adds a widget for rendering'''
@@ -228,7 +214,7 @@ class GUI_classes(GUI_event_loop, QWidget):
 
     def add_update_function(self, func): # This function adds function objects to a list which will later on be executed by updated periodically
         self.functions.append(func)
-        self.log.debug("Added framework function: " + str(func))
+        self.log.info("Added framework function: " + str(func))
 
     def give_framework_functions(self, args=None):
         return self.functions, self.update_interval
