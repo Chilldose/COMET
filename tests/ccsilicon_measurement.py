@@ -2,8 +2,7 @@ import logging
 import random
 import time
 
-from UniDAQ.core.device import Device
-from UniDAQ.core.devicemanager import DeviceManager
+from UniDAQ.core.devicemanager import VisaDeviceManager
 from UniDAQ.core.process import Process, StopProcessIteration
 from UniDAQ.core.measurement import Measurement
 
@@ -120,8 +119,8 @@ class CCSiliconMeasurement(Measurement):
 
     def init(self):
         # Get SMU device
-        smu_device = self.manager.getDevice('SMU1234')
-        cc_device = self.manager.getDevice('CC100')
+        smu_device = self.manager.get_device('SMU1234')
+        cc_device = self.manager.get_device('CC100')
         self.ramp_up = RampVProcess(self, self.ramp_delay, smu_device, self.v_min, self.v_max, self.v_step)
         self.ramp_down = RampVProcess(self, self.ramp_delay, smu_device, self.v_max, self.v_longterm, -self.v_step)
         self.longterm_daq = DAQProcess(self, self.daq_delay, smu_device, cc_device, self.i_compliance)
@@ -137,13 +136,14 @@ class CCSiliconMeasurement(Measurement):
         self.ramp_out.run()
 
     def final(self):
-        smu_device = self.manager.getDevice('SMU1234')
+        # Reset voltage
+        smu_device = self.manager.get_device('SMU1234')
         smu_device.setVoltage(self.v_min)
 
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
 
-    manager = DeviceManager()
+    manager = VisaDeviceManager()
 
     # Add fake devices
     manager.devices = {
