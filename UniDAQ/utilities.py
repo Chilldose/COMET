@@ -317,13 +317,13 @@ def close_file( fp):
 
     # This flushes a string to a file
 
-def flush_to_file( fp, message):
+def flush_to_file(fp, message):
         """
         Flushes data to a opend file
         Only strings or numbers allowed, Lists will work too but may cause data scrambling
         Only use this with created files from function 'create_new_file'
         """
-        os.write(fp, str(message)) #Writes the message to file
+        os.write(fp, str.encode(message)) #Writes the message to file
         os.fsync(fp) # ensures that the data is written on HDD
 
 def write_to_file( content, filename="default.txt", filepath = "default_path"):

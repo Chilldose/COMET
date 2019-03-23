@@ -55,7 +55,7 @@ class measurement_class(Thread):
         self.env_waiting_time = 60*5 # Five minutes
         self.build_command = build_command
         #self.badstrip_dict = {}
-        self.skip_tests = True # This must always be False!!! only for debugging !!!
+        self.skip_tests = False # This must always be False!!! only for debugging !!!
 
 
         # Build all data arrays
@@ -73,7 +73,7 @@ class measurement_class(Thread):
 
         # Perform the setup check and start the measurement
         # -------------------------------------------------------------------------------
-        if not self.check_setup(): # Checks if measurements can be conducted or not if True: an critical error occured
+        if self.setup_ready(): # Checks if measurements can be conducted or not if True: an critical error occured
             # Start the light that the measurement is running
             if "lights_controller" in self.devices:
                 self.external_light(self.devices["lights_controller"], True)
@@ -93,13 +93,11 @@ class measurement_class(Thread):
             self.make_measurement_plan()
             self.close_measurement_files()
 
-
-
         else:
-            self.log.info("Measurement was not conducted, due to failure in setup check!")
+            self.log.error("Measurement could not be conducted. Setup failed the readiness check. "
+                           "Please check the logs for more information what happened")
         # Perfom the setup check and start the measurement
         # -------------------------------------------------------------------------------
-
         self.queue_to_event_loop.put({"Status":{"MEASUREMENT_FINISHED": True}}) # States that the measurement is finished
 
     def close_measurement_files(self):
@@ -195,15 +193,14 @@ class measurement_class(Thread):
         flush_to_file(file, header) # Writes the header to the file
         return file # Finally returns the file object
 
-    def check_setup(self):
+    def setup_ready(self):
         '''This function checks if all requirements are met for successful measurement'''
         self.log.debug("Conducting setup check...")
-        abort = False # Variable to quantify if abort program or not
         # Check if all devices have a visa resource assigned otherwise return false
         for device in self.devices.values():
             if "Visa_Resource" not in device:
                 self.log.error(device["Display_name"] + " has no Visa Resource assigned! Measurement cannot be conducted.")
-                return True
+                return False
 
         # Check if lights and environment is valid
         if "internal_lights" in  self.settings["settings"]:
@@ -221,7 +218,7 @@ class measurement_class(Thread):
 
                     if counter >= 3:
                         self.log.error("Box seems to be open or the lights are still on in the Box, aborting program")
-                        return True
+                        return False
         else:
             self.log.warning("Variable missing for internal lights settings. No lights check!")
 
@@ -244,12 +241,12 @@ class measurement_class(Thread):
                                 diff = abs(start_time - time.time())
                                 if diff > self.env_waiting_time:
                                     self.queue_to_main.put({"FatalError":"The humidity levels could not be reached. Aborting program"})
-                                    return True
+                                    return False
                         else:
-                            return True
+                            return False
             else:
                 self.log.warning("Variable missing for humidity_control settings. No humidity check made!")
-        return abort
+        return True # If everything worked
 
     def make_measurement_plan(self):
         '''This function recieves the orders from the main and creates a measurement plan.'''
@@ -563,8 +560,9 @@ class measurement_class(Thread):
                 error = self.change_value_query(relay_dict, "set_discharge", "OFF", "DONE")
                 if error:
                     self.queue_to_main.put({
-                                               "RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
-                                                   "DONE") + " got " + str(error) + " instead."})
+                                               "RequestError": "Capacitor discharged failed! Switching the discharge"
+                                                               " relay failed! Expected reply from device would be: "
+                                                               + str("DONE") + " got " + str(error) + " instead."})
                     self.log.error(
                         "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
                             "DONE") + " got " + str(error) + " instead.")
