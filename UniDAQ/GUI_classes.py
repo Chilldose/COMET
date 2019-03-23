@@ -20,7 +20,6 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 from .GUI_event_loop import *
-from .utilities import newThread, measurement_job_generation
 from .bad_strip_detection import *
 from .utilities import ErrorMessageBoxHandler
 
@@ -29,11 +28,11 @@ QT_UI_DIR = 'QT_Designer_UI'
 
 
 class GUI_classes(GUI_event_loop, QWidget):
-
-    def __init__(self, app, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, visa, queue_to_GUI, table, switching, shell):
+    # app, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, visa, queue_to_GUI, table, switching)
+    def __init__(self, framework_variables):
 
         #Intialize the QT classes
-        self.app = app
+        self.app = framework_variables["App"]
         self.log = logging.getLogger(__name__)
 
         # Handler for error messages
@@ -42,29 +41,26 @@ class GUI_classes(GUI_event_loop, QWidget):
         # Some Variables
         self.message_to_main = message_to_main
         self.message_from_main = message_from_main
-        self.vcw = visa
-        self.devices_dict = devices_dict
-        self.default_values_dict = default_values_dict
-        self.pad_files_dict = pad_files_dict
+        self.vcw = framework_variables["VCW"]
+        self.devices_dict = framework_variables["Devices"]
+        self.default_values_dict = framework_variables["Configs"]["config"]
+        self.pad_files_dict = framework_variables["Configs"]["Pad_files"]
         self.functions = []
         self.update_interval = float(self.default_values_dict["settings"].get("GUI_update_interval", 100.))  # msec
         self.queue_to_GUI = queue_to_GUI
-        self.table = table
-        self.switching = switching
-        self.white_plots = default_values_dict["settings"].get("Thomas_mode", False)
+        self.table = framework_variables["Table"]
+        self.switching = framework_variables["Switching"]
+        self.white_plots = self.default_values_dict["settings"].get("Thomas_mode", False)
         self.meas_data = {}
         self.all_plugin_modules = {}
         self.qt_designer_ui = []
         self.ui_widgets = {}
         self.final_tabs = []
         self.ui_plugins = {}
-        self.shell = shell
         self.analysis = stripanalysis(self) # Not very good it is a loop condition
 
-
-
         # Load ui plugins
-        self.load_plugins()
+        self.load_GUI_plugins()
 
         # Measurement data for plotting
         # Data type Dict for what kind of measurement (keys) values are tupel of numpy arrays (x,y)
@@ -106,11 +102,6 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.event_loop_thread.Errsig.connect(self.errMsg.new_message)
         self.event_loop_thread.start()
 
-
-        # Add the cmd options
-        #self.shell.add_cmd_command(self.reset_plot_data)
-        #self.shell.add_cmd_command(self.give_framework_functions)
-
         self.log.info("Starting GUI ... ")
 
 
@@ -146,8 +137,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         UI.setupUi(widget)
         return UI
 
-    def load_plugins(self):
-
+    def load_GUI_plugins(self):
         def locate_modules(pattern):
             """Returns list of modules names.
             >>> locate_modules("/path/to/*.py")

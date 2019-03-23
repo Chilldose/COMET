@@ -678,7 +678,7 @@ class Main_window:
                                            "enviroment": True, # if enviroment surveillance should be done
                                            "skip_init": False} #warning this prevents the device init
 
-                    self.variables.job.generate_job(additional_settings)
+                    self.job.generate_job(additional_settings)
 
                     #order = {"Measurement": {"Save_data": True,"Filepath": self.variables.default_values_dict["settings"]["Current_directory"],"Filename": self.variables.default_values_dict["settings"]["Current_filename"], "Longterm_IV": {"StartVolt": self.variables.default_values_dict["settings"]["Longterm_IV"][0],"EndVolt": self.variables.default_values_dict["settings"]["Longterm_IV"][1],"Longterm_IV_time": self.variables.default_values_dict["settings"]["Longterm_IV_time"],"Steps": 10}}}  # just for now
                     #self.variables.message_from_main.put(order)

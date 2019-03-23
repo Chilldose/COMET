@@ -4,76 +4,84 @@ import numpy as np
 from .VisaConnectWizard import VisaConnectWizard
 import os
 from time import sleep, time
-import datetime, math
+import datetime
 from scipy import stats
 import importlib
+from threading import Thread
 
 from .utilities import timeit, build_command, flush_to_file, create_new_file
 
 vcw = VisaConnectWizard()
 
-class measurement_class:
-    def __init__(self, meas_loop, main_defaults, pad_data, devices, queue_to_main, queue_to_event_loop, job_details, queue_to_GUI, table, switching, stop_measurement):
-        self.queue_to_main = queue_to_main
-        self.main = meas_loop
-        self.stop_measurement = stop_measurement # this is a function and need to be called via brackets to work correctly!!!
-        self.queue_to_event_loop = queue_to_event_loop
-        self.queue_to_GUI = queue_to_GUI
+class measurement_class(Thread):
+    #meas_loop, main_defaults, pad_data, devices, queue_to_main, queue_to_event_loop, job_details, queue_to_GUI, table, switching, stop_measurement)
+
+    def __init__(self, event_loop, framework, job_details):
+
+        Thread.__init__(self)
+        self.log = logging.getLogger(__name__)
+        self.framework = framework
+        self.log.info("Initializing measurement thread...")
+        self.queue_to_main = framework["Message_to_main"]
+        self.main = event_loop
+        self.stop_measurement = self.main.stop_measurement # this is a function and need to be called via brackets to work correctly!!!
+        self.queue_to_event_loop = framework["Message_from_main"]
+        self.queue_to_GUI = framework["Queue_to_GUI"]
         self.setup_not_ready = True
         self.job_details = job_details
-        self.IVCV_job = []
-        self.strip_scan_job = []
+        #self.IVCV_job = []
+        #self.strip_scan_job = []
         self.measured_data = {}
-        self.settings = main_defaults
-        self.pad_data = pad_data
-        self.table = table
-        self.switching = switching
-        self.devices = devices
-        self.IVCV_file = ""
-        self.strip_file = ""
-        self.IV_longterm_file = ""
-        self.list_strip_measurements = ["Rint", "Istrip", "Idiel", "Rpoly", "Cac", "Istrip_overhang", "Cint", "Idark", "Cback"]
-        self.IV_data = np.array([])
-        self.CV_data = np.array([])
-        self.IV_longterm_data = np.array([])
+        self.settings = framework["Configs"]["config"]
+        #self.pad_data = framework["Configs"]pad_data
+        self.table = framework["Table"]
+        self.switching = framework["Switching"]
+        self.devices = framework["Devices"]
+        #self.IVCV_file = ""
+        #self.strip_file = ""
+        #self.IV_longterm_file = ""
+        #self.list_strip_measurements = ["Rint", "Istrip", "Idiel", "Rpoly", "Cac", "Istrip_overhang", "Cint", "Idark", "Cback"]
+        #self.IV_data = np.array([])
+        #self.CV_data = np.array([])
+        #self.IV_longterm_data = np.array([])
         self.time_const = 1 # sec
-        self.current_sensor = self.settings["settings"]["Current_sensor"]
+        #self.current_sensor = self.settings["settings"]["Current_sensor"]
         self.all_plugins = {}
-        self.total_strips = None
+        #self.total_strips = None
         self.measurement_files = {}
         self.measurement_data = {}
         self.write = None
         self.save_data = False
         self.env_waiting_time = 60*5 # Five minutes
-        self.build_command = build_command # think of it like a link
-        self.badstrip_dict = {}
+        self.build_command = build_command
+        #self.badstrip_dict = {}
         self.skip_tests = True # This must always be False!!! only for debugging !!!
-        self.log = logging.getLogger(__name__)
 
-
-        # Make preps
-        self.settings["settings"]["Start_time"] = str(datetime.datetime.now())
-        self.load_plugins()
-        self.find_stripnumber()
-        self.estimate_duration(datetime.datetime.now())
-        self.write_data()
 
         # Build all data arrays
         for data_files in self.settings["settings"]["measurement_types"]:
             self.measurement_data.update({data_files: [[np.zeros(0)], [np.zeros(0)]]})
 
 
-        #self.make_measurement_plan()
+    def run(self):
+        self.log.info("Starting measurement thread...")
+        self.settings["settings"]["Start_time"] = str(datetime.datetime.now())
+        self.load_plugins()
+        #self.find_stripnumber()
+        #self.estimate_duration(datetime.datetime.now())
+        self.write_data()
 
-        # Perfom the setup check and start the measurement
+        # Perform the setup check and start the measurement
         # -------------------------------------------------------------------------------
-        if not self.check_setup(): # Checks if measuremnts can be conducted or not if True: an critical error occured
+        if not self.check_setup(): # Checks if measurements can be conducted or not if True: an critical error occured
             # Start the light that the measurement is running
             if "lights_controller" in self.devices:
                 self.external_light(self.devices["lights_controller"], True)
             else:
                 self.log.info("No external lights controller found")
+            #-----------------------------------------------------------------------------------------------------------
             self.make_measurement_plan()
+            #-----------------------------------------------------------------------------------------------------------
             sleep(0.1)
             if "lights_controller" in self.devices:
                 self.external_light(self.devices["lights_controller"], False)
@@ -96,7 +104,7 @@ class measurement_class:
 
     def close_measurement_files(self):
         """
-        This function closes all measurement files which have been opend during a measurement run
+        This function closes all measurement files which have been opened during a measurement run
         """
         for file in self.measurement_files.values():
             os.close(file)
@@ -124,15 +132,14 @@ class measurement_class:
         # Save data
         # -----------------------------------------------------------------------------
 
-
-    def estimate_duration(self, start_time):
+    def estimate_duration(self, start_time, list_strip_measurements):
         """Estimate time
         Will not be correct, since CV usually is faster, but it is just a estimation.
         -----------------------------------------------------------------------------
         Start and end timer. all of this quick and dirty but it will suffice"""
-        # self.settings["settings"]["Start_time"] = datetime.datetime.now()
+        # Todo: Code specific to measurement
         est_end = 0
-        for measurements in self.list_strip_measurements:
+        for measurements in list_strip_measurements:
             # Loop over all strip measurements
             if measurements in self.job_details.get("stripscan", {}):
                 est_end += float(self.total_strips)*float(self.settings["settings"]["strip_scan_time"])
@@ -150,9 +157,9 @@ class measurement_class:
         # Will not be correct, since CV usually is faster, but it is just a estimation.
         # -----------------------------------------------------------------------------
 
-
     def find_stripnumber(self):
         # Try find the strip number of the sensor.
+        # Todo: Code specific to measurement
         try:
             self.total_strips = len(self.pad_data[self.settings["settings"]["Current_project"]][str(self.current_sensor)]["data"])
             self.log.debug("Extracted strip number is: {!s}".format(self.total_strips))
@@ -164,20 +171,26 @@ class measurement_class:
                 self.queue_to_main.put({"DataError": "Fatal error Sensor " + str(self.current_sensor) + " not recognized. Strip scan cannot be conducted. Check Pad files"})
                 self.queue_to_event_loop.put({"Status": {"MEASUREMENT_FINISHED": True}})  # States that the measurement is finished, or aborted due to an error
 
-
     def load_plugins(self):
         # Load all measurement functions
-        #install_directory = os.getcwd() # Obtain the install path of this module
-        all_measurement_functions = os.listdir("./UniDAQ/measurement_plugins/")
+        to_ignore = ["__init__", "__pycache__"]
+        all_measurement_functions = os.listdir(os.path.join(self.framework["rootdir"], "measurement_plugins"))
         all_measurement_functions = list(set([modules.split(".")[0] for modules in all_measurement_functions]))
 
         self.log.info("All measurement functions found: " + str(all_measurement_functions) + ".")
 
-        for modules in all_measurement_functions:  # import all modules from all files in the plugins folder
-            self.all_plugins.update({modules: importlib.import_module("UniDAQ.measurement_plugins." + modules)})
+        # import all modules specified in the measurement order, so not all are loaded
+        for modules in all_measurement_functions:
+            if modules in self.settings["settings"]["measurement_order"]:
+                self.all_plugins.update({modules: importlib.import_module("UniDAQ.measurement_plugins." + modules)})
+                self.log.info("Imported module: {}".format(modules))
+            else:
+                if modules not in to_ignore:
+                    self.log.error("Could not load module: {}. It was specified in the settings but"
+                               " no module matches this name.".format(modules))
 
     def create_data_file(self, header, filepath, filename="default"):
-        self.log.debug("Creating new data file with name: {!s}".format(filename))
+        self.log.info("Creating new data file with name: {!s}".format(filename))
         file = create_new_file(filename, filepath) # Creates the file at the destination
         flush_to_file(file, header) # Writes the header to the file
         return file # Finally returns the file object
@@ -186,54 +199,57 @@ class measurement_class:
         '''This function checks if all requirements are met for successful measurement'''
         self.log.debug("Conducting setup check...")
         abort = False # Variable to quantify if abort program or not
-        # Check if all devices have a visa resource assigned otherwise
+        # Check if all devices have a visa resource assigned otherwise return false
         for device in self.devices.values():
             if "Visa_Resource" not in device:
-                self.queue_to_main.put({"MEASUREMENT_FAILED": "Visa resources missing in device " + str(device["Display_name"])})
-                self.log.critical(device["Display_name"] + " has no Visa Resource assigned! Measurement cannot be conducted.")
+                self.log.error(device["Display_name"] + " has no Visa Resource assigned! Measurement cannot be conducted.")
                 return True
 
-        # Check if lights and environement is valid
-        if self.settings["settings"]["internal_lights"]:
-            # Wait a few seconds for the controller to send the data if the box was open previously
-            counter = 0
-            lights_ON = True
-            self.queue_to_main.put({"Info":"There seems to be light in the Box."})
-            self.log.info("Box seems to be open or the lights are still On in the Box")
-            while lights_ON:
-                sleep(5)
-                if self.settings["settings"]["internal_lights"]:
-                    counter += 1
-                else: lights_ON = False
+        # Check if lights and environment is valid
+        if "internal_lights" in  self.settings["settings"]:
+            if self.settings["settings"]["internal_lights"]:
+                # Wait a few seconds for the controller to send the data if the box was open previously
+                counter = 0
+                lights_ON = True
+                self.queue_to_main.put({"Info":"There seems to be light in the Box."})
+                self.log.info("The box seems to be open or the lights are still on in the Box")
+                while lights_ON:
+                    sleep(5)
+                    if self.settings["settings"]["internal_lights"]:
+                        counter += 1
+                    else: lights_ON = False
 
-                if counter >= 3:
-                    self.log.critical("Box seems to be open or the lights are still On in the Box, aborting program")
-                    self.queue_to_main.put({"MeasError":"Box seems to be open or the lights are still On in the Box, aborting program"})
-                    return True
-
-        if self.settings["settings"]["humidity_control"]:
-            min = self.settings["settings"]["current_hummin"]
-            max = self.settings["settings"]["current_hummax"]
-
-            if (self.main.humidity_history[-1] < min or self.main.humidity_history[-1] > max): # If something is wrong
-                self.queue_to_main.put({"Info":"The humidity levels not reached. Wait until state is reached. Waiting time: " + str(self.env_waiting_time)})
-                wait_for_env = True
-                start_time = time.time()
-                while wait_for_env:
-                    if not self.main.stop_measurement:
-                        sleep(3)
-                        if (self.main.humidity_history[-1] > min and self.main.humidity_history[-1] < max):
-                            self.queue_to_main.put({"Info": "Humidity levels reached, proceeding with measurement..." })
-                            wait_for_env = False
-                        else:
-                            diff = abs(start_time - time.time())
-                            if diff > self.env_waiting_time:
-                                self.queue_to_main.put({"FatalError":"The humidity levels could not be reached. Aborting program"})
-                                return True
-                    else:
+                    if counter >= 3:
+                        self.log.error("Box seems to be open or the lights are still on in the Box, aborting program")
                         return True
-        return abort
+        else:
+            self.log.warning("Variable missing for internal lights settings. No lights check!")
 
+        if "humidity_control" in self.settings["settings"]:
+            if self.settings["settings"]["humidity_control"]:
+                min = self.settings["settings"]["current_hummin"]
+                max = self.settings["settings"]["current_hummax"]
+
+                if (self.main.humidity_history[-1] < min or self.main.humidity_history[-1] > max): # If something is wrong
+                    self.queue_to_main.put({"Info":"The humidity levels not reached. Wait until state is reached. Waiting time: " + str(self.env_waiting_time)})
+                    wait_for_env = True
+                    start_time = time.time()
+                    while wait_for_env:
+                        if not self.main.stop_measurement:
+                            sleep(3)
+                            if (self.main.humidity_history[-1] > min and self.main.humidity_history[-1] < max):
+                                self.queue_to_main.put({"Info": "Humidity levels reached, proceeding with measurement..." })
+                                wait_for_env = False
+                            else:
+                                diff = abs(start_time - time.time())
+                                if diff > self.env_waiting_time:
+                                    self.queue_to_main.put({"FatalError":"The humidity levels could not be reached. Aborting program"})
+                                    return True
+                        else:
+                            return True
+            else:
+                self.log.warning("Variable missing for humidity_control settings. No humidity check made!")
+        return abort
 
     def make_measurement_plan(self):
         '''This function recieves the orders from the main and creates a measurement plan.'''
@@ -243,64 +259,53 @@ class measurement_class:
         if "measurement_order" in self.settings["settings"]:
             for measurement in self.settings["settings"]["measurement_order"]:
                 abort = False
-                if self.main.stop_measurement:
-                    break
+                if self.main.stop_measurement: # Check if some abort signal was send
+                    return
                 if measurement in self.job_details and measurement in self.all_plugins:
                     if self.save_data:  # First create files, if necessary.
-                        filepath = self.job_details["Filepath"]
-                        filename = str(measurement)[:3] + "_" + self.job_details["Filename"]
-                        if "Header" in self.job_details:
-                            self.measurement_files.update({measurement: self.create_data_file(self.job_details["Header"] + "\n", filepath, filename)})  # If a header is present create file with header
-
+                        filepath = self.job_details.get("Filepath", None)
+                        filename = str(measurement)[:3] + "_" + self.job_details.get("Filename", "None")
+                        if "Header" in self.job_details and filepath:
+                            self.measurement_files.update({measurement:
+                                                               self.create_data_file(self.job_details["Header"] + "\n",
+                                                                                     filepath, filename)})
+                        else:
+                            self.log.error("While trying to create a measurement file for measurement {} "
+                                           "an error happened. This usually happens if either/both a filepath and "
+                                           "a header are missing for the measurement".format(str(measurement)))
                 elif measurement not in self.all_plugins and measurement in self.job_details:
-                    self.log.error("Measurement " + str(measurement) + " was not found as a defined measurement module.")
-                    self.queue_to_main.put({"MEASUREMENT_FAILED": "Measurement " + str(measurement) + " was not found as a defined measurement module."})
+                    self.log.error("Measurement " + str(measurement) + " was not found as a defined measurement module."
+                                                                       "This should never happen, only possible if you "
+                                                                       "temper with the plugins dict")
                     abort = True
                 else:
                     abort = True
 
-                # here the actuall measurement starts
+                # Here the actual measurement starts -------------------------------------------------------------------
                 if not abort:
                     self.log.info("Trying to start measurement " + str(measurement))
                     starttime = time()
-                    if measurement in self.all_plugins:
-                        getattr(self.all_plugins[measurement], str(measurement)+"_class")(self)
-                    else:
-                        self.log.error("Measurement {} could not be found as a measurement plugin.".format(measurement))
+                    getattr(self.all_plugins[measurement], str(measurement)+"_class")(self)
                     endtime = time()
-
                     deltaT = abs(starttime-endtime)
                     self.log.info("The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds.")
-
-        if "ramp_voltage" in self.job_details:
-            params = self.job_details["ramp_voltage"]
-            self.ramp_voltage(params["Resource"], params["Order"], params["StartVolt"], params["EndVolt"], params["Steps"], params["Wait"], params["Complience"])
-
-        if self.settings["settings"]["Test_mode"]:
-            getattr(self.all_plugins["test_mode"],"test_mode_class")(self)
+                # Here the actual measurement starts -------------------------------------------------------------------
 
     def steady_state_check(self, device, max_slope = 0.001, wait = 0.2, samples = 4, Rsq = 0.95, complience = 50e-6, do_anyway = False, check_complience=True): # Not yet implemented
         '''This functions waits dynamically until the sensor has reached an equilibrium after changing the bias voltage'''
+        # TODO: I have the feeling that this function is not exactly dooing what she is supposed to do, check!
         steady_state = False
-        stop = False
-
-        if self.main.stop_measurement:
-            stop = True
-
+        stop = self.main.stop_measurement
         if do_anyway:
-            self.log.warning("Overwriting steady_state_check is not advices. Use with caution")
+            self.log.warning("Overwriting steady_state_check is not adviced. Use with caution")
             stop = False
-
         counter = 0
         while not steady_state and not stop and check_complience:
-
             if counter > 5:
                 # If too many attempts where made
                 self.log.error("Attempt to reach steady state was not successfully after 5 times")
                 return False
-
             counter += 1
-
             values = []
             if complience:
                 if self.check_complience(device, float(complience)):
@@ -312,11 +317,8 @@ class measurement_class:
                 self.log.debug("Conducting steady state check...")
                 values.append(float(str(vcw.query(device, command)).split(",")[0]))
                 sleep(wait)
-
             slope, intercept, r_value, p_value, std_err = stats.linregress([i for i in range(len(values))], values)
-
             if std_err <= 1e-6 and abs(slope) <= abs(max_slope):
-                steady_state = True
                 return True
 
     def ramp_value_log10(self, min_value, max_value, deltasteps):
@@ -354,7 +356,6 @@ class measurement_class:
         #    ramp_list = [x for x in reversed(ramp_list)]
 
         return ramp_list
-
 
     def ramp_value(self, min_value, max_value, deltaI):
         '''This function accepts single values and returns a list of values, which are interpreted as a ramp function
@@ -427,7 +428,7 @@ class measurement_class:
 
     def change_value_query(self, device_dict, order, value="", answer="1"):
         """This function query a command to a device and waits for a return value and compares
-        it with the answer statement, if they are the same a true is returend"""
+        it with the answer statement, if they are the same a true is returned"""
         if type(order) == list:
             for com in order:
                 command = self.build_command(device_dict, (com, value))
@@ -513,46 +514,6 @@ class measurement_class:
             final_string = self.build_command(device, command)
             vcw.write(device["Visa_Resource"], str(final_string))  # finally writes the command to the device
 
-
-
-
-    def build_command_depricated(self, device, command_tuple):
-        #Todo build command is two folded in here
-        if type(command_tuple) == type(u"") or type(command_tuple) == str:
-            command_tuple = (str(command_tuple),) # so the correct casting is done
-
-        for key, value in device.items():
-            try:
-                if command_tuple[0] == value: # finds the correct value
-                    command_keyword = str(key.split("_")[-1])
-
-                    if ("CSV_command_" + command_keyword) in device: # searches for CSV command in dict
-                        data_struct = device["CSV_command_" + command_keyword].split(",")
-
-                        final_string = str(command_tuple[0]) + " "  # so the key word
-
-                        for i, given_orders in enumerate(command_tuple[1:]): # so if more values are given, these will be processed first
-                            final_string += str(given_orders).upper() + ","  # so the value
-
-                        if len(command_tuple[1:]) <= len(data_struct): # searches if additional data needs to be added
-                            for data in data_struct[i+1:]:
-                                # print(device[command_keyword + "_" + data])
-                                if command_keyword + "_" + data in device:
-                                    final_string += str(device[command_keyword + "_" + data]).upper() + ","
-                                else:
-                                    final_string += ","# if no such value is in the dict
-
-                        return final_string[:-1] # because there is a colon to much in it
-
-                    else:
-                        if len(command_tuple) > 1:
-                            return str(command_tuple[0]) + " " + str(command_tuple[1])
-                        else:
-                            return str(command_tuple[0])
-
-            except Exception as e:
-                pass
-
     def capacitor_discharge(self, device_dict, relay_dict, termorder = None, terminal = None, do_anyway=False):
         '''This function checks if the capacitor of the decouple box is correctly discharged
         First is input is the device which measure something and relay_dict is the relay which need to be switched'''
@@ -636,8 +597,3 @@ class measurement_class:
         self.log.critical("Measurement stop sended by framework...")
         order = {"ABORT_MEASUREMENT": True}  # just for now
         self.main.queue_to_main.put(order)
-
-
-if __name__ == "__main__":
-
-    pass

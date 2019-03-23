@@ -126,12 +126,12 @@ class except_hook_Qt:
         sys.excepthook = self.catch_exceptions
 
     def catch_exceptions(self, cls, exception, traceback):
-            self.old_hook(cls, exception, traceback)
             QtWidgets.QMessageBox.critical(None,
                                            "An exception was raised",
                                            "Exception type: {}\n"
                                            "Exception: {}\n"
                                            "Traceback: {}".format(cls, exception, traceback))
+            self.old_hook(cls, exception, traceback)
 
 def write_init_file( name, data, path = ""):
         """
@@ -785,8 +785,6 @@ class Framework:
                 function()
             except:
                 self.log.error("Could not update framework " + str(function))
-        #end = time.time()
-        #print end - start
 
 class transformation:
     """Class which handles afine transformations in 3 dimensions for handling sensor to jig coordinate systems"""
@@ -845,7 +843,7 @@ class table_control_class:
     '''This class handles all interactions with the table. Movement, status etc.
     This class is designed to be running in different instances.'''
 
-    def __init__(self, main_variables, devices, queue_to_GUI, shell, vcw):
+    def __init__(self, main_variables, devices, queue_to_GUI, vcw):
         """
 
         :param main_variables: Defaults dict
@@ -859,19 +857,19 @@ class table_control_class:
         self.table_ready = self.variables.get("table_ready", False)
         self.queue = queue_to_GUI
         self.vcw = vcw
-        self.shell = None
         self.build_command = build_command
         self.log = logging.getLogger(__name__)
 
-        try:
-            self.visa_resource = self.devices.get("Table_control",None)["Visa_Resource"]
-            self.table_ready = True
-            self.zmove = self.variables["height_movement"]
-        except:
+        if "Table_control" in self.devices:
+            if "Visa_Resource" in self.devices["Table_control"]:
+                self.visa_resource = self.devices["Table_control"]["Visa_Resource"]
+                self.table_ready = True
+                self.zmove = self.variables["height_movement"]
+            else:
+                self.table_ready = False
+                self.log.error("Table control could not be initialized! Visa Resource missing")
+        else:
             self.table_ready = False
-            self.queue.put({"RequestError": "Table seems not to be connected!"})
-            self.log.error("Table control could not be initialized!")
-
 
     def get_current_position(self):
         '''Queries the current position of the table and writes it to the state machine'''
@@ -1172,19 +1170,17 @@ class switching_control:
     This class handles all switching controls of all switching matrices
     """
 
-    def __init__(self, settings, devices, queue_to_main, shell):
+    def __init__(self, settings, devices, queue_to_main):
         '''
         This class handles all switching actions
 
         :param settings: default settings ( state machine )
         :param devices: devices dict
-        :param shell: UniDAQ shell object
         '''
         self.settings = settings
         self.message_to_main = queue_to_main
         self.devices = devices
         self.vcw = VisaConnectWizard()
-        self.shell = None
         self.build_command = build_command
         self.log = logging.getLogger(__name__)
 

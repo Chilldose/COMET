@@ -309,13 +309,8 @@ class DataBrowser_window:
         self.data_ui.save_button_2.clicked.connect(save_settings_button_action)
 
         self.data_ui.Padfile_selector_3.itemClicked.connect(load_padfile_to_screen)
-
-
         self.layout.addWidget(data_browser_widget)
 
-
-        # Add cmd option
-        self.variables.shell.add_cmd_command(self.get)
 
     def get(self, command):
         """This functions takes in the type (Devices, Settings, Pad files), (name of main cat), (key)

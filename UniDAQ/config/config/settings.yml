@@ -30,7 +30,7 @@
         - Rint_scan
         - waitingtime_scan
 
-    measurement_order:
+    measurement_order: # aka. all measurement plugins
         - test_mode
         - IVCV
         - stripscan

@@ -42,12 +42,6 @@ class Switching_window:
         self.switching.reset_button.clicked.connect(self.reset_switching)
         self.switching.Override.clicked['bool'].connect(self.manual_override_action)
 
-        # Check first switching
-        #self.check_switching_action()
-
-        # Add cmd option
-        self.settings.shell.add_cmd_command(self.reset_switching)
-
     def manual_override_action(self, bool):
         '''Manual switching enabling'''
         self.set_radio_buttons_checkable(bool)

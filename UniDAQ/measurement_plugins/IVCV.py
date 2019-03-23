@@ -4,11 +4,9 @@ import logging
 import sys
 import numpy as np
 sys.path.append('../UniDAQ')
-from ..VisaConnectWizard import *
 from ..utilities import timeit, close_file
-l = logging.getLogger(__name__)
 
-vcw = VisaConnectWizard.VisaConnectWizard()
+
 
 @timeit
 class IVCV_class:

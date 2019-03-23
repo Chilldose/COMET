@@ -5,11 +5,8 @@ import sys
 import numpy as np
 from scipy import stats
 sys.path.append('../UniDAQ')
-from ..VisaConnectWizard import *
+from ..VisaConnectWizard import VisaConnectWizard
 from ..utilities import timeit, transformation
-
-vcw = VisaConnectWizard.VisaConnectWizard()
-trans = transformation()
 
 
 class stripscan_class:
@@ -21,8 +18,9 @@ class stripscan_class:
 
         :param main_class:
         """
+
         self.main = main_class
-        self.log = logging.getLogger(__name__)
+        self.trans = transformation()
         self.switching = self.main.switching
         self.current_voltage = self.main.settings["settings"]["bias_voltage"]
         self.voltage_End = self.main.job_details["stripscan"]["EndVolt"]
@@ -52,6 +50,11 @@ class stripscan_class:
         self.justlength = 24
         self.rintslopes = [] # here all values from the rint is stored
         self.log = logging.getLogger(__name__)
+
+        # Check if alignment is present or not, if not stop measurement
+        if not self.main.main.default_dict["settings"]["Alignment"]:
+            self.log.error("Alignment is missing. Stripscan can only be conducted if a valid alignment is present.")
+            return
 
 
         # Preconfig the electrometer for current measurements, zero corr etc.
@@ -200,7 +203,7 @@ class stripscan_class:
                 if measurement in job["Measurements"] and not self.main.main.stop_measurement:  # looks if measurement should be done
 
                     # Now conduct the measurement
-                    self.main.table.move_to_strip(self.sensor_pad_data, int(job["Strip"] - 1), trans, self.T, self.V0, self.height)
+                    self.main.table.move_to_strip(self.sensor_pad_data, int(job["Strip"] - 1), self.trans, self.T, self.V0, self.height)
                     value = getattr(self, "do_" + measurement)(job["Strip"], self.samples, write_to_main = False)
 
                     # Write this to the file
@@ -270,7 +273,7 @@ class stripscan_class:
                             # Now conduct the measurement
                             # But first check if this strip should be measured with this specific measurement
                             if current_strip in self.main.job_details["stripscan"][measurement]["strip_list"]:
-                                self.main.table.move_to_strip(self.sensor_pad_data, self.current_strip-1, trans, self.T, self.V0, self.height)
+                                self.main.table.move_to_strip(self.sensor_pad_data, self.current_strip-1, self.trans, self.T, self.V0, self.height)
                                 if not self.main.stop_measurement() and not self.main.check_complience(self.bias_SMU, self.complience):
                                     value = 0
                                     try:
@@ -357,7 +360,7 @@ class stripscan_class:
             self.main.change_value(self.LCR_meter, "set_voltage", str(voltage))
 
             # Moves to strip
-            self.main.table.move_to_strip(self.sensor_pad_data, int(self.job["stripscan"]["frequencyscan"]["Strip"])-1, trans, self.T, self.V0, self.height)
+            self.main.table.move_to_strip(self.sensor_pad_data, int(self.job["stripscan"]["frequencyscan"]["Strip"])-1, self.trans, self.T, self.V0, self.height)
 
             for freq in freq_list: #does the loop over the frequencies
                 if not self.main.stop_measurement(): #stops the loop if shutdown is necessary

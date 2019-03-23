@@ -23,7 +23,6 @@ import os
 from . import utilities
 from . import boot_up
 from .GUI_classes import GUI_classes
-from .cmd_inferface import DAQShell
 from .VisaConnectWizard import VisaConnectWizard
 from .measurement_event_loop import (
     measurement_event_loop,
@@ -66,7 +65,6 @@ def main():
 
     # Initializing all modules
     log.critical("Initializing modules ...")
-    shell = DAQShell()
     vcw = VisaConnectWizard()
 
 
@@ -83,7 +81,6 @@ def main():
         stats.configs["config"],
         devices_dict,
         message_to_main,
-        shell,
         vcw
     )
     if "Table_control" not in devices_dict:
@@ -92,63 +89,28 @@ def main():
         stats.configs["config"],
         devices_dict,
         message_to_main,
-        shell
     )
 
-    # Holds all active threads started from the main
-    threads = []
+    # Gather auxiliary modules
+    aux = {"Table": table, "Switching": switching,
+           "VCW": vcw, "Devices": devices_dict,
+           "rootdir": rootdir, "App": app,
+           "Message_from_main": message_from_main, "Message_to_main": message_to_main,
+           "Queue_to_GUI": queue_to_GUI, "Configs": stats.configs}
 
     # Starts a new Thread for the measurement event loop
-    thread = utilities.newThread(
-        1,
-        "Measurement event loop",
-        measurement_event_loop,
-        devices_dict,
-        stats.configs["config"],
-        stats.configs.get("Pad_files"),
-        vcw,
-        table,
-        switching,
-        shell
-    )
-    # Add threads to thread list and starts running it
-    threads.append(thread)
-
-    # Starts all threads (this starts correspond to the threading class!!!)
-    for thread in threads:
-        thread.start()
+    MEL = measurement_event_loop(aux)
+    MEL.start()
 
     log.critical("Starting GUI ...")
-    gui = GUI_classes(app,
-        message_from_main,
-        message_to_main,
-        devices_dict,
-        stats.configs["config"],
-        stats.configs.get("Pad_files"),
-        vcw,
-        queue_to_GUI,
-        table,
-        switching,
-        shell
-    )
+    gui = GUI_classes(aux)
     # Init the framework for update plots etc.
     frame = utilities.Framework(gui.give_framework_functions)
     # Starts the timer
     frame.start_timer()
 
-    #log.critical("Starting shell...")
-    #shell.start()
-
     log.critical("Start rendering GUI...")
     gui.app.exec_() # Starts the actual event loop for the GUI
-
-    # Wait for all threads to complete
-    log.critical("Joining threads...")
-    # Close the shell by sending the by command
-    #shell.onecmd("bye")
-    for thread in threads:
-        thread.join() # Synchronises the threads so that they finish all at ones.
-
     end_time = time.time()
 
     log.critical("Run time: %s seconds.", round(end_time-start_time, 2))

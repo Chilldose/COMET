@@ -33,10 +33,6 @@ class Settings_window:
         if self.measurements:
             self.configure_settings()
 
-        # Add the shell commands
-        self.variables.shell.add_cmd_command(self.load_new_settings)
-        self.variables.shell.add_cmd_command(self.configure_settings)
-
     def get_all_settings(self):
         '''This function gets all settings'''
 
