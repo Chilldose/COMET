@@ -47,3 +47,7 @@ class Measurement(object):
         # Run final cleanup
         self.final()
         logging.info("stopped %s", context)
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

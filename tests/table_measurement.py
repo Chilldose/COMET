@@ -1,9 +1,8 @@
 import logging
 
-from UniDAQ.core.measurement import Measurement
 from UniDAQ.core.process import Process
-
-from UniDAQ.VisaConnectWizard import VisaConnectWizard as DeviceManager
+from UniDAQ.core.measurement import Measurement
+from UniDAQ.core.devicemanager import VisaDeviceManager
 
 class ProcessY(Process):
 
@@ -34,7 +33,7 @@ class TableMeasurement(Measurement):
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
 
-    manager = DeviceManager()
+    manager = VisaDeviceManager('@sim')
 
     measurement = TableMeasurement(manager)
     measurement.run()

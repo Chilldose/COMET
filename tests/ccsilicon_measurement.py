@@ -2,9 +2,9 @@ import logging
 import random
 import time
 
-from UniDAQ.core.devicemanager import VisaDeviceManager
 from UniDAQ.core.process import Process, StopProcessIteration
 from UniDAQ.core.measurement import Measurement
+from UniDAQ.core.devicemanager import VisaDeviceManager
 
 class ClimateChamberDevice(object):
     """Fake climate chamber device."""
@@ -143,7 +143,7 @@ class CCSiliconMeasurement(Measurement):
 if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
 
-    manager = VisaDeviceManager()
+    manager = VisaDeviceManager('@sim')
 
     # Add fake devices
     manager.devices = {

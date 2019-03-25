@@ -5,21 +5,42 @@ class GenericDevice(object):
     """Generic device, inherit to implement device drivers.
 
     Keyword arguments:
-    - name -- device manager instance
+    - name -- device name
+
+    Example:
+    >>> class MyDevice(GenericDevice):
+    ...     def __init__(self, name):
+    ...         super(MyDevice, self).__init__(name)
+    ...         self.memory = {}
+    ...     def read(self, key):
+    ...         return self.memory.get(key)
+    ...     def write(self, key, value):
+    ...         self.memory[key] = value
+    >>> device = MyDevice('MyDevice')
+    >>> device.name
+    'MyDevice'
+    >>> device.write('foo', 42)
+    >>> device.read('foo')
+    42
     """
 
     def __init__(self, name):
-        self.name = name
+        self.__name = name
 
-    def read(self, command):
+    @property
+    def name(self):
+        """Returns device name."""
+        return self.__name
+
+    def read(self, *args, **kwargs):
         """Read from to device."""
         raise NotImplementedError()
 
-    def write(self, command):
+    def write(self, *args, **kwargs):
         """Write from to device."""
         raise NotImplementedError()
 
-    def query(self, command):
+    def query(self, *args, **kwargs):
         """Query (write and read) from device."""
         raise NotImplementedError()
 
@@ -31,9 +52,14 @@ class ConfDevice(GenericDevice):
     - config -- device configuration dictionary
 
     Example:
-    >>> config = {'set_voltage': 'SOUR:VOLT:LEV {:f}'}
+    >>> config = {'get_idn': '?IDN', 'foo': 42}
     >>> device = ConfDevice('MyDevice', config)
-    >>> device.set_voltage(42.0)
+    >>> device.name
+    'MyDevice'
+    >>> device.config.get('get_idn')
+    '?IDN'
+    >>> device.config.get('foo')
+    42
     """
 
     default_config = {}
@@ -42,14 +68,17 @@ class ConfDevice(GenericDevice):
     def __init__(self, name, config=None):
         super(ConfDevice, self).__init__(name)
         # Setup configuration
-        self.__config = dict(self.default_config)
-        self.__config.update(config or {})
+        self.__config = self.default_config.copy()
+        if isinstance(config, dict):
+            self.__config.update(config)
         # Register methods from configuration
         for key, value in self.__config.items():
+            # Register getters
             if re.match(r'^get_\w+$', key):
                 self.__register(self.query, key, value)
+            # Register setters
             if re.match(r'^set_\w+$', key):
-                self.__register(self.write, key, value)
+                self.__register(self.query, key, value)
 
     def __register(self, method, name, command):
         """Registers get/set methods loaded from config."""
@@ -59,7 +88,7 @@ class ConfDevice(GenericDevice):
 
     @property
     def config(self):
-        """Returns device configuration."""
+        """Returns device configuration dictionary."""
         return self.__config
 
 
@@ -72,13 +101,17 @@ class VisaDevice(ConfDevice):
     - config -- device configuration dictionary
 
     Example:
-    >>> rm = visa.ResourceManager()
-    >>> resource = rm.open_resource('...')
-    >>> config = {'set_voltage': 'SOUR:VOLT:LEV {:f}'}
-    >>> device = VisaDevice(resource, 'MyDevice', config)
+    >>> import visa
+    >>> rm = visa.ResourceManager('@sim')
+    >>> resource = rm.open_resource('ASRL1::INSTR', read_termination='\\n')
+    >>> config = {'get_idn': '?IDN', 'set_frequency': '!FREQ {:f}', 'get_frequency': '?FREQ'}
+    >>> device = VisaDevice('MyDevice', resource, config)
     >>> device.get_idn()
-    'MY INSTRUMENT IC. MODEL 1234'
-    >>> device.set_voltage(42.0)
+    'LSG Serial #1234'
+    >>> device.set_frequency(42.0)
+    'OK'
+    >>> device.get_frequency()
+    '42.00'
     """
 
     default_config = {
@@ -86,7 +119,7 @@ class VisaDevice(ConfDevice):
     }
     """Default VISA resource configuration, can be overwritten by user configuration."""
 
-    def __init__(self, resource, name, config=None):
+    def __init__(self, name, resource, config=None):
         super(VisaDevice, self).__init__(name, config)
         self.__resource = resource
 
@@ -106,3 +139,8 @@ class VisaDevice(ConfDevice):
     def query(self, command):
         """Query from VISA resource."""
         return self.resource.query(command)
+
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()

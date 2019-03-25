@@ -6,7 +6,7 @@ from UniDAQ.core.devicemanager import VisaDeviceManager
 
 if __name__ == '__main__':
 
-    manager = VisaDeviceManager()
+    manager = VisaDeviceManager('@sim')
 
     config = {
         'set_voltage': 'SOUR:VOLT:LEV {}',

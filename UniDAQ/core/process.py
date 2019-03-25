@@ -92,3 +92,7 @@ class Process(object):
         except StopProcessIteration as e:
             logging.info(e)
         self.final()
+
+if __name__ == '__main__':
+    import doctest
+    doctest.testmod()
