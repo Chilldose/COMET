@@ -71,7 +71,12 @@ class GUI_event_loop(QThread):
 
         # A measurement message is a Dict of a Dict {SignalMessage: {Orders}, ...}
         # Other messages like errors or data from the measurement event loop can be simple dicts like {IV: value} etc..
-        message_key_set = set(message.keys())
+        if isinstance(message, dict):
+            message_key_set = set(message.keys())
+        else:
+            self.log.error("Got a message which is not a dict object, please check log, "
+                           "where this message comes from an fix the problem.")
+            message_key_set = []
 
         # Create list of all errors in the message Dict
         self.error_list = list(set(self.error_types).intersection(message_key_set))

@@ -265,8 +265,8 @@ class Main_window:
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
             xpos = self.table_move_ui.x_move.value()
             error = self.variables.table.move_to([xpos, pos[1], pos[2]], True, self.variables.default_values_dict["settings"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
+            #if error:
+                #self.variables.message_to_main.put(error)
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
@@ -278,8 +278,8 @@ class Main_window:
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
             ypos = self.table_move_ui.y_move.value()
             error = self.variables.table.move_to([pos[0], ypos, pos[2]], self.variables.default_values_dict["settings"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
+            #if error:
+                #self.variables.message_to_main.put(error)
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
@@ -290,8 +290,8 @@ class Main_window:
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
             zpos = self.table_move_ui.z_move.value()
             error = self.variables.table.move_to([pos[0], pos[1], zpos], self.variables.default_values_dict["settings"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
+            #if error:
+                #self.variables.message_to_main.put(error)
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
@@ -356,8 +356,8 @@ class Main_window:
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True]) # so all axis can be adressed
             errorcode = self.variables.table.move_to([self.previous_xloc, self.previous_yloc, self.previous_zloc], True, self.variables.default_values_dict["settings"]["height_movement"])
-            if errorcode:
-                self.variables.message_to_main.put(errorcode)
+            #if errorcode:
+                #self.variables.message_to_main.put(errorcode)
             self.variables.table.set_axis([True, True, False])  # so z axis is off again
             self.variables.table.set_joystick(True)
 
@@ -717,8 +717,6 @@ class Main_window:
 
                 return str( starttime + eastend + striptime + currentstrip + badstrips + bias)
 
-
-
             # Exit button
 
             qbtn = QPushButton('Quit')
@@ -804,12 +802,10 @@ class Main_window:
             # Update functions
 
             def error_update():
-                error_text = ""
-                last_errors = self.variables.event_loop_thread.error_log[-16:]
-                for errors in last_errors:
-                    error_text += errors + "\n"
+                last_errors = self.variables.event_loop_thread.error_log
+                error_text = "\n".join(last_errors[-14:])
 
-                if self.errors.text() != error_text:
+                if self.errors.text() != error_text: # Only update text if necessary
                     self.errors.setText(error_text)
 
             def stat_update():
@@ -1204,7 +1200,6 @@ class Main_window:
         position.setFont(self.font)
         table_indicator.setFont(self.font)
 
-
         def check_position():
             '''This function checks the position of the table and updates the gui elemtents'''
             if self.variables.table:
@@ -1252,13 +1247,11 @@ class Main_window:
             if self.variables.table:
                 if self.variables.default_values_dict["settings"]["Table_state"]:
                     self.variables.message_to_main.put({"Warning": "Table is in the up position."})
-
                 else:
                     self.variables.table.set_joystick(False)
                     self.variables.table.set_axis([True, True, True])
                     errorcode = self.variables.table.move_up(self.variables.default_values_dict["settings"]["height_movement"])
                     if errorcode:
-                        self.variables.message_to_main.put(errorcode)
                         return
                     #self.variables.default_values_dict["settings"]["Table_state"] = True  # True means table is up
                     self.variables.default_values_dict["settings"]["Table_stay_down"] = False
@@ -1276,7 +1269,6 @@ class Main_window:
                     self.variables.table.set_axis([True, True, True])
                     errorcode = self.variables.table.move_down(self.variables.default_values_dict["settings"]["height_movement"])
                     if errorcode:
-                        self.variables.message_to_main.put(errorcode)
                         return
                     #self.variables.default_values_dict["settings"]["Table_state"] = False # False means table is down
                     self.variables.default_values_dict["settings"]["Table_stay_down"] = True
@@ -1295,8 +1287,8 @@ class Main_window:
             zpos = (float(self.variables.devices_dict["Table_control"]["table_zmax"]) -
                           float(self.variables.devices_dict["Table_control"]["table_zmin"])) / 2.
             errorcode = self.variables.table.move_to([xpos,ypos,zpos], False, self.variables.default_values_dict["settings"]["height_movement"])
-            if errorcode:
-                self.variables.message_to_main.put(errorcode)
+            #if errorcode:
+                #self.variables.message_to_main.put(errorcode)
 
         def initiate_table():
             # First Ask to do so
@@ -1307,7 +1299,7 @@ class Main_window:
                 self.variables.message_to_main.put({"Info": "Table will now be initialized..."})
                 errorcode = self.variables.table.initiate_table()
                 if errorcode:
-                    self.variables.message_to_main.put(errorcode)
+                    return
                 move_zero_order()
                 self.variables.message_to_main.put({"Info": "Table initialization done, table goes back to zero position."})
             else:

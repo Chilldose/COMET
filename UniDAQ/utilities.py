@@ -765,7 +765,7 @@ class Framework:
 
         :return: timer
         """
-        self.log.info("Framework initialized")
+        self.log.info("Framework initialized...")
         timer = QtCore.QTimer()
         timer.timeout.connect(self.update_)
         timer.start(self.update_interval)
@@ -858,7 +858,7 @@ class table_control_class:
         self.queue = queue_to_GUI
         self.vcw = vcw
         self.build_command = build_command
-        self.log = logging.getLogger(__name__)
+        self.log = logging.getLogger("Table_control")
 
         if "Table_control" in self.devices:
             if "Visa_Resource" in self.devices["Table_control"]:
@@ -917,15 +917,18 @@ class table_control_class:
 
             elif float(done) == 2.: # joystick active
                 cal_not_done = False
-                return {"RequestError": "Joystick of table control is active."}
+                self.log.error("Joystick of table control is active.")
+                return -1
 
             elif float(done) == 4.: # joystick active
                 cal_not_done = False
-                return {"RequestError": "Table control is not switched on."}
+                self.log.error("Table control is not switched on.")
+                return -1
 
             elif float(done) > 4.: # joystick active
                 cal_not_done = False
-                return {"RequestError": "The table control reported an unknown error, with errorcode: " + str(done)}
+                self.log.error("The table control reported an unknown error, with errorcode: " + str(done))
+                return -1
 
             elif float(done) == 0.: # when corvus is read again
                 self.get_current_position()
@@ -962,6 +965,10 @@ class table_control_class:
                     return errorcode
             self.variables["table_is_moving"] = False
             return 0
+        else:
+            self.log.error("An error occured while trying to initiate the table. This can happen if either no "
+                           "Table is connected to the setup OR the table is currently moving.")
+            return -1
 
     def check_position(self, desired_pos):
         '''
@@ -973,9 +980,8 @@ class table_control_class:
         new_pos = self.get_current_position()
         for i, pos in enumerate(new_pos):
             if abs(float(pos) - float(desired_pos[i])) > 0.5: # up to a half micrometer
-                errorcode = {"MeasError": "Table movement failed. Position: " + str(new_pos) + " is not equal to desired position: " + str(desired_pos)}
                 self.log.error("Table movement failed. Position: " + str(new_pos) + " is not equal to desired position: " + str(desired_pos))
-                return errorcode
+                return -1
         return 0
 
     def __already_there(self, pad_file, strip, transfomation_class, T, V0):
@@ -1020,7 +1026,8 @@ class table_control_class:
             self.variables["current_strip"] = int(strip+1)
             return error
         else:
-            return {"RequestError": "No Transformation Matrix found! Is the alignment done?"}
+            self.log.error("No Transformation Matrix found! Is the alignment done?")
+            return -1
 
 
     def relative_move_to(self, position, move_down = True, lifting = 800):
@@ -1041,7 +1048,7 @@ class table_control_class:
 
         :return: None or errorcode
         '''
-        self.log.debug("Try moving table to {!s}".format(position))
+        self.log.info("Try moving table to {!s}".format(position))
         if self.table_ready and not self.variables["table_is_moving"]:
             # get me the current position
             old_pos = self.get_current_position()
@@ -1094,8 +1101,12 @@ class table_control_class:
                 return error
 
             self.variables["table_is_moving"] = False
-            self.log.debug("Successfully moved table to {!s}".format(position))
+            self.log.info("Successfully moved table to {!s}".format(position))
             return 0
+        else:
+            self.log.error("Table could not be moved due to an error. This usually happens if no table is connected to"
+                           " the setup OR the table is currently moving.")
+            return -1
 
     def move_up(self, lifting):
         '''
@@ -1104,7 +1115,7 @@ class table_control_class:
         :param lifting:  hight movement
         :return: none or errorcode
         '''
-        self.log.debug("Moving table up by {!s} microns".format(lifting))
+        self.log.info("Moving table up by {!s} microns".format(lifting))
         if not self.variables["Table_state"]:
             errorcode = self.move_to([0,0,lifting], False, 0, True)
             if not errorcode:
@@ -1119,7 +1130,7 @@ class table_control_class:
         :param lifting:  hight movement
         :return: none or errorcode
         '''
-        self.log.debug("Moving table down by {!s} microns".format(lifting))
+        self.log.info("Moving table down by {!s} microns".format(lifting))
         if self.variables["Table_state"]:
             errorcode = self.move_to([0,0,-lifting], False, 0, True)
             if not errorcode:
@@ -1131,7 +1142,6 @@ class table_control_class:
     def set_joystick(self, bool):
         '''This enables or disables the joystick'''
         if self.table_ready:
-
             if bool:
                 command = self.build_command(self.device, ("set_joystick", "1"))
             else:
@@ -1221,7 +1231,6 @@ class switching_control:
 
         if num_devices != devices_found:
             self.log.error("At least one switching was not possible, no devices for switching included/connected")
-            self.message_to_main.put({"MeasError": "At least one switching was not possible, no devices for switching included/connected"})
             switching_success = False
 
         return switching_success
@@ -1330,7 +1339,7 @@ class switching_control:
         if "Visa_Resource" in device: #Searches for the visa resource
             resource = device["Visa_Resource"]
         else:
-            self.message_to_main.put({"RequestError": "The VISA resource for device " + str(device["Display_name"]) + " could not be found. No switching possible."})
+            self.log.error("The VISA resource for device " + str(device["Display_name"]) + " could not be found. No switching possible.")
             return -1
         command = self.build_command(device, "check_all_closed_channel")
         current_switching = str(self.vcw.query(resource, command)).strip()  # Get current switching
@@ -1373,7 +1382,6 @@ class switching_control:
             counter += 1
 
         self.log.error("No response from switching system: " + device["Display_name"])
-        self.message_to_main.put({"RequestError": "No response from switching system: " + device["Display_name"]})
         return False
 
     def build_command_depricated(self, device, command_tuple):

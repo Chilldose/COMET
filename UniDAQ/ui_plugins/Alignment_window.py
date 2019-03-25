@@ -83,7 +83,7 @@ class Alignment_window:
                                                            self.transformation_matrix, self.V0,
                                                            self.variables.default_values_dict["settings"]["height_movement"])
                 if error:
-                    self.variables.message_to_main.put(error)
+                    #self.variables.message_to_main.put(error)
                     self.error_action(error)
                     return
             else:
@@ -147,7 +147,7 @@ class Alignment_window:
                                                            self.transformation_matrix, self.V0,
                                                            self.variables.default_values_dict["settings"]["height_movement"])
                 if error:
-                    self.variables.message_to_main.put(error)
+                    #self.variables.message_to_main.put(error)
                     self.error_action(error)
                     return
             self.alignment_started = False
@@ -211,7 +211,7 @@ class Alignment_window:
             #relative_movepos[1] = relative_movepos[1] + self.sensor_pad_file["strip_length"]
             error = self.variables.table.relative_move_to(relative_movepos, True, self.variables.default_values_dict["settings"]["height_movement"])
             if error:
-                self.variables.message_to_main.put(error)
+                #self.variables.message_to_main.put(error)
                 self.error_action(error)
                 return
             self.variables.table.set_axis([True, True, False])
@@ -229,7 +229,7 @@ class Alignment_window:
             relative_movepos = [x1 - x2 for (x1, x2) in zip(sensor_second_pos, sensor_first_pos)]
             error = self.variables.table.relative_move_to(relative_movepos, True,self.variables.default_values_dict["settings"]["height_movement"])
             if error:
-                self.variables.message_to_main.put(error)
+                #self.variables.message_to_main.put(error)
                 self.error_action(error)
                 return
             self.variables.table.set_axis([True, True, False])
@@ -263,7 +263,7 @@ class Alignment_window:
 
             error = self.variables.table.move_to(list(table_abs_pos), True, self.variables.default_values_dict["settings"]["height_movement"])
             if error:
-                self.variables.message_to_main.put(error)
+                #self.variables.message_to_main.put(error)
                 self.error_action(error)
                 return
 
@@ -480,8 +480,8 @@ class Alignment_window:
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
             xpos = self.table_move_ui.x_move.value()
             error = self.variables.table.move_to([xpos, pos[1], pos[2]], True, self.variables.default_values_dict["settings"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
+            #if error:
+                #self.variables.message_to_main.put(error)
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
@@ -493,8 +493,8 @@ class Alignment_window:
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
             ypos = self.table_move_ui.y_move.value()
             error = self.variables.table.move_to([pos[0], ypos, pos[2]], self.variables.default_values_dict["settings"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
+            #if error:
+                #self.variables.message_to_main.put(error)
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
@@ -505,8 +505,8 @@ class Alignment_window:
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
             zpos = self.table_move_ui.z_move.value()
             error = self.variables.table.move_to([pos[0], pos[1], zpos], self.variables.default_values_dict["settings"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
+            #if error:
+               # self.variables.message_to_main.put(error)
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
@@ -571,8 +571,8 @@ class Alignment_window:
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True]) # so all axis can be adressed
             errorcode = self.variables.table.move_to([self.previous_xloc, self.previous_yloc, self.previous_zloc], True, self.variables.default_values_dict["settings"]["height_movement"])
-            if errorcode:
-                self.variables.message_to_main.put(errorcode)
+            #if errorcode:
+                #self.variables.message_to_main.put(errorcode)
             self.variables.table.set_axis([True, True, False])  # so z axis is off again
             self.variables.table.set_joystick(True)
 

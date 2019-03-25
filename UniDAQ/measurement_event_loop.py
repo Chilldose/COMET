@@ -49,7 +49,6 @@ class measurement_event_loop(Thread):
 
     def run(self):
         # Init devices
-        sleep(1)
         self.init_devices()
 
         # Start Continuous measurements temphum control
