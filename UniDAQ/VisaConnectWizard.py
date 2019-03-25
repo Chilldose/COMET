@@ -285,7 +285,8 @@ class VisaConnectWizard:
                 resource = resource_dict["Visa_Resource"]
                 reconnect = True # if dict a reconection atempt is possible
             except KeyError:
-                self.log.error("An key error occured in dict " + str(resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
+                self.log.error("Could not access Visa Resource for device: " + str(resource_dict["Display_name"] +
+                            ". This usually happens when the device is not connected."))
                 return -1
             except Exception as e:
                 self.log.exception("An unknowen error occured while accessing a Visa resource " + str(e))

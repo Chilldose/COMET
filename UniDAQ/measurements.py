@@ -11,8 +11,6 @@ from threading import Thread
 
 from .utilities import timeit, build_command, flush_to_file, create_new_file
 
-vcw = VisaConnectWizard()
-
 class measurement_class(Thread):
     #meas_loop, main_defaults, pad_data, devices, queue_to_main, queue_to_event_loop, job_details, queue_to_GUI, table, switching, stop_measurement)
 
@@ -130,45 +128,6 @@ class measurement_class(Thread):
         # Save data
         # -----------------------------------------------------------------------------
 
-    def estimate_duration(self, start_time, list_strip_measurements):
-        """Estimate time
-        Will not be correct, since CV usually is faster, but it is just a estimation.
-        -----------------------------------------------------------------------------
-        Start and end timer. all of this quick and dirty but it will suffice"""
-        # Todo: Code specific to measurement
-        est_end = 0
-        for measurements in list_strip_measurements:
-            # Loop over all strip measurements
-            if measurements in self.job_details.get("stripscan", {}):
-                est_end += float(self.total_strips)*float(self.settings["settings"]["strip_scan_time"])
-                break # breaks out of loop if one measurement was found
-
-
-        if "IV" in self.job_details.get("IVCV", {}):
-            est_end += float(self.settings["settings"]["IVCV_time"])
-        if "CV" in self.job_details.get("IVCV", {}):
-            est_end += float(self.settings["settings"]["IVCV_time"])
-
-        est_end = start_time + datetime.timedelta(seconds=est_end)
-        self.settings["settings"]["End_time"] = str(est_end)
-        # Estimate time
-        # Will not be correct, since CV usually is faster, but it is just a estimation.
-        # -----------------------------------------------------------------------------
-
-    def find_stripnumber(self):
-        # Try find the strip number of the sensor.
-        # Todo: Code specific to measurement
-        try:
-            self.total_strips = len(self.pad_data[self.settings["settings"]["Current_project"]][str(self.current_sensor)]["data"])
-            self.log.debug("Extracted strip number is: {!s}".format(self.total_strips))
-        except:
-            self.log.error("Sensor " + str(self.current_sensor) + " not recognized. Can be due to missing pad file.")
-            self.main.stop_measurement = True
-            self.queue_to_main.put({"DataError": "Sensor " + str(self.current_sensor) + " not recognized. Can be due to missing pad file."})
-            if "strip" in self.job_details:
-                self.queue_to_main.put({"DataError": "Fatal error Sensor " + str(self.current_sensor) + " not recognized. Strip scan cannot be conducted. Check Pad files"})
-                self.queue_to_event_loop.put({"Status": {"MEASUREMENT_FINISHED": True}})  # States that the measurement is finished, or aborted due to an error
-
     def load_plugins(self):
         # Load all measurement functions
         to_ignore = ["__init__", "__pycache__"]
@@ -178,8 +137,8 @@ class measurement_class(Thread):
         self.log.info("All measurement functions found: " + str(all_measurement_functions) + ".")
 
         # import all modules specified in the measurement order, so not all are loaded
-        for modules in all_measurement_functions:
-            if modules in self.settings["settings"]["measurement_order"]:
+        for modules in self.settings["settings"]["measurement_order"]:
+            if modules in all_measurement_functions:
                 self.all_plugins.update({modules: importlib.import_module("UniDAQ.measurement_plugins." + modules)})
                 self.log.info("Imported module: {}".format(modules))
             else:
@@ -282,10 +241,17 @@ class measurement_class(Thread):
                 if not abort:
                     self.log.info("Trying to start measurement " + str(measurement))
                     starttime = time()
-                    getattr(self.all_plugins[measurement], str(measurement)+"_class")(self)
-                    endtime = time()
-                    deltaT = abs(starttime-endtime)
-                    self.log.info("The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds.")
+                    try:
+                        meas_object = getattr(self.all_plugins[measurement], str(measurement)+"_class")(self)
+                        meas_object_return = meas_object.run()
+                        if meas_object_return:
+                            self.log.critical("The measurement {} returned: {}".format(measurement, meas_object_return) )
+                        endtime = time()
+                        deltaT = abs(starttime-endtime)
+                        self.log.info("The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds.")
+                    except Exception as err:
+                        self.log.error("An error happend while conducting"
+                                       " the measurement: {} with error: {}".format(measurement, err))
                 # Here the actual measurement starts -------------------------------------------------------------------
 
     def steady_state_check(self, device, max_slope = 0.001, wait = 0.2, samples = 4, Rsq = 0.95, complience = 50e-6, do_anyway = False, check_complience=True): # Not yet implemented

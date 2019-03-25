@@ -45,6 +45,7 @@ class measurement_event_loop(Thread):
         self.vcw = framework_modules["VCW"]
         self.skip_init = False
         self.devices = framework_modules["Devices"]
+        self.temphum_plugin = None
 
     def run(self):
         # Init devices
@@ -53,11 +54,13 @@ class measurement_event_loop(Thread):
 
         # Start Continuous measurements temphum control
         if "temphum_controller" in self.devices:
-            self.measthread = newThread(2, "Temperatur and humidity control", self.temperatur_and_humidity,
-                                        self.message_to_main, self.devices["temphum_controller"],
-                                        self.devices["temphum_controller"]["enviroment_query"],
-                                        self.default_dict["temphum_update_intervall"])
-            self.measthread.start() # Starts the thread
+            self.load_temphum_plugin(self.framework["Configs"]
+                                    ["config"]["settings"].get("temphum_plugin", "NoPlugin"))
+            self.temphumhread = getattr(self.temphum_plugin, self.framework["Configs"]
+                                        ["config"]["settings"].get("temphum_plugin", "NoPlugin"))\
+                                        (self, self.framework, self.framework["Configs"]
+                                    ["config"]["settings"].get("temphum_update_intervall:", 5000))
+            self.temphumhread.start() # Starts the thread
 
         # This starts the loop to get the messages from the main thread
         self.start_loop()
@@ -167,48 +170,6 @@ class measurement_event_loop(Thread):
         self.events.clear()  # Clears the dict so that new events can be written in
         self.status_query.clear() #Clears the status query Dict
 
-
-    def temperatur_and_humidity(self, queue_to_main, resource, query, update_intervall = 5000):
-        '''This starts the background and continuous tasks like humidity and temperature control'''
-        resource = resource
-        query = query
-        update_intervall = float(update_intervall)
-        queue_to_main = queue_to_main
-
-        # First try if visa_resource is valid
-        success = False
-        try:
-            first_try = vcw.query(resource["Visa_Resource"], query)
-            if first_try:
-                success = True
-
-        except Exception as e:
-            self.log.error("The temperature and humidity controller seems not to be responding. Error:" + str(e))
-
-        #@hf.run_with_lock
-        def update_environement():
-            '''This is the update function for temp hum query'''
-            if not self.stop_measurement_loop:
-                try:
-                    values = vcw.query(resource["Visa_Resource"], query)
-                    values = values.split(",")
-                    self.humidity_history.append(float(values[1])) #todo: memory leak since no values will be deleted
-                    self.temperatur_history.append(float(values[0]))
-                    # Write the pt100 and light status and environement in the box to the global variables
-                    self.default_dict["chuck_temperature"] =  float(values[3])
-                    self.default_dict["internal_lights"] = True if int(values[2]) == 1 else False
-                    queue_to_main.put({"temperature": [float(time.time()), float(values[0])], "humidity": [float(time.time()), float(values[1])]})
-                except Exception as err:
-                    self.log.error("The temperature and humidity controller seems not to be responding. Error: {!s}".format(err))
-                threading.Timer(update_intervall/1000., update_environement).start() # This ensures the function will be called again
-
-        if success:
-            update_environement()
-            self.log.info("Humidity and temp control started...")
-        else:
-            self.log.info("Humidity and temp control NOT started...")
-
-
     def init_devices(self, args=None):
         '''This function makes the necessary configuration for all devices before any measurement can be conducted'''
         # Not very pretty
@@ -298,3 +259,24 @@ class measurement_event_loop(Thread):
 
     #def load_measurement_plugins(self):
     #    '''Loads the measurments plugins from a folder'''
+
+    def load_temphum_plugin(self, plugin_name):
+        # Loads the temperature and humidity plugin
+        all_measurement_functions = os.listdir(os.path.join(self.framework["rootdir"], "measurement_plugins"))
+        all_measurement_functions = list(set([modules.split(".")[0] for modules in all_measurement_functions]))
+
+        try:
+            if plugin_name in all_measurement_functions:
+                self.temphum_plugin = importlib.import_module("UniDAQ.measurement_plugins." + plugin_name)
+                self.log.info("Imported module: {}".format(plugin_name))
+                return self.temphum_plugin
+            else:
+                self.log.error("Could not load temperature and humidity control module: {}. "
+                               "It was specified in the settings but"
+                                " no module matches this name.".format(plugin_name))
+                return None
+        except Exception as err:
+            self.log.error("An error happend while importing module: {}. "
+                           "With error: ".format(plugin_name, err))
+            return None
+

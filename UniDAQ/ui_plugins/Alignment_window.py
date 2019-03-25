@@ -188,7 +188,6 @@ class Alignment_window:
                 self.number_of_pads = len(self.sensor_pad_file["data"])
                 self.update_static()
             except :
-                self.variables.message_to_main.put({"RequestError": "There was an error while accessing the pad file data. Is the pad file valid?"})
                 self.log.error("An error while accessing the pad files with error.")
                 self.error_action("An error while accessing the pad files with error.")
 

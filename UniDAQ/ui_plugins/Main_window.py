@@ -1,5 +1,4 @@
 
-import ast
 import yaml
 import os
 import os.path as osp
@@ -964,11 +963,9 @@ class Main_window:
                     answer = self.variables.vcw.write(device_dict, command)
                     if answer == -1:
                         self.log.error("The environement controller did not responsed accordingly. Answer: " +str(answer).strip())
-                        self.variables.message_to_main.put({"RequestError": "The environement controller did not responsed accordingly. Answer: " + str(answer).strip()})
                         return 0
                 except:
                     self.log.error("An error occured while changing the environement control")
-                    self.variables.message_to_main.put({"RequestError": "An error occured while changing the environement control"})
                     return 0
                 dry_air_btn.setText("Humidity ctl. on")
                 self.variables.default_values_dict["settings"]["humidity_control"] = True
@@ -980,11 +977,10 @@ class Main_window:
                     answer = self.variables.vcw.write(device_dict, command)
                     if answer == -1:
                         self.log.error("The environement controller did not responsed accordingly. Answer: " + str(answer).strip())
-                        self.variables.message_to_main.put({"RequestError": "The environement controller did not responsed accordingly. Answer: " + str(answer).strip()})
+
                         return 0
                 except:
                     self.log.error("An error occured while changing the environement control")
-                    self.variables.message_to_main.put({"RequestError": "An error occured while changing the environement control"})
                     return 0
                 dry_air_btn.setText("Humidity ctl. off")
                 self.variables.default_values_dict["settings"]["humidity_control"] = False
