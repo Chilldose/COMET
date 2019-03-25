@@ -15,7 +15,7 @@ import time
 
 
 from ..utilities import raise_exception, ramp_voltage_job, transformation, change_axis_ticks
-l = logging.getLogger(__name__)
+
 
 
 
@@ -46,6 +46,7 @@ class Singlestrip_window:
         self.resistance_measurements = ["Rint"]
         self.plot_data = None
 
+        self.log = logging.getLogger(__name__)
         self.trans = transformation()
 
 
@@ -87,7 +88,7 @@ class Singlestrip_window:
     @raise_exception
     def move_to_strip_action(self, kwargs=None):
         '''Moves the table to the desired strip'''
-        if self.variables.default_values_dict["settings"]["Alignement"]:
+        if self.variables.default_values_dict["settings"]["Alignment"]:
             self.project = self.variables.default_values_dict["settings"]["Current_project"]
             self.sensor = "Sensor" + str(self.variables.default_values_dict["settings"]["Current_sensor"])
             self.sensor_pad_file = self.variables.pad_files_dict[self.project][self.sensor].copy()
@@ -104,6 +105,8 @@ class Singlestrip_window:
                 # msg.setDetailedText("The details are as follows:")
                 msg.exec_()
                 return
+        else:
+            self.log.error("Move to strip not possible without a valid alignment.")
 
     @raise_exception
     def update_text(self, kwargs = None):
@@ -251,9 +254,9 @@ class Singlestrip_window:
         if self.variables.default_values_dict["settings"]["Current_filename"] and os.path.isdir(self.variables.default_values_dict["settings"]["Current_directory"]):
             self.final_job.update({"Header": header})
             self.variables.message_from_main.put({"Measurement": self.final_job})
-            l.info("Sendet job: " + str({"Measurement": self.final_job}))
+            self.log.info("Sendet job: " + str({"Measurement": self.final_job}))
         else:
-            l.error("Please enter a valid path and name for the measurement file.")
+            self.log.error("Please enter a valid path and name for the measurement file.")
 
     def stop_button_action(self):
         order = {"ABORT_MEASUREMENT": True}  # just for now

@@ -8,28 +8,6 @@
       - Thomas
       - Marco
 
-    Projects: # The project names of your sensor batches etc. musst be conform with the sensors entries
-        - IFX 6 inch
-        - HPK 6 inch
-        - IFX 8 inch
-
-    Sensor_types: # Different sensor types in the various projects
-        IFX 6 inch:
-            - Baby
-            - PSs
-            - Irrad35
-            - Irrad25
-            - PSs_Baby
-
-        HPK 6 inch:
-            - Irradiation
-
-        IFX 8 inch:
-            - SensorCenterBiasContact
-            - SensorBaby
-            - SensorIrradiation
-            - Sensor2S
-
     measurement_types: # Different measurement types which can be conducted
         - IV
         - CV
@@ -52,17 +30,18 @@
         - Rint_scan
         - waitingtime_scan
 
-    measurement_order:
-        - test_mode
+    measurement_order: # aka. all measurement plugins
         - IVCV
         - stripscan
-        - singlestrip
+        - frequencyscan
         - dynamicwaiting
+
 
     # Optional parameters
     Thomas_mode: false # Shows white plots instead of black plots, because Thomas does not like black plots
     temp_history: 3600 # How much should be shown in the humidity history in seconds
     temphum_update_intervall: 5000 # Update intervall of the humidity controll in ms
+    temphum_plugin: Brandbox_temperature_humidity
     time_format: "%H:%M:%S" # Time format of the humidity control
     Test_mode: false # You dont want this
     GUI_update_interval: 200.0 # How often should the GUI be updated in ms

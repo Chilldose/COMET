@@ -60,10 +60,14 @@ class GUI_event_loop(QThread):
         self.log.info("Starting GUI event loop...")
         while not self.stop_GUI_loop:
             message = self.message_to_main.get()  # This function waits until a message is received from the measurement loop!
-            self.log.info("Got message: " + str(message))
-            self.translate_message(message)  # This translates the message
-            self.process_message(message)  # Here the message will be processed
-            self.process_pending_events()  # Here all events during message work will be send or done
+            if message and isinstance(message, dict):
+                self.log.info("Got message: " + str(message))
+                self.translate_message(message)  # This translates the message
+                self.process_message(message)  # Here the message will be processed
+                self.process_pending_events()  # Here all events during message work will be send or done
+            elif not isinstance(message, dict):
+                self.log.error("Messages to the GUI event loop "
+                               "have to be of type dict, not type {}. Got message:".format(type(message), message))
 
 
     def translate_message(self, message):
