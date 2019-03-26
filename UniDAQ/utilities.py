@@ -1429,7 +1429,11 @@ class switching_control:
                 #print e
                 pass
 
-
+def load_QtCSS_StyleSheet(path):
+    """Loads the QtCSS style sheet"""
+    with open(path, 'rt') as f:
+        lines = f.read()
+    return lines
 
 class show_cursor_position:
     """This class provides a simple way to tooltip a plot item of type pyqtgraph plots (not yet finished)"""

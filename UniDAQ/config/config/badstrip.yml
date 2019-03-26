@@ -32,14 +32,14 @@
 
   ## Closeness parameters, is needed for comparisons between values and the lms fit (implant open etc.)
   ## Used equation: absolute(a - b) <= (atol + rtol * absolute(b))
-  rtol: 0.3 # The relative tolerance parameter
+  rtol: 0.35 # The relative tolerance parameter
   atol: 0 # The absolute tolerance parameter (not so important)
 
   # Threshold factors, factors are applied to the lms fit. So factor 0.5 means with LowCap that everything below 0.5 of the lms fit will be considered
   # Same holds for the high factors but the other way round.
   HighIstrip: 3
   HighRpoly: 2.5
-  LowCap: 0.7
+  LowCap: 0.80
 
 
   # Pad parameter

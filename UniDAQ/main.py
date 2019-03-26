@@ -38,11 +38,15 @@ def main():
     # Create timestamp
     start_time = time.time()
 
+    # Load Style sheet
+    StyleSheet = utilities.load_QtCSS_StyleSheet("Qt_Style.css")
+
     # Create app
     app = QApplication(sys.argv)
     # Set Style of the GUI
-    style = "Fusion"
+    style = "fusion"
     app.setStyle(QStyleFactory.create(style))
+    app.setStyleSheet(StyleSheet)
     app.setQuitOnLastWindowClosed(False)
 
     # Config the except hook
