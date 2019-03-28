@@ -4,14 +4,11 @@ import logging
 import sys
 import numpy as np
 sys.path.append('../UniDAQ')
-from ..VisaConnectWizard import *
-from ..utilities import *
-l = logging.getLogger(__name__)
+from ..utilities import timeit, close_file
+from time import sleep
 
-help = help_functions()
-vcw = VisaConnectWizard.VisaConnectWizard()
 
-@help.timeit
+
 class IVCV_class:
 
     def __init__(self, main_class):
@@ -19,8 +16,13 @@ class IVCV_class:
         self.log = logging.getLogger(__name__)
         self.switching = self.main.switching
         self.justlength = 24
+        self.vcw = self.main.framework["VCW"]
+
+    def run(self):
+        """Runs the IVCV measurement"""
         time = self.do_IVCV()
-        self.main.main.default_dict["Defaults"]["IVCV_time"] = str(time[1])
+        self.main.settings["settings"]["IVCV_time"] = str(time[1])
+        return None
 
     def stop_everything(self):
         """Stops the measurement"""
@@ -28,11 +30,10 @@ class IVCV_class:
         order = {"ABORT_MEASUREMENT": True}  # just for now
         self.main.queue_to_main.put(order)
 
-    @help.timeit
+    @timeit
     def do_IVCV(self):
         '''This function conducts IVCV measurements.'''
         job_list = []
-        job_header = ""
         voltage_End = []
         voltage_Start = []
         voltage_steps = []
@@ -74,8 +75,7 @@ class IVCV_class:
         self.main.change_value(bias_SMU, "set_output", "1")
 
         # So biasing is correctly applied
-        switch_success = self.switching.switch_to_measurement("IV")
-        if not switch_success:
+        if not self.switching.switch_to_measurement("IV"):
             self.stop_everything()
         sleep(2.)
 
@@ -83,7 +83,7 @@ class IVCV_class:
             if not self.main.stop_measurement(): # To shut down if necessary
                 #switch_success = self.switching.switch_to_measurement("IV")
                 self.main.change_value(bias_SMU, "set_voltage", str(voltage))
-                self.main.settings["Defaults"]["bias_voltage"] = voltage  # changes the bias voltage
+                self.main.settings["settings"]["bias_voltage"] = voltage  # changes the bias voltage
                 if not self.main.steady_state_check(bias_SMU, max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=complience): # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
 
@@ -113,7 +113,7 @@ class IVCV_class:
                 break
 
         if self.main.save_data: # Closes the file after completion of measurement or abortion
-            help.close_file(self.main.IVCV_file)
+            close_file(self.main.IVCV_file)
 
         self.main.ramp_voltage(bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01)
         self.main.change_value(bias_SMU, "set_voltage", "0")
@@ -122,7 +122,7 @@ class IVCV_class:
 
         return None
 
-    #@help.timeit
+    #@timeit
     def do_IV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a current value and process the data'''
         if not self.main.stop_measurement():
@@ -138,19 +138,19 @@ class IVCV_class:
             for i in range(samples):
                 command = self.main.build_command(device_dict, "Read_iv") # returns 2 values!!!
                 #values.append(float(str(vcw.query(device_dict, command)).split(",")[0])) 237SMU
-                values.append(str(vcw.query(device_dict, command)).split("\t")) # 2657SMU
+                values.append(str(self.vcw.query(device_dict, command)).split("\t")) # 2657SMU
 
             current = sum([float(x[0]) for x in values])/len(values) # Makes a mean out of it
             voltage = sum([float(x[1]) for x in values]) / len(values)  # Makes a mean out of it
 
-            self.main.settings["Defaults"]["bias_voltage"] = voltage  # changes the bias voltage
+            self.main.settings["settings"]["bias_voltage"] = voltage  # changes the bias voltage
 
             self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], [float(voltage)])
             self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1],[float(current)])
             self.main.queue_to_main.put({"IV": [float(voltage), float(current)]})
 
 
-    #@help.timeit
+    #@timeit
     def do_CV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a capacity value (or more precicely the amplitude and the phase shift) and process the data'''
         if not self.main.stop_measurement():
@@ -164,7 +164,7 @@ class IVCV_class:
                 return
             values = []
             for i in range(samples):
-                values.append(float(str(vcw.query(device_dict, device_dict["Read"])).split(",")[0]))
+                values.append(float(str(self.vcw.query(device_dict, device_dict["Read"])).split(",")[0]))
             value = sum(values) / len(values)
             self.main.measurement_data["CV"][0] = np.append(self.main.measurement_data["CV"][0], [float(voltage)])
             self.main.measurement_data["CV"][1] = np.append(self.main.measurement_data["CV"][1], [float(value)])

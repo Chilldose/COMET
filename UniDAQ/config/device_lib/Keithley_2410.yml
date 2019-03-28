@@ -1,0 +1,46 @@
+--- # Block of dict entries
+    Display_name: 2410 Keithley
+    Device_name: 2410 Keithley SMU                  
+
+    # All set parameters
+    set_source_current: SOUR:FUNC CURR {curr:.2f}
+    set_current_range: SENS:CURR:RANG {curr_range}
+    set_measure_current: SENS:FUNC 'CURR'
+    set_measure_voltage: SENS:FUNC 'VOLT'
+    set_source_voltage: SOUR:FUNC VOLT {volt:.2f}
+    set_voltage_range: SOUR:VOLT:RANG {volt_range}
+    set_measurement_speed: SENS:RES:NPLC  {NPLC}
+    set_beep: SYST:BEEP:STAT {bool}
+    set_reading_mode: FORM:ELEM  {mode}
+    set_reading_count: TRIG:COUN  {count}
+    set_output: OUTP {bool}
+    set_voltage_mode: SOUR:VOLT:MODE {}
+    set_reset_measure_voltage: ":SENS:FUNC:OFF: 'VOLT'"
+    set_reset_measure_current: ":SENS:FUNC:OFF: 'CURR'"
+    set_complience: SENS:CURR:PROT {}
+    set_terminal: ROUT:TERM {terminal}
+    set_voltage: SOUR:VOLT:LEV {volt:.2f}
+
+    # All get parameters
+    get_read: READ? 
+
+    # All reset device parameters
+    reset:
+        - output: OFF
+        - voltage: 0 
+        - voltage_mode: FIXED 
+        - reading_count: 1 
+        - current_range: 10E-6 
+        - terminal: REAR 
+        - voltage_range: 1000  
+        - reading_mode: CURR 
+        - measurement_speed: 1 
+        - complience: 100E-6 
+        - beep: OFF 
+
+    # Misc parameters
+    Flow_control: ON 
+    Device_type: SMU 
+
+
+

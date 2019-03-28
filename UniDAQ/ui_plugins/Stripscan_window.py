@@ -12,11 +12,9 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 
-from .. import utilities
+from ..utilities import raise_exception, change_axis_ticks, get_thicks_for_timestamp_plot
 
 l = logging.getLogger(__name__)
-
-hf = utilities.help_functions()
 
 
 class Stripscan_window:
@@ -25,6 +23,11 @@ class Stripscan_window:
 
         self.variables = GUI_classes
         self.layout = layout
+
+        self.ticksStyle = {"pixelsize": 10}
+        self.labelStyle = {'color': '#FFF', 'font-size': '13px'}
+        self.titleStyle = {'color': '#FFF', 'size': '10pt'}
+
         self.measurement_list = [("Idark", ["Pad", "#"], ["Current", "A"], [False, False], True),
                                  ("Idiel", ["Pad", "#"], ["Current", "A"], [False, False], True),
                                  ("Istrip", ["Pad", "#"], ["Current", "A"], [False, False], True),
@@ -37,14 +40,18 @@ class Stripscan_window:
 
         # Settings tab
         stripscan_widget = QWidget()
+
         self.stripscan = self.variables.load_QtUi_file("stripscan.ui", stripscan_widget)
+        #self.stripscan.gridLayout_2.setSpacing(0.)
+        #self.stripscan.gridLayout_2.setContentsMargins(40., 4., 4., 4.)
+        #self.stripscan.gridLayout_2.setSpacing(0)
+        #self.stripscan.gridLayout_2.setMargin(0)
         self.layout.addWidget(stripscan_widget)
         self.strip = -1
         self.new_meas = True
         self.number_of_strips = 0
 
-        #self.stripscan.gridLayout_2.layout.setSpacing(0.)
-        self.stripscan.gridLayout_2.setContentsMargins(0., 0., 0., 0.)
+
 
         # Config plots
         for items in self.measurement_list:
@@ -57,25 +64,28 @@ class Stripscan_window:
     def config_plot(self, Title, xAxis, yAxis, logscale, inverty = False):
         '''configs the plot for the different plots'''
         object = getattr(self.stripscan, Title.lower()+"_plot")
-        object.setTitle(str(Title))
-        object.setLabel('bottom', str(xAxis[0]), units=str(xAxis[1]))
-        object.setLabel('left', str(yAxis[0]), units=str(yAxis[1]))
+        object.setTitle(str(Title), **self.titleStyle)
+        object.setLabel('bottom', str(xAxis[0]), units=str(xAxis[1]), **self.labelStyle)
+        object.setLabel('left', str(yAxis[0]), units=str(yAxis[1]), **self.labelStyle)
         object.showAxis('top', show=True)
         object.showAxis('right', show=True)
+        object.showGrid(x=True, y=True, alpha=None)
         object.setLogMode(x=logscale[0], y=logscale[1])
         object.setContentsMargins(0., 0., 0., 0.)
         object.getPlotItem().invertY(inverty)
+
+        change_axis_ticks(object, self.ticksStyle)
 
 
     def update_plots(self):
         '''This function updates all strip data plots'''
 
         # Loop over all plots/measurements
-        if self.variables.default_values_dict["Defaults"]["new_data"]:
+        if self.variables.default_values_dict["settings"]["new_data"]:
             for meas in self.measurement_list:
                 plot_item = getattr(self.stripscan, meas[0].lower()+"_plot") # gets me the plot item
                 if len(self.variables.meas_data[meas[0]][0]) == len(self.variables.meas_data[meas[0]][1]):  # sometimes it happens that the values are not yet ready
-                    plot_item.plot(self.variables.meas_data[meas[0]][0], self.variables.meas_data[meas[0]][1], pen="y", clear=True)
+                    plot_item.plot(self.variables.meas_data[meas[0]][0], self.variables.meas_data[meas[0]][1], pen="#e53d46", clear=True)
 
 
 
@@ -107,34 +117,34 @@ class Stripscan_window:
     def update_strip(self):
         '''Updates the strip number and the progress bar'''
         # Loop over all possible measurement and find the highest strip number, which defines the current strip
-        current_strip = int(self.variables.default_values_dict["Defaults"]["current_strip"])
+        current_strip = int(self.variables.default_values_dict["settings"]["current_strip"])
         self.stripscan.currentstrip_lcd.display(int(current_strip)) # sets the display to the desired value
         self.stripscan.stripscan_progressBar.setValue((float(current_strip)+1.)/self.number_of_strips*100)
 
     def update_bad_strip(self):
         '''Updates the bad strip number'''
-        self.stripscan.badstrip_lcd.display(self.variables.default_values_dict["Defaults"]["Bad_strips"])  # sets the display to the desired value
+        self.stripscan.badstrip_lcd.display(self.variables.default_values_dict["settings"]["Bad_strips"])  # sets the display to the desired value
 
     def update_text_stat(self):
         '''Updates the statistic text'''
-        self.stripscan.start_time.setText(self.variables.default_values_dict["Defaults"]["Start_time"])  # sets the display to the desired value
-        self.stripscan.end_time.setText(self.variables.default_values_dict["Defaults"]["End_time"])  # sets the display to the desired value
-        self.stripscan.strip_time.setText(str(self.variables.default_values_dict["Defaults"]["strip_scan_time"]))  # sets the display to the desired value
+        self.stripscan.start_time.setText(self.variables.default_values_dict["settings"]["Start_time"])  # sets the display to the desired value
+        self.stripscan.end_time.setText(self.variables.default_values_dict["settings"]["End_time"])  # sets the display to the desired value
+        self.stripscan.strip_time.setText(str(self.variables.default_values_dict["settings"]["strip_scan_time"]))  # sets the display to the desired value
 
-    @hf.raise_exception
+    @raise_exception
     def reset_stat(self, kwargs=None):
         '''Resets the statistics panel'''
-        if self.new_meas and self.variables.default_values_dict["Defaults"]["Measurement_running"] or True:
+        if self.new_meas and self.variables.default_values_dict["settings"]["Measurement_running"] or True:
             self.strip = -1 # All other values are reseted/updated automatically
             self.new_meas = False
-            sensor = self.variables.default_values_dict["Defaults"].get("Current_sensor", "None")
-            project = self.variables.default_values_dict["Defaults"]["Current_project"]
+            sensor = self.variables.default_values_dict["settings"].get("Current_sensor", "None")
+            project = self.variables.default_values_dict["settings"]["Current_project"]
             try:
                 self.number_of_strips = len(self.variables.pad_files_dict[project][sensor]["data"]) # Acesses the last value of the pad file -> last strip number
             except:
                 self.number_of_strips = 1
 
-        if not self.new_meas and not self.variables.default_values_dict["Defaults"]["Measurement_running"]:
+        if not self.new_meas and not self.variables.default_values_dict["settings"]["Measurement_running"]:
             self.new_meas = True
 
     def temphum_plot(self):
@@ -148,30 +158,30 @@ class Stripscan_window:
             hummin.setMaximum(hummax.value())
             hummax.setMinimum(hummin.value())
 
-            self.variables.default_values_dict["Defaults"]["current_tempmin"] = tempmin.value()
-            self.variables.default_values_dict["Defaults"]["current_tempmax"] = tempmax.value()
-            self.variables.default_values_dict["Defaults"]["current_hummin"] = hummin.value()
-            self.variables.default_values_dict["Defaults"]["current_hummax"] = hummax.value()
+            self.variables.default_values_dict["settings"]["current_tempmin"] = tempmin.value()
+            self.variables.default_values_dict["settings"]["current_tempmax"] = tempmax.value()
+            self.variables.default_values_dict["settings"]["current_hummin"] = hummin.value()
+            self.variables.default_values_dict["settings"]["current_hummax"] = hummax.value()
 
         def dry_air_action():
 
             if dry_air_btn.isChecked():
                 dry_air_btn.setText("Humidity ctl. on")
-                self.variables.default_values_dict["Defaults"]["humidity_control"] = True
+                self.variables.default_values_dict["settings"]["humidity_control"] = True
             else:
                 dry_air_btn.setText("Humidity ctl. off")
-                self.variables.default_values_dict["Defaults"]["humidity_control"] = False
+                self.variables.default_values_dict["settings"]["humidity_control"] = False
 
         def light_action():
             if light_btn.isChecked():
-                self.variables.default_values_dict["Defaults"]["lights"] = True
+                self.variables.default_values_dict["settings"]["lights"] = True
             else:
-                self.variables.default_values_dict["Defaults"]["lights"] = False
+                self.variables.default_values_dict["settings"]["lights"] = False
 
         def check_light_state():
-            if self.variables.default_values_dict["Defaults"]["lights"] and not light_btn.text() == "Lights on": # Checks if the lights are on and the button is off
+            if self.variables.default_values_dict["settings"]["lights"] and not light_btn.text() == "Lights on": # Checks if the lights are on and the button is off
                 light_btn.setText("Lights on")
-            elif not self.variables.default_values_dict["Defaults"]["lights"] and not light_btn.text() == "Lights off":
+            elif not self.variables.default_values_dict["settings"]["lights"] and not light_btn.text() == "Lights off":
                 light_btn.setText("Lights off")
 
         def config_temphum_plot(plot, plot2, pg):
@@ -212,17 +222,17 @@ class Stripscan_window:
                         data_array[arrays][1] = data_array[arrays][1][array_elm_to_drop:]
             except:
                 pass
-        @hf.raise_exception
+        @raise_exception
         def update_temphum_plots(kwargs = None):
             # for rooms in self.rooms:
-            if self.variables.default_values_dict["Defaults"]["new_data"]:
+            if self.variables.default_values_dict["settings"]["new_data"]:
                 temphum_plot.clear() # clears the plot and prevents a memory leak
                 hum_plot_obj.clear()
                 p1 = temphum_plot.plotItem
 
                 ax = p1.getAxis('bottom')  # This is the trick
-                __cut_arrays(self.variables.meas_data, float(self.variables.default_values_dict["Defaults"].get("temp_history", 3600)), ["temperature", "humidity"])
-                ax.setTicks([hf.get_thicks_for_timestamp_plot(self.variables.meas_data["temperature"][0], 5, self.variables.default_values_dict["Defaults"]["time_format"])])
+                __cut_arrays(self.variables.meas_data, float(self.variables.default_values_dict["settings"].get("temp_history", 3600)), ["temperature", "humidity"])
+                ax.setTicks([get_thicks_for_timestamp_plot(self.variables.meas_data["temperature"][0], 5, self.variables.default_values_dict["settings"]["time_format"])])
 
                 try:
                     if len(self.variables.meas_data["temperature"][0]) == len(self.variables.meas_data["humidity"][1]):  # sometimes it happens that the values are not yet ready
@@ -252,7 +262,7 @@ class Stripscan_window:
         y = np.zeros(1)
 
         setpg = pq
-        #date_axis = hf.CAxisTime(orientation='bottom')  # Correctly generates the time axis
+        #date_axis = CAxisTime(orientation='bottom')  # Correctly generates the time axis
         hum_plot_obj = setpg.ViewBox()  # generate new plot item
         temphum_plot = pq.PlotWidget()
         config_temphum_plot(temphum_plot, hum_plot_obj, setpg)  # config the plot items
@@ -260,7 +270,7 @@ class Stripscan_window:
         self.variables.add_update_function(update_temphum_plots)
 
         # Additional Variables will be generated for temp and hum
-        #self.variables.default_values_dict["Defaults"].update({"lights": False, "humidity_control": True, "current_tempmin": 20, "current_tempmax": 25, "current_hummin": 20,"current_hummax": 25})
+        #self.variables.default_values_dict["settings"].update({"lights": False, "humidity_control": True, "current_tempmin": 20, "current_tempmax": 25, "current_hummin": 20,"current_hummax": 25})
 
 
         # Spin Boxes for temp and humidity
@@ -282,16 +292,16 @@ class Stripscan_window:
         # Config
 
         tempmin.setRange(15,35)
-        tempmin.setValue(float(self.variables.default_values_dict["Defaults"]["current_tempmin"]))
+        tempmin.setValue(float(self.variables.default_values_dict["settings"]["current_tempmin"]))
         tempmax.setRange(15, 35)
-        tempmax.setValue(float(self.variables.default_values_dict["Defaults"]["current_tempmax"]))
+        tempmax.setValue(float(self.variables.default_values_dict["settings"]["current_tempmax"]))
         tempmin.valueChanged.connect(valuechange)
         tempmax.valueChanged.connect(valuechange)
 
         hummin.setRange(0, 70)
-        hummin.setValue(float(self.variables.default_values_dict["Defaults"]["current_hummin"]))
+        hummin.setValue(float(self.variables.default_values_dict["settings"]["current_hummin"]))
         hummax.setRange(0, 70)
-        hummax.setValue(float(self.variables.default_values_dict["Defaults"]["current_hummax"]))
+        hummax.setValue(float(self.variables.default_values_dict["settings"]["current_hummax"]))
         hummin.valueChanged.connect(valuechange)
         hummax.valueChanged.connect(valuechange)
 
@@ -299,7 +309,7 @@ class Stripscan_window:
         # Push buttons on the right for humidity control and light control
 
         dry_air_btn = QPushButton("Humidity ctl. on")
-        self.variables.default_values_dict["Defaults"]["humidity_control"] = True
+        self.variables.default_values_dict["settings"]["humidity_control"] = True
         dry_air_btn.setCheckable(True)
         dry_air_btn.toggle()
         dry_air_btn.clicked.connect(dry_air_action)

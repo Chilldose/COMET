@@ -1,9 +1,9 @@
 
-import ast
 import yaml
 import os
 import os.path as osp
-import sys, importlib, logging
+import sys, logging
+import time
 
 import numpy as np
 import pyqtgraph as pq
@@ -13,9 +13,117 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from .. import engineering_notation as en
 
-from .. import utilities
+from ..utilities import raise_exception, change_axis_ticks, build_command, write_init_file, get_thicks_for_timestamp_plot
 
-hf = utilities.help_functions()
+class measurement_job_generation:
+    """This class handles all measurement generation items"""
+
+    def __init__(self, main_variables, queue_to_measurement_event_loop):
+        """
+
+        :param main_variables: Simply the state machine variables ('defaults')
+        :param queue_to_measurement_event_loop:
+        """
+        self.variables = main_variables["settings"]
+        self.queue_to_measure = queue_to_measurement_event_loop
+        self.final_job = {}
+        self.log = logging.getLogger(__name__)
+
+    def generate_job(self, additional_settings_dict):
+        '''
+        This function handles all the work need to be done in order to generate a job
+        :param additional_settings_dict: If any additional settings are in place
+        '''
+
+        self.final_job = additional_settings_dict
+
+
+        header = "# Measurement file: \n " \
+                      "# Project: " + self.variables["Current_project"]  + "\n " \
+                      "# Sensor Type: " + self.variables["Current_sensor"]  + "\n " \
+                      "# ID: " + self.variables["Current_filename"] + "\n " \
+                      "# Operator: " + self.variables["Current_operator"] + "\n " \
+                      "# Date: " + str(time.asctime()) + "\n\n"
+
+        IVCV_dict = self.generate_IVCV("") # here additional header can be added
+        strip_dict = self.generate_strip("")
+
+        if IVCV_dict:
+            self.final_job.update({"IVCV": IVCV_dict})
+        if strip_dict:
+            self.final_job.update({"stripscan": strip_dict})
+
+        # Check if filepath is a valid path
+        if self.variables["Current_filename"] and os.path.isdir(self.variables["Current_directory"]):
+            self.final_job.update({"Header": header})
+            self.queue_to_measure.put({"Measurement": self.final_job})
+            self.log.info("Sendet job: " + str({"Measurement": self.final_job}))
+        else:
+            self.log.error("Please enter a valid path and name for the measurement file.")
+
+    def generate_IVCV(self, header):
+        '''
+        This function generates all that has to do with IV or CV
+        :param header: An additional header
+        :return: the job dictionary
+        '''
+        final_dict = {}
+        file_header = header
+
+        if self.variables["IV_measure"][0]:
+            file_header += "voltage[V]".ljust(24) +  "current[A]".ljust(24)
+        if self.variables["CV_measure"][0]:
+            file_header += "voltage[V]".ljust(24) + "capacitance[F]".ljust(24)
+
+        file_header += "temperature[deg]".ljust(24) + "humidity[rel%]".ljust(24)
+
+        final_dict.update({"header": file_header})
+
+        if self.variables["IV_measure"][0]:
+            values = self.variables["IV_measure"]
+            final_dict.update({"IV": {"StartVolt": 0, "EndVolt": values[1], "Complience": str(values[2])+ "e-6", "Steps": values[3]}})
+
+        if self.variables["CV_measure"][0]:
+            values = self.variables["CV_measure"]
+            final_dict.update({"CV": {"StartVolt": 0, "EndVolt": values[1], "Complience": str(values[2])+ "e-6", "Steps": values[3]}})
+
+        if len(final_dict) > 1:
+            return final_dict
+        else:
+            return {} # If the dict consits only of one element (only the header)
+
+    def generate_strip(self, header):
+        '''
+        This function generate all tha has to do with strip scans
+        :param header: Additional header
+        :return: strip job dictionary
+        '''
+
+        final_dict = {}
+        all_measurements = ["Rint", "Istrip", "Idiel", "Rpoly","Cac", "Cint", "Idark", "Cback", "CintAC"] # warning if this is not included here no job will generated. is intentional
+
+        def generate_dict(values):
+            ''' Generates a simple dict for strip scan measurements'''
+            if values[0]: # Checks if the checkbox is true or false, so if the measurement should be condcuted or not
+                return {"measure_every": values[1], "start_strip": values[2], "end_strip": values[3]}
+            else:
+                return {}
+
+        # First check if strip scan should be done or not
+        if self.variables["Stripscan_measure"][0]:
+            final_dict.update({"StartVolt": 0, "EndVolt": self.variables["Stripscan_measure"][1], "Complience": str(self.variables["Stripscan_measure"][2])+ "e-6", "Steps": self.variables["Stripscan_measure"][3]})
+
+            for elemets in all_measurements:
+                dict = generate_dict(self.variables[elemets + "_measure"])
+                if dict:
+                    final_dict.update({elemets: dict})
+
+        final_dict.update({"Additional Header": header})
+
+        if len(final_dict) > 2:
+            return final_dict
+        else:
+            return {} # If the dict consits only of one element (only the header)
 
 class Main_window:
 
@@ -25,6 +133,11 @@ class Main_window:
         #self.widgets = widgets
         self.layout = layout
         self.log = logging.getLogger(__name__)
+        self.job = measurement_job_generation(self.variables.default_values_dict, self.variables.message_from_main)
+
+        self.ticksStyle = {"pixelsize": 10}
+        self.labelStyle = {'color': '#FFF', 'font-size': '18px'}
+        self.titleStyle = {'color': '#FFF', 'size': '15pt'}
 
         # Orientation and placement
         # 15 times 15 tiles
@@ -101,13 +214,13 @@ class Main_window:
 
         def table_move_indi():
             '''This function updates the table indicator'''
-            if self.variables.default_values_dict["Defaults"]["table_is_moving"]:
+            if self.variables.default_values_dict["settings"]["table_is_moving"]:
                 self.table_move_ui.table_ind.setStyleSheet("background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
             else:
                 self.table_move_ui.table_ind.setStyleSheet("background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
             pass
 
-        @hf.raise_exception
+        @raise_exception
         def adjust_table_speed(kwargs = None): # must be here because of reasons
             '''This function adjusts the speed of the table'''
             speed = int(float(self.variables.devices_dict["Table_control"]["default_joy_speed"])/100. * float(self.table_move_ui.Table_speed.value()))
@@ -151,9 +264,9 @@ class Main_window:
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
             xpos = self.table_move_ui.x_move.value()
-            error = self.variables.table.move_to([xpos, pos[1], pos[2]], True, self.variables.default_values_dict["Defaults"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
+            error = self.variables.table.move_to([xpos, pos[1], pos[2]], True, self.variables.default_values_dict["settings"]["height_movement"])
+            #if error:
+                #self.variables.message_to_main.put(error)
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
@@ -164,9 +277,9 @@ class Main_window:
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
             ypos = self.table_move_ui.y_move.value()
-            error = self.variables.table.move_to([pos[0], ypos, pos[2]], self.variables.default_values_dict["Defaults"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
+            error = self.variables.table.move_to([pos[0], ypos, pos[2]], self.variables.default_values_dict["settings"]["height_movement"])
+            #if error:
+                #self.variables.message_to_main.put(error)
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
@@ -176,19 +289,19 @@ class Main_window:
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
             zpos = self.table_move_ui.z_move.value()
-            error = self.variables.table.move_to([pos[0], pos[1], zpos], self.variables.default_values_dict["Defaults"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
+            error = self.variables.table.move_to([pos[0], pos[1], zpos], self.variables.default_values_dict["settings"]["height_movement"])
+            #if error:
+                #self.variables.message_to_main.put(error)
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
-        @hf.raise_exception
+        @raise_exception
         def enable_table_control(bool):
             '''This function enables the table and the joystick frame'''
             if bool:
                 #This will be called, when the table control is enabled
                 reply = QMessageBox.question(None, 'Warning', "Are you sure move the table? \n Warning: If measurement is running table movement ist not possible", QMessageBox.Yes, QMessageBox.No)
-                if reply == QMessageBox.Yes and not self.variables.default_values_dict["Defaults"]["Measurement_running"]:
+                if reply == QMessageBox.Yes and not self.variables.default_values_dict["settings"]["Measurement_running"]:
                     self.table_move_ui.frame.setEnabled(bool)
                     if self.table_move_ui.z_move.isEnabled():
                         self.table_move_ui.z_move.setEnabled(False)
@@ -210,8 +323,8 @@ class Main_window:
                         self.table_move_ui.frame.setDisabled(True)
                         self.table_move_ui.Enable_table.setChecked(False)
                         self.variables.table.set_joystick(False)
-                        self.variables.default_values_dict["Defaults"]["zlock"] = True
-                        self.variables.default_values_dict["Defaults"]["joystick"] = False
+                        self.variables.default_values_dict["settings"]["zlock"] = True
+                        self.variables.default_values_dict["settings"]["joystick"] = False
                         self.table_move_ui.unlock_Z.setChecked(False)
                         self.variables.table.set_axis([True, True, True])  # This is necessary so all axis can be adresses while move
                         return
@@ -219,7 +332,7 @@ class Main_window:
 
                     self.variables.table.set_axis([True, True, False])  # This is necessary so by default the joystick can adresses xy axis
                     self.variables.table.set_joystick(True)
-                    self.variables.default_values_dict["Defaults"]["joystick"] = True
+                    self.variables.default_values_dict["settings"]["joystick"] = True
                     adjust_table_speed()
 
 
@@ -228,8 +341,8 @@ class Main_window:
                     self.table_move_ui.frame.setDisabled(bool)
                     self.table_move_ui.Enable_table.setChecked(False)
                     self.variables.table.set_joystick(False)
-                    self.variables.default_values_dict["Defaults"]["zlock"] = True
-                    self.variables.default_values_dict["Defaults"]["joystick"] = False
+                    self.variables.default_values_dict["settings"]["zlock"] = True
+                    self.variables.default_values_dict["settings"]["joystick"] = False
                     self.table_move_ui.unlock_Z.setChecked(False)
                     self.variables.table.set_axis([True, True, True]) # This is necessary so all axis can be adresses while move
             else:
@@ -242,26 +355,26 @@ class Main_window:
             '''This function moves the table back to the previous position'''
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True]) # so all axis can be adressed
-            errorcode = self.variables.table.move_to([self.previous_xloc, self.previous_yloc, self.previous_zloc], True, self.variables.default_values_dict["Defaults"]["height_movement"])
-            if errorcode:
-                self.variables.message_to_main.put(errorcode)
+            errorcode = self.variables.table.move_to([self.previous_xloc, self.previous_yloc, self.previous_zloc], True, self.variables.default_values_dict["settings"]["height_movement"])
+            #if errorcode:
+                #self.variables.message_to_main.put(errorcode)
             self.variables.table.set_axis([True, True, False])  # so z axis is off again
             self.variables.table.set_joystick(True)
 
         def z_pos_warning():
-            if self.variables.default_values_dict["Defaults"]["zlock"]:
+            if self.variables.default_values_dict["settings"]["zlock"]:
                 move_z = QMessageBox.question(None, 'Warning',"Moving the table in Z, can cause serious demage on the setup and sensor.", QMessageBox.Ok)
                 if move_z:
                     self.variables.table.set_axis([False, False, True])
                     self.table_move_ui.unlock_Z.setChecked(True)
-                    self.variables.default_values_dict["Defaults"]["zlock"] = False
+                    self.variables.default_values_dict["settings"]["zlock"] = False
                     self.variables.table.set_joystick(True)
 
                 else:
                     self.table_move_ui.unlock_Z.setChecked(False)
             else:
                 self.variables.table.set_axis([True, True, False])
-                self.variables.default_values_dict["Defaults"]["zlock"] = True
+                self.variables.default_values_dict["settings"]["zlock"] = True
                 self.table_move_ui.unlock_Z.setChecked(False)
                 self.variables.table.set_joystick(True)
 
@@ -292,7 +405,7 @@ class Main_window:
         # Not sure if this function should be called all the time
         #self.variables.add_update_function(table_move_update)
 
-    @hf.raise_exception
+    @raise_exception
     def settings(self, kwargs=None):
             '''Here the settings for project operator etc is included'''
             # Create sublayout
@@ -310,23 +423,23 @@ class Main_window:
 
             # Order functions
             def change_name(filename):
-                self.variables.default_values_dict["Defaults"]["Current_filename"] = str(filename)
+                self.variables.default_values_dict["settings"]["Current_filename"] = str(filename)
 
             def project_selector_action(project):
                 load_valid_sensors_for_project(str(project))
-                self.variables.default_values_dict["Defaults"]["Current_project"] = str(project)
+                self.variables.default_values_dict["settings"]["Current_project"] = str(project)
 
             def sensor_selector_action(sensor):
-                self.variables.default_values_dict["Defaults"]["Current_sensor"] = str(sensor)
+                self.variables.default_values_dict["settings"]["Current_sensor"] = str(sensor)
 
             def operator_selector_action(operator):
-                self.variables.default_values_dict["Defaults"]["Current_operator"] = str(operator)
+                self.variables.default_values_dict["settings"]["Current_operator"] = str(operator)
 
             def dir_selector_action():
                 fileDialog = QFileDialog()
                 directory = fileDialog.getExistingDirectory()
                 dir_textbox.setText(directory)
-                self.variables.default_values_dict["Defaults"]["Current_directory"] = str(directory)
+                self.variables.default_values_dict["settings"]["Current_directory"] = str(directory)
 
             def load_measurement_settings_file():
                 ''' This function loads a mesuerment settings file'''
@@ -343,10 +456,10 @@ class Main_window:
                     file.close()
 
                     #l.info("Loaded new measurement settings file: " + str(file[0]))
-                    self.variables.default_values_dict["Defaults"].update(dict) # Updates the values of the dict, it either updates the values or adds them if not incluced
+                    self.variables.default_values_dict["settings"].update(dict) # Updates the values of the dict, it either updates the values or adds them if not incluced
                     self.variables.ui_plugins["Settings_window"].configure_settings()
 
-            @hf.raise_exception
+            @raise_exception
             def save_measurement_settings_file(kwargs = None):
                 ''' This function saves a mesuerment settings file'''
 
@@ -359,7 +472,7 @@ class Main_window:
 
                 if file[0]:
                     # gets me all settings which are to be saved
-                    hf.write_init_file(file[0], self.variables.ui_plugins["Settings_window"].get_all_settings())
+                    write_init_file(file[0], self.variables.ui_plugins["Settings_window"].get_all_settings())
                     self.log.info("Settings file successfully written to: " + str(file))
 
             def load_valid_sensors_for_project(project_name):
@@ -367,25 +480,16 @@ class Main_window:
                 #Warning sensor_comboBox must be accessable for this function to work
                 sensor_comboBox.clear()
                 try:
-                    # self.variables.default_values_dict["Defaults"]["Sensor_types"][project_name]
-                    for sen in self.variables.default_values_dict["Defaults"]["Sensor_types"][project_name]:
-                        sensor_comboBox.addItem(str(sen))  # Adds all items to the combo box
+                    # self.variables.default_values_dict["settings"]["Sensor_types"][project_name]
+                    sensor_comboBox.addItems(list(self.variables.pad_files_dict[project_name].keys()))  # Adds all items to the combo box
                     # Select the first element to be right, if possible
-                    self.variables.default_values_dict["Defaults"]["Current_sensor"] = sensor_comboBox.currentText()
+                    self.variables.default_values_dict["settings"]["Current_sensor"] = sensor_comboBox.currentText()
 
                 except:
-                    self.log.error("No sensors defined for project: " + str(sen))
-                    self.variables.default_values_dict["Defaults"]["Current_sensor"] = "None"
-                    self.variables.message_to_main({"RequestError": "No sensors defined for project: " + str(sen)})
-
-
-
-
-
-
+                    self.log.error("No sensors defined for project: " + str(project_name))
+                    self.variables.default_values_dict["settings"]["Current_sensor"] = "None"
 
             # Project selector
-
             # Label of the Error Log
             proj_label = QLabel()
             proj_label.setText("Select project")
@@ -393,14 +497,14 @@ class Main_window:
 
             proj_comboBox = QComboBox() # Creates a combo box
 
-            for projects in self.variables.default_values_dict["Defaults"]["Projects"]:
+            for projects in self.variables.pad_files_dict:
                 proj_comboBox.addItem(str(projects)) # Adds all projects to the combo box
             proj_comboBox.activated[str].connect(project_selector_action)
 
-            if "Current_project" in self.variables.default_values_dict["Defaults"]:
-                self.variables.default_values_dict["Defaults"]["Current_project"] = self.variables.default_values_dict["Defaults"]["Projects"][0] # That one project is definetly choosen
+            if "Current_project" in self.variables.default_values_dict["settings"]:
+                self.variables.default_values_dict["settings"]["Current_project"] = list(self.variables.pad_files_dict.keys())[0] # That one project is definetly choosen
             else:
-                self.variables.default_values_dict["Defaults"].update({"Current_project": self.variables.default_values_dict["Defaults"]["Projects"][0]})
+                self.variables.default_values_dict["settings"].update({"Current_project": self.variables.default_values_dict["settings"].get("Projects", ["No Projects"])[0]})
 
 
             # Sensore selection
@@ -412,19 +516,21 @@ class Main_window:
 
             sensor_comboBox = QComboBox() # Creates a combo box
 
-            for projects in self.variables.default_values_dict["Defaults"]["Sensor_types"][self.variables.default_values_dict["Defaults"]["Current_project"]]:
-                sensor_comboBox.addItem(str(projects)) # Adds all items to the combo box
+            current_project = self.variables.default_values_dict["settings"].get("Current_project", None)
+            sensor_comboBox.addItems(self.variables.pad_files_dict[current_project]) # Adds all items to the combo box
             sensor_comboBox.activated[str].connect(sensor_selector_action)
 
-            if "Current_sensor" in self.variables.default_values_dict["Defaults"]:
+            if "Current_sensor" in self.variables.default_values_dict["settings"]:
                 try:
-                    self.variables.default_values_dict["Defaults"]["Current_sensor"] = self.variables.default_values_dict["Defaults"]["Sensor_types"][self.variables.default_values_dict["Defaults"]["Current_project"]][0] # That one project is definetly choosen
+                    self.variables.default_values_dict["settings"]["Current_sensor"] = list(self.variables.pad_files_dict[current_project])[0] # That one project is definetly choosen
                 except:
-                    self.variables.default_values_dict["Defaults"]["Current_sensor"] = "None"
+                    self.variables.default_values_dict["settings"]["Current_sensor"] = "None"
             else:
-                self.variables.default_values_dict["Defaults"].update({"Current_sensor": self.variables.default_values_dict["Defaults"]["Sensor_types"][self.variables.default_values_dict["Defaults"]["Current_project"]][0]})
-
-
+                if current_project and self.variables.pad_files_dict:
+                    self.variables.default_values_dict["settings"].update({
+                        "Current_sensor": list(self.variables.pad_files_dict[current_project])[0]})
+                else:
+                    self.variables.default_values_dict["settings"].update({"Current_sensor": "None"})
             # Measurement name selection
 
             # Label of the input file
@@ -437,11 +543,11 @@ class Main_window:
             inp_input_name.textChanged.connect(change_name)
             #inp_input_name.setMaximumWidth(300)
 
-            if "Current_filename" in self.variables.default_values_dict["Defaults"]:
-                inp_input_name.setText(str(self.variables.default_values_dict["Defaults"]["Current_filename"]))
+            if "Current_filename" in self.variables.default_values_dict["settings"]:
+                inp_input_name.setText(str(self.variables.default_values_dict["settings"]["Current_filename"]))
             else:
-                self.variables.default_values_dict["Defaults"].update({"Current_filename": "enter_filename_here"})
-                inp_input_name.setText(str(self.variables.default_values_dict["Defaults"]["Current_filename"]))
+                self.variables.default_values_dict["settings"].update({"Current_filename": "enter_filename_here"})
+                inp_input_name.setText(str(self.variables.default_values_dict["settings"]["Current_filename"]))
 
 
             # Operator selector
@@ -453,15 +559,15 @@ class Main_window:
 
             op_comboBox = QComboBox() # Creates a combo box
 
-            for projects in self.variables.default_values_dict["Defaults"]["Operator"]:
+            for projects in self.variables.default_values_dict["settings"].get("Operator", "None"):
                 op_comboBox.addItem(str(projects)) # Adds all items to the combo box
 
             op_comboBox.activated[str].connect(operator_selector_action)
 
-            if "Current_operator" in self.variables.default_values_dict["Defaults"]:
-                self.variables.default_values_dict["Defaults"]["Current_operator"] = self.variables.default_values_dict["Defaults"]["Operator"][0] # That one project is definetly choosen
+            if "Current_operator" in self.variables.default_values_dict["settings"]:
+                self.variables.default_values_dict["settings"]["Current_operator"] = self.variables.default_values_dict["settings"]["Operator"][0] # That one project is definetly choosen
             else:
-                self.variables.default_values_dict["Defaults"].update({"Current_operator": self.variables.default_values_dict["Defaults"]["Operator"][0]})
+                self.variables.default_values_dict["settings"].update({"Current_operator": self.variables.default_values_dict["settings"].get("Operator", ["None",])[0]})
 
             # Save path selector
 
@@ -479,10 +585,10 @@ class Main_window:
             #dir_textbox.setMaximumHeight(25)
             #dir_textbox.setMaximumWidth(700)
 
-            if "Current_directory" in self.variables.default_values_dict["Defaults"]:             # TODO check if directory exists
-                dir_textbox.setText(str(self.variables.default_values_dict["Defaults"]["Current_directory"]))
+            if "Current_directory" in self.variables.default_values_dict["settings"]:             # TODO check if directory exists
+                dir_textbox.setText(str(self.variables.default_values_dict["settings"]["Current_directory"]))
             else:
-                self.variables.default_values_dict["Defaults"].update({"Current_directory": str(osp.join(osp.dirname(sys.modules[__name__].__file__)))})
+                self.variables.default_values_dict["settings"].update({"Current_directory": str(osp.join(osp.dirname(sys.modules[__name__].__file__)))})
                 dir_textbox.setText(str(osp.join(osp.dirname(sys.modules[__name__].__file__))))
 
 
@@ -519,7 +625,7 @@ class Main_window:
             # Add the layout to the main layout
             self.layout.addLayout(setting_layout, self.proj_posy, self.proj_posx, self.proj_ysize, self.proj_xsize)
 
-    @hf.raise_exception
+    @raise_exception
     def start_menu(self,kwargs = None):
             '''Here all start stop buttons are included'''
 
@@ -535,12 +641,12 @@ class Main_window:
             self.layout.addWidget(frame, self.Start_posy, self.Start_posx, self.Start_ysize, self.Start_xsize)
 
             # Adding variables to the default dict
-            #self.variables.default_values_dict["Defaults"].update({"End_time": "NaN", "Start_time": "NaN", "Bad_strips": 0})
-            #self.variables.default_values_dict["Defaults"].update({"Measurement_running": False, "Alignment": True, "Environment_status": True})
+            #self.variables.default_values_dict["settings"].update({"End_time": "NaN", "Start_time": "NaN", "Bad_strips": 0})
+            #self.variables.default_values_dict["settings"].update({"Measurement_running": False, "Alignment": True, "Environment_status": True})
 
 
             # Orders
-            @hf.raise_exception
+            @raise_exception
             def exit_order(kwargs = None):
                 reply = QMessageBox.question(None, 'Warning', "Are you sure to quit?", QMessageBox.Yes, QMessageBox.No)
                 if reply == QMessageBox.Yes:
@@ -554,41 +660,41 @@ class Main_window:
                     msg.exec_()
 
 
-            @hf.raise_exception
+            @raise_exception
             def Start_order(kwargs = None):
-                if self.variables.default_values_dict["Defaults"]["Current_filename"] and os.path.isdir(self.variables.default_values_dict["Defaults"]["Current_directory"]):
-                    if not self.variables.default_values_dict["Defaults"]["Measurement_running"]:
+                if self.variables.default_values_dict["settings"]["Current_filename"] and os.path.isdir(self.variables.default_values_dict["settings"]["Current_directory"]):
+                    if not self.variables.default_values_dict["settings"]["Measurement_running"]:
                         self.variables.reset_plot_data()
 
                     # Ensures that the new values are in the state machine
                     self.variables.ui_plugins["Settings_window"].load_new_settings()
 
                     additional_settings = {"Save_data": True,
-                                           "Filepath": self.variables.default_values_dict["Defaults"]["Current_directory"],
-                                           "Filename": self.variables.default_values_dict["Defaults"]["Current_filename"],
-                                           "Project": self.variables.default_values_dict["Defaults"]["Current_project"],
-                                           "Sensor": self.variables.default_values_dict["Defaults"]["Current_sensor"],
+                                           "Filepath": self.variables.default_values_dict["settings"]["Current_directory"],
+                                           "Filename": self.variables.default_values_dict["settings"]["Current_filename"],
+                                           "Project": self.variables.default_values_dict["settings"]["Current_project"],
+                                           "Sensor": self.variables.default_values_dict["settings"]["Current_sensor"],
                                            "enviroment": True, # if enviroment surveillance should be done
                                            "skip_init": False} #warning this prevents the device init
 
-                    self.variables.job.generate_job(additional_settings)
+                    self.job.generate_job(additional_settings)
 
-                    #order = {"Measurement": {"Save_data": True,"Filepath": self.variables.default_values_dict["Defaults"]["Current_directory"],"Filename": self.variables.default_values_dict["Defaults"]["Current_filename"], "Longterm_IV": {"StartVolt": self.variables.default_values_dict["Defaults"]["Longterm_IV"][0],"EndVolt": self.variables.default_values_dict["Defaults"]["Longterm_IV"][1],"Longterm_IV_time": self.variables.default_values_dict["Defaults"]["Longterm_IV_time"],"Steps": 10}}}  # just for now
+                    #order = {"Measurement": {"Save_data": True,"Filepath": self.variables.default_values_dict["settings"]["Current_directory"],"Filename": self.variables.default_values_dict["settings"]["Current_filename"], "Longterm_IV": {"StartVolt": self.variables.default_values_dict["settings"]["Longterm_IV"][0],"EndVolt": self.variables.default_values_dict["settings"]["Longterm_IV"][1],"Longterm_IV_time": self.variables.default_values_dict["settings"]["Longterm_IV_time"],"Steps": 10}}}  # just for now
                     #self.variables.message_from_main.put(order)
 
                 else:
                     reply = QMessageBox.information(None, 'Warning', "Please enter a valid filepath and filename.", QMessageBox.Ok)
 
-            @hf.raise_exception
+            @raise_exception
             def Stop_order(kwargs = None):
                 order = {"ABORT_MEASUREMENT": True} # just for now
                 self.variables.message_to_main.put(order)
 
-            @hf.raise_exception
+            @raise_exception
             def Load_order(kwargs = None):
                 '''This function loads an old measurement file and displays it if no measurement is curently conducted'''
 
-                if not self.variables.default_values_dict["Defaults"]["Measurement_running"]:
+                if not self.variables.default_values_dict["settings"]["Measurement_running"]:
                     fileDialog = QFileDialog()
                     file = fileDialog.getOpenFileName()
 
@@ -597,21 +703,19 @@ class Main_window:
                 else:
                     reply = QMessageBox.information(None, 'Warning', "You cannot load a measurement files while data taking is in progress.", QMessageBox.Ok)
 
-            @hf.raise_exception
+            @raise_exception
             def create_statistic_text(kwargs = None):
                 try:
-                    bias = "Bias Voltage: " + str(en.EngNumber(float(self.variables.default_values_dict["Defaults"]["bias_voltage"]))) + "V" + "\n\n"
+                    bias = "Bias Voltage: " + str(en.EngNumber(float(self.variables.default_values_dict["settings"]["bias_voltage"]))) + "V" + "\n\n"
                 except:
                     bias = "Bias Voltage: NONE V" + "\n\n"
-                starttime = "Start time: " + str(self.variables.default_values_dict["Defaults"]["Start_time"]) + "\n\n"
-                eastend = "East. end time: " + str(self.variables.default_values_dict["Defaults"]["End_time"]) + "\n\n"
-                striptime = "Strip meas. time: " + str(round(float(self.variables.default_values_dict["Defaults"]["strip_scan_time"]),2)) + " sec" +  "\n\n"
-                badstrips = "Bad strips: " + str(self.variables.default_values_dict["Defaults"]["Bad_strips"]) + "\n\n"
-                currentstrip = "Current strip: " + str(self.variables.default_values_dict["Defaults"]["current_strip"]) + "\n\n"
+                starttime = "Start time: " + str(self.variables.default_values_dict["settings"].get("Start_time", None)) + "\n\n"
+                eastend = "East. end time: " + str(self.variables.default_values_dict["settings"].get("End_time", None)) + "\n\n"
+                striptime = "Strip meas. time: " + str(round(float(self.variables.default_values_dict["settings"].get("strip_scan_time", 0)),2)) + " sec" +  "\n\n"
+                badstrips = "Bad strips: " + str(self.variables.default_values_dict["settings"].get("Bad_strips", None)) + "\n\n"
+                currentstrip = "Current strip: " + str(self.variables.default_values_dict["settings"].get("current_strip", None)) + "\n\n"
 
                 return str( starttime + eastend + striptime + currentstrip + badstrips + bias)
-
-
 
             # Exit button
 
@@ -698,12 +802,10 @@ class Main_window:
             # Update functions
 
             def error_update():
-                error_text = ""
-                last_errors = self.variables.error_log[-16:]
-                for errors in last_errors:
-                    error_text += errors + "\n"
+                last_errors = self.variables.event_loop_thread.error_log
+                error_text = "\n".join(last_errors[-14:])
 
-                if self.errors.text() != error_text:
+                if self.errors.text() != error_text: # Only update text if necessary
                     self.errors.setText(error_text)
 
             def stat_update():
@@ -713,33 +815,33 @@ class Main_window:
 
             def led_update():
 
-                current_state = self.variables.default_values_dict["Defaults"]["current_led_state"]
-                alignment = self.variables.default_values_dict["Defaults"]["Alignment"]
-                running = self.variables.default_values_dict["Defaults"]["Measurement_running"]
-                enviroment = self.variables.default_values_dict["Defaults"]["Environment_status"]
+                current_state = self.variables.default_values_dict["settings"]["current_led_state"]
+                alignment = self.variables.default_values_dict["settings"]["Alignment"]
+                running = self.variables.default_values_dict["settings"]["Measurement_running"]
+                enviroment = self.variables.default_values_dict["settings"]["Environment_status"]
 
                 if current_state != "running" and running:
-                    self.variables.default_values_dict["Defaults"]["current_led_state"] = "running"
+                    self.variables.default_values_dict["settings"]["current_led_state"] = "running"
                     textbox_led.setStyleSheet("background : rgb(0,0,255); border-radius: 25px")
                     textbox_led.setText("Measurement running")
                     return
 
 
                 elif current_state != "Alignment" and not alignment and not running:
-                    self.variables.default_values_dict["Defaults"]["current_led_state"] = "Alignment"
+                    self.variables.default_values_dict["settings"]["current_led_state"] = "Alignment"
                     textbox_led.setStyleSheet("background : rgb(255,0,0); border-radius: 25px")
                     textbox_led.setText("Alignement missing")
                     return
 
 
                 elif current_state != "enviroment" and not enviroment and alignment and not running:
-                    self.variables.default_values_dict["Defaults"]["current_led_state"] = "enviroment"
+                    self.variables.default_values_dict["settings"]["current_led_state"] = "enviroment"
                     textbox_led.setStyleSheet("background : rgb(255,153,51); border-radius: 25px")
                     textbox_led.setText("Environment status not ok")
                     return
 
                 if current_state != "ready" and alignment and not running and enviroment:
-                    self.variables.default_values_dict["Defaults"]["current_led_state"] = "ready"
+                    self.variables.default_values_dict["settings"]["current_led_state"] = "ready"
                     textbox_led.setStyleSheet("background : rgb(0,255,0); border-radius: 25px")
                     textbox_led.setText("Ready to go")
                     return
@@ -758,10 +860,10 @@ class Main_window:
         x = np.zeros(1)
         y = np.zeros(1)
 
-        iv_plot = pq.PlotWidget(title = "IV curve")
+        iv_plot = pq.PlotWidget(title = "IV curve", **self.titleStyle)
 
-        iv_plot.setLabel('left', "current", units='A')
-        iv_plot.setLabel('bottom', "voltage", units='V')
+        iv_plot.setLabel('left', "current", units='A', **self.labelStyle)
+        iv_plot.setLabel('bottom', "voltage", units='V', **self.labelStyle)
         iv_plot.showAxis('top', show=True)
         iv_plot.showAxis('right', show=True)
         iv_plot.getPlotItem().invertX(True)
@@ -770,17 +872,19 @@ class Main_window:
         iv_plot.setMinimumHeight(350)
         iv_plot.setMaximumHeight(350)
 
-        iv_plot.plot(pen="y")
+        change_axis_ticks(iv_plot, self.ticksStyle)
+
+        iv_plot.plot(pen="#cddb32")
 
         self.layout.addWidget(iv_plot, self.IV_posy, self.IV_posx, self.IV_ysize, self.IV_ysize)
 
         #self.variables.plots.append(iv_plot) #Appeds the plot to the list of all plots
-        @hf.raise_exception
+        @raise_exception
         def update(kwargs = None):
             # This clear here erases all data from the viewbox each time this function is called and draws all points again!
             #Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage
             # With the clear statement medium cpu und low memory usage
-            if self.variables.default_values_dict["Defaults"]["new_data"]:
+            if self.variables.default_values_dict["settings"]["new_data"]:
                 if len(self.variables.meas_data["IV"][0]) == len(self.variables.meas_data["IV"][1]): #sometimes it happens that the values are not yet ready
                     iv_plot.plot(self.variables.meas_data["IV"][0], self.variables.meas_data["IV"][1], pen="y", clear = True, )
 
@@ -793,10 +897,10 @@ class Main_window:
         x = np.zeros(1)
         y = np.zeros(1)
 
-        cv_plot = pq.PlotWidget(title = "CV curve")
+        cv_plot = pq.PlotWidget(title = "CV curve", **self.titleStyle)
 
-        cv_plot.setLabel('left', "1/c^2", units='arb. units')
-        cv_plot.setLabel('bottom', "voltage", units='V')
+        cv_plot.setLabel('left', "1/c^2", units='arb. units', **self.labelStyle)
+        cv_plot.setLabel('bottom', "voltage", units='V', **self.labelStyle)
         cv_plot.showAxis('top', show=True)
         cv_plot.showAxis('right', show=True)
         cv_plot.getPlotItem().invertX(True)
@@ -804,8 +908,9 @@ class Main_window:
         cv_plot.setMinimumHeight(350)
         cv_plot.setMaximumHeight(350)
 
+        change_axis_ticks(cv_plot, self.ticksStyle)
 
-        cv_plot.plot(x,y, pen="b")
+        cv_plot.plot(x,y, pen="#3d8edb")
         self.layout.addWidget(cv_plot, self.CV_posy, self.CV_posx, self.CV_ysize, self.CV_ysize)
 
         def depletion_volt(value):
@@ -815,14 +920,14 @@ class Main_window:
                 return value
 
         def update():
-            if self.variables.default_values_dict["Defaults"]["new_data"]:
+            if self.variables.default_values_dict["settings"]["new_data"]:
                 if len(self.variables.meas_data["CV"][0]) == len(self.variables.meas_data["CV"][1]): #sometimes it happens that the values are not yet ready
                     cv_plot.plot(self.variables.meas_data["CV"][0], map(depletion_volt, self.variables.meas_data["CV"][1]), pen="y", clear = True)
                     #cv_plot.plot(self.variables.meas_data["CV"][0],self.variables.meas_data["CV"][1], pen="y", clear=True)
 
         self.variables.add_update_function(update)
 
-    @hf.raise_exception
+    @raise_exception
     def temphum_plot(self, kwargs = None):
         '''Also button corresponding to temphum plot included'''
 
@@ -834,13 +939,13 @@ class Main_window:
             hummin.setMaximum(hummax.value())
             hummax.setMinimum(hummin.value())
 
-            self.variables.default_values_dict["Defaults"]["current_tempmin"] = tempmin.value()
-            self.variables.default_values_dict["Defaults"]["current_tempmax"] = tempmax.value()
-            self.variables.default_values_dict["Defaults"]["current_hummin"] = hummin.value()
-            self.variables.default_values_dict["Defaults"]["current_hummax"] = hummax.value()
+            self.variables.default_values_dict["settings"]["current_tempmin"] = tempmin.value()
+            self.variables.default_values_dict["settings"]["current_tempmax"] = tempmax.value()
+            self.variables.default_values_dict["settings"]["current_hummin"] = hummin.value()
+            self.variables.default_values_dict["settings"]["current_hummax"] = hummax.value()
 
-            max = hf.build_command(self.variables.devices_dict["temphum_controller"], ("set_hummax", hummax.value()))
-            min = hf.build_command(self.variables.devices_dict["temphum_controller"], ("set_hummin", hummin.value()))
+            max = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummax", hummax.value()))
+            min = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummin", hummin.value()))
 
             self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], max)
             self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], min)
@@ -850,48 +955,45 @@ class Main_window:
             if dry_air_btn.isChecked():
                 device_dict = self.variables.devices_dict["temphum_controller"]
                 try:
-                    command = hf.build_command(device_dict, ("set_environement_control", "ON"))
+                    command = build_command(device_dict, ("set_environement_control", "ON"))
                     answer = self.variables.vcw.write(device_dict, command)
                     if answer == -1:
                         self.log.error("The environement controller did not responsed accordingly. Answer: " +str(answer).strip())
-                        self.variables.message_to_main.put({"RequestError": "The environement controller did not responsed accordingly. Answer: " + str(answer).strip()})
                         return 0
                 except:
                     self.log.error("An error occured while changing the environement control")
-                    self.variables.message_to_main.put({"RequestError": "An error occured while changing the environement control"})
                     return 0
                 dry_air_btn.setText("Humidity ctl. on")
-                self.variables.default_values_dict["Defaults"]["humidity_control"] = True
+                self.variables.default_values_dict["settings"]["humidity_control"] = True
 
             else:
                 device_dict = self.variables.devices_dict["temphum_controller"]
                 try:
-                    command = hf.build_command(device_dict, ("set_environement_control", "OFF"))
+                    command = build_command(device_dict, ("set_environement_control", "OFF"))
                     answer = self.variables.vcw.write(device_dict, command)
                     if answer == -1:
                         self.log.error("The environement controller did not responsed accordingly. Answer: " + str(answer).strip())
-                        self.variables.message_to_main.put({"RequestError": "The environement controller did not responsed accordingly. Answer: " + str(answer).strip()})
+
                         return 0
                 except:
                     self.log.error("An error occured while changing the environement control")
-                    self.variables.message_to_main.put({"RequestError": "An error occured while changing the environement control"})
                     return 0
                 dry_air_btn.setText("Humidity ctl. off")
-                self.variables.default_values_dict["Defaults"]["humidity_control"] = False
+                self.variables.default_values_dict["settings"]["humidity_control"] = False
 
 
         def light_action():
             """This function is debricated"""
             if light_btn.isChecked():
-                self.variables.default_values_dict["Defaults"]["external_lights"] = True
+                self.variables.default_values_dict["settings"]["external_lights"] = True
             else:
-                self.variables.default_values_dict["Defaults"]["external_lights"] = False
+                self.variables.default_values_dict["settings"]["external_lights"] = False
 
         def check_light_state():
-            if self.variables.default_values_dict["Defaults"]["internal_lights"] and not light_btn.text() == "Lights on": # Checks if the lights are on and the button is off
+            if self.variables.default_values_dict["settings"]["internal_lights"] and not light_btn.text() == "Lights on": # Checks if the lights are on and the button is off
                 light_btn.setText("Lights on")
                 light_btn.setStyleSheet("background : rgb(0,255,0); border-radius: 5px")
-            elif not self.variables.default_values_dict["Defaults"]["internal_lights"] and not light_btn.text() == "Lights off":
+            elif not self.variables.default_values_dict["settings"]["internal_lights"] and not light_btn.text() == "Lights off":
                 light_btn.setText("Lights off")
                 light_btn.setStyleSheet("background : rgb(255,0,0); border-radius: 5px")
 
@@ -936,14 +1038,14 @@ class Main_window:
 
         def update_temphum_plots(kwargs = None):
             # for rooms in self.rooms:
-            if self.variables.default_values_dict["Defaults"]["new_data"]:
+            if self.variables.default_values_dict["settings"]["new_data"]:
                 temphum_plot.clear() # clears the plot and prevents a memory leak
                 hum_plot_obj.clear()
                 p1 = temphum_plot.plotItem
 
                 ax = p1.getAxis('bottom')  # This is the trick
-                __cut_arrays(self.variables.meas_data, float(self.variables.default_values_dict["Defaults"].get("temp_history", 3600)), ["temperature", "humidity"])
-                ax.setTicks([hf.get_thicks_for_timestamp_plot(self.variables.meas_data["temperature"][0], 5, self.variables.default_values_dict["Defaults"]["time_format"])])
+                __cut_arrays(self.variables.meas_data, float(self.variables.default_values_dict["settings"].get("temp_history", 3600)), ["temperature", "humidity"])
+                ax.setTicks([get_thicks_for_timestamp_plot(self.variables.meas_data["temperature"][0], 5, self.variables.default_values_dict["settings"]["time_format"])])
 
                 try:
                     if len(self.variables.meas_data["temperature"][0]) == len(self.variables.meas_data["humidity"][1]):  # sometimes it happens that the values are not yet ready
@@ -973,7 +1075,7 @@ class Main_window:
         y = np.zeros(1)
 
         setpg = pq
-        #date_axis = hf.CAxisTime(orientation='bottom')  # Correctly generates the time axis
+        #date_axis = CAxisTime(orientation='bottom')  # Correctly generates the time axis
         hum_plot_obj = setpg.ViewBox()  # generate new plot item
         temphum_plot = pq.PlotWidget()
         config_plot(temphum_plot, hum_plot_obj, setpg)  # config the plot items
@@ -981,7 +1083,7 @@ class Main_window:
         self.variables.add_update_function(update_temphum_plots)
 
         # Additional Variables will be generated for temp and hum
-        #self.variables.default_values_dict["Defaults"].update({"lights": False, "humidity_control": True, "current_tempmin": 20, "current_tempmax": 25, "current_hummin": 20,"current_hummax": 25})
+        #self.variables.default_values_dict["settings"].update({"lights": False, "humidity_control": True, "current_tempmin": 20, "current_tempmax": 25, "current_hummin": 20,"current_hummax": 25})
 
 
         # Spin Boxes for temp and humidity
@@ -1003,16 +1105,16 @@ class Main_window:
         # Config
 
         tempmin.setRange(15,35)
-        tempmin.setValue(float(self.variables.default_values_dict["Defaults"]["current_tempmin"]))
+        tempmin.setValue(float(self.variables.default_values_dict["settings"].get("current_tempmin", 0)))
         tempmax.setRange(15, 35)
-        tempmax.setValue(float(self.variables.default_values_dict["Defaults"]["current_tempmax"]))
+        tempmax.setValue(float(self.variables.default_values_dict["settings"].get("current_tempmax", 0)))
         tempmin.valueChanged.connect(valuechange)
         tempmax.valueChanged.connect(valuechange)
 
         hummin.setRange(0, 70)
-        hummin.setValue(float(self.variables.default_values_dict["Defaults"]["current_hummin"]))
+        hummin.setValue(float(self.variables.default_values_dict["settings"].get("current_hummin", 0)))
         hummax.setRange(0, 70)
-        hummax.setValue(float(self.variables.default_values_dict["Defaults"]["current_hummax"]))
+        hummax.setValue(float(self.variables.default_values_dict["settings"].get("current_hummax", 0)))
         hummin.valueChanged.connect(valuechange)
         hummax.valueChanged.connect(valuechange)
 
@@ -1020,7 +1122,7 @@ class Main_window:
         # Push buttons on the right for humidity control and light control
 
         dry_air_btn = QPushButton("Humidity ctl. off")
-        self.variables.default_values_dict["Defaults"]["humidity_control"] = False
+        self.variables.default_values_dict["settings"]["humidity_control"] = False
         dry_air_btn.setCheckable(True)
         dry_air_btn.toggle()
         dry_air_btn.clicked.connect(dry_air_action)
@@ -1098,7 +1200,6 @@ class Main_window:
         position.setFont(self.font)
         table_indicator.setFont(self.font)
 
-
         def check_position():
             '''This function checks the position of the table and updates the gui elemtents'''
             if self.variables.table:
@@ -1120,11 +1221,11 @@ class Main_window:
         def state_update():
             '''Updates the state of the table up down etc.'''
             if self.variables.table:
-                if self.variables.default_values_dict["Defaults"]["Table_state"] and not table_indicator.text() == "UP":
+                if self.variables.default_values_dict["settings"]["Table_state"] and not table_indicator.text() == "UP":
                     table_indicator.setStyleSheet("background : rgb(0,255,0); border-radius: 25px")
                     table_indicator.setText("UP")
 
-                elif not self.variables.default_values_dict["Defaults"]["Table_state"] and not table_indicator.text() == "DOWN":
+                elif not self.variables.default_values_dict["settings"]["Table_state"] and not table_indicator.text() == "DOWN":
                     table_indicator.setStyleSheet("background : rgb(255,0,0); border-radius: 25px")
                     table_indicator.setText("DOWN")
 
@@ -1144,41 +1245,38 @@ class Main_window:
         def up_order():
             ''' This function moves the table up'''
             if self.variables.table:
-                if self.variables.default_values_dict["Defaults"]["Table_state"]:
+                if self.variables.default_values_dict["settings"]["Table_state"]:
                     self.variables.message_to_main.put({"Warning": "Table is in the up position."})
-
                 else:
                     self.variables.table.set_joystick(False)
                     self.variables.table.set_axis([True, True, True])
-                    errorcode = self.variables.table.move_up(self.variables.default_values_dict["Defaults"]["height_movement"])
+                    errorcode = self.variables.table.move_up(self.variables.default_values_dict["settings"]["height_movement"])
                     if errorcode:
-                        self.variables.message_to_main.put(errorcode)
                         return
-                    #self.variables.default_values_dict["Defaults"]["Table_state"] = True  # True means table is up
-                    self.variables.default_values_dict["Defaults"]["Table_stay_down"] = False
+                    #self.variables.default_values_dict["settings"]["Table_state"] = True  # True means table is up
+                    self.variables.default_values_dict["settings"]["Table_stay_down"] = False
                 position_update()
                 #self.table_move.table_move_update()
 
         def down_order():
             ''' This functions moves the table down'''
             if self.variables.table:
-                if not self.variables.default_values_dict["Defaults"]["Table_state"]:
+                if not self.variables.default_values_dict["settings"]["Table_state"]:
                     self.variables.message_to_main.put({"Warning": "Table is in the down position."})
 
                 else:
                     self.variables.table.set_joystick(False)
                     self.variables.table.set_axis([True, True, True])
-                    errorcode = self.variables.table.move_down(self.variables.default_values_dict["Defaults"]["height_movement"])
+                    errorcode = self.variables.table.move_down(self.variables.default_values_dict["settings"]["height_movement"])
                     if errorcode:
-                        self.variables.message_to_main.put(errorcode)
                         return
-                    #self.variables.default_values_dict["Defaults"]["Table_state"] = False # False means table is down
-                    self.variables.default_values_dict["Defaults"]["Table_stay_down"] = True
+                    #self.variables.default_values_dict["settings"]["Table_state"] = False # False means table is down
+                    self.variables.default_values_dict["settings"]["Table_stay_down"] = True
                 position_update()
                 #self.table_move.table_move_update()
 
 
-        @hf.raise_exception
+        @raise_exception
         def move_zero_order(kwargs = None):
             '''Moves the table to the zero position '''
             self.variables.table.set_joystick(False)
@@ -1188,9 +1286,9 @@ class Main_window:
                           float(self.variables.devices_dict["Table_control"]["table_ymin"])) / 2.
             zpos = (float(self.variables.devices_dict["Table_control"]["table_zmax"]) -
                           float(self.variables.devices_dict["Table_control"]["table_zmin"])) / 2.
-            errorcode = self.variables.table.move_to([xpos,ypos,zpos], False, self.variables.default_values_dict["Defaults"]["height_movement"])
-            if errorcode:
-                self.variables.message_to_main.put(errorcode)
+            errorcode = self.variables.table.move_to([xpos,ypos,zpos], False, self.variables.default_values_dict["settings"]["height_movement"])
+            #if errorcode:
+                #self.variables.message_to_main.put(errorcode)
 
         def initiate_table():
             # First Ask to do so
@@ -1201,7 +1299,7 @@ class Main_window:
                 self.variables.message_to_main.put({"Info": "Table will now be initialized..."})
                 errorcode = self.variables.table.initiate_table()
                 if errorcode:
-                    self.variables.message_to_main.put(errorcode)
+                    return
                 move_zero_order()
                 self.variables.message_to_main.put({"Info": "Table initialization done, table goes back to zero position."})
             else:

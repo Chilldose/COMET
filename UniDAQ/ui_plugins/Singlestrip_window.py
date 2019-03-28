@@ -14,21 +14,28 @@ from .. import engineering_notation as en
 import time
 
 
-from .. import utilities
-l = logging.getLogger(__name__)
+from ..utilities import raise_exception, ramp_voltage_job, transformation, change_axis_ticks
 
-hf = utilities.help_functions()
+
 
 
 
 class Singlestrip_window:
 
-    @hf.raise_exception
+    @raise_exception
     def __init__(self, GUI, layout):
 
         self.variables = GUI
         self.layout = layout
         self.HV_on = False
+
+        self.ticksStyle = {"pixelsize": 10}
+        self.labelStyle = {'color': '#FFF', 'font-size': '18px'}
+        self.titleStyle = {'color': '#FFF', 'size': '15pt'}
+
+        self.ticksStyle = {"pixelsize": 10}
+        self.labelStyle = {'color': '#FFF', 'font-size': '18px'}
+        self.titleStyle = {'color': '#FFF', 'size': '15pt'}
 
         # Settings tab
         singlestrip_widget = QWidget()
@@ -39,7 +46,9 @@ class Singlestrip_window:
         self.resistance_measurements = ["Rint"]
         self.plot_data = None
 
-        self.trans = utilities.transformation()
+        self.log = logging.getLogger(__name__)
+        self.trans = transformation()
+
 
         # Config plot
         self.plot_config()
@@ -63,28 +72,28 @@ class Singlestrip_window:
 
     def HV_on_action(self):
         '''This simply turns on the voltage'''
-        bias_voltage = self.variables.default_values_dict["Defaults"]["bias_voltage"]
+        bias_voltage = self.variables.default_values_dict["settings"]["bias_voltage"]
         EndVolt = self.single_strip.max_voltage_strip.value()
         Steps = self.single_strip.voltage_steps_strip.value()
         Complience = self.single_strip.complience_strip.value()
 
         if not self.HV_on:
-            hf.ramp_voltage_job(self.variables.message_from_main, self.variables.devices_dict["IVSMU"], bias_voltage,
+            ramp_voltage_job(self.variables.message_from_main, self.variables.devices_dict["IVSMU"], bias_voltage,
                                 EndVolt, Steps, 0.3, Complience)
         else:
-            hf.ramp_voltage_job(self.variables.message_from_main, self.variables.devices_dict["IVSMU"], bias_voltage,
+            ramp_voltage_job(self.variables.message_from_main, self.variables.devices_dict["IVSMU"], bias_voltage,
                                 0, Steps, 0.3, Complience)
 
 
-    @hf.raise_exception
+    @raise_exception
     def move_to_strip_action(self, kwargs=None):
         '''Moves the table to the desired strip'''
-        if self.variables.default_values_dict["Defaults"]["Alignement"]:
-            self.project = self.variables.default_values_dict["Defaults"]["Current_project"]
-            self.sensor = "Sensor" + str(self.variables.default_values_dict["Defaults"]["Current_sensor"])
+        if self.variables.default_values_dict["settings"]["Alignment"]:
+            self.project = self.variables.default_values_dict["settings"]["Current_project"]
+            self.sensor = "Sensor" + str(self.variables.default_values_dict["settings"]["Current_sensor"])
             self.sensor_pad_file = self.variables.pad_files_dict[self.project][self.sensor].copy()
             strip_to_move = int(self.single_strip.which_strip.value())
-            error = self.variables.table.move_to_strip(self.sensor_pad_file, strip_to_move, self.trans, self.variables.default_values_dict["Defaults"]["trans_matrix"],  self.variables.default_values_dict["Defaults"]["V0"], self.variables.default_values_dict["Defaults"].get("height_movement", 800))
+            error = self.variables.table.move_to_strip(self.sensor_pad_file, strip_to_move, self.trans, self.variables.default_values_dict["settings"]["trans_matrix"],  self.variables.default_values_dict["settings"]["V0"], self.variables.default_values_dict["settings"].get("height_movement", 800))
             if error:
                 self.variables.message_to_main.put(error)
                 msg = QMessageBox()
@@ -96,11 +105,13 @@ class Singlestrip_window:
                 # msg.setDetailedText("The details are as follows:")
                 msg.exec_()
                 return
+        else:
+            self.log.error("Move to strip not possible without a valid alignment.")
 
-    @hf.raise_exception
+    @raise_exception
     def update_text(self, kwargs = None):
         """This function updates the stext for the measurements"""
-        if self.variables.default_values_dict["Defaults"]["new_data"]: # New data available ?
+        if self.variables.default_values_dict["settings"]["new_data"]: # New data available ?
             self.single_strip.Idark_val.setText("I dark: " +str(en.EngNumber(self.variables.meas_data["Idark"][1][-1]) if len(self.variables.meas_data["Idark"][1]) > 0 else "NaN"))
             self.single_strip.Idiel_val.setText("I diel: " +str(en.EngNumber(self.variables.meas_data["Idiel"][1][-1]) if len(self.variables.meas_data["Idiel"][1]) > 0 else "NaN"))
             self.single_strip.Istrip_val.setText("I strip: " +str(en.EngNumber(self.variables.meas_data["Istrip"][1][-1]) if len(self.variables.meas_data["Istrip"][1]) > 0 else "NaN"))
@@ -128,42 +139,44 @@ class Singlestrip_window:
 
     def plot_config(self):
         '''This function configurates the plot'''
-        self.single_strip.single_strip_plot.setTitle("Single strip plot")
-        self.single_strip.single_strip_plot.setLabel('left', "current", units='A')
-        self.single_strip.single_strip_plot.setLabel('bottom', "voltage", units='V')
+        self.single_strip.single_strip_plot.setTitle("Single strip plot", **self.titleStyle)
+        self.single_strip.single_strip_plot.setLabel('left', "current", units='A', **self.labelStyle)
+        self.single_strip.single_strip_plot.setLabel('bottom', "voltage", units='V', **self.labelStyle)
         self.single_strip.single_strip_plot.showAxis('top', show=True)
         self.single_strip.single_strip_plot.showAxis('right', show=True)
         self.single_strip.single_strip_plot.plotItem.showGrid(x=True, y=True)
         #self.single_strip.single_strip_plot.plotItem.setLogMode(False, True)
 
+        change_axis_ticks(self.single_strip.single_strip_plot, self.ticksStyle)
+
     def reconfig_plot(self, Title, xAxis, yAxis, logscale):
         '''Reconfigs the plot for the different plots'''
-        self.single_strip.single_strip_plot.setTitle(str(Title))
-        self.single_strip.single_strip_plot.setLabel('left', str(xAxis[0]), units=str(xAxis[1]))
-        self.single_strip.single_strip_plot.setLabel('bottom', str(yAxis[0]), units=str(yAxis[1]))
+        self.single_strip.single_strip_plot.setTitle(str(Title), **self.titleStyle)
+        self.single_strip.single_strip_plot.setLabel('left', str(xAxis[0]), units=str(xAxis[1]), **self.labelStyle)
+        self.single_strip.single_strip_plot.setLabel('bottom', str(yAxis[0]), units=str(yAxis[1]), **self.labelStyle)
         self.single_strip.single_strip_plot.plotItem.setLogMode(x=logscale[0], y=logscale[1])
 
-    @hf.raise_exception
+    @raise_exception
     def update_plot(self, kwargs = None):
         '''This handles the update of the plot'''
         # This clear here erases all data from the viewbox each time this function is called and draws all points again!
         # Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage
         # With the clear statement medium cpu und low memory usage
-        if self.variables.default_values_dict["Defaults"]["new_data"]:
+        if self.variables.default_values_dict["settings"].get("new_data", False):
             if len(self.variables.meas_data[self.plot_data + "_scan"][0]) == len(self.variables.meas_data[self.plot_data + "_scan"][1]):  # sometimes it happens that the values are not yet ready
                 if self.variables.meas_data[self.plot_data + "_scan"]:
                     self.single_strip.single_strip_plot.plot(self.variables.meas_data[self.plot_data + "_scan"][0], self.variables.meas_data[self.plot_data + "_scan"][1], pen="y", clear=True)
 
-    @hf.raise_exception
+    @raise_exception
     def start_button_action(self,kwargs=None):
         '''Starts the single strip measuremnts'''
-        if self.variables.default_values_dict["Defaults"]["Current_filename"] and os.path.isdir(self.variables.default_values_dict["Defaults"]["Current_directory"]):
+        if self.variables.default_values_dict["settings"]["Current_filename"] and os.path.isdir(self.variables.default_values_dict["settings"]["Current_directory"]):
 
             additional_settings = {"Save_data": True,
-                                   "Filepath": self.variables.default_values_dict["Defaults"]["Current_directory"],
-                                   "Filename": self.variables.default_values_dict["Defaults"]["Current_filename"],
-                                   "Project": self.variables.default_values_dict["Defaults"]["Current_project"],
-                                   "Sensor": self.variables.default_values_dict["Defaults"]["Current_sensor"],
+                                   "Filepath": self.variables.default_values_dict["settings"]["Current_directory"],
+                                   "Filename": self.variables.default_values_dict["settings"]["Current_filename"],
+                                   "Project": self.variables.default_values_dict["settings"]["Current_project"],
+                                   "Sensor": self.variables.default_values_dict["settings"]["Current_sensor"],
                                    "skip_init": True} # Todo: make this variable accassable from the gui
 
             self.generate_singlestrip_job(additional_settings)
@@ -179,10 +192,10 @@ class Singlestrip_window:
         self.final_job = additional_settings_dict
 
         header = "# Measurement file: \n " \
-                 "# Campaign: " + self.variables.default_values_dict["Defaults"]["Current_project"] + "\n " \
-                 "# Sensor Type: " + self.variables.default_values_dict["Defaults"]["Current_sensor"] + "\n " \
-                 "# ID: " + self.variables.default_values_dict["Defaults"]["Current_filename"] + "\n " +\
-                 "# Operator: " + self.variables.default_values_dict["Defaults"]["Current_operator"] + "\n " \
+                 "# Campaign: " + self.variables.default_values_dict["settings"]["Current_project"] + "\n " \
+                 "# Sensor Type: " + self.variables.default_values_dict["settings"]["Current_sensor"] + "\n " \
+                 "# ID: " + self.variables.default_values_dict["settings"]["Current_filename"] + "\n " +\
+                 "# Operator: " + self.variables.default_values_dict["settings"]["Current_operator"] + "\n " \
                  "# Date: " + str(time.asctime()) + "\n\n"
 
         # if a freq measurement should be conducted
@@ -238,12 +251,12 @@ class Singlestrip_window:
                                   )
 
         # Check if filepath is a valid path
-        if self.variables.default_values_dict["Defaults"]["Current_filename"] and os.path.isdir(self.variables.default_values_dict["Defaults"]["Current_directory"]):
+        if self.variables.default_values_dict["settings"]["Current_filename"] and os.path.isdir(self.variables.default_values_dict["settings"]["Current_directory"]):
             self.final_job.update({"Header": header})
             self.variables.message_from_main.put({"Measurement": self.final_job})
-            l.info("Sendet job: " + str({"Measurement": self.final_job}))
+            self.log.info("Sendet job: " + str({"Measurement": self.final_job}))
         else:
-            l.error("Please enter a valid path and name for the measurement file.")
+            self.log.error("Please enter a valid path and name for the measurement file.")
 
     def stop_button_action(self):
         order = {"ABORT_MEASUREMENT": True}  # just for now

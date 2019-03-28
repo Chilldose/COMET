@@ -5,12 +5,9 @@ import sys
 import numpy as np
 from scipy import stats
 sys.path.append('../UniDAQ')
-from ..VisaConnectWizard import *
-from ..utilities import *
-
-help = help_functions()
-vcw = VisaConnectWizard.VisaConnectWizard()
-trans = transformation()
+import datetime
+from time import time, sleep
+from ..utilities import timeit, transformation
 
 
 class stripscan_class:
@@ -22,10 +19,12 @@ class stripscan_class:
 
         :param main_class:
         """
+
         self.main = main_class
-        self.log = logging.getLogger(__name__)
+        self.trans = transformation()
+        self.vcw = self.main.framework["VCW"]
         self.switching = self.main.switching
-        self.current_voltage = self.main.settings["Defaults"]["bias_voltage"]
+        self.current_voltage = self.main.settings["settings"]["bias_voltage"]
         self.voltage_End = self.main.job_details["stripscan"]["EndVolt"]
         self.voltage_Start = self.main.job_details["stripscan"]["StartVolt"]
         self.voltage_steps = self.main.job_details["stripscan"]["Steps"]
@@ -36,25 +35,32 @@ class stripscan_class:
         self.discharge_SMU = self.main.devices["2410SMU"]
         self.discharge_switching = self.main.devices["temphum_controller"]
         self.elmeter = self.main.devices["Elmeter"]
-        self.measurement_order = ["Istrip", "Rpoly", "Idark", "Cac", "Cint", "Cback", "Idiel", "Rint", "frequencyscan"]
+        self.measurement_order = ["Istrip", "Rpoly", "Idark", "Cac", "Cint", "Cback", "Idiel", "Rint"]
         self.units = [("Istrip","current[A]"), ("Rpoly", "res[Ohm]"),
                       ("Idiel","current[A]"), ("Idark","current[A]"),
                       ("Rint", "res[Ohm]"), ("Cac", "cap[F]"),
                       ("Cint", "cap[F]"), ("Cback", "cap[F]")]
         self.strips = self.main.total_strips # now the program knows the total number of strips
-        self.current_strip = self.main.main.default_dict["Defaults"]["current_strip"] # Current pad position of the table
-        #self.T = self.main.main.default_dict["Defaults"]["T"]
-        #self.V0 = self.main.main.default_dict["Defaults"]["V0"]
-        self.height = self.main.main.default_dict["Defaults"]["height_movement"]
+        self.current_strip = self.main.main.default_dict["settings"]["current_strip"] # Current pad position of the table
+        self.height = self.main.main.default_dict["settings"]["height_movement"]
         self.samples = 3
         self.last_istrip_pad = -1 # Number of the last pad on which a I strip was conducted, important for rpoly
-        self.T = self.main.main.default_dict["Defaults"]["trans_matrix"]
-        self.V0 = self.main.main.default_dict["Defaults"]["V0"]
+        self.T = self.main.main.default_dict["settings"]["trans_matrix"]
+        self.V0 = self.main.main.default_dict["settings"]["V0"]
         self.job = self.main.job_details
         self.sensor_pad_data = self.main.pad_data[self.job["Project"]][self.job["Sensor"]]
         self.justlength = 24
         self.rintslopes = [] # here all values from the rint is stored
+        self.project = self.main.settings["settings"]["Current_project"] # Warning these values are mutable while runtime!!!
+        self.sensor = self.main.settings["settings"]["Current_sensor"] # Use with care!!!
         self.log = logging.getLogger(__name__)
+
+    def run(self):
+        # Check if alignment is present or not, if not stop measurement
+        if not self.main.main.default_dict["settings"]["Alignment"]:
+            self.log.error("Alignment is missing. Stripscan can only be conducted if a valid alignment is present.")
+            self.stop_everything()
+            return
 
 
         # Preconfig the electrometer for current measurements, zero corr etc.
@@ -76,22 +82,8 @@ class stripscan_class:
                 else:
                     self.do_stripscan()
 
-        if "stripscan" in self.main.job_details:
-            if "frequencyscan" in self.main.job_details["stripscan"]:
-                self.do_frequencyscan(self.main.job_details["stripscan"]["frequencyscan"]["Measurements"].keys(),
-                                      # gets the measurements
-                                      self.main.job_details["stripscan"]["frequencyscan"]["Strip"],
-                                      # the strip which should be measured
-                                      self.LCR_meter, 5,  # device and sample size
-                                      self.main.job_details["stripscan"]["frequencyscan"]["StartFreq"],
-                                      self.main.job_details["stripscan"]["frequencyscan"]["EndFreq"],
-                                      self.main.job_details["stripscan"]["frequencyscan"]["FreqSteps"],
-                                      self.main.job_details["stripscan"]["frequencyscan"]["MinVolt"])
-
         # Ramp down the voltage after stripscan
-
         # Discharge the capacitors in the decouple box
-
         # Switch to IV for correct biasing for ramp
         self.switching.switch_to_measurement("IV")  # correct bias is applied
 
@@ -102,7 +94,7 @@ class stripscan_class:
         if not self.main.capacitor_discharge(self.discharge_SMU, self.discharge_switching, "set_terminal", "FRONT", do_anyway=True):
             self.stop_everything()
 
-        #self.save_rint_slopes()y
+        #self.save_rint_slopes()
 
     def stop_everything(self):
         """Stops the measurement
@@ -111,8 +103,50 @@ class stripscan_class:
         self.main.queue_to_main.put(order)
         self.log.warning("Measurement STOP was called, check logs for more information")
 
+
+    def estimate_duration(self, start_time, list_strip_measurements):
+        """Estimate time
+        Will not be correct, since CV usually is faster, but it is just a estimation.
+        -----------------------------------------------------------------------------
+        Start and end timer. all of this quick and dirty but it will suffice"""
+        # Todo: review code!!!
+        est_end = 0
+        for measurements in list_strip_measurements:
+            # Loop over all strip measurements
+            if measurements in self.job.get("stripscan", {}):
+                est_end += float(self.total_strips)*float(self.main.settings["settings"]["strip_scan_time"])
+                break # breaks out of loop if one measurement was found
+
+
+        if "IV" in self.job.get("IVCV", {}):
+            est_end += float(self.main.setting["settings"]["IVCV_time"])
+        if "CV" in self.job.get("IVCV", {}):
+            est_end += float(self.main.settings["settings"]["IVCV_time"])
+
+        est_end = start_time + datetime.timedelta(seconds=est_end)
+        self.main.settings["settings"]["End_time"] = str(est_end)
+        # Estimate time
+        # Will not be correct, since CV usually is faster, but it is just a estimation.
+        # -----------------------------------------------------------------------------
+
+    def find_stripnumber(self):
+        # Try find the strip number of the sensor.
+        # Todo: Review code!!!
+        try:
+            self.total_strips = len(self.sensor_pad_data[self.project][str(self.sensor)]["data"])
+            self.log.debug("Extracted strip number is: {!s}".format(self.total_strips))
+        except:
+            self.log.error("Sensor " + str(self.sensor) + " not recognized. Can be due to missing pad file.")
+            self.main.stop_measurement = True
+            self.main.framework["Message_to_main"].put({"DataError": "Sensor " + str(self.sensor) + " not recognized. Can be due to missing pad file."})
+            if "strip" in self.job:
+                self.log.error("Fatal error Sensor " + str(self.sensor) + " not recognized. Strip scan cannot be conducted. Check Pad files")
+                self.stop_everything()
+
+
     def save_rint_slopes(self):
         # If a rint measurement was done save the data to a file
+        # Todo: save rint slopes as well
         if self.main.save_data and self.rintslopes:
 
             filepath = self.main.job_details["Filepath"]
@@ -128,16 +162,6 @@ class stripscan_class:
             header += [unitsheader for i in self.rintslopes]
             header += "\n"
             file = self.main.create_data_file(header, filepath, filename)
-
-            # TODO: save the values to the file
-
-            # xvalue, rint, voltage_list, values_list ,slope, intercept, r_value, p_value, std_err
-            #for pad in self.rintslopes:
-            #    string_to_write += self.rintslopes
-
-
-
-            #self.main.write(file, string_to_write + "\n")
 
     def do_preparations_for_stripscan(self):
         """This function prepares the setup, like ramping the voltage and steady state check
@@ -167,13 +191,13 @@ class stripscan_class:
 
         # Ramps the voltage, if ramp voltage returns false something went wrong -> stop
         if not self.main.ramp_voltage(self.bias_SMU, "set_voltage", self.voltage_Start, self.voltage_End, self.voltage_steps, wait_time = 1, complience=self.complience):
-            self.current_voltage = self.main.main.default_dict["Defaults"]["bias_voltage"]
+            self.current_voltage = self.main.main.default_dict["settings"]["bias_voltage"]
             self.stop_everything()
 
         #If everything works make steady state check
         else:
             if self.main.steady_state_check(self.bias_SMU, max_slope = 1e-6, wait = 0, samples = 3, Rsq = 0.5, complience=self.complience): # Is a dynamic waiting time for the measuremnts
-                self.current_voltage = self.main.main.default_dict["Defaults"]["bias_voltage"]
+                self.current_voltage = self.main.main.default_dict["settings"]["bias_voltage"]
                 if self.main.check_complience(self.bias_SMU, self.complience): #if complience is reached stop everything
                     self.stop_everything()
             else:
@@ -203,7 +227,7 @@ class stripscan_class:
                 if measurement in job["Measurements"] and not self.main.main.stop_measurement:  # looks if measurement should be done
 
                     # Now conduct the measurement
-                    self.main.table.move_to_strip(self.sensor_pad_data, int(job["Strip"] - 1), trans, self.T, self.V0, self.height)
+                    self.main.table.move_to_strip(self.sensor_pad_data, int(job["Strip"] - 1), self.trans, self.T, self.V0, self.height)
                     value = getattr(self, "do_" + measurement)(job["Strip"], self.samples, write_to_main = False)
 
                     # Write this to the file
@@ -222,7 +246,7 @@ class stripscan_class:
             if self.main.save_data:
                 self.main.write(self.main.measurement_files["stripscan"], "\n")
 
-    @help.timeit
+    @timeit
     def do_stripscan(self):
         '''This function manages all stripscan measurements, also the frequency scan things
         Its ment to be used only once during the initiatior of the class'''
@@ -270,13 +294,12 @@ class stripscan_class:
                         self.main.write(self.main.measurement_files["stripscan"], str(self.sensor_pad_data["data"][current_strip-1][0]).ljust(self.justlength))  # writes the strip to the file
                     for measurement in self.measurement_order:
                         if measurement in self.main.job_details["stripscan"] and not self.main.main.stop_measurement: # looks if measurement should be done
-
                             # Now conduct the measurement
                             # But first check if this strip should be measured with this specific measurement
                             if current_strip in self.main.job_details["stripscan"][measurement]["strip_list"]:
-                                self.main.table.move_to_strip(self.sensor_pad_data, self.current_strip-1, trans, self.T, self.V0, self.height)
-
+                                self.main.table.move_to_strip(self.sensor_pad_data, self.current_strip-1, self.trans, self.T, self.V0, self.height)
                                 if not self.main.stop_measurement() and not self.main.check_complience(self.bias_SMU, self.complience):
+                                    value = 0
                                     try:
                                         self.log.info("Conducting measurement: {!s}".format(measurement))
                                         value = getattr(self, "do_"+measurement)(current_strip, self.samples)
@@ -285,26 +308,31 @@ class stripscan_class:
                                     except Exception as err:
                                         self.log.fatal("During strip measurement {!s} a fatal error occured: {!s}".format(measurement, err), exc_info=True)  # log exception info at FATAL log level
 
-                                    # In the end do a quick bad strip detection
-                                    #badstrip = self.main.main.analysis.do_online_singlestrip_analysis((measurement, value))
-                                    badstrip = False
-                                    if badstrip:
-                                        self.log.info("Badstrip detected at strip: " + str(current_strip) + " Error code: " + str(badstrip))
-                                        self.main.queue_to_main.put({"Thresholderror": "Badstrip detected at strip: " + str(current_strip) + " Error code: " + str(badstrip)})
-                                        # Add the bad strip to the list of bad strips
-                                        if str(current_strip) in self.main.badstrip_dict:
-                                            self.main.badstrip_dict[str(current_strip)].update(badstrip)
-                                        else:
-                                            self.main.badstrip_dict[str(current_strip)] = badstrip
-                                            self.main.main.default_dict["Defaults"]["Bad_strips"] += 1 # increment the counter
-
-
                                     # Write this to the file
                                     if value and self.main.save_data:
-                                        self.main.write(self.main.measurement_files["stripscan"], str(float(value)).ljust(self.justlength)) # Writes the value to the file
+                                        self.main.write(self.main.measurement_files["stripscan"],
+                                                str(float(value)).ljust(self.justlength))  # Writes the value to the file
                             else:
                                 if self.main.save_data:
-                                    self.main.write(self.main.measurement_files["stripscan"], "--".ljust(self.justlength)) # Writes nothing if no value is aquired
+                                    self.main.write(self.main.measurement_files["stripscan"], "--".ljust(
+                                        self.justlength))  # Writes nothing if no value is aquired
+
+                    # In the end do a quick bad strip detection
+                    try:
+                        badstrip = self.main.main.analysis.do_contact_check(self.main.measurement_data)
+                    except Exception as e:
+                        self.log.error("An error happend while performing the bad contact determination with error: "
+                                       "{}".format(e))
+                        badstrip = False
+
+                    if badstrip:
+                        self.log.error("Bad contact of needles detected!: " + str(current_strip))
+                        # Add the bad strip to the list of bad strips
+                        if str(current_strip) in self.main.badstrip_dict:
+                            self.main.badstrip_dict[str(current_strip)].update(badstrip)
+                        else:
+                            self.main.badstrip_dict[str(current_strip)] = badstrip
+                            self.main.main.default_dict["settings"]["Bad_strips"] += 1 # increment the counter
 
                     if not self.main.stop_measurement():
                         # After all measurements are conducted write the environment variables to the file
@@ -320,64 +348,8 @@ class stripscan_class:
 
 
                     if abs(float(start - time.time())) > 1.: # Rejects all measurements which are to short to be real measurements
-                        delta = float(self.main.main.default_dict["Defaults"]["strip_scan_time"]) + abs(start - time.time())
-                        self.main.main.default_dict["Defaults"]["strip_scan_time"] = str(delta / 2.)  # updates the time for strip measurement
-
-
-    def do_frequencyscan(self, measurement_obj, strip, device_dict, samples, startfreq, endfreq, steps, voltage):
-        '''This function performes a frequency scan of the lcr meter and at each step it executes a LIST of mesaurement'''
-
-        self.do_preparations_for_stripscan()
-
-        if not self.main.stop_measurement():
-            # Generate frequency list
-            freq_list = self.main.ramp_value_log10(startfreq, endfreq, steps)
-
-            # Create a measurement file for the frequency scan, (per strip)
-            if self.main.save_data:
-                filepath = self.main.job_details["Filepath"]
-                filename = "fre_strip_" + str(int(strip)) + "_" + self.main.job_details["Filename"]
-
-                header = self.main.job_details["Header"]
-                header += " #AC Voltage: " + str(voltage) + "\n"
-                header += " #Measured strip: " + str(int(strip)) + "\n\n"
-                for meas in measurement_obj:
-                    func_name = str(meas)
-                    header += str(func_name) + "\t\t\t\t"
-                header += "\n"
-
-                for meas in measurement_obj: # adds the units header
-                    header += "frequency [Hz]".ljust(self.justlength) +  "capacitance [F]".ljust(self.justlength)
-                header += "\n"
-
-                file = self.main.create_data_file(header, filepath, filename)
-
-            # Set the LCR amplitude voltage for measurement
-            self.main.change_value(self.LCR_meter, "set_voltage", str(voltage))
-
-            # Moves to strip
-            self.main.table.move_to_strip(self.sensor_pad_data, int(self.job["stripscan"]["frequencyscan"]["Strip"])-1, trans, self.T, self.V0, self.height)
-
-            for freq in freq_list: #does the loop over the frequencies
-                if not self.main.stop_measurement(): #stops the loop if shutdown is necessary
-                    self.main.change_value(self.LCR_meter, "set_frequency", str(freq))
-                    value = []
-                    for i, meas in enumerate(measurement_obj):
-                        func_name = str(meas)
-                        value.append(getattr(self, "do_" + func_name)(freq, samples=samples, freqscan=True)) #calls the measurement
-                        # Append the data to the data array and sends it to the main as frequency scan measurement
-                        if not self.main.stop_measurement():
-                            self.main.measurement_data[func_name + "_scan"][0] = np.append(self.main.measurement_data[func_name + "_scan"][0],[float(freq)])
-                            self.main.measurement_data[func_name + "_scan"][1] = np.append(self.main.measurement_data[func_name + "_scan"][1], [float(value[i])])
-                            self.main.queue_to_main.put({func_name + "_scan": [float(freq), float(value[i])]})
-
-                    if self.main.save_data:
-                        string_to_write = ""
-                        for val in value:
-                            string_to_write += str(freq).ljust(self.justlength) + str(val).ljust(self.justlength)
-                        self.main.write(file, string_to_write + "\n")
-                    else:
-                        break
+                        delta = float(self.main.main.default_dict["settings"]["strip_scan_time"]) + abs(start - time.time())
+                        self.main.main.default_dict["settings"]["strip_scan_time"] = str(delta / 2.)  # updates the time for strip measurement
 
 
     def __do_simple_measurement(self, str_name, device, xvalue = -1, samples = 5, write_to_main = True):
@@ -394,7 +366,7 @@ class stripscan_class:
         # Do some averaging over values
         values = []
         for i in range(samples): # takes samples
-            values.append(float(str(vcw.query(device, device["Read"])).split(",")[0]))
+            values.append(float(str(self.vcw.query(device, device["Read"])).split(",")[0]))
         value = sum(values) / len(values)  # averaging
 
         self.main.measurement_data[str(str_name)][0] = np.append(self.main.measurement_data[str(str_name)][0],[float(xvalue)])
@@ -455,7 +427,7 @@ class stripscan_class:
             self.main.config_setup(device_dict, config_commands)  # config the elmeter
             self.main.change_value(voltage_device, "set_output", "ON") # Sets the output of the device to on
 
-            rintsettings = self.main.main.default_dict["Defaults"]["Rint_MinMax"]
+            rintsettings = self.main.main.default_dict["settings"]["Rint_MinMax"]
             minvoltage = rintsettings[0]
             maxvoltage = rintsettings[1]
             steps = rintsettings[2]

@@ -44,7 +44,7 @@ class VisaConnectWizard:
 
 
     # initialization
-    def __init__(self,*arg):
+    def __init__(self,*arg, backend = "NI"):
 
         # constants
         self.myInstruments = [] #contains list of all instruments connected to
@@ -55,10 +55,21 @@ class VisaConnectWizard:
         self.xonoff = True
         self.GPIB_interface = None
         self.log = logging.getLogger(__name__)
+        self.backend = backend # Defines the backend which should be used "NI" for the national instruments and "py" for pure python
 
         # Important ----------------------------------------------------------------
         # Opens a resource manager
-        self.rm = visa.ResourceManager()
+        if self.backend != "py":
+            self.rm = visa.ResourceManager()
+            try:
+                self.rm.list_resources() # Check if resouce listing works, if not use pure python implementation
+                self.log.info("PyVisa uses the NI-Visa backend.")
+            except:
+                self.log.error("PyVisa with NI routines seems not to be working, falling back to pure python VISA")
+                self.rm = visa.ResourceManager("@py")
+        else:
+            self.rm = visa.ResourceManager("@py")
+            self.log.info("PyVisa uses the pure python backend")
         #visa.log_to_screen()
         # Important ----------------------------------------------------------------
 
@@ -120,7 +131,7 @@ class VisaConnectWizard:
 
     def reconnect_to_device(self, device_dict):
         '''This functions reconnects to a device'''
-        self.log.info("Try to reconnect to device: " + device_dict["Display_name"])
+        self.log.info("Try to reconnect to device: " + device_dict["Device_name"])
         resource_name = device_dict["Visa_Resource"].resource_name
 
         try:
@@ -136,9 +147,9 @@ class VisaConnectWizard:
         IDN_query = self.query(resource, device_dict.get("device_IDN_query", "*IDN?"))
         if str(IDN) == str(IDN_query).strip():
             device_dict["Visa_Resource"] = resource
-            self.log.info("Connection to the device: " + device_dict["Display_name"] + "is now reestablished")
+            self.log.info("Connection to the device: " + device_dict["Device_name"] + "is now reestablished")
         else:
-            self.log.error("Connection to the device: " + device_dict["Display_name"] + "could not be reestablished")
+            self.log.error("Connection to the device: " + device_dict["Device_name"] + "could not be reestablished")
 
 
 
@@ -274,10 +285,11 @@ class VisaConnectWizard:
                 resource = resource_dict["Visa_Resource"]
                 reconnect = True # if dict a reconection atempt is possible
             except KeyError:
-                self.log.error("An key error occured in dict " + str(resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
+                self.log.error("Could not access Visa Resource for device: " + str(resource_dict["Device_name"] +
+                            ". This usually happens when the device is not connected."))
                 return -1
             except Exception as e:
-                self.log.exception("An unknowen error occured while accessing a Visa resource " + str(e))
+                self.log.exception("An unknown error occured while accessing a Visa resource with error " + str(e))
                 return -1
         else:
             resource = resource_dict
@@ -316,7 +328,7 @@ class VisaConnectWizard:
             try:
                 resource = resource_dict["Visa_Resource"]
             except KeyError:
-                self.log.error("A key error occured in dict " + str(resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
+                self.log.error("A key error occured in dict " + str(resource_dict["Device_name"] + ". This usually happens when the device is not connected."))
                 return -1
             except Exception as e:
                 self.log.error("An unknown error occured while accessing a Visa resource " + str(e))

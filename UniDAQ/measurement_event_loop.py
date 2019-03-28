@@ -6,42 +6,33 @@ except ImportError: import Queue as queue
 
 from .utilities import *
 from .measurements import *
-import threading
-import numpy as np
-from time import sleep
-import pyqtgraph as pg
 from .VisaConnectWizard import *
 import logging
-from . globals import *
-
-# Defining the queue Objects for data sharing need to be here, than the main knows them to!!!
-message_to_main = queue.Queue()
-message_from_main = queue.Queue()
-queue_to_GUI = queue.Queue()
+from threading import Thread
+from .globals import message_to_main, message_from_main, queue_to_GUI
 
 
-
-class measurement_event_loop:
+class measurement_event_loop(Thread):
     ''' This class is for starting and managing the event loop fro the measurements. It starts the syncronised connection betweent ifself and the
         GUI event loop. Message based on dictionaries. '''
 
 
-    def __init__(self, device_dict, settings, pad_files, visa_connect, table, switching, shell):
+    def __init__(self, framework_modules):
         ''' Here all initializations can be done. '''
 
+        Thread.__init__(self)
         #Getting the queue objects for safe data exchange
         self.message_to_main = message_to_main
         self.message_from_main = message_from_main
         self.queue_to_GUI = queue_to_GUI
-        self.shell = shell
         self.log = logging.getLogger(__name__)
 
         # Generall state control of the measurement setup
+        self.framework = framework_modules
         self.humidity_history = []
         self.temperatur_history = []
         self.dry_air_on = "unknown"
         self.measurement_running = False
-        self.alignment = False
         self.stop_measurement = False
         self.stop_measurement_loop = False
         self.measurements_to_conduct = {}
@@ -50,30 +41,25 @@ class measurement_event_loop:
         self.update_time = 50 # Milli Seconds
         self.order_types = ["Measurement", "Status", "Remeasure", "Alignment", "Sweep"]
         self.events = {}
-        self.default_dict = settings #defaults_dict
-        self.pad_files = pad_files
-        self.vcw = visa_connect
-        self.table = table
-        self.switching = switching
+        self.default_dict = framework_modules["Configs"]["config"]["settings"] #defaults_dict
+        self.vcw = framework_modules["VCW"]
         self.skip_init = False
+        self.devices = framework_modules["Devices"]
+        self.temphum_plugin = None
 
-        # Devices possible
-        self.devices = device_dict
-
+    def run(self):
         # Init devices
-        sleep(1)
         self.init_devices()
 
-        self.shell.add_cmd_command(self.init_devices)
-
-        # Start Continuous measurements like temphum control
-        #self.data_from_continous_measurements = queue.Queue() # Creates a queue object for the data transfer
+        # Start Continuous measurements temphum control
         if "temphum_controller" in self.devices:
-            self.measthread = newThread(2, "Temperatur and humidity control", self.temperatur_and_humidity, self.message_to_main, self.devices["temphum_controller"], self.devices["temphum_controller"]["enviroment_query"], self.default_dict["Defaults"]["temphum_update_intervall"])
-            self.measthread.start() # Starts the thread
-
-        # Create the measurement object
-        #self.measurements = measurement_class(self.message_to_main)
+            self.load_temphum_plugin(self.framework["Configs"]
+                                    ["config"]["settings"].get("temphum_plugin", "NoPlugin"))
+            self.temphumhread = getattr(self.temphum_plugin, self.framework["Configs"]
+                                        ["config"]["settings"].get("temphum_plugin", "NoPlugin"))\
+                                        (self, self.framework, self.framework["Configs"]
+                                    ["config"]["settings"].get("temphum_update_intervall:", 5000))
+            self.temphumhread.start() # Starts the thread
 
         # This starts the loop to get the messages from the main thread
         self.start_loop()
@@ -93,7 +79,7 @@ class measurement_event_loop:
             message = message_from_main.get() # This function waits until a message is received from the main!
             # Message must be a dict {str Type: {Orders}}
 
-            self.translate_message(message) # This translates the message get from the main
+            self.translate_message(message) # This translates the message got from the main
             self.process_message() # Here the message will be processed
             self.process_pending_events() # If errors or other things happened while processing the messages
 
@@ -106,52 +92,40 @@ class measurement_event_loop:
                         self.measurements_to_conduct.update(message[self.order_types[0]]) # Assign the dict for the measurements
                     except:
                         self.log.error("Data type error while translating message for measurement event loop")
-                        self.events.update({"DataError": "Data type error while translating message for measurement event loop"})
 
                 elif self.order_types[1] in message: # Status
                     try:
                         self.status_query.update(message[self.order_types[1]])
                     except:
                         self.log.error("Data type error while translating message for measurement event loop")
-                        self.events.update({"DataError": "Data type error while translating message for measurement event loop"})
-
                 else:
                     self.log.error("Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\"")
-                    self.events.update({"DataError": "Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\""})
-
-
-        except:
-            self.log.error("Wrong order delivered to measurement event loop. Order: " + "\"" + str(message)+ "\"")
-            self.events.update({"DataError": "Wrong order delivered to measurement event loop. Order: " + "\"" + str(message)+ "\""})
+        except Exception as err:
+            self.log.error("An unknown error occcured while translating the message: {} with error {}".format(message, err))
 
     def process_message(self):
         '''This function will do some actions in case of a valid new operation'''
 
-
         # All things which has something to do with the measurements----------------------------------------------------
         #---------------------------------------------------------------------------------------------------------------
         if self.measurements_to_conduct != {} and not self.measurement_running: # If the dict is not empty and no measurement is running
-
-            if "stripscan" in self.measurements_to_conduct and not self.default_dict["Defaults"]["Alignment"]:  # if not only IV or CV should be done
-                self.events.update({"MeasError": "Alignement is missing! "})
-                self.measurements_to_conduct.clear()
-
-            if self.measurements_to_conduct:
+            if any(x in self.default_dict["measurement_order"] for x in list(self.measurements_to_conduct.keys())):
                 self.measurement_running = True # Prevents new that new measurement jobs are generated
+                self.default_dict["Measurement_running"] = True
                 self.stop_measurement = False
                 self.skip_init = self.measurements_to_conduct.get("skip_init", False)
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})  # That the GUI knows that a Measuremnt is running
-                self.default_dict["Defaults"]["Measurement_running"] = True
+
                 if not self.skip_init:
                     self.init_devices() # Initiates the device anew (defined state)
-                measthread = newThread(3, "Conduct measurement", measurement_class, self, self.default_dict, self.pad_files, self.devices, self.message_to_main, self.message_from_main,  self.measurements_to_conduct.copy(), self.queue_to_GUI, self.table, self.switching, self.ask_to_stop) # Starts a thread for measuring
+                # Starts a thread for measuring
+                measthread = measurement_class(self, self.framework, self.measurements_to_conduct.copy())
                 measthread.start()
                 self.log.info("Sended new measurement job. Orders: " + str(self.measurements_to_conduct))
                 self.measurements_to_conduct.clear() # Clears the measurement dict
 
         if self.measurements_to_conduct != {} and self.measurement_running:
-            self.log.warning("Tried making a new measurement. Measurement is running, no new job generation is possible.")
-            self.events.update({"MeasError": "Tried making a new measurement. Measurement is running, no new job generation possible."})
+            self.log.error("Tried making a new measurement. Measurement is running, no new job generation possible.")
             self.measurements_to_conduct.clear()
 
 
@@ -167,13 +141,11 @@ class measurement_event_loop:
             if "CLOSE" in self.status_query: # Searches for a key and take actions, like closing all threads
                 self.stop_measurement = True # Sets flag
                 self.stop_measurement_loop = True # Bug: measurement_loop closes while the measurement thread proceed till it has finished it current task and then shuts down
-                # TODO: Done? wait until the measurement has shut down and than proceed
                 if self.measurement_running:
                     self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
                     self.stop_measurement_loop = False
                 else:
                     self.events.update({"Shutdown": True})
-
                 self.log.info("Closing all measurements and shutdown program.")
 
             elif "MEASUREMENT_FINISHED" in self.status_query: # This comes from the measurement class
@@ -182,63 +154,20 @@ class measurement_event_loop:
                 if not self.skip_init:
                     self.init_devices()
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
-                self.default_dict["Defaults"]["Measurement_running"] = False
+                self.default_dict["Measurement_running"] = False
 
             elif "MEASUREMENT_STATUS" in self.status_query: # Usually asked from the main to get status
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
 
-            elif "ABORT_MEASUREMENT" in self.status_query: # Ask if Measuremnt should be aborted
+            elif "ABORT_MEASUREMENT" in self.status_query: # Ask if Measurement should be aborted
                 self.stop_measurement = True  # Sets flag, but does not check
 
             else:
-                self.log.warning("Status request not recognised " + str(self.status_query))
-                self.events.update({"RequestError": "Status request not recognised " + str(self.status_query)})
+                self.log.error("Status request not recognised " + str(self.status_query))
 
         self.message_to_main.put(self.events.copy())  #
         self.events.clear()  # Clears the dict so that new events can be written in
-        self.status_query.clear()#Clears the status query Dict
-
-
-    def temperatur_and_humidity(self, queue_to_main, resource, query, update_intervall = 5000):
-        '''This starts the background and continuous tasks like humidity and temperature control'''
-        resource = resource
-        query = query
-        update_intervall = float(update_intervall)
-        queue_to_main = queue_to_main
-
-        # First try if visa_resource is valid
-        success = False
-        try:
-            first_try = vcw.query(resource["Visa_Resource"], query)
-            if first_try:
-                success = True
-
-        except Exception as e:
-            self.log.error("The temperature and humidity controller seems not to be responding. Error:" + str(e))
-
-        #@hf.run_with_lock
-        def update_environement():
-            '''This is the update function for temp hum query'''
-            if not self.stop_measurement_loop:
-                try:
-                    values = vcw.query(resource["Visa_Resource"], query)
-                    values = values.split(",")
-                    self.humidity_history.append(float(values[1])) #todo: memory leak since no values will be deleted
-                    self.temperatur_history.append(float(values[0]))
-                    # Write the pt100 and light status and environement in the box to the global variables
-                    self.default_dict["Defaults"]["chuck_temperature"] =  float(values[3])
-                    self.default_dict["Defaults"]["internal_lights"] = True if int(values[2]) == 1 else False
-                    queue_to_main.put({"temperature": [float(time.time()), float(values[0])], "humidity": [float(time.time()), float(values[1])]})
-                except Exception as err:
-                    self.log.error("The temperature and humidity controller seems not to be responding. Error: {!s}".format(err))
-                threading.Timer(update_intervall/1000., update_environement).start() # This ensures the function will be called again
-
-        if success:
-            update_environement()
-            self.log.info("Humidity and temp control started...")
-        else:
-            self.log.info("Humidity and temp control NOT started...")
-
+        self.status_query.clear() #Clears the status query Dict
 
     def init_devices(self, args=None):
         '''This function makes the necessary configuration for all devices before any measurement can be conducted'''
@@ -249,7 +178,7 @@ class measurement_event_loop:
         for device in self.devices: # Loop over all devices
             sended_commands = []  # list over all sended commands, to prevent double sending
             if "Visa_Resource" in self.devices[device]: # Looks if a Visa resource is assigned to the device.
-                self.log.info("Initializing instrument: {!s}".format(device.get("Display_name", "NoName")))
+                self.log.info("Initializing instrument: {!s}".format(self.devices[device].get("Device_name", "NoName")))
                 # Initiate the instrument and resets it
                 if "reset_device" in self.devices[device]:
                     self.vcw.initiate_instrument(self.devices[device]["Visa_Resource"], self.devices[device]["reset_device"], self.devices[device].get("execution_terminator", ""))
@@ -275,7 +204,7 @@ class measurement_event_loop:
                                 self.vcw.write(self.devices[device]["Visa_Resource"], command, self.devices[device].get("execution_terminator",""))  # Writes the command to the device
                                 sleep(0.05)  # Waits a bit for the device to config itself
 
-                            self.log.info("Device " + self.devices[device]["Display_name"] + str(command) + " to " + str(self.devices[device][keys]) + ".")
+                            self.log.info("Device " + self.devices[device]["Device_name"] + str(command) + " to " + str(self.devices[device][keys]) + ".")
 
         # Change the state of the device to Configured
 
@@ -297,7 +226,7 @@ class measurement_event_loop:
                                 self.vcw.write(self.devices[device]["Visa_Resource"], command, self.devices[device].get("execution_terminator", "")) # Writes the command to the device
                                 sleep(0.05)  # Waits a bit for the device to config itself
 
-                            self.log.info("Device " + self.devices[device]["Display_name"] + " " + str(command) + " to " + str(self.devices[device][keys]) + ".")
+                            self.log.info("Device " + self.devices[device]["Device_name"] + " " + str(command) + " to " + str(self.devices[device][keys]) + ".")
 
         self.message_to_main.put({"Info": "Initializing DONE!"})
 
@@ -329,3 +258,24 @@ class measurement_event_loop:
 
     #def load_measurement_plugins(self):
     #    '''Loads the measurments plugins from a folder'''
+
+    def load_temphum_plugin(self, plugin_name):
+        # Loads the temperature and humidity plugin
+        all_measurement_functions = os.listdir(os.path.join(self.framework["rootdir"], "measurement_plugins"))
+        all_measurement_functions = list(set([modules.split(".")[0] for modules in all_measurement_functions]))
+
+        try:
+            if plugin_name in all_measurement_functions:
+                self.temphum_plugin = importlib.import_module("UniDAQ.measurement_plugins." + plugin_name)
+                self.log.info("Imported module: {}".format(plugin_name))
+                return self.temphum_plugin
+            else:
+                self.log.error("Could not load temperature and humidity control module: {}. "
+                               "It was specified in the settings but"
+                                " no module matches this name.".format(plugin_name))
+                return None
+        except Exception as err:
+            self.log.error("An error happend while importing module: {}. "
+                           "With error: ".format(plugin_name, err))
+            return None
+

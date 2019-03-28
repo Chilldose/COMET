@@ -11,10 +11,9 @@ from PyQt5.QtWidgets import *
 from random import randint
 import time
 
-from .. import utilities
+from ..utilities import raise_exception, show_cursor_position, change_axis_ticks
 
 l = logging.getLogger(__name__)
-hf = utilities.help_functions()
 
 class DynamicWaiting_window:
 
@@ -22,6 +21,10 @@ class DynamicWaiting_window:
 
         self.variables = GUI
         self.layout = layout
+
+        self.ticksStyle = {"pixelsize": 10}
+        self.labelStyle = {'color': '#FFF', 'font-size': '18px'}
+        self.titleStyle = {'color': '#FFF', 'size': '15pt'}
 
         self.setpg = pq
         self.voltage_step = 0
@@ -48,23 +51,25 @@ class DynamicWaiting_window:
         self.dynamic.output_file.setText("test.txt")
 
         # Add the plot function to the framework
-        self.variables.add_update_function(self.update)
+        #self.variables.add_update_function(self.update)
 
 
         # Add tooltip functionality
-        self.tooltip = utilities.show_cursor_position(self.dynamic.current_plot)
+        self.tooltip = show_cursor_position(self.dynamic.current_plot)
         #self.proxy = self.setpg.SignalProxy(self.dynamic.current_plot.scene().sigMouseMoved, rateLimit=60, slot=self.tooltip.onMove)
 
 
     def plot_config(self):
         '''This function configurates the plot'''
-        self.dynamic.current_plot.setTitle("Dynamic IV waiting time analysis")
-        self.dynamic.current_plot.setLabel('left', "current", units='A')
-        self.dynamic.current_plot.setLabel('bottom', "time", units='s')
+        self.dynamic.current_plot.setTitle("Dynamic IV waiting time analysis", **self.titleStyle)
+        self.dynamic.current_plot.setLabel('left', "current", units='A', **self.labelStyle)
+        self.dynamic.current_plot.setLabel('bottom', "time", units='s', **self.labelStyle)
         self.dynamic.current_plot.showAxis('top', show=True)
         self.dynamic.current_plot.showAxis('right', show=True)
         self.dynamic.current_plot.plotItem.showGrid(x=True, y=True)
         self.dynamic.current_plot.getPlotItem().invertY(True)
+
+        change_axis_ticks(self.dynamic.current_plot, self.ticksStyle)
 
     def update_stats(self):
         """This function updates the progress bar"""
@@ -108,10 +113,10 @@ class DynamicWaiting_window:
         self.final_job = additional_settings_dict
 
         header = "# Measurement file: \n " \
-                 "# Campaign: " + self.variables.default_values_dict["Defaults"]["Current_project"] + "\n " \
-                 "# Sensor Type: " + self.variables.default_values_dict["Defaults"]["Current_sensor"] + "\n " \
-                 "# ID: " + self.variables.default_values_dict["Defaults"]["Current_filename"] + "\n " +\
-                 "# Operator: " + self.variables.default_values_dict["Defaults"]["Current_operator"] + "\n " \
+                 "# Campaign: " + self.variables.default_values_dict["settings"]["Current_project"] + "\n " \
+                 "# Sensor Type: " + self.variables.default_values_dict["settings"]["Current_sensor"] + "\n " \
+                 "# ID: " + self.variables.default_values_dict["settings"]["Current_filename"] + "\n " +\
+                 "# Operator: " + self.variables.default_values_dict["settings"]["Current_operator"] + "\n " \
                  "# Date: " + str(time.asctime()) + "\n\n"
 
 
@@ -132,16 +137,14 @@ class DynamicWaiting_window:
         self.variables.message_from_main.put({"Measurement": self.final_job})
         l.info("Sendet job: " + str({"Measurement": self.final_job}))
 
-    @hf.raise_exception
+    @raise_exception
     def update(self, kwargs=None):
-        if self.variables.default_values_dict["Defaults"]["new_data"]:
+        if self.variables.default_values_dict["settings"]["new_data"]:
             try:
                 self.dynamic.current_plot.clear()
                 for i, vstepdata in enumerate(self.variables.meas_data["dynamicwaiting"][0]):
                     if vstepdata.any(): # To exclude exception spawning when measurement is not conducted
                         self.dynamic.current_plot.plot(vstepdata, self.variables.meas_data["dynamicwaiting"][1][i], pen=self.setpg.mkPen(tuple(self.cmapLookup[i])))
                         # Todo: Update the progress bar
-
-
             except Exception as e:
                 l.warning("An exception in the Dynamic waiting time plot occured, with error {error!s}".format(error=e))

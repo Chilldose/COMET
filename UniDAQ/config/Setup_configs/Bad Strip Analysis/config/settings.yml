@@ -1,0 +1,15 @@
+--- # Block of dict entries
+
+    # Critical parameters
+    Settings_name: settings # The name of the settings which will be shown in the framework and will be the addressing name (settings here is important)
+    GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
+        - StripAnalysis
+        - DataBrowser
+ 
+        
+    new_data: True
+    last_plot_update: 0
+    update_counter: 0
+    End_time: NaN
+    Start_time: NaN
+    

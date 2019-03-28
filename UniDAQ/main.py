@@ -16,6 +16,7 @@ punished!
 """
 
 import logging
+import signal
 import time
 import sys
 import os
@@ -23,7 +24,6 @@ import os
 from . import utilities
 from . import boot_up
 from .GUI_classes import GUI_classes
-from .cmd_inferface import DAQShell
 from .VisaConnectWizard import VisaConnectWizard
 from .measurement_event_loop import (
     measurement_event_loop,
@@ -31,12 +31,30 @@ from .measurement_event_loop import (
     message_from_main,
     queue_to_GUI
 )
+from PyQt5.QtWidgets import QApplication, QStyleFactory
 
 def main():
     """Main application entry point."""
 
     # Create timestamp
     start_time = time.time()
+
+    # Load Style sheet
+    StyleSheet = utilities.load_QtCSS_StyleSheet("Qt_Style.css")
+
+    # Create app
+    app = QApplication(sys.argv)
+    # Set Style of the GUI
+    style = "fusion"
+    app.setStyle(QStyleFactory.create(style))
+    app.setStyleSheet(StyleSheet)
+    app.setQuitOnLastWindowClosed(False)
+
+    # Terminate application on SIG_INT signal.
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    # Config the except hook
+    new_except_hook = utilities.except_hook_Qt()
 
     # Initialize logger using configuration
     rootdir = os.path.dirname(os.path.abspath(__file__))
@@ -48,21 +66,15 @@ def main():
     log.info("Logfile initiated...")
     log.critical("Initializing programm:")
 
-    # Creating help functions
-    hfs = utilities.help_functions()
-
-    # Checking installation
-    #boot_up.check_installation()
-
     # Loading all config files and default files, as well as Pad files
     log.critical("Loading setup files ...")
-    stats = boot_up.loading_init_files(hfs)
-    stats.default_values_dict = boot_up.update_defaults_dict().update(stats.default_values_dict)
+    stats = boot_up.loading_init_files()
+    stats.default_values_dict = boot_up.update_defaults_dict(stats.configs["config"], stats.configs["config"].get("framework_variables", {}))
 
     # Initializing all modules
     log.critical("Initializing modules ...")
-    shell = DAQShell()
     vcw = VisaConnectWizard()
+
 
     # Tries to connect to all available devices in the network, it returns a dict of
     # a dict. First dict contains the the device names as keys, the value is a dict
@@ -70,80 +82,45 @@ def main():
     log.critical("Try to connect to devices ...")
     # Connects to all devices and initiates them and returns the updated device_dict
     # with the actual visa resources
-    devices_dict = boot_up.connect_to_devices(vcw, stats.devices_dict).get_new_device_dict()
+    devices_dict = boot_up.connect_to_devices(vcw, stats.configs["config"]["settings"]["Devices"],
+                                              stats.configs.get("device_lib", {}))
+    devices_dict = devices_dict.get_new_device_dict()
 
     log.critical("Starting the event loops ... ")
     table = utilities.table_control_class(
-        stats.default_values_dict,
+        stats.configs["config"],
         devices_dict,
         message_to_main,
-        shell,
         vcw
     )
     if "Table_control" not in devices_dict:
         table = None
     switching = utilities.switching_control(
-        stats.default_values_dict,
+        stats.configs["config"],
         devices_dict,
         message_to_main,
-        shell
     )
 
-    # Holds all active threads started from the main
-    threads = []
+    # Gather auxiliary modules
+    aux = {"Table": table, "Switching": switching,
+           "VCW": vcw, "Devices": devices_dict,
+           "rootdir": rootdir, "App": app,
+           "Message_from_main": message_from_main, "Message_to_main": message_to_main,
+           "Queue_to_GUI": queue_to_GUI, "Configs": stats.configs}
 
     # Starts a new Thread for the measurement event loop
-    thread = utilities.newThread(
-        1,
-        "Measurement event loop",
-        measurement_event_loop,
-        devices_dict,
-        stats.default_values_dict,
-        stats.pad_files_dict,
-        vcw,
-        table,
-        switching,
-        shell
-    )
-    # Add threads to thread list and starts running it
-    threads.append(thread)
-
-    # Starts all threads (this starts correspond to the threading class!!!)
-    for thread in threads:
-        thread.start()
+    MEL = measurement_event_loop(aux)
+    MEL.start()
 
     log.critical("Starting GUI ...")
-    gui = GUI_classes(
-        message_from_main,
-        message_to_main,
-        devices_dict,
-        stats.default_values_dict,
-        stats.pad_files_dict,
-        hfs,
-        vcw,
-        queue_to_GUI,
-        table,
-        switching,
-        shell
-    )
+    gui = GUI_classes(aux)
     # Init the framework for update plots etc.
     frame = utilities.Framework(gui.give_framework_functions)
     # Starts the timer
     frame.start_timer()
 
-    #log.critical("Starting shell...")
-    #shell.start()
-
     log.critical("Start rendering GUI...")
     gui.app.exec_() # Starts the actual event loop for the GUI
-
-    # Wait for all threads to complete
-    log.critical("Joining threads...")
-    # Close the shell by sending the by command
-    #shell.onecmd("bye")
-    for thread in threads:
-        thread.join() # Synchronises the threads so that they finish all at ones.
-
     end_time = time.time()
 
     log.critical("Run time: %s seconds.", round(end_time-start_time, 2))

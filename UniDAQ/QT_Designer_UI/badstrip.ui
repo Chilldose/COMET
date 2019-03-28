@@ -32,44 +32,7 @@
    <string notr="true">color: rgb(0, 0, 0);</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="1" colspan="2">
-    <widget class="PlotWidget" name="strip_plot">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="PlotWidget" name="strip_plot_histogram">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>0</height>
-      </size>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
+   <item row="2" column="2">
     <widget class="QSlider" name="Slider_bins">
      <property name="minimum">
       <number>1</number>
@@ -168,22 +131,40 @@
          <number>1</number>
         </property>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="5" column="2" colspan="2">
+         <item row="1" column="1" colspan="2">
+          <widget class="QLabel" name="label_output">
+           <property name="styleSheet">
+            <string notr="true">background-color: rgb(255, 255, 255);</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="scaledContents">
+            <bool>true</bool>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+           <property name="textInteractionFlags">
+            <set>Qt::LinksAccessibleByMouse|Qt::TextEditable</set>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="2" colspan="2">
           <widget class="QLabel" name="label_5">
            <property name="text">
             <string>Measurement:</string>
            </property>
           </widget>
          </item>
-         <item row="0" column="3">
-          <widget class="QPushButton" name="Button_changeload">
-           <property name="text">
-            <string>Change</string>
-           </property>
-          </widget>
-         </item>
          <item row="0" column="1" colspan="2">
           <widget class="QLabel" name="label_load">
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
            <property name="font">
             <font>
              <pointsize>8</pointsize>
@@ -206,6 +187,13 @@
            </property>
           </widget>
          </item>
+         <item row="0" column="3">
+          <widget class="QPushButton" name="Button_changeload">
+           <property name="text">
+            <string>Change</string>
+           </property>
+          </widget>
+         </item>
          <item row="2" column="0" colspan="4">
           <widget class="Line" name="line">
            <property name="lineWidth">
@@ -213,18 +201,6 @@
            </property>
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label">
-           <property name="font">
-            <font>
-             <pointsize>10</pointsize>
-            </font>
-           </property>
-           <property name="text">
-            <string>Output directory:</string>
            </property>
           </widget>
          </item>
@@ -243,43 +219,26 @@
             <string notr="true">background-color: rgb(140, 255, 78);</string>
            </property>
            <property name="text">
-            <string>Show/Analyse </string>
+            <string>Analyse </string>
            </property>
           </widget>
          </item>
-         <item row="6" column="0">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label">
+           <property name="font">
+            <font>
+             <pointsize>10</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>Output directory:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="7" column="0">
           <widget class="QCheckBox" name="cb_Save_plots">
            <property name="text">
             <string>Save Plots</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1" colspan="2">
-          <widget class="QLabel" name="label_output">
-           <property name="styleSheet">
-            <string notr="true">background-color: rgb(255, 255, 255);</string>
-           </property>
-           <property name="text">
-            <string/>
-           </property>
-           <property name="scaledContents">
-            <bool>true</bool>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-           <property name="textInteractionFlags">
-            <set>Qt::LinksAccessibleByMouse|Qt::TextEditable</set>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="2" colspan="2">
-          <widget class="QComboBox" name="which_measurement"/>
-         </item>
-         <item row="4" column="0" colspan="3">
-          <widget class="Line" name="line_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
@@ -295,46 +254,20 @@
            </property>
           </widget>
          </item>
-         <item row="3" column="1" colspan="3">
-          <widget class="QComboBox" name="which_plot"/>
+         <item row="7" column="2" colspan="2">
+          <widget class="QComboBox" name="which_measurement"/>
          </item>
-         <item row="1" column="3">
-          <widget class="QPushButton" name="Button_changeoutput">
-           <property name="text">
-            <string>Change</string>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="1">
+         <item row="7" column="1">
           <widget class="QCheckBox" name="cb_Save_results">
            <property name="text">
             <string>Save results</string>
            </property>
           </widget>
          </item>
-         <item row="5" column="0">
-          <widget class="QCheckBox" name="radioPlots">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
+         <item row="1" column="3">
+          <widget class="QPushButton" name="Button_changeoutput">
            <property name="text">
-            <string>Plots</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="5" column="1">
-          <widget class="QCheckBox" name="radioData">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="text">
-            <string>analysed data</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
+            <string>Change</string>
            </property>
           </widget>
          </item>
@@ -350,35 +283,158 @@
            </property>
           </widget>
          </item>
+         <item row="4" column="0" colspan="3">
+          <widget class="Line" name="line_2">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QCheckBox" name="radioData">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>analysed data</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="3" column="1" colspan="3">
+          <widget class="QComboBox" name="which_plot"/>
+         </item>
+         <item row="6" column="0">
+          <widget class="QCheckBox" name="radioPlots">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="text">
+            <string>Plots</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="3">
+          <widget class="QPushButton" name="save_plots_button">
+           <property name="text">
+            <string>Save Plots</string>
+           </property>
+          </widget>
+         </item>
         </layout>
        </widget>
       </item>
       <item>
-       <widget class="QLabel" name="report_lable">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QScrollArea" name="scrollArea">
+        <property name="frameShape">
+         <enum>QFrame::NoFrame</enum>
         </property>
-        <property name="autoFillBackground">
-         <bool>false</bool>
+        <property name="lineWidth">
+         <number>0</number>
         </property>
-        <property name="styleSheet">
-         <string notr="true">background-color: rgb(255, 255, 255);</string>
+        <property name="widgetResizable">
+         <bool>true</bool>
         </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignJustify|Qt::AlignTop</set>
-        </property>
-        <property name="margin">
-         <number>15</number>
-        </property>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>495</width>
+           <height>192</height>
+          </rect>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QLabel" name="report_lable">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="font">
+             <font>
+              <pointsize>10</pointsize>
+             </font>
+            </property>
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color: rgb(255, 255, 255);</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignJustify|Qt::AlignTop</set>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+            <property name="margin">
+             <number>15</number>
+            </property>
+            <property name="textInteractionFlags">
+             <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
      </layout>
+    </widget>
+   </item>
+   <item row="2" column="1">
+    <widget class="QLabel" name="label_3">
+     <property name="text">
+      <string>Bins</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1" colspan="2">
+    <widget class="PlotWidget" name="strip_plot_histogram">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="1" colspan="3">
+    <widget class="PlotWidget" name="strip_plot">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>0</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
     </widget>
    </item>
   </layout>

@@ -13,9 +13,8 @@ from PyQt5.QtWidgets import *
 from random import randint
 from time import sleep
 
-from .. import utilities
+from ..utilities import raise_exception, transformation
 
-hf = utilities.help_functions()
 
 class Alignment_window:
 
@@ -39,10 +38,10 @@ class Alignment_window:
         self.sensor_pad_file = None
 
         self.variables = GUI
-        self.transformation_matrix = self.variables.default_values_dict["Defaults"]["trans_matrix"]
-        self.V0 = self.variables.default_values_dict["Defaults"]["V0"]
+        self.transformation_matrix = self.variables.default_values_dict["settings"]["trans_matrix"]
+        self.V0 = self.variables.default_values_dict["settings"]["V0"]
         self.layout = layout
-        self.trans = utilities.transformation()
+        self.trans = transformation()
 
         # Settings tab
         alignment_widget = QWidget()
@@ -67,7 +66,7 @@ class Alignment_window:
     def current_strip_lcd(self):
         '''This function updtes the current strip lcd display'''
         current_lcd_value = self.alignment.current_strip_lcdNumber.intValue()
-        current_strip = self.variables.default_values_dict["Defaults"].get("current_strip",-1)
+        current_strip = self.variables.default_values_dict["settings"].get("current_strip",-1)
 
         if current_lcd_value != current_strip:
             self.alignment.current_strip_lcdNumber.display(current_strip)
@@ -75,16 +74,16 @@ class Alignment_window:
 
     def move_to_strip_action(self):
         '''This is the action when the move to strip button is pressed'''
-        if not self.variables.default_values_dict["Defaults"]["table_is_moving"]:
+        if not self.variables.default_values_dict["settings"]["table_is_moving"]:
             strip_to_move = self.alignment.move_to_strip_spin.value()
 
-            if self.variables.default_values_dict["Defaults"]["Alignment"]:
+            if self.variables.default_values_dict["settings"]["Alignment"]:
                 error = self.variables.table.move_to_strip(self.sensor_pad_file, (int(strip_to_move)-1),
                                                            self.trans,
                                                            self.transformation_matrix, self.V0,
-                                                           self.variables.default_values_dict["Defaults"]["height_movement"])
+                                                           self.variables.default_values_dict["settings"]["height_movement"])
                 if error:
-                    self.variables.message_to_main.put(error)
+                    #self.variables.message_to_main.put(error)
                     self.error_action(error)
                     return
             else:
@@ -103,7 +102,7 @@ class Alignment_window:
             return
 
 
-    @hf.raise_exception
+    @raise_exception
     def start_alignment_action(self, kwargs = None):
         '''This function starts the whole alignement proceedure'''
 
@@ -116,7 +115,7 @@ class Alignment_window:
             msg.exec_()
             return
 
-        if not self.variables.default_values_dict["Defaults"]["Table_state"]:
+        if not self.variables.table.table_ready:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
             msg.setText("It seems that no table is connected to this machine...")
@@ -142,13 +141,13 @@ class Alignment_window:
 
         if step > 5 or not self.alignment_started:
             self.what_to_do_text(-1) # Resets the text
-            if self.variables.default_values_dict["Defaults"]["Alignment"]:
+            if self.variables.default_values_dict["settings"]["Alignment"]:
                 error = self.variables.table.move_to_strip(self.sensor_pad_file, 0,
                                                            self.trans,
                                                            self.transformation_matrix, self.V0,
-                                                           self.variables.default_values_dict["Defaults"]["height_movement"])
+                                                           self.variables.default_values_dict["settings"]["height_movement"])
                 if error:
-                    self.variables.message_to_main.put(error)
+                    #self.variables.message_to_main.put(error)
                     self.error_action(error)
                     return
             self.alignment_started = False
@@ -161,7 +160,7 @@ class Alignment_window:
         if step == 5:
             self.alignment_started = False
 
-    @hf.raise_exception
+    @raise_exception
     def set_checkboxes(self, list):
         '''This function sets the checkboxes for the checklist'''
         for i, state in enumerate(list):
@@ -173,13 +172,14 @@ class Alignment_window:
         if step == -1:
             # reset all elements
             self.set_checkboxes([False, False, False, False, False])
+            self.variables.default_values_dict["settings"]["Alignment"] = False # So I cannot do a measuremnt until the alignment is done
 
         if step == 0:
             # Reset some elements and set new elements
             self.set_checkboxes([False, False, False, False, False])
             # Get sensor
-            self.project = self.variables.default_values_dict["Defaults"]["Current_project"]
-            self.sensor = str(self.variables.default_values_dict["Defaults"]["Current_sensor"])
+            self.project = self.variables.default_values_dict["settings"]["Current_project"]
+            self.sensor = str(self.variables.default_values_dict["settings"]["Current_sensor"])
             try:
                 self.sensor_pad_file = self.variables.pad_files_dict[self.project][self.sensor].copy()
                 self.reference_pads = self.sensor_pad_file["reference_pads"][:]
@@ -188,7 +188,6 @@ class Alignment_window:
                 self.number_of_pads = len(self.sensor_pad_file["data"])
                 self.update_static()
             except :
-                self.variables.message_to_main.put({"RequestError": "There was an error while accessing the pad file data. Is the pad file valid?"})
                 self.log.error("An error while accessing the pad files with error.")
                 self.error_action("An error while accessing the pad files with error.")
 
@@ -210,9 +209,9 @@ class Alignment_window:
             relative_movepos = [x1 - x2 for (x1, x2) in zip(sensor_second_pos, sensor_first_pos)]
             #No add the strip length to the y axis for aliognement reasons
             #relative_movepos[1] = relative_movepos[1] + self.sensor_pad_file["strip_length"]
-            error = self.variables.table.relative_move_to(relative_movepos, True, self.variables.default_values_dict["Defaults"].get("height_movement",800))
+            error = self.variables.table.relative_move_to(relative_movepos, True, self.variables.default_values_dict["settings"]["height_movement"])
             if error:
-                self.variables.message_to_main.put(error)
+                #self.variables.message_to_main.put(error)
                 self.error_action(error)
                 return
             self.variables.table.set_axis([True, True, False])
@@ -228,9 +227,9 @@ class Alignment_window:
             sensor_first_pos = self.reference_pads_positions[1]  # this gives me absolute positions
             sensor_second_pos = self.reference_pads_positions[2]  # this gives me absolute positions
             relative_movepos = [x1 - x2 for (x1, x2) in zip(sensor_second_pos, sensor_first_pos)]
-            error = self.variables.table.relative_move_to(relative_movepos, True,self.variables.default_values_dict["Defaults"].get("height_movement", 800))
+            error = self.variables.table.relative_move_to(relative_movepos, True,self.variables.default_values_dict["settings"]["height_movement"])
             if error:
-                self.variables.message_to_main.put(error)
+                #self.variables.message_to_main.put(error)
                 self.error_action(error)
                 return
             self.variables.table.set_axis([True, True, False])
@@ -262,9 +261,9 @@ class Alignment_window:
 
             table_abs_pos = self.trans.vector_trans(relative_check_pos, T, V0)
 
-            error = self.variables.table.move_to(list(table_abs_pos), True, self.variables.default_values_dict["Defaults"].get("height_movement", 800))
+            error = self.variables.table.move_to(list(table_abs_pos), True, self.variables.default_values_dict["settings"]["height_movement"])
             if error:
-                self.variables.message_to_main.put(error)
+                #self.variables.message_to_main.put(error)
                 self.error_action(error)
                 return
 
@@ -272,9 +271,9 @@ class Alignment_window:
         if step == 5:
             # calculate the transformation and save it
             self.set_checkboxes([True, True, True, True, True]) # The last true only when alignemt was successful
-            self.variables.default_values_dict["Defaults"]["trans_matrix"] = self.transformation_matrix
-            self.variables.default_values_dict["Defaults"]["V0"] = self.V0
-            self.variables.default_values_dict["Defaults"]["Alignment"] = True
+            self.variables.default_values_dict["settings"]["trans_matrix"] = self.transformation_matrix
+            self.variables.default_values_dict["settings"]["V0"] = self.V0
+            self.variables.default_values_dict["settings"]["Alignment"] = True
 
     def abort_action(self):
         '''Aborts the alignement proceedure'''
@@ -430,13 +429,13 @@ class Alignment_window:
 
         def table_move_indi():
             '''This function updates the table indicator'''
-            if self.variables.default_values_dict["Defaults"]["table_is_moving"]:
+            if self.variables.default_values_dict["settings"]["table_is_moving"]:
                 self.table_move_ui.table_ind.setStyleSheet("background : rgb(255,0,0); border-radius: 25px;border: 1px solid black;border-radius: 5px")
             else:
                 self.table_move_ui.table_ind.setStyleSheet("background : grey; border-radius: 25px;border: 1px solid black;border-radius: 5px")
 
 
-        @hf.raise_exception
+        @raise_exception
         def adjust_table_speed(kwargs = None): # must be here because of reasons
             '''This function adjusts the speed of the table'''
             speed = int(float(self.variables.devices_dict["Table_control"]["default_joy_speed"])/100. * float(self.table_move_ui.Table_speed.value()))
@@ -480,9 +479,9 @@ class Alignment_window:
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
             xpos = self.table_move_ui.x_move.value()
-            error = self.variables.table.move_to([xpos, pos[1], pos[2]], True, self.variables.default_values_dict["Defaults"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
+            error = self.variables.table.move_to([xpos, pos[1], pos[2]], True, self.variables.default_values_dict["settings"]["height_movement"])
+            #if error:
+                #self.variables.message_to_main.put(error)
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
@@ -493,9 +492,9 @@ class Alignment_window:
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
             ypos = self.table_move_ui.y_move.value()
-            error = self.variables.table.move_to([pos[0], ypos, pos[2]], self.variables.default_values_dict["Defaults"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
+            error = self.variables.table.move_to([pos[0], ypos, pos[2]], self.variables.default_values_dict["settings"]["height_movement"])
+            #if error:
+                #self.variables.message_to_main.put(error)
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
@@ -505,19 +504,19 @@ class Alignment_window:
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
             zpos = self.table_move_ui.z_move.value()
-            error = self.variables.table.move_to([pos[0], pos[1], zpos], self.variables.default_values_dict["Defaults"]["height_movement"])
-            if error:
-                self.variables.message_to_main.put(error)
+            error = self.variables.table.move_to([pos[0], pos[1], zpos], self.variables.default_values_dict["settings"]["height_movement"])
+            #if error:
+               # self.variables.message_to_main.put(error)
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
-        @hf.raise_exception
+        @raise_exception
         def enable_table_control(bool):
             '''This function enables the table and the joystick frame'''
             if bool:
                 #This will be called, when the table control is enabled
                 reply = QMessageBox.question(None, 'Warning', "Are you sure move the table? \n Warning: If measurement is running table movement ist not possible", QMessageBox.Yes, QMessageBox.No)
-                if reply == QMessageBox.Yes and not self.variables.default_values_dict["Defaults"]["Measurement_running"]:
+                if reply == QMessageBox.Yes and not self.variables.default_values_dict["settings"]["Measurement_running"]:
                     self.table_move_ui.frame_12.setEnabled(bool)
                     if self.table_move_ui.z_move.isEnabled():
                         self.table_move_ui.z_move.setEnabled(False)
@@ -540,15 +539,15 @@ class Alignment_window:
                         self.table_move_ui.frame_12.setDisabled(True)
                         self.table_move_ui.Enable_table.setChecked(False)
                         self.variables.table.set_joystick(False)
-                        self.variables.default_values_dict["Defaults"]["zlock"] = True
-                        self.variables.default_values_dict["Defaults"]["joystick"] = False
+                        self.variables.default_values_dict["settings"]["zlock"] = True
+                        self.variables.default_values_dict["settings"]["joystick"] = False
                         self.table_move_ui.unlock_Z.setChecked(False)
                         self.variables.table.set_axis([True, True, True])  # This is necessary so all axis can be adresses while move
                         return
 
 
                     self.variables.table.set_joystick(True)
-                    self.variables.default_values_dict["Defaults"]["joystick"] = True
+                    self.variables.default_values_dict["settings"]["joystick"] = True
                     adjust_table_speed()
                     self.variables.table.set_axis([True, True, False]) # This is necessary so by default the joystick can adresses xy axis
 
@@ -557,8 +556,8 @@ class Alignment_window:
                     self.table_move_ui.frame_12.setDisabled(bool)
                     self.table_move_ui.Enable_table.setChecked(False)
                     self.variables.table.set_joystick(False)
-                    self.variables.default_values_dict["Defaults"]["zlock"] = True
-                    self.variables.default_values_dict["Defaults"]["joystick"] = False
+                    self.variables.default_values_dict["settings"]["zlock"] = True
+                    self.variables.default_values_dict["settings"]["joystick"] = False
                     self.table_move_ui.unlock_Z.setChecked(False)
                     self.variables.table.set_axis([True, True, True]) # This is necessary so all axis can be adresses while move
             else:
@@ -571,24 +570,24 @@ class Alignment_window:
             '''This function moves the table back to the previous position'''
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True]) # so all axis can be adressed
-            errorcode = self.variables.table.move_to([self.previous_xloc, self.previous_yloc, self.previous_zloc], True, self.variables.default_values_dict["Defaults"]["height_movement"])
-            if errorcode:
-                self.variables.message_to_main.put(errorcode)
+            errorcode = self.variables.table.move_to([self.previous_xloc, self.previous_yloc, self.previous_zloc], True, self.variables.default_values_dict["settings"]["height_movement"])
+            #if errorcode:
+                #self.variables.message_to_main.put(errorcode)
             self.variables.table.set_axis([True, True, False])  # so z axis is off again
             self.variables.table.set_joystick(True)
 
         def z_pos_warning():
-            if self.variables.default_values_dict["Defaults"]["zlock"]:
+            if self.variables.default_values_dict["settings"]["zlock"]:
                 move_z = QMessageBox.question(None, 'Warning',"Moving the table in Z, can cause serious demage on the setup and sensor.", QMessageBox.Ok)
                 if move_z:
                     self.variables.table.set_axis([True, True, True])
                     self.table_move_ui.unlock_Z.setChecked(True)
-                    self.variables.default_values_dict["Defaults"]["zlock"] = False
+                    self.variables.default_values_dict["settings"]["zlock"] = False
                 else:
                     self.table_move_ui.unlock_Z.setChecked(False)
             else:
                 self.variables.table.set_axis([True, True, False])
-                self.variables.default_values_dict["Defaults"]["zlock"] = True
+                self.variables.default_values_dict["settings"]["zlock"] = True
                 self.table_move_ui.unlock_Z.setChecked(False)
 
 

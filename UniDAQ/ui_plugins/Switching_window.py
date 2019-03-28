@@ -13,12 +13,11 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 
-from .. import utilities
+from ..utilities import raise_exception
 from .. import VisaConnectWizard
 
 l = logging.getLogger(__name__)
 
-hf = utilities.help_functions()
 vcw = VisaConnectWizard.VisaConnectWizard()
 
 class Switching_window:
@@ -43,12 +42,6 @@ class Switching_window:
         self.switching.reset_button.clicked.connect(self.reset_switching)
         self.switching.Override.clicked['bool'].connect(self.manual_override_action)
 
-        # Check first switching
-        #self.check_switching_action()
-
-        # Add cmd option
-        self.settings.shell.add_cmd_command(self.reset_switching)
-
     def manual_override_action(self, bool):
         '''Manual switching enabling'''
         self.set_radio_buttons_checkable(bool)
@@ -62,7 +55,7 @@ class Switching_window:
         switching = self.settings.devices_dict
         for device in switching.values():  # loop over all switching systems
             if "Switching relay" in device["Device_type"]:
-                if device["Display_name"] == "Brand Box":
+                if device["Device_name"] == "Brand Box":
                     getattr(self.switching, "A1").setEnabled(checkable)
                     getattr(self.switching, "A2").setEnabled(checkable)
                     getattr(self.switching, "B1").setEnabled(checkable)
@@ -70,13 +63,13 @@ class Switching_window:
                     getattr(self.switching, "C1").setEnabled(checkable)
                     getattr(self.switching, "C2").setEnabled(checkable)
 
-                if device["Display_name"] == "Switching":
+                if device["Device_name"] == "Switching":
                     # First reset all previous checked radio buttons
                     for i in range(1, 3):  # matrices
                         for j in range(1, 5):  # Zeilen
                             for k in range(1, 6):  # Spalten
                                 getattr(self.switching, "m" + str(i) + str(j) + str(k)).setEnabled(checkable)
-    @hf.raise_exception
+    @raise_exception
     def update_GUI_switching_scheme(self, kwargs= None):
         '''This function updates the GUI switching scheme'''
         switching = self.switching_control.check_switching_action()
@@ -118,7 +111,7 @@ class Switching_window:
                 self.update_GUI_switching_scheme()
 
 
-    @hf.raise_exception
+    @raise_exception
     def apply_switching_button_action(self, *kwargs):
         if self.switching.IV_radio.isChecked():
             self.switching_control.switch_to_measurement("IV")

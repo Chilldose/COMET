@@ -66,8 +66,6 @@ def configureSetup(widget):
     QApplication.quit() # Quits the setup
     #sleep(0.5) # Because it takes some time to get rid of the window in the memory
 
-
-
 def Loadmain():
     """This function looks if settings have already been done, otherwise it configs everything and starts the env"""
 
@@ -79,7 +77,7 @@ def Loadmain():
 
     # Get config dirs
     config_dir = os.path.join(package_dir, "UniDAQ\\config\\config")
-    list_configs = list(map(os.path.basename, glob.glob(os.path.join(config_dir, "defaults.yml"))))
+    list_configs = list(map(os.path.basename, glob.glob(os.path.join(config_dir, "settings.yml"))))
     setup_configs = list(map(os.path.basename, [d for d in os.listdir(setup_dir) if os.path.isdir(os.path.join(setup_dir, d))]))
 
     if len(list_configs)==1:
