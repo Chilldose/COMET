@@ -34,6 +34,7 @@ if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
 
     manager = VisaDeviceManager('@sim')
+    context = {} # placeholder
 
-    measurement = TableMeasurement(manager)
+    measurement = TableMeasurement(context)
     measurement.run()

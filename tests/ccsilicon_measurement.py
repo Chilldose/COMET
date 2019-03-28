@@ -144,6 +144,7 @@ if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
 
     manager = VisaDeviceManager('@sim')
+    context = {} # placeholder
 
     # Add fake devices
     manager.devices = {

@@ -69,6 +69,7 @@ if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
 
     manager = VisaDeviceManager('@sim')
+    context = {} # placeholder
 
     measurement = MyFancyMeasurement(manager)
     measurement.run()
