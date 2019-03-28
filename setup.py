@@ -28,6 +28,7 @@ setup(
         'pyqtgraph',
         'PyVISA',
         'PyVISA-py',
+        'PyVISA-sim',
         'PyYAML',
         'scipy',
     ],
