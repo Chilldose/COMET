@@ -5,7 +5,7 @@ import sys, os
 
 from UniDAQ.core.process import Process, StopProcessIteration, SkipProcessIteration
 from UniDAQ.core.measurement import Measurement, StopMeasurement
-from UniDAQ.core.devicemanager import VisaDeviceManager
+from UniDAQ.VisaConnectWizard import VisaConnectWizard import VisaDeviceManager
 
 class MySubProcess(Process):
 

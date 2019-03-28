@@ -2,7 +2,7 @@ import logging
 
 from UniDAQ.core.process import Process
 from UniDAQ.core.measurement import Measurement
-from UniDAQ.core.devicemanager import VisaDeviceManager
+from UniDAQ.VisaConnectWizard import VisaConnectWizard import VisaDeviceManager
 
 class ProcessY(Process):
 

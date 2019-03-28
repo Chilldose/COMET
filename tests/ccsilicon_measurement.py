@@ -4,7 +4,7 @@ import time
 
 from UniDAQ.core.process import Process, StopProcessIteration
 from UniDAQ.core.measurement import Measurement
-from UniDAQ.core.devicemanager import VisaDeviceManager
+from UniDAQ.VisaConnectWizard import VisaConnectWizard import VisaDeviceManager
 
 class ClimateChamberDevice(object):
     """Fake climate chamber device."""
