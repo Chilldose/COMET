@@ -132,6 +132,7 @@ class except_hook_Qt:
                                            "Exception: {}\n"
                                            "Traceback: {}".format(cls, exception, traceback))
             self.old_hook(cls, exception, traceback)
+            sys.exit(1)
 
 def write_init_file( name, data, path = ""):
         """
@@ -1214,8 +1215,8 @@ class switching_control:
                 command = self.build_command(devices, "check_all_closed_channel")
                 switching = str(self.vcw.query(devices, command)).strip()
                 switching = self.pick_switch_response(devices, switching)
-                current_switching.update({devices["Display_name"]: switching})
-                self.settings["settings"]["current_switching"][devices["Display_name"]] = current_switching
+                current_switching.update({devices["Device_name"]: switching})
+                self.settings["settings"]["current_switching"][devices["Device_name"]] = current_switching
         return current_switching
 
     def apply_specific_switching(self, switching_dict):
@@ -1225,7 +1226,7 @@ class switching_control:
         devices_found = 0
         for devices in self.devices.values(): # Loop over all devices values (we need the display name)
             for display_names in switching_dict: # extract all devices names for identification
-                if display_names in devices["Display_name"]:
+                if display_names in devices["Device_name"]:
                     switching_success = self.change_switching(devices, switching_dict[display_names])
                     devices_found += 1
 
@@ -1253,7 +1254,7 @@ class switching_control:
             for name, switch_list in self.settings["Switching"][measurement].items():
                 device_found = False
                 for devices in self.devices.values():
-                    if name in devices["Display_name"]:
+                    if name in devices["Device_name"]:
                         device = devices
                         if not switch_list:
                             switch_list = []
@@ -1339,7 +1340,7 @@ class switching_control:
         if "Visa_Resource" in device: #Searches for the visa resource
             resource = device["Visa_Resource"]
         else:
-            self.log.error("The VISA resource for device " + str(device["Display_name"]) + " could not be found. No switching possible.")
+            self.log.error("The VISA resource for device " + str(device["Device_name"]) + " could not be found. No switching possible.")
             return -1
         command = self.build_command(device, "check_all_closed_channel")
         current_switching = str(self.vcw.query(resource, command)).strip()  # Get current switching
@@ -1368,7 +1369,7 @@ class switching_control:
                 command = self.build_command(device, "check_all_closed_channel")
                 current_switching = str(self.vcw.query(device, command)).strip()
                 current_switching = self.pick_switch_response(device, current_switching)
-                self.settings["settings"]["current_switching"][device["Display_name"]] = current_switching
+                self.settings["settings"]["current_switching"][device["Device_name"]] = current_switching
 
                 command_diff = list(set(configs).difference(set(current_switching)))
                 if len(command_diff) != 0:  #Checks if all the right channels are closed
@@ -1381,7 +1382,7 @@ class switching_control:
                 device_not_ready = False
             counter += 1
 
-        self.log.error("No response from switching system: " + device["Display_name"])
+        self.log.error("No response from switching system: " + device["Device_name"])
         return False
 
     def build_command_depricated(self, device, command_tuple):

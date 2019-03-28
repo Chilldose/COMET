@@ -40,14 +40,18 @@ class Stripscan_window:
 
         # Settings tab
         stripscan_widget = QWidget()
+
         self.stripscan = self.variables.load_QtUi_file("stripscan.ui", stripscan_widget)
+        #self.stripscan.gridLayout_2.setSpacing(0.)
+        #self.stripscan.gridLayout_2.setContentsMargins(40., 4., 4., 4.)
+        #self.stripscan.gridLayout_2.setSpacing(0)
+        #self.stripscan.gridLayout_2.setMargin(0)
         self.layout.addWidget(stripscan_widget)
         self.strip = -1
         self.new_meas = True
         self.number_of_strips = 0
 
-        #self.stripscan.gridLayout_2.layout.setSpacing(0.)
-        self.stripscan.gridLayout_2.setContentsMargins(0., 0., 0., 0.)
+
 
         # Config plots
         for items in self.measurement_list:
@@ -65,6 +69,7 @@ class Stripscan_window:
         object.setLabel('left', str(yAxis[0]), units=str(yAxis[1]), **self.labelStyle)
         object.showAxis('top', show=True)
         object.showAxis('right', show=True)
+        object.showGrid(x=True, y=True, alpha=None)
         object.setLogMode(x=logscale[0], y=logscale[1])
         object.setContentsMargins(0., 0., 0., 0.)
         object.getPlotItem().invertY(inverty)

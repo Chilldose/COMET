@@ -1,4 +1,4 @@
-{    "set_umotgrad": "setumotgrad", 
+{   "set_umotgrad": "setumotgrad", 
     "calibrate_motor": [
         "calibrate", 
         "rm"
@@ -64,12 +64,12 @@
     "get_axis": "getaxis", 
     "set_motiondir": "setmotiondir", 
     "set_relative_move_to": "rmove",
-"CSV_relative_move_to": "x,y,z",
+    "CSV_relative_move_to": "x,y,z",
     "Baud_rate": "9600", 
     "reset_device": ["restore", "ico", "clear"],
     "get_position": "pos", 
     "default_axis": ["1 1", "1 2", "1 3"], 
-"separator": " ",
+    "separator": " ",
     "Device_IDN": "Corvus 1 462 1 0", 
     "set_pitch": "setpitch", 
     "set_joystick": "joystick", 
