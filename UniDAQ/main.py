@@ -47,7 +47,7 @@ def main():
     # Set Style of the GUI
     style = "fusion"
     app.setStyle(QStyleFactory.create(style))
-    app.setStyleSheet(StyleSheet)
+    #app.setStyleSheet(StyleSheet)
     app.setQuitOnLastWindowClosed(False)
 
     # Terminate application on SIG_INT signal.
