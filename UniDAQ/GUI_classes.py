@@ -19,6 +19,8 @@ from PyQt5.QtCore import Qt
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
+from .gui.MainWindow import MainWindow
+
 from .GUI_event_loop import *
 from .bad_strip_detection import *
 from .utilities import ErrorMessageBoxHandler
@@ -34,9 +36,6 @@ class GUI_classes(GUI_event_loop, QWidget):
         #Intialize the QT classes
         self.app = framework_variables["App"]
         self.log = logging.getLogger(__name__)
-
-        # Handler for error messages
-        self.errMsg = ErrorMessageBoxHandler()
 
         # Some Variables
         self.message_to_main = message_to_main
@@ -70,10 +69,7 @@ class GUI_classes(GUI_event_loop, QWidget):
 
 
         # This is the main Tab Widget in which all other tabs are implemented
-        self.QTabWidget_obj = QTabWidget()
-        self.QTabWidget_obj.setWindowFlags(Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint) # Only minimize and maximize button are active
-        self.QTabWidget_obj.resize(1900, 1000) # in pixels
-        self.errMsg = ErrorMessageBoxHandler(QiD=self.QTabWidget_obj)
+        self.main_window = MainWindow(self.message_to_main)
 
         # For Thomas, because he does not like black plots
         if self.white_plots:
@@ -99,7 +95,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.event_loop_thread = GUI_event_loop(self, self.message_from_main,
                                       self.message_to_main, self.devices_dict, self.default_values_dict,
                                       self.pad_files_dict, self.vcw, self.meas_data)
-        self.event_loop_thread.Errsig.connect(self.errMsg.new_message)
+        self.event_loop_thread.Errsig.connect(self.main_window.errMsg.new_message)
         self.event_loop_thread.start()
 
         self.log.info("Starting GUI ... ")
@@ -183,23 +179,15 @@ class GUI_classes(GUI_event_loop, QWidget):
                 for ui_obj in self.final_tabs: # Not very pretty
                     if elements in ui_obj:
                         self.log.info("Adding UI module to widget: {!s}".format(elements))
-                        self.QTabWidget_obj.addTab(ui_obj[0], ui_obj[1])  # elements consits of a tupel object, first is the ui object the second the name of the tab
+                        self.main_window.addTab(ui_obj[0], ui_obj[1])  # elements consits of a tupel object, first is the ui object the second the name of the tab
 
         else: # If no order is implied, also renders all plugins found
             for ui_obj in self.final_tabs:
-                self.QTabWidget_obj.addTab(ui_obj[0], ui_obj[1]) #elements consits of a tupel object, first is the ui object the second the name of the tab
-        # Add tabs (for better understanding)
-        #self.QTabWidget_obj.addTab(self.QWidget_Maintab, "Main")
-
-        # Appearence of the window
-        self.QTabWidget_obj.setWindowTitle('SenTestSoftCMS - STSC')
-
-        # setting the path variable for icon
-        path = osp.join(osp.dirname(sys.modules[__name__].__file__), 'images/logo.png')
-        self.QTabWidget_obj.setWindowIcon(QIcon(path))
+                self.main_window.addTab(ui_obj[0], ui_obj[1]) #elements consits of a tupel object, first is the ui object the second the name of the tab
 
         # Show me what you goooot!!!!
-        self.QTabWidget_obj.show()
+        self.main_window.show()
+        self.main_window.raise_()
 
     def add_update_function(self, func): # This function adds function objects to a list which will later on be executed by updated periodically
         self.functions.append(func)

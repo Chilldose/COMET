@@ -16,6 +16,7 @@ punished!
 """
 
 import logging
+import signal
 import time
 import sys
 import os
@@ -48,6 +49,9 @@ def main():
     app.setStyle(QStyleFactory.create(style))
     app.setStyleSheet(StyleSheet)
     app.setQuitOnLastWindowClosed(False)
+
+    # Terminate application on SIG_INT signal.
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     # Config the except hook
     new_except_hook = utilities.except_hook_Qt()
