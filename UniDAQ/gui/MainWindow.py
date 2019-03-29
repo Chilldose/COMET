@@ -48,12 +48,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.startAct.setIcon(QtGui.QIcon(os.path.join(ResourcePath, 'start.svg')))
         self.startAct.setStatusTip(self.tr("Start measurement"))
         self.startAct.triggered.connect(self.onStart)
+        self.startAct.setCheckable(True)
         # Action for stopping a measurement.
         self.stopAct = QtWidgets.QAction(self.tr("S&top"), self)
         self.stopAct.setIcon(QtGui.QIcon(os.path.join(ResourcePath, 'stop.svg')))
         self.stopAct.setStatusTip(self.tr("Stop measurement"))
         self.stopAct.triggered.connect(self.onStop)
+        self.stopAct.setCheckable(True)
+        self.stopAct.setChecked(True)
         self.stopAct.setEnabled(False)
+        # Action group for measurement control
+        self.measureActGroup = QtWidgets.QActionGroup(self)
+        self.measureActGroup.addAction(self.startAct)
+        self.measureActGroup.addAction(self.stopAct)
+        self.measureActGroup.setExclusive(True)
         # Open contents URL.
         self.contentsAct = QtWidgets.QAction(self.tr("&Contents"), self)
         self.contentsAct.setShortcut(QtGui.QKeySequence(Qt.Key_F1))
@@ -66,9 +74,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.fileMenu = self.menuBar().addMenu(self.tr("&File"))
         self.fileMenu.addAction(self.quitAct)
         # Measurement menu
-        self.measureMenu = self.menuBar().addMenu(self.tr("&Measure"))
-        self.measureMenu.addAction(self.startAct)
-        self.measureMenu.addAction(self.stopAct)
+        self.measureMenu = self.menuBar().addMenu(self.tr("&Measure!!"))
+        self.measureMenu.addActions(self.measureActGroup.actions())
         # Help menu
         self.helpMenu = self.menuBar().addMenu(self.tr("&Help"))
         self.helpMenu.addAction(self.contentsAct)
@@ -78,8 +85,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolbar = self.addToolBar("Toolbar")
         self.toolbar.setMovable(False)
         self.toolbar.setFloatable(False)
-        self.toolbar.addAction(self.startAct)
-        self.toolbar.addAction(self.stopAct)
+        self.toolbar.addActions(self.measureActGroup.actions())
 
     def createStatusBar(self):
         """Create status bar."""
@@ -91,13 +97,15 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def onStart(self):
         """Starting a measurement."""
-        self.startAct.setEnabled(False)
-        self.stopAct.setEnabled(True)
+        self.startAct.setEnabled(not self.startAct.isEnabled())
+        self.stopAct.setEnabled(not self.stopAct.isEnabled())
+        # TODO
 
     def onStop(self):
         """Stopping current measurement."""
-        self.startAct.setEnabled(True)
-        self.stopAct.setEnabled(False)
+        self.startAct.setEnabled(not self.startAct.isEnabled())
+        self.stopAct.setEnabled(not self.stopAct.isEnabled())
+        # TODO
 
     def onShowContents(self):
         """Open web browser and open contents."""
