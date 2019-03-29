@@ -78,14 +78,14 @@ class Resources_window:
 
                 # To be checked values
                 if "Visa_Resource" in device_dict:
-                    self.log.info("Resource found for device: {}".format(device_dict["Display_name"]))
+                    self.log.info("Resource found for device: {}".format(device_dict["Device_name"]))
                     instrument.device_connected_at_label.setText(str(device_dict["Visa_Resource"]))
                     instrument.device_connected_label.setText("CONNECTED")
                     self.device_state(instrument.device_connected_label, "CONFIGURED")
                     # instrument.device_connected_checkbox.setChecked(True) # legacy
                     #instrument.device_connected_label.setStyleSheet("QFrame { background :rgb(0, 255, 0) }")
                 else:
-                    self.log.info("Resource NOT found for device: {}".format(device_dict["Display_name"]))
+                    self.log.info("Resource NOT found for device: {}".format(device_dict["Device_name"]))
                     instrument.device_connected_at_label.setText("None")
                     instrument.device_connected_label.setText("NOT CONNECTED")
                     self.device_state(instrument.device_connected_label, "ERROR")

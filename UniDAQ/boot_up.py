@@ -45,8 +45,8 @@ class SetupLoader(object):
                 new_device_dict = self.create_dictionary(file) # Create a dict out of the config
                 if "Settings_name" in new_device_dict: # Looks for the name of the config
                     self.configs[con_name][new_device_dict["Settings_name"]] = new_device_dict # Updates the parent
-                elif "Display_name" in new_device_dict: # Looks for the name of the config
-                    self.configs[con_name][new_device_dict["Display_name"]] = new_device_dict # Updates the parent
+                elif "Device_name" in new_device_dict: # Looks for the name of the config
+                    self.configs[con_name][new_device_dict["Device_name"]] = new_device_dict # Updates the parent
                 else:
                     self.log.error("No settings name found for config file: {!s}. File will be ignored.".format(file))
 
@@ -56,7 +56,7 @@ class SetupLoader(object):
             for pad_dir in [d for d in os.listdir(subdir) if os.path.isdir(os.path.join(subdir, d))]:
                 self.configs[con_name][pad_dir] = self.read_pad_files(os.path.join(subdir, pad_dir))
 
-        self.config_device_notation() # Changes the names of the dicts key for the devives, so that they are independet inside the program
+        #self.config_device_notation() # Changes the names of the dicts key for the devives, so that they are independet inside the program
 
     def read_pad_files(self, path):
         '''This function reads the pad files and returns a dictionary with the data'''
@@ -115,7 +115,7 @@ class SetupLoader(object):
         devices_d = self.configs.get("device_lib", {}).copy()
         # Searches for devices in the device list, returns false if not found (real device is the value dict of the device
         for device in devices_d:
-            if devices_d[device].get("Display_name", "") in new_assigned.values() and devices_d[device].get("Display_name", "") not in assigned_dicts:
+            if devices_d[device].get("Device_name", "") in new_assigned.values() and devices_d[device].get("Device_name", "") not in assigned_dicts:
                 # syntax for changing keys in dictionaries dictionary[new_key] = dictionary.pop(old_key)
                 lKey = [key for key, value in new_assigned.items() if value == device][0]
                 self.configs["device_lib"][lKey] = self.configs["device_lib"].pop(device)
@@ -124,7 +124,7 @@ class SetupLoader(object):
 
         for missing in new_assigned.values():
             for device in self.configs["device_lib"].copy():
-                if missing in self.configs["device_lib"][device].get("Display_name", ""):
+                if missing in self.configs["device_lib"][device].get("Device_name", ""):
                     lKey = [key for key, value in new_assigned.items() if value == missing][0]
                     self.configs["device_lib"][lKey] = self.configs["device_lib"][device]
 
@@ -142,26 +142,33 @@ class connect_to_devices:
     '''This class simply handles the connections, generates a dictionary with all devices.
     This can be accessed via self.get_new_device_dict()'''
 
-    def __init__(self, vcw, device_dict):
-        """Actually does everythin on its own"""
+    def __init__(self, vcw, device_dict, device_lib):
+        """
+
+        :param vcw: The connect wizard class
+        :param connect_to: A dictionary containing the information how to connect to a device
+        :param device_lib: All devices
+        """
 
         self.log = logging.getLogger(__name__)
         self.vcw = vcw
         self.device_dict = device_dict
+        self.device_lib = device_lib
+        #self.vcw.show_instruments() # Lists all devices which are connected to the PC
 
 
-        self.vcw.show_instruments() # Lists all devices which are connected to the PC
 
-        for device in device_dict.keys():  # device_dict is a dictionary containing dictionaries
-
+        for device in device_dict:  # device_dict is a dictionary containing dictionaries
+            # Check if device is present in the device lib
+            if device_dict[device]["Device_name"] not in device_lib:
+                self.log.error("No additional parameters for device {} found! This may result in further errors".format(device))
             try:
                 device_IDN = device_dict[device]["Device_IDN"]  # gets me the IDN for each device loaded
                 connection_type = device_dict[device].get("Connection_type", -1) # Gets me the type of the connection
-                if "device_IDN_query" in device_dict[device]:
-                    IDN_query = device_dict[device]["device_IDN_query"]
+                if "device_IDN_query" in device_lib[device_dict[device]["Device_name"]]:
+                    IDN_query = device_lib[device_dict[device]["Device_name"]]["device_IDN_query"]
                 else:
                     IDN_query = "*IDN?"
-
                 if "GPIB" in str(connection_type).upper():
                     # This manages the connections for GBIP devices
 
@@ -172,12 +179,9 @@ class connect_to_devices:
                         else:
                             self.log.error("Connection could not be established to device: " + str(device))
                     else:
-                        self.log.error("Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
-
-
+                        self.log.error("GPIB instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
                 elif "RS232" in str(connection_type).upper():
                     # This maneges the connections for Serial devices
-
                     if ("ASRL"+str(connection_type.split(":")[-1]) + "::INSTR") in self.vcw.resource_names: # Searches for a match in the resource list
                         #print(self.device_dict[device].get("Baud_rate", 57600))
                         success = self.vcw.connect_to(self.vcw.resource_names.index("ASRL"+str(connection_type.split(":")[-1]) + "::INSTR"), device_IDN, baudrate=self.device_dict[device].get("Baud_rate", 57600), device_IDN=IDN_query) # Connects to the device Its always ASRL*::INSTR
@@ -187,25 +191,15 @@ class connect_to_devices:
                             self.log.error("Connection could not be established to device: " + str(device))
                     else:
                         self.log.error("Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
-
-
                 elif "IP" in str(connection_type).upper():
-                    # This maneges the connections for IP devices
-                    pass
-
+                    # This manages the connections for IP devices
+                    self.log.error("The software is currently not capable of to connect to IP devices!")
                 # Add other connection types
-
                 else:
-                    self.log.info("No valid connection type found for device " + str(device) + ". Therefore no connection established. You may proceed but measurements will fail.")
-
+                    self.log.info("No valid connection type found for device " + str(device) + ". "
+                                "Therefore no connection established. You may proceed but measurements will fail.")
             except KeyError:
-                self.log.error("Device " + device_dict[device]["Display_name"] + " has no IDN.")
-
-
-
-        # List all devices
-        #vcw.connect_to_instruments() # Tries to connect to all available instruments
-        #vcw.verify_ID()              # Tries to query the IDN from each instrument
+                self.log.error("Device " + device_dict[device]["Device_name"] + " has no IDN.")
 
         self.new_device_dict = self.append_resource_to_device_dict() # Appends the resources to the decice dict
 
@@ -213,34 +207,29 @@ class connect_to_devices:
         """Returns all connected devices."""
         return self.new_device_dict
 
-    def append_resource_to_device_dict(self): #better way
+    def append_resource_to_device_dict(self):
         '''Appends all valid resources to the dictionaries for the devices'''
 
         valid_resources =  self.vcw.myInstruments_dict # gets me the dict with the resources which are currently connected
-
-        for device in self.device_dict.keys(): # device_dict is a dictionary containing dictionaries
-
+        for device, values in self.device_dict.items(): # device_dict is a dictionary containing dictionaries
                 device_IDN = "No IDN"
-
                 try:
                     device_IDN = self.device_dict[device]["Device_IDN"] # gets me the IDN for each device loaded
                 except KeyError:
-                    self.log.error("Device " + self.device_dict[device]["Display_name"] + " has no IDN.")
+                    self.log.error("Device " + self.device_dict[device]["Device_name"] + " has no IDN.")
 
                 resource = valid_resources.get(str(device_IDN).strip(), "Not listed")
-                # Some kind of hack, it searches for the device IDN if not found "not listed" is returned
 
                 if resource != "Not listed":
-                    self.device_dict[device].update({"Visa_Resource": resource})  # If resource was found with same IDN the resource gets appended to the dict
-                    self.log.info("Device " + self.device_dict[device]["Display_name"] + " is assigned to " + str(resource) + " with IDN: " + str(device_IDN).strip())
+                    self.device_lib[values["Device_name"]].update({"Visa_Resource": resource})  # If resource was found with same IDN the resource gets appended to the dict
+                    self.log.info("Device " + self.device_dict[device]["Device_name"] + " is assigned to " + str(resource) + " with IDN: " + str(device_IDN).strip())
                 elif resource == "Not listed":
-                    self.log.error("Device " + self.device_dict[device]["Display_name"] + " could not be found in active resources.")
+                    self.log.error("Device " + self.device_dict[device]["Device_name"] + " could not be found in active resources.")
 
-        return self.device_dict
-        # Check if every device dict has its resource added
-        #for device in device_dict.keys():
-        #    if "Visa_Resource" not in device_dict[device]:
-        #        print("No Visa resources listed for device " + device_dict[device]["Display_name"] + ".")
+                # Append all infos from the config as well
+                self.device_lib[values["Device_name"]].update(self.device_dict[device])
+
+        return self.device_lib
 
 
 def update_defaults_dict(dict, additional_dict):

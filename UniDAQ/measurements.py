@@ -158,7 +158,7 @@ class measurement_class(Thread):
         # Check if all devices have a visa resource assigned otherwise return false
         for device in self.devices.values():
             if "Visa_Resource" not in device:
-                self.log.error(device["Display_name"] + " has no Visa Resource assigned! Measurement cannot be conducted.")
+                self.log.error(device["Device_name"] + " has no Visa Resource assigned! Measurement cannot be conducted.")
                 return False
 
         # Check if lights and environment is valid
@@ -462,7 +462,7 @@ class measurement_class(Thread):
         value = str(vcw.query(device, command)).split("\t")
         self.settings["settings"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
         if 0. < (abs(float(value[0])) - abs(float(complience)*0.99)):
-            self.log.error("Complience reached in instrument " + str(device["Display_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(complience))
+            self.log.error("Complience reached in instrument " + str(device["Device_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(complience))
             self.queue_to_main.put({"MeasError": "Compliance reached. Value. " + str(value[0]) + " A"})
             return True
         else:

@@ -76,7 +76,7 @@ class GUI_classes(GUI_event_loop, QWidget):
             pq.setConfigOption('background', 'w')
             pq.setConfigOption('foreground', 'k')
         else:
-            pq.setConfigOption('background', '#3b4047')
+            pq.setConfigOption('background', '#323232')
             pq.setConfigOption('foreground', '#bec4ce')
             pq.setConfigOption('antialias', True)
             pq.setConfigOption('crashWarning', True)

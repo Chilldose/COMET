@@ -8,9 +8,7 @@ import numpy as np
 from time import time
 from numba import jit
 from scipy.stats import norm, stats
-from .engineering_notation import  EngNumber
-
-
+from .engineering_notation import EngNumber
 
 class stripanalysis:
     """Class which provides all necessary functions for bad strip detection, for more information on its capabilites
@@ -258,15 +256,15 @@ class stripanalysis:
 
         # Todo: further actions needed? Outliner enough? Could add some clustering as well. Could look if clusters intersect for Cint and Cap and print that out?
         if len(ind_bad_Cap) > self.settings["maximumCapOutliner"]:
-            self.log.error("The number of outliner in the capacitance measurement indicates a non optimal DC1 needle contact.")
+            self.log.warning("The number of outliner in the capacitance measurement indicates a non optimal DC1 needle contact.")
         if len(ind_bad_Cint) > self.settings["maximumCapOutliner"]:
-            self.log.error("The number of outliner in the interstrip capacitance measurement indicates a non optimal DC2 needle contact.")
+            self.log.warning("The number of outliner in the interstrip capacitance measurement indicates a non optimal DC2 needle contact.")
 
 
         if len(intersectDC1):
             if shift:
                 intersectDC1 = self.shift_strip_numbering("Istrip", intersectDC1, shift)
-            self.log.error("Possible bad DC1 needle contact on strips: {}".format(intersectDC1)) # +1 because index starts at 0
+            self.log.warning("Possible bad DC1 needle contact on strips: {}".format(intersectDC1)) # +1 because index starts at 0
         else:
             self.log.info("DC needle contact seem to be alright.")
 
@@ -274,7 +272,7 @@ class stripanalysis:
 
     def shift_strip_numbering(self,label, to_shift, shift_array):
         truth_table = shift_array[label]
-        start, shift = 0, 0
+        start, shift = 0, 1 # Arrays start with zero, stripnumbering starts with 1
         shifted_array = []
         for ind in to_shift:
             shift += np.count_nonzero(~truth_table[start:ind-1])
@@ -283,28 +281,28 @@ class stripanalysis:
         return shifted_array
 
 
-    def find_bad_AC_contact(self, Cap, Rpoly, pinholes, shift = None):
+    def find_bad_AC_contact(self, Cap, Rpar, pinholes, shift = None):
         """Finds out if a bad AC contact is prevalent"""
         #nCap = np.delete(Cap, pinholes) # Exclude pinholes in this calculations
         #nRpoly = np.delete(Rpoly, pinholes) # Exclude pinholes in this calculations
-
+        # Todo: Not rpoly, Rpar
         medianCap = np.median(Cap)
-        medianRpoly = np.median(Rpoly)
+        medianRpar = np.median(Rpar)
 
         # Out of bounds Cap
         CapOOB = np.where(np.logical_or(Cap < medianCap/self.settings["Capfactor"],
                                          Cap > medianCap*self.settings["Capfactor"]))[0]# Out of bounds Cap
-        RpolyOOB = np.where(np.logical_or(Rpoly < medianRpoly/self.settings["Rpolyfactor"],
-                                         Rpoly > medianRpoly*self.settings["Rpolyfactor"]))[0]
+        RparOOB = np.where(np.logical_or(Rpar < medianRpar/self.settings["Rpolyfactor"],
+                                         Rpar > medianRpar*self.settings["Rpolyfactor"]))[0]
         # Find intersect
-        intersect = np.intersect1d(CapOOB, RpolyOOB)
+        intersect = np.intersect1d(CapOOB, RparOOB)
         # Find values not common to pinholes
         intersect = np.setdiff1d(intersect, pinholes)
 
         if len(intersect):
             if shift:
-                highIdiel = self.shift_strip_numbering("Cac", intersect, shift)
-            self.log.error("Possible bad AC needle contact found on strips: {}".format(intersect))
+                intersect = self.shift_strip_numbering("Cac", intersect, shift)
+            self.log.warning("Possible bad AC needle contact found on strips: {}".format(intersect))
         else:
             self.log.info("AC needle contact seems to be fine")
         return intersect
@@ -338,33 +336,33 @@ class stripanalysis:
         # Todo: clean up this ugly code
         # todo: currently if Istrip and rply are measured at different points it will come to a data mismatch in the ned
         # and this method will fail!!!
-        Istrip = data[compare[0]]
-        Istripcut = cutted[compare[0]]
-        Istriplms = lms_data[compare[0]]
-        Rpoly = data[compare[1]]
-        Rpolycut = cutted[compare[1]]
-        Rpolylms = lms_data[compare[1]]
+        First = data[compare[0]]
+        Firstcut = cutted[compare[0]]
+        Firstlms = lms_data[compare[0]]
+        Second = data[compare[1]]
+        Secondcut = cutted[compare[1]]
+        Secondlms = lms_data[compare[1]]
 
         xvalues = data["Pad"]
-        Ixval = xvalues[Istripcut]
-        Rxval = xvalues[Rpolycut]
+        Fxval = xvalues[Firstcut]
+        Sxval = xvalues[Secondcut]
 
-        Iyval_list_start, Iyval_list_stop = self.create_piecewise_arrays(Ixval, piecesize)
-        Ryval_list, Ryval_list_stop = self.create_piecewise_arrays(Rxval, piecesize)
+        Fyval_list_start, Fyval_list_stop = self.create_piecewise_arrays(Fxval, piecesize)
+        Syval_list, Syval_list_stop = self.create_piecewise_arrays(Sxval, piecesize)
 
         # Compare per lms line piece
         intersect = []
-        for Ilms, Rlms, Ista, Isto, Rsta, Rsto in zip(Istriplms, Rpolylms, Iyval_list_start, Iyval_list_stop, Ryval_list, Ryval_list_stop):
-            highI = self.compare_closeness(Istrip[Ista:Isto], Ilms, Ixval[Ista:Isto], factor=factors[0])
-            lowR = self.compare_closeness(Rpoly[Rsta:Rsto], Rlms, Rxval[Rsta:Rsto], factor=factors[1])
+        for Flms, Slms, Fsta, Fsto, Ssta, Ssto in zip(Firstlms, Secondlms, Fyval_list_start, Fyval_list_stop, Syval_list, Syval_list_stop):
+            compF = self.compare_closeness(First[Fsta:Fsto], Flms, Fxval[Fsta:Fsto], factor=factors[0])
+            compS = self.compare_closeness(Second[Ssta:Ssto], Slms, Sxval[Ssta:Ssto], factor=factors[1])
             # Find intersect
-            intersect.append(np.nonzero(np.logical_and(highI, lowR))[0]+Ista) # If data cut is not the same for istrip and rpoly error happens
+            intersect.append(np.nonzero(np.logical_and(compF, compS))[0]+Fsta) # If data cut is not the same for istrip and rpoly error happens
         intersect = np.concatenate(intersect)
         return intersect
 
     def find_metal_and_implant_open(self, strips, data, lms_fit, cutted, piecesize, factor=1., shift=None):
         """Finds metal opens"""
-
+        # Todo: maybe first metal/implant open search and the rest for lowC. And I need the D value!
         # Istrip threshold comparison
         lowerIstrip = self.threshold_comparison("Istrip", data, lms_fit, cutted, piecesize, factor, bigger=False) # Since we have negative Istrip
         # Find possible metal open, by finding values in lowerIstrip which are not common to strips
@@ -397,12 +395,22 @@ class stripanalysis:
     def find_metal_short(self, data, lms_data, cutted, piecesize, shift=None):
         """Finds implant shorts"""
 
-        metal_shorts = self.find_relation(("Cac", "Idiel"), (2.,2.), data, lms_data, cutted, piecesize)
+        # Make a simple threshold comparison for Cac
+        metal_shorts = self.threshold_comparison("Cac", data, lms_data, cutted, piecesize, 2, bigger=True)
+
+        # Idiel is just a extra, which makes it more significant
+        metal_Idiel_shorts = self.find_relation(("Cac", "Idiel"), (2.,2.), data, lms_data, cutted, piecesize)
+
+        # Intersect Idiel with high Cac
+        intersect = np.intersect1d(metal_shorts, metal_Idiel_shorts)
 
         if len(metal_shorts):
             if shift:
-                metal_shorts = self.shift_strip_numbering("Idiel", metal_shorts, shift)
-            self.log.warning("Potential metal short found at strips: {}".format(metal_shorts))
+                metal_shorts = self.shift_strip_numbering("Cac", metal_shorts, shift)
+            self.log.warning("Weak metal short found at strips: {}".format(metal_shorts))
+            if intersect:
+                intersect = self.shift_strip_numbering("Idiel", intersect, shift)
+                self.log.warning("Metal short found at strips: {}".format(intersect))
         else:
             self.log.info("No metal shorts found.")
 
@@ -689,6 +697,6 @@ def lmsalgorithm(x, y, q):
 
 if __name__ == "__main__":
     det = stripanalysis(None, "C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\UniDAQ\\UniDAQ\\config\\config\\badstrip.yml")
-    det.read_in_measurement_file(["C:\\Users\\dbloech\\Desktop\\str_VPX28442_18_2S_side1_merged.txt"])
+    det.read_in_measurement_file(["C:\\Users\\dbloech\\Desktop\\str_VPX28442_38_2S (defects by MV).txt"])
     det.do_analysis()
 

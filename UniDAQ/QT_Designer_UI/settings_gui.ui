@@ -39,7 +39,7 @@
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QLabel { background :rgb(85, 85, 255) }</string>
+      <string notr="true">background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -80,7 +80,7 @@
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QLabel { background :rgb(85, 85, 255) }</string>
+      <string notr="true">background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);</string>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -114,7 +114,7 @@
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QFrame { background : rgb(200, 200, 200) }  </string>
+      <string notr="true"/>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -155,7 +155,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -267,7 +267,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -369,7 +369,7 @@
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QFrame { background : rgb(200, 200, 200) }  </string>
+      <string notr="true"/>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -410,7 +410,7 @@
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -512,7 +512,7 @@
       <bool>false</bool>
      </property>
      <property name="styleSheet">
-      <string notr="true">QFrame { background : rgb(200, 200, 200)  }</string>
+      <string notr="true"/>
      </property>
      <property name="frameShape">
       <enum>QFrame::Box</enum>
@@ -550,7 +550,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -665,7 +665,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -780,7 +780,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -895,7 +895,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -1452,7 +1452,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -1567,7 +1567,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -1682,7 +1682,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -1797,7 +1797,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>
@@ -1912,7 +1912,7 @@
          </font>
         </property>
         <property name="styleSheet">
-         <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+         <string notr="true"/>
         </property>
         <property name="frameShape">
          <enum>QFrame::Box</enum>

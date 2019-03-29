@@ -59,7 +59,7 @@
       <string notr="true"/>
      </property>
      <property name="currentIndex">
-      <number>2</number>
+      <number>1</number>
      </property>
      <widget class="QWidget" name="Devices_tab">
       <attribute name="title">
@@ -466,6 +466,9 @@
            <width>200</width>
            <height>16777215</height>
           </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"/>
          </property>
          <property name="alternatingRowColors">
           <bool>true</bool>

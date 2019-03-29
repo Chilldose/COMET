@@ -55,7 +55,7 @@ class Switching_window:
         switching = self.settings.devices_dict
         for device in switching.values():  # loop over all switching systems
             if "Switching relay" in device["Device_type"]:
-                if device["Display_name"] == "Brand Box":
+                if device["Device_name"] == "Brand Box":
                     getattr(self.switching, "A1").setEnabled(checkable)
                     getattr(self.switching, "A2").setEnabled(checkable)
                     getattr(self.switching, "B1").setEnabled(checkable)
@@ -63,7 +63,7 @@ class Switching_window:
                     getattr(self.switching, "C1").setEnabled(checkable)
                     getattr(self.switching, "C2").setEnabled(checkable)
 
-                if device["Display_name"] == "Switching":
+                if device["Device_name"] == "Switching":
                     # First reset all previous checked radio buttons
                     for i in range(1, 3):  # matrices
                         for j in range(1, 5):  # Zeilen

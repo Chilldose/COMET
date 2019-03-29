@@ -178,7 +178,7 @@ class measurement_event_loop(Thread):
         for device in self.devices: # Loop over all devices
             sended_commands = []  # list over all sended commands, to prevent double sending
             if "Visa_Resource" in self.devices[device]: # Looks if a Visa resource is assigned to the device.
-                self.log.info("Initializing instrument: {!s}".format(self.devices[device].get("Display_name", "NoName")))
+                self.log.info("Initializing instrument: {!s}".format(self.devices[device].get("Device_name", "NoName")))
                 # Initiate the instrument and resets it
                 if "reset_device" in self.devices[device]:
                     self.vcw.initiate_instrument(self.devices[device]["Visa_Resource"], self.devices[device]["reset_device"], self.devices[device].get("execution_terminator", ""))
@@ -204,7 +204,7 @@ class measurement_event_loop(Thread):
                                 self.vcw.write(self.devices[device]["Visa_Resource"], command, self.devices[device].get("execution_terminator",""))  # Writes the command to the device
                                 sleep(0.05)  # Waits a bit for the device to config itself
 
-                            self.log.info("Device " + self.devices[device]["Display_name"] + str(command) + " to " + str(self.devices[device][keys]) + ".")
+                            self.log.info("Device " + self.devices[device]["Device_name"] + str(command) + " to " + str(self.devices[device][keys]) + ".")
 
         # Change the state of the device to Configured
 
@@ -226,7 +226,7 @@ class measurement_event_loop(Thread):
                                 self.vcw.write(self.devices[device]["Visa_Resource"], command, self.devices[device].get("execution_terminator", "")) # Writes the command to the device
                                 sleep(0.05)  # Waits a bit for the device to config itself
 
-                            self.log.info("Device " + self.devices[device]["Display_name"] + " " + str(command) + " to " + str(self.devices[device][keys]) + ".")
+                            self.log.info("Device " + self.devices[device]["Device_name"] + " " + str(command) + " to " + str(self.devices[device][keys]) + ".")
 
         self.message_to_main.put({"Info": "Initializing DONE!"})
 
