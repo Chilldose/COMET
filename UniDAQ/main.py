@@ -32,6 +32,7 @@ from .measurement_event_loop import (
     queue_to_GUI
 )
 from PyQt5.QtWidgets import QApplication, QStyleFactory
+from PyQt5 import QtCore
 
 def main():
     """Main application entry point."""
@@ -41,6 +42,15 @@ def main():
 
     # Create app
     app = QApplication(sys.argv)
+
+    # Create application settings.
+    app.setOrganizationName("HEPHY")
+    app.setOrganizationDomain("hephy.at")
+    app.setApplicationName("comet")
+
+    # Init global settings.
+    QtCore.QSettings()
+
     # Set Style of the GUI
     style = "Fusion"
     app.setStyle(QStyleFactory.create(style))
