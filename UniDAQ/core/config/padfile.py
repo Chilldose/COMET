@@ -1,6 +1,12 @@
 import os
 import re
 
+def safe_float(value):
+    try:
+        return float(value)
+    except ValueError:
+        return value
+
 class PadFile(object):
     """Represents a silicon pad file."""
 
@@ -50,5 +56,8 @@ class PadFile(object):
                             self.additional_params[key] = value
                 else:
                     line = line.strip()
+                    # Skip empty lines
+                    if not line:
+                        continue
                     strip, x, y, z = line.split()
-                    self.data.append([int(strip), float(x), float(y), float(z)])
+                    self.data.append([strip, safe_float(x), safe_float(y), safe_float(z)])

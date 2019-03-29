@@ -1,9 +1,10 @@
 import os
 import glob
+import yaml
 
 from .padfile import PadFile
 
-# TODO get some light on naming
+# TODO shed some light on naming
 
 class Setup(object):
     """Represents a measurements setup."""

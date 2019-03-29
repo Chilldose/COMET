@@ -27,6 +27,8 @@ from PyQt5 import QtWidgets
 
 from . import utilities
 from . import boot_up
+from .core.config import DeviceLib
+from .core.config import Setup
 from .gui.PreferencesDialog import PreferencesDialog
 from .GUI_classes import GUI_classes
 from .VisaConnectWizard import VisaConnectWizard
@@ -89,6 +91,15 @@ def main():
         del dialog
 
     log.critical("Loading setup '%s'...", active_setup)
+    # TODO load config
+    path = os.path.join(rootdir, 'config', 'device_lib')
+    device_lib = DeviceLib()
+    device_lib.load(path)
+
+    path = os.path.join(rootdir, 'config', 'Setup_configs', active_setup)
+    setup = Setup()
+    setup.load(path)
+
     setup_loader = boot_up.SetupLoader()
     setup_loader.load(active_setup)
     setup_loader.default_values_dict = boot_up.update_defaults_dict(setup_loader.configs["config"], setup_loader.configs["config"].get("framework_variables", {}))
@@ -104,8 +115,8 @@ def main():
     log.critical("Try to connect to devices ...")
     # Connects to all devices and initiates them and returns the updated device_dict
     # with the actual visa resources
-    devices_dict = boot_up.connect_to_devices(vcw, stats.configs["config"]["settings"]["Devices"],
-                                              stats.configs.get("device_lib", {}))
+    devices_dict = boot_up.connect_to_devices(vcw, setup_loader.configs["config"]["settings"]["Devices"],
+                                              setup_loader.configs.get("device_lib", {}))
     devices_dict = devices_dict.get_new_device_dict()
 
     log.critical("Starting the event loops ... ")
