@@ -10,25 +10,29 @@ import numpy as np
 import glob
 import sys
 
-class loading_init_files:
+class SetupLoader(object):
     '''This class is for loading all config files, pad files and default parameters.
     This class is crucial for the program to work. All works within the init function of this class.
     It generates three new dicts which can be accessed from the class as class attributes
 
     '''
 
-
     def __init__(self):
-
         self.log = logging.getLogger(__name__)
+
+    def load(self, setup):
 
         # Get project path
         package_dir = os.path.dirname(os.path.realpath(__file__))
-        init_dir = os.path.join(package_dir, "config")
+        config_dir = os.path.join(package_dir, "config")
+        setup_dir = os.path.join(config_dir, 'Setup_configs', setup)
+
+        if not os.path.isdir(setup_dir):
+            raise RuntimeError("No such setup '{}'".format(setup_dir))
 
         # Get data dirs
-        data_dirs = [dirr for dirr in os.listdir(init_dir)]
-        if "Setup_configs" in data_dirs: data_dirs.remove("Setup_configs")
+        data_dirs = [dirr for dirr in os.listdir(config_dir)]
+        if "Setup_configs" in data_dirs: data_dirs.remove("Setup_configs") # TODO why?
 
         # Get all files in the directories
         # Look for yml files and translate them
@@ -36,7 +40,7 @@ class loading_init_files:
         for data in data_dirs: # Data directories in parent dir
             con_name = data.split("\\")[-1] # How the subdir is called
             self.configs[con_name] = {} # Main name of the config (folder)
-            for file in glob.glob(os.path.join(init_dir, data, "*.yml")): # Find all yml files, only yml files are allowed
+            for file in glob.glob(os.path.join(config_dir, data, "*.yml")): # Find all yml files, only yml files are allowed
                 self.log.info("Try reading config file: " + str(file))
                 new_device_dict = self.create_dictionary(file) # Create a dict out of the config
                 if "Settings_name" in new_device_dict: # Looks for the name of the config
@@ -47,7 +51,7 @@ class loading_init_files:
                     self.log.error("No settings name found for config file: {!s}. File will be ignored.".format(file))
 
             # Load the pad files, this are the data with txt or dat ending
-            subdir = os.path.join(init_dir, data)
+            subdir = os.path.join(config_dir, data)
             # Subdirectory structure is for project and pad files only
             for pad_dir in [d for d in os.listdir(subdir) if os.path.isdir(os.path.join(subdir, d))]:
                 self.configs[con_name][pad_dir] = self.read_pad_files(os.path.join(subdir, pad_dir))
@@ -247,4 +251,3 @@ def update_defaults_dict(dict, additional_dict):
         if "Settings_name" in additional_dict:
             additional_dict.pop("Settings_name")
         return dict["settings"].update(additional_dict)
-
