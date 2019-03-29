@@ -21,6 +21,9 @@ import time
 import sys
 import os
 
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
+
 from . import utilities
 from . import boot_up
 from .GUI_classes import GUI_classes
@@ -31,8 +34,6 @@ from .measurement_event_loop import (
     message_from_main,
     queue_to_GUI
 )
-from PyQt5.QtWidgets import QApplication, QStyleFactory
-from PyQt5 import QtCore
 
 def main():
     """Main application entry point."""
@@ -41,7 +42,7 @@ def main():
     start_time = time.time()
 
     # Create app
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
 
     # Create application settings.
     app.setOrganizationName("HEPHY")
@@ -53,14 +54,14 @@ def main():
 
     # Set Style of the GUI
     style = "Fusion"
-    app.setStyle(QStyleFactory.create(style))
+    app.setStyle(QtWidgets.QStyleFactory.create(style))
     app.setQuitOnLastWindowClosed(False)
 
     # Terminate application on SIG_INT signal.
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    # Config the except hook
-    new_except_hook = utilities.except_hook_Qt()
+    # Create a custom exception handler
+    sys.excepthook = utilities.exception_handler
 
     # Initialize logger using configuration
     rootdir = os.path.dirname(os.path.abspath(__file__))

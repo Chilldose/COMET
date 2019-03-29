@@ -17,6 +17,7 @@ import os, sys, os.path, re
 from time import sleep, time
 import time
 import threading
+import traceback
 import yaml
 import logging.config
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -118,6 +119,27 @@ class QueueEmitHandler(logging.Handler):
         """Warning this set level works different to the logging levels from the logging modules
         It only loggs the specific level!!!"""
         self.level = level
+
+def exception_handler(exctype, value, tb):
+    """Custom exception handler raising a dialog box.
+
+    Example:
+    >>> import sys
+    >>> sys.excepthook = exception_handler
+    """
+    if exctype is not KeyboardInterrupt:
+        tr = QtCore.QCoreApplication.translate
+        # Prepare pretty stacktrace
+        message = os.linesep.join(traceback.format_tb(tb))
+        QtWidgets.QMessageBox.critical(None,
+            tr("QMessageBox", "Uncaught exception occured"),
+            tr("QMessageBox",
+               "Exception type: {}\n"
+               "Exception value: {}\n"
+               "Traceback: {}").format(exctype.__name__, value, message)
+        )
+    # Pass on exception
+    sys.__excepthook__(exctype, value, tb)
 
 class except_hook_Qt:
     """Define a new exception hook to displaye correct exception even for Qt, it shows the exception on screen as well"""
