@@ -58,10 +58,10 @@ def configureSetup(widget):
     """Loads the Setup and conigures if"""
     # todo: better way possible, but I am tired
     package_dir = os.path.dirname(os.path.realpath(__file__))
-    setup_dir = os.path.join(package_dir, "UniDAQ\\config\\Setup_configs")
+    setup_dir = os.path.join(package_dir, 'UniDAQ', 'config', 'Setup_configs')
     value = widget.comboBox_config.currentText()
     setup_config_path = os.path.join(setup_dir,value)
-    copy_tree(setup_config_path, os.path.join(package_dir, "UniDAQ\\config"))
+    copy_tree(setup_config_path, os.path.join(package_dir, 'UniDAQ', 'config'))
 
     QApplication.quit() # Quits the setup
     #sleep(0.5) # Because it takes some time to get rid of the window in the memory
@@ -73,10 +73,10 @@ def Loadmain():
 
     # Look if setup has been configured
     package_dir = os.path.dirname(os.path.realpath(__file__))
-    setup_dir =  os.path.join(package_dir, "UniDAQ\\config\\Setup_configs")
+    setup_dir =  os.path.join(package_dir, 'UniDAQ', 'config', 'Setup_configs')
 
     # Get config dirs
-    config_dir = os.path.join(package_dir, "UniDAQ\\config\\config")
+    config_dir = os.path.join(package_dir, 'UniDAQ', 'config', 'config')
     list_configs = list(map(os.path.basename, glob.glob(os.path.join(config_dir, "settings.yml"))))
     setup_configs = list(map(os.path.basename, [d for d in os.listdir(setup_dir) if os.path.isdir(os.path.join(setup_dir, d))]))
 
