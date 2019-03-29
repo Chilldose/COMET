@@ -50,7 +50,10 @@ class Setup(object):
     def load_pad_files(self, path):
         self.Pad_files = {}
         for filename in glob.glob(os.path.join(path, 'Pad_files', '*', '*.txt')):
+            project = os.path.basename(os.path.dirname(filename))
+            if project not in self.Pad_files:
+                self.Pad_files[project] = {}
+            sensor = os.path.splitext(os.path.basename(filename))[0]
             pad_file = PadFile()
             pad_file.load(filename)
-            key = os.path.splitext(os.path.basename(filename))[0]
-            self.Pad_files[key] = pad_file
+            self.Pad_files[project][sensor] = pad_file
