@@ -16,7 +16,7 @@ class PadFile(object):
         self.additional_params = {}
         self.data = []
 
-    def __getitem(self, key):
+    def __getitem__(self, key):
         return self.__dict__[key]
 
     def items(self):
