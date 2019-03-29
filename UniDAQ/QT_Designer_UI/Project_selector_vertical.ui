@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>selector</class>
+ <widget class="QWidget" name="selector">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>382</width>
+    <height>361</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QWidget" name="gridLayoutWidget">
+   <property name="geometry">
+    <rect>
+     <x>80</x>
+     <y>90</y>
+     <width>271</width>
+     <height>181</height>
+    </rect>
+   </property>
+   <layout class="QGridLayout" name="gridLayout">
+    <item row="4" column="0">
+     <widget class="QPushButton" name="save_to_button">
+      <property name="text">
+       <string>Output directory</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="filename_label">
+      <property name="text">
+       <string>Output filename</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="1">
+     <widget class="QComboBox" name="project_comboBox"/>
+    </item>
+    <item row="1" column="0">
+     <widget class="QLabel" name="sensor_label">
+      <property name="text">
+       <string>Select Sensor</string>
+      </property>
+     </widget>
+    </item>
+    <item row="0" column="0">
+     <widget class="QLabel" name="project_label">
+      <property name="text">
+       <string>Select Project</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="1">
+     <widget class="QComboBox" name="operator_comboBox"/>
+    </item>
+    <item row="1" column="1">
+     <widget class="QComboBox" name="sensor_comboBox"/>
+    </item>
+    <item row="2" column="0">
+     <widget class="QLabel" name="operator_label">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="text">
+       <string>Operator</string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="1">
+     <widget class="QLineEdit" name="output_dir_edit"/>
+    </item>
+    <item row="4" column="1">
+     <widget class="QLineEdit" name="save_to_edit"/>
+    </item>
+    <item row="5" column="0">
+     <widget class="QPushButton" name="load_settings_button">
+      <property name="text">
+       <string>Load settings</string>
+      </property>
+     </widget>
+    </item>
+    <item row="5" column="1">
+     <widget class="QPushButton" name="save_settings_button">
+      <property name="text">
+       <string>Save settings</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
