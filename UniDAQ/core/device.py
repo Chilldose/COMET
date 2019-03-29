@@ -60,6 +60,14 @@ class Device(object):
         """Returns device configuration dictionary."""
         return self.__config
 
+    def __getitem__(self, key):
+        """Provided for convenience."""
+        return self.config[key]
+
+    def items(self):
+        """Provided for convenience."""
+        return self.config.items()
+
     @property
     def resource(self):
         """Returns VISA resource from configuration."""
