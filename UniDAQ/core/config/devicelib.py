@@ -9,10 +9,22 @@ class DeviceLib(object):
         self.devices = {}
 
     def __getitem__(self, key):
+        """Provided for convenience."""
         return self.devices[key]
 
+    def __iter__(self):
+        """Provided for convenience."""
+        return iter(self.devices)
+
+    iter = __iter__
+
     def items(self):
+        """Provided for convenience."""
         return self.devices.items()
+
+    def get(self, key, default=None):
+        """Provided for convenience."""
+        return self.devices.get(key, default)
 
     def load(self, path):
         """Load device lib from filesystem."""

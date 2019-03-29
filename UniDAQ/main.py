@@ -101,7 +101,7 @@ def main():
     setup.load(path)
 
     setup_loader = boot_up.SetupLoader()
-    setup_loader.load(active_setup)
+    setup_loader.load(active_setup) # TODO
     setup_loader.default_values_dict = boot_up.update_defaults_dict(setup_loader.configs["config"], setup_loader.configs["config"].get("framework_variables", {}))
 
     # Initializing all modules

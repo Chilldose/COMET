@@ -17,15 +17,24 @@ class PadFile(object):
         self.reset()
 
     def reset(self):
+        """Reset contents to default."""
         self.header = []
         self.reference_pads = []
         self.additional_params = {}
         self.data = []
 
     def __getitem__(self, key):
+        """Provided for convenience."""
         return self.__dict__[key]
 
+    def __iter__(self):
+        """Provided for convenience."""
+        return iter(self.__dict__)
+
+    iter = __iter__
+
     def items(self):
+        """Provided for convenience."""
         return self.__dict__.items()
 
     def load(self, filename):

@@ -10,6 +10,9 @@ import numpy as np
 import glob
 import sys
 
+from .core.config import Setup
+from .core.config import DeviceLib
+
 class SetupLoader(object):
     '''This class is for loading all config files, pad files and default parameters.
     This class is crucial for the program to work. All works within the init function of this class.
@@ -19,93 +22,31 @@ class SetupLoader(object):
 
     def __init__(self):
         self.log = logging.getLogger(__name__)
+        self.configs = {}
 
-    def load(self, setup):
+    def load(self, name):
+        self.configs = {}
 
         # Get project path
         package_dir = os.path.dirname(os.path.realpath(__file__))
         config_dir = os.path.join(package_dir, "config")
-        setup_dir = os.path.join(config_dir, 'Setup_configs', setup)
+        setup_dir = os.path.join(config_dir, 'Setup_configs', name)
 
         if not os.path.isdir(setup_dir):
             raise RuntimeError("No such setup '{}'".format(setup_dir))
 
-        # Get data dirs
-        data_dirs = [dirr for dirr in os.listdir(config_dir)]
-        if "Setup_configs" in data_dirs: data_dirs.remove("Setup_configs") # TODO why?
+        device_lib = DeviceLib()
+        device_lib.load(os.path.join(config_dir, 'device_lib'))
 
-        # Get all files in the directories
-        # Look for yml files and translate them
-        self.configs = {} # Dict for the final "folder" structure
-        for data in data_dirs: # Data directories in parent dir
-            con_name = data.split("\\")[-1] # How the subdir is called
-            self.configs[con_name] = {} # Main name of the config (folder)
-            for file in glob.glob(os.path.join(config_dir, data, "*.yml")): # Find all yml files, only yml files are allowed
-                self.log.info("Try reading config file: " + str(file))
-                new_device_dict = self.create_dictionary(file) # Create a dict out of the config
-                if "Settings_name" in new_device_dict: # Looks for the name of the config
-                    self.configs[con_name][new_device_dict["Settings_name"]] = new_device_dict # Updates the parent
-                elif "Device_name" in new_device_dict: # Looks for the name of the config
-                    self.configs[con_name][new_device_dict["Device_name"]] = new_device_dict # Updates the parent
-                else:
-                    self.log.error("No settings name found for config file: {!s}. File will be ignored.".format(file))
+        # Load setup
+        path = os.path.join(setup_dir)
+        setup = Setup()
+        setup.load(path)
+        # TODO HACK attach common device_lib
+        setup.device_lib = device_lib.devices
+        self.configs = setup
 
-            # Load the pad files, this are the data with txt or dat ending
-            subdir = os.path.join(config_dir, data)
-            # Subdirectory structure is for project and pad files only
-            for pad_dir in [d for d in os.listdir(subdir) if os.path.isdir(os.path.join(subdir, d))]:
-                self.configs[con_name][pad_dir] = self.read_pad_files(os.path.join(subdir, pad_dir))
-
-        #self.config_device_notation() # Changes the names of the dicts key for the devives, so that they are independet inside the program
-
-    def read_pad_files(self, path):
-        '''This function reads the pad files and returns a dictionary with the data'''
-
-        # First get list of all pad files in the folder
-        all_pad_files = {}
-        list_of_files = os.listdir(path)
-        header = []
-        data = []
-        for filename in list_of_files:
-            with open(os.path.join(path, filename), "r") as f:
-                read_data = f.readlines()
-
-            # first find the header
-            for i, lines in enumerate(read_data):
-                if "strip" in lines: # Can be done better
-                    header = read_data[:i+1]
-                    data = read_data[i+1:]
-                    break
-
-            # Find the reference pads in the header and strip length
-            reference_pad_list = []
-            new_param = {}
-            for i, lines in enumerate(header):
-                if "reference pad" in lines:
-                    reference_pad_list.append(int(lines.split(":")[1]))
-
-                # Find additional parameters
-                elif ":" in lines:
-                    new_param.update({lines.split(":")[0].strip(): lines.split(":")[1].strip()})
-
-            # Now make the data look shiny
-            data_list = []
-            for lines in data:
-                data_list.append([self.confloattry(x) for x in lines.split()])
-
-            final_dict = {"reference_pads" : reference_pad_list, "header": header, "data": data_list}
-            final_dict.update({"additional_params": new_param})
-            all_pad_files.update({str(filename.split(".")[0]): final_dict})
-
-        return all_pad_files
-
-    def confloattry(self, value):
-        """This function trys to convert a string to a float, else string is returned"""
-
-        try:
-            return float(value)
-        except:
-            return value
+        self.config_device_notation() # Changes the names of the dicts key for the devives, so that they are independet inside the program
 
     def config_device_notation(self):
         '''This function renames the device dict, so that the measurement class has a common name declaration. It wont change the display name. Just for internal consistency purposes'''
