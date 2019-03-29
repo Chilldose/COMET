@@ -74,7 +74,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.fileMenu = self.menuBar().addMenu(self.tr("&File"))
         self.fileMenu.addAction(self.quitAct)
         # Measurement menu
-        self.measureMenu = self.menuBar().addMenu(self.tr("&Measure!!"))
+        self.measureMenu = self.menuBar().addMenu(self.tr("&Measure"))
         self.measureMenu.addActions(self.measureActGroup.actions())
         # Help menu
         self.helpMenu = self.menuBar().addMenu(self.tr("&Help"))
