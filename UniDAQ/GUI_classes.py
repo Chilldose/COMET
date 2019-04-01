@@ -90,6 +90,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.begin_rendering() # Starts the rendering process for all tabs
 
         self.add_update_function(self.process_pending_events)
+        #self.add_update_function(QApplication.processEvents)
 
         # Initialise and start the GUI_event_loop
         self.event_loop_thread = GUI_event_loop(self, self.message_from_main,
