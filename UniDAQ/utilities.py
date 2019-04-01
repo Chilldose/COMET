@@ -17,6 +17,7 @@ import os, sys, os.path, re
 from time import sleep, time
 import time
 import threading
+import traceback
 import yaml
 import logging.config
 from PyQt5 import QtCore, QtGui, QtWidgets
@@ -119,20 +120,47 @@ class QueueEmitHandler(logging.Handler):
         It only loggs the specific level!!!"""
         self.level = level
 
-class except_hook_Qt:
-    """Define a new exception hook to displaye correct exception even for Qt, it shows the exception on screen as well"""
-    def __init__(self):
-        self.old_hook = sys.excepthook
-        sys.excepthook = self.catch_exceptions
+def exception_handler(exctype, value, tb):
+    """Custom exception handler raising a dialog box.
 
-    def catch_exceptions(self, cls, exception, traceback):
-            QtWidgets.QMessageBox.critical(None,
-                                           "An exception was raised",
-                                           "Exception type: {}\n"
-                                           "Exception: {}\n"
-                                           "Traceback: {}".format(cls, exception, traceback))
-            self.old_hook(cls, exception, traceback)
-            sys.exit(1)
+    Example:
+    >>> import sys
+    >>> sys.excepthook = exception_handler
+    """
+    if exctype is not KeyboardInterrupt:
+        tr = QtCore.QCoreApplication.translate
+        # Prepare pretty stacktrace
+        message = os.linesep.join(traceback.format_tb(tb))
+        QtWidgets.QMessageBox.critical(None,
+            tr("QMessageBox", "Uncaught exception occured"),
+            tr("QMessageBox",
+               "Exception type: {}\n"
+               "Exception value: {}\n"
+               "Traceback: {}").format(exctype.__name__, value, message)
+        )
+    # Pass on exception
+    sys.__excepthook__(exctype, value, tb)
+
+def get_available_setups(location):
+    """Return list of available setups names (resembling setup directory names).
+    A valid setup must provide at least the following file tree:
+
+    <setup>/
+      config/
+        settings.yml
+
+    Example:
+    >>> get_available_setups('./config/setups')
+    ['Bad Strip Analysis', 'QTC']
+    """
+    available = []
+    for path in os.listdir(location):
+        path = os.path.join(location, path)
+        if os.path.isdir(path):
+            # sanity check, contains a config/settings.yml file?
+            if os.path.isfile(os.path.join(path, 'config', 'settings.yml')):
+                available.append(os.path.basename(path))
+    return available
 
 def write_init_file( name, data, path = ""):
         """
