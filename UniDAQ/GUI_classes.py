@@ -43,7 +43,7 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.vcw = framework_variables["VCW"]
         self.devices_dict = framework_variables["Devices"]
         self.default_values_dict = framework_variables["Configs"]["config"]
-        self.pad_files_dict = framework_variables["Configs"]["Pad_files"]
+        self.pad_files_dict = framework_variables["Configs"]["additional_files"]["Pad_files"]
         self.functions = []
         self.update_interval = float(self.default_values_dict["settings"].get("GUI_update_interval", 100.))  # msec
         self.queue_to_GUI = queue_to_GUI

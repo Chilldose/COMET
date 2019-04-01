@@ -36,7 +36,6 @@ from .globals import message_to_main, message_from_main, queue_to_GUI
 l = logging.getLogger(__name__)
 lock = threading.Lock()
 
-
 def raise_exception(method):
     """
     Intended to be used as decorator for pyQt functions in the case that errors are not correctly passed to the python interpret
@@ -158,7 +157,7 @@ def get_available_setups(location):
         path = os.path.join(location, path)
         if os.path.isdir(path):
             # sanity check, contains a config/settings.yml file?
-            if os.path.isfile(os.path.join(path, 'config', 'settings.yml')):
+            if os.path.isfile(os.path.join(path, 'settings.yml')):
                 available.append(os.path.basename(path))
     return available
 

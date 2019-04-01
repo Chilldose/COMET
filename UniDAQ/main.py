@@ -79,14 +79,14 @@ def main():
     log.info("Logfile initiated...")
     log.critical("Initializing programm:")
 
-    # Loading all config files and default files, as well as Pad files
+    # Loading all config files
     active_setup = QtCore.QSettings().value('active_setup', None)
     # TODO on missing setup do a quick and dirty selection
     # replace this by creating a pretty awesome welcome dialog ;)
     if active_setup is None:
         dialog = PreferencesDialog(None)
         dialog.exec_()
-        active_setup = dialog.activeSetup()
+        active_setup = dialog.activeSetup() # Potential mismatch of setups if setup changes in between
         del dialog
 
     log.critical("Loading setup '%s'...", active_setup)

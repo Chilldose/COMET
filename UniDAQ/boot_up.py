@@ -26,37 +26,55 @@ class SetupLoader(object):
         package_dir = os.path.dirname(os.path.realpath(__file__))
         config_dir = os.path.join(package_dir, "config")
         setup_dir = os.path.join(config_dir, 'Setup_configs', setup)
+        device_dir = os.path.join(config_dir, 'device_lib')
 
         if not os.path.isdir(setup_dir):
             raise RuntimeError("No such setup '{}'".format(setup_dir))
 
-        # Get data dirs
-        data_dirs = [dirr for dirr in os.listdir(config_dir)]
-        if "Setup_configs" in data_dirs: data_dirs.remove("Setup_configs") # TODO why?
+        # Get data dirs and device lib
+        config_files = glob.glob(os.path.join(setup_dir, "*.yml"))
+        device_files = glob.glob(os.path.join(device_dir, "*.yml"))
+        config_files.extend(device_files)
 
         # Get all files in the directories
         # Look for yml files and translate them
-        self.configs = {} # Dict for the final "folder" structure
-        for data in data_dirs: # Data directories in parent dir
-            con_name = data.split("\\")[-1] # How the subdir is called
-            self.configs[con_name] = {} # Main name of the config (folder)
-            for file in glob.glob(os.path.join(config_dir, data, "*.yml")): # Find all yml files, only yml files are allowed
-                self.log.info("Try reading config file: " + str(file))
-                new_device_dict = self.create_dictionary(file) # Create a dict out of the config
-                if "Settings_name" in new_device_dict: # Looks for the name of the config
-                    self.configs[con_name][new_device_dict["Settings_name"]] = new_device_dict # Updates the parent
-                elif "Device_name" in new_device_dict: # Looks for the name of the config
-                    self.configs[con_name][new_device_dict["Device_name"]] = new_device_dict # Updates the parent
-                else:
-                    self.log.error("No settings name found for config file: {!s}. File will be ignored.".format(file))
+        self.configs = {"config": {}, "device_lib": {}, "additional_files": {}} # Dict for the final "folder" structure
+        for data in config_files: # Data directories in parent dir
+            name = os.path.basename(data).split(".")[0]
+            self.log.info("Try reading config file: {}".format(data))
+            new_device_dict = self.create_dictionary(data) # Create a dict out of the config
+            if "Settings_name" in new_device_dict: # Looks for the name of the config
+                self.configs["config"][new_device_dict["Settings_name"]] = new_device_dict # Updates the parent
+            elif "Device_name" in new_device_dict: # Looks for the name of the config
+                self.configs["device_lib"][new_device_dict["Device_name"]] = new_device_dict # Updates the parent
+            else:
+                self.log.error("No settings name found for config file: {!s}. File will be ignored.".format(name))
 
-            # Load the pad files, this are the data with txt or dat ending
-            subdir = os.path.join(config_dir, data)
-            # Subdirectory structure is for project and pad files only
-            for pad_dir in [d for d in os.listdir(subdir) if os.path.isdir(os.path.join(subdir, d))]:
-                self.configs[con_name][pad_dir] = self.read_pad_files(os.path.join(subdir, pad_dir))
+            # Load additional files, this are the data with txt or dat ending in subfolder
+            additional_dirs = [d for d in os.listdir(setup_dir) if os.path.isdir(os.path.join(setup_dir, d))]
+            for dir in additional_dirs:
+                self.gen_directory_tree(self.configs["additional_files"], os.path.join(setup_dir, dir), self.read_file)
 
-        #self.config_device_notation() # Changes the names of the dicts key for the devives, so that they are independet inside the program
+    def gen_directory_tree(self, parent_dict, path, function, pattern="*.txt",):
+        """Loads all files (as txt files into the specified directory with key = filename
+        function is the object which will be applied to the """
+        further_dir = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]
+        parent_dict[os.path.basename(path)] = {}
+        parent_dict = parent_dict[os.path.basename(path)]
+
+        for child_path in further_dir:
+            self.gen_directory_tree(parent_dict, os.path.join(path, child_path), function, pattern)
+
+        for file in glob.glob(os.path.join(path, pattern)):
+            # apply a function to the datafile
+            try:
+                parent_dict[os.path.basename(file).split(".")[0]] = function
+            except Exception as err:
+                self.log.error("An error occured while applying function {} to path {}".format(str(function), file))
+
+    def read_file(self, path):
+        with open(path) as f:
+            return f.read()
 
     def read_pad_files(self, path):
         '''This function reads the pad files and returns a dictionary with the data'''
