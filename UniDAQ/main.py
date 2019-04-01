@@ -105,8 +105,8 @@ def main():
     log.critical("Try to connect to devices ...")
     # Connects to all devices and initiates them and returns the updated device_dict
     # with the actual visa resources
-    devices_dict = boot_up.connect_to_devices(vcw, stats.configs["config"]["settings"]["Devices"],
-                                              stats.configs.get("device_lib", {}))
+    devices_dict = boot_up.connect_to_devices(vcw, setup_loader.configs["config"]["settings"]["Devices"],
+                                              setup_loader.configs.get("device_lib", {}))
     devices_dict = devices_dict.get_new_device_dict()
 
     log.critical("Starting the event loops ... ")
