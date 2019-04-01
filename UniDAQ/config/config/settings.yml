@@ -48,6 +48,8 @@
     elrange: 200e-9 # A predefined value for the elrange
 
     GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
+
+        - Info
         - Main
         - Settings
         - Stripscan
@@ -58,7 +60,7 @@
         - Alignment
         - Singlestrip
         - DynamicWaiting
-        - Info
+
 
     # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name
     Aliases:

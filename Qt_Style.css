@@ -360,7 +360,7 @@ QProgressBar::chunk
 {
     background-color: #d7801a;
     width: 2.15px;
-    margin: 0.5px;
+    margin: 1px;
 }
 
 QTabBar::tab {
