@@ -32,7 +32,7 @@ def run_with_lock(method):
 class VisaConnectWizard:
     '''
     This Class is for connecting Rs232, GPIB, IP and USB devices via pyVisa.
-    
+
     It can be called with an argument, which defines the specific resource you want to connect to.
     Basic Functions are:
     connect_to_instruments(bool) - no argument: connects to all resources, False: lists all resources and let you decide which to connect to
@@ -44,7 +44,12 @@ class VisaConnectWizard:
 
 
     # initialization
-    def __init__(self,*arg, backend = "NI"):
+    def __init__(self,*arg, backend=None):
+        """Constructs a new connection manager.
+
+        Keyword arguments:
+        - backend -- VISA backend, None for NI driver, '@py' for PyVISA-py or '@sim' for PyVisa-sim
+        """
 
         # constants
         self.myInstruments = [] #contains list of all instruments connected to
@@ -55,23 +60,10 @@ class VisaConnectWizard:
         self.xonoff = True
         self.GPIB_interface = None
         self.log = logging.getLogger(__name__)
-        self.backend = backend # Defines the backend which should be used "NI" for the national instruments and "py" for pure python
-
-        # Important ----------------------------------------------------------------
-        # Opens a resource manager
-        if self.backend != "py":
-            self.rm = visa.ResourceManager()
-            try:
-                self.rm.list_resources() # Check if resouce listing works, if not use pure python implementation
-                self.log.info("PyVisa uses the NI-Visa backend.")
-            except:
-                self.log.error("PyVisa with NI routines seems not to be working, falling back to pure python VISA")
-                self.rm = visa.ResourceManager("@py")
-        else:
-            self.rm = visa.ResourceManager("@py")
-            self.log.info("PyVisa uses the pure python backend")
+        self.backend = backend or ''
+        # Create resource manager
+        self.rm = visa.ResourceManager(self.backend)
         #visa.log_to_screen()
-        # Important ----------------------------------------------------------------
 
         # Tries to connect to a GPIB interface if possible
         try:

@@ -8,11 +8,11 @@ class Measurement(object):
     """Inherit this class to implement a measurement.
 
     Keyword Arguments:
-        - manager -- a device manager instance
+        - context -- measurement loop context
     """
 
-    def __init__(self, manager):
-        self.manager = manager
+    def __init__(self, context):
+        self.context = context
 
     def init(self):
         """Called at the begin of a measurement.
@@ -37,13 +37,13 @@ class Measurement(object):
         """Runs the measurement."""
         context = self.__class__.__name__
         logging.info("starting %s", context)
-        # Initialize the measurement
+        # Initialize measurement
         self.init()
         try:
-            # Run the main measurement
+            # Run main measurement
             self.process()
         except StopMeasurement as e:
-            logging.info(e)
+            logging.info("aborting %s", context)
         # Run final cleanup
         self.final()
         logging.info("stopped %s", context)
