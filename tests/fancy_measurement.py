@@ -5,7 +5,7 @@ import sys, os
 
 from UniDAQ.core.process import Process, StopProcessIteration, SkipProcessIteration
 from UniDAQ.core.measurement import Measurement, StopMeasurement
-from UniDAQ.core.devicemanager import VisaDeviceManager
+from UniDAQ.VisaConnectWizard import VisaConnectWizard import VisaDeviceManager
 
 class MySubProcess(Process):
 
@@ -69,6 +69,7 @@ if __name__ == '__main__':
     logging.getLogger().setLevel(logging.DEBUG)
 
     manager = VisaDeviceManager('@sim')
+    context = {} # placeholder
 
     measurement = MyFancyMeasurement(manager)
     measurement.run()

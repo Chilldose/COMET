@@ -15,14 +15,19 @@ punished!
    otherwise he/she will be punished as described before.
 """
 
+import glob
 import logging
 import signal
 import time
 import sys
 import os
 
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
+
 from . import utilities
 from . import boot_up
+from .gui.PreferencesDialog import PreferencesDialog
 from .GUI_classes import GUI_classes
 from .VisaConnectWizard import VisaConnectWizard
 from .measurement_event_loop import (
@@ -31,7 +36,6 @@ from .measurement_event_loop import (
     message_from_main,
     queue_to_GUI
 )
-from PyQt5.QtWidgets import QApplication, QStyleFactory
 
 def main():
     """Main application entry point."""
@@ -43,18 +47,26 @@ def main():
     StyleSheet = utilities.load_QtCSS_StyleSheet("Qt_Style.css")
 
     # Create app
-    app = QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
+
+    # Create application settings.
+    app.setOrganizationName("HEPHY")
+    app.setOrganizationDomain("hephy.at")
+    app.setApplicationName("comet")
+
+    # Init global settings.
+    QtCore.QSettings()
+
     # Set Style of the GUI
-    style = "fusion"
-    app.setStyle(QStyleFactory.create(style))
-    app.setStyleSheet(StyleSheet)
+    style = "Fusion"
+    app.setStyle(QtWidgets.QStyleFactory.create(style))
     app.setQuitOnLastWindowClosed(False)
 
     # Terminate application on SIG_INT signal.
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    # Config the except hook
-    new_except_hook = utilities.except_hook_Qt()
+    # Create a custom exception handler
+    sys.excepthook = utilities.exception_handler
 
     # Initialize logger using configuration
     rootdir = os.path.dirname(os.path.abspath(__file__))
@@ -67,9 +79,19 @@ def main():
     log.critical("Initializing programm:")
 
     # Loading all config files and default files, as well as Pad files
-    log.critical("Loading setup files ...")
-    stats = boot_up.loading_init_files()
-    stats.default_values_dict = boot_up.update_defaults_dict(stats.configs["config"], stats.configs["config"].get("framework_variables", {}))
+    active_setup = QtCore.QSettings().value('active_setup', None)
+    # TODO on missing setup do a quick and dirty selection
+    # replace this by creating a pretty awesome welcome dialog ;)
+    if active_setup is None:
+        dialog = PreferencesDialog(None)
+        dialog.exec_()
+        active_setup = dialog.activeSetup()
+        del dialog
+
+    log.critical("Loading setup '%s'...", active_setup)
+    setup_loader = boot_up.SetupLoader()
+    setup_loader.load(active_setup)
+    setup_loader.default_values_dict = boot_up.update_defaults_dict(setup_loader.configs["config"], setup_loader.configs["config"].get("framework_variables", {}))
 
     # Initializing all modules
     log.critical("Initializing modules ...")
@@ -88,7 +110,7 @@ def main():
 
     log.critical("Starting the event loops ... ")
     table = utilities.table_control_class(
-        stats.configs["config"],
+        setup_loader.configs["config"],
         devices_dict,
         message_to_main,
         vcw
@@ -96,7 +118,7 @@ def main():
     if "Table_control" not in devices_dict:
         table = None
     switching = utilities.switching_control(
-        stats.configs["config"],
+        setup_loader.configs["config"],
         devices_dict,
         message_to_main,
     )
@@ -106,7 +128,7 @@ def main():
            "VCW": vcw, "Devices": devices_dict,
            "rootdir": rootdir, "App": app,
            "Message_from_main": message_from_main, "Message_to_main": message_to_main,
-           "Queue_to_GUI": queue_to_GUI, "Configs": stats.configs}
+           "Queue_to_GUI": queue_to_GUI, "Configs": setup_loader.configs}
 
     # Starts a new Thread for the measurement event loop
     MEL = measurement_event_loop(aux)
