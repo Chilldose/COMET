@@ -172,9 +172,6 @@ class connect_to_devices:
         self.vcw = vcw
         self.device_dict = device_dict
         self.device_lib = device_lib
-        #self.vcw.show_instruments() # Lists all devices which are connected to the PC
-
-
 
         for device in device_dict:  # device_dict is a dictionary containing dictionaries
             # Check if device is present in the device lib
@@ -219,7 +216,7 @@ class connect_to_devices:
             except KeyError:
                 self.log.error("Device " + device_dict[device]["Device_name"] + " has no IDN.")
 
-        self.new_device_dict = self.append_resource_to_device_dict() # Appends the resources to the decice dict
+        self.new_device_dict = self.append_resource_to_device_dict() # Appends the resources to the device dict
 
     def get_new_device_dict(self):
         """Returns all connected devices."""
