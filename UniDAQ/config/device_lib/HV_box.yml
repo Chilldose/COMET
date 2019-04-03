@@ -1,31 +1,37 @@
 ---
-    get_relay_state: "GET:"
     Device_name: BrandBox
-    enviroment_query: GET:ENV ? 
-    bias_relay: A 
-    set_discharge: SET:DISCHARGE 
+    get_relay_state: "GET:"
+
+    # All set parameters
+    set_discharge: SET:DISCHARGE
     set_external_light: SET:BOX_LED
-    set_environement_control: SET:CTRL 
-    get_status: "*STB?"
-    check_all_open_channel: :open:STAT? 
+    set_environement_control: SET:CTRL
     set_open_channel: :open
-    CSV_open_channel: channel
-    CSV_close_channel: channel
-    default_external_light: OFF 
-    default_open_channel: "A1,A2,B1,B2,C1,C2"
-    set_close_channel: :clos 
-    get_lock_switch: GET:TST 
-    set_mode: SET:MOD 
+    set_mode: SET:MOD
     set_relay: "SET:"
-    check_all_closed_channel: :clos:STAT? 
-    check_channel: :clos? 
-    LCR_relay: B 
-    Device_type:
-        - Switching relay
-        - Light controller
-        - Environment controller
-    lock_switches: SET:TST 
-    operation_complete: "*OPC?"
-    separator: ""
+    set_close_channel: :clos
     set_hummin: SET:HUM_MIN
     set_hummax: SET:HUM_MAX
+    set_lock_switches: SET:TST
+
+    # All get parameters
+    get_enviroment: GET:ENV ?
+    get_status: "*STB?"
+    get_check_all_open_channel: :open:STAT?
+    get_lock_switch: GET:TST
+    get_check_all_closed_channel: :clos:STAT?
+    get_check_channel: :clos?
+    get_operation_complete: "*OPC?"
+
+    reset:
+        - default_external_light: OFF
+        - default_open_channel: "A1,A2,B1,B2,C1,C2"
+
+    # Misc
+    separator: ","
+    bias_relay: A
+    LCR_relay: B
+    Device_type:
+            - Switching relay
+            - Light controller
+            - Environment controller

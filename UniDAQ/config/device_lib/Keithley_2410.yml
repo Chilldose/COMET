@@ -1,6 +1,5 @@
 --- # Block of dict entries
-    Display_name: 2410 Keithley
-    Device_name: 2410 Keithley SMU                  
+    Device_name: 2410 Keithley SMU
 
     # All set parameters
     set_source_current: SOUR:FUNC CURR {curr:.2f}

@@ -89,5 +89,7 @@
             Connection_type: RS232:15
             Device_IDN: HV-Relay Controller V1.5/09.Oct.2018
 
-            
-        
+        Elektrometer:
+            Device_name: 6517B Keithley Elektrometer
+            Connection_type: GPIB:15
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E,
