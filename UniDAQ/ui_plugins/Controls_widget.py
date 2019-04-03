@@ -17,9 +17,12 @@ class Controls_widget(object):
         self.gui.start_button.clicked.connect(self.Start_order)
         self.gui.stop_button.clicked.connect(self.Stop_order)
 
+        self.gui.progressBar.setRange(0,100)
+        self.gui.progressBar.setValue(0)
+
         # Adding update functions
         self.variables.add_update_function(self.error_update)
-        #self.variables.add_update_function(self.stat_update) # Todo change it to the lcd dispaly things
+        self.variables.add_update_function(self.update_statistics)
         #self.variables.add_update_function(self.led_update) # Todo: currently no led
 
 
@@ -74,34 +77,21 @@ class Controls_widget(object):
         else:
             reply = QMessageBox.information(None, 'Warning', "You cannot load a measurement files while data taking is in progress.", QMessageBox.Ok)
 
-    def create_statistic_text(self):
+    def update_statistics(self):
         try:
-            bias = "Bias Voltage: " + str(en.EngNumber(float(self.variables.default_values_dict["settings"]["bias_voltage"]))) + "V" + "\n\n"
+            self.gui.bias_voltage_lcd.display(en.EngNumber(float(self.variables.default_values_dict["settings"]["bias_voltage"])))
+            self.gui.current_pad_lcd.display(self.variables.default_values_dict["settings"].get("current_strip", None))
+            self.gui.bad_pads_lcd.display(self.variables.default_values_dict["settings"].get("Bad_strips", None))
         except:
-            bias = "Bias Voltage: NONE V" + "\n\n"
-        starttime = "Start time: " + str(self.variables.default_values_dict["settings"].get("Start_time", None)) + "\n\n"
-        eastend = "East. end time: " + str(self.variables.default_values_dict["settings"].get("End_time", None)) + "\n\n"
-        striptime = "Strip meas. time: " + str(round(float(self.variables.default_values_dict["settings"].get("strip_scan_time", 0)),2)) + " sec" +  "\n\n"
-        badstrips = "Bad strips: " + str(self.variables.default_values_dict["settings"].get("Bad_strips", None)) + "\n\n"
-        currentstrip = "Current strip: " + str(self.variables.default_values_dict["settings"].get("current_strip", None)) + "\n\n"
-
-        return str( starttime + eastend + striptime + currentstrip + badstrips + bias)
-
-
+            pass
 
     # Update functions
-
     def error_update(self):
         last_errors = self.variables.event_loop_thread.error_log
         error_text = "\n".join(last_errors[-14:])
 
         if self.gui.event_log.text() != error_text: # Only update text if necessary
             self.gui.event_log.setText(error_text)
-
-    def stat_update(self):
-        new_text = self.create_statistic_text()
-        if self.gui.event_log.text() != new_text:
-            self.gui.event_log.setText(new_text)
 
     def led_update(self):
 

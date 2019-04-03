@@ -6,6 +6,8 @@ from .Environement_widget import Environement_widget
 from .Table_widget import Table_widget
 from .Controls_widget import Controls_widget
 from .SettingsControl_widget import SettingsControl_widget
+import numpy as np
+from ..utilities import change_axis_ticks
 
 class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, Controls_widget):
 
@@ -16,17 +18,84 @@ class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, 
         self.log = logging.getLogger(__name__)
         self.job = measurement_job_generation(self.variables.default_values_dict, self.variables.message_from_main)
 
+        self.iv_plot = None
+        self.cv_plot = None
+
         # Style for the pyqtgraph plots
         self.ticksStyle = {"pixelsize": 10}
-        self.labelStyle = {'color': '#FFF', 'font-size': '18px'}
-        self.titleStyle = {'color': '#FFF', 'size': '15pt'}
+        self.labelStyle = {'color': '#FFF', 'font-size': '15px'}
+        self.titleStyle = {'color': '#FFF', 'size': '18px'}
 
         # Dynamic waiting time detection tab
         test = QWidget()
-        self.dynamic = self.variables.load_QtUi_file("QTC_Main.ui", test)
+        self.gui = self.variables.load_QtUi_file("QTC_Main.ui", test)
         self.layout.addWidget(test)
 
-        super(QTCMain_window, self).__init__(self.dynamic)
+        self.config_IV_plot()
+        self.config_CV_plot()
+
+        super(QTCMain_window, self).__init__(self.gui)
+
+        self.variables.add_update_function(self.update_IVplot)
+        self.variables.add_update_function(self.update_CVplot)
+
+    def config_IV_plot(self):
+
+        iv_plot = self.gui.IV_plot
+        self.iv_plot = iv_plot
+        iv_plot.setTitle("IV curve (top) and CV curve (bottom)", **self.titleStyle)
+        iv_plot.setLabel('left', "current", units='A', **self.labelStyle)
+        #iv_plot.setLabel('bottom', "voltage", units='V', **self.labelStyle)
+        #iv_plot.showAxis('top', show=True)
+        iv_plot.showAxis('right', show=True)
+        iv_plot.showAxis('bottom', show=False)
+        iv_plot.getPlotItem().invertX(True)
+        iv_plot.getPlotItem().invertY(True)
+        iv_plot.showGrid(x=True, y=True)
+
+        change_axis_ticks(iv_plot, self.ticksStyle)
+        iv_plot.plot(pen="#cddb32")
+
+    def update_IVplot(self):
+        # This clear here erases all data from the viewbox each time this function is called and draws all points again!
+        # Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage
+        # With the clear statement medium cpu und low memory usage
+        if self.variables.default_values_dict["settings"]["new_data"]:
+            if len(self.variables.meas_data["IV"][0]) == len(
+                    self.variables.meas_data["IV"][1]):  # sometimes it happens that the values are not yet ready
+                self.iv_plot.plot(self.variables.meas_data["IV"][0], self.variables.meas_data["IV"][1], pen="y",
+                                clear=True, )
+
+    def config_CV_plot(self):
+        cv_plot = self.gui.CV_plot
+        self.cv_plot = cv_plot
+        #cv_plot.setTitle("IV curve", **self.titleStyle)
+        cv_plot.setLabel('left', "1/c^2", units='arb. units', **self.labelStyle)
+        cv_plot.setLabel('bottom', "voltage", units='V', **self.labelStyle)
+        #cv_plot.showAxis('top', show=True)
+        cv_plot.showAxis('right', show=True)
+        cv_plot.getPlotItem().invertX(True)
+        cv_plot.showGrid(True, True)
+
+        #cv_plot.setMinimumHeight(350)
+        #cv_plot.setMaximumHeight(350)
+
+        change_axis_ticks(cv_plot, self.ticksStyle)
+
+    def depletion_volt(self, value):
+        if value != 0:
+            return 1. / (value * value)
+        else:
+            return value
+
+    def update_CVplot(self):
+        if self.variables.default_values_dict["settings"]["new_data"]:
+            if len(self.variables.meas_data["CV"][0]) == len(
+                    self.variables.meas_data["CV"][1]):  # sometimes it happens that the values are not yet ready
+                self.cv_plot.plot(self.variables.meas_data["CV"][0],
+                                map(self.depletion_volt, self.variables.meas_data["CV"][1]), pen="y", clear=True)
+
+
 
 class measurement_job_generation:
     """This class handles all measurement generation items"""

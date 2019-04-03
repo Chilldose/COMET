@@ -15,7 +15,7 @@ class Brandbox_temperature_humidity(Thread):
         self.framework = framework
         self.stop_measurement_loop = self.main.stop_measurement_loop
         self.resource = framework["Devices"]["temphum_controller"]
-        self.query = self.resource["enviroment_query"]
+        self.query = self.resource["get_enviroment"]
         self.update_intervall = float(update_intervall)
         self.queue_to_main = framework["Message_from_main"]
         self.vcw = framework["VCW"]

@@ -98,6 +98,8 @@ class Environement_widget(object):
                 hum = self.variables.meas_data["humidity"][1][-1]
                 self.gui.temp_lcd.display(temp)
                 self.gui.hum_lcd.display(hum)
+                self.gui.temperature_bar.setValue(temp)
+                self.gui.humidity_bar.setValue(hum)
                 # Very approyximate Dew point calc
                 dew = temp-(100-hum)/5
                 self.gui.dew_point_lcd.display(dew)
