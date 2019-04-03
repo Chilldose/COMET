@@ -890,8 +890,6 @@ class Main_window:
 
         self.variables.add_update_function(update)
 
-
-
     def CV_plot(self):
 
         x = np.zeros(1)
@@ -1015,7 +1013,6 @@ class Main_window:
             plot.getAxis('right').linkToView(plot2)  # links the second y axis to the second plot
             plot2.setXLink(plot)  # sync the x axis of both plots
             #plot2.setRange(yRange=[0, 50])
-
 
         def __cut_arrays(data_array, maximum_time, arrays_to_cut):
             '''This function cuts an array to a maximum time difference

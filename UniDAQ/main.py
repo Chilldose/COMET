@@ -113,6 +113,7 @@ def main():
     devices_dict = boot_up.connect_to_devices(vcw, setup_loader.configs["config"]["settings"]["Devices"],
                                               cuted_device_lib)
     devices_dict = devices_dict.get_new_device_dict()
+    devices_dict = setup_loader.config_device_notation(devices_dict)
 
     log.critical("Starting the event loops ... ")
     table = utilities.table_control_class(

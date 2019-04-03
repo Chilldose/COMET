@@ -408,7 +408,7 @@ class stripanalysis:
             if shift:
                 metal_shorts = self.shift_strip_numbering("Cac", metal_shorts, shift)
             self.log.warning("Weak metal short found at strips: {}".format(metal_shorts))
-            if intersect:
+            if len(intersect):
                 intersect = self.shift_strip_numbering("Idiel", intersect, shift)
                 self.log.warning("Metal short found at strips: {}".format(intersect))
         else:

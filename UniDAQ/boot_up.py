@@ -125,26 +125,30 @@ class SetupLoader(object):
         except:
             return value
 
-    def config_device_notation(self):
+    def config_device_notation(self, devices):
         '''This function renames the device dict, so that the measurement class has a common name declaration. It wont change the display name. Just for internal consistency purposes'''
 
         assigned_dicts = []
         new_assigned = self.configs["config"]["settings"].get("Aliases", {}).copy() #  Gets me the internal names of all stated devices in the default file (or the keys) (only for the defaults file)
-        devices_d = self.configs.get("device_lib", {}).copy()
         # Searches for devices in the device list, returns false if not found (real device is the value dict of the device
-        for device in devices_d:
-            if devices_d[device].get("Device_name", "") in new_assigned.values() and devices_d[device].get("Device_name", "") not in assigned_dicts:
+        for device in devices.copy():
+            if devices[device].get("Device_name", "") in new_assigned.values() and devices[device].get("Device_name", "") not in assigned_dicts:
                 # syntax for changing keys in dictionaries dictionary[new_key] = dictionary.pop(old_key)
                 lKey = [key for key, value in new_assigned.items() if value == device][0]
-                self.configs["device_lib"][lKey] = self.configs["device_lib"].pop(device)
-                assigned_dicts.append(device)
+                devices[lKey] = devices.pop(device)
+                assigned_dicts.append(devices[lKey]["Device_name"])
                 new_assigned.pop(lKey)
 
-        for missing in new_assigned.values():
-            for device in self.configs["device_lib"].copy():
-                if missing in self.configs["device_lib"][device].get("Device_name", ""):
-                    lKey = [key for key, value in new_assigned.items() if value == missing][0]
-                    self.configs["device_lib"][lKey] = self.configs["device_lib"][device]
+        # Add missing devices with aliases
+        for key, missing in new_assigned.copy().items():
+            for devic in devices.copy():
+                if missing in devices[devic]["Device_name"]:
+                    devices[key] = devices[devic].copy()
+                    new_assigned.pop(key)
+
+        if new_assigned:
+            self.log.warning("The devices aliases {} have been specified but where never used".format(new_assigned))
+        return devices
 
 
     def create_dictionary(self, filename="", filepath=""):
@@ -217,6 +221,8 @@ class connect_to_devices:
                 self.log.error("Device " + device_dict[device]["Device_name"] + " has no IDN.")
 
         self.new_device_dict = self.append_resource_to_device_dict() # Appends the resources to the device dict
+
+
 
     def get_new_device_dict(self):
         """Returns all connected devices."""

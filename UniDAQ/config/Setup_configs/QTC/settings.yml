@@ -49,8 +49,7 @@
 
     GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
 
-        - Info
-        - Main
+        - QTCMain
         - Settings
         - Stripscan
         - StripAnalysis
@@ -64,15 +63,15 @@
 
     # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name
     Aliases:
-        temphum_controller: Brand Box
-        Elmeter: ELMETER
+        temphum_controller: BrandBox
+        #Elmeter: ELMETER
         Switching: Matrix
-        IVSMU: 2657 Keithley SMU
+        BiasSMU: 2657 Keithley SMU
         Table_control: Corvus
-        humidity_sensors: hum_sensors
-        Air: pressure_air
-        LCR: LCR
-        lights_controller: Brand Box
+        #humidity_sensors: hum_sensors
+        #Air: pressure_air
+        #LCR: LCR
+        lights_controller: BrandBox
 
     Devices:
         2410SMU: # This is the name at which the device will be called. You can define an alias name as well in the aliases section
@@ -84,5 +83,11 @@
             Device_name: 2657 Keithley SMU
             Connection_type: GPIB:26
             Device_IDN: Keithley Instruments Inc., Model 2657A 4356871, 1.1.5
+
+        BrandBox:
+            Device_name: BrandBox
+            Connection_type: RS232:15
+            Device_IDN: HV-Relay Controller V1.5/09.Oct.2018
+
             
         

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1338</width>
-    <height>1025</height>
+    <height>1080</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -72,10 +72,10 @@
       <widget class="QComboBox" name="operator_comboBox"/>
      </item>
      <item row="1" column="5">
-      <widget class="QLineEdit" name="save_to_edit"/>
+      <widget class="QLineEdit" name="filename"/>
      </item>
      <item row="1" column="1">
-      <widget class="QComboBox" name="project_comboBox"/>
+      <widget class="QComboBox" name="proj_comboBox"/>
      </item>
      <item row="1" column="3">
       <widget class="QComboBox" name="sensor_comboBox"/>
@@ -130,14 +130,14 @@
    <item row="1" column="1" rowspan="2">
     <layout class="QGridLayout" name="table_layout">
      <item row="1" column="0">
-      <widget class="QFrame" name="teble_frame">
+      <widget class="QFrame" name="table_frame">
        <property name="enabled">
         <bool>true</bool>
        </property>
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>0</height>
+         <height>300</height>
         </size>
        </property>
        <property name="styleSheet">
@@ -655,10 +655,10 @@ background-color: grey;</string>
       </widget>
      </item>
      <item row="6" column="7">
-      <widget class="QDoubleSpinBox" name="max_hum_temp"/>
+      <widget class="QDoubleSpinBox" name="max_temp_spin"/>
      </item>
      <item row="0" column="4" rowspan="4" colspan="5">
-      <widget class="PlotWidget" name="graphicsView">
+      <widget class="PlotWidget" name="pyqtPlotItem">
        <property name="maximumSize">
         <size>
          <width>16777215</width>
@@ -712,58 +712,8 @@ background-color: grey;</string>
      </item>
     </layout>
    </item>
-   <item row="4" column="1">
+   <item row="3" column="1" rowspan="2">
     <layout class="QGridLayout" name="controls_layout">
-     <item row="0" column="0">
-      <widget class="QPushButton" name="start_button">
-       <property name="text">
-        <string>Start</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../images/svg_resources.qrc">
-         <normaloff>:/play/start.svg</normaloff>:/play/start.svg</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1" colspan="3">
-      <widget class="QProgressBar" name="progressBar">
-       <property name="value">
-        <number>24</number>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="progress_label">
-       <property name="text">
-        <string>Progress:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="quit_button">
-       <property name="text">
-        <string>Quit</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="stop_button">
-       <property name="text">
-        <string>Stop</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../images/svg_resources.qrc">
-         <normaloff>:/stop/stop.svg</normaloff>:/stop/stop.svg</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="event_log_label">
-       <property name="text">
-        <string>Event Log:</string>
-       </property>
-      </widget>
-     </item>
      <item row="0" column="3">
       <widget class="QLCDNumber" name="bias_voltage_lcd">
        <property name="minimumSize">
@@ -783,48 +733,6 @@ background-color: grey;</string>
        </property>
        <property name="segmentStyle">
         <enum>QLCDNumber::Filled</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="2">
-      <widget class="QLabel" name="bias_voltage_label">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Bias Voltage:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QLabel" name="bad_pads_label">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Bad pads:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QLCDNumber" name="current_pad_lcd">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>30</height>
-        </size>
        </property>
       </widget>
      </item>
@@ -852,6 +760,12 @@ background-color: grey;</string>
          <height>400</height>
         </size>
        </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>400</height>
+        </size>
+       </property>
        <property name="text">
         <string>No errors =)</string>
        </property>
@@ -860,6 +774,44 @@ background-color: grey;</string>
        </property>
        <property name="textInteractionFlags">
         <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="quit_button">
+       <property name="text">
+        <string>Quit</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="start_button">
+       <property name="text">
+        <string>Start</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../images/svg_resources.qrc">
+         <normaloff>:/play/start.svg</normaloff>:/play/start.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="event_log_label">
+       <property name="text">
+        <string>Event Log:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="bad_pads_label">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Bad pads:</string>
        </property>
       </widget>
      </item>
@@ -873,6 +825,60 @@ background-color: grey;</string>
        </property>
        <property name="text">
         <string>Current pad:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="1" colspan="3">
+      <widget class="QProgressBar" name="progressBar">
+       <property name="value">
+        <number>24</number>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0">
+      <widget class="QLabel" name="progress_label">
+       <property name="text">
+        <string>Progress:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="2">
+      <widget class="QLabel" name="bias_voltage_label">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Bias Voltage:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QLCDNumber" name="current_pad_lcd">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>30</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QPushButton" name="stop_button">
+       <property name="text">
+        <string>Stop</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../images/svg_resources.qrc">
+         <normaloff>:/stop/stop.svg</normaloff>:/stop/stop.svg</iconset>
        </property>
       </widget>
      </item>
