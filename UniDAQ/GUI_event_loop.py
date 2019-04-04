@@ -7,6 +7,7 @@ import numpy as np
 import logging
 from .globals import message_to_main, message_from_main, queue_to_GUI
 from .utilities import ErrorMessageBoxHandler
+from threading import Timer
 
 #TODO: GUI event loop still QTC specific, fix it
 #TODO: class call with too many parameters, only give framework functions
@@ -20,7 +21,7 @@ class GUI_event_loop(QThread):
     def __init__(self, main, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, visa, meas_data):
 
         # Initialise the GUI class, classes
-        super().__init__()
+        super(GUI_event_loop, self).__init__()
 
         self.main = main
         self.message_to_main = message_to_main
@@ -49,9 +50,7 @@ class GUI_event_loop(QThread):
 
     def run(self):
         # Start additional timer for pending events, so that the GUI can shutdown properly
-        timer = QtCore.QTimer()
-        timer.timeout.connect(self.process_pending_events)
-        timer.start(1000)
+        self.main.add_update_function(self.process_pending_events)
 
         # Start the event loop
         self.start_loop()
@@ -103,7 +102,7 @@ class GUI_event_loop(QThread):
             if "INFO" in error.upper():
                 prepend = '<font color=\"green\">'
             elif "ERROR" in error.upper():
-                prepend = '<font color=\"red\">'
+                prepend = '<font color=\"#cc1414\">'
                 # Emit the signal
                 self.Errsig.emit(str(message[str(error)]))
             elif "WARNING" in error.upper():
@@ -163,6 +162,7 @@ class GUI_event_loop(QThread):
                         self.meas_data[measurement][1].append(np.array(message[measurement][1]))
             else:
                 self.log.error("Measurement " + str(measurement) + " could not be found in active data arrays. Data discarded.")
+
 
 
     def process_pending_events(self):

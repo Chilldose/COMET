@@ -24,6 +24,8 @@ class Environement_widget(object):
         self.gui.min_temp_spin.setValue(20)
         self.gui.max_temp_spin.setValue(25)
 
+        self.update_bars_and_spinboxes()
+
         self.gui.min_temp_spin.valueChanged.connect(self.valuechange)
         self.gui.max_temp_spin.valueChanged.connect(self.valuechange)
         self.gui.max_hum_spin.valueChanged.connect(self.valuechange)
@@ -47,15 +49,15 @@ class Environement_widget(object):
         self.temphum_plot = self.gui.pyqtPlotItem
         self.config_plot(self.temphum_plot, self.hum_plot_obj)  # config the plot items
 
-        #self.variables.add_update_function(update_temphum_plots)
+        self.variables.add_update_function(self.update_temphum_plots)
 
     def config_plot(self, plot, plot2):
         plot = plot.plotItem
         plot.setLabel('right', "humidity", units='%')
         plot.setLabel('bottom', "time")
         plot.setLabel('left', "temperature", units='Celsius')
-        plot.getAxis('left').setPen(pyqtgraph.mkPen(color='#c4380d', width=3))
-        plot.getAxis('right').setPen(pyqtgraph.mkPen(color='#025b94', width=3))
+        plot.getAxis('left').setPen(pyqtgraph.mkPen(color='#cc1414', width=3))
+        plot.getAxis('right').setPen(pyqtgraph.mkPen(color='#2662e2', width=3))
         plot.showAxis('top', show=True)
         plot.getAxis('top').setTicks([])
         plot.getAxis('bottom').setScale(1e-9)
@@ -69,7 +71,7 @@ class Environement_widget(object):
         plot2.setXLink(plot)  # sync the x axis of both plots
         # plot2.setRange(yRange=[0, 50])
 
-    def __cut_arrays(data_array, maximum_time, arrays_to_cut):
+    def __cut_arrays(self, data_array, maximum_time, arrays_to_cut):
         '''This function cuts an array to a maximum time difference
         This function is supposed to be used only for temp and humidity shaped arrays
         '''
@@ -110,17 +112,19 @@ class Environement_widget(object):
 
             ax = p1.getAxis('bottom')  # This is the trick
             self.__cut_arrays(self.variables.meas_data,
-                         float(self.variables.default_values_dict["settings"].get("temp_history", 3600)), ["temperature", "humidity"])
+                              float(self.variables.default_values_dict["settings"].get("temp_history",
+                              3600)),
+                              ["temperature", "humidity"])
             ax.setTicks([get_thicks_for_timestamp_plot(self.variables.meas_data["temperature"][0], 5,
                                                        self.variables.default_values_dict["settings"]["time_format"])])
 
             try:
                 if len(self.variables.meas_data["temperature"][0]) == len(self.variables.meas_data["humidity"][1]):  # sometimes it happens that the values are not yet ready
                     p1.plot(self.variables.meas_data["temperature"][0], self.variables.meas_data["temperature"][1],
-                            pen={'color': "r", 'width': 2}, clear=True)
+                            pen={'color': "#cc1414", 'width': 2}, clear=True)
                     plot_item = pyqtgraph.PlotCurveItem(self.variables.meas_data["humidity"][0],
                                                     self.variables.meas_data["humidity"][1],
-                                                    pen={'color': "b", 'width': 2},
+                                                    pen={'color': "#2662e2", 'width': 2},
                                                     clear=True)
                     self.hum_plot_obj.addItem(plot_item)
                     del plot_item
@@ -131,18 +135,25 @@ class Environement_widget(object):
     def valuechange(self):
         '''This is the function which is called, when a value is changed in the spin boxes'''
 
-        self.gui.min_temp_spin.setMaximum(self.gui.max_temp_spin.value())
-        self.gui.max_temp_spin.setMinimum(self.gui.min_temp_spin.value())
-        self.gui.min_hum_spin.setMaximum(self.gui.max_hum_spin.value())
-        self.gui.max_hum_spin.setMinimum(self.gui.min_hum_spin.value())
-
-        self.variables.default_values_dict["settings"]["current_tempmin"] = self.gui.min_temp_spin.value()
-        self.variables.default_values_dict["settings"]["current_tempmax"] = self.gui.max_temp_spin.value()
-        self.variables.default_values_dict["settings"]["current_hummin"] = self.gui.min_hum_spin.value()
-        self.variables.default_values_dict["settings"]["current_hummax"] = self.gui.max_hum_spin.value()
+        self.update_bars_and_spinboxes()
 
         max = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummax", self.gui.max_hum_spin.value()))
         min = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummin", self.gui.min_hum_spin.value()))
 
         self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], max)
         self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], min)
+
+    def update_bars_and_spinboxes(self):
+        """This function simply updates the spin bixes and bars to min max values etc."""
+        self.gui.min_temp_spin.setMaximum(self.gui.max_temp_spin.value())
+        self.gui.max_temp_spin.setMinimum(self.gui.min_temp_spin.value())
+        self.gui.min_hum_spin.setMaximum(self.gui.max_hum_spin.value())
+        self.gui.max_hum_spin.setMinimum(self.gui.min_hum_spin.value())
+
+        self.gui.temperature_bar.setRange(self.gui.min_temp_spin.value(),self.gui.max_temp_spin.value())
+        self.gui.humidity_bar.setRange(self.gui.min_hum_spin.value(),self.gui.max_hum_spin.value())
+
+        self.variables.default_values_dict["settings"]["current_tempmin"] = self.gui.min_temp_spin.value()
+        self.variables.default_values_dict["settings"]["current_tempmax"] = self.gui.max_temp_spin.value()
+        self.variables.default_values_dict["settings"]["current_hummin"] = self.gui.min_hum_spin.value()
+        self.variables.default_values_dict["settings"]["current_hummax"] = self.gui.max_hum_spin.value()

@@ -64,7 +64,7 @@ class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, 
             if len(self.variables.meas_data["IV"][0]) == len(
                     self.variables.meas_data["IV"][1]):  # sometimes it happens that the values are not yet ready
                 self.iv_plot.plot(self.variables.meas_data["IV"][0], self.variables.meas_data["IV"][1], pen="y",
-                                clear=True, )
+                                clear=True)
 
     def config_CV_plot(self):
         cv_plot = self.gui.CV_plot
@@ -93,7 +93,7 @@ class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, 
             if len(self.variables.meas_data["CV"][0]) == len(
                     self.variables.meas_data["CV"][1]):  # sometimes it happens that the values are not yet ready
                 self.cv_plot.plot(self.variables.meas_data["CV"][0],
-                                map(self.depletion_volt, self.variables.meas_data["CV"][1]), pen="y", clear=True)
+                                list(map(self.depletion_volt, self.variables.meas_data["CV"][1])), pen="y", clear=True)
 
 
 

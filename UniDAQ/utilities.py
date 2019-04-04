@@ -785,7 +785,7 @@ class Framework:
 
         self.functions, self.update_interval = values_from_GUI()
         self.timer = None
-        self.log = logging.getLogger(__name__)
+        self.log = logging.getLogger("Framework")
 
     def start_timer(self):  # Bug timer gets not called due to a lock somewhere else
         """
@@ -807,12 +807,11 @@ class Framework:
 
         :return: None
         """
-        #start = time.time()
         for function in self.functions:
             try:
                 function()
-            except:
-                self.log.error("Could not update framework " + str(function))
+            except Exception as err:
+                self.log.critical("While updating the framework an error happend in function {} with error: {}".format(function, err))
 
 class transformation:
     """Class which handles afine transformations in 3 dimensions for handling sensor to jig coordinate systems"""

@@ -1,6 +1,7 @@
 from threading import Thread, Timer
 from time import time
 import logging
+import random
 
 
 class Brandbox_temperature_humidity(Thread):
@@ -20,6 +21,8 @@ class Brandbox_temperature_humidity(Thread):
         self.queue_to_main = framework["Message_to_main"]
         self.vcw = framework["VCW"]
         self.log = logging.getLogger(__name__)
+        self.testmode = False
+        self.running = False
 
         # First try if visa_resource is valid
         self.success = False
@@ -34,10 +37,15 @@ class Brandbox_temperature_humidity(Thread):
     def run(self):
         '''This is the update function for temp hum query'''
 
-        if self.success:
+        if self.success and not self.running:
             self.log.info("Humidity and temp control started...")
-        else:
+            self.running = True
+        elif self.testmode and not self.running:
+            self.log.critical("Humidity and temp TEST MODE started!!!")
+            self.running = True
+        elif not self.running:
             self.log.info("Humidity and temp control NOT started...")
+            return
 
         if not self.stop_measurement_loop and self.success:
             try:
@@ -48,13 +56,21 @@ class Brandbox_temperature_humidity(Thread):
                 # Write the pt100 and light status and environement in the box to the global variables
                 self.framework["Configs"]["config"]["settings"]["chuck_temperature"] = float(values[3])
                 self.framework["Configs"]["config"]["settings"]["internal_lights"] = True if int(values[2]) == 1 else False
-                self.queue_to_main.put({"temperature": [float(time.time()), float(values[0])],
-                                   "humidity": [float(time.time()), float(values[1])]})
+                self.queue_to_main.put({"temperature": [float(time()), float(values[0])],
+                                   "humidity": [float(time()), float(values[1])]})
             except Exception as err:
                 self.log.error(
                     "The temperature and humidity controller seems not to be responding. Error: {!s}".format(err))
-            Timer(self.update_intervall / 1000.,
-                            self.run).start()  # This ensures the function will be called again
+
+        elif self.testmode:
+            self.log.critical("Testmode sends message to main!")
+            self.queue_to_main.put({"temperature": [float(time()), float(random.randint(1,10))],
+                                    "humidity": [float(time()), float(random.randint(1,10))]})
+        self.start_timer(self.run)
+
+
+    def start_timer(self, object):
+        Timer(self.update_intervall / 1000.,object).start()  # This ensures the function will be called again
 
 
 
