@@ -6,6 +6,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from ..utilities import ErrorMessageBoxHandler
+from .PreferencesDialog import PreferencesDialog
 
 ContentsURL = "https://chilldose.github.io/UniDAQ/_build/html/index.html"
 """URL to primary documentation."""
@@ -36,6 +37,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # Create error message dialog
         self.errMsg = ErrorMessageBoxHandler(QiD=self)
 
+        self.preferencesDialog = PreferencesDialog(self)
+        self.preferencesDialog.hide()
+
     def createActions(self):
         """Create actions."""
         # Action for quitting the program.
@@ -43,6 +47,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.quitAct.setShortcut(QtGui.QKeySequence.Quit)
         self.quitAct.setStatusTip(self.tr("Quit the programm"))
         self.quitAct.triggered.connect(self.close)
+        # Preferences.
+        self.preferencesAct = QtWidgets.QAction(self.tr("&Preferences"), self)
+        self.preferencesAct.setStatusTip(self.tr("Configure the application"))
+        self.preferencesAct.triggered.connect(self.onPreferences)
         # Action for starting a measurement.
         self.startAct = QtWidgets.QAction(self.tr("&Start"), self)
         self.startAct.setIcon(QtGui.QIcon(os.path.join(ResourcePath, 'start.svg')))
@@ -73,6 +81,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # File menu
         self.fileMenu = self.menuBar().addMenu(self.tr("&File"))
         self.fileMenu.addAction(self.quitAct)
+        # Edit menu
+        self.editMenu = self.menuBar().addMenu(self.tr("&Edit"))
+        self.editMenu.addAction(self.preferencesAct)
         # Measurement menu
         self.measureMenu = self.menuBar().addMenu(self.tr("&Measure"))
         self.measureMenu.addActions(self.measureActGroup.actions())
@@ -94,6 +105,11 @@ class MainWindow(QtWidgets.QMainWindow):
     def addTab(self, widget, title):
         """Add an existing widget to central tab widget, provided for convenince."""
         self.centralWidget().addTab(widget, title)
+
+    def onPreferences(self):
+        """Show preferences dialog."""
+        self.preferencesDialog.show()
+        self.preferencesDialog.raise_()
 
     def onStart(self):
         """Starting a measurement."""

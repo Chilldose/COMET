@@ -87,8 +87,9 @@ def main():
     if active_setup is None:
         dialog = PreferencesDialog(None)
         dialog.exec_()
-        active_setup = dialog.activeSetup()
         del dialog
+        # Re-load active setup after configuration dialog.
+        active_setup = QtCore.QSettings().value('active_setup', None)
 
     log.critical("Loading setup '%s'...", active_setup)
     # TODO load config

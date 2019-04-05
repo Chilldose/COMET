@@ -49,7 +49,9 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.queue_to_GUI = queue_to_GUI
         self.table = framework_variables["Table"]
         self.switching = framework_variables["Switching"]
-        self.white_plots = self.default_values_dict["settings"].get("Thomas_mode", False)
+        # TODO
+        plot_style = QtCore.QSettings().value("plot_style")
+        self.white_plots = True if plot_style == "light" else False
         self.meas_data = {}
         self.all_plugin_modules = {}
         self.qt_designer_ui = []
