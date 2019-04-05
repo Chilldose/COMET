@@ -49,9 +49,6 @@ class GUI_classes(GUI_event_loop, QWidget):
         self.queue_to_GUI = queue_to_GUI
         self.table = framework_variables["Table"]
         self.switching = framework_variables["Switching"]
-        # TODO
-        plot_style = QtCore.QSettings().value("plot_style")
-        self.white_plots = True if plot_style == "light" else False
         self.meas_data = {}
         self.all_plugin_modules = {}
         self.qt_designer_ui = []
@@ -73,16 +70,16 @@ class GUI_classes(GUI_event_loop, QWidget):
         # This is the main Tab Widget in which all other tabs are implemented
         self.main_window = MainWindow(self.message_to_main)
 
-        # For Thomas, because he does not like black plots
-        if self.white_plots:
+        # Plot style
+        plot_style = QtCore.QSettings().value("plot_style")
+        if plot_style == "light":
             pq.setConfigOption('background', 'w')
             pq.setConfigOption('foreground', 'k')
-        else:
+        if plot_style == "dark":
             pq.setConfigOption('background', '#323232')
             pq.setConfigOption('foreground', '#bec4ce')
-            pq.setConfigOption('antialias', True)
-            pq.setConfigOption('crashWarning', True)
-
+        pq.setConfigOption('antialias', True)
+        pq.setConfigOption('crashWarning', True)
 
         sleep(0.2) # That gives the threads time to initialize all values before missmatch in gui can occur
 
