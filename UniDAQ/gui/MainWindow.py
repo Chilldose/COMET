@@ -6,6 +6,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from ..utilities import ErrorMessageBoxHandler
+from .CentralWidget import CentralWidget
 from .PreferencesDialog import PreferencesDialog
 
 ContentsURL = "https://chilldose.github.io/UniDAQ/_build/html/index.html"
@@ -31,9 +32,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.createToolbar()
         self.createStatusBar()
         # Create central widget
-        central_widget = QtWidgets.QTabWidget(self)
-        central_widget.setMinimumSize(640, 490)
-        self.setCentralWidget(central_widget)
+        centralWidget = CentralWidget(self)
+        centralWidget.setMinimumSize(640, 490)
+        self.setCentralWidget(centralWidget)
         # Create error message dialog
         self.errMsg = ErrorMessageBoxHandler(QiD=self)
 
@@ -116,12 +117,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.startAct.setEnabled(not self.startAct.isEnabled())
         self.stopAct.setEnabled(not self.stopAct.isEnabled())
         # TODO
+        self.centralWidget().onStart()
 
     def onStop(self):
         """Stopping current measurement."""
         self.startAct.setEnabled(not self.startAct.isEnabled())
         self.stopAct.setEnabled(not self.stopAct.isEnabled())
         # TODO
+        self.centralWidget().onStop()
 
     def onShowContents(self):
         """Open web browser and open contents."""

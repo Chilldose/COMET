@@ -23,11 +23,15 @@ class Info_window:
         self.layout = layout
 
         # Dynamic waiting time detection tab
-        test = QWidget()
-        self.dynamic = self.variables.load_QtUi_file("QTC_Main.ui", test)
-        self.layout.addWidget(test)
+        self.widget = QWidget()
+        self.dynamic = self.variables.load_QtUi_file("QTC_Main.ui", self.widget)
+        self.layout.addWidget(self.widget)
 
+        self.layout.parent().start.connect(self.onStart)
+        self.layout.parent().stop.connect(self.onStop)
 
+    def onStart(self):
+        self.widget.setStyleSheet("background: orange;")
 
-
-
+    def onStop(self):
+        self.widget.setStyleSheet("background: white;")

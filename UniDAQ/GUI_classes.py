@@ -20,6 +20,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 from .gui.MainWindow import MainWindow
+from .gui.PluginWidget import PluginWidget
 
 from .GUI_event_loop import *
 from .bad_strip_detection import *
@@ -102,22 +103,22 @@ class GUI_classes(GUI_event_loop, QWidget):
 
     def add_rendering_function(self, widget, name):
         '''This function adds a widget for rendering'''
-        self.final_tabs.append((widget,str(name)))
-        self.log.debug("Adding rendering function: " + str(name))
+        self.final_tabs.append((widget, name))
+        self.log.debug("Adding rendering function: %s", name)
 
     def construct_ui(self):
         '''This function generates all ui elements in form of tab widgets'''
-        for modules in self.all_plugin_modules:
-            self.log.info("Constructing UI module: {!s}".format(modules))
-            # QWidget object
-            QWidgets = QWidget()
+        for module in self.all_plugin_modules:
+            self.log.info("Constructing UI module: {!s}".format(module))
+            # Create plugin windget
+            widget = PluginWidget()
             layout = QGridLayout()  # Just a layout type
-            QWidgets.setLayout(layout)
+            widget.setLayout(layout)
 
-            plugin = getattr(self.all_plugin_modules[modules], str(modules))(self, layout)
-            self.ui_plugins.update({modules: plugin})
+            plugin = getattr(self.all_plugin_modules[module], module)(self, layout)
+            self.ui_plugins.update({module: plugin})
 
-            self.add_rendering_function(QWidgets, str(modules).split("_")[0])
+            self.add_rendering_function(widget, module.split("_")[0])
 
     def load_QtUi_file(self, filename, widget):
         '''This function returns a qt generated Ui object.'''
