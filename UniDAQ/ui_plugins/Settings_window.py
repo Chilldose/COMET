@@ -57,12 +57,16 @@ class Settings_window:
 
         # IV
         self.load_new_values("IV_measure",
-                       self.settings.doIV_checkBox, self.settings.max_voltage_IV,
-                       self.settings.complience_IV, self.settings.voltage_steps_IV)
+                       self.settings.doIV_checkBox, self.settings.max_voltage,
+                       self.settings.complience, self.settings.voltage_steps)
 
         # CV
         self.load_new_values("CV_measure", self.settings.doCV_checkBox,
-                       self.settings.max_voltage_CV, self.settings.complience_CV, self.settings.voltage_steps_CV)
+                       self.settings.max_voltage, self.settings.complience, self.settings.voltage_steps)
+
+        # Refinement
+        self.load_new_values("IVCV_refinement", self.settings.doRef_checkBox, self.settings.min_refine_spin,
+                       self.settings.max_refine_spin, self.settings.refine_step_spin)
 
         # stripscan
         self.load_new_values("Stripscan_measure",
@@ -122,14 +126,23 @@ class Settings_window:
     def configure_settings(self, args=None):
         '''This function initializes the new values for the state machine'''
 
-        # IV
+        # IVCV generall settings
         self.configure(self.variables.default_values_dict["settings"]["IV_measure"],
-                       self.settings.doIV_checkBox,  self.settings.max_voltage_IV,
-                       self.settings.complience_IV,  self.settings.voltage_steps_IV)
+                       self.settings.doIV_checkBox,  self.settings.max_voltage,
+                       self.settings.complience,  self.settings.voltage_steps)
+
+        self.configure(self.variables.default_values_dict["settings"]["CV_measure"],
+                       self.settings.doCV_checkBox, self.settings.max_voltage,
+                       self.settings.complience, self.settings.voltage_steps)
+
+        self.configure(self.variables.default_values_dict["settings"]["IVCV_refinement"],
+                       self.settings.doRef_checkBox, self.settings.min_refine_spin,
+                       self.settings.max_refine_spin, self.settings.refine_step_spin)
 
         # CV
-        self.configure(self.variables.default_values_dict["settings"]["CV_measure"], self.settings.doCV_checkBox,
-                       self.settings.max_voltage_CV, self.settings.complience_CV, self.settings.voltage_steps_CV)
+        #self.configure(self.variables.default_values_dict["settings"]["CV_measure"], self.settings.doCV_checkBox,
+        #               self.settings.max_voltage_CV, self.settings.complience_CV, self.settings.voltage_steps_CV)
+
 
         # stripscan
         self.configure(self.variables.default_values_dict["settings"]["Stripscan_measure"], self.settings.dostripscans_checkBox,

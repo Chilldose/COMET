@@ -39,6 +39,7 @@
   Cback_measure: [False, 1, 1, 200]  # do_it every start stop
   Istrip_measure: [True, 1, 1, 200]  # do_it every start stop
   IV_longterm_measure: [False, -10, -60.0, 5]  # do_it min voltage complience steps
+  IVCV_refinement: [True, 0, -50, 2] # do_refinement, min, max, step
   CintAC_measure: [False, 1, 1, 200]
   Table_stay_down: False
   height_movement: 300 # height movement of the table when moving the table

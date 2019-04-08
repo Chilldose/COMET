@@ -6,7 +6,6 @@ from .Environement_widget import Environement_widget
 from .Table_widget import Table_widget
 from .Controls_widget import Controls_widget
 from .SettingsControl_widget import SettingsControl_widget
-import numpy as np
 from ..utilities import change_axis_ticks
 
 class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, Controls_widget):
@@ -158,8 +157,7 @@ class measurement_job_generation:
             file_header += "voltage[V]".ljust(24) + "capacitance[F]".ljust(24)
 
         file_header += "temperature[deg]".ljust(24) + "humidity[rel%]".ljust(24)
-
-        final_dict.update({"header": file_header})
+        final_dict["header"]= file_header
 
         if self.variables["IV_measure"][0]:
             values = self.variables["IV_measure"]
@@ -168,6 +166,10 @@ class measurement_job_generation:
         if self.variables["CV_measure"][0]:
             values = self.variables["CV_measure"]
             final_dict.update({"CV": {"StartVolt": 0, "EndVolt": values[1], "Complience": str(values[2])+ "e-6", "Steps": values[3]}})
+
+        if self.variables["IVCV_refinement"][0]:
+            values = self.variables["IVCV_refinement"]
+            final_dict.update({"IVCV_refinement": {"Min": values[1], "Max": values[2], "Step": values[3]}})
 
         if len(final_dict) > 1:
             return final_dict

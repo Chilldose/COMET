@@ -56,7 +56,7 @@ class StripAnalysis_window:
 
         # Set margins of things
         self.badstrip.scrollArea.setContentsMargins(0, 0, 0, 0)
-        self.badstrip.report_lable.setContentsMargins(0, 0, 0, 0)
+        self.badstrip.report_label.setContentsMargins(0, 0, 0, 0)
 
         # Asign the buttons
         self.badstrip.Button_changeload.clicked.connect(self.load_measurement_action)
@@ -69,8 +69,8 @@ class StripAnalysis_window:
         self.badstrip.which_plot.activated[str].connect(self.update_analysis_plots)
         self.badstrip.Slider_bins.valueChanged.connect(self.update_bins)
         self.badstrip.which_measurement.activated[str].connect(self.update_plot)
-        self.badstrip.cb_Save_results.clicked.connect(self.export_action)
-        self.badstrip.cb_Save_plots.clicked.connect(self.export_action)
+        #self.badstrip.cb_Save_results.clicked.connect(self.export_action)
+        #self.badstrip.cb_Save_plots.clicked.connect(self.export_action)
         self.badstrip.analyse_button.clicked.connect(self.analyse_action)
         #self.badstrip.save_plots_button.clicked.connect(self.export_plots)
 
@@ -147,11 +147,11 @@ class StripAnalysis_window:
         # Get selected measurement
         measurement = self.badstrip.which_plot.currentText()
         if "Analysis_conclusion" in self.variables.analysis.all_data[measurement]:
-            self.badstrip.report_lable.setText(self.variables.analysis.all_data[measurement]["Analysis_conclusion"])
-            self.badstrip.radioData.setChecked(True)
+            self.badstrip.report_label.setText(self.variables.analysis.all_data[measurement]["Analysis_conclusion"])
+            #self.badstrip.radioData.setChecked(True)
         else:
-            self.badstrip.report_lable.setText("")
-            self.badstrip.radioData.setChecked(False)
+            self.badstrip.report_label.setText("")
+            #self.badstrip.radioData.setChecked(False)
     @raise_exception
     def update_stats(self, kwargs = None):
         """Updates the text of the loaded files and such shit"""
@@ -160,8 +160,8 @@ class StripAnalysis_window:
         for keys in self.plot_data.keys():
             meas += str(keys) + ","
 
-        self.badstrip.cb_Save_plots.setChecked(self.variables.default_values_dict["Badstrip"]["export_plot"])
-        self.badstrip.cb_Save_results.setChecked(self.variables.default_values_dict["Badstrip"]["export_results"])
+        #self.badstrip.cb_Save_plots.setChecked(self.variables.default_values_dict["Badstrip"]["export_plot"])
+        #self.badstrip.cb_Save_results.setChecked(self.variables.default_values_dict["Badstrip"]["export_results"])
 
     def update_meas_selector(self):
         """This function updates the combo box selectors for the measurements"""
@@ -298,7 +298,7 @@ class StripAnalysis_window:
                         #self.pdf_viewbox.setGeometry(self.badstrip.strip_plot_histogram.plotItem.vb.sceneBoundingRect())
 
                         # Update report text
-                        self.badstrip.report_lable.setText(anadata["report"][measurement_name])
+                        self.badstrip.report_label.setText(anadata["report"][measurement_name])
 
             self.badstrip.strip_plot.enableAutoRange(y=True)
             self.tooltip = show_cursor_position(self.badstrip.strip_plot)

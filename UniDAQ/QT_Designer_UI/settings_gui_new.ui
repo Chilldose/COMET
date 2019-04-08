@@ -139,7 +139,7 @@
       <number>2</number>
      </property>
      <layout class="QGridLayout" name="gridLayout">
-      <item row="5" column="0">
+      <item row="4" column="0">
        <widget class="QCheckBox" name="dostripscans_checkBox">
         <property name="font">
          <font>
@@ -186,7 +186,22 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2" rowspan="4">
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="doCV_checkBox">
+        <property name="font">
+         <font>
+          <pointsize>15</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Do CV</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" rowspan="3">
        <widget class="QFrame" name="Refinement_settings_label">
         <property name="maximumSize">
          <size>
@@ -289,7 +304,7 @@
         </layout>
        </widget>
       </item>
-      <item row="5" column="1" colspan="2">
+      <item row="4" column="1" colspan="2">
        <widget class="QFrame" name="generalstripscan_label">
         <property name="maximumSize">
          <size>
@@ -395,7 +410,7 @@
         </layout>
        </widget>
       </item>
-      <item row="1" column="1" rowspan="4">
+      <item row="1" column="1" rowspan="3">
        <widget class="QFrame" name="IV_settings_settings">
         <property name="maximumSize">
          <size>
@@ -496,36 +511,6 @@
           </widget>
          </item>
         </layout>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="doCV_checkBox">
-        <property name="font">
-         <font>
-          <pointsize>15</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Do CV</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="doRef_checkBox">
-        <property name="font">
-         <font>
-          <pointsize>14</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Do refinement</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
        </widget>
       </item>
      </layout>
@@ -811,7 +796,7 @@
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>16777215</height>
+          <height>80</height>
          </size>
         </property>
         <property name="palette">
@@ -1272,9 +1257,6 @@
          <enum>QFrame::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_8">
-         <property name="bottomMargin">
-          <number>11</number>
-         </property>
          <item row="2" column="1">
           <widget class="QDoubleSpinBox" name="C_ac_Start_strip">
            <property name="decimals">

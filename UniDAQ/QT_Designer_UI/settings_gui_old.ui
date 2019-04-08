@@ -9,7 +9,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1170</width>
+    <width>1171</width>
     <height>990</height>
    </rect>
   </property>
@@ -21,7 +21,7 @@
   </property>
   <layout class="QGridLayout" name="gridLayout_10">
    <item row="0" column="0">
-    <widget class="QLabel" name="Generalsettings_label">
+    <widget class="QLabel" name="IVCV_label">
      <property name="maximumSize">
       <size>
        <width>16777215</width>
@@ -48,7 +48,7 @@
       <number>4</number>
      </property>
      <property name="text">
-      <string>General Settings</string>
+      <string>IV and CV settings</string>
      </property>
      <property name="textFormat">
       <enum>Qt::AutoText</enum>
@@ -61,7 +61,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="1">
+   <item row="2" column="0">
     <widget class="QLabel" name="Stripscan_label">
      <property name="maximumSize">
       <size>
@@ -102,25 +102,12 @@
      </property>
     </widget>
    </item>
-   <item row="2" column="0">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>300</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
    <item row="1" column="0">
     <widget class="QFrame" name="DoIVCVframe">
      <property name="maximumSize">
       <size>
        <width>16777215</width>
-       <height>16777215</height>
+       <height>300</height>
       </size>
      </property>
      <property name="autoFillBackground">
@@ -138,45 +125,11 @@
      <property name="lineWidth">
       <number>2</number>
      </property>
-     <layout class="QGridLayout" name="gridLayout">
-      <item row="5" column="0">
-       <widget class="QCheckBox" name="dostripscans_checkBox">
-        <property name="font">
-         <font>
-          <pointsize>15</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Do strip scans</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="1">
-       <widget class="QLabel" name="general_settings_label">
-        <property name="text">
-         <string>General IVCV parameters</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="2">
-       <widget class="QLabel" name="refinement_settings_label">
-        <property name="text">
-         <string>Voltage setp refinement</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
        <widget class="QCheckBox" name="doIV_checkBox">
         <property name="enabled">
          <bool>true</bool>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>15</pointsize>
-         </font>
         </property>
         <property name="text">
          <string>Do IV</string>
@@ -186,12 +139,12 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="2" rowspan="4">
-       <widget class="QFrame" name="Refinement_settings_label">
+      <item>
+       <widget class="QFrame" name="IV_settings_settings">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>16777215</height>
+          <height>100</height>
          </size>
         </property>
         <property name="font">
@@ -210,18 +163,18 @@
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_3">
-         <item>
-          <widget class="QLabel" name="minimu_refinement_label">
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="1" column="2">
+          <widget class="QLabel" name="voltages_steps_label">
            <property name="text">
-            <string>Minimum bias voltage [V]</string>
+            <string>Voltage steps</string>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="min_refine_spin">
+         <item row="2" column="0">
+          <widget class="QDoubleSpinBox" name="max_voltage_IV">
            <property name="decimals">
-            <number>1</number>
+            <number>0</number>
            </property>
            <property name="minimum">
             <double>-1000.000000000000000</double>
@@ -233,21 +186,14 @@
             <double>10.000000000000000</double>
            </property>
            <property name="value">
-            <double>0.000000000000000</double>
+            <double>-200.000000000000000</double>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QLabel" name="maximum_refinement_label">
-           <property name="text">
-            <string>Maximum bias voltage [V]</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="max_refine_spin">
+         <item row="2" column="1">
+          <widget class="QDoubleSpinBox" name="complience_IV">
            <property name="decimals">
-            <number>1</number>
+            <number>3</number>
            </property>
            <property name="minimum">
             <double>-1000.000000000000000</double>
@@ -256,22 +202,22 @@
             <double>0.000000000000000</double>
            </property>
            <property name="singleStep">
-            <double>10.000000000000000</double>
+            <double>0.100000000000000</double>
            </property>
            <property name="value">
             <double>-50.000000000000000</double>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QLabel" name="voltages_steps_refine_label">
+         <item row="1" column="1">
+          <widget class="QLabel" name="complience_label_IV">
            <property name="text">
-            <string>Refinement voltage steps</string>
+            <string>Complience [uA]</string>
            </property>
           </widget>
          </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="refine_step_spin">
+         <item row="2" column="2">
+          <widget class="QDoubleSpinBox" name="voltage_steps_IV">
            <property name="buttonSymbols">
             <enum>QAbstractSpinBox::UpDownArrows</enum>
            </property>
@@ -282,19 +228,175 @@
             <double>1000.000000000000000</double>
            </property>
            <property name="value">
-            <double>1.000000000000000</double>
+            <double>10.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="0">
+          <widget class="QLabel" name="max_voltage_label_IV">
+           <property name="text">
+            <string>Maximum bias voltage [V]</string>
            </property>
           </widget>
          </item>
         </layout>
        </widget>
       </item>
-      <item row="5" column="1" colspan="2">
+      <item>
+       <widget class="QCheckBox" name="doCV_checkBox">
+        <property name="text">
+         <string>Do CV</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="CV_settings_label">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_2">
+         <item row="1" column="0">
+          <widget class="QLabel" name="max_voltage_label_CV">
+           <property name="text">
+            <string>Maximum bias voltage [V]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QDoubleSpinBox" name="max_voltage_CV">
+           <property name="decimals">
+            <number>0</number>
+           </property>
+           <property name="minimum">
+            <double>-1000.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>0.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>10.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>-200.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="complience_label_CV">
+           <property name="text">
+            <string>Complience [uA]</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QDoubleSpinBox" name="voltage_steps_CV">
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <double>1000.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>10.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QDoubleSpinBox" name="complience_CV">
+           <property name="decimals">
+            <number>3</number>
+           </property>
+           <property name="minimum">
+            <double>-1000.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>0.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>0.100000000000000</double>
+           </property>
+           <property name="value">
+            <double>-50.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="voltages_steps_label_CV">
+           <property name="text">
+            <string>Voltage steps</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QFrame" name="generalstripsettings">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>300</height>
+      </size>
+     </property>
+     <property name="autoFillBackground">
+      <bool>false</bool>
+     </property>
+     <property name="styleSheet">
+      <string notr="true"/>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Box</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <property name="lineWidth">
+      <number>2</number>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_4">
+      <item>
+       <widget class="QCheckBox" name="dostripscans_checkBox">
+        <property name="text">
+         <string>Do strip scans</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QFrame" name="generalstripscan_label">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>16777215</height>
+          <height>80</height>
          </size>
         </property>
         <property name="font">
@@ -395,144 +497,11 @@
         </layout>
        </widget>
       </item>
-      <item row="1" column="1" rowspan="4">
-       <widget class="QFrame" name="IV_settings_settings">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-          <underline>false</underline>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_2">
-         <item>
-          <widget class="QLabel" name="max_voltage_label">
-           <property name="text">
-            <string>Maximum bias voltage [V]</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="max_voltage">
-           <property name="decimals">
-            <number>0</number>
-           </property>
-           <property name="minimum">
-            <double>-1000.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>0.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>10.000000000000000</double>
-           </property>
-           <property name="value">
-            <double>-1000.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="complience_label">
-           <property name="text">
-            <string>Complience [uA]</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="complience">
-           <property name="decimals">
-            <number>3</number>
-           </property>
-           <property name="minimum">
-            <double>-1000.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>0.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.100000000000000</double>
-           </property>
-           <property name="value">
-            <double>-50.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="voltages_steps_label">
-           <property name="text">
-            <string>Voltage steps</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QDoubleSpinBox" name="voltage_steps">
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
-           </property>
-           <property name="decimals">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <double>1000.000000000000000</double>
-           </property>
-           <property name="value">
-            <double>10.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QCheckBox" name="doCV_checkBox">
-        <property name="font">
-         <font>
-          <pointsize>15</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Do CV</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QCheckBox" name="doRef_checkBox">
-        <property name="font">
-         <font>
-          <pointsize>14</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Do refinement</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
    </item>
-   <item row="1" column="1" rowspan="2">
-    <widget class="QFrame" name="singlestripsettings_frame">
+   <item row="0" column="1" rowspan="4">
+    <widget class="QFrame" name="singlestripsettings">
      <property name="maximumSize">
       <size>
        <width>16777215</width>
@@ -554,8 +523,8 @@
      <property name="lineWidth">
       <number>2</number>
      </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0">
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
        <widget class="QCheckBox" name="doIstrip_checkBox">
         <property name="text">
          <string>Do Istrip</string>
@@ -565,17 +534,7 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QCheckBox" name="doIdiel_checkBox">
-        <property name="text">
-         <string>Do Idiel</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="0">
+      <item>
        <widget class="QFrame" name="Istrip_frame">
         <property name="maximumSize">
          <size>
@@ -681,8 +640,18 @@
         </layout>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="QFrame" name="Idiel_frame">
+      <item>
+       <widget class="QCheckBox" name="doIdiel_checkBox">
+        <property name="text">
+         <string>Do Idiel</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame_4">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -786,7 +755,237 @@
         </layout>
        </widget>
       </item>
-      <item row="2" column="0">
+      <item>
+       <widget class="QCheckBox" name="doRint_checkBox">
+        <property name="text">
+         <string>Rint</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame_5">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="1" column="0">
+          <widget class="QLabel" name="max_voltage_label_CV_3">
+           <property name="text">
+            <string>Measure every</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="complience_label_CV_3">
+           <property name="text">
+            <string>Start strip</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QDoubleSpinBox" name="Rint_Start_strip">
+           <property name="decimals">
+            <number>0</number>
+           </property>
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>3000.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QDoubleSpinBox" name="Rint_End_strip">
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>0</number>
+           </property>
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>3000.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>256.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QDoubleSpinBox" name="Rint_every">
+           <property name="decimals">
+            <number>0</number>
+           </property>
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>3000.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="voltages_steps_label_CV_3">
+           <property name="text">
+            <string>End strip</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="doRpoly_checkBox">
+        <property name="text">
+         <string>Do Rpoly</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame_6">
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="frameShape">
+         <enum>QFrame::Box</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Raised</enum>
+        </property>
+        <layout class="QGridLayout" name="gridLayout_7">
+         <item row="1" column="0">
+          <widget class="QLabel" name="max_voltage_label_CV_4">
+           <property name="text">
+            <string>Measure every</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="complience_label_CV_4">
+           <property name="text">
+            <string>Start strip</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="1">
+          <widget class="QDoubleSpinBox" name="Rpoly_Start_strip">
+           <property name="decimals">
+            <number>0</number>
+           </property>
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>3000.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QLabel" name="voltages_steps_label_CV_4">
+           <property name="text">
+            <string>End strip</string>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="2">
+          <widget class="QDoubleSpinBox" name="Rpoly_End_strip">
+           <property name="buttonSymbols">
+            <enum>QAbstractSpinBox::UpDownArrows</enum>
+           </property>
+           <property name="decimals">
+            <number>0</number>
+           </property>
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>3000.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>256.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QDoubleSpinBox" name="Rploy_every">
+           <property name="decimals">
+            <number>0</number>
+           </property>
+           <property name="minimum">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="maximum">
+            <double>3000.000000000000000</double>
+           </property>
+           <property name="singleStep">
+            <double>1.000000000000000</double>
+           </property>
+           <property name="value">
+            <double>1.000000000000000</double>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="QCheckBox" name="doCac_checkBox">
         <property name="text">
          <string>Do C_ac</string>
@@ -796,22 +995,12 @@
         </property>
        </widget>
       </item>
-      <item row="2" column="1">
-       <widget class="QCheckBox" name="doIdark_checkBox">
-        <property name="text">
-         <string>Do Idark</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QFrame" name="Cac_frame">
+      <item>
+       <widget class="QFrame" name="frame_7">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
-          <height>16777215</height>
+          <height>80</height>
          </size>
         </property>
         <property name="palette">
@@ -1272,9 +1461,6 @@
          <enum>QFrame::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_8">
-         <property name="bottomMargin">
-          <number>11</number>
-         </property>
          <item row="2" column="1">
           <widget class="QDoubleSpinBox" name="C_ac_Start_strip">
            <property name="decimals">
@@ -1356,8 +1542,18 @@
         </layout>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QFrame" name="Idark_frame">
+      <item>
+       <widget class="QCheckBox" name="doIdark_checkBox">
+        <property name="text">
+         <string>Do Idark</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame_8">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -1461,132 +1657,7 @@
         </layout>
        </widget>
       </item>
-      <item row="4" column="0">
-       <widget class="QCheckBox" name="doRpoly_checkBox">
-        <property name="text">
-         <string>Do Rpoly</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0">
-       <widget class="QFrame" name="Rpoly_frame">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>100</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_7">
-         <item row="1" column="0">
-          <widget class="QLabel" name="max_voltage_label_CV_4">
-           <property name="text">
-            <string>Measure every</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QLabel" name="complience_label_CV_4">
-           <property name="text">
-            <string>Start strip</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QDoubleSpinBox" name="Rpoly_Start_strip">
-           <property name="decimals">
-            <number>0</number>
-           </property>
-           <property name="minimum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>3000.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="value">
-            <double>1.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="voltages_steps_label_CV_4">
-           <property name="text">
-            <string>End strip</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QDoubleSpinBox" name="Rpoly_End_strip">
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
-           </property>
-           <property name="decimals">
-            <number>0</number>
-           </property>
-           <property name="minimum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>3000.000000000000000</double>
-           </property>
-           <property name="value">
-            <double>256.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QDoubleSpinBox" name="Rploy_every">
-           <property name="decimals">
-            <number>0</number>
-           </property>
-           <property name="minimum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>3000.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="value">
-            <double>1.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="7" column="0">
-       <widget class="QCheckBox" name="doRint_checkBox">
-        <property name="text">
-         <string>do Rint</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="7" column="1">
+      <item>
        <widget class="QCheckBox" name="doCint_checkBox">
         <property name="text">
          <string>Do Cint</string>
@@ -1596,113 +1667,8 @@
         </property>
        </widget>
       </item>
-      <item row="8" column="0">
-       <widget class="QFrame" name="Rint_frame">
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>100</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_6">
-         <item row="1" column="1">
-          <widget class="QLabel" name="complience_label_CV_3">
-           <property name="text">
-            <string>Start strip</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="max_voltage_label_CV_3">
-           <property name="text">
-            <string>Measure every</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1">
-          <widget class="QDoubleSpinBox" name="Rint_Start_strip">
-           <property name="decimals">
-            <number>0</number>
-           </property>
-           <property name="minimum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>3000.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="value">
-            <double>1.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="2">
-          <widget class="QDoubleSpinBox" name="Rint_End_strip">
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::UpDownArrows</enum>
-           </property>
-           <property name="decimals">
-            <number>0</number>
-           </property>
-           <property name="minimum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>3000.000000000000000</double>
-           </property>
-           <property name="value">
-            <double>256.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QDoubleSpinBox" name="Rint_every">
-           <property name="decimals">
-            <number>0</number>
-           </property>
-           <property name="minimum">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>3000.000000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>1.000000000000000</double>
-           </property>
-           <property name="value">
-            <double>1.000000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="2">
-          <widget class="QLabel" name="voltages_steps_label_CV_3">
-           <property name="text">
-            <string>End strip</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item row="8" column="1">
-       <widget class="QFrame" name="Cint_frame">
+      <item>
+       <widget class="QFrame" name="frame_9">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -1806,17 +1772,7 @@
         </layout>
        </widget>
       </item>
-      <item row="9" column="0" colspan="2">
-       <widget class="QLabel" name="Special_measurement_label">
-        <property name="styleSheet">
-         <string notr="true">background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);</string>
-        </property>
-        <property name="text">
-         <string>Special Measurements</string>
-        </property>
-       </widget>
-      </item>
-      <item row="10" column="0">
+      <item>
        <widget class="QCheckBox" name="doCback_checkBox">
         <property name="text">
          <string>Do Cback</string>
@@ -1826,18 +1782,8 @@
         </property>
        </widget>
       </item>
-      <item row="10" column="1">
-       <widget class="QCheckBox" name="doCintAC_checkBox">
-        <property name="text">
-         <string>Do CintAC</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item row="11" column="0">
-       <widget class="QFrame" name="Cback_frame">
+      <item>
+       <widget class="QFrame" name="frame_10">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -1941,8 +1887,18 @@
         </layout>
        </widget>
       </item>
-      <item row="11" column="1">
-       <widget class="QFrame" name="CintAC_frame">
+      <item>
+       <widget class="QCheckBox" name="doCintAC_checkBox">
+        <property name="text">
+         <string>Do CintAC</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="frame_11">
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -2046,36 +2002,45 @@
         </layout>
        </widget>
       </item>
-      <item row="6" column="0" colspan="2">
-       <widget class="QLabel" name="Interstrip_meas_label">
-        <property name="styleSheet">
-         <string notr="true">background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);</string>
-        </property>
-        <property name="text">
-         <string>Interstrip measurements</string>
-        </property>
-       </widget>
-      </item>
      </layout>
     </widget>
-   </item>
-   <item row="3" column="1">
-    <spacer name="verticalSpacer_2">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>20</width>
-       <height>40</height>
-      </size>
-     </property>
-    </spacer>
    </item>
   </layout>
  </widget>
  <resources/>
  <connections>
+  <connection>
+   <sender>doIV_checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>IV_settings_settings</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>226</x>
+     <y>122</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>226</x>
+     <y>175</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>doCV_checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>CV_settings_label</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>280</x>
+     <y>229</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>280</x>
+     <y>282</y>
+    </hint>
+   </hints>
+  </connection>
   <connection>
    <sender>dostripscans_checkBox</sender>
    <signal>toggled(bool)</signal>
@@ -2095,7 +2060,7 @@
   <connection>
    <sender>dostripscans_checkBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>singlestripsettings_frame</receiver>
+   <receiver>singlestripsettings</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2127,7 +2092,7 @@
   <connection>
    <sender>doIdiel_checkBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Idiel_frame</receiver>
+   <receiver>frame_4</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2143,7 +2108,7 @@
   <connection>
    <sender>doRint_checkBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Rint_frame</receiver>
+   <receiver>frame_5</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2157,9 +2122,25 @@
    </hints>
   </connection>
   <connection>
+   <sender>doRpoly_checkBox</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>frame_6</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>827</x>
+     <y>350</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>827</x>
+     <y>403</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
    <sender>doCac_checkBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Cac_frame</receiver>
+   <receiver>frame_7</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2175,7 +2156,7 @@
   <connection>
    <sender>doIdark_checkBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Idark_frame</receiver>
+   <receiver>frame_8</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2191,7 +2172,7 @@
   <connection>
    <sender>doCint_checkBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Cint_frame</receiver>
+   <receiver>frame_9</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2207,7 +2188,7 @@
   <connection>
    <sender>doCback_checkBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>Cback_frame</receiver>
+   <receiver>frame_10</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -2223,7 +2204,7 @@
   <connection>
    <sender>doCintAC_checkBox</sender>
    <signal>toggled(bool)</signal>
-   <receiver>CintAC_frame</receiver>
+   <receiver>frame_11</receiver>
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">

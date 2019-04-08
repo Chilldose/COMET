@@ -53,7 +53,7 @@ class Controls_widget(object):
                                            "Filename": self.variables.default_values_dict["settings"]["Current_filename"],
                                            "Project": self.variables.default_values_dict["settings"]["Current_project"],
                                            "Sensor": self.variables.default_values_dict["settings"]["Current_sensor"],
-                                           "enviroment": True, # if enviroment surveillance should be done
+                                           "enviroment": self.gui.log_env_check.isChecked(), # if enviroment surveillance should be done
                                            "skip_init": False} #warning this prevents the device init
 
             self.job.generate_job(additional_settings)
