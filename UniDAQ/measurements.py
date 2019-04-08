@@ -1,7 +1,7 @@
 # Here the measurement procedures are defined
 import logging
 import numpy as np
-from .VisaConnectWizard import VisaConnectWizard
+#from .VisaConnectWizard import VisaConnectWizard
 import os
 from time import sleep, time
 import datetime
@@ -27,6 +27,7 @@ class measurement_class(Thread):
         self.queue_to_GUI = framework["Queue_to_GUI"]
         self.setup_not_ready = True
         self.job_details = job_details
+        self.vcw = framework["VCW"]
         #self.IVCV_job = []
         #self.strip_scan_job = []
         self.measured_data = {}
@@ -278,7 +279,7 @@ class measurement_class(Thread):
             command = self.build_command(device, "Read")
             for i in range(samples):
                 self.log.debug("Conducting steady state check...")
-                values.append(float(str(vcw.query(device, command)).split(",")[0]))
+                values.append(float(str(self.vcw.query(device, command)).split(",")[0]))
                 sleep(wait)
             slope, intercept, r_value, p_value, std_err = stats.linregress([i for i in range(len(values))], values)
             if std_err <= 1e-6 and abs(slope) <= abs(max_slope):
@@ -319,6 +320,24 @@ class measurement_class(Thread):
         #    ramp_list = [x for x in reversed(ramp_list)]
 
         return ramp_list
+
+    def refine_ramp(self, ramp, start, stop, step):
+        """Refines a ramp of values eg. for IVCV, in the beginning it makes sense to refine the ramp"""
+
+        if ramp[0] * start >= 0 and ramp[-1] * stop >= 0 and abs(ramp[0]) <= abs(start) and abs(ramp[-1]) >= abs(stop):
+            # Todo: if the refined array has positive and negative values it does not work currently
+            ramp = np.array(ramp)
+            ref_ramp = ramp_value(start, stop, step)
+            to_delete = np.logical_and(abs(ramp) >= abs(start), abs(ramp) <= abs(stop))
+            start_ind = np.nonzero(to_delete)[0][0]  # Finds the index where I have to insert the new array
+            del_list = ramp[~to_delete].tolist()
+            for ind, elem in enumerate(ref_ramp):
+                del_list.insert(start_ind + ind, elem)
+            return del_list
+        else:
+            self.log.error(
+                "Refining of array not possible. Boundaries for refinement must be inside source array. Returning imput array")
+            return ramp
 
     def ramp_value(self, min_value, max_value, deltaI):
         '''This function accepts single values and returns a list of values, which are interpreted as a ramp function
@@ -395,10 +414,10 @@ class measurement_class(Thread):
         if type(order) == list:
             for com in order:
                 command = self.build_command(device_dict, (com, value))
-                answ = vcw.query(device_dict["Visa_Resource"], command) # writes the new order to the device
+                answ = self.vcw.query(device_dict["Visa_Resource"], command) # writes the new order to the device
         else:
             command = self.build_command(device_dict, (order, value))
-            answ = vcw.query(device_dict["Visa_Resource"], command)  # writes the new order to the device
+            answ = self.vcw.query(device_dict["Visa_Resource"], command)  # writes the new order to the device
 
         answ = str(answ).strip()
         if answ == answer:
@@ -417,7 +436,7 @@ class measurement_class(Thread):
         """
 
         try:
-            vcw.write(device_dict["Visa_Resource"], str(command))  # writes the new order to the device
+            self.vcw.write(device_dict["Visa_Resource"], str(command))  # writes the new order to the device
         except Exception as e:
             self.log.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command, device=device_dict, error=e))
 
@@ -432,7 +451,7 @@ class measurement_class(Thread):
         """
 
         try:
-            return vcw.query(device_dict["Visa_Resource"], str(command))  # writes the new order to the device
+            return self.vcw.query(device_dict["Visa_Resource"], str(command))  # writes the new order to the device
         except Exception as e:
             self.log.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command,
                                                                                                       device=device_dict,
@@ -443,10 +462,10 @@ class measurement_class(Thread):
         if type(order) == list:
             for com in order:
                 command = self.build_command(device_dict, (com, value))
-                vcw.write(device_dict["Visa_Resource"], command) # writes the new order to the device
+                self.vcw.write(device_dict["Visa_Resource"], command) # writes the new order to the device
         else:
             command = self.build_command(device_dict, (order, value))
-            vcw.write(device_dict["Visa_Resource"], command)  # writes the new order to the device
+            self.vcw.write(device_dict["Visa_Resource"], command)  # writes the new order to the device
 
     def check_complience(self, device, complience = None):
         '''This function checks if the current complience is reached'''
@@ -458,8 +477,8 @@ class measurement_class(Thread):
             self.log.error("Device " + str(device) + " has no complience set!")
 
         command = self.build_command(device,"Read_iv")
-        #value = float(str(vcw.query(device, command)).split(",")[0]) #237SMU
-        value = str(vcw.query(device, command)).split("\t")
+        #value = float(str(self.vcw.query(device, command)).split(",")[0]) #237SMU
+        value = str(self.vcw.query(device, command)).split("\t")
         self.settings["settings"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
         if 0. < (abs(float(value[0])) - abs(float(complience)*0.99)):
             self.log.error("Complience reached in instrument " + str(device["Device_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(complience))
@@ -475,7 +494,7 @@ class measurement_class(Thread):
 
         for command in commands:
             final_string = self.build_command(device, command)
-            vcw.write(device["Visa_Resource"], str(final_string))  # finally writes the command to the device
+            self.vcw.write(device["Visa_Resource"], str(final_string))  # finally writes the command to the device
 
     def capacitor_discharge(self, device_dict, relay_dict, termorder = None, terminal = None, do_anyway=False):
         '''This function checks if the capacitor of the decouple box is correctly discharged
@@ -513,7 +532,7 @@ class measurement_class(Thread):
             voltage = []
             for i in range(3):
                 command = self.build_command(device_dict, "Read")
-                voltage.append(float(vcw.query(device_dict["Visa_Resource"], command)))
+                voltage.append(float(self.vcw.query(device_dict["Visa_Resource"], command)))
 
             if sum(voltage)/len(voltage) <= 0.3: # this is when we break the loop
                 self.change_value(device_dict, "set_output", "OFF")
@@ -543,7 +562,7 @@ class measurement_class(Thread):
                 self.queue_to_main.put({"FatalError": "The capacitor discharge failed more than 5 times. Discharge the capacitor manually!"})
                 # Set output to on for reading mode
                 command = self.build_command(device_dict, ("set_output", "OFF"))  # switch back to default terminal
-                vcw.write(device_dict["Visa_Resource"], command)  # writes the new order to the device
+                self.vcw.write(device_dict["Visa_Resource"], command)  # writes the new order to the device
                 # return to default mode for this switching
                 error = self.change_value_query(relay_dict, "set_discharge", "OFF", "DONE")
                 if error:
@@ -561,3 +580,68 @@ class measurement_class(Thread):
         self.log.critical("Measurement stop sended by framework...")
         order = {"ABORT_MEASUREMENT": True}  # just for now
         self.main.queue_to_main.put(order)
+
+if __name__ == "__main__":
+    def refine_ramp(ramp, start, stop, step):
+        """Refines a ramp of values eg. for IVCV, in the beginning it makes sense to refine the ramp"""
+
+        # Check if new ramp fits inside the to refine array
+        if ramp[0] * start >= 0 and ramp[-1] * stop >= 0 and abs(ramp[0]) <= abs(start) and abs(ramp[-1]) >= abs(stop):
+            # Todo: if the refined array has positive and negative values it does not work currently
+            ramp = np.array(ramp)
+            ref_ramp = ramp_value(start, stop, step)
+            to_delete = np.logical_and(abs(ramp) >= abs(start), abs(ramp) <= abs(stop))
+            start_ind = np.nonzero(to_delete)[0][0] # Finds the index where I have to insert the new array
+            del_list = ramp[~to_delete].tolist()
+            for ind, elem in enumerate(ref_ramp):
+                del_list.insert(start_ind+ind, elem)
+            return del_list
+        else:
+            print("Refining of array not possible. Boundaries for refinement must be inside source array. Returning imput array")
+            return ramp
+
+    def ramp_value(min_value, max_value, deltaI):
+        '''This function accepts single values and returns a list of values, which are interpreted as a ramp function
+        Furthermore min and max are corresponding to the absolute value of the number!!!'''
+
+        # Find out if positive or negative ramp
+        if max_value > min_value:
+            positive = True
+        else:
+            positive = False
+
+        # Find absolute delta
+        abs_delta = abs(min_value - max_value)
+        delta_steps = round(abs(abs_delta / deltaI), 0)
+
+        if positive:
+            ramp_list = [min_value + deltaI * step for step in range(int(delta_steps))]
+
+            to_big = True
+            while to_big and len(ramp_list) > 1:
+                if ramp_list[-1] > max_value:
+                    ramp_list = ramp_list[:-1]
+                else:
+                    to_big = False
+
+        else:
+            ramp_list = [min_value - deltaI * step for step in range(int(delta_steps))]
+
+            to_big = True
+            while to_big and len(ramp_list) > 1:
+                if ramp_list[-1] < max_value:
+                    ramp_list = ramp_list[:-1]
+                else:
+                    to_big = False
+
+        if len(ramp_list) > 1:
+            if ramp_list[-1] != max_value:
+                ramp_list.append(max_value)
+        else:
+            ramp_list.append(max_value)
+
+        return ramp_list
+
+    ramp = ramp_value(0,-100, 10)
+    ref = refine_ramp(ramp, -90, -101, 1)
+    print(ref)
