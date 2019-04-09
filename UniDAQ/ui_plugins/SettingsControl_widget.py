@@ -3,6 +3,7 @@ import logging
 from PyQt5.QtWidgets import QFileDialog
 import yaml
 import os, sys
+from ..utilities import write_init_file
 
 
 class SettingsControl_widget:
@@ -121,7 +122,7 @@ class SettingsControl_widget:
 
         if file[0]:
             # gets me all settings which are to be saved
-            self.write_init_file(file[0], self.variables.ui_plugins["Settings_window"].get_all_settings())
+            write_init_file(file[0], self.variables.ui_plugins["Settings_window"].get_all_settings())
             self.Setlog.info("Settings file successfully written to: {}".format(file))
 
     def load_valid_sensors_for_project(self, project_name):

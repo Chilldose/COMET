@@ -184,7 +184,7 @@ def write_init_file( name, data, path = ""):
 
             os.remove(os.path.abspath(path + str(name.split(".")[0]) + ".yaml"))
             filename = create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
-            yaml.dump(data, filename, indent=4, ensure_ascii=False)
+            yaml.dump(data, filename, indent=4)
             close_file(filename)
 
         elif not os.path.isfile(os.path.abspath(path + str(name.split(".")[0]) + ".yaml")):

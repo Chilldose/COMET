@@ -45,6 +45,11 @@ class Settings_window:
             if settings_to_write:
                 settings_dict.update({str(setting+"_measure"): settings_to_write})
 
+        # Special settings
+        settings_to_write = self.get_specific_settings_value("IVCV_refinement")
+        if settings_to_write:
+            settings_dict.update({"IVCV_refinement": settings_to_write})
+
         return settings_dict
 
 
