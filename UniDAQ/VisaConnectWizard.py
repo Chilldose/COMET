@@ -313,7 +313,7 @@ class VisaConnectWizard:
                 return -1 # if no response a -1 will be returned
 
     #Writes a value to the resource
-    def write(self, resource_dict, code, terminator = ""):
+    def write(self, resource_dict, code):
         """Writes a vlaue to a resource, if a list is passed insted of a string all in the list will be send, one after another"""
 
         if type(resource_dict) == dict: # Checks if dict or only resource
@@ -332,13 +332,13 @@ class VisaConnectWizard:
             # Now look if the code is a list or not
             if type(code) == list:
                 for i in code:
-                    full_command = str(i) + str(terminator)
+                    full_command = str(i)
                     resource.write(full_command)
                     self.log.info("Write command: "+ str(full_command) + " to: " + str(resource))
                 return 0
 
             else:
-                full_command = str(code) + str(terminator)
+                full_command = str(code)
                 resource.write(full_command)
                 self.log.info("Write command: " + str(full_command) + " to: " + str(resource))
                 return 0
@@ -368,11 +368,10 @@ class VisaConnectWizard:
             self.log.info("Closed connection to device " + str(inst) + ".")
 
 
-    def initiate_instrument(self, resource, initiate_commands, terminator = ""): # Writes initiate commands to the device
-
-        for commands in initiate_commands:
-            self.write(resource, str(commands) + str(terminator))
-            sleep(0.1) #A better way possible but gives the instrument its time
+    def list_write(self, resource, commands, delay=0.5): # Writes initiate commands to the device
+        for command in commands:
+            self.write(resource["Visa_Resource"], str(command))
+            sleep(delay) #A better way possible but gives the instrument its time
 
 
 

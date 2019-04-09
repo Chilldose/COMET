@@ -175,57 +175,24 @@ class measurement_event_loop(Thread):
         self.message_to_main.put({"Info": "Initializing of instruments..."})
 
         for device in self.devices: # Loop over all devices
-            sended_commands = []  # list over all sended commands, to prevent double sending
             if "Visa_Resource" in self.devices[device]: # Looks if a Visa resource is assigned to the device.
-                self.log.info("Initializing instrument: {!s}".format(self.devices[device].get("Device_name", "NoName")))
-                # Initiate the instrument and resets it
+                self.log.info("Resetting instrument: {!s}".format(self.devices[device].get("Device_name", "NoName")))
+
+                # Sends the resets commands to the device
                 if "reset_device" in self.devices[device]:
-                    self.vcw.initiate_instrument(self.devices[device]["Visa_Resource"], self.devices[device]["reset_device"], self.devices[device].get("execution_terminator", ""))
+                    self.vcw.list_write(device, list(self.devices[device]["reset_device"]))
                 else:
-                    self.vcw.initiate_instrument(self.devices[device]["Visa_Resource"], ["*rst", "*cls"], self.devices[device].get("execution_terminator", ""))
+                    self.vcw.list_write(device, ["*rst", "*cls"])
 
-                # Search for important commands which need to be sendet first
-                for keys in self.devices[device]: # Looks up every key in the device
-                    if "imp:" in keys: # Looks if a important default value is defined somewhere
-
-                        command = self.devices[device].get("set_" + keys.split("_", 1)[1], "no value")  # gets the command to set the desired default value, or if not defined returns no value
-                        command = command.strip()  # Strips whitespaces from the string
-
-                        if command == "no value":
-                            self.log.warning("Default value " + keys.split("_", 1)[1] + " defined for " + device + " but no command for setting this value is defined")
-
-                        elif command != "no value" and command not in sended_commands:
-                            sended_commands.append(command)
-
-                            full_command = self.build_init_command(command, self.devices[device][keys], self.devices[device].get("command_order", 1))
-
-                            for command in full_command:
-                                self.vcw.write(self.devices[device]["Visa_Resource"], command, self.devices[device].get("execution_terminator",""))  # Writes the command to the device
-                                sleep(0.05)  # Waits a bit for the device to config itself
-
-                            self.log.info("Device " + self.devices[device]["Device_name"] + str(command) + " to " + str(self.devices[device][keys]) + ".")
-
-        # Change the state of the device to Configured
-
-                # Send all other commands
-                for keys in self.devices[device]:  # Looks up every key in the device
-                    if "default_" in keys: # Looks if a default value is defined somewhere
-
-                        command = self.devices[device].get("set_" + keys.split("_", 1)[1], "no value") # gets the command to set the desired default value, or if not defined returns no value
-                        command = command.strip() # Strips whitespaces from the string
-
-                        if command == "no value":
-                            self.log.warning("Default value " + keys.split("_", 1)[1] + " defined for " + device + " but no command for setting this value is defined")
-
-                        elif command != "no value" and command not in sended_commands:
-                            sended_commands.append(command)
-                            full_command = self.build_init_command(command, self.devices[device][keys], self.devices[device].get("command_order", 1))
-
-                            for command in full_command:
-                                self.vcw.write(self.devices[device]["Visa_Resource"], command, self.devices[device].get("execution_terminator", "")) # Writes the command to the device
-                                sleep(0.05)  # Waits a bit for the device to config itself
-
-                            self.log.info("Device " + self.devices[device]["Device_name"] + " " + str(command) + " to " + str(self.devices[device][keys]) + ".")
+                # Beginn sending commands from te reset list
+                if "reset" in device:
+                    for command, value in device["reset"].items():
+                        # Find the correct set_command
+                        if "set_"+command in device:
+                            self.vcw.write(device, device["set_"+command].format(value))
+                        else:
+                            self.log.error("Could not find set command for reset parameter:"
+                                           " {} in device {}".format(command, device))
 
         self.message_to_main.put({"Info": "Initializing DONE!"})
 
