@@ -10,6 +10,9 @@ import numpy as np
 import glob
 import sys
 
+from .core.config import Setup
+from .core.config import DeviceLib
+
 class SetupLoader(object):
     '''This class is for loading all config files, pad files and default parameters.
     This class is crucial for the program to work. All works within the init function of this class.
@@ -19,23 +22,38 @@ class SetupLoader(object):
 
     def __init__(self):
         self.log = logging.getLogger(__name__)
+        self.configs = {}
 
-    def load(self, setup):
+    def load(self, name):
+        self.configs = {}
 
         # Get project path
         package_dir = os.path.dirname(os.path.realpath(__file__))
         config_dir = os.path.join(package_dir, "config")
-        setup_dir = os.path.join(config_dir, 'Setup_configs', setup)
+        setup_dir = os.path.join(config_dir, 'Setup_configs', name)
         device_dir = os.path.join(config_dir, 'device_lib')
 
         if not os.path.isdir(setup_dir):
             raise RuntimeError("No such setup '{}'".format(setup_dir))
+
+
+        # Todo: look what is correcter here
+        device_lib = DeviceLib()
+        device_lib.load(os.path.join(config_dir, 'device_lib'))
 
         # Get data dirs and device lib
         config_files = glob.glob(os.path.join(setup_dir, "*.yml"))
         device_files = glob.glob(os.path.join(device_dir, "*.yml"))
         config_files.extend(device_files)
 
+........# Todo: Look which is correct
+        # Load setup
+        path = os.path.join(setup_dir)
+        setup = Setup()
+        setup.load(path)
+        # TODO HACK attach common device_lib
+        setup.device_lib = device_lib.devices
+        self.configs = setup
         # Get all files in the directories
         # Look for yml files and translate them
         self.configs = {"config": {}, "device_lib": {}, "additional_files": {}} # Dict for the final "folder" structure

@@ -5,11 +5,14 @@
     GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
         - StripAnalysis
         - DataBrowser
- 
-        
+
+
     new_data: True
     last_plot_update: 0
     update_counter: 0
     End_time: NaN
     Start_time: NaN
-    
+
+
+
+    Devices: {}

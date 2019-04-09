@@ -1,6 +1,8 @@
+import logging
 import sys, os
 
 from PyQt5 import QtCore
+from PyQt5 import QtGui
 from PyQt5 import QtWidgets
 import sys, os
 from PyQt5.QtWidgets import QMainWindow, QWidget
@@ -73,16 +75,30 @@ class PreferencesDialog(QtWidgets.QDialog):
         self.diaologBox.comboBox_config.clear()
         self.diaologBox.comboBox_config.addItems(items)
 
-    def activeSetup(self):
-        """Returns active setup."""
-        return self.diaologBox.comboBox_config.currentText()
+    def loadSettings(self):
+        """Load settings to dialog widgets."""
+        activeSetup = QtCore.QSettings().value('active_setup')
+        setCurrentEntry(self.setupComboBox, activeSetup)
+        plotStyle = QtCore.QSettings().value('plot_style')
+        setCurrentEntry(self.plotsComboBox, plotStyle)
 
-    def updateSettings(self):
-        """Update settings from dialog widgets."""
-        QtCore.QSettings().setValue('active_setup', self.activeSetup())
+    def writeSettings(self):
+        """Write settings from dialog widgets."""
+        activeSetup = self.setupComboBox.currentText()
+        QtCore.QSettings().setValue('active_setup', activeSetup)
+        logging.info("active setup: %s", activeSetup)
+        plotStyle = self.plotsComboBox.currentText()
+        QtCore.QSettings().setValue('plot_style', plotStyle)
+        logging.info("plot style: %s", plotStyle)
 
+        self.close()
+        # todo: delete one 
     def onClose(self):
         """On dialog close."""
         # self.updateSettings() # TODO currently holding back
         self.close()
 
+    def onAccept(self):
+        """On dialog accept (apply button was clicked)."""
+        self.writeSettings()
+        self.accept()
