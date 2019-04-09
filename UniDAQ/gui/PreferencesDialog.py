@@ -33,6 +33,7 @@ class PreferencesDialog(QtWidgets.QDialog):
         self.diaologBox = dialogBox()
         self.diaologBox.setupUi(self)
         self.loadSetups()
+        self.loadSettings()
         self.diaologBox.OkButton.clicked.connect(self.writeSettings)
         self.diaologBox.OkButton.clicked.connect(self.onClose)
 
@@ -50,9 +51,9 @@ class PreferencesDialog(QtWidgets.QDialog):
     def loadSettings(self):
         """Load settings to dialog widgets."""
         activeSetup = QtCore.QSettings().value('active_setup')
-        setCurrentEntry(self.setupComboBox, activeSetup)
+        setCurrentEntry(self.diaologBox.setupComboBox, activeSetup)
         plotStyle = QtCore.QSettings().value('plot_style')
-        setCurrentEntry(self.plotsComboBox, plotStyle)
+        setCurrentEntry(self.diaologBox.plotsComboBox, plotStyle)
 
     def writeSettings(self):
         """Write settings from dialog widgets."""
