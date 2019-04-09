@@ -27,18 +27,18 @@ class DataBrowser_window:
 
 
         # If no Padfiles etc exist
-        if not self.variables.pad_files_dict:
-            self.variables.pad_files_dict = {}
+        if not self.variables.additional_files.get("Pad_files", {}):
+            self.variables.additional_files["Pad_files"] = {}
 
         self.log = logging.getLogger(__name__)
 
         @raise_exception
         def pad_browser_update():
             items = []
-            for i, pad_files in enumerate(self.variables.pad_files_dict.keys()):
+            for i, pad_files in enumerate(self.variables.additional_files["Pad_files"].keys()):
                 items.append(QtWidgets.QTreeWidgetItem(self.data_ui.Padfile_selector_3))
                 self.data_ui.Padfile_selector_3.topLevelItem(i).setText(0, self._translate("data_browser", str(pad_files)))
-                for j, childs in enumerate(self.variables.pad_files_dict[str(pad_files)]):
+                for j, childs in enumerate(self.variables.additional_files["Pad_files"][str(pad_files)]):
                     QtWidgets.QTreeWidgetItem(items[i])
                     self.data_ui.Padfile_selector_3.topLevelItem(i).child(j).setText(0, self._translate("data_browser", str(childs)))
 
@@ -50,8 +50,8 @@ class DataBrowser_window:
             sensor_found = False
             proj = ""
             sens = "" # needed for jit
-            for projects in self.variables.pad_files_dict.keys():
-                for sensors in self.variables.pad_files_dict[projects]:
+            for projects in self.variables.additional_files["Pad_files"].keys():
+                for sensors in self.variables.additional_files["Pad_files"][projects]:
                     if item.text(0) == sensors:
                         sensor_found = True
                         proj = projects
@@ -64,10 +64,10 @@ class DataBrowser_window:
 
             if sensor_found:
                 text = ""
-                for lines in self.variables.pad_files_dict[proj][sens]["header"]:
+                for lines in self.variables.additional_files["Pad_files"][proj][sens]["header"]:
                     text += str(lines)
 
-                for items in self.variables.pad_files_dict[proj][sens]["data"]:
+                for items in self.variables.additional_files["Pad_files"][proj][sens]["data"]:
                     for values in items:
                         text += str(values) + "\t"
                     text += "\n"
@@ -343,7 +343,7 @@ class DataBrowser_window:
         # TODO: pad files currently not accessible due to spaces
         elif parent.upper() == "PAD" or parent.upper() == "PAD FILES" or parent.upper() == "PAD FILE":
             try:
-                return str(self.variables.pad_files_dict[sub][key])
+                return str(self.variables.additional_files["Pad_files"][sub][key])
             except KeyError as e:
                 return "An key error occured: " + str(e)
 

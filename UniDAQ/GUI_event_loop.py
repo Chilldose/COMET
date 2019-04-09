@@ -17,19 +17,19 @@ class GUI_event_loop(QThread):
 
     # Create the signal for errBox handling
     Errsig = pyqtSignal(str)
-
-    def __init__(self, main, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, visa, meas_data):
+    # message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, visa,
+    def __init__(self, main, framework_variables, meas_data):
 
         # Initialise the GUI class, classes
         super(GUI_event_loop, self).__init__()
 
         self.main = main
-        self.message_to_main = message_to_main
-        self.message_from_main = message_from_main
-        self.vcw = visa
-        self.device_dict = devices_dict
-        self.default_values_dict = default_values_dict
-        self.pad_files_dict = pad_files_dict
+        self.message_to_main = self.main.message_to_main
+        self.message_from_main = self.main.message_from_main
+        self.vcw = framework_variables["VCW"]
+        self.device_dict = framework_variables["Devices"]
+        self.default_values_dict = framework_variables["Configs"]["config"]
+        self.pad_files_dict = framework_variables["Configs"]["additional_files"]["Pad_files"]
         self.stop_GUI_loop = False
         self.close_program = False
         self.measurement_running = False

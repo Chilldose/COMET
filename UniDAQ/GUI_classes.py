@@ -46,12 +46,12 @@ class GUI_classes(QWidget):
         self.vcw = framework_variables["VCW"]
         self.devices_dict = framework_variables["Devices"]
         self.default_values_dict = framework_variables["Configs"]["config"]
-        self.pad_files_dict = framework_variables["Configs"]["additional_files"]["Pad_files"]
         self.functions = []
         self.update_interval = float(self.default_values_dict["settings"].get("GUI_update_interval", 100.))  # msec
         self.queue_to_GUI = queue_to_GUI
         self.table = framework_variables["Table"]
         self.switching = framework_variables["Switching"]
+        self.additional_files = framework_variables["Configs"]["additional_files"]
         self.meas_data = {}
         self.all_plugin_modules = {}
         self.qt_designer_ui = []
@@ -59,6 +59,7 @@ class GUI_classes(QWidget):
         self.final_tabs = []
         self.ui_plugins = {}
         self.analysis = stripanalysis(self) # Not very good it is a loop condition
+        self.framework_variables = framework_variables
 
         # Load ui plugins
         self.load_GUI_plugins()
@@ -96,9 +97,7 @@ class GUI_classes(QWidget):
         self.begin_rendering() # Starts the rendering process for all tabs
 
         # Initialise and start the GUI_event_loop
-        self.event_loop_thread = GUI_event_loop(self, self.message_from_main,
-                                      self.message_to_main, self.devices_dict, self.default_values_dict,
-                                      self.pad_files_dict, self.vcw, self.meas_data)
+        self.event_loop_thread = GUI_event_loop(self, self.framework_variables, self.meas_data)
         self.event_loop_thread.Errsig.connect(self.main_window.errMsg.new_message)
         self.event_loop_thread.start()
 
