@@ -46,7 +46,7 @@ class SetupLoader(object):
         device_files = glob.glob(os.path.join(device_dir, "*.yml"))
         config_files.extend(device_files)
 
-........# Todo: Look which is correct
+        # Todo: Look which is correct
         # Load setup
         path = os.path.join(setup_dir)
         setup = Setup()
