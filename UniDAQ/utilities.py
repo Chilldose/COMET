@@ -458,7 +458,7 @@ def change_axis_ticks( plot, stylesheet=None):
         plot.getAxis("right").tickFont = font
         plot.getAxis("left").tickFont = font
 
-def build_command( device_dict, command_tuple):
+def build_command(device_dict, command_tuple):
         """
         This function correctly builds the command structure for devices.
         You must pass the device object dictionary with all parameters and a command tuple, consisting of:

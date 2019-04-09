@@ -3,16 +3,16 @@
     get_relay_state: "GET:"
 
     # All set parameters
-    set_discharge: SET:DISCHARGE
-    set_external_light: SET:BOX_LED
-    set_environement_control: SET:CTRL
-    set_open_channel: :open
-    set_mode: SET:MOD
-    set_relay: "SET:"
+    set_discharge: SET:DISCHARGE {} # ON/OFF
+    set_external_light: SET:BOX_LED {} # ON/OFF
+    set_environement_control: SET:CTRL {} # ON/OFF
+    set_open_channel: :open {channels}
+    set_mode: SET:MOD {} 
+    set_relay: "SET: {}"
     set_close_channel: :clos
-    set_hummin: SET:HUM_MIN
-    set_hummax: SET:HUM_MAX
-    set_lock_switches: SET:TST
+    set_hummin: SET:HUM_MIN {min}
+    set_hummax: SET:HUM_MAX {max}
+    set_lock_switches: SET:TST {}
 
     # All get parameters
     get_enviroment: GET:ENV ?
@@ -24,8 +24,8 @@
     get_operation_complete: "*OPC?"
 
     reset:
-        - default_external_light: OFF
-        - default_open_channel: "A1,A2,B1,B2,C1,C2"
+        - external_light: OFF
+        - open_channel: "A1,A2,B1,B2,C1,C2"
 
     # Misc
     separator: ","

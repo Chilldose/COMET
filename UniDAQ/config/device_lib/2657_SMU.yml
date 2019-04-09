@@ -4,46 +4,46 @@
    Device_type: SMU
   
    # All set parameters
-   set_enable_beeper: beeper.enable =
+   set_enable_beeper: beeper.enable = {}
    set_beep: beeper.beep({seconds:.2f}, {frequency:.0f})
    set_delay: delay({seconds})
-   set_lock_SMU: display.locallockout =  
-   set_display_measurement: display.screen =
+   set_lock_SMU: display.locallockout = {} 
+   set_display_measurement: display.screen = {}
    set_display_text: display.settext({text}) # Can be a list of values
-   set_display_func: display.smua.measure.func =
-   set_lan_autoconnect: lan.autoconnect =
+   set_display_func: display.smua.measure.func = {}
+   set_lan_autoconnect: lan.autoconnect = {}
    set_DNS: lan.config.dns.address[1] = '0.0.0.0'
    set_domain: lan.config.dns.domain = '0.0.0.0'
    set_hostname: lan.config.dns.hostname = '2657KeithleySMU'
-   set_verify_host: lan.config.dns.verify =
-   set_gateway: lan.config.gateway =
-   set_ipaddress: lan.config.ipaddress =
-   set_lan_config: lan.config.method =
-   set_measure_adc: smua.measure.adc = 
-   set_autorange_current: smua.measure.autorangei =
-   set_autozero: smua.measure.autozero =
-   set_autorange_voltage: smua.measure.autorangev =
-   set_measurement_count: smua.measure.count =
-   set_current_range_low: smua.measure.lowrangei = 
-   set_voltage_range_low: smua.measure.lowrangev = 
-   set_filter_count: smua.measure.filter.count =
-   set_NPLC: smua.measure.nplc = 
-   set_source_current_autorange: smua.source.autorangei = 
-   set_source_voltage_autorange: smua.source.autorangev = 
-   set_filter_enable: smua.measure.filter.enable =
-   set_source_func: smua.source.func =
-   set_filter: smua.measure.filter.type =
-   set_voltage: smua.source.levelv = 
-   set_measurement_delay_factor: smua.measure.delayfactor = # A factor by which the build in delay is in/decreased 1nA range has a standard delay of 1s!!!
-   set_source_level_volts: smua.source.levelv = 
-   set_complience_current: smua.source.limiti = 
-   set_complience: smua.source.limiti = 
-   set_complience_voltage: smua.source.limitv = 
-   set_offvoltage: smua.source.offfunc =
-   set_offcomplience: smua.source.offlimiti =
-   set_current_range: smua.measure.rangei = 
-   set_measurement_delay: smua.measure.delay =  
-   set_output: smua.source.output =    
+   set_verify_host: lan.config.dns.verify = {}
+   set_gateway: lan.config.gateway = {}
+   set_ipaddress: lan.config.ipaddress = {}
+   set_lan_config: lan.config.method = {}
+   set_measure_adc: smua.measure.adc = {ADC}
+   set_autorange_current: smua.measure.autorangei = {}
+   set_autozero: smua.measure.autozero = {}
+   set_autorange_voltage: smua.measure.autorangev = {}
+   set_measurement_count: smua.measure.count = {}
+   set_current_range_low: smua.measure.lowrangei = {}
+   set_voltage_range_low: smua.measure.lowrangev = {}
+   set_filter_count: smua.measure.filter.count = {}
+   set_NPLC: smua.measure.nplc = {}
+   set_source_current_autorange: smua.source.autorangei = {}
+   set_source_voltage_autorange: smua.source.autorangev = {}
+   set_filter_enable: smua.measure.filter.enable = {}
+   set_source_func: smua.source.func = {}
+   set_filter: smua.measure.filter.type = {}
+   set_voltage: smua.source.levelv = {}
+   set_measurement_delay_factor: smua.measure.delayfactor = {} # A factor by which the build in delay is in/decreased 1nA range has a standard delay of 1s!!!
+   set_source_level_volts: smua.source.levelv = {}
+   set_complience_current: smua.source.limiti = {}
+   set_complience: smua.source.limiti = {}
+   set_complience_voltage: smua.source.limitv = {}
+   set_offvoltage: smua.source.offfunc = {}
+   set_offcomplience: smua.source.offlimiti = {}
+   set_current_range: smua.measure.rangei = {}
+   set_measurement_delay: smua.measure.delay = {}
+   set_output: smua.source.output = {}   
   
   
    # All get parameters
