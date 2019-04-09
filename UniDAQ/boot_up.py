@@ -38,22 +38,28 @@ class SetupLoader(object):
 
 
         # Todo: look what is correcter here
+        # bernhard
         device_lib = DeviceLib()
         device_lib.load(os.path.join(config_dir, 'device_lib'))
 
         # Get data dirs and device lib
+        # Domi
         config_files = glob.glob(os.path.join(setup_dir, "*.yml"))
         device_files = glob.glob(os.path.join(device_dir, "*.yml"))
         config_files.extend(device_files)
 
         # Todo: Look which is correct
         # Load setup
+        # bernhard
         path = os.path.join(setup_dir)
         setup = Setup()
         setup.load(path)
         # TODO HACK attach common device_lib
         setup.device_lib = device_lib.devices
         self.configs = setup
+
+
+        # Domi
         # Get all files in the directories
         # Look for yml files and translate them
         self.configs = {"config": {}, "device_lib": {}, "additional_files": {}} # Dict for the final "folder" structure
@@ -68,10 +74,10 @@ class SetupLoader(object):
             else:
                 self.log.error("No settings name found for config file: {!s}. File will be ignored.".format(name))
 
-            # Load additional files, this are the data with txt or dat ending in subfolder
-            additional_dirs = [d for d in os.listdir(setup_dir) if os.path.isdir(os.path.join(setup_dir, d))]
-            for dir in additional_dirs:
-                self.gen_directory_tree(self.configs["additional_files"], os.path.join(setup_dir, dir), self.read_file)
+        # Load additional files, this are the data with txt or dat ending in subfolder
+        additional_dirs = [d for d in os.listdir(setup_dir) if os.path.isdir(os.path.join(setup_dir, d))]
+        for dir in additional_dirs:
+            self.gen_directory_tree(self.configs["additional_files"], os.path.join(setup_dir, dir), self.read_file)
 
     def gen_directory_tree(self, parent_dict, path, function, pattern="*.txt",):
         """Loads all files (as txt files into the specified directory with key = filename

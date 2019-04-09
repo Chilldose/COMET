@@ -81,8 +81,12 @@ class GUI_classes(QWidget):
         if plot_style == "dark":
             pq.setConfigOption('background', '#323232')
             pq.setConfigOption('foreground', '#bec4ce')
+        else:
+            self.log.warning("No plot style selected standard style selected...")
+
         pq.setConfigOption('antialias', True)
         pq.setConfigOption('crashWarning', True)
+
 
         sleep(0.2) # That gives the threads time to initialize all values before missmatch in gui can occur
 
