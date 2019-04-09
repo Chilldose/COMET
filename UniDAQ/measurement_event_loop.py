@@ -169,12 +169,11 @@ class measurement_event_loop(Thread):
         self.events.clear()  # Clears the dict so that new events can be written in
         self.status_query.clear() #Clears the status query Dict
 
-    def init_devices(self, args=None):
+    def init_devices(self):
         '''This function makes the necessary configuration for all devices before any measurement can be conducted'''
         # Not very pretty
         self.message_to_main.put({"Info": "Initializing of instruments..."})
 
-        #sended_commands = [] #list over all sendet commands, to prevent double sending
         for device in self.devices: # Loop over all devices
             sended_commands = []  # list over all sended commands, to prevent double sending
             if "Visa_Resource" in self.devices[device]: # Looks if a Visa resource is assigned to the device.
