@@ -92,7 +92,9 @@ class SetupLoader(object):
         for file in glob.glob(os.path.join(path, pattern)):
             # apply a function to the datafile
             try:
-                parent_dict[os.path.basename(file).split(".")[0]] = function
+                parent_dict[os.path.basename(file).split(".")[0]] = {}
+                # Create a raw data entry, so other parts can parse them as they please
+                parent_dict[os.path.basename(file).split(".")[0]]["raw"] = function(file)
             except Exception as err:
                 self.log.error("An error occured while applying function {} to path {}".format(str(function), file))
 

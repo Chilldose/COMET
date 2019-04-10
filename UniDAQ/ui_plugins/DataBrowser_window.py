@@ -49,7 +49,7 @@ class DataBrowser_window:
             # First find selected pad file in the dict
             sensor_found = False
             proj = ""
-            sens = "" # needed for jit
+            sens = ""
             for projects in self.variables.additional_files["Pad_files"].keys():
                 for sensors in self.variables.additional_files["Pad_files"][projects]:
                     if item.text(0) == sensors:
@@ -63,15 +63,8 @@ class DataBrowser_window:
                 self.data_ui.pad_text.setText(self._translate("data_browser", ""))
 
             if sensor_found:
-                text = ""
-                for lines in self.variables.additional_files["Pad_files"][proj][sens]["header"]:
-                    text += str(lines)
-
-                for items in self.variables.additional_files["Pad_files"][proj][sens]["data"]:
-                    for values in items:
-                        text += str(values) + "\t"
-                    text += "\n"
-                self.data_ui.pad_text.setText(self._translate("data_browser", text))
+                self.data_ui.pad_text.setText(self._translate("data_browser",
+                                                              self.variables.additional_files["Pad_files"][proj][sens]["raw"]))
 
         # functions for the device tab
         @raise_exception

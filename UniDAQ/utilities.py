@@ -1048,7 +1048,7 @@ class table_control_class:
         :return: True if at strip
         '''
         pos = self.get_current_position()  # table position
-        pad_pos = [float(x) for x in pad_file["data"][strip][1:4]]  # where it should be in sensor system
+        pad_pos = [float(x) for x in pad_file["data"][strip]]  # where it should be in sensor system
         table_pos = transfomation_class.vector_trans(pad_pos, T, V0)  # Transforms the vektor to the right basis
         deltapos = [abs(x1 - x2) for (x1, x2) in zip(pos, table_pos)]
 
@@ -1070,7 +1070,7 @@ class table_control_class:
         error = None
         if transformation != []:
             if not self.__already_there(pad_file, strip, transfomation_class, T, V0):
-                pad_pos = pad_file["data"][strip][1:4]
+                pad_pos = pad_file["data"][strip]
                 self.log.info("Moving to strip: {} at position {},{},{}.".format(strip, pad_pos[0], pad_pos[1], pad_pos[2]))
                 table_abs_pos = list(transfomation_class.vector_trans(pad_pos, T, V0))
                 error = self.move_to(table_abs_pos, move_down=True, lifting = height_movement)

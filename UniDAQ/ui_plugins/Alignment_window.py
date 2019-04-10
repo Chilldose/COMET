@@ -12,7 +12,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from random import randint
 from time import sleep
-
+import re
 from ..utilities import raise_exception, transformation
 
 
@@ -61,7 +61,39 @@ class Alignment_window:
 
         self.variables.add_update_function(self.current_strip_lcd)
 
+        # Find pad data in the additional files and parse them
+        self.pad_files = self.variables.framework_variables["Configs"]["additional_files"].get("Pad_files",{})
+        if self.pad_files:
+            self.parse_pad_files(self.pad_files)
+        else:
+            self.log.error("No pad files found! Please check if they are correctly defined in the configs!")
+
         self.what_to_do_text(-1) # Initializes the text
+
+    def parse_pad_files(self, parent_dict):
+        """
+        Parses the parent directory of pad files, data must be a str
+        :param parent_dict:
+        :return:
+        """
+
+        # Separate header and data via regex
+        data_pattern = re.compile(r"(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\n", re.MULTILINE) # Todo: Its possible to do all the work with regex
+        for project, sensors in parent_dict.items():
+            for sensor, raw_data in sensors.items():
+                #parent_dict[project][sensor]["data"] = {k: v for d in [{str(line[0]): [float(x) for x in line[1:]]} for line in data_pattern.findall(raw_data["raw"])] for k, v in d.items()}
+                Data = data_pattern.findall(raw_data["raw"])
+                parent_dict[project][sensor]["data"]= dict(zip([line[0] for line in Data],
+                         [line[1:] for line in Data]))
+
+                # Find reference pads
+                find_parameters = re.compile(r"^(\w+\s?\w+):\s+(.+)", re.MULTILINE)
+                parent_dict[project][sensor]["additional_params"] = {str(x[1]).strip(): x[2].strip() for x in find_parameters.finditer(raw_data["raw"])}
+
+                # Get reference pads alone
+                reference_pad_pattern = re.compile(r"(reference.?pad.?\d?):\s+(\d+)", re.MULTILINE)
+                parent_dict[project][sensor]["reference_pads"] = [float(x[2]) for x in reference_pad_pattern.finditer(raw_data["raw"])]
+
 
     def current_strip_lcd(self):
         '''This function updtes the current strip lcd display'''
@@ -75,10 +107,10 @@ class Alignment_window:
     def move_to_strip_action(self):
         '''This is the action when the move to strip button is pressed'''
         if not self.variables.default_values_dict["settings"]["table_is_moving"]:
-            strip_to_move = self.alignment.move_to_strip_spin.value()
+            strip_to_move = str(self.alignment.move_to_strip_spin.value())
 
             if self.variables.default_values_dict["settings"]["Alignment"]:
-                error = self.variables.table.move_to_strip(self.sensor_pad_file, (int(strip_to_move)-1),
+                error = self.variables.table.move_to_strip(self.sensor_pad_file, strip_to_move,
                                                            self.trans,
                                                            self.transformation_matrix, self.V0,
                                                            self.variables.default_values_dict["settings"]["height_movement"])
@@ -181,7 +213,7 @@ class Alignment_window:
             self.project = self.variables.default_values_dict["settings"]["Current_project"]
             self.sensor = str(self.variables.default_values_dict["settings"]["Current_sensor"])
             try:
-                self.sensor_pad_file = self.variables.pad_files_dict[self.project][self.sensor].copy()
+                self.sensor_pad_file = self.pad_files[self.project][self.sensor].copy()
                 self.reference_pads = self.sensor_pad_file["reference_pads"][:]
                 self.update_reference_pad_positions()
                 # self.adjust_alignment_points(2) should be here but the spin boxes get asignal and then they would change again- > therefore only spin boxes change this value
@@ -257,7 +289,7 @@ class Alignment_window:
 
             self.transformation_matrix = T
             self.V0 = V0
-            relative_check_pos = self.sensor_pad_file["data"][self.check_strip - 1][1:4]
+            relative_check_pos = self.sensor_pad_file["data"][self.check_strip]
 
             table_abs_pos = self.trans.vector_trans(relative_check_pos, T, V0)
 
@@ -387,7 +419,7 @@ class Alignment_window:
         self.update_static()
 
     def update_reference_pad_positions(self):
-        self.reference_pads_positions = [self.sensor_pad_file["data"][item - 1][1:4] for item in self.reference_pads]
+        self.reference_pads_positions = [self.sensor_pad_file["data"][item] for item in self.reference_pads]
         self.adjust_alignment_points(2,1) #not so good
 
     def update_static(self, kwargs= None):
@@ -416,12 +448,14 @@ class Alignment_window:
         self.alignment.sensortype.setText("Sensor type: " + str(self.sensor))
         self.alignment.project.setText("Project: " + str(self.project))
 
-        self.check_strip = randint(2, int(self.number_of_pads)-1)
+        self.check_strip = str(randint(2, int(self.number_of_pads)-1))
+        if self.check_strip not in self.sensor_pad_file:
+            self.check_strip = "2"
 
         self.alignment.first_co_label.setText("First alignment coord: " + str(self.first_ref))
         self.alignment.second_co_label.setText("Second alignment coord: " + str(self.secon_ref))
         self.alignment.third_co_label.setText("Third alignment coord: " + str(self.third_ref))
-        self.alignment.check_co_label.setText("Check alignment coord: " + str(self.sensor_pad_file["data"][self.check_strip-1][1:4]))
+        self.alignment.check_co_label.setText("Check alignment coord: " + str(self.sensor_pad_file["data"][self.check_strip]))
 
 
     def table_move(self):
