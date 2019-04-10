@@ -10,6 +10,9 @@ import numpy as np
 import glob
 import sys
 
+from .core.config import Setup
+from .core.config import DeviceLib
+
 class SetupLoader(object):
     '''This class is for loading all config files, pad files and default parameters.
     This class is crucial for the program to work. All works within the init function of this class.
@@ -19,23 +22,44 @@ class SetupLoader(object):
 
     def __init__(self):
         self.log = logging.getLogger(__name__)
+        self.configs = {}
 
-    def load(self, setup):
+    def load(self, name):
+        self.configs = {}
 
         # Get project path
         package_dir = os.path.dirname(os.path.realpath(__file__))
         config_dir = os.path.join(package_dir, "config")
-        setup_dir = os.path.join(config_dir, 'Setup_configs', setup)
+        setup_dir = os.path.join(config_dir, 'Setup_configs', name)
         device_dir = os.path.join(config_dir, 'device_lib')
 
         if not os.path.isdir(setup_dir):
             raise RuntimeError("No such setup '{}'".format(setup_dir))
 
+
+        # Todo: look what is correcter here
+        # bernhard
+        device_lib = DeviceLib()
+        device_lib.load(os.path.join(config_dir, 'device_lib'))
+
         # Get data dirs and device lib
+        # Domi
         config_files = glob.glob(os.path.join(setup_dir, "*.yml"))
         device_files = glob.glob(os.path.join(device_dir, "*.yml"))
         config_files.extend(device_files)
 
+        # Todo: Look which is correct
+        # Load setup
+        # bernhard
+        path = os.path.join(setup_dir)
+        setup = Setup()
+        setup.load(path)
+        # TODO HACK attach common device_lib
+        setup.device_lib = device_lib.devices
+        self.configs = setup
+
+
+        # Domi
         # Get all files in the directories
         # Look for yml files and translate them
         self.configs = {"config": {}, "device_lib": {}, "additional_files": {}} # Dict for the final "folder" structure
@@ -50,10 +74,10 @@ class SetupLoader(object):
             else:
                 self.log.error("No settings name found for config file: {!s}. File will be ignored.".format(name))
 
-            # Load additional files, this are the data with txt or dat ending in subfolder
-            additional_dirs = [d for d in os.listdir(setup_dir) if os.path.isdir(os.path.join(setup_dir, d))]
-            for dir in additional_dirs:
-                self.gen_directory_tree(self.configs["additional_files"], os.path.join(setup_dir, dir), self.read_file)
+        # Load additional files, this are the data with txt or dat ending in subfolder
+        additional_dirs = [d for d in os.listdir(setup_dir) if os.path.isdir(os.path.join(setup_dir, d))]
+        for dir in additional_dirs:
+            self.gen_directory_tree(self.configs["additional_files"], os.path.join(setup_dir, dir), self.read_file)
 
     def gen_directory_tree(self, parent_dict, path, function, pattern="*.txt",):
         """Loads all files (as txt files into the specified directory with key = filename

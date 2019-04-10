@@ -16,31 +16,31 @@ class SettingsControl_widget:
 
         # TODO: The init needs to be cleaned up a bit, currently not very pythonic structured
         # Adds all projects to the combo box
-        for projects in self.variables.pad_files_dict:
+        for projects in self.variables.additional_files.get("Pad_files", {}):
             self.gui.proj_comboBox.addItem(str(projects))
 
 
         if "Current_project" in self.variables.default_values_dict["settings"]:
             self.variables.default_values_dict["settings"]["Current_project"] = \
-            list(self.variables.pad_files_dict.keys())[0]  # That one project is definetly choosen
+            list(self.variables.additional_files["Pad_files"].keys())[0]  # That one project is definetly choosen
         else:
             self.variables.default_values_dict["settings"].update(
                 {"Current_project": self.variables.default_values_dict["settings"].get("Projects", ["No Projects"])[0]})
 
         current_project = self.variables.default_values_dict["settings"].get("Current_project", None)
-        self.gui.sensor_comboBox.addItems(self.variables.pad_files_dict[current_project])  # Adds all items to the combo box
+        self.gui.sensor_comboBox.addItems(self.variables.additional_files["Pad_files"][current_project])  # Adds all items to the combo box
 
 
         if "Current_sensor" in self.variables.default_values_dict["settings"]:
             try:
                 self.variables.default_values_dict["settings"]["Current_sensor"] = \
-                list(self.variables.pad_files_dict[current_project])[0]  # That one project is definetly choosen
+                list(self.variables.additional_files["Pad_files"][current_project])[0]  # That one project is definetly choosen
             except:
                 self.variables.default_values_dict["settings"]["Current_sensor"] = "None"
         else:
-            if current_project and self.variables.pad_files_dict:
+            if current_project and self.variables.additional_files["Pad_files"]:
                 self.variables.default_values_dict["settings"].update({
-                    "Current_sensor": list(self.variables.pad_files_dict[current_project])[0]})
+                    "Current_sensor": list(self.variables.additional_files["Pad_files"][current_project])[0]})
             else:
                 self.variables.default_values_dict["settings"].update({"Current_sensor": "None"})
 
@@ -131,7 +131,7 @@ class SettingsControl_widget:
         self.gui.sensor_comboBox.clear()
         try:
             # self.variables.default_values_dict["settings"]["Sensor_types"][project_name]
-            self.gui.sensor_comboBox.addItems(list(self.variables.pad_files_dict[project_name].keys()))  # Adds all items to the combo box
+            self.gui.sensor_comboBox.addItems(list(self.variables.additional_files["Pad_files"][project_name].keys()))  # Adds all items to the combo box
             # Select the first element to be right, if possible
             self.variables.default_values_dict["settings"]["Current_sensor"] = self.gui.sensor_comboBox.currentText()
 

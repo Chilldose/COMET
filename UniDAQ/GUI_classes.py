@@ -20,6 +20,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 
 from .gui.MainWindow import MainWindow
+from .gui.PluginWidget import PluginWidget
 
 from .GUI_event_loop import *
 from .bad_strip_detection import *
@@ -45,13 +46,12 @@ class GUI_classes(QWidget):
         self.vcw = framework_variables["VCW"]
         self.devices_dict = framework_variables["Devices"]
         self.default_values_dict = framework_variables["Configs"]["config"]
-        self.pad_files_dict = framework_variables["Configs"]["additional_files"]["Pad_files"]
         self.functions = []
         self.update_interval = float(self.default_values_dict["settings"].get("GUI_update_interval", 100.))  # msec
         self.queue_to_GUI = queue_to_GUI
         self.table = framework_variables["Table"]
         self.switching = framework_variables["Switching"]
-        self.white_plots = self.default_values_dict["settings"].get("Thomas_mode", False)
+        self.additional_files = framework_variables["Configs"]["additional_files"]
         self.meas_data = {}
         self.all_plugin_modules = {}
         self.qt_designer_ui = []
@@ -59,6 +59,7 @@ class GUI_classes(QWidget):
         self.final_tabs = []
         self.ui_plugins = {}
         self.analysis = stripanalysis(self) # Not very good it is a loop condition
+        self.framework_variables = framework_variables
 
         # Load ui plugins
         self.load_GUI_plugins()
@@ -73,15 +74,19 @@ class GUI_classes(QWidget):
         # This is the main Tab Widget in which all other tabs are implemented
         self.main_window = MainWindow(self.message_to_main)
 
-        # For Thomas, because he does not like black plots
-        if self.white_plots:
+        # Plot style
+        plot_style = QtCore.QSettings().value("plot_style")
+        if plot_style == "light":
             pq.setConfigOption('background', 'w')
             pq.setConfigOption('foreground', 'k')
-        else:
+        if plot_style == "dark":
             pq.setConfigOption('background', '#323232')
             pq.setConfigOption('foreground', '#bec4ce')
-            pq.setConfigOption('antialias', True)
-            pq.setConfigOption('crashWarning', True)
+        else:
+            self.log.warning("No plot style selected standard style selected...")
+
+        pq.setConfigOption('antialias', True)
+        pq.setConfigOption('crashWarning', True)
 
 
         sleep(0.2) # That gives the threads time to initialize all values before missmatch in gui can occur
@@ -92,9 +97,7 @@ class GUI_classes(QWidget):
         self.begin_rendering() # Starts the rendering process for all tabs
 
         # Initialise and start the GUI_event_loop
-        self.event_loop_thread = GUI_event_loop(self, self.message_from_main,
-                                      self.message_to_main, self.devices_dict, self.default_values_dict,
-                                      self.pad_files_dict, self.vcw, self.meas_data)
+        self.event_loop_thread = GUI_event_loop(self, self.framework_variables, self.meas_data)
         self.event_loop_thread.Errsig.connect(self.main_window.errMsg.new_message)
         self.event_loop_thread.start()
 
@@ -103,22 +106,22 @@ class GUI_classes(QWidget):
 
     def add_rendering_function(self, widget, name):
         '''This function adds a widget for rendering'''
-        self.final_tabs.append((widget,str(name)))
-        self.log.debug("Adding rendering function: " + str(name))
+        self.final_tabs.append((widget, name))
+        self.log.debug("Adding rendering function: %s", name)
 
     def construct_ui(self):
         '''This function generates all ui elements in form of tab widgets'''
-        for modules in self.all_plugin_modules:
-            self.log.info("Constructing UI module: {!s}".format(modules))
-            # QWidget object
-            QWidgets = QWidget()
+        for module in self.all_plugin_modules:
+            self.log.info("Constructing UI module: {!s}".format(module))
+            # Create plugin windget
+            widget = PluginWidget()
             layout = QGridLayout()  # Just a layout type
-            QWidgets.setLayout(layout)
+            widget.setLayout(layout)
 
-            plugin = getattr(self.all_plugin_modules[modules], str(modules))(self, layout)
-            self.ui_plugins.update({modules: plugin})
+            plugin = getattr(self.all_plugin_modules[module], module)(self, layout)
+            self.ui_plugins.update({module: plugin})
 
-            self.add_rendering_function(QWidgets, str(modules).split("_")[0])
+            self.add_rendering_function(widget, module.split("_")[0])
 
     def load_QtUi_file(self, filename, widget):
         '''This function returns a qt generated Ui object.'''
