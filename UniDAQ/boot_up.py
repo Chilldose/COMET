@@ -202,6 +202,7 @@ class connect_to_devices:
         self.vcw = vcw
         self.device_dict = device_dict
         self.device_lib = device_lib
+        self.vcw.show_instruments()
 
         for device in device_dict:  # device_dict is a dictionary containing dictionaries
             # Check if device is present in the device lib

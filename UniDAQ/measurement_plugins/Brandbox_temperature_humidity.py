@@ -28,7 +28,7 @@ class Brandbox_temperature_humidity(Thread):
         self.success = False
         try:
             first_try = self.vcw.query(self.resource, self.query)
-            if first_try and not -1:
+            if first_try:
                 self.success = True
 
         except Exception as e:

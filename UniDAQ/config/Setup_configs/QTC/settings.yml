@@ -82,12 +82,13 @@
         Corvus:
             Device_name: ITK Corvus 
             Device_IDN: Corvus 1 462 1 0 
-            Connection_type: RS232:1 
+            Connection_type: RS232:17 
+            Baud_rate: 9600
             
         25657SMU:
             Device_name: 2657 Keithley SMU
             Connection_type: GPIB:26
-            Device_IDN: Keithley Instruments Inc., Model 2657A 4356871, 1.1.5
+            Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.5
 
         BrandBox:
             Device_name: BrandBox

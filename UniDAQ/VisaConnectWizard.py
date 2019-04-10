@@ -370,7 +370,7 @@ class VisaConnectWizard:
 
     def list_write(self, resource, commands, delay=0.5): # Writes initiate commands to the device
         for command in commands:
-            self.write(resource["Visa_Resource"], str(command))
+            self.write(resource, str(command))
             sleep(delay) #A better way possible but gives the instrument its time
 
 
