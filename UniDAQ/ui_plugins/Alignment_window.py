@@ -84,7 +84,7 @@ class Alignment_window:
                 #parent_dict[project][sensor]["data"] = {k: v for d in [{str(line[0]): [float(x) for x in line[1:]]} for line in data_pattern.findall(raw_data["raw"])] for k, v in d.items()}
                 Data = data_pattern.findall(raw_data["raw"])
                 parent_dict[project][sensor]["data"]= dict(zip([line[0] for line in Data],
-                         [line[1:] for line in Data]))
+                                                               [tuple(float(x) for x in line[1:]) for line in Data]))
 
                 # Find reference pads
                 find_parameters = re.compile(r"^(\w+\s?\w+):\s+(.+)", re.MULTILINE)
@@ -92,7 +92,7 @@ class Alignment_window:
 
                 # Get reference pads alone
                 reference_pad_pattern = re.compile(r"(reference.?pad.?\d?):\s+(\d+)", re.MULTILINE)
-                parent_dict[project][sensor]["reference_pads"] = [float(x[2]) for x in reference_pad_pattern.finditer(raw_data["raw"])]
+                parent_dict[project][sensor]["reference_pads"] = [x[2] for x in reference_pad_pattern.finditer(raw_data["raw"])]
 
 
     def current_strip_lcd(self):
@@ -134,8 +134,7 @@ class Alignment_window:
             return
 
 
-    @raise_exception
-    def start_alignment_action(self, kwargs = None):
+    def start_alignment_action(self):
         '''This function starts the whole alignement proceedure'''
 
         #First ask if you want to start the alignment
@@ -147,7 +146,7 @@ class Alignment_window:
             msg.exec_()
             return
 
-        if not self.variables.table.table_ready:
+        if not self.variables.table.table_ready and not True:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
             msg.setText("It seems that no table is connected to this machine...")
@@ -384,7 +383,10 @@ class Alignment_window:
         '''This function adjusts the position of the alignment points so that a 3D alignment is possible'''
         to_adjust = self.reference_pads_positions[adjust_point -1][axis -1]
         to_adjust += float(self.sensor_pad_file["additional_params"].get(variable, 0))
-        self.reference_pads_positions[adjust_point - 1][axis -1] = to_adjust
+        new_coord = list(self.reference_pads_positions[adjust_point - 1])
+        new_coord[axis -1] = to_adjust
+        self.reference_pads_positions[adjust_point - 1] = tuple(new_coord)
+
 
     def lock_spinboxes(self, state):
         '''Locks the spin boxes'''
@@ -419,10 +421,10 @@ class Alignment_window:
         self.update_static()
 
     def update_reference_pad_positions(self):
-        self.reference_pads_positions = [self.sensor_pad_file["data"][item] for item in self.reference_pads]
+        self.reference_pads_positions = [self.sensor_pad_file["data"][str(item)] for item in self.reference_pads]
         self.adjust_alignment_points(2,1) #not so good
 
-    def update_static(self, kwargs= None):
+    def update_static(self):
         '''This updates the static text of the gui, like sensor type'''
 
         # Set maxima and minima and value

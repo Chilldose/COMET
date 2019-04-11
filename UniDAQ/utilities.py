@@ -1074,7 +1074,7 @@ class table_control_class:
                 table_abs_pos = list(transfomation_class.vector_trans(pad_pos, T, V0))
                 error = self.move_to(table_abs_pos, move_down=True, lifting = height_movement)
 
-            self.variables["current_strip"] = int(strip+1)
+            self.variables["current_strip"] = strip
             return error
         else:
             self.log.error("No Transformation Matrix found! Is the alignment done?")
