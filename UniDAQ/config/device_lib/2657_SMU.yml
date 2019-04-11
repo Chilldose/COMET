@@ -5,8 +5,8 @@
   
    # All set parameters
    set_enable_beeper: beeper.enable = {}
-   set_beep: beeper.beep({seconds:.2f}, {frequency:.0f})
-   set_delay: delay({seconds})
+   set_beep: beeper.beep({}, {})
+   set_delay: delay({})
    set_lock_SMU: display.locallockout = {} 
    set_display_measurement: display.screen = {}
    set_display_text: display.settext({text}) # Can be a list of values
@@ -19,7 +19,7 @@
    set_gateway: lan.config.gateway = {}
    set_ipaddress: lan.config.ipaddress = {}
    set_lan_config: lan.config.method = {}
-   set_measure_adc: smua.measure.adc = {ADC}
+   set_measure_adc: smua.measure.adc = {}
    set_autorange_current: smua.measure.autorangei = {}
    set_autozero: smua.measure.autozero = {}
    set_autorange_voltage: smua.measure.autorangev = {}
@@ -43,7 +43,8 @@
    set_offcomplience: smua.source.offlimiti = {}
    set_current_range: smua.measure.rangei = {}
    set_measurement_delay: smua.measure.delay = {}
-   set_output: smua.source.output = {}   
+   set_output: smua.source.output = {}  
+   set_queueclear: dataqueue.clear()   
   
   
    # All get parameters
@@ -58,7 +59,7 @@
 
   # All reset device parameters
    reset:
-      - queueclear: dataqueue.clear()
+      - queueclear: ""
       - display_func: display.MEASURE_DCAMPS
       - autorange_current: 1
       - autorange_voltage: 1
@@ -81,7 +82,7 @@
       - output: smua.OUTPUT_OFF
       - measurement_delay: smua.DELAY_AUTO
       - measurement_delay_factor: 1.0
-      - set_measure_adc: smua.ADC_INTEGRATE # or smua.ADC_FAST
+      - measure_adc: smua.ADC_INTEGRATE # or smua.ADC_FAST
       - enable_beeper: beeper.ON
       - lan_autoconnect: lan.ENABLE
       - verify_host: lan.ENABLE
@@ -98,7 +99,7 @@
    initialize_lan: lan.applysettings()
    reset_lan_interface: lan.reset()
    device_IDN_query: "*IDN?"
-   reset_device: "*rst"
+   reset_device: ["*rst"]
    abort: smua.abort()
    store_calibration: sma.cal.save()
    calibrate_highsense: smuX.contact.calibratehi()
@@ -110,6 +111,7 @@
    display_dcohms: display.smua.measure.func = display.MEASURE_DCOHMS
    display_dcwatts: display.smua.measure.func = display.MEASURE_DCWATTS
    separator: ","
+
 
   
   

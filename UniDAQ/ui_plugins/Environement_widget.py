@@ -51,6 +51,10 @@ class Environement_widget(object):
 
         self.variables.add_update_function(self.update_temphum_plots)
 
+        # Go through all to set the value a the device as well
+        self.valuechange()
+        self.update_bars_and_spinboxes()
+
     def config_plot(self, plot, plot2):
         plot = plot.plotItem
         plot.setLabel('right', "humidity", units='%')
@@ -100,8 +104,23 @@ class Environement_widget(object):
                 hum = self.variables.meas_data["humidity"][1][-1]
                 self.gui.temp_lcd.display(temp)
                 self.gui.hum_lcd.display(hum)
-                self.gui.temperature_bar.setValue(temp)
-                self.gui.humidity_bar.setValue(hum)
+
+                # Set temp bar
+                if temp <= self.gui.max_temp_spin.value() and temp >= self.gui.min_temp_spin.value():
+                    self.gui.temperature_bar.setValue(temp)
+                elif temp > self.gui.max_temp_spin.value():
+                    self.gui.temperature_bar.setValue(self.gui.max_temp_spin.value())
+                elif temp < self.gui.min_temp_spin.value():
+                    self.gui.temperature_bar.setValue(self.gui.min_temp_spin.value())
+
+                # Set temp bar
+                if hum <= self.gui.max_hum_spin.value() and temp >= self.gui.min_hum_spin.value():
+                    self.gui.humidity_bar.setValue(hum)
+                elif hum > self.gui.max_hum_spin.value():
+                    self.gui.humidity_bar.setValue(self.gui.max_hum_spin.value())
+                elif hum < self.gui.min_hum_spin.value():
+                    self.gui.humidity_bar.setValue(self.gui.min_hum_spin.value())
+
                 # Very approyximate Dew point calc
                 dew = temp-(100-hum)/5
                 self.gui.dew_point_lcd.display(dew)

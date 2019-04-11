@@ -64,13 +64,10 @@
     # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name
     Aliases:
         temphum_controller: BrandBox
-        #Elmeter: ELMETER
-        Switching: Matrix
+        HVSwitching: BrandBox
+        LVSwitching: Keithley Switching Matrix
         BiasSMU: 2657 Keithley SMU
-        Table_control: Corvus
-        #humidity_sensors: hum_sensors
-        #Air: pressure_air
-        #LCR: LCR
+        Table_control: ITK Corvus
         lights_controller: BrandBox
 
     Devices:

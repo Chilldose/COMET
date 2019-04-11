@@ -155,21 +155,21 @@ class Switching_window:
 
         to_switch = {}
         # Brandbox
-        to_switch.update({"Brandbox": []})
+        to_switch.update({"HVSwitching": []})
         # Now get all nodes which need to be set
         for relay in ["A1", "A2", "B1", "B2", "C1", "C2"]: # This is GUI specific!!!!
             if getattr(self.switching, relay).isChecked(): # find out if the button is checked
-                to_switch["Brandbox"].append(relay)
+                to_switch["HVSwitching"].append(relay)
 
 
         # Switching matrix
-        to_switch.update({"Switching": []})
+        to_switch.update({"LVSwitching": []})
         # Now get all nodes which need to be set
         for i in range(1,3): #matrices
             for j in range(1,5): #Zeilen
                 for k in range(1,6): # Spalten
                     if getattr(self.switching, "m" + str(i) + str(j) + str(k)).isChecked():
-                        to_switch["Switching"].append(str(i)+ "!" + str(j) + "!" + str(k))
+                        to_switch["LVSwitching"].append(str(i)+ "!" + str(j) + "!" + str(k))
 
 
         # No apply the switching

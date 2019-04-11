@@ -155,25 +155,27 @@ class SetupLoader(object):
         '''This function renames the device dict, so that the measurement class has a common name declaration. It wont change the display name. Just for internal consistency purposes'''
 
         assigned_dicts = []
-        new_assigned = self.configs["config"]["settings"].get("Aliases", {}).copy() #  Gets me the internal names of all stated devices in the default file (or the keys) (only for the defaults file)
+        new_assignee = self.configs["config"]["settings"].get("Aliases", {}).copy() #  Gets me the internal names of all stated devices in the default file (or the keys) (only for the defaults file)
         # Searches for devices in the device list, returns false if not found (real device is the value dict of the device
         for device in devices.copy():
-            if devices[device].get("Device_name", "") in new_assigned.values() and devices[device].get("Device_name", "") not in assigned_dicts:
-                # syntax for changing keys in dictionaries dictionary[new_key] = dictionary.pop(old_key)
-                lKey = [key for key, value in new_assigned.items() if value == device][0]
+            if devices[device].get("Device_name", "") in new_assignee.values() and devices[device].get("Device_name", "") not in assigned_dicts:
+                lKey = [key for key, value in new_assignee.items() if value == device][0]
                 devices[lKey] = devices.pop(device)
                 assigned_dicts.append(devices[lKey]["Device_name"])
-                new_assigned.pop(lKey)
+                new_assignee.pop(lKey)
 
         # Add missing devices with aliases
-        for key, missing in new_assigned.copy().items():
+
+        while len(new_assignee):
+            key, missing = list(new_assignee.items())[0]
             for devic in devices.copy():
                 if missing in devices[devic]["Device_name"]:
                     devices[key] = devices[devic].copy()
-                    new_assigned.pop(key)
+                    new_assignee.pop(key)
+                    break
 
-        if new_assigned:
-            self.log.warning("The devices aliases {} have been specified but where never used".format(new_assigned))
+        if new_assignee:
+            self.log.warning("The devices aliases {} have been specified but where never used".format(new_assignee))
         return devices
 
 

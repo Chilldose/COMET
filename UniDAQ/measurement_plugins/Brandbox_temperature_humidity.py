@@ -66,7 +66,11 @@ class Brandbox_temperature_humidity(Thread):
             self.log.critical("Testmode sends message to main!")
             self.queue_to_main.put({"temperature": [float(time()), float(random.randint(1,10))],
                                     "humidity": [float(time()), float(random.randint(1,10))]})
-        self.start_timer(self.run)
+
+        if not self.main.stop_measurement_loop:
+            self.start_timer(self.run)
+        else:
+            self.log.info("Shutting down environement control due to stop of measurement loop")
 
 
     def start_timer(self, object):

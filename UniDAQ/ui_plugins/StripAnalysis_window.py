@@ -311,15 +311,16 @@ class StripAnalysis_window:
         file = fileDialog.getOpenFileNames()
         return file
 
+
     def load_measurement_action(self):
         """Loading measurement files, not analysed"""
         files = self.files_selector_action()
         text = ""
+
         for i in files[0]:
             text += str(i) + ","
         self.badstrip.label_load.setText(text)
         l.info(str(len(files[0])) + " measurement files have been selected.")
-
         self.variables.analysis.read_in_measurement_file(files[0])
         self.update_meas_selector()
 

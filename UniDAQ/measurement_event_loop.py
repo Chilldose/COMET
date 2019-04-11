@@ -174,50 +174,50 @@ class measurement_event_loop(Thread):
         # Not very pretty
         self.message_to_main.put({"Info": "Initializing of instruments..."})
 
-        for device in self.devices: # Loop over all devices
+        for device, device_obj in self.devices.items(): # Loop over all devices
             if "Visa_Resource" in self.devices[device]: # Looks if a Visa resource is assigned to the device.
                 self.log.info("Resetting instrument: {!s}".format(self.devices[device].get("Device_name", "NoName")))
 
                 # Sends the resets commands to the device
-                if "reset_device" in self.devices[device]:
-                    self.vcw.list_write(device, list(self.devices[device]["reset_device"]))
+                if "reset_device" in device_obj:
+                    self.vcw.write(device_obj, list(self.devices[device]["reset_device"]))
                 else:
-                    self.vcw.list_write(device, ["*rst", "*cls"])
+                    self.vcw.list_write(device, ["*rst", "*cls"], delay=0.1)
 
                 # Beginn sending commands from te reset list
-                if "reset" in device:
-                    for command, value in device["reset"].items():
-                        # Find the correct set_command
-                        if "set_"+command in device:
-                            self.vcw.write(device, device["set_"+command].format(value))
-                        else:
-                            self.log.error("Could not find set command for reset parameter:"
-                                           " {} in device {}".format(command, device))
+                if "reset" in device_obj:
+                    for comm in device_obj["reset"]:
+                        command, values = list(comm.items())[0]
+                        command_list = self.build_init_command(device_obj, command, values)
+                        self.vcw.list_write(device_obj, command_list, delay=0.05)
+
 
         self.message_to_main.put({"Info": "Initializing DONE!"})
 
 
-    def build_init_command(self, order, values, command_order = 1):
+    def build_init_command(self, device_obj, order, values):
         '''This function builds the correct orders together, it always returns a list, if a order needs to be sended several times with different values
-        It difffers to the normal build command function, it takes, exactly the string or list and sends it as it is.'''
+        It differs to the normal build command function, it takes, exactly the string or list and sends it as it is.'''
         if type(values) != list: # ensures we have a list
             values_list = [values]
         else:
             values_list = values
 
         full_command_list = []
-        if int(command_order) == 1:
+        if "set_" + order in device_obj:
             for item in values_list:
-                full_command_list.append(str(order)+ " " + str(item).strip())
-            return full_command_list
-
-        elif int(command_order) == -1:
-            for item in values_list:
-                full_command_list.append(str(item) + " " + str(order))
-            return full_command_list
-
+                    command = device_obj["set_" + order]
+                    try:
+                        full_command_list.append(command.format(str(item).strip()))
+                    except Exception as err:
+                        self.log.error("An error happend while constructing init command"
+                                       " for device {device}. Attempted build was {command} and value {value}"
+                                       " with error: {error}".format(device=device_obj["Device_name"],
+                                                                     command=command, value=item, error=err))
         else:
-            self.log.error("Something went wrong with the building of the init command!")
+            self.log.error("Could not find set command for reset parameter:"
+                               " {} in device {}".format(order, device_obj["Device_name"]))
+        return full_command_list
 
     def ask_to_stop(self): # Just a simple return function if a measurement should be stopped
         return self.stop_measurement

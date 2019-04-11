@@ -6,12 +6,12 @@
     set_discharge: SET:DISCHARGE {} # ON/OFF
     set_external_light: SET:BOX_LED {} # ON/OFF
     set_environement_control: SET:CTRL {} # ON/OFF
-    set_open_channel: :open {channels}
+    set_open_channel: :open {}
     set_mode: SET:MOD {} 
     set_relay: "SET: {}"
-    set_close_channel: :clos
-    set_hummin: SET:HUM_MIN {min}
-    set_hummax: SET:HUM_MAX {max}
+    set_close_channel: :clos {}
+    set_hummin: SET:HUM_MIN {}
+    set_hummax: SET:HUM_MAX {}
     set_lock_switches: SET:TST {}
 
     # All get parameters

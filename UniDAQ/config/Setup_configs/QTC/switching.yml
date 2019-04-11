@@ -1,110 +1,110 @@
 ---
     Settings_name: Switching
     Idiel: 
-        Brand Box:
+        HVSwitching: # Name of the device or a alias (if defined) which is defined in the settings
             - A1
             - B1
             - C2
          
-        Switching:
+        LVSwitching: # Name of the device or a alias (if defined) which is defined in the settings
             - 2!3!3
             - 2!4!4
         
      
     Cback: 
-        Brand Box: 
+        HVSwitching: 
             - A1
             - B1
             - C2
          
-        Switching: 
+        LVSwitching: 
             - 2!4!1
         
      
     Rint: 
-        Brand Box: 
+        HVSwitching: 
             - A1
             - B1
             - C1
          
-        Switching: 
+        LVSwitching: 
             - 2!4!5
             - 2!2!3
 
     Rpoly: 
-        Brand Box: 
+        HVSwitching: 
             - A1
             - B1
             - C1
          
-        Switching: 
+        LVSwitching: 
             - 2!4!3
         
      
     IV: 
-        Brand Box: 
+        HVSwitching: 
             - A1
             - B1
             - C2
          
-        Switching: 
+        LVSwitching: 
      
     CintAC: 
-        Brand Box: 
+        HVSwitching: 
             - A1
             - B1
             - C1
          
-        Switching: 
+        LVSwitching: 
             - 2!1!1
             - 2!3!2
         
      
     Istrip: 
-        Brand Box: 
+        HVSwitching: 
             - A1
             - B1
             - C2
          
-        Switching: 
+        LVSwitching: 
             - 2!4!5
         
      
     Cac: 
-        Brand Box: 
+        HVSwitching: 
             - A1
             - B1
             - C2
          
-        Switching: 
+        LVSwitching: 
             - 2!4!1
             - 2!3!2
         
      
     Cint: 
-        Brand Box: 
+        HVSwitching: 
             - A1
             - B1
             - C1
          
-        Switching: 
+        LVSwitching: 
             - 2!2!1
             - 2!4!2
         
      
     Idark: 
-        Brand Box: 
+        HVSwitching: 
             - A1
             - B1
             - C2
          
-        Switching: 
+        LVSwitching: 
      
     CV: 
-        Brand Box: 
+        HVSwitching: 
             - A2
             - B2
             - C2
          
-        Switching: 
+        LVSwitching: 
     

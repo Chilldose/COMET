@@ -4,23 +4,23 @@
     Device_type: Elektrometer
     
     # All set parameters
-    set_resistance_range: RES:RANG
-    set_current_range: CURR:RANG
+    set_resistance_range: RES:RANG {}
+    set_current_range: CURR:RANG {}
     set_measure_current: "SENS:FUNC 'CURR'"
-    set_upper_auto_range: CURR:RANG:AUTO:ULIM
+    set_upper_auto_range: CURR:RANG:AUTO:ULIM {}
     set_measure_charge: "SENS:FUNC 'CHAR'"
-    set_voltage_range: VOLT:RANG
-    set_measure_resistance: "SENS:FUNC 'RES'"
-    set_guard: VOLT:GUARD
-    set_zero_correlation: SYST:ZCOR
-    set_lower_auto_range: CURR:RANG:AUTO:LLIM
-    set_voltage: SOUR:VOLT:LEV
-    set_output: OUTP
+    set_voltage_range: VOLT:RANG {}
+    set_measure_resistance: "SENS:FUNC 'RES'" 
+    set_guard: VOLT:GUARD {}
+    set_zero_correlation: SYST:ZCOR {}
+    set_lower_auto_range: CURR:RANG:AUTO:LLIM {}
+    set_voltage: SOUR:VOLT:LEV {}
+    set_output: OUTP {}
     set_only_value_read: FORM:ELEM READ
-    set_zero_check: SYST:ZCH
+    set_zero_check: SYST:ZCH {}
     set_acquire_zero_correlation: SYST:ZCOR:ACQ
-    set_current_NPLC: CURR:NPLC
-    set_auto_current_range: CURR:RANG:AUTO
+    set_current_NPLC: CURR:NPLC {}
+    set_auto_current_range: CURR:RANG:AUTO {}
     set_measure_voltage: "SENS:FUNC 'VOLT'"
 
     # All get parameters
@@ -32,9 +32,9 @@
     get_read_charge: MEAS:CHAR?
 
     reset:
-      - auto_current_range: ON
-      - zero_check: ON
-      - urrent_NPLC: 10
+      - auto_current_range: "ON"
+      - zero_check: "ON"
+      - current_NPLC: 10
       - lower_auto_range: 2E-9
       - upper_auto_range: 200E-6
       - current_range: 2E-9

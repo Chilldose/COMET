@@ -168,9 +168,6 @@ def main():
     log.critical("Run time: %s seconds.", round(end_time-start_time, 2))
     log.critical("Reset all devices...")
 
-    # Reset all devices
-    utilities.reset_devices(devices_dict, vcw)
-
     log.critical("Close visa connections...")
     vcw.close_connections()
     log.critical("Exiting Main Thread")

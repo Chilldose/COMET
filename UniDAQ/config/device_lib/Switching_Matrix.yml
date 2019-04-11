@@ -3,8 +3,10 @@
     Device_type: Switching relay 
     
     # Set
-    set_open_channel: :open (@{channel})
-    set_close_channel: :clos (@{channel})
+    set_open_channel: :open (@{})
+    set_close_channel: :clos (@{})
+    set_open_channel_all: :open all
+    set_close_channel_all: :close all
     
     
     # Get
@@ -14,7 +16,8 @@
 
 
     reset:
-        - open_channel: all 
+        - open_channel_all: "" 
 
     # Misc
     separator: ","
+    syntax: "@(###)"

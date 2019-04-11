@@ -136,7 +136,7 @@ class VisaConnectWizard:
         IDN = device_dict["Device_IDN"]
 
         # Query the IDN
-        IDN_query = self.query(resource, device_dict.get("device_IDN_query", "*IDN?"))
+        IDN_query = self.query(device_dict, device_dict.get("device_IDN_query", "*IDN?"))
         if str(IDN) == str(IDN_query).strip():
             device_dict["Visa_Resource"] = resource
             self.log.info("Connection to the device: " + device_dict["Device_name"] + "is now reestablished")
@@ -266,49 +266,45 @@ class VisaConnectWizard:
                     self.no_response(self.myInstruments[number])
                     return -1
 
-    @run_with_lock # So only one talker and listener can be there
-    def query(self, resource_dict, code, terminator = ""):
+    #@run_with_lock # So only one talker and listener can be there
+    def query(self, resource_dict, code, reconnect = True):
         """Makes a query to the resource (the same as first write than read)"""
-        reconnect = True
-
         #Just check if a resource or object was passed and prepare everything
-        if type(resource_dict) == dict: # Checks if dict or only resource
-            try:
-                resource = resource_dict["Visa_Resource"]
-                reconnect = True # if dict a reconection atempt is possible
-            except KeyError:
-                self.log.error("Could not access Visa Resource for device: " + str(resource_dict["Device_name"] +
-                            ". This usually happens when the device is not connected."))
-                return -1
-            except Exception as e:
-                self.log.exception("An unknown error occured while accessing a Visa resource with error " + str(e))
-                return -1
-        else:
-            resource = resource_dict
+        try:
+            resource = resource_dict["Visa_Resource"]
+            reconnect = True # if dict a reconection atempt is possible
+        except KeyError:
+            self.log.error("Could not access Visa Resource for device: " + str(resource_dict["Device_name"] +
+                       ". This usually happens when the device is not connected."))
+            return -1
+        except Exception as e:
+            self.log.exception("An unknown error occured while accessing a Visa resource with error {}".format(e))
+            return -1
 
-        #self.log.info("Query command: " + str(code) + " to: " + str(resource))
 
-        #resource.timeout = 5000.
         try:
             query = str(resource.query(str(code))) # try to query
-            self.log.info("Written command: " + str(code) + " to: " + str(resource) + " was answered with: " + str(query).strip())
+            self.log.info("Query of: {} to device: {} was answered with: {}".format(code, resource_dict["Device_name"], query.strip()))
             return query
 
-        except Exception as e:
+        except Exception as err:
             # Try to reconnect to the device if no answer comes from the device in the timeout
-            self.log.error("The query of device " + str(resource) + " with query " + str(code) + " failed with error: " + str(e))
+            self.log.error("The query of device {} with query {} failed with error: {}".format(resource_dict["Device_name"],
+                                                                                               code, err))
 
             if reconnect and type(resource_dict) == dict:
-                if not self.reset_interface(): # For GPIB devices
-                    self.reconnect_to_device(resource_dict)
-
+                self.log.warning("Trying to reconnect to device and reset interfaces...")
+                self.reset_interface()
+                self.reconnect_to_device(resource_dict)
                 if "GPIB" not in str(resource): # For all other devices
-                    #self.reconnect_to_device(resource_dict)
                     self.write(resource, "\r\n") # tries to reset it this way
-
-                query = self.query(resource_dict["Visa_Resource"], code)
-                self.log.info("Query command: " + str(code) + " to: " + str(resource) + " was answered with: " + str(query).strip())
-                return query
+                query = self.query(resource_dict["Visa_Resource"], code, reconnect=False)
+                if query != -1:
+                    self.log.info("Query command: {} to: {} was answered with: {}".format(code, resource_dict["Device_name"], query))
+                    return query
+                else:
+                    self.log.warning("Attempt to reconnect to device was not successful...")
+                    return -1
             else:
                 return -1 # if no response a -1 will be returned
 
@@ -331,10 +327,7 @@ class VisaConnectWizard:
         try:
             # Now look if the code is a list or not
             if type(code) == list:
-                for i in code:
-                    full_command = str(i)
-                    resource.write(full_command)
-                    self.log.info("Write command: "+ str(full_command) + " to: " + str(resource))
+                self.list_write(resource_dict, code, delay = 0)
                 return 0
 
             else:
@@ -369,6 +362,8 @@ class VisaConnectWizard:
 
 
     def list_write(self, resource, commands, delay=0.5): # Writes initiate commands to the device
+        """Writes a list of commands to the device specified. Usually you dont need this function. User the normal
+        write function, if you pass a list this function will automatically be called. This way it will also work nested"""
         for command in commands:
             self.write(resource, str(command))
             sleep(delay) #A better way possible but gives the instrument its time

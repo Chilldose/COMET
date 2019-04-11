@@ -33,7 +33,7 @@ import queue
 from .globals import message_to_main, message_from_main, queue_to_GUI
 #from __future__ import print_function # Needed for the rtd functions that its written in 3
 
-l = logging.getLogger(__name__)
+l = logging.getLogger("utilities")
 lock = threading.Lock()
 
 def raise_exception(method):
@@ -47,8 +47,7 @@ def raise_exception(method):
             result = method(*args, **kw)
         # raise the exception and print the stack trace
         except Exception as error:
-            l.error("Some error occured in the function " + str(method.__name__) + ". With Error:",
-                    repr(error))  # this is optional but sometime the raise does not work
+            l.error("Some error occured in the function {}. With Error: {}".format(method.__name__,error))  # this is optional but sometime the raise does not work
             raise  # this raises the error with stack backtrack
         return result
 
@@ -460,6 +459,8 @@ def change_axis_ticks( plot, stylesheet=None):
 
 def build_command(device, command_tuple):
     """Builds the command which needs to be send to a device correctly"""
+    if isinstance(command_tuple, (str)):
+        command_tuple = (command_tuple,"") # make da dummy command
     if command_tuple[0] in device:
         if isinstance(command_tuple[1], (str, float, int)):
             return device[command_tuple[0]].format(command_tuple[1])
@@ -477,8 +478,6 @@ def build_command(device, command_tuple):
                         " as defined in config or 1".format(len(command_tuple[1]),
                                                                 brackets_count))
                 return None
-
-
     else:
         l.error("Could not find command {} in command list of device: {}".format(command_tuple[0],
                                                                                         device["Device_name"]))
@@ -1263,7 +1262,7 @@ class switching_control:
         current_switching = {}
         for devices in self.devices.values():
             if "Switching relay" in devices["Device_type"] and "Visa_Resource" in devices:
-                command = self.build_command(devices, "check_all_closed_channel")
+                command = self.build_command(devices, "get_check_all_closed_channel")
                 switching = str(self.vcw.query(devices, command)).strip()
                 switching = self.pick_switch_response(devices, switching)
                 current_switching.update({devices["Device_name"]: switching})
@@ -1273,19 +1272,16 @@ class switching_control:
     def apply_specific_switching(self, switching_dict):
         """This function takes a dict of type {"Switching": [/switch nodes], ....} and switches to these specific type"""
 
-        num_devices = len(switching_dict) # how many devices need to be switched
-        devices_found = 0
-        for devices in self.devices.values(): # Loop over all devices values (we need the display name)
-            for display_names in switching_dict: # extract all devices names for identification
-                if display_names in devices["Device_name"]:
-                    switching_success = self.change_switching(devices, switching_dict[display_names])
-                    devices_found += 1
-
-        if num_devices != devices_found:
-            self.log.error("At least one switching was not possible, no devices for switching included/connected")
-            switching_success = False
-
-        return switching_success
+        for device, to_switch in switching_dict.items():
+            if device in self.devices:
+                if not self.change_switching(self.devices[device], to_switch):
+                    self.log.error("Manual switching was not possible")
+                    return False
+                else:
+                    return True
+            else:
+                self.log.error("Could not find switching device: {}".format(device))
+                return  False
 
 
     def switch_to_measurement(self, measurement):
@@ -1303,22 +1299,18 @@ class switching_control:
         if measurement in self.settings["Switching"]:
             # When measurement was found
             for name, switch_list in self.settings["Switching"][measurement].items():
-                device_found = False
-                for devices in self.devices.values():
-                    if name in devices["Device_name"]:
-                        device = devices
-                        if not switch_list:
-                            switch_list = []
-                        switching_success = self.change_switching(device, switch_list)
-                        if not switching_success:
-                            self.log.debug("Switching was not possible!")
-                        device_found = True
-                if not device_found:
-                    self.log.error("Switching device: " + str(name) + " was not found in active resources. No switching done!")
+                if name in self.devices:
+                    if not switch_list:
+                        switch_list = []
+                    if not self.change_switching(self.devices[name], switch_list):
+                        self.log.error("Switching to {} was not possible".format(switch_list))
+                        return False
+                else:
+                    self.log.error("Switching device: {} was not found in active resources. No switching done!".format(name))
                     return False
-            return switching_success
+            return True
         else:
-            self.log.error("Measurement " + str(measurement) + " switching could not be found in defined switching schemes.")
+            self.log.error("Measurement {} switching could not be found in defined switching schemes.".format(measurement))
             return False
 
     def __send_switching_command(self, device, order, list_of_commands):
@@ -1326,7 +1318,8 @@ class switching_control:
         if list_of_commands:
             if list_of_commands[0]:
                 command = self.build_command(device, (order, list_of_commands))
-                self.vcw.write(device, command)  # Write new switching
+                if command: #If something dont work with the building of the command, no None will be send
+                    self.vcw.write(device, command)  # Write new switching
 
     def pick_switch_response(self, device, current_switching):
         '''
@@ -1371,8 +1364,6 @@ class switching_control:
         else:
             return current_switching.strip().split()  # now we have the right commands
 
-    @raise_exception
-    #@run_with_lock
     def change_switching(self, device, config): # Has to be a string command or a list of commands containing strings!!
 
         #TODO: Switching better!!!
@@ -1389,11 +1380,12 @@ class switching_control:
             configs = config
 
         if "Visa_Resource" in device: #Searches for the visa resource
-            resource = device["Visa_Resource"]
+            resource = device
         else:
             self.log.error("The VISA resource for device " + str(device["Device_name"]) + " could not be found. No switching possible.")
             return -1
-        command = self.build_command(device, "check_all_closed_channel")
+
+        command = self.build_command(device, "get_check_all_closed_channel")
         current_switching = str(self.vcw.query(resource, command)).strip()  # Get current switching
         current_switching = self.pick_switch_response(device, current_switching)
 
@@ -1403,7 +1395,7 @@ class switching_control:
         # Close channels
         self.__send_switching_command(device, "set_close_channel", to_close_channels)
 
-        sleep(0.01) # Just for safety reasons because the brandbox is very slow
+        #sleep(0.01) # Just for safety reasons because the brandbox is very slow
 
         # Open channels
         self.__send_switching_command(device, "set_open_channel", to_open_channels)
@@ -1413,21 +1405,18 @@ class switching_control:
         device_not_ready = True
         counter = 0
         while device_not_ready:
-            current_switching = None
-            command = self.build_command(device, "operation_complete")
+            command = self.build_command(device, "get_operation_complete")
             all_done = str(self.vcw.query(resource, command)).strip()
             if all_done == "1" or all_done == "Done":
-                command = self.build_command(device, "check_all_closed_channel")
+                command = self.build_command(device, "get_check_all_closed_channel")
                 current_switching = str(self.vcw.query(device, command)).strip()
                 current_switching = self.pick_switch_response(device, current_switching)
                 self.settings["settings"]["current_switching"][device["Device_name"]] = current_switching
 
                 command_diff = list(set(configs).difference(set(current_switching)))
                 if len(command_diff) != 0:  #Checks if all the right channels are closed
-                    self.log.error("Switching to " + str(configs) + " was not possible. Difference read: " + str(current_switching))
-                    device_not_ready = False
+                    self.log.error("Switching to {}  was not possible. Difference read:{}".format(configs, current_switching))
                     return False
-                device_not_ready = False
                 return True
             if counter > 5:
                 device_not_ready = False
@@ -1516,6 +1505,7 @@ class show_cursor_position:
 
 def reset_devices(devices_dict, vcw):
     """Reset all devices."""
+    l.critical("You are using a depricated reset devices function please remove it from your code")
     for device in devices_dict:
         # Looks if a Visa resource is assigned to the device.
         if "Visa_Resource" in devices_dict[device]:
