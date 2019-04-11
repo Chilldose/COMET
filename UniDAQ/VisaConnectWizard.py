@@ -114,7 +114,7 @@ class VisaConnectWizard:
 
         if self.resource_names == ():
             self.log.warning("No Visa resources found!")
-            return -1
+            return False
 
         # enumerate and print all resources
         for i, j in enumerate(self.resource_names):
@@ -157,17 +157,17 @@ class VisaConnectWizard:
             if IDN == str(self.verify_ID(len(self.myInstruments)-1, command=device_IDN)).strip(): # So that the last added device will be queried
                 self.myInstruments_dict.update({IDN: device_resource})  # Adds the device ID for each instrument into the dict
                 self.log.info(str(device_resource) + " => " + IDN.strip("\n"))
-                return 1 # this means success
+                return True # this means success
 
             else:
                 self.log.error("Device IDN for " + str(self.resource_names[device]) + " does not match with IDN from input Device " + str(self.myInstruments[-1]))
                 self.log.error(str(IDN) + " != " + str(self.verify_ID(len(self.myInstruments))))
                 self.myInstruments.pop()  # removes the item from the list
-                return 0
+                return False
 
         except:
             self.log.error("Attempt to connect to device: " + str(self.resource_names[device]) + " failed.")
-            return 0
+            return False
 
 
     #Connects to a instrument or all instruments available in the network
@@ -264,7 +264,7 @@ class VisaConnectWizard:
                     return self.myInstruments[number].query(str(command))
                 except:
                     self.no_response(self.myInstruments[number])
-                    return -1
+                    return False
 
     #@run_with_lock # So only one talker and listener can be there
     def query(self, resource_dict, code, reconnect = True):
@@ -276,10 +276,10 @@ class VisaConnectWizard:
         except KeyError:
             self.log.error("Could not access Visa Resource for device: " + str(resource_dict["Device_name"] +
                        ". This usually happens when the device is not connected."))
-            return -1
+            return False
         except Exception as e:
             self.log.exception("An unknown error occured while accessing a Visa resource with error {}".format(e))
-            return -1
+            return False
 
 
         try:
@@ -299,14 +299,14 @@ class VisaConnectWizard:
                 if "GPIB" not in str(resource): # For all other devices
                     self.write(resource, "\r\n") # tries to reset it this way
                 query = self.query(resource_dict["Visa_Resource"], code, reconnect=False)
-                if query != -1:
+                if query:
                     self.log.info("Query command: {} to: {} was answered with: {}".format(code, resource_dict["Device_name"], query))
                     return query
                 else:
                     self.log.warning("Attempt to reconnect to device was not successful...")
-                    return -1
+                    return False
             else:
-                return -1 # if no response a -1 will be returned
+                return False # if no response a -1 will be returned
 
     #Writes a value to the resource
     def write(self, resource_dict, code):
@@ -317,10 +317,10 @@ class VisaConnectWizard:
                 resource = resource_dict["Visa_Resource"]
             except KeyError:
                 self.log.error("A key error occured in dict " + str(resource_dict["Device_name"] + ". This usually happens when the device is not connected."))
-                return -1
+                return False
             except Exception as e:
                 self.log.error("An unknown error occured while accessing a Visa resource " + str(e))
-                return -1
+                return False
         else:
             resource = resource_dict
 
@@ -336,14 +336,14 @@ class VisaConnectWizard:
                 self.log.info("Write command: " + str(full_command) + " to: " + str(resource))
                 return 0
         except:
-            return -1
+            return False
 
     #Reads a value from the resource
     def read(self, resource):
         try:
             return resource.read()
         except:
-            return -1
+            return False
 
     #Closes the connection to all active resources and closes the visa resource manager
     def close_connections(self, inst = -1):

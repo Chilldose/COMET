@@ -955,7 +955,7 @@ class Main_window:
                 try:
                     command = build_command(device_dict, ("set_environement_control", "ON"))
                     answer = self.variables.vcw.write(device_dict, command)
-                    if answer == -1:
+                    if not answer:
                         self.log.error("The environement controller did not responsed accordingly. Answer: " +str(answer).strip())
                         return 0
                 except:
@@ -969,7 +969,7 @@ class Main_window:
                 try:
                     command = build_command(device_dict, ("set_environement_control", "OFF"))
                     answer = self.variables.vcw.write(device_dict, command)
-                    if answer == -1:
+                    if not answer:
                         self.log.error("The environement controller did not responsed accordingly. Answer: " + str(answer).strip())
 
                         return 0
