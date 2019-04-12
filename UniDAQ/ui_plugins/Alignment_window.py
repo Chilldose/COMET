@@ -13,10 +13,11 @@ from PyQt5.QtWidgets import *
 from random import randint
 from time import sleep
 import re
-from ..utilities import raise_exception, transformation
+from ..utilities import transformation
+from .Table_widget import Table_widget
 
 
-class Alignment_window:
+class Alignment_window(Table_widget):
 
     def __init__(self, GUI, layout):
 
@@ -46,9 +47,10 @@ class Alignment_window:
         # Settings tab
         alignment_widget = QWidget()
         self.alignment = self.variables.load_QtUi_file("Alignment.ui", alignment_widget)
-        self.table_move_ui = self.alignment # this is for the table control so it can be a copy from the other ui
+        #self.table_move_ui = self.alignment # this is for the table control so it can be a copy from the other ui
         self.layout.addWidget(alignment_widget)
-        self.table_move = self.table_move()
+        #self.table_move = self.table_move()
+
 
         # Asign the buttons
         self.alignment.ref_1.valueChanged.connect(self.spin_box_action_1)
@@ -60,6 +62,8 @@ class Alignment_window:
         self.alignment.move_to_strip_button.clicked.connect(self.move_to_strip_action)
 
         self.variables.add_update_function(self.current_strip_lcd)
+
+        super(Alignment_window, self).__init__(self.alignment)
 
         # Find pad data in the additional files and parse them
         self.pad_files = self.variables.framework_variables["Configs"]["additional_files"].get("Pad_files",{})
@@ -103,7 +107,6 @@ class Alignment_window:
         if current_lcd_value != current_strip:
             self.alignment.current_strip_lcdNumber.display(current_strip)
 
-
     def move_to_strip_action(self):
         '''This is the action when the move to strip button is pressed'''
         if not self.variables.default_values_dict["settings"]["table_is_moving"]:
@@ -146,7 +149,7 @@ class Alignment_window:
             msg.exec_()
             return
 
-        if not self.variables.table.table_ready and not True:
+        if not self.variables.table.table_ready:
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)
             msg.setText("It seems that no table is connected to this machine...")
@@ -444,189 +447,3 @@ class Alignment_window:
         self.alignment.second_co_label.setText("Second alignment coord: " + str(self.secon_ref))
         self.alignment.third_co_label.setText("Third alignment coord: " + str(self.third_ref))
         self.alignment.check_co_label.setText("Check alignment coord: " + str(self.sensor_pad_file["data"][self.check_strip]))
-
-
-    def table_move(self):
-        # Table control
-
-        def table_move_indi():
-            '''This function updates the table indicator'''
-            if self.variables.default_values_dict["settings"]["table_is_moving"]:
-                self.table_move_ui.table_ind.setStyleSheet("background : rgb(255,0,0); border-radius: 25px;border: 1px solid black;border-radius: 5px")
-            else:
-                self.table_move_ui.table_ind.setStyleSheet("background : grey; border-radius: 25px;border: 1px solid black;border-radius: 5px")
-
-
-        def adjust_table_speed(kwargs = None): # must be here because of reasons
-            '''This function adjusts the speed of the table'''
-            speed = int(float(self.variables.devices_dict["Table_control"]["default_joy_speed"])/100. * float(self.table_move_ui.Table_speed.value()))
-            self.variables.table.set_joystick_speed(float(speed))
-
-        if "Table_control" in self.variables.devices_dict:
-            self.table_move_ui.x_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_xmin"]))
-            self.table_move_ui.x_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_xmax"]))
-
-            self.table_move_ui.y_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_ymin"]))
-            self.table_move_ui.y_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_ymax"]))
-
-            self.table_move_ui.z_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_zmin"]))
-            self.table_move_ui.z_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_zmax"]))
-
-            if "current_speed" in self.variables.devices_dict["Table_control"]:
-                speed = int(float(self.variables.devices_dict["Table_control"]["current_speed"]) / float(self.variables.devices_dict["Table_control"]["default_speed"])* 100)
-                self.table_move_ui.Table_speed.setValue(speed)
-                #adjust_table_speed()
-            else:
-                self.table_move_ui.Table_speed.setValue(100)
-                self.variables.devices_dict["Table_control"].update({"current_speed" : float(self.variables.devices_dict["Table_control"]["default_speed"])})
-                #adjust_table_speed()
-
-        else:
-            self.table_move_ui.x_move.setMinimum(float(0))
-            self.table_move_ui.x_move.setMaximum(float(0))
-
-            self.table_move_ui.y_move.setMinimum(float(0))
-            self.table_move_ui.y_move.setMaximum(float(0))
-
-            self.table_move_ui.z_move.setMinimum(float(0))
-            self.table_move_ui.z_move.setMaximum(float(0))
-
-            self.table_move_ui.Table_speed.setValue(10)
-
-
-        def adjust_x_pos():
-            '''This function adjusts the xpos of the table'''
-            pos = self.variables.table.get_current_position()
-            self.variables.table.set_joystick(False)
-            self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
-            xpos = self.table_move_ui.x_move.value()
-            error = self.variables.table.move_to([xpos, pos[1], pos[2]], True, self.variables.default_values_dict["settings"]["height_movement"])
-            #if error:
-                #self.variables.message_to_main.put(error)
-            self.variables.table.set_joystick(True)
-            self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
-
-
-        def adjust_y_pos():
-            '''This function adjusts the xpos of the table'''
-            pos = self.variables.table.get_current_position()
-            self.variables.table.set_joystick(False)
-            self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
-            ypos = self.table_move_ui.y_move.value()
-            error = self.variables.table.move_to([pos[0], ypos, pos[2]], self.variables.default_values_dict["settings"]["height_movement"])
-            #if error:
-                #self.variables.message_to_main.put(error)
-            self.variables.table.set_joystick(True)
-            self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
-
-        def adjust_z_pos():
-            '''This function adjusts the xpos of the table'''
-            pos = self.variables.table.get_current_position()
-            self.variables.table.set_joystick(False)
-            self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
-            zpos = self.table_move_ui.z_move.value()
-            error = self.variables.table.move_to([pos[0], pos[1], zpos], self.variables.default_values_dict["settings"]["height_movement"])
-            #if error:
-               # self.variables.message_to_main.put(error)
-            self.variables.table.set_joystick(True)
-            self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
-
-        def enable_table_control(bool):
-            '''This function enables the table and the joystick frame'''
-            if bool:
-                #This will be called, when the table control is enabled
-                reply = QMessageBox.question(None, 'Warning', "Are you sure move the table? \n Warning: If measurement is running table movement ist not possible", QMessageBox.Yes, QMessageBox.No)
-                if reply == QMessageBox.Yes and not self.variables.default_values_dict["settings"]["Measurement_running"]:
-                    self.table_move_ui.frame_12.setEnabled(bool)
-                    if self.table_move_ui.z_move.isEnabled():
-                        self.table_move_ui.z_move.setEnabled(False)
-                        self.table_move_ui.unlock_Z.toggle()
-                    pos = self.variables.table.get_current_position()
-                    if pos:
-                        self.previous_xloc = pos[0]
-                        self.previous_yloc = pos[1]
-                        self.previous_zloc = pos[2]
-
-                    else:
-                        msg = QMessageBox()
-                        msg.setIcon(QMessageBox.Information)
-                        msg.setText(
-                            "There seems to be a bad error with the table. Is it connected to the PC?")
-                        # msg.setInformativeText("This is additional information")
-                        msg.setWindowTitle("Really bad error occured.")
-                        # msg.setDetailedText("The details are as follows:")
-                        msg.exec_()
-                        self.table_move_ui.frame_12.setDisabled(True)
-                        self.table_move_ui.Enable_table.setChecked(False)
-                        self.variables.table.set_joystick(False)
-                        self.variables.default_values_dict["settings"]["zlock"] = True
-                        self.variables.default_values_dict["settings"]["joystick"] = False
-                        self.table_move_ui.unlock_Z.setChecked(False)
-                        self.variables.table.set_axis([True, True, True])  # This is necessary so all axis can be adresses while move
-                        return
-
-
-                    self.variables.table.set_joystick(True)
-                    self.variables.default_values_dict["settings"]["joystick"] = True
-                    adjust_table_speed()
-                    self.variables.table.set_axis([True, True, False]) # This is necessary so by default the joystick can adresses xy axis
-
-
-                else:
-                    self.table_move_ui.frame_12.setDisabled(bool)
-                    self.table_move_ui.Enable_table.setChecked(False)
-                    self.variables.table.set_joystick(False)
-                    self.variables.default_values_dict["settings"]["zlock"] = True
-                    self.variables.default_values_dict["settings"]["joystick"] = False
-                    self.table_move_ui.unlock_Z.setChecked(False)
-                    self.variables.table.set_axis([True, True, True]) # This is necessary so all axis can be adresses while move
-            else:
-                # This will be done when the table control will be dissabled
-                self.table_move_ui.frame_12.setEnabled(bool)
-                self.variables.table.set_joystick(False)
-                self.variables.table.set_axis([True, True, True])
-
-        def move_previous():
-            '''This function moves the table back to the previous position'''
-            self.variables.table.set_joystick(False)
-            self.variables.table.set_axis([True, True, True]) # so all axis can be adressed
-            success = self.variables.table.move_to([self.previous_xloc, self.previous_yloc, self.previous_zloc], True, self.variables.default_values_dict["settings"]["height_movement"])
-
-            self.variables.table.set_axis([True, True, False])  # so z axis is off again
-            self.variables.table.set_joystick(True)
-
-        def z_pos_warning():
-            if self.variables.default_values_dict["settings"]["zlock"]:
-                move_z = QMessageBox.question(None, 'Warning',"Moving the table in Z, can cause serious demage on the setup and sensor.", QMessageBox.Ok)
-                if move_z:
-                    self.variables.table.set_axis([True, True, True])
-                    self.table_move_ui.unlock_Z.setChecked(True)
-                    self.variables.default_values_dict["settings"]["zlock"] = False
-                else:
-                    self.table_move_ui.unlock_Z.setChecked(False)
-            else:
-                self.variables.table.set_axis([True, True, False])
-                self.variables.default_values_dict["settings"]["zlock"] = True
-                self.table_move_ui.unlock_Z.setChecked(False)
-
-
-        self.table_move_ui.x_move.sliderReleased.connect(adjust_x_pos)
-        self.table_move_ui.y_move.sliderReleased.connect(adjust_y_pos)
-        self.table_move_ui.z_move.sliderReleased.connect(adjust_z_pos)
-        self.table_move_ui.got_to_previous.clicked.connect(move_previous)
-        self.table_move_ui.Table_speed.valueChanged.connect(adjust_table_speed)
-        self.table_move_ui.unlock_Z.clicked.connect(z_pos_warning)
-
-        self.table_move_ui.Enable_table.clicked['bool'].connect(enable_table_control)
-
-        self.variables.add_update_function(table_move_indi)
-
-
-        # Update and control functions of the table control
-
-        def table_move_update():
-            '''Here all functions concerning the table move update are handled'''
-            pos = self.variables.table.get_current_position()
-            self.table_move_ui.x_move.setProperty("value", int(pos[0]))
-            self.table_move_ui.y_move.setProperty("value", int(pos[1]))
-            self.table_move_ui.z_move.setProperty("value", int(pos[2]))

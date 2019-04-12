@@ -7,7 +7,10 @@ class Table_widget(object):
 
     def __init__(self, gui):
         """Configures the table widget"""
-        super(Table_widget, self).__init__(gui)
+        try:
+            super(Table_widget, self).__init__(gui)
+        except:
+            super(Table_widget, self).__init__()
         self.gui = gui
         self.Tablog = logging.getLogger(__name__)
         self.gui.table_frame.setDisabled(True)
@@ -54,7 +57,6 @@ class Table_widget(object):
             self.gui.table_ind.setStyleSheet("background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
         else:
             self.gui.table_ind.setStyleSheet("background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
-        pass
 
 
     def adjust_table_speed(self): # must be here because of reasons

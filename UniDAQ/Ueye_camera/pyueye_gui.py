@@ -30,8 +30,8 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #------------------------------------------------------------------------------
 
-from PyQt4 import QtCore
-from PyQt4 import QtGui
+from PyQt5 import QtCore
+from PyQt5 import QtGui
 #from PyQt5.QtWidgets import QGraphicsScene, QApplication
 #from PyQt5.QtWidgets import QGraphicsView
 #from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QSlider, QWidget

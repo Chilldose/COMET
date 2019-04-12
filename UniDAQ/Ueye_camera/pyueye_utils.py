@@ -32,7 +32,6 @@
 
 from pyueye import ueye
 from threading import Thread
-from ctypes import byref
 
 def get_bits_per_pixel(color_mode):
     """
