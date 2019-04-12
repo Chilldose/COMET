@@ -173,13 +173,12 @@ class Alignment_window:
         if step > 5 or not self.alignment_started:
             self.what_to_do_text(-1) # Resets the text
             if self.variables.default_values_dict["settings"]["Alignment"]:
-                error = self.variables.table.move_to_strip(self.sensor_pad_file, 0,
+                success = self.variables.table.move_to_strip(self.sensor_pad_file, self.reference_pads[0],
                                                            self.trans,
                                                            self.transformation_matrix, self.V0,
                                                            self.variables.default_values_dict["settings"]["height_movement"])
-                if error:
-                    #self.variables.message_to_main.put(error)
-                    self.error_action(error)
+                if not success:
+                    self.error_action(success)
                     return
             self.alignment_started = False
 
@@ -191,7 +190,6 @@ class Alignment_window:
         if step == 5:
             self.alignment_started = False
 
-    @raise_exception
     def set_checkboxes(self, list):
         '''This function sets the checkboxes for the checklist'''
         for i, state in enumerate(list):
@@ -240,10 +238,9 @@ class Alignment_window:
             relative_movepos = [x1 - x2 for (x1, x2) in zip(sensor_second_pos, sensor_first_pos)]
             #No add the strip length to the y axis for aliognement reasons
             #relative_movepos[1] = relative_movepos[1] + self.sensor_pad_file["strip_length"]
-            error = self.variables.table.relative_move_to(relative_movepos, True, self.variables.default_values_dict["settings"]["height_movement"])
-            if error:
-                #self.variables.message_to_main.put(error)
-                self.error_action(error)
+            success = self.variables.table.relative_move_to(relative_movepos, True, self.variables.default_values_dict["settings"]["height_movement"])
+            if not success:
+                self.error_action(success)
                 return
             self.variables.table.set_axis([True, True, False])
             self.variables.table.set_joystick(True)
@@ -258,10 +255,9 @@ class Alignment_window:
             sensor_first_pos = self.reference_pads_positions[1]  # this gives me absolute positions
             sensor_second_pos = self.reference_pads_positions[2]  # this gives me absolute positions
             relative_movepos = [x1 - x2 for (x1, x2) in zip(sensor_second_pos, sensor_first_pos)]
-            error = self.variables.table.relative_move_to(relative_movepos, True,self.variables.default_values_dict["settings"]["height_movement"])
-            if error:
-                #self.variables.message_to_main.put(error)
-                self.error_action(error)
+            success = self.variables.table.relative_move_to(relative_movepos, True,self.variables.default_values_dict["settings"]["height_movement"])
+            if not success:
+                self.error_action(success)
                 return
             self.variables.table.set_axis([True, True, False])
             self.variables.table.set_joystick(True)
@@ -281,21 +277,18 @@ class Alignment_window:
             sensorz = self.reference_pads_positions[2]
             T, V0 = self.trans.transformation_matrix(sensorx, sensory, sensorz, self.first_pos, self.second_pos, self.third_pos)
             if type(T) == type(int):
-                self.variables.message_to_main.put(
-                    {"RequestError": "There was an error while doing the transformation, please check error log."})
+                self.log.error("There was an error while doing the transformation, please check error log.")
                 self.error_action("There was an error while doing the transformation, please check error log.")
                 return
 
             self.transformation_matrix = T
             self.V0 = V0
             relative_check_pos = self.sensor_pad_file["data"][self.check_strip]
-
             table_abs_pos = self.trans.vector_trans(relative_check_pos, T, V0)
 
-            error = self.variables.table.move_to(list(table_abs_pos), True, self.variables.default_values_dict["settings"]["height_movement"])
-            if error:
-                #self.variables.message_to_main.put(error)
-                self.error_action(error)
+            success = self.variables.table.move_to(list(table_abs_pos), True, self.variables.default_values_dict["settings"]["height_movement"])
+            if not success:
+                self.error_action(success)
                 return
 
 
@@ -326,13 +319,6 @@ class Alignment_window:
     def error_action(self, error):
         '''Aborts the alignement proceedure, without question'''
         if self.alignment_started:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setText("An error occured while moving the table \n \n"
-                        "Error: "+ str(error))
-            msg.setWindowTitle("Really bad error occured")
-            msg.exec_()
-
             # Update the GUI
             self.alignment_started = False
             self.next_step_action(-1)
@@ -377,7 +363,7 @@ class Alignment_window:
             self.alignment.what_to_do_text.setText("The alignment proceedure is now finished. \n \n"
                                          "If you are interested: The transformation matrix is: " + str(self.transformation_matrix) + "."
                                                     "\n \n "
-                                        "Another hit on the 'Next button' will move the table to the first strip")
+                                        "Another hit on the 'Next button' will move the table to the first reference strip")
 
     def adjust_alignment_points(self, adjust_point = 2, axis = 2, variable="implant_length"):
         '''This function adjusts the position of the alignment points so that a 3D alignment is possible'''
@@ -471,7 +457,6 @@ class Alignment_window:
                 self.table_move_ui.table_ind.setStyleSheet("background : grey; border-radius: 25px;border: 1px solid black;border-radius: 5px")
 
 
-        @raise_exception
         def adjust_table_speed(kwargs = None): # must be here because of reasons
             '''This function adjusts the speed of the table'''
             speed = int(float(self.variables.devices_dict["Table_control"]["default_joy_speed"])/100. * float(self.table_move_ui.Table_speed.value()))
@@ -546,7 +531,6 @@ class Alignment_window:
             self.variables.table.set_joystick(True)
             self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
-        @raise_exception
         def enable_table_control(bool):
             '''This function enables the table and the joystick frame'''
             if bool:
@@ -606,9 +590,8 @@ class Alignment_window:
             '''This function moves the table back to the previous position'''
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True]) # so all axis can be adressed
-            errorcode = self.variables.table.move_to([self.previous_xloc, self.previous_yloc, self.previous_zloc], True, self.variables.default_values_dict["settings"]["height_movement"])
-            #if errorcode:
-                #self.variables.message_to_main.put(errorcode)
+            success = self.variables.table.move_to([self.previous_xloc, self.previous_yloc, self.previous_zloc], True, self.variables.default_values_dict["settings"]["height_movement"])
+
             self.variables.table.set_axis([True, True, False])  # so z axis is off again
             self.variables.table.set_joystick(True)
 
@@ -638,8 +621,6 @@ class Alignment_window:
 
         self.variables.add_update_function(table_move_indi)
 
-        #self.adjust_table_speed()
-
 
         # Update and control functions of the table control
 
@@ -649,6 +630,3 @@ class Alignment_window:
             self.table_move_ui.x_move.setProperty("value", int(pos[0]))
             self.table_move_ui.y_move.setProperty("value", int(pos[1]))
             self.table_move_ui.z_move.setProperty("value", int(pos[2]))
-
-        # Not sure if this function should be called all the time
-        #self.variables.add_update_function(table_move_update)

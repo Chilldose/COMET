@@ -1053,7 +1053,7 @@ class table_control_class:
         :return: True if at strip
         '''
         pos = self.get_current_position()  # table position
-        pad_pos = [float(x) for x in pad_file["data"][strip]]  # where it should be in sensor system
+        pad_pos = [float(x) for x in pad_file["data"][str(strip)]]  # where it should be in sensor system
         table_pos = transfomation_class.vector_trans(pad_pos, T, V0)  # Transforms the vektor to the right basis
         deltapos = [abs(x1 - x2) for (x1, x2) in zip(pos, table_pos)]
 
