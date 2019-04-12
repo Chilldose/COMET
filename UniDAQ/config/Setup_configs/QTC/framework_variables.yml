@@ -42,7 +42,7 @@
   IVCV_refinement: [True, 0, -50, 2] # do_refinement, min, max, step
   CintAC_measure: [False, 1, 1, 200]
   Table_stay_down: False
-  height_movement: 300 # height movement of the table when moving the table
+  height_movement: 800 # height movement of the table when moving the table in um
   table_ready: False
   bias_voltage: 0
   current_switching: {}

@@ -457,13 +457,23 @@ def change_axis_ticks( plot, stylesheet=None):
         plot.getAxis("right").tickFont = font
         plot.getAxis("left").tickFont = font
 
-def build_command(device, command_tuple):
-    """Builds the command which needs to be send to a device correctly"""
+def build_command(device, command_tuple, single_commands = False):
+    """Builds the command which needs to be send to a device correctly
+    single_commands = True means if a list is passed the return is also a list with command value pairs"""
     if isinstance(command_tuple, (str)):
         command_tuple = (command_tuple,"") # make da dummy command
+
     if command_tuple[0] in device:
         if isinstance(command_tuple[1], (str, float, int)):
             return device[command_tuple[0]].format(command_tuple[1])
+
+        elif single_commands:
+            if isinstance(command_tuple[1], list) or isinstance(command_tuple[1], tuple) :
+                return [device[command_tuple[0]].format(single) for single in command_tuple[1]]
+            else:
+                l.log.error("In order to build a list command, a list has to be passed!")
+                return None
+
         elif isinstance(command_tuple[1], list) or isinstance(command_tuple[1], tuple):
             # Find occurance of {} in string if list is as long as occurance of {} then just pass otherwise join a string
             brackets_count = device[command_tuple[0]].count("{}")
@@ -910,11 +920,13 @@ class table_control_class:
         self.vcw = vcw
         self.build_command = build_command
         self.log = logging.getLogger("Table_control")
+        self.pos_pattern = re.compile(r"(-?\d+.\d+)\s+(-?\d+.\d+)\s+(-?\d+.\d+)")
 
         if "Table_control" in self.devices:
             if "Visa_Resource" in self.devices["Table_control"]:
                 self.visa_resource = self.devices["Table_control"]["Visa_Resource"]
                 self.table_ready = True
+                self.variables["table_ready"] = True
                 self.zmove = self.variables["height_movement"]
             else:
                 self.table_ready = False
@@ -930,12 +942,12 @@ class table_control_class:
                 try:
                     string = "Error"
                     command = self.build_command(self.device, "get_position")
-                    string = self.vcw.query(self.visa_resource, command).strip()
-                    list = re.split('\s+', string)[:3]
-                    self.device["x_pos"] = float(list[0])
-                    self.device["y_pos"] = float(list[1])
-                    self.device["z_pos"] = float(list[2])
-                    return [float(i) for i in list]
+                    string = self.vcw.query(self.device, command).strip()
+                    pos = self.pos_pattern.findall(string)[0]
+                    self.device["x_pos"] = float(pos[0])
+                    self.device["y_pos"] = float(pos[1])
+                    self.device["z_pos"] = float(pos[2])
+                    return [float(i) for i in pos]
                 except:
                     self.log.error("The corvus has replied with a non valid position string: " + str(string))
                     max_attempts += 1
@@ -948,46 +960,40 @@ class table_control_class:
         :return: 0 if ok error if not
         '''
         # Alot of time can be wasted by the timeout of the visa read order
-        ready_command = self.build_command(self.device, "all_done")
+        ready_command = self.build_command(self.device, "get_all_done")
         counter = 0 # counter how often the read attempt will be carried out
         cal_not_done = True
-        self.vcw.write(self.visa_resource, ready_command)
+        self.vcw.write(self.device, ready_command)
         while cal_not_done:
-            done = self.vcw.read(self.visa_resource)
+            done = self.vcw.read(self.device)
+            if done:
+                done = float(done.strip())
 
             if maxcounter != -1:
                 counter += 1
                 if counter > maxcounter:
                     cal_not_done = False #exits the loop after some attempts
 
-            if float(done) == -1.: # case when corvus is busy and does not respond to anything
-                pass
+            elif done == 1.: # motors are in movement
+                self.vcw.write(self.device, ready_command) # writes the command again
 
-            elif float(done) == 1.: # motors are in movement
-                self.vcw.write(self.visa_resource, ready_command) # writes the command again
-
-            elif float(done) == 2.: # joystick active
-                cal_not_done = False
+            elif done == 2.: # joystick active
                 self.log.error("Joystick of table control is active.")
-                return -1
+                return False
 
-            elif float(done) == 4.: # joystick active
-                cal_not_done = False
+            elif done == 4.: # joystick active
                 self.log.error("Table control is not switched on.")
-                return -1
+                return False
 
-            elif float(done) > 4.: # joystick active
-                cal_not_done = False
+            elif done > 4.: # joystick active
                 self.log.error("The table control reported an unknown error, with errorcode: " + str(done))
-                return -1
+                return False
 
-            elif float(done) == 0.: # when corvus is read again
+            elif done == 0.: # when corvus is read again
                 self.get_current_position()
-                cal_not_done = False
-                return 0
+                return True
 
             QApplication.processEvents() # Updates the GUI, maybe after some iterations
-
             sleep(timeout)
 
     def initiate_table(self):
@@ -1000,9 +1006,9 @@ class table_control_class:
             self.variables["table_is_moving"] = True
             commands = self.build_command(self.device, ("calibrate_motor", ""))
             for order in commands:
-                self.vcw.write(self.visa_resource, order)
-                errorcode = self.check_if_ready()
-                if errorcode == 0:
+                self.vcw.write(self.device, order)
+                success = self.check_if_ready()
+                if success:
                         pos = self.get_current_position()
                         if commands[0] == order:
                             self.device["table_xmin"] = float(pos[0])
@@ -1013,27 +1019,27 @@ class table_control_class:
                             self.device["table_ymax"] = float(pos[1])
                             self.device["table_zmax"] = float(pos[2])
                 else:
-                    return errorcode
+                    return success
             self.variables["table_is_moving"] = False
-            return 0
+            return True
         else:
             self.log.error("An error occured while trying to initiate the table. This can happen if either no "
                            "Table is connected to the setup OR the table is currently moving.")
-            return -1
+            return False
 
     def check_position(self, desired_pos):
         '''
         This function checks if two positions are equal or not
 
         :param desired_pos: The position it should be
-        :return: 0 if ok error if not
+        :return: True if ok
         '''
         new_pos = self.get_current_position()
         for i, pos in enumerate(new_pos):
             if abs(float(pos) - float(desired_pos[i])) > 0.5: # up to a half micrometer
                 self.log.error("Table movement failed. Position: " + str(new_pos) + " is not equal to desired position: " + str(desired_pos))
-                return -1
-        return 0
+                return False
+        return True
 
     def __already_there(self, pad_file, strip, transfomation_class, T, V0):
         '''
@@ -1066,19 +1072,18 @@ class table_control_class:
         :return: None or errorcode
         '''
 
-        error = None
         if transformation != []:
             if not self.__already_there(pad_file, strip, transfomation_class, T, V0):
                 pad_pos = pad_file["data"][strip]
                 self.log.info("Moving to strip: {} at position {},{},{}.".format(strip, pad_pos[0], pad_pos[1], pad_pos[2]))
                 table_abs_pos = list(transfomation_class.vector_trans(pad_pos, T, V0))
-                error = self.move_to(table_abs_pos, move_down=True, lifting = height_movement)
+                success = self.move_to(table_abs_pos, move_down=True, lifting = height_movement)
 
             self.variables["current_strip"] = strip
-            return error
+            return success
         else:
             self.log.error("No Transformation Matrix found! Is the alignment done?")
-            return -1
+            return False
 
 
     def relative_move_to(self, position, move_down = True, lifting = 800):
@@ -1088,8 +1093,8 @@ class table_control_class:
 
         :return: none or error code
         '''
-        error = self.move_to(position, move_down, lifting, True)
-        return error
+        success = self.move_to(position, move_down, lifting, True)
+        return success
 
 
     def move_to(self, position, move_down = True, lifting  = 800, relative_move = False):
@@ -1107,57 +1112,49 @@ class table_control_class:
 
             #Move the table down if necessary
             if move_down:
-                error = self.move_down(lifting)
+                success = self.move_down(lifting)
                 if not relative_move:
                     desired_pos[2] -= lifting # To counter the down movement
-                if error != 0:
-                    return error
+                if not success:
+                    return False
 
             # Change the state of the table
             self.variables["table_is_moving"] = True
-            #pos_string = ""
-
-            # Build the position to move to
-            #for i, pos in enumerate(position): # This is that the table is in the down position when moved
-            #    if move_down and i==2 and not relative_move:
-            #        pos_string += str(float(pos)-float(lifting)) + " "
-            #    else:
-            #        pos_string += str(pos) + " "
 
             # Move the table to the position
             if relative_move:
                 move_command = self.build_command(self.device, ("set_relative_move_to", desired_pos))
             else:
                 move_command = self.build_command(self.device, ("set_move_to", desired_pos))
-            self.vcw.write(self.visa_resource, move_command)
-            error = self.check_if_ready()
-            if error != 0:
-                return error
+            self.vcw.write(self.device, move_command)
+            success = self.check_if_ready()
+            if not success:
+                return False
 
             # State that the table is not moving anymore
             self.variables["table_is_moving"] = False
 
             # Move the table back up again
             if move_down:
-                error = self.move_up(lifting)
-                if error != 0:
-                    return error
+                success = self.move_up(lifting)
+                if not success:
+                    return False
 
             # Finally make sure the position is correct
             if relative_move:
-                error = self.check_position([sum(x) for x in zip(old_pos, position)])
+                success = self.check_position([sum(x) for x in zip(old_pos, position)])
             else:
-                error = self.check_position(position)
-            if error != 0:
-                return error
+                success = self.check_position(position)
+            if not success:
+                return False
 
             self.variables["table_is_moving"] = False
             self.log.info("Successfully moved table to {!s}".format(position))
-            return 0
+            return True
         else:
             self.log.error("Table could not be moved due to an error. This usually happens if no table is connected to"
                            " the setup OR the table is currently moving.")
-            return -1
+            return False
 
     def move_up(self, lifting):
         '''
@@ -1168,11 +1165,11 @@ class table_control_class:
         '''
         self.log.info("Moving table up by {!s} microns".format(lifting))
         if not self.variables["Table_state"]:
-            errorcode = self.move_to([0,0,lifting], False, 0, True)
-            if not errorcode:
-                self.variables["Table_state"] = True
-            return errorcode
-        return 0
+            success = self.move_to([0,0,lifting], False, 0, True)
+            if success:
+                self.variables["Table_state"] = True # true means up
+            return success
+        return True
 
     def move_down(self, lifting):
         '''
@@ -1183,13 +1180,12 @@ class table_control_class:
         '''
         self.log.info("Moving table down by {!s} microns".format(lifting))
         if self.variables["Table_state"]:
-            errorcode = self.move_to([0,0,-lifting], False, 0, True)
-            if not errorcode:
+            success = self.move_to([0,0,-lifting], False, 0, True)
+            if success:
                 self.variables["Table_state"] = False
-            return errorcode
-        return 0
+            return success
+        return True
 
-    @raise_exception
     def set_joystick(self, bool):
         '''This enables or disables the joystick'''
         if self.table_ready:
@@ -1197,13 +1193,13 @@ class table_control_class:
                 command = self.build_command(self.device, ("set_joystick", "1"))
             else:
                 command = self.build_command(self.device, ("set_joystick", "0"))
-            self.vcw.write(self.visa_resource, command)
+            self.vcw.write(self.device, command)
 
     def set_joystick_speed(self, speed):
         '''This sets the speed for the joystick'''
         if self.table_ready:
             command = self.build_command(self.device, ("set_joy_speed", str(speed)))
-            self.vcw.write(self.visa_resource, command)
+            self.vcw.write(self.device, command)
 
     def set_axis(self, axis_list):
         '''This sets the axis on or off. axis_list must contain a list of type [x=bool, y=bool, z=bool]'''
@@ -1215,16 +1211,15 @@ class table_control_class:
                 else:
                     final_axis_list.append("0 " + str(i+1))
 
-            command = self.build_command(self.device, ("set_axis", final_axis_list))
-            for com in command:
-                self.vcw.write(self.visa_resource, com)
+            command = self.build_command(self.device, ("set_axis", final_axis_list), single_commands=True)
+            self.vcw.write(self.device, command)
 
 
     def stop_move(self):
         '''This function stops the table movement immediately'''
         if self.table_ready:
-            command = self.build_command(self.device, ("abort_movement", ""))
-            self.visa_resource.write(command)
+            command = self.build_command(self.device, "abort_movement")
+            self.vcw.write(self.device, command)
 
 class switching_control:
     """

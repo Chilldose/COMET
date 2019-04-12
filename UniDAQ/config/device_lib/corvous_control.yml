@@ -46,6 +46,7 @@
     separator: " "
     reset_device: [restore, ico, clear]
     default_speed: 10000.0
+    default_joy_speed: 10000.0
 
     reset: # Warning list values will be send seriel with the command!!! List of list will respect format string of command!!
         

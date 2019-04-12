@@ -339,9 +339,9 @@ class VisaConnectWizard:
             return False
 
     #Reads a value from the resource
-    def read(self, resource):
+    def read(self, resource_dict):
         try:
-            return resource.read()
+            return resource_dict["Visa_Resource"].read()
         except:
             return False
 
