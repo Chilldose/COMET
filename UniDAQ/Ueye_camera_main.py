@@ -1,7 +1,6 @@
 # Some functions for Ueye camera systems
 
 import logging
-
 class Ueye_main:
 
     def __init__(self):

@@ -53,7 +53,7 @@ class PyuEyeQtView(QtGui.QWidget):
 
     update_signal = QtCore.pyqtSignal(QtGui.QImage, name="update_signal")
 
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, external_QGrahicsView=None):
         super(self.__class__, self).__init__(parent)
 
         self.image = None
@@ -95,7 +95,6 @@ class PyuEyeQtView(QtGui.QWidget):
 
     def handle(self, image_data):
         self.image = self.user_callback(self, image_data)
-        
         self.update_signal.emit(self.image)
 
         # unlock the buffer so we can use it again
