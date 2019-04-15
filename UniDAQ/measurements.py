@@ -190,15 +190,15 @@ class measurement_class(Thread):
                 if (self.main.humidity_history[-1] < min or self.main.humidity_history[-1] > max): # If something is wrong
                     self.queue_to_main.put({"Info":"The humidity levels not reached. Wait until state is reached. Waiting time: " + str(self.env_waiting_time)})
                     wait_for_env = True
-                    start_time = time.time()
+                    start_time = time()
                     while wait_for_env:
                         if not self.main.stop_measurement:
-                            sleep(3)
+                            sleep(1)
                             if (self.main.humidity_history[-1] > min and self.main.humidity_history[-1] < max):
                                 self.queue_to_main.put({"Info": "Humidity levels reached, proceeding with measurement..." })
                                 wait_for_env = False
                             else:
-                                diff = abs(start_time - time.time())
+                                diff = abs(start_time - time())
                                 if diff > self.env_waiting_time:
                                     self.queue_to_main.put({"FatalError":"The humidity levels could not be reached. Aborting program"})
                                     return False
@@ -255,7 +255,7 @@ class measurement_class(Thread):
                                        " the measurement: {} with error: {}".format(measurement, err))
                 # Here the actual measurement starts -------------------------------------------------------------------
 
-    def steady_state_check(self, device, max_slope = 0.001, wait = 0.2, samples = 4, Rsq = 0.95, complience = 50e-6, do_anyway = False, check_complience=True): # Not yet implemented
+    def steady_state_check(self, device, command="get_read", max_slope = 0.001, wait = 0.2, samples = 4, Rsq = 0.95, complience = 50e-6, do_anyway = False, check_complience=True): # Not yet implemented
         '''This functions waits dynamically until the sensor has reached an equilibrium after changing the bias voltage'''
         # TODO: I have the feeling that this function is not exactly dooing what she is supposed to do, check!
         steady_state = False
@@ -276,7 +276,7 @@ class measurement_class(Thread):
                     self.stop_measurement()
                     return False
 
-            command = self.build_command(device, "Read")
+            command = self.build_command(device, command)
             for i in range(samples):
                 self.log.debug("Conducting steady state check...")
                 values.append(float(str(self.vcw.query(device, command)).split(",")[0]))
@@ -414,10 +414,10 @@ class measurement_class(Thread):
         if type(order) == list:
             for com in order:
                 command = self.build_command(device_dict, (com, value))
-                answ = self.vcw.query(device_dict["Visa_Resource"], command) # writes the new order to the device
+                answ = self.vcw.query(device_dict, command) # writes the new order to the device
         else:
             command = self.build_command(device_dict, (order, value))
-            answ = self.vcw.query(device_dict["Visa_Resource"], command)  # writes the new order to the device
+            answ = self.vcw.query(device_dict, command)  # writes the new order to the device
 
         answ = str(answ).strip()
         if answ == answer:
@@ -436,7 +436,7 @@ class measurement_class(Thread):
         """
 
         try:
-            self.vcw.write(device_dict["Visa_Resource"], str(command))  # writes the new order to the device
+            self.vcw.write(device_dict, str(command))  # writes the new order to the device
         except Exception as e:
             self.log.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command, device=device_dict, error=e))
 
@@ -451,7 +451,7 @@ class measurement_class(Thread):
         """
 
         try:
-            return self.vcw.query(device_dict["Visa_Resource"], str(command))  # writes the new order to the device
+            return self.vcw.query(device_dict, str(command))  # writes the new order to the device
         except Exception as e:
             self.log.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command,
                                                                                                       device=device_dict,
@@ -462,12 +462,12 @@ class measurement_class(Thread):
         if type(order) == list:
             for com in order:
                 command = self.build_command(device_dict, (com, value))
-                self.vcw.write(device_dict["Visa_Resource"], command) # writes the new order to the device
+                self.vcw.write(device_dict, command) # writes the new order to the device
         else:
             command = self.build_command(device_dict, (order, value))
-            self.vcw.write(device_dict["Visa_Resource"], command)  # writes the new order to the device
+            self.vcw.write(device_dict, command)  # writes the new order to the device
 
-    def check_complience(self, device, complience = None):
+    def check_complience(self, device, complience = None, command="get_read_iv"):
         '''This function checks if the current complience is reached'''
         try:
             if complience == None:
@@ -476,7 +476,7 @@ class measurement_class(Thread):
         except:
             self.log.error("Device " + str(device) + " has no complience set!")
 
-        command = self.build_command(device,"Read_iv")
+        command = self.build_command(device, command)
         #value = float(str(self.vcw.query(device, command)).split(",")[0]) #237SMU
         value = str(self.vcw.query(device, command)).split("\t")
         self.settings["settings"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
@@ -494,7 +494,7 @@ class measurement_class(Thread):
 
         for command in commands:
             final_string = self.build_command(device, command)
-            self.vcw.write(device["Visa_Resource"], str(final_string))  # finally writes the command to the device
+            self.vcw.write(device, str(final_string))  # finally writes the command to the device
 
     def capacitor_discharge(self, device_dict, relay_dict, termorder = None, terminal = None, do_anyway=False):
         '''This function checks if the capacitor of the decouple box is correctly discharged
@@ -531,8 +531,8 @@ class measurement_class(Thread):
             counter += 1
             voltage = []
             for i in range(3):
-                command = self.build_command(device_dict, "Read")
-                voltage.append(float(self.vcw.query(device_dict["Visa_Resource"], command)))
+                command = self.build_command(device_dict, "get_read")
+                voltage.append(float(self.vcw.query(device_dict, command)))
 
             if sum(voltage)/len(voltage) <= 0.3: # this is when we break the loop
                 self.change_value(device_dict, "set_output", "OFF")
@@ -562,7 +562,7 @@ class measurement_class(Thread):
                 self.queue_to_main.put({"FatalError": "The capacitor discharge failed more than 5 times. Discharge the capacitor manually!"})
                 # Set output to on for reading mode
                 command = self.build_command(device_dict, ("set_output", "OFF"))  # switch back to default terminal
-                self.vcw.write(device_dict["Visa_Resource"], command)  # writes the new order to the device
+                self.vcw.write(device_dict, command)  # writes the new order to the device
                 # return to default mode for this switching
                 error = self.change_value_query(relay_dict, "set_discharge", "OFF", "DONE")
                 if error:

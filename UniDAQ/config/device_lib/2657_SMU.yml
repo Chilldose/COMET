@@ -48,10 +48,10 @@
   
   
    # All get parameters
-   get_Read_voltage: print(smua.measure.v())
-   get_Read_current: print(smua.measure.i())
-   get_Read_iv: print(smua.measure.iv())
-   get_Read: print(smua.measure.iv())
+   get_read_voltage: print(smua.measure.v())
+   get_read_current: print(smua.measure.i())
+   get_read_iv: print(smua.measure.iv())
+   get_read: print(smua.measure.iv())
    get_annuciators: print(display.getannuciators())
    get_error_count: print(errorqueue.count)
    get_next_error: errorcode, message, severity = errorqueue.next() \n print(errorcode, message, severity)

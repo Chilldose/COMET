@@ -104,47 +104,45 @@ class Switching_window:
         #self.manual_override_action(False) # so nobody can change a thing
         #self.switching.Override.setChecked(False)  # so the button is in the right state
 
-    def reset_switching(self, args=None):
+    def reset_switching(self):
         for device in self.settings.devices_dict.values():
             if "Switching relay" in device["Device_type"]:
                 self.switching_control.change_switching(device, []) # Opens all closed switches
                 self.update_GUI_switching_scheme()
 
+    def apply_switching_button_action(self):
+        if not self.manual_switching:
+            if self.switching.IV_radio.isChecked():
+                self.switching_control.switch_to_measurement("IV")
 
-    @raise_exception
-    def apply_switching_button_action(self, *kwargs):
-        if self.switching.IV_radio.isChecked():
-            self.switching_control.switch_to_measurement("IV")
+            if self.switching.CV_radio.isChecked():
+                self.switching_control.switch_to_measurement("CV")
 
-        if self.switching.CV_radio.isChecked():
-            self.switching_control.switch_to_measurement("CV")
+            if self.switching.Idark_radio.isChecked():
+                self.switching_control.switch_to_measurement("Idark")
 
-        if self.switching.Idark_radio.isChecked():
-            self.switching_control.switch_to_measurement("Idark")
+            if self.switching.Istrip_radio.isChecked():
+                self.switching_control.switch_to_measurement("Istrip")
 
-        if self.switching.Istrip_radio.isChecked():
-            self.switching_control.switch_to_measurement("Istrip")
+            if self.switching.Idiel_radio.isChecked():
+                self.switching_control.switch_to_measurement("Idiel")
 
-        if self.switching.Idiel_radio.isChecked():
-            self.switching_control.switch_to_measurement("Idiel")
+            if self.switching.Rpoly_radio.isChecked():
+                self.switching_control.switch_to_measurement("Rpoly")
 
-        if self.switching.Rpoly_radio.isChecked():
-            self.switching_control.switch_to_measurement("Rpoly")
+            if self.switching.Cint_radio.isChecked():
+                self.switching_control.switch_to_measurement("Cint")
 
-        if self.switching.Cint_radio.isChecked():
-            self.switching_control.switch_to_measurement("Cint")
+            if self.switching.Rint_radio.isChecked():
+                self.switching_control.switch_to_measurement("Rint")
 
-        if self.switching.Rint_radio.isChecked():
-            self.switching_control.switch_to_measurement("Rint")
+            if self.switching.Cac_radio.isChecked():
+                self.switching_control.switch_to_measurement("Cac")
 
-        if self.switching.Cac_radio.isChecked():
-            self.switching_control.switch_to_measurement("Cac")
+            #if self.switching.Cback_radio.isChecked():
+            #    self.switching_control.switch_to_measurement("Cback")
 
-        #if self.switching.Cback_radio.isChecked():
-        #    self.switching_control.switch_to_measurement("Cback")
-
-
-        if self.manual_switching:
+        else:
             self.apply_manual_switching()
 
         self.update_GUI_switching_scheme()

@@ -266,7 +266,7 @@ class VisaConnectWizard:
                     self.no_response(self.myInstruments[number])
                     return False
 
-    #@run_with_lock # So only one talker and listener can be there
+    @run_with_lock # So only one talker and listener can be there
     def query(self, resource_dict, code, reconnect = True):
         """Makes a query to the resource (the same as first write than read)"""
         #Just check if a resource or object was passed and prepare everything
@@ -308,7 +308,7 @@ class VisaConnectWizard:
             else:
                 return False # if no response a -1 will be returned
 
-    #Writes a value to the resource
+    #@run_with_lock  # So only one talker and listener can be there
     def write(self, resource_dict, code):
         """Writes a vlaue to a resource, if a list is passed insted of a string all in the list will be send, one after another"""
 
@@ -361,15 +361,12 @@ class VisaConnectWizard:
             self.log.info("Closed connection to device " + str(inst) + ".")
 
 
-    def list_write(self, resource, commands, delay=0.5): # Writes initiate commands to the device
+    def list_write(self, resource, commands, delay=0.): # Writes initiate commands to the device
         """Writes a list of commands to the device specified. Usually you dont need this function. User the normal
         write function, if you pass a list this function will automatically be called. This way it will also work nested"""
         for command in commands:
             self.write(resource, str(command))
             sleep(delay) #A better way possible but gives the instrument its time
-
-
-
 
 
 class bcolors:
