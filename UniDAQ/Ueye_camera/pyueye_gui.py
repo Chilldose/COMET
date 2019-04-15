@@ -35,6 +35,7 @@ from PyQt5 import QtGui
 #from PyQt5.QtWidgets import QGraphicsScene, QApplication
 #from PyQt5.QtWidgets import QGraphicsView
 #from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QSlider, QWidget
+import numpy
 
 from pyueye import ueye
 
@@ -53,10 +54,10 @@ class PyuEyeQtView(QtGui.QWidget):
 
     update_signal = QtCore.pyqtSignal(QtGui.QImage, name="update_signal")
 
-    def __init__(self, parent=None, external_QGrahicsView=None):
+    def __init__(self, parent=None):
         super(self.__class__, self).__init__(parent)
 
-        self.image = None
+        self.image = numpy.array([])
 
         self.graphics_view = QtGui.QGraphicsView(self)
         self.v_layout = QtGui.QVBoxLayout(self)
@@ -83,19 +84,24 @@ class PyuEyeQtView(QtGui.QWidget):
         pass # print(value)
         
     def draw_background(self, painter, rect):
-        if self.image:
-            image = self.image.scaled(rect.width(), rect.height(), QtCore.Qt.KeepAspectRatio)
-            painter.drawImage(rect.x(), rect.y(), image)
+        if self.image.any():
+            img = QtGui.QImage(self.image, self.image.shape[1], self.image.shape[0], self.image.strides[0],
+                               QtGui.QImage.Format_RGB888)
+            img = img.scaled(rect.width(), rect.height(), QtCore.Qt.KeepAspectRatio)
+            painter.drawImage(rect.x(), rect.y(), img)
 
-    def update_image(self, image):
+    def update_image(self):
         self.scene.update()
 
     def user_callback(self, image_data):
-        return image_data.as_cv_image()
+        #return image_data.as_cv_image()
+        return image_data.as_1d_image()
+
 
     def handle(self, image_data):
-        self.image = self.user_callback(self, image_data)
-        self.update_signal.emit(self.image)
+        self.image = self.user_callback(image_data)
+        img = QtGui.QImage(self.image, self.image.shape[1], self.image.shape[0], self.image.strides[0], QtGui.QImage.Format_RGB888)
+        self.update_signal.emit(img)
 
         # unlock the buffer so we can use it again
         image_data.unlock()

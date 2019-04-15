@@ -32,6 +32,7 @@
 
 from pyueye import ueye
 from threading import Thread
+import numpy
 
 def get_bits_per_pixel(color_mode):
     """
@@ -116,7 +117,6 @@ class ImageData:
 
     def as_1d_image(self):        
         channels = int((7 + self.bits_per_pixel) / 8)
-        import numpy
         if channels > 1:
             return numpy.reshape(self.array, (self.mem_info.height, self.mem_info.width, channels))
         else:

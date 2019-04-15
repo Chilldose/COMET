@@ -367,7 +367,7 @@
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QGraphicsView" name="camera_widget"/>
+         <layout class="QGridLayout" name="layout_camera"/>
         </item>
        </layout>
       </item>
@@ -904,7 +904,6 @@ background-color: grey;</string>
  </widget>
  <resources>
   <include location="../images/svg_resources.qrc"/>
-  <include location="../../../../../../.designer/images/svg_resources.qrc"/>
  </resources>
  <connections/>
 </ui>

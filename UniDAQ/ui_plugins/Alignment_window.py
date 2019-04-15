@@ -51,6 +51,14 @@ class Alignment_window(Table_widget):
         self.layout.addWidget(alignment_widget)
         #self.table_move = self.table_move()
 
+        # Load camera
+        try:
+            from .Ueye_camera_main import Ueye_main
+            #self.alignment.layout_camera.setAlignment(Qt.AlignVertical_Mask)
+            self.camera = Ueye_main(self.alignment.layout_camera, roi_width=1280, roi_height=1024)
+        except ImportError:
+            self.log.warning("Could not import camera module")
+
 
         # Asign the buttons
         self.alignment.ref_1.valueChanged.connect(self.spin_box_action_1)
@@ -60,6 +68,8 @@ class Alignment_window(Table_widget):
         self.alignment.nextstep_btn.clicked.connect(lambda: self.next_step_action(None))
         self.alignment.abort_btn.clicked.connect(self.abort_action)
         self.alignment.move_to_strip_button.clicked.connect(self.move_to_strip_action)
+        self.alignment.camera_on_Button.clicked.connect(self.camera.start)
+        self.alignment.camera_off_Button.clicked.connect(self.camera.stop)
 
         self.variables.add_update_function(self.current_strip_lcd)
 
