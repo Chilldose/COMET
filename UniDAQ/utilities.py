@@ -1519,6 +1519,25 @@ def reset_devices(devices_dict, vcw):
                     devices_dict[device].get("execution_terminator", "")
                 )
 
+class KeyPress():
+    #keyPressed = QtCore.pyqtSignal(QtCore.QEvent)
+
+    def __init__(self, app, to_call, keys_objects):
+        """Define which key should be possible to press and what to do with it
+        QtCore.Qt.Key_Enter
+        QtCore.Qt.Key_Q etc."""
+        #super(KeyPress, self).__init__()
+        #self.keyPressed.connect(self.on_key)
+        self.keys = keys_objects
+        self.call = to_call
+        self.app = app
+        self.app.installEventFilter(self)
+
+    def eventFilter(self, object, event):
+        if event.key() in self.keys:
+            self.call(event)
+
+
 if __name__ == "__main__":
 
     device = {"separator": ",",

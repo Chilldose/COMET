@@ -2,6 +2,8 @@
 import logging
 from PyQt5.QtWidgets import QMessageBox
 
+from PyQt5 import QtCore
+
 
 class Table_widget(object):
 
@@ -50,7 +52,8 @@ class Table_widget(object):
         self.gui.unlock_Z.clicked.connect(self.z_pos_warning)
         self.gui.Enable_table.clicked['bool'].connect(self.enable_table_control)
         self.variables.add_update_function(self.table_move_indi)
-        
+
+
     def table_move_indi(self):
         '''This function updates the table indicator'''
         if self.variables.default_values_dict["settings"]["table_is_moving"]:

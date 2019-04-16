@@ -1,12 +1,13 @@
 import logging
 from PyQt5.QtWidgets import *
+from PyQt5 import QtCore
 from time import asctime
 import os
 from .Environement_widget import Environement_widget
 from .Table_widget import Table_widget
 from .Controls_widget import Controls_widget
 from .SettingsControl_widget import SettingsControl_widget
-from ..utilities import change_axis_ticks
+from ..utilities import change_axis_ticks, KeyPress
 
 class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, Controls_widget):
 
@@ -17,6 +18,8 @@ class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, 
         self.log = logging.getLogger(__name__)
         self.job = measurement_job_generation(self.variables.default_values_dict, self.variables.message_from_main)
 
+        self.keyPressEvent = KeyPress(self.variables.framework_variables["App"], self.on_key_press, [QtCore.Qt.Key_Q])
+
         self.iv_plot = None
         self.cv_plot = None
 
@@ -26,9 +29,9 @@ class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, 
         self.titleStyle = {'color': '#FFF', 'size': '18px'}
 
         # Dynamic waiting time detection tab
-        test = QWidget()
-        self.gui = self.variables.load_QtUi_file("QTC_Main.ui", test)
-        self.layout.addWidget(test)
+        self.Widget = QWidget()
+        self.gui = self.variables.load_QtUi_file("QTC_Main.ui",  self.Widget)
+        self.layout.addWidget(self.Widget)
 
         self.config_IV_plot()
         self.config_CV_plot()
@@ -37,6 +40,9 @@ class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, 
 
         self.variables.add_update_function(self.update_IVplot)
         self.variables.add_update_function(self.update_CVplot)
+
+    def on_key_press(self, key):
+        print("here")
 
     def config_IV_plot(self):
 

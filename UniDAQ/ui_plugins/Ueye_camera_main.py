@@ -1,9 +1,9 @@
 # Some functions for Ueye camera systems
 
-import logging
-from PyQt5.QtCore import Qt
-import numpy as np
 import ctypes
+import logging
+
+
 class Ueye_main:
 
     def __init__(self, layout_camera, roi_width=1280, roi_height=1024):
@@ -13,9 +13,9 @@ class Ueye_main:
         self.camera_View = layout_camera
         try:
             from pyueye import ueye
-            from ..Ueye_camera.pyueye_camera import Camera
-            from ..Ueye_camera.pyueye_utils import FrameThread
-            from ..Ueye_camera.pyueye_gui import PyuEyeQtView
+            from ..misc_plugins.Ueye_camera.pyueye_camera import Camera
+            from ..misc_plugins.Ueye_camera.pyueye_utils import FrameThread
+            from ..misc_plugins.Ueye_camera.pyueye_gui import PyuEyeQtView
 
             # a basic qt window
             self.view = PyuEyeQtView()

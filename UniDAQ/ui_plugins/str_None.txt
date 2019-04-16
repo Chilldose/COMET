@@ -1,8 +1,0 @@
-# Measurement file: 
- # Project: HPK 6 inch
- # Sensor Type: Irradiation2
- # ID: None
- # Operator: Dominic
- # Date: Tue Apr 16 11:05:00 2019
-
-

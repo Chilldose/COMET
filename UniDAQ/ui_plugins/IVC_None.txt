@@ -1,9 +1,0 @@
-# Measurement file: 
- # Project: HPK 6 inch
- # Sensor Type: Irradiation2
- # ID: None
- # Operator: Dominic
- # Date: Tue Apr 16 10:55:15 2019
-
-
-voltage[V]              current[A]              voltage[V]              capacitance[F]          temperature[deg]        humidity[rel%]          
