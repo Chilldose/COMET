@@ -88,7 +88,7 @@ def main():
     if active_setup is None:
         dialog = PreferencesDialog(None)
         dialog.exec_()
-        active_setup = dialog.activeSetup() # Potential mismatch of setups if setup changes in between
+        #active_setup = dialog.activeSetup() # Potential mismatch of setups if setup changes in between
         del dialog
         # Re-load active setup after configuration dialog.
         active_setup = QtCore.QSettings().value('active_setup', None)
