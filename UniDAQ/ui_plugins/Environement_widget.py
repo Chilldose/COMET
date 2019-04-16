@@ -30,12 +30,14 @@ class Environement_widget(object):
         self.gui.max_temp_spin.valueChanged.connect(self.valuechange)
         self.gui.max_hum_spin.valueChanged.connect(self.valuechange)
         self.gui.min_hum_spin.valueChanged.connect(self.valuechange)
+        self.gui.env_control_check.stateChanged.connect(self.valuechange)
+        self.gui.log_env_check.stateChanged.connect(self.valuechange)
 
         self.gui.env_control_check.setChecked(True)
         self.gui.log_env_check.setChecked(True)
 
-        self.variables.default_values_dict["settings"]["humidity_control"] = True
-        self.variables.default_values_dict["settings"]["log_environement"] = True
+        self.variables.default_values_dict["settings"]["control_environment"] = True
+        self.variables.default_values_dict["settings"]["log_environment"] = True
 
         # Config the progress bars
         self.gui.temperature_bar.setStyleSheet("QProgressBar::chunk{background-color: #cc1414;}")
@@ -155,6 +157,9 @@ class Environement_widget(object):
         '''This is the function which is called, when a value is changed in the spin boxes'''
 
         self.update_bars_and_spinboxes()
+
+        self.variables.default_values_dict["settings"]["control_environment"] = self.gui.env_control_check.isChecked()
+        self.variables.default_values_dict["settings"]["log_environment"] = self.gui.log_env_check.isChecked()
 
         max = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummax", self.gui.max_hum_spin.value()))
         min = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummin", self.gui.min_hum_spin.value()))

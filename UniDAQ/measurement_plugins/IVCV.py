@@ -68,6 +68,11 @@ class IVCV_class:
         voltage_steps = min(voltage_steps)
 
         voltage_step_list = self.main.ramp_value(voltage_Start, voltage_End, voltage_steps)
+        if self.main.job_details["IVCV"]["IVCV_refinement"]:
+            voltage_step_list = self.main.refine_ramp(voltage_step_list,
+                                                  self.main.job_details["IVCV"]["IVCV_refinement"]["Min"],
+                                                  self.main.job_details["IVCV"]["IVCV_refinement"]["Max"],
+                                                  self.main.job_details["IVCV"]["IVCV_refinement"]["Step"])
 
         # Config the setup for IV
         complience = str(self.main.job_details["IVCV"].get("IV",self.main.job_details["IVCV"].get("CV", None))["Complience"])
@@ -81,9 +86,7 @@ class IVCV_class:
 
         for i, voltage in enumerate(voltage_step_list):
             if not self.main.stop_measurement: # To shut down if necessary
-                #switch_success = self.switching.switch_to_measurement("IV")
                 self.main.change_value(bias_SMU, "set_voltage", str(voltage))
-                self.main.settings["settings"]["bias_voltage"] = voltage  # changes the bias voltage
                 if not self.main.steady_state_check(bias_SMU, "get_read_current", max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=complience): # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
 
@@ -112,8 +115,8 @@ class IVCV_class:
             elif self.main.stop_measurement: # Stops the measurement if necessary
                 break
 
-        if self.main.save_data: # Closes the file after completion of measurement or abortion
-            close_file(self.main.IVCV_file)
+        #if self.main.save_data: # Closes the file after completion of measurement or abortion
+        #    close_file(self.main.measurement_files["IVCV"])
 
         self.main.ramp_voltage(bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01)
         self.main.change_value(bias_SMU, "set_voltage", "0")

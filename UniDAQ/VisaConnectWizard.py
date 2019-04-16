@@ -328,13 +328,13 @@ class VisaConnectWizard:
             # Now look if the code is a list or not
             if type(code) == list:
                 self.list_write(resource_dict, code, delay = 0)
-                return 0
+                return True
 
             else:
                 full_command = str(code)
                 resource.write(full_command)
                 self.log.info("Write command: " + str(full_command) + " to: " + str(resource))
-                return 0
+                return True
         except:
             return False
 

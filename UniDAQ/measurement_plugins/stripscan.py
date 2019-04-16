@@ -29,12 +29,12 @@ class stripscan_class:
         self.voltage_Start = self.main.job_details["stripscan"]["StartVolt"]
         self.voltage_steps = self.main.job_details["stripscan"]["Steps"]
         self.complience = self.main.job_details["stripscan"]["Complience"]
-        self.bias_SMU = self.main.devices["IVSMU"]
-        self.LCR_meter = self.main.devices["LCR"]
-        self.SMU2 = self.main.devices["2410SMU"]
-        self.discharge_SMU = self.main.devices["2410SMU"]
+        self.bias_SMU = self.main.devices["BiasSMU"]
+        self.LCR_meter = self.main.devices["Agilent E4980A"]
+        self.SMU2 = self.main.devices["2410 Keithley SMU"]
+        self.discharge_SMU = self.main.devices["2410 Keithley SMU"]
         self.discharge_switching = self.main.devices["temphum_controller"]
-        self.elmeter = self.main.devices["Elmeter"]
+        self.elmeter = self.main.devices["6517B Keithley Elektrometer"]
         self.measurement_order = ["Istrip", "Rpoly", "Idark", "Cac", "Cint", "Cback", "Idiel", "Rint"]
         self.units = [("Istrip","current[A]"), ("Rpoly", "res[Ohm]"),
                       ("Idiel","current[A]"), ("Idark","current[A]"),

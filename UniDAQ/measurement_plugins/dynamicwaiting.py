@@ -17,7 +17,7 @@ class dynamicwaiting_class:
     def __init__(self, main_class):
         self.main = main_class
         self.switching = self.main.switching
-        self.biasSMU = self.main.devices["IVSMU"]
+        self.biasSMU = self.main.devices["BiasSMU"]
         self.compliance = self.main.job_details["dynamicwaiting"]["Compliance"]
         self.justlength = 24
         self.interval = self.main.job_details["dynamicwaiting"].get("Interval", 100)/1000.

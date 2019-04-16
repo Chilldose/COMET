@@ -1,7 +1,6 @@
 
 import logging
 from PyQt5.QtWidgets import QMessageBox, QFileDialog
-from ..engineering_notation import EngNumber as en
 import os
 
 
@@ -78,12 +77,10 @@ class Controls_widget(object):
             reply = QMessageBox.information(None, 'Warning', "You cannot load a measurement files while data taking is in progress.", QMessageBox.Ok)
 
     def update_statistics(self):
-        try:
-            self.gui.bias_voltage_lcd.display(en.EngNumber(float(self.variables.default_values_dict["settings"]["bias_voltage"])))
+            self.gui.bias_voltage_lcd.display(float(self.variables.default_values_dict["settings"].get("bias_voltage","0")))
             self.gui.current_pad_lcd.display(self.variables.default_values_dict["settings"].get("current_strip", None))
             self.gui.bad_pads_lcd.display(self.variables.default_values_dict["settings"].get("Bad_strips", None))
-        except:
-            pass
+
 
     # Update functions
     def error_update(self):

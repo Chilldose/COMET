@@ -26,12 +26,12 @@ class stripscan_class:
         self.voltage_End = self.main.job_details["frequencyscan"]["EndVolt"]
         self.voltage_steps = self.main.job_details["frequencyscan"]["Steps"]
         self.complience = self.main.job_details["frequencyscan"]["Complience"]
-        self.bias_SMU = self.main.devices["IVSMU"]
-        self.LCR_meter = self.main.devices["LCR"]
-        self.SMU2 = self.main.devices["2410SMU"]
-        self.elmeter = self.main.devices["Elmeter"]
-        self.discharge_SMU = self.main.devices["2410SMU"]
+        self.bias_SMU = self.main.devices["BiasSMU"]
+        self.LCR_meter = self.main.devices["Agilent E4980A"]
+        self.SMU2 = self.main.devices["2410 Keithley SMU"]
+        self.discharge_SMU = self.main.devices["2410 Keithley SMU"]
         self.discharge_switching = self.main.devices["temphum_controller"]
+        self.elmeter = self.main.devices["6517B Keithley Elektrometer"]
         self.current_strip = self.main.main.default_dict["settings"]["current_strip"] # Current pad position of the table
         self.height = self.main.main.default_dict["settings"]["height_movement"]
         self.samples = 3

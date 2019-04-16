@@ -28,32 +28,19 @@ class measurement_class(Thread):
         self.setup_not_ready = True
         self.job_details = job_details
         self.vcw = framework["VCW"]
-        #self.IVCV_job = []
-        #self.strip_scan_job = []
         self.measured_data = {}
         self.settings = framework["Configs"]["config"]
-        #self.pad_data = framework["Configs"]pad_data
         self.table = framework["Table"]
         self.switching = framework["Switching"]
         self.devices = framework["Devices"]
-        #self.IVCV_file = ""
-        #self.strip_file = ""
-        #self.IV_longterm_file = ""
-        #self.list_strip_measurements = ["Rint", "Istrip", "Idiel", "Rpoly", "Cac", "Istrip_overhang", "Cint", "Idark", "Cback"]
-        #self.IV_data = np.array([])
-        #self.CV_data = np.array([])
-        #self.IV_longterm_data = np.array([])
         self.time_const = 1 # sec
-        #self.current_sensor = self.settings["settings"]["Current_sensor"]
         self.all_plugins = {}
-        #self.total_strips = None
         self.measurement_files = {}
         self.measurement_data = {}
         self.write = None
         self.save_data = False
         self.env_waiting_time = 60*5 # Five minutes
         self.build_command = build_command
-        #self.badstrip_dict = {}
         self.skip_tests = False # This must always be False!!! only for debugging !!!
 
 
@@ -66,9 +53,11 @@ class measurement_class(Thread):
         self.log.info("Starting measurement thread...")
         self.settings["settings"]["Start_time"] = str(datetime.datetime.now())
         self.load_plugins()
-        #self.find_stripnumber()
-        #self.estimate_duration(datetime.datetime.now())
         self.write_data()
+
+        # Start the humidity/temperature control if checked
+        if self.main.default_dict["control_environment"] and "temphum_controller" in self.devices:
+            self.change_value(self.devices["temphum_controller"], "set_environement_control", "ON")
 
         # Perform the setup check and start the measurement
         # -------------------------------------------------------------------------------
@@ -87,6 +76,9 @@ class measurement_class(Thread):
             else:
                 self.log.info("No external lights controller found")
             self.close_measurement_files()
+            # Stop the humidity/temperature control if checked
+            if "temphum_controller" in self.devices:
+                self.change_value(self.devices["temphum_controller"], "set_environement_control", "OFF")
 
         elif self.skip_tests: # This is just for debugging and can lead to unwanted behavior
             self.make_measurement_plan()
@@ -95,6 +87,7 @@ class measurement_class(Thread):
         else:
             self.log.error("Measurement could not be conducted. Setup failed the readiness check. "
                            "Please check the logs for more information what happened")
+
         # Perfom the setup check and start the measurement
         # -------------------------------------------------------------------------------
         self.queue_to_event_loop.put({"Status":{"MEASUREMENT_FINISHED": True}}) # States that the measurement is finished
@@ -106,6 +99,7 @@ class measurement_class(Thread):
         for file in self.measurement_files.values():
             os.close(file)
             self.log.info("Closed measurement file: {!s}".format(file))
+        self.measurement_files = {}
 
     def external_light(self, device_dict, bool):
         '''Turns the light on when measurements are running'''
@@ -182,8 +176,8 @@ class measurement_class(Thread):
         else:
             self.log.warning("Variable missing for internal lights settings. No lights check!")
 
-        if "humidity_control" in self.settings["settings"]:
-            if self.settings["settings"]["humidity_control"]:
+        if "control_environment" in self.main.default_dict:
+            if self.main.default_dict["control_environment"]:
                 min = self.settings["settings"]["current_hummin"]
                 max = self.settings["settings"]["current_hummax"]
 
@@ -327,7 +321,7 @@ class measurement_class(Thread):
         if ramp[0] * start >= 0 and ramp[-1] * stop >= 0 and abs(ramp[0]) <= abs(start) and abs(ramp[-1]) >= abs(stop):
             # Todo: if the refined array has positive and negative values it does not work currently
             ramp = np.array(ramp)
-            ref_ramp = ramp_value(start, stop, step)
+            ref_ramp = self.ramp_value(start, stop, step)
             to_delete = np.logical_and(abs(ramp) >= abs(start), abs(ramp) <= abs(stop))
             start_ind = np.nonzero(to_delete)[0][0]  # Finds the index where I have to insert the new array
             del_list = ramp[~to_delete].tolist()
@@ -336,7 +330,7 @@ class measurement_class(Thread):
             return del_list
         else:
             self.log.error(
-                "Refining of array not possible. Boundaries for refinement must be inside source array. Returning imput array")
+                "Refining of array not possible. Boundaries for refinement must be inside source array. Returning input array")
             return ramp
 
     def ramp_value(self, min_value, max_value, deltaI):
