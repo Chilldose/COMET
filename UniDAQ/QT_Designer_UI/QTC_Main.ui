@@ -177,6 +177,13 @@
           </property>
          </widget>
         </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="Rpoly_val">
+          <property name="text">
+           <string>    Joystick speed</string>
+          </property>
+         </widget>
+        </item>
         <item row="3" column="3">
          <widget class="QLabel" name="chevron_up">
           <property name="font">
@@ -195,22 +202,6 @@
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
-         <widget class="QSlider" name="z_move">
-          <property name="enabled">
-           <bool>false</bool>
-          </property>
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="tickPosition">
-           <enum>QSlider::TicksAbove</enum>
-          </property>
-          <property name="tickInterval">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="1">
          <widget class="QLabel" name="Y_label">
           <property name="font">
@@ -222,20 +213,6 @@
           </property>
           <property name="text">
            <string>Y</string>
-          </property>
-         </widget>
-        </item>
-        <item row="4" column="1">
-         <widget class="QLabel" name="Z_label">
-          <property name="font">
-           <font>
-            <pointsize>17</pointsize>
-            <weight>75</weight>
-            <bold>true</bold>
-           </font>
-          </property>
-          <property name="text">
-           <string>Z</string>
           </property>
          </widget>
         </item>
@@ -274,8 +251,8 @@
           </property>
          </widget>
         </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="X_label">
+        <item row="4" column="1">
+         <widget class="QLabel" name="Z_label">
           <property name="font">
            <font>
             <pointsize>17</pointsize>
@@ -284,19 +261,28 @@
            </font>
           </property>
           <property name="text">
-           <string>X</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="Rpoly_val">
-          <property name="text">
-           <string>    Joystick speed</string>
+           <string>Z</string>
           </property>
          </widget>
         </item>
         <item row="3" column="2">
          <widget class="QSlider" name="y_move">
+          <property name="enabled">
+           <bool>false</bool>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="tickPosition">
+           <enum>QSlider::TicksAbove</enum>
+          </property>
+          <property name="tickInterval">
+           <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item row="4" column="2">
+         <widget class="QSlider" name="z_move">
           <property name="enabled">
            <bool>false</bool>
           </property>
@@ -336,6 +322,20 @@
           </property>
           <property name="tickInterval">
            <number>10</number>
+          </property>
+         </widget>
+        </item>
+        <item row="2" column="1">
+         <widget class="QLabel" name="X_label">
+          <property name="font">
+           <font>
+            <pointsize>17</pointsize>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>X</string>
           </property>
          </widget>
         </item>
@@ -387,6 +387,27 @@
        </layout>
       </widget>
      </item>
+     <item row="0" column="0" colspan="2">
+      <widget class="QLabel" name="Tablecontrolpanellabel">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>40</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>14</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Table control panel</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="1">
       <widget class="QFrame" name="Buttons_frame">
        <property name="frameShape">
@@ -396,25 +417,6 @@
         <enum>QFrame::Raised</enum>
        </property>
        <layout class="QGridLayout" name="gridLayout_5">
-        <item row="0" column="0">
-         <widget class="QPushButton" name="Enable_table">
-          <property name="minimumSize">
-           <size>
-            <width>130</width>
-            <height>0</height>
-           </size>
-          </property>
-          <property name="text">
-           <string>Joystick enable</string>
-          </property>
-          <property name="checkable">
-           <bool>true</bool>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
         <item row="2" column="0">
          <widget class="QPushButton" name="move_down_button">
           <property name="minimumSize">
@@ -466,8 +468,8 @@ background-color: grey;</string>
           </property>
          </widget>
         </item>
-        <item row="0" column="1">
-         <widget class="QPushButton" name="check_position">
+        <item row="0" column="0">
+         <widget class="QPushButton" name="Enable_table">
           <property name="minimumSize">
            <size>
             <width>130</width>
@@ -475,7 +477,13 @@ background-color: grey;</string>
            </size>
           </property>
           <property name="text">
-           <string>Check position</string>
+           <string>Joystick enable</string>
+          </property>
+          <property name="checkable">
+           <bool>true</bool>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
           </property>
          </widget>
         </item>
@@ -498,6 +506,19 @@ background-color: grey;</string>
           </property>
          </widget>
         </item>
+        <item row="0" column="1">
+         <widget class="QPushButton" name="check_position">
+          <property name="minimumSize">
+           <size>
+            <width>130</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Check position</string>
+          </property>
+         </widget>
+        </item>
         <item row="3" column="0">
          <widget class="QPushButton" name="init_table_Button">
           <property name="text">
@@ -506,27 +527,6 @@ background-color: grey;</string>
          </widget>
         </item>
        </layout>
-      </widget>
-     </item>
-     <item row="0" column="0" colspan="2">
-      <widget class="QLabel" name="Tablecontrolpanellabel">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>40</height>
-        </size>
-       </property>
-       <property name="font">
-        <font>
-         <pointsize>14</pointsize>
-        </font>
-       </property>
-       <property name="text">
-        <string>Table control panel</string>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
       </widget>
      </item>
     </layout>
@@ -721,6 +721,24 @@ background-color: grey;</string>
    </item>
    <item row="3" column="1" rowspan="2">
     <layout class="QGridLayout" name="controls_layout">
+     <item row="0" column="1">
+      <widget class="QPushButton" name="stop_button">
+       <property name="text">
+        <string>Stop</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../images/svg_resources.qrc">
+         <normaloff>:/stop/stop.svg</normaloff>:/stop/stop.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="quit_button">
+       <property name="text">
+        <string>Quit</string>
+       </property>
+      </widget>
+     </item>
      <item row="0" column="3">
       <widget class="QLCDNumber" name="bias_voltage_lcd">
        <property name="minimumSize">
@@ -759,7 +777,49 @@ background-color: grey;</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="0" rowspan="4" colspan="4">
+     <item row="1" column="2">
+      <widget class="QLabel" name="current_pad_label">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Current pad:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
+      <widget class="QLabel" name="bad_pads_label">
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>25</height>
+        </size>
+       </property>
+       <property name="text">
+        <string>Bad pads:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="3">
+      <widget class="QLCDNumber" name="current_pad_lcd">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>30</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>30</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="0" rowspan="4" colspan="4">
       <widget class="QLabel" name="event_log">
        <property name="minimumSize">
         <size>
@@ -784,68 +844,10 @@ background-color: grey;</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="quit_button">
-       <property name="text">
-        <string>Quit</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="0">
-      <widget class="QPushButton" name="start_button">
-       <property name="text">
-        <string>Start</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../images/svg_resources.qrc">
-         <normaloff>:/play/start.svg</normaloff>:/play/start.svg</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="0">
-      <widget class="QLabel" name="event_log_label">
-       <property name="text">
-        <string>Event Log:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="2">
-      <widget class="QLabel" name="bad_pads_label">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Bad pads:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLabel" name="current_pad_label">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>Current pad:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1" colspan="3">
+     <item row="8" column="1" colspan="3">
       <widget class="QProgressBar" name="progressBar">
        <property name="value">
         <number>24</number>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QLabel" name="progress_label">
-       <property name="text">
-        <string>Progress:</string>
        </property>
       </widget>
      </item>
@@ -862,30 +864,54 @@ background-color: grey;</string>
        </property>
       </widget>
      </item>
-     <item row="1" column="3">
-      <widget class="QLCDNumber" name="current_pad_lcd">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>30</height>
-        </size>
+     <item row="8" column="0">
+      <widget class="QLabel" name="progress_label">
+       <property name="text">
+        <string>Progress:</string>
        </property>
       </widget>
      </item>
-     <item row="0" column="1">
-      <widget class="QPushButton" name="stop_button">
+     <item row="0" column="0">
+      <widget class="QPushButton" name="start_button">
        <property name="text">
-        <string>Stop</string>
+        <string>Start</string>
        </property>
        <property name="icon">
         <iconset resource="../images/svg_resources.qrc">
-         <normaloff>:/stop/stop.svg</normaloff>:/stop/stop.svg</iconset>
+         <normaloff>:/play/start.svg</normaloff>:/play/start.svg</iconset>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="0" colspan="2">
+      <widget class="QLabel" name="event_log_label">
+       <property name="text">
+        <string>Event Log:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="2">
+      <widget class="QLabel" name="state_label">
+       <property name="text">
+        <string>Current State:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="3" column="3">
+      <widget class="QLabel" name="state_indi">
+       <property name="font">
+        <font>
+         <family>Perpetua Titling MT</family>
+         <pointsize>9</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+         <kerning>true</kerning>
+        </font>
+       </property>
+       <property name="text">
+        <string>Idle</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>

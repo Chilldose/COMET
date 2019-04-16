@@ -22,7 +22,16 @@ class Controls_widget(object):
         # Adding update functions
         self.variables.add_update_function(self.error_update)
         self.variables.add_update_function(self.update_statistics)
+        self.variables.add_update_function(self.update_current_state)
         #self.variables.add_update_function(self.led_update) # Todo: currently no led
+
+    def update_current_state(self):
+        """Updates the label of the state of the program. Either IDLE or Measurement running"""
+
+        if self.variables.default_values_dict["settings"]["Measurement_running"] and not self.gui.state_indi.text() == "Measurement running":
+            self.gui.state_indi.setText("Measurement running")
+        elif not self.variables.default_values_dict["settings"]["Measurement_running"] and not self.gui.state_indi.text() == "IDLE":
+            self.gui.state_indi.setText("IDLE")
 
 
     # Orders

@@ -4,8 +4,7 @@ import logging
 import sys
 import numpy as np
 sys.path.append('../UniDAQ')
-from ..utilities import timeit, close_file
-from time import sleep
+from ..utilities import timeit
 
 
 
