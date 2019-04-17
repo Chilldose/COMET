@@ -45,7 +45,8 @@ class Alignment_window(Table_widget):
         self.trans = transformation()
 
         # Settings tab
-        alignment_widget = QWidget(        self.alignment = self.variables.load_QtUi_file("Alignment.ui", alignment_widget)
+        alignment_widget = QWidget()
+        self.alignment = self.variables.load_QtUi_file("Alignment.ui", alignment_widget)
         #self.table_move_ui = self.alignment # this is for the table control so it can be a copy from the other ui
         self.layout.addWidget(alignment_widget)
         #self.table_move = self.table_move()
