@@ -7,7 +7,7 @@ from .Environement_widget import Environement_widget
 from .Table_widget import Table_widget
 from .Controls_widget import Controls_widget
 from .SettingsControl_widget import SettingsControl_widget
-from ..utilities import change_axis_ticks, KeyPress
+from ..utilities import change_axis_ticks#, KeyPress
 
 class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, Controls_widget):
 

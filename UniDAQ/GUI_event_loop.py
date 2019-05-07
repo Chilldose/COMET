@@ -29,7 +29,6 @@ class GUI_event_loop(QThread):
         self.vcw = framework_variables["VCW"]
         self.device_dict = framework_variables["Devices"]
         self.default_values_dict = framework_variables["Configs"]["config"]
-        self.pad_files_dict = framework_variables["Configs"]["additional_files"]["Pad_files"]
         self.stop_GUI_loop = False
         self.close_program = False
         self.measurement_running = False
@@ -43,6 +42,9 @@ class GUI_event_loop(QThread):
         self.event_list = [] # Messages send to the loop
         self.pending_events = {} # Messages which should processed after all other orders are processed
         self.error_log = []
+        self.default_values_dict["settings"]["new_data"] = True
+        self.default_values_dict["settings"]["update_counter"] = 0
+        self.default_values_dict["settings"]["last_plot_update"] = 0
         self.log = logging.getLogger(__name__)
 
         # Plot data
@@ -138,7 +140,7 @@ class GUI_event_loop(QThread):
                 self.measurement_loop_running = False      # This will be processed in the pending event function
 
 
-            # Handles all data for coming from the measurements
+        # Handles all data for coming from the measurements
         for measurement in self.measurement_list:
 
             self.default_values_dict["settings"]["new_data"] = True  # Initiates the update of the plots
