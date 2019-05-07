@@ -18,7 +18,7 @@ class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, 
         self.log = logging.getLogger(__name__)
         self.job = measurement_job_generation(self.variables.default_values_dict, self.variables.message_from_main)
 
-        self.keyPressEvent = KeyPress(self.variables.framework_variables["App"], self.on_key_press, [QtCore.Qt.Key_Q])
+        #self.keyPressEvent = KeyPress(self.variables.framework_variables["App"], self.on_key_press, [QtCore.Qt.Key_Q])
 
         self.iv_plot = None
         self.cv_plot = None
