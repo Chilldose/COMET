@@ -52,6 +52,39 @@ class Table_widget(object):
         self.gui.unlock_Z.clicked.connect(self.z_pos_warning)
         self.gui.Enable_table.clicked['bool'].connect(self.enable_table_control)
         self.variables.add_update_function(self.table_move_indi)
+        self.gui.init_table_Button.clicked.connect(self.init_table_action)
+        self.gui.move_down_button.clicked.connect(self.move_down_action)
+        self.gui.move_up_button.clicked.connect(self.move_up_action)
+        self.gui.check_position.clicked.connect(self.check_position_action)
+
+    def check_position_action(self):
+        """Checks the position of the table."""
+        pos = self.variables.table.get_current_position()
+
+    def move_up_action(self):
+        """Moves the table up"""
+        # todo: change he indicator
+        success = self.variables.table.move_up(lifting = self.variables.default_values_dict["settings"]["height_movement"])
+
+    def move_down_action(self):
+        """Moves the table up"""
+        success = self.variables.table.move_down(lifting = self.variables.default_values_dict["settings"]["height_movement"])
+
+    def init_table_action(self):
+        """Does the init for the Table"""
+        self.Tablog.info("Pressed the table init button...")
+        reply = QMessageBox.question(None, 'Warning',
+                                     "Are you sure to init the table?\n"
+                                     "This action will cause the table to move to its most outer point in all directions.\n"
+                                     "This can cause serious damage to the setup. Please make sure the table can move freely!",
+                                     QMessageBox.Yes, QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.variables.table.initiate_table()
+            self.variables.table.move_to([self.variables.devices_dict["Table_control"]["table_xmax"] / 2,
+                                         self.variables.devices_dict["Table_control"]["table_ymax"] / 2,
+                                         self.variables.devices_dict["Table_control"]["table_zmax"] / 2,])
+        else:
+            self.Tablog.info("No table init will be done...")
 
 
     def table_move_indi(self):
@@ -103,8 +136,9 @@ class Table_widget(object):
         '''This function enables the table and the joystick frame'''
         if bool and self.variables.default_values_dict["settings"]["table_ready"]:
             #This will be called, when the table control is enabled
-            reply = QMessageBox.question(None, 'Warning', "Are you sure move the table? \n Warning: If measurement is running table movement ist not possible", QMessageBox.Yes, QMessageBox.No)
+            reply = QMessageBox.question(None, 'Warning', "Are you sure move the table? \n Warning: If measurement is running table movement is not possible", QMessageBox.Yes, QMessageBox.No)
             if reply == QMessageBox.Yes and not self.variables.default_values_dict["settings"]["Measurement_running"]:
+                self.Tablog.info("Switched on joystick control")
                 self.gui.table_frame.setEnabled(bool)
                 if self.gui.z_move.isEnabled():
                     self.gui.z_move.setEnabled(False)
@@ -141,13 +175,18 @@ class Table_widget(object):
 
 
             else:
-                self.gui.table_frame.setDisabled(bool)
-                self.gui.Enable_table.setChecked(False)
-                self.variables.table.set_joystick(False)
-                self.variables.default_values_dict["settings"]["zlock"] = True
-                self.variables.default_values_dict["settings"]["joystick"] = False
-                self.gui.unlock_Z.setChecked(False)
-                self.variables.table.set_axis([True, True, True]) # This is necessary so all axis can be adresses while move
+                reply = QMessageBox.question(None, 'Warning',
+                                     "Are you sure to disable the joystick controls?",
+                                     QMessageBox.Yes, QMessageBox.No)
+                if reply == QMessageBox.Yes:
+                    self.Tablog.info("Switched off joystick control")
+                    self.gui.table_frame.setDisabled(bool)
+                    self.gui.Enable_table.setChecked(False)
+                    self.variables.table.set_joystick(False)
+                    self.variables.default_values_dict["settings"]["zlock"] = True
+                    self.variables.default_values_dict["settings"]["joystick"] = False
+                    self.gui.unlock_Z.setChecked(False)
+                    self.variables.table.set_axis([True, True, True]) # This is necessary so all axis can be adresses while move
 
         elif not self.variables.default_values_dict["settings"]["table_ready"]:
             self.Tablog.error("No table connected to the setup. Joystick cannot be activated.")
