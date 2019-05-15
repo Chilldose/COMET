@@ -1078,6 +1078,8 @@ class table_control_class:
                 self.log.info("Moving to strip: {} at position {},{},{}.".format(strip, pad_pos[0], pad_pos[1], pad_pos[2]))
                 table_abs_pos = list(transfomation_class.vector_trans(pad_pos, T, V0))
                 success = self.move_to(table_abs_pos, move_down=True, lifting = height_movement)
+            else:
+                return True
 
             self.variables["current_strip"] = strip
             return success
