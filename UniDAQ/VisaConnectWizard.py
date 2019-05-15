@@ -268,7 +268,7 @@ class VisaConnectWizard:
 
     @run_with_lock # So only one talker and listener can be there
     def query(self, resource_dict, code, reconnect = True):
-        """Makes a query to the resource (the same as first write than read)"""
+        """Makes a query to the resource (the same as first write then read)"""
         #Just check if a resource or object was passed and prepare everything
         try:
             resource = resource_dict["Visa_Resource"]

@@ -124,12 +124,14 @@ class DynamicWaiting_window:
         self.final_job.update({"dynamicwaiting": {"StartVolt": 0,
                                                   "EndVolt": float(self.dynamic.max_voltage_IV.value()),
                                                   "Steps": float(self.dynamic.voltage_steps_IV.value()),
-                                                  "Compliance": float(self.dynamic.compliance_IV.value()),
+                                                  "Compliance": float(self.dynamic.compliance_IV.value())*1e-6,
                                                   "Samples": float(self.dynamic.samples_spinBox.value()),
                                                   "Interval": float(self.dynamic.interval_spinbox.value()),
                                                   "NPLC": float(self.dynamic.NPLC_spinbox.value()),
                                                   "Delay": float(self.dynamic.delay_spinbox.value()),
                                                   "Save_data": True,
+                                                  "filename": self.dynamic.output_file.text(),
+                                                  "filepath": self.dynamic.output_directory.text()
                                                   }
                                    }
                                   )

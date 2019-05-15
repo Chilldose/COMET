@@ -59,7 +59,6 @@
 
   # All reset device parameters
    reset:
-      - queueclear: ""
       - display_func: display.MEASURE_DCAMPS
       - autorange_current: 1
       - autorange_voltage: 1
@@ -99,7 +98,7 @@
    initialize_lan: lan.applysettings()
    reset_lan_interface: lan.reset()
    device_IDN_query: "*IDN?"
-   reset_device: ["*rst"]
+   reset_device: ["*rst", "*cls"]
    abort: smua.abort()
    store_calibration: sma.cal.save()
    calibrate_highsense: smuX.contact.calibratehi()

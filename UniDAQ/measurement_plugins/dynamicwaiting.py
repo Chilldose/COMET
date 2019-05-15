@@ -7,7 +7,7 @@ sys.path.append('../UniDAQ')
 from ..utilities import timeit, transformation, create_new_file
 from ..VisaConnectWizard import VisaConnectWizard
 
-vcw = VisaConnectWizard() # Todo: get rid of these definitions
+
 trans = transformation()
 ttime = time
 import numpy as np
@@ -16,6 +16,7 @@ class dynamicwaiting_class:
 
     def __init__(self, main_class):
         self.main = main_class
+        self.vcw = main_class.framework["VCW"]
         self.switching = self.main.switching
         self.biasSMU = self.main.devices["BiasSMU"]
         self.compliance = self.main.job_details["dynamicwaiting"]["Compliance"]
@@ -57,22 +58,24 @@ class dynamicwaiting_class:
         self.do_preparations(self.buffer, self.interval)
 
         # Construct results array
-        values = np.zeros(len(self.voltage_step_list),self.buffer)
+        values = np.zeros((len(self.voltage_step_list), int(self.buffer)))
         # Conduct the measurement
         for i, voltage in enumerate(self.voltage_step_list):
-            if not self.main.stop_measurement():  # To shut down if necessary
+            if not self.main.stop_measurement:  # To shut down if necessary
 
+                # Some elusive error happens sometimes, where the smu forgets its pervious config
+                #self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples=self.buffer, interval=self.interval))
                 # Here the magic happens it changes all values and so on
-                values[i] = self.do_dynamic_measurement("dynamicwaiting", self.biasSMU, voltage, self.buffer, self.interval, True)
+                xvalues, yvalues, time = self.do_dynamic_measurement("dynamicwaiting", self.biasSMU, voltage, self.buffer, self.interval, True)
 
-                if self.main.check_complience(self.biasSMU, float(self.compliance)):
+                if self.main.check_complience(self.biasSMU, float(self.compliance), command="get_read",):
                     self.stop_everything()  # stops the measurement if compliance is reached
 
-                if not self.main.steady_state_check(self.biasSMU, max_slope=1e-6, wait=0, samples=5, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
+                if not self.main.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=5, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
 
         # Ramp down and switch all off
-        self.current_voltage = self.main.main.default_dict["settings"]["bias_voltage"]
+        self.current_voltage = self.main.main.default_dict["bias_voltage"]
         self.main.ramp_voltage(self.biasSMU, "set_voltage", self.current_voltage, 0, 20, 0.01)
         self.main.change_value(self.biasSMU, "set_voltage", "0")
         self.main.change_value(self.biasSMU, "set_output", "0")
@@ -122,8 +125,8 @@ class dynamicwaiting_class:
         self.main.change_value(self.biasSMU, "set_voltage", "0")
         self.main.change_value(self.biasSMU, "set_output", "1")
 
-        if self.main.steady_state_check(self.biasSMU, max_slope=1e-6, wait=0, samples=3, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
-            self.current_voltage = self.main.main.default_dict["settings"]["bias_voltage"]
+        if self.main.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=3, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
+            self.current_voltage = self.main.main.default_dict["bias_voltage"]
         else:
             self.stop_everything()
 
@@ -142,29 +145,42 @@ class dynamicwaiting_class:
         :param write_to_main: Writes the value back to the main loop (default: True)
         :return: Returns the mean of all acquired values
         '''
-        self.main.send_to_device(self.biasSMU, self.SMU_clean_buffer)
+        from time import time
+        #self.main.send_to_device(self.biasSMU, self.SMU_clean_buffer)
 
         # Send the command to the device and wait till complete
-        starttime = ttime.time()
+        starttime = time()
         self.main.send_to_device(device, self.measureItobuffer.format(level=voltage))
 
         # Get the data from the device
-        ans = self.main.query_device(device, self.get_data_query.format(samples=samples))
-        endtime = ttime.time()
+        device_ansered = False
+        iter = 0
+        while not device_ansered:
+            ans = self.vcw.query(device, self.get_data_query.format(samples=samples)).strip()
+            if ans:
+                device_ansered = True
+            elif iter > 5:
+                ans = ""
+                break
+            else:
+                iter += 1
+
+        endtime = time()
         time = abs(endtime - starttime)
 
-        if type(ans) != int:
+        if ans:
             xvalues, yvalues = self.pic_device_answer(ans, time/self.buffer)
 
             if write_to_main: # Writes data to the main, or not
                 self.main.queue_to_main.put({str(str_name): [xvalues, yvalues]})
             # Clear buffer
-            self.main.send_to_device(device, self.SMU_clean_buffer)
-            return (xvalues, yvalues, time)
+            #self.main.send_to_device(device, self.SMU_clean_buffer)
+            return xvalues, yvalues, time
 
         else:
-            self.log.error("Timeout occured while reading from the device! Increase timeout for devices if necessary")
-            return ([], [], 0.0)
+            self.log.error("Timeout occured while reading from the device! Increase timeout for devices if necessary"
+                           "Or a buffer overflow happend. Check the buffer of the device!")
+            return [], [], 0.0
 
     def pic_device_answer(self, answer_string, interval=0.1):
         """
