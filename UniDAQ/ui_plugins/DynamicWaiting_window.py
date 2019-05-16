@@ -28,6 +28,8 @@ class DynamicWaiting_window:
 
         self.setpg = pq
         self.voltage_step = 0
+        self.meas_max_volt = 1
+        self.steps = 1
         # Generate Colormap for plots
         self.cmap = self.setpg.ColorMap([1.0, 2.0, 3.0], [[0, 0, 255, 255], [0, 255, 0, 255], [255, 0, 0, 255]])
         self.cmapLookup = self.cmap.getLookupTable(0.0,1.0,1)
@@ -39,7 +41,7 @@ class DynamicWaiting_window:
 
         # Config the plots and init everything
         self.plot_config()
-        self.update_stats()
+        self.update_stats(0)
 
         # Connect the buttons etc to actual functions
         self.dynamic.change_directory.clicked.connect(self.output_dir_change_action)
@@ -51,8 +53,7 @@ class DynamicWaiting_window:
         self.dynamic.output_file.setText("test.txt")
 
         # Add the plot function to the framework
-        #self.variables.add_update_function(self.update)
-
+        self.variables.add_update_function(self.update)
 
         # Add tooltip functionality
         self.tooltip = show_cursor_position(self.dynamic.current_plot)
@@ -71,9 +72,9 @@ class DynamicWaiting_window:
 
         change_axis_ticks(self.dynamic.current_plot, self.ticksStyle)
 
-    def update_stats(self):
+    def update_stats(self, step):
         """This function updates the progress bar"""
-        self.dynamic.progressBar.setValue(float(self.voltage_step)/float(self.dynamic.max_voltage_IV.value()))
+        self.dynamic.progressBar.setValue(float(step)/float(self.meas_max_volt/self.steps)*100)
 
     def output_dir_change_action(self):
         """Writes the outputfilename to the corresponding box"""
@@ -119,7 +120,9 @@ class DynamicWaiting_window:
                  "# Operator: " + self.variables.default_values_dict["settings"]["Current_operator"] + "\n " \
                  "# Date: " + str(time.asctime()) + "\n\n"
 
-
+        self.meas_max_volt = abs(self.dynamic.max_voltage_IV.value())
+        self.steps = self.dynamic.voltage_steps_IV.value()
+        self.update_stats(0)
 
         self.final_job.update({"dynamicwaiting": {"StartVolt": 0,
                                                   "EndVolt": float(self.dynamic.max_voltage_IV.value()),
@@ -139,14 +142,13 @@ class DynamicWaiting_window:
         self.variables.message_from_main.put({"Measurement": self.final_job})
         l.info("Sendet job: " + str({"Measurement": self.final_job}))
 
-    @raise_exception
-    def update(self, kwargs=None):
+    def update(self):
         if self.variables.default_values_dict["settings"]["new_data"]:
             try:
                 self.dynamic.current_plot.clear()
                 for i, vstepdata in enumerate(self.variables.meas_data["dynamicwaiting"][0]):
                     if vstepdata.any(): # To exclude exception spawning when measurement is not conducted
                         self.dynamic.current_plot.plot(vstepdata, self.variables.meas_data["dynamicwaiting"][1][i], pen=self.setpg.mkPen(tuple(self.cmapLookup[i])))
-                        # Todo: Update the progress bar
+                        self.update_stats(len(self.variables.meas_data["dynamicwaiting"][0]))
             except Exception as e:
                 l.warning("An exception in the Dynamic waiting time plot occured, with error {error!s}".format(error=e))

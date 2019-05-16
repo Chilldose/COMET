@@ -28,7 +28,7 @@
         - Cac_scan
         - Idark
         - Rint_scan
-        - waitingtime_scan
+        - dynamicwaiting
 
     measurement_order: # aka. all measurement plugins
         - IVCV

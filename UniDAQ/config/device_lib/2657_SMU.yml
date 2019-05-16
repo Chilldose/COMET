@@ -85,9 +85,9 @@
       - enable_beeper: beeper.ON
       - lan_autoconnect: lan.ENABLE
       - verify_host: lan.ENABLE
-      - gateway: '192.168.0.1'
-      - ipaddress: '192.168.0.100'
-      - lan_config:  lan.MANUAL
+      #- gateway: '192.168.0.1'
+      #- ipaddress: '192.168.0.100'
+      #- lan_config:  lan.MANUAL
       - lock_SMU: display.LOCK
       - display_measurement: display.SMUA
   

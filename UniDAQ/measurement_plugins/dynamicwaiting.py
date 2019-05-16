@@ -1,7 +1,7 @@
 # This file manages the dynamic waiting time measurements and it is intended to be used as a plugin for the QTC software
 
 import logging
-from time import time
+from time import time, sleep
 import sys
 sys.path.append('../UniDAQ')
 from ..utilities import timeit, transformation, create_new_file
@@ -30,6 +30,8 @@ class dynamicwaiting_class:
         self.get_data_query = "printbuffer(1, {samples!s}, measbuffer)"
         self.SMU_clean_buffer = "measbuffer = nil"
         self.log = logging.getLogger(__name__)
+        self.xvalues = []
+        self.yvalues = []
 
         self.SMU_config = "smua.measure.count = {samples!s} \n" \
                           "smua.measure.interval = {interval!s}\n" \
@@ -39,8 +41,11 @@ class dynamicwaiting_class:
                                 "smua.measure.overlappedi(measbuffer)\n" \
                                 "waitcomplete()\n"
 
+
+    def run(self):
         # Starts the actual measurement
         time = self.do_dynamic_waiting()
+        self.log.info("Dynamic warting time took: {} sec".format(time))
 
     def stop_everything(self):
         """Stops the measurement"""
@@ -58,7 +63,8 @@ class dynamicwaiting_class:
         self.do_preparations(self.buffer, self.interval)
 
         # Construct results array
-        values = np.zeros((len(self.voltage_step_list), int(self.buffer)))
+        self.xvalues = np.zeros((len(self.voltage_step_list), int(self.buffer)))
+        self.yvalues = np.zeros((len(self.voltage_step_list), int(self.buffer)))
         # Conduct the measurement
         for i, voltage in enumerate(self.voltage_step_list):
             if not self.main.stop_measurement:  # To shut down if necessary
@@ -66,7 +72,7 @@ class dynamicwaiting_class:
                 # Some elusive error happens sometimes, where the smu forgets its pervious config
                 #self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples=self.buffer, interval=self.interval))
                 # Here the magic happens it changes all values and so on
-                xvalues, yvalues, time = self.do_dynamic_measurement("dynamicwaiting", self.biasSMU, voltage, self.buffer, self.interval, True)
+                self.xvalues[i], self.yvalues[i], time = self.do_dynamic_measurement("dynamicwaiting", self.biasSMU, voltage, self.buffer, self.interval, True)
 
                 if self.main.check_complience(self.biasSMU, float(self.compliance), command="get_read",):
                     self.stop_everything()  # stops the measurement if compliance is reached
@@ -74,13 +80,17 @@ class dynamicwaiting_class:
                 if not self.main.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=5, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
 
+                sleep(1.)
+
         # Ramp down and switch all off
         self.current_voltage = self.main.main.default_dict["bias_voltage"]
         self.main.ramp_voltage(self.biasSMU, "set_voltage", self.current_voltage, 0, 20, 0.01)
         self.main.change_value(self.biasSMU, "set_voltage", "0")
         self.main.change_value(self.biasSMU, "set_output", "0")
 
-    def write_dyn_to_file(self, file, voltages, dataarray):
+        self.write_dyn_to_file(self.file, self.voltage_step_list, self.xvalues, self.yvalues)
+
+    def write_dyn_to_file(self, file, voltages, xvalues, yvalues):
         """
         :param file: filepointer
         :param dataarray: nd.array with the data each entry has to be a one measurement with its current values
@@ -88,13 +98,12 @@ class dynamicwaiting_class:
         """
 
         # Check if length of voltages matches the length of data array
-        if len(voltages) == len(dataarray):
-            dataarray = np.transpose(dataarray) # Transpose array for easy writing to file
-            # Write header to file
-            file.write(self.main.job_details["dynamicwaiting"]["header"])
+        if len(xvalues) == len(yvalues):
+            data = np.array([voltages, xvalues, yvalues])
+            data = np.transpose(data)
             # Write voltage for each measurement
-            file.write('V'.join([format(el, '<{}'.format(self.justlength)) for el in voltages]))
-            for line in dataarray:
+            self.main.write(file, 'V'.join([format(el, '<{}'.format(self.justlength)) for el in voltages]))
+            for line in data:
                 file.write(''.join([format(el, '<{}'.format(self.justlength)) for el in line]))
         else:
             self.log.error("Length of results array are non matching, abort storing data to file")
