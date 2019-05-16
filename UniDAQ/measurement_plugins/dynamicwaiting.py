@@ -88,7 +88,7 @@ class dynamicwaiting_class:
         self.main.change_value(self.biasSMU, "set_voltage", "0")
         self.main.change_value(self.biasSMU, "set_output", "0")
 
-        self.write_dyn_to_file(self.file, self.voltage_step_list, self.xvalues, self.yvalues)
+        self.write_dyn_to_file(self.main.measurement_files["dynamicwaiting"], self.voltage_step_list, self.xvalues, self.yvalues)
 
     def write_dyn_to_file(self, file, voltages, xvalues, yvalues):
         """
@@ -99,12 +99,15 @@ class dynamicwaiting_class:
 
         # Check if length of voltages matches the length of data array
         if len(xvalues) == len(yvalues):
-            data = np.array([voltages, xvalues, yvalues])
-            data = np.transpose(data)
-            # Write voltage for each measurement
-            self.main.write(file, 'V'.join([format(el, '<{}'.format(self.justlength)) for el in voltages]))
-            for line in data:
-                file.write(''.join([format(el, '<{}'.format(self.justlength)) for el in line]))
+            data = np.array([xvalues, yvalues])
+            #data = np.transpose(data)
+            # Write voltage header for each measurement
+            self.main.write(file, ''+''.join([format(el, '<{}'.format(self.justlength*2)) for el in voltages])+"\n")
+            for i in range(len(data[0,0,:])):
+                times = [format(time, '<{}'.format(self.justlength)) for time in data[:, :, i][0]]
+                curr = [format(curr, '<{}'.format(self.justlength)) for curr in data[:, :, i][1]]
+                final = "".join([t+c for t, c in zip(times, curr)])
+                self.main.write(file, final+"\n")
         else:
             self.log.error("Length of results array are non matching, abort storing data to file")
 
@@ -139,8 +142,8 @@ class dynamicwaiting_class:
         else:
             self.stop_everything()
 
-        self.file = create_new_file(self.main.job_details["dynamicwaiting"]["filename"],
-                                    self.main.job_details["dynamicwaiting"]["filepath"])
+        #self.file = create_new_file(self.main.job_details["dynamicwaiting"]["filename"],
+        #                            self.main.job_details["dynamicwaiting"]["filepath"])
 
     def do_dynamic_measurement(self, str_name, device, voltage = 0, samples = 100, interval = 0.01, write_to_main = True):
         '''
