@@ -25,6 +25,8 @@ import os
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
+#sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from . import utilities
 from . import boot_up
 from .core.config import DeviceLib

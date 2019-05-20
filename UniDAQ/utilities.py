@@ -13,7 +13,10 @@
 #Ramping
 # ramp_voltage
 
+
+
 import os, sys, os.path, re
+#sys.path.append(os.path.join( os.path.dirname(__file__), '..',))
 from time import sleep, time
 import time
 import threading
