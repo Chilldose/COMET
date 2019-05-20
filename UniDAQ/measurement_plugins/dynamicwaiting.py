@@ -60,7 +60,7 @@ class dynamicwaiting_class:
         """
 
         # Config the SMU
-        self.do_preparations(self.buffer, self.interval)
+        self.do_preparations(self.biasSMU, self.buffer, self.interval)
 
         # Construct results array
         self.xvalues = np.zeros((len(self.voltage_step_list), int(self.buffer)))
@@ -111,7 +111,7 @@ class dynamicwaiting_class:
         else:
             self.log.error("Length of results array are non matching, abort storing data to file")
 
-    def do_preparations(self, samples = 100, interval = 0.01):
+    def do_preparations(self, device, samples = 100, interval = 0.01):
         """This function prepares the setup, like ramping the voltage and steady state check
         """
 
@@ -125,13 +125,15 @@ class dynamicwaiting_class:
         if not self.switching.switch_to_measurement("IV"):
             self.stop_everything()
 
+        # Todo: No delay factor, only a fix delay off intervall
         # Configure the setup, compliance and switch on the smu
         self.main.send_to_device(self.biasSMU, self.SMU_clean_buffer)
         self.main.change_value(self.biasSMU, "set_voltage", "0")
-        self.main.config_setup(self.biasSMU, [("set_complience_current", str(self.compliance)+"e-6"),
+        self.main.config_setup(self.biasSMU, [("set_complience_current", str(self.compliance)),
                                               ("set_NPLC", "{!s}".format(self.NPLC)),
                                               ("set_measurement_delay_factor", "{!s}".format(self.delay)),
-                                              ("set_measure_adc", "smua.ADC_FAST")
+                                              ("set_measure_adc", "smua.ADC_FAST"),
+                                              ("set_current_range_low", "100e-9")
                                              ])
         self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples = samples, interval = interval))
         self.main.change_value(self.biasSMU, "set_voltage", "0")
@@ -141,6 +143,10 @@ class dynamicwaiting_class:
             self.current_voltage = self.main.main.default_dict["bias_voltage"]
         else:
             self.stop_everything()
+
+        # Try out the measurement a few time ( the 2657 does not behave correct in the first 2-4 iterations
+        for i in range(3):
+            self.main.send_to_device(device, self.measureItobuffer.format(level=0))
 
         #self.file = create_new_file(self.main.job_details["dynamicwaiting"]["filename"],
         #                            self.main.job_details["dynamicwaiting"]["filepath"])

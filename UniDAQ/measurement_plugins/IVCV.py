@@ -120,15 +120,15 @@ class IVCV_class:
 
         self.main.ramp_voltage(bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01)
         self.main.change_value(bias_SMU, "set_voltage", "0")
-        if self.main.check_complience(bias_SMU, float(complience)):
+        sleep(2.)
+        if self.main.check_complience(bias_SMU, 100e-6):
             sleep(1.)
-            if self.main.check_complience(bias_SMU, float(complience)):
+            if self.main.check_complience(bias_SMU, 100e-6):
                 self.log.error("Output voltage was set to 0 and still the device is in complience. Please check the setup."
                                "This should not happen!!!")
 
         self.main.change_value(bias_SMU, "set_output", "0")
         self.main.capacitor_discharge(discharge_SMU, discharge_switching, "set_terminal", "FRONT", do_anyway=True)
-
         return None
 
     #@timeit

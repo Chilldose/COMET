@@ -21,7 +21,7 @@ def run_with_lock(method):
             llock.debug("Lock released by program: " + str(method.__name__))
         # raise the exception and print the stack trace
         except Exception as error:
-            llock.ERROR("A lock could not be acquired in " + str(method.__name__), exc_info=True)
+            llock.error("A lock could not be acquired in " + str(method.__name__), exc_info=True)
             # this is optional but sometime the raise does not work
             raise  # this raises the error with stack backtrace
         return result

@@ -73,6 +73,7 @@ class SettingsControl_widget:
         self.gui.operator_comboBox.activated[str].connect(self.operator_selector_action)
         self.gui.sensor_comboBox.activated[str].connect(self.sensor_selector_action)
         self.gui.proj_comboBox.activated[str].connect(self.project_selector_action)
+        self.gui.filename.textChanged[str].connect(self.change_name)
 
     # Order functions
     def change_name(self, filename):

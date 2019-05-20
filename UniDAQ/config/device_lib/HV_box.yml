@@ -3,6 +3,7 @@
     get_relay_state: "GET:"
 
     # All set parameters
+    set_terminal: SET:TERM
     set_discharge: SET:DISCHARGE {} # ON/OFF
     set_external_light: SET:BOX_LED {} # ON/OFF
     set_environement_control: SET:CTRL {} # ON/OFF
@@ -13,7 +14,6 @@
     set_hummin: SET:HUM_MIN {}
     set_hummax: SET:HUM_MAX {}
     set_lock_switches: SET:TST {}
-    set_terminal: SET:TERM
 
     # All get parameters
     get_enviroment: GET:ENV ?
