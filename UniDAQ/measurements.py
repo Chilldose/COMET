@@ -270,10 +270,10 @@ class measurement_class(Thread):
                     self.stop_measurement()
                     return False
 
-            command = self.build_command(device, command)
+            comm = self.build_command(device, command)
             for i in range(samples):
                 self.log.debug("Conducting steady state check...")
-                values.append(float(str(self.vcw.query(device, command)).split(",")[0]))
+                values.append(float(str(self.vcw.query(device, comm)).split(",")[0]))
                 sleep(wait)
             slope, intercept, r_value, p_value, std_err = stats.linregress([i for i in range(len(values))], values)
             if std_err <= 1e-6 and abs(slope) <= abs(max_slope):
@@ -402,22 +402,28 @@ class measurement_class(Thread):
 
         return True
 
-    def change_value_query(self, device_dict, order, value="", answer="1"):
+    def change_value_query(self, device_dict, order, value="", answer="1", ignore_answer=True):
         """This function query a command to a device and waits for a return value and compares
         it with the answer statement, if they are the same a true is returned"""
-        if type(order) == list:
-            for com in order:
-                command = self.build_command(device_dict, (com, value))
-                answ = self.vcw.query(device_dict, command) # writes the new order to the device
-        else:
-            command = self.build_command(device_dict, (order, value))
-            answ = self.vcw.query(device_dict, command)  # writes the new order to the device
+        if not ignore_answer:
+            if type(order) == list:
+                for com in order:
+                    command = self.build_command(device_dict, (com, value))
+                    answ = self.vcw.query(device_dict, command) # writes the new order to the device
+            else:
+                command = self.build_command(device_dict, (order, value))
+                answ = self.vcw.query(device_dict, command)  # writes the new order to the device
 
-        answ = str(answ).strip()
-        if answ == answer:
-            return None
+            answ = str(answ).strip()
+            if answ == answer:
+                return None
+            else:
+                return answ # For errorhandling it is the return from the device which was not the expected answer
         else:
-            return answ # For errorhandling it is the return from the device which was not the expected answer
+            self.log.critical("Overwrite in progress in change_value_query, no check of correct answer is done!!!!")
+            command = self.build_command(device_dict, (order, value))
+            self.vcw.write(device_dict, command)
+            return None
 
     def send_to_device(self, device_dict, command):
         """
@@ -501,10 +507,10 @@ class measurement_class(Thread):
 
         # Set the switching for the discharge (a relay must be switched in the decouple box by applying 5V
         #sleep(1.) # Slow switching shit on BB
-        error = self.change_value_query(relay_dict, "set_discharge", "ON", "DONE")
+        error = self.change_value_query(relay_dict, "set_discharge", "ON", "OK")
         if error:
-            self.queue_to_main.put({"RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " +  str("DONE") + " got " + str(error) + " instead."})
-            self.log.error("Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " +  str("DONE") + " got " + str(error) + " instead.")
+            self.queue_to_main.put({"RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " +  str("OK") + " got " + str(error) + " instead."})
+            self.log.error("Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " +  str("OK") + " got " + str(error) + " instead.")
             return False
         sleep(1.) # relay is really slow
 
@@ -536,15 +542,15 @@ class measurement_class(Thread):
                 self.change_value(device_dict, termorder, "REAR")
                 # return to default mode for this switching
                 sleep(1.)  # Slow switching shit on BB
-                error = self.change_value_query(relay_dict, "set_discharge", "OFF", "DONE")
+                error = self.change_value_query(relay_dict, "set_discharge", "OFF", "OK")
                 if error:
                     self.queue_to_main.put({
                                                "RequestError": "Capacitor discharged failed! Switching the discharge"
                                                                " relay failed! Expected reply from device would be: "
-                                                               + str("DONE") + " got " + str(error) + " instead."})
+                                                               + str("OK") + " got " + str(error) + " instead."})
                     self.log.error(
                         "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
-                            "DONE") + " got " + str(error) + " instead.")
+                            "OK") + " got " + str(error) + " instead.")
 
                     return False
                 sleep(1.)  # relay is really slow
@@ -558,13 +564,13 @@ class measurement_class(Thread):
                 command = self.build_command(device_dict, ("set_output", "OFF"))  # switch back to default terminal
                 self.vcw.write(device_dict, command)  # writes the new order to the device
                 # return to default mode for this switching
-                error = self.change_value_query(relay_dict, "set_discharge", "OFF", "DONE")
+                error = self.change_value_query(relay_dict, "set_discharge", "OFF", "OK")
                 if error:
                     self.queue_to_main.put({"RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
-                                            "DONE") + " got " + str(error) + " instead."})
+                                            "OK") + " got " + str(error) + " instead."})
                     self.log.error(
                         "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
-                            "DONE") + " got " + str(error) + " instead.")
+                            "OK") + " got " + str(error) + " instead.")
 
                 return False
 

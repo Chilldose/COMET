@@ -21,7 +21,7 @@ def run_with_lock(method):
             llock.debug("Lock released by program: " + str(method.__name__))
         # raise the exception and print the stack trace
         except Exception as error:
-            llock.ERROR("A lock could not be acquired in " + str(method.__name__), exc_info=True)
+            llock.error("A lock could not be acquired in " + str(method.__name__), exc_info=True)
             # this is optional but sometime the raise does not work
             raise  # this raises the error with stack backtrace
         return result
@@ -268,7 +268,7 @@ class VisaConnectWizard:
 
     @run_with_lock # So only one talker and listener can be there
     def query(self, resource_dict, code, reconnect = True):
-        """Makes a query to the resource (the same as first write than read)"""
+        """Makes a query to the resource (the same as first write then read)"""
         #Just check if a resource or object was passed and prepare everything
         try:
             resource = resource_dict["Visa_Resource"]

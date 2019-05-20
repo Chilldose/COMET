@@ -92,7 +92,7 @@ class Alignment_window(Table_widget):
         """
 
         # Separate header and data via regex
-        data_pattern = re.compile(r"(\w+)\s+(\d+)\s+(\d+)\s+(\d+)\n", re.MULTILINE) # Todo: Its possible to do all the work with regex
+        data_pattern = re.compile(r"(\w+)\s+(-?\d+)\s+(-?\d+)\s+(-?\d+)\n", re.MULTILINE) # Todo: Its possible to do all the work with regex
         for project, sensors in parent_dict.items():
             for sensor, raw_data in sensors.items():
                 #parent_dict[project][sensor]["data"] = {k: v for d in [{str(line[0]): [float(x) for x in line[1:]]} for line in data_pattern.findall(raw_data["raw"])] for k, v in d.items()}

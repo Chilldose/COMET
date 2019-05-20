@@ -6,7 +6,8 @@
    # All set parameters
    set_enable_beeper: beeper.enable = {}
    set_beep: beeper.beep({}, {})
-   set_delay: delay({})
+   set_delay: delay({}) # Sets a delay to to following command!
+   set_meas_delay: smua.measure.delay = {} # Sets a FIX delay for commands
    set_lock_SMU: display.locallockout = {} 
    set_display_measurement: display.screen = {}
    set_display_text: display.settext({text}) # Can be a list of values
@@ -59,7 +60,6 @@
 
   # All reset device parameters
    reset:
-      - queueclear: ""
       - display_func: display.MEASURE_DCAMPS
       - autorange_current: 1
       - autorange_voltage: 1
@@ -86,11 +86,12 @@
       - enable_beeper: beeper.ON
       - lan_autoconnect: lan.ENABLE
       - verify_host: lan.ENABLE
-      - gateway: '192.168.0.1'
-      - ipaddress: '192.168.0.100'
-      - lan_config:  lan.MANUAL
+      #- gateway: '192.168.0.1'
+      #- ipaddress: '192.168.0.100'
+      #- lan_config:  lan.MANUAL
       - lock_SMU: display.LOCK
       - display_measurement: display.SMUA
+      - meas_delay:  smua.DELAY_AUTO
   
   
    # Misc parameters
@@ -99,7 +100,7 @@
    initialize_lan: lan.applysettings()
    reset_lan_interface: lan.reset()
    device_IDN_query: "*IDN?"
-   reset_device: ["*rst"]
+   reset_device: ["*rst", "*cls"]
    abort: smua.abort()
    store_calibration: sma.cal.save()
    calibrate_highsense: smuX.contact.calibratehi()

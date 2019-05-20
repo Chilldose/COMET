@@ -924,6 +924,7 @@ class table_control_class:
         self.build_command = build_command
         self.log = logging.getLogger("Table_control")
         self.pos_pattern = re.compile(r"(-?\d+.\d+)\s+(-?\d+.\d+)\s+(-?\d+.\d+)")
+        self.lifting = 800
 
         if "Table_control" in self.devices:
             if "Visa_Resource" in self.devices["Table_control"]:
@@ -977,6 +978,10 @@ class table_control_class:
                 if counter > maxcounter:
                     cal_not_done = False #exits the loop after some attempts
 
+            # todo: very bad coding here
+            elif done == False and str(done) != "0.0":
+                pass
+
             elif done == 1.: # motors are in movement
                 self.vcw.write(self.device, ready_command) # writes the command again
 
@@ -1007,7 +1012,7 @@ class table_control_class:
         '''
         if self.table_ready and not self.variables["table_is_moving"]:
             self.variables["table_is_moving"] = True
-            commands = self.build_command(self.device, ("calibrate_motor", ""))
+            commands = self.device["calibrate_motor"]
             for order in commands:
                 self.vcw.write(self.device, order)
                 success = self.check_if_ready()
@@ -1081,6 +1086,8 @@ class table_control_class:
                 self.log.info("Moving to strip: {} at position {},{},{}.".format(strip, pad_pos[0], pad_pos[1], pad_pos[2]))
                 table_abs_pos = list(transfomation_class.vector_trans(pad_pos, T, V0))
                 success = self.move_to(table_abs_pos, move_down=True, lifting = height_movement)
+            else:
+                return True
 
             self.variables["current_strip"] = strip
             return success
@@ -1172,6 +1179,8 @@ class table_control_class:
             if success:
                 self.variables["Table_state"] = True # true means up
             return success
+        else:
+            self.queue.put({"Info": "Table already in the up position..."})
         return True
 
     def move_down(self, lifting):
@@ -1187,6 +1196,8 @@ class table_control_class:
             if success:
                 self.variables["Table_state"] = False
             return success
+        else:
+            self.queue.put({"Info": "Table already in the down position..."})
         return True
 
     def set_joystick(self, bool):

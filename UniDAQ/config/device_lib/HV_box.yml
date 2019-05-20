@@ -3,6 +3,7 @@
     get_relay_state: "GET:"
 
     # All set parameters
+    set_terminal: SET:TERM
     set_discharge: SET:DISCHARGE {} # ON/OFF
     set_external_light: SET:BOX_LED {} # ON/OFF
     set_environement_control: SET:CTRL {} # ON/OFF
@@ -24,6 +25,7 @@
     get_operation_complete: "*OPC?"
 
     reset:
+        - terminal: "OFF"
         - external_light: "OFF"
         - open_channel: "A1,A2,B1,B2,C1,C2"
 
