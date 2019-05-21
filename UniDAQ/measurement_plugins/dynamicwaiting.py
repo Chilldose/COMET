@@ -125,7 +125,6 @@ class dynamicwaiting_class:
         if not self.switching.switch_to_measurement("IV"):
             self.stop_everything()
 
-        # Todo: No delay factor, only a fix delay off intervall
         # Configure the setup, compliance and switch on the smu
         self.main.send_to_device(self.biasSMU, self.SMU_clean_buffer)
         self.main.change_value(self.biasSMU, "set_voltage", "0")
@@ -133,7 +132,7 @@ class dynamicwaiting_class:
                                               ("set_NPLC", "{!s}".format(self.NPLC)),
                                               #("set_measurement_delay_factor", "{!s}".format(self.delay)),
                                               ("set_measure_adc", "smua.ADC_FAST"),
-                                              ("set_current_range_low", "100e-9"),
+                                              #("set_current_range_low", "100e-9"),
                                               ("set_meas_delay", str(self.delay))
                                              ])
         self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples = samples, interval = interval))
