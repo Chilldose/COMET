@@ -195,29 +195,17 @@
       <property name="bottomMargin">
        <number>13</number>
       </property>
-      <item row="1" column="2">
-       <widget class="QLabel" name="max_voltage_label_IV_3">
+      <item row="4" column="2">
+       <widget class="QLabel" name="label_2">
         <property name="text">
-         <string>Interval [ms]</string>
+         <string>Meas. start delay [s]</string>
         </property>
        </widget>
       </item>
-      <item row="2" column="3">
-       <widget class="QDoubleSpinBox" name="NPLC_spinbox">
-        <property name="decimals">
-         <number>3</number>
-        </property>
-        <property name="minimum">
-         <double>0.001000000000000</double>
-        </property>
-        <property name="maximum">
-         <double>25.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.500000000000000</double>
-        </property>
-        <property name="value">
-         <double>1.000000000000000</double>
+      <item row="1" column="2">
+       <widget class="QLabel" name="max_voltage_label_IV_3">
+        <property name="text">
+         <string>Meas. interval [ms]</string>
         </property>
        </widget>
       </item>
@@ -225,55 +213,6 @@
        <widget class="QLabel" name="max_voltage_label_IV_4">
         <property name="text">
          <string>NPLC</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="3">
-       <widget class="QDoubleSpinBox" name="interval_spinbox">
-        <property name="decimals">
-         <number>6</number>
-        </property>
-        <property name="minimum">
-         <double>0.000001000000000</double>
-        </property>
-        <property name="maximum">
-         <double>10.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>0.100000000000000</double>
-        </property>
-        <property name="value">
-         <double>1.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="0">
-       <widget class="QLabel" name="max_voltage_label_IV">
-        <property name="text">
-         <string>Maximum bias voltage [V]</string>
-        </property>
-       </widget>
-      </item>
-      <item row="0" column="3">
-       <widget class="QDoubleSpinBox" name="voltage_steps_IV">
-        <property name="buttonSymbols">
-         <enum>QAbstractSpinBox::UpDownArrows</enum>
-        </property>
-        <property name="decimals">
-         <number>0</number>
-        </property>
-        <property name="maximum">
-         <double>1000.000000000000000</double>
-        </property>
-        <property name="value">
-         <double>10.000000000000000</double>
-        </property>
-       </widget>
-      </item>
-      <item row="2" column="0">
-       <widget class="QLabel" name="max_voltage_label_IV_2">
-        <property name="text">
-         <string>Samples</string>
         </property>
        </widget>
       </item>
@@ -296,22 +235,90 @@
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QDoubleSpinBox" name="max_voltage_IV">
+      <item row="1" column="3">
+       <widget class="QDoubleSpinBox" name="interval_spinbox">
+        <property name="decimals">
+         <number>6</number>
+        </property>
+        <property name="minimum">
+         <double>0.000001000000000</double>
+        </property>
+        <property name="maximum">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.100000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <widget class="QDoubleSpinBox" name="delay_spinbox">
+        <property name="decimals">
+         <number>6</number>
+        </property>
+        <property name="minimum">
+         <double>0.000000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>1.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.001000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.001000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="3">
+       <widget class="QDoubleSpinBox" name="voltage_steps_IV">
+        <property name="buttonSymbols">
+         <enum>QAbstractSpinBox::UpDownArrows</enum>
+        </property>
         <property name="decimals">
          <number>0</number>
         </property>
-        <property name="minimum">
-         <double>-1000.000000000000000</double>
-        </property>
         <property name="maximum">
-         <double>0.000000000000000</double>
-        </property>
-        <property name="singleStep">
-         <double>10.000000000000000</double>
+         <double>1000.000000000000000</double>
         </property>
         <property name="value">
-         <double>-200.000000000000000</double>
+         <double>10.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="3">
+       <widget class="QDoubleSpinBox" name="NPLC_spinbox">
+        <property name="decimals">
+         <number>3</number>
+        </property>
+        <property name="minimum">
+         <double>0.001000000000000</double>
+        </property>
+        <property name="maximum">
+         <double>25.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>0.001000000000000</double>
+        </property>
+        <property name="value">
+         <double>0.001000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0">
+       <widget class="QLabel" name="max_voltage_label_IV_2">
+        <property name="text">
+         <string>Samples</string>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QLabel" name="max_voltage_label_IV_5">
+        <property name="text">
+         <string>Fix meas. delay [s]</string>
         </property>
        </widget>
       </item>
@@ -334,13 +341,6 @@
         </property>
        </widget>
       </item>
-      <item row="1" column="0">
-       <widget class="QLabel" name="complience_label_IV">
-        <property name="text">
-         <string>Compliance [uA]</string>
-        </property>
-       </widget>
-      </item>
       <item row="0" column="2">
        <widget class="QLabel" name="voltages_steps_label">
         <property name="text">
@@ -348,31 +348,64 @@
         </property>
        </widget>
       </item>
-      <item row="3" column="0">
-       <widget class="QLabel" name="max_voltage_label_IV_5">
+      <item row="1" column="0">
+       <widget class="QLabel" name="complience_label_IV">
         <property name="text">
-         <string>Fix delay [s]</string>
+         <string>Compliance [uA]</string>
         </property>
        </widget>
       </item>
-      <item row="3" column="1">
-       <widget class="QDoubleSpinBox" name="delay_spinbox">
+      <item row="0" column="0">
+       <widget class="QLabel" name="max_voltage_label_IV">
+        <property name="text">
+         <string>Maximum bias voltage [V]</string>
+        </property>
+       </widget>
+      </item>
+      <item row="0" column="1">
+       <widget class="QDoubleSpinBox" name="max_voltage_IV">
         <property name="decimals">
-         <number>6</number>
+         <number>0</number>
         </property>
         <property name="minimum">
+         <double>-1000.000000000000000</double>
+        </property>
+        <property name="maximum">
          <double>0.000000000000000</double>
+        </property>
+        <property name="singleStep">
+         <double>10.000000000000000</double>
+        </property>
+        <property name="value">
+         <double>-200.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="4" column="3">
+       <widget class="QDoubleSpinBox" name="measStartDelay_spin">
+        <property name="decimals">
+         <number>6</number>
         </property>
         <property name="maximum">
          <double>1.000000000000000</double>
         </property>
         <property name="singleStep">
-         <double>0.100000000000000</double>
+         <double>0.001000000000000</double>
         </property>
         <property name="value">
          <double>0.000000000000000</double>
         </property>
        </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QLabel" name="label_3">
+        <property name="text">
+         <string>SMU Range:</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="1">
+       <widget class="QComboBox" name="smu_range_combo"/>
       </item>
      </layout>
     </widget>

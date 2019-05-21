@@ -22,10 +22,16 @@ class dynamicwaiting_class:
         self.biasSMU = self.main.devices["BiasSMU"]
         self.compliance = self.main.job_details["dynamicwaiting"]["Compliance"]
         self.justlength = 24
+        # The intervall of every measurement, (is something else then the delay value!)
         self.interval = self.main.job_details["dynamicwaiting"]["Interval"]/1000.
         self.buffer = self.main.job_details["dynamicwaiting"]["Samples"]
+        # This delay is the fixed measurement delay, which delays EVERY measurement before a value is aquired
+        # If you get bad values increase this to give the ADC some time to aquire a value
         self.delay = self.main.job_details["dynamicwaiting"]["Delay"]
         self.NPLC = self.main.job_details["dynamicwaiting"]["NPLC"]
+        # The Start delay defines a global offset before a measurement series actually starts
+        self.start_delay = self.main.job_details["dynamicwaiting"]["start_delay"]
+        self.SMURange = self.main.job_details["dynamicwaiting"]["Range"]
         self.current_voltage = None
         self.voltage_step_list = []
         self.get_data_query = "printbuffer(1, {samples!s}, measbuffer)"
@@ -40,7 +46,8 @@ class dynamicwaiting_class:
                           "measbuffer = smua.makebuffer(smua.measure.count)\n" \
                           "measbuffer.collecttimestamps = 1" \
 
-        self.measureItobuffer = "smua.source.levelv = {level!s} \n"\
+        self.measureItobuffer = "smua.source.levelv = {level!s} \n" \
+                                "delay(" + str(self.start_delay) + ")"\
                                 "smua.measure.overlappedi(measbuffer)\n" \
                                 "waitcomplete()\n"
 
@@ -135,12 +142,12 @@ class dynamicwaiting_class:
                                               ("set_NPLC", "{!s}".format(self.NPLC)),
                                               #("set_measurement_delay_factor", "{!s}".format(self.delay)),
                                               ("set_measure_adc", "smua.ADC_FAST"),
-                                              #("set_current_range_low", "100e-9"),
+                                              ("set_current_range_low", str(self.SMURange)),
                                               ("set_meas_delay", str(self.delay))
                                              ])
         self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples = samples, interval = interval))
         # Todo: set a first voltage to make sure it measures not only noise
-        self.main.change_value(self.biasSMU, "set_voltage", "0")
+        self.main.change_value(self.biasSMU, "set_voltage", "0.0")
         self.main.change_value(self.biasSMU, "set_output", "1")
 
         if self.main.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=3, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
@@ -149,8 +156,8 @@ class dynamicwaiting_class:
             self.stop_everything()
 
         # Try out the measurement a few time ( the 2657 does not behave correct in the first 2-4 iterations
-        for i in range(3):
-            self.main.send_to_device(device, self.measureItobuffer.format(level=0))
+        #for i in range(3):
+        #    self.main.send_to_device(device, self.measureItobuffer.format(level=0))
 
         #self.file = create_new_file(self.main.job_details["dynamicwaiting"]["filename"],
         #                            self.main.job_details["dynamicwaiting"]["filepath"])
@@ -193,7 +200,7 @@ class dynamicwaiting_class:
 
         if ans:
             #xvalues, yvalues = self.pic_device_answer(ans, time/self.buffer)
-            xvalues, yvalues = self.pic_device_answer(ans, times)
+            xvalues, yvalues = self.pic_device_answer(ans, times, self.start_delay)
 
             if write_to_main: # Writes data to the main, or not
                 self.main.queue_to_main.put({str(str_name): [xvalues, yvalues]})
@@ -206,7 +213,7 @@ class dynamicwaiting_class:
                            "Or a buffer overflow happend. Check the buffer of the device!")
             return [], [], 0.0
 
-    def pic_device_answer(self, values, times):
+    def pic_device_answer(self, values, times, offset):
         """
         Dissects the answer string and returns 2 array containing the x an y values
         :param answer_string: String to dissect
@@ -217,6 +224,7 @@ class dynamicwaiting_class:
         yvalues = list(map(float, expression.findall(values)))
         xvalues = list(map(float, expression.findall(times)))
         xvalues.append(xvalues[-1]+abs(xvalues[-2]-xvalues[-1]))
+        xvalues = [x+offset for x in xvalues]
         #yvalues = answer_string.strip("[").strip("]").split(",")
         #yvalues = list(map(float, yvalues))
         #xvalues = [interval*x for x in range(len(yvalues))]
