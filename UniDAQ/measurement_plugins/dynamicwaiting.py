@@ -21,10 +21,10 @@ class dynamicwaiting_class:
         self.biasSMU = self.main.devices["BiasSMU"]
         self.compliance = self.main.job_details["dynamicwaiting"]["Compliance"]
         self.justlength = 24
-        self.interval = self.main.job_details["dynamicwaiting"].get("Interval", 100)/1000.
-        self.buffer = self.main.job_details["dynamicwaiting"].get("Samples", 100)
-        self.delay = self.main.job_details["dynamicwaiting"].get("Delay", 1.0)
-        self.NPLC = self.main.job_details["dynamicwaiting"].get("NPLC", 1.0)
+        self.interval = self.main.job_details["dynamicwaiting"]["Interval"]/1000.
+        self.buffer = self.main.job_details["dynamicwaiting"]["Samples"]
+        self.delay = self.main.job_details["dynamicwaiting"]["Delay"]
+        self.NPLC = self.main.job_details["dynamicwaiting"]["NPLC"]
         self.current_voltage = None
         self.voltage_step_list = []
         self.get_data_query = "printbuffer(1, {samples!s}, measbuffer)"
@@ -131,9 +131,10 @@ class dynamicwaiting_class:
         self.main.change_value(self.biasSMU, "set_voltage", "0")
         self.main.config_setup(self.biasSMU, [("set_complience_current", str(self.compliance)),
                                               ("set_NPLC", "{!s}".format(self.NPLC)),
-                                              ("set_measurement_delay_factor", "{!s}".format(self.delay)),
+                                              #("set_measurement_delay_factor", "{!s}".format(self.delay)),
                                               ("set_measure_adc", "smua.ADC_FAST"),
-                                              ("set_current_range_low", "100e-9")
+                                              ("set_current_range_low", "100e-9"),
+                                              ("set_meas_delay", str(self.delay))
                                              ])
         self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples = samples, interval = interval))
         self.main.change_value(self.biasSMU, "set_voltage", "0")
