@@ -3,6 +3,7 @@
 import logging
 from time import time, sleep
 import sys
+import re
 sys.path.append('../UniDAQ')
 from ..utilities import timeit, transformation, create_new_file
 from ..VisaConnectWizard import VisaConnectWizard
@@ -28,6 +29,7 @@ class dynamicwaiting_class:
         self.current_voltage = None
         self.voltage_step_list = []
         self.get_data_query = "printbuffer(1, {samples!s}, measbuffer)"
+        self.get_timestamps_query = "printbuffer(1, {samples!s}, measbuffer.timestamps)"
         self.SMU_clean_buffer = "measbuffer = nil"
         self.log = logging.getLogger(__name__)
         self.xvalues = []
@@ -36,6 +38,7 @@ class dynamicwaiting_class:
         self.SMU_config = "smua.measure.count = {samples!s} \n" \
                           "smua.measure.interval = {interval!s}\n" \
                           "measbuffer = smua.makebuffer(smua.measure.count)\n" \
+                          "measbuffer.collecttimestamps = 1" \
 
         self.measureItobuffer = "smua.source.levelv = {level!s} \n"\
                                 "smua.measure.overlappedi(measbuffer)\n" \
@@ -136,6 +139,7 @@ class dynamicwaiting_class:
                                               ("set_meas_delay", str(self.delay))
                                              ])
         self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples = samples, interval = interval))
+        # Todo: set a first voltage to make sure it measures not only noise
         self.main.change_value(self.biasSMU, "set_voltage", "0")
         self.main.change_value(self.biasSMU, "set_output", "1")
 
@@ -175,6 +179,7 @@ class dynamicwaiting_class:
         iter = 0
         while not device_ansered:
             ans = self.vcw.query(device, self.get_data_query.format(samples=samples)).strip()
+            times = self.vcw.query(device, self.get_timestamps_query.format(samples=samples)).strip()
             if ans:
                 device_ansered = True
             elif iter > 5:
@@ -187,7 +192,8 @@ class dynamicwaiting_class:
         time = abs(endtime - starttime)
 
         if ans:
-            xvalues, yvalues = self.pic_device_answer(ans, time/self.buffer)
+            #xvalues, yvalues = self.pic_device_answer(ans, time/self.buffer)
+            xvalues, yvalues = self.pic_device_answer(ans, times)
 
             if write_to_main: # Writes data to the main, or not
                 self.main.queue_to_main.put({str(str_name): [xvalues, yvalues]})
@@ -200,15 +206,19 @@ class dynamicwaiting_class:
                            "Or a buffer overflow happend. Check the buffer of the device!")
             return [], [], 0.0
 
-    def pic_device_answer(self, answer_string, interval=0.1):
+    def pic_device_answer(self, values, times):
         """
         Dissects the answer string and returns 2 array containing the x an y values
         :param answer_string: String to dissect
         :param interval: interval defined
         :return: xvalues, yvalues
         """
-        yvalues = answer_string.strip("[").strip("]").split(",")
-        yvalues = list(map(float, yvalues))
-        xvalues = [interval*x for x in range(len(yvalues))]
-
+        expression = re.compile("\S+e-\d+")
+        yvalues = list(map(float, expression.findall(values)))
+        xvalues = list(map(float, expression.findall(times)))
+        xvalues.append(xvalues[-1]+abs(xvalues[-2]-xvalues[-1]))
+        #yvalues = answer_string.strip("[").strip("]").split(",")
+        #yvalues = list(map(float, yvalues))
+        #xvalues = [interval*x for x in range(len(yvalues))]
+        # todo: somehowe i get one timestep fewer as measurement values
         return xvalues, yvalues
