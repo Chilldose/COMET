@@ -57,7 +57,7 @@ class stripscan_class:
 
     def run(self):
         # Check if alignment is present or not, if not stop measurement
-        if not self.main.main.default_dict["settings"]["Alignment"]:
+        if not self.main.main.default_dict["Alignment"]:
             self.log.error("Alignment is missing. Stripscan can only be conducted if a valid alignment is present.")
             self.stop_everything()
             return
@@ -191,13 +191,13 @@ class stripscan_class:
 
         # Ramps the voltage, if ramp voltage returns false something went wrong -> stop
         if not self.main.ramp_voltage(self.bias_SMU, "set_voltage", self.voltage_Start, self.voltage_End, self.voltage_steps, wait_time = 1, complience=self.complience):
-            self.current_voltage = self.main.main.default_dict["settings"]["bias_voltage"]
+            self.current_voltage = self.main.main.default_dict["bias_voltage"]
             self.stop_everything()
 
         #If everything works make steady state check
         else:
-            if self.main.steady_state_check(self.bias_SMU, max_slope = 1e-6, wait = 0, samples = 3, Rsq = 0.5, complience=self.complience): # Is a dynamic waiting time for the measuremnts
-                self.current_voltage = self.main.main.default_dict["settings"]["bias_voltage"]
+            if self.main.steady_state_check(self.bias_SMU, command="get_read_current", max_slope = 1e-6, wait = 0, samples = 3, Rsq = 0.5, complience=self.complience): # Is a dynamic waiting time for the measuremnts
+                self.current_voltage = self.main.main.default_dict["bias_voltage"]
                 if self.main.check_complience(self.bias_SMU, self.complience): #if complience is reached stop everything
                     self.stop_everything()
             else:
@@ -289,7 +289,7 @@ class stripscan_class:
                 if not self.main.main.stop_measurement: # Prevents that empty entries will be written to file after aborting the measurement
                     self.current_strip = current_strip
                     #results.append({}) # Adds an empty dict to the results for the bad strip detection
-                    start = time.time()  # start timer for a strip measurement
+                    start = time()  # start timer for a strip measurement
                     if self.main.save_data:
                         self.main.write(self.main.measurement_files["stripscan"], str(self.sensor_pad_data["data"][str(current_strip-1)][0]).ljust(self.justlength))  # writes the strip to the file
                     for measurement in self.measurement_order:
@@ -332,7 +332,7 @@ class stripscan_class:
                             self.main.badstrip_dict[str(current_strip)].update(badstrip)
                         else:
                             self.main.badstrip_dict[str(current_strip)] = badstrip
-                            self.main.main.default_dict["settings"]["Bad_strips"] += 1 # increment the counter
+                            self.main.main.default_dict["Bad_strips"] += 1 # increment the counter
 
                     if not self.main.main.stop_measurement:
                         # After all measurements are conducted write the environment variables to the file
@@ -347,9 +347,9 @@ class stripscan_class:
                         # Do the bad strip detection
 
 
-                    if abs(float(start - time.time())) > 1.: # Rejects all measurements which are to short to be real measurements
-                        delta = float(self.main.main.default_dict["settings"]["strip_scan_time"]) + abs(start - time.time())
-                        self.main.main.default_dict["settings"]["strip_scan_time"] = str(delta / 2.)  # updates the time for strip measurement
+                    if abs(float(start - time())) > 1.: # Rejects all measurements which are to short to be real measurements
+                        delta = float(self.main.main.default_dict["strip_scan_time"]) + abs(start - time())
+                        self.main.main.default_dict["strip_scan_time"] = str(delta / 2.)  # updates the time for strip measurement
 
 
     def __do_simple_measurement(self, str_name, device, xvalue = -1, samples = 5, write_to_main = True):
@@ -386,7 +386,7 @@ class stripscan_class:
                 return
             voltage = -1.
             self.main.config_setup(device_dict, [("set_source_voltage", ""), ("set_measure_current", ""),("set_voltage", voltage), ("set_complience", 90E-6), ("set_output", "ON")])  # config the 2410 for 1V bias on bias and DC pad
-            if self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=3, Rsq=0.5, check_complience=False):  # Is a dynamic waiting time for the measuremnt
+            if self.main.steady_state_check(device_dict, command="get_read_current", max_slope=1e-6, wait=0, samples=3, Rsq=0.5, check_complience=False):  # Is a dynamic waiting time for the measuremnt
                 value = self.__do_simple_measurement("Rpoly", device_dict, xvalue, samples, write_to_main=False) # This value is istrip +
             else:
                 self.main.config_setup(device_dict, [("set_output", "OFF"), ("set_voltage", 0)])
@@ -427,7 +427,7 @@ class stripscan_class:
             self.main.config_setup(device_dict, config_commands)  # config the elmeter
             self.main.change_value(voltage_device, "set_output", "ON") # Sets the output of the device to on
 
-            rintsettings = self.main.main.default_dict["settings"]["Rint_MinMax"]
+            rintsettings = self.main.main.default_dict["Rint_MinMax"]
             minvoltage = rintsettings[0]
             maxvoltage = rintsettings[1]
             steps = rintsettings[2]
@@ -436,7 +436,7 @@ class stripscan_class:
 
             # Get to the first voltage and wait till steady state
             self.main.change_value(voltage_device, "set_voltage", minvoltage)
-            if self.main.steady_state_check(device_dict, max_slope=1e-2, wait=0, samples=5, Rsq=0.3, check_complience=False):  # Is a dynamic waiting time for the measuremnt
+            if self.main.steady_state_check(device_dict, command="get_read_current", max_slope=1e-2, wait=0, samples=5, Rsq=0.3, check_complience=False):  # Is a dynamic waiting time for the measuremnt
                 values_list = []
                 past_volts = []
                 for i, voltage in enumerate(voltage_list): # make all measurements for the Rint ramp
@@ -478,7 +478,7 @@ class stripscan_class:
                 self.stop_everything()
                 return
             self.main.config_setup(device_dict, config_commands) # config the elmeter
-            if self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=5, Rsq=0.5, check_complience=False): # Is a dynamic waiting time for the measuremnt
+            if self.main.steady_state_check(device_dict, command="get_read_current", max_slope=1e-6, wait=0, samples=5, Rsq=0.5, check_complience=False): # Is a dynamic waiting time for the measuremnt
             #sleep(0.5) # Dynamic waiting time does not work here, idont know why
                 value = self.__do_simple_measurement("Idiel", device_dict, xvalue, samples, write_to_main=write_to_main)
             else:
@@ -497,7 +497,7 @@ class stripscan_class:
                 return
             config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_zero_check", "OFF")]
             self.main.config_setup(device_dict, config_commands)  # config the elmeter
-            if self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=2, Rsq=0.5, check_complience=False):  # Is a dynamic waiting time for the measuremnt
+            if self.main.steady_state_check(device_dict, command="get_read_current", max_slope=1e-6, wait=0, samples=2, Rsq=0.5, check_complience=False):  # Is a dynamic waiting time for the measuremnt
                 value = self.__do_simple_measurement("Istrip", device_dict, xvalue, samples, write_to_main=write_to_main)
             else:
                 value = False
@@ -512,7 +512,7 @@ class stripscan_class:
             if not self.switching.switch_to_measurement("Idark"):
                 self.stop_everything()
                 return
-            if self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=2, Rsq=0.5):  # Is a dynamic waiting time for the measuremnt
+            if self.main.steady_state_check(device_dict, command="get_read_current", max_slope=1e-6, wait=0, samples=2, Rsq=0.5):  # Is a dynamic waiting time for the measuremnt
                 value = self.__do_simple_measurement("Idark", device_dict, xvalue, samples, write_to_main=write_to_main)
             else:
                 return False
@@ -528,7 +528,7 @@ class stripscan_class:
                 self.stop_everything()
                 return
             sleep(0.2)  # Is need due to some stray capacitances which corrupt the measurement
-            if self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=5,Rsq=0.5, check_complience=False):  # Is a dynamic waiting time for the measuremnt
+            if self.main.steady_state_check(device_dict,  command="get_read_current",max_slope=1e-6, wait=0, samples=5,Rsq=0.5, check_complience=False):  # Is a dynamic waiting time for the measuremnt
                 value = self.__do_simple_measurement("Cint", device_dict, xvalue, samples, write_to_main=not freqscan)
             else:
                 return False
@@ -542,7 +542,7 @@ class stripscan_class:
                 self.stop_everything()
                 return
             sleep(0.2) #Because fuck you thats why. (Brandbox to LCR meter)
-            if self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=2, Rsq=0.5,
+            if self.main.steady_state_check(device_dict, command="get_read_current", max_slope=1e-6, wait=0, samples=2, Rsq=0.5,
                                          check_complience=False):  # Is a dynamic waiting time for the measuremnt
                 value = self.__do_simple_measurement("CintAC", device_dict, xvalue, samples, write_to_main=not freqscan)
             else:
@@ -557,7 +557,7 @@ class stripscan_class:
                 self.stop_everything()
                 return
             sleep(0.2) # Is need due to some stray capacitances which corrupt the measurement
-            if self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=5,Rsq=0.5, check_complience=False):  # Is a dynamic waiting time for the measuremnt
+            if self.main.steady_state_check(device_dict, command="get_read_current", max_slope=1e-6, wait=0, samples=5,Rsq=0.5, check_complience=False):  # Is a dynamic waiting time for the measuremnt
                 value = self.__do_simple_measurement("Cac", device_dict, xvalue, samples, write_to_main=not freqscan)
             else: return False
             return value
@@ -570,7 +570,7 @@ class stripscan_class:
                 self.stop_everything()
                 return
             sleep(0.2)  # Is need due to some stray capacitances which corrupt the measurement
-            if self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=5, Rsq=0.5, check_complience=False):  # Is a dynamic waiting time for the measuremnt
+            if self.main.steady_state_check(device_dict, command="get_read_current", max_slope=1e-6, wait=0, samples=5, Rsq=0.5, check_complience=False):  # Is a dynamic waiting time for the measuremnt
                 value = self.__do_simple_measurement("Cback", device_dict, xvalue, samples, write_to_main=not freqscan)
             else: return 0
             return value
