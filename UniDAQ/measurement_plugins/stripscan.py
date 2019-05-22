@@ -40,15 +40,15 @@ class stripscan_class:
                       ("Idiel","current[A]"), ("Idark","current[A]"),
                       ("Rint", "res[Ohm]"), ("Cac", "cap[F]"),
                       ("Cint", "cap[F]"), ("Cback", "cap[F]")]
-        self.strips = self.main.total_strips # now the program knows the total number of strips
-        self.current_strip = self.main.main.default_dict["settings"]["current_strip"] # Current pad position of the table
-        self.height = self.main.main.default_dict["settings"]["height_movement"]
-        self.samples = 3
+        self.current_strip = self.main.main.default_dict["current_strip"] # Current pad position of the table
+        self.height = self.main.main.default_dict["height_movement"]
+        self.samples = 5
         self.last_istrip_pad = -1 # Number of the last pad on which a I strip was conducted, important for rpoly
-        self.T = self.main.main.default_dict["settings"]["trans_matrix"]
-        self.V0 = self.main.main.default_dict["settings"]["V0"]
+        self.T = self.main.main.default_dict["trans_matrix"]
+        self.V0 = self.main.main.default_dict["V0"]
         self.job = self.main.job_details
-        self.sensor_pad_data = self.main.pad_data[self.job["Project"]][self.job["Sensor"]]
+        self.sensor_pad_data = self.main.framework["Configs"]["additional_files"]["Pad_files"][self.job["Project"]][self.job["Sensor"]]
+        self.strips = len(self.sensor_pad_data["data"])
         self.justlength = 24
         self.rintslopes = [] # here all values from the rint is stored
         self.project = self.main.settings["settings"]["Current_project"] # Warning these values are mutable while runtime!!!
@@ -291,7 +291,7 @@ class stripscan_class:
                     #results.append({}) # Adds an empty dict to the results for the bad strip detection
                     start = time.time()  # start timer for a strip measurement
                     if self.main.save_data:
-                        self.main.write(self.main.measurement_files["stripscan"], str(self.sensor_pad_data["data"][current_strip-1][0]).ljust(self.justlength))  # writes the strip to the file
+                        self.main.write(self.main.measurement_files["stripscan"], str(self.sensor_pad_data["data"][str(current_strip-1)][0]).ljust(self.justlength))  # writes the strip to the file
                     for measurement in self.measurement_order:
                         if measurement in self.main.job_details["stripscan"] and not self.main.main.stop_measurement: # looks if measurement should be done
                             # Now conduct the measurement

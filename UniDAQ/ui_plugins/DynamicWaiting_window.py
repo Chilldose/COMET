@@ -59,6 +59,10 @@ class DynamicWaiting_window:
         self.tooltip = show_cursor_position(self.dynamic.current_plot)
         #self.proxy = self.setpg.SignalProxy(self.dynamic.current_plot.scene().sigMouseMoved, rateLimit=60, slot=self.tooltip.onMove)
 
+        # Add the combo box entries for the smu range
+        ranges = ["10e-6", "1e-9", "10e-9", "100e-9", "1e-6", "100e-6", "1e-3", "2e-3", "20e-3", "120e-3"]
+        self.dynamic.smu_range_combo.addItems(ranges)
+
 
     def plot_config(self):
         '''This function configurates the plot'''
@@ -124,7 +128,7 @@ class DynamicWaiting_window:
         self.steps = self.dynamic.voltage_steps_IV.value()
         self.update_stats(0)
 
-        self.final_job.update({"dynamicwaiting": {"StartVolt": 0,
+        self.final_job.update({"dynamicwaiting": {"StartVolt": -1.0,
                                                   "EndVolt": float(self.dynamic.max_voltage_IV.value()),
                                                   "Steps": float(self.dynamic.voltage_steps_IV.value()),
                                                   "Compliance": float(self.dynamic.compliance_IV.value())*1e-6,
@@ -134,7 +138,9 @@ class DynamicWaiting_window:
                                                   "Delay": float(self.dynamic.delay_spinbox.value()),
                                                   "Save_data": True,
                                                   "filename": self.dynamic.output_file.text(),
-                                                  "filepath": self.dynamic.output_directory.text()
+                                                  "filepath": self.dynamic.output_directory.text(),
+                                                  "start_delay": float(self.dynamic.measStartDelay_spin.value()),
+                                                  "Range": float(self.dynamic.smu_range_combo.currentText())
                                                   }
                                    }
                                   )
