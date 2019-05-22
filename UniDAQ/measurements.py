@@ -482,7 +482,7 @@ class measurement_class(Thread):
         self.settings["settings"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
         if 0. < (abs(float(value[0])) - abs(float(complience)*0.99)):
             self.log.error("Complience reached in instrument " + str(device["Device_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(complience))
-            self.queue_to_main.put({"MeasError": "Compliance reached. Value. " + str(value[0]) + " A"})
+            #self.queue_to_main.put({"MeasError": "Compliance reached. Value. " + str(value[0]) + " A"})
             return True
         else:
             return False
@@ -579,7 +579,7 @@ class measurement_class(Thread):
         """Stops the measurement"""
         self.log.critical("Measurement stop sended by framework...")
         order = {"ABORT_MEASUREMENT": True}  # just for now
-        self.main.queue_to_main.put(order)
+        self.main.message_to_main.put(order)
 
 if __name__ == "__main__":
     def refine_ramp(ramp, start, stop, step):
