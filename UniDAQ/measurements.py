@@ -14,7 +14,7 @@ from .utilities import timeit, build_command, flush_to_file, create_new_file
 class measurement_class(Thread):
     #meas_loop, main_defaults, pad_data, devices, queue_to_main, queue_to_event_loop, job_details, queue_to_GUI, table, switching, stop_measurement)
 
-    def __init__(self, event_loop, framework, job_details):
+    def __init__(self, event_loop, framework, job_details, stop_measurement):
 
         Thread.__init__(self)
         self.log = logging.getLogger(__name__)
@@ -22,7 +22,7 @@ class measurement_class(Thread):
         self.log.info("Initializing measurement thread...")
         self.queue_to_main = framework["Message_to_main"]
         self.main = event_loop
-        self.stop_measurement = self.main.stop_measurement # this is a function and need to be called via brackets to work correctly!!!
+        #self.stop_measurement = stop_measurement # this is a function and need to be called via brackets to work correctly!!!
         self.queue_to_event_loop = framework["Message_from_main"]
         self.queue_to_GUI = framework["Queue_to_GUI"]
         self.setup_not_ready = True

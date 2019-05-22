@@ -137,7 +137,7 @@ class stripscan_class:
             self.log.debug("Extracted strip number is: {!s}".format(self.total_strips))
         except:
             self.log.error("Sensor " + str(self.sensor) + " not recognized. Can be due to missing pad file.")
-            self.main.stop_measurement = True
+            self.main.main.stop_measurement = True
             self.main.framework["Message_to_main"].put({"DataError": "Sensor " + str(self.sensor) + " not recognized. Can be due to missing pad file."})
             if "strip" in self.job:
                 self.log.error("Fatal error Sensor " + str(self.sensor) + " not recognized. Strip scan cannot be conducted. Check Pad files")
@@ -211,7 +211,7 @@ class stripscan_class:
         self.log.debug("Stripscan: Singlestrip now started")
         self.do_preparations_for_stripscan()
 
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             measurement_header = "Pad".ljust(self.justlength)  # indicates the measurement
             unit_header = "#".ljust(self.justlength)  # indicates the units for the measurement
 
@@ -253,7 +253,7 @@ class stripscan_class:
 
         self.do_preparations_for_stripscan()
 
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             # generate the list of strips per measurement which should be conducted and the units and so on for the
             measurement_header = "Pad".ljust(self.justlength) # indicates the measuremnt
             unit_header = "#".ljust(self.justlength) # indicates the units for the measurement
@@ -286,7 +286,7 @@ class stripscan_class:
             #Todo: make it possible to measure from up to down
             #results = []
             for current_strip in range(1, int(self.strips)): # Loop over all strips
-                if not self.main.stop_measurement: # Prevents that empty entries will be written to file after aborting the measurement
+                if not self.main.main.stop_measurement: # Prevents that empty entries will be written to file after aborting the measurement
                     self.current_strip = current_strip
                     #results.append({}) # Adds an empty dict to the results for the bad strip detection
                     start = time.time()  # start timer for a strip measurement
@@ -298,7 +298,7 @@ class stripscan_class:
                             # But first check if this strip should be measured with this specific measurement
                             if current_strip in self.main.job_details["stripscan"][measurement]["strip_list"]:
                                 self.main.table.move_to_strip(self.sensor_pad_data, self.current_strip-1, self.trans, self.T, self.V0, self.height)
-                                if not self.main.stop_measurement and not self.main.check_complience(self.bias_SMU, self.complience):
+                                if not self.main.main.stop_measurement and not self.main.check_complience(self.bias_SMU, self.complience):
                                     value = 0
                                     try:
                                         self.log.info("Conducting measurement: {!s}".format(measurement))
@@ -334,7 +334,7 @@ class stripscan_class:
                             self.main.badstrip_dict[str(current_strip)] = badstrip
                             self.main.main.default_dict["settings"]["Bad_strips"] += 1 # increment the counter
 
-                    if not self.main.stop_measurement:
+                    if not self.main.main.stop_measurement:
                         # After all measurements are conducted write the environment variables to the file
                         if self.main.job_details.get("enviroment", False):
                             string_to_write = str(self.main.main.temperatur_history[-1]).ljust(self.justlength) + str(self.main.main.humidity_history[-1]).ljust(self.justlength)
@@ -380,7 +380,7 @@ class stripscan_class:
     def do_Rpoly(self,  xvalue = -1, samples = 5, write_to_main = True):
         '''Does the rpoly measurement'''
         device_dict = self.SMU2
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("Rpoly"):
                 self.stop_everything()
                 return
@@ -419,7 +419,7 @@ class stripscan_class:
         d = device_dict
         rint = 0
         config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_zero_check", "OFF")]
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("Rint"):
                 self.stop_everything()
                 return
@@ -440,14 +440,14 @@ class stripscan_class:
                 values_list = []
                 past_volts = []
                 for i, voltage in enumerate(voltage_list): # make all measurements for the Rint ramp
-                    if not self.main.stop_measurement:
+                    if not self.main.main.stop_measurement:
                         self.main.change_value(voltage_device, "set_voltage", voltage)
                         value = self.__do_simple_measurement("Rint_scan", device_dict, xvalue, samples, write_to_main=False)
                         values_list.append(float(value))
                         past_volts.append(float(voltage))
                         self.main.queue_to_main.put({"Rint_scan": [past_volts, values_list]})
 
-                if not self.main.stop_measurement:
+                if not self.main.main.stop_measurement:
                     # Now make the linear fit for the ramp
                     slope, intercept, r_value, p_value, std_err = stats.linregress(voltage_list[2:], values_list[2:])
                     # TODO: make some comparision if it is ok, write this to a separate file etc.
@@ -473,7 +473,7 @@ class stripscan_class:
         #config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_zero_check", "OFF")]
         config_commands = [("set_source_voltage", ""), ("set_measure_current", ""), ("set_current_range", 2.0E-6), ("set_complience", 1.0E-6), ("set_voltage", "5.0"), ("set_output", "ON")]
 
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("Idiel"):
                 self.stop_everything()
                 return
@@ -491,7 +491,7 @@ class stripscan_class:
         '''Does the istrip measurement'''
         device_dict = self.elmeter
         d=device_dict # alias for faster writing
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("Istrip"):
                 self.stop_everything()
                 return
@@ -508,7 +508,7 @@ class stripscan_class:
     def do_Idark(self, xvalue = -1, samples = 5, write_to_main = True):
         '''Does the idark measurement'''
         device_dict = self.bias_SMU
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("Idark"):
                 self.stop_everything()
                 return
@@ -523,7 +523,7 @@ class stripscan_class:
     def do_Cint(self, xvalue = -1, samples = 5,  freqscan = False, write_to_main = True):
         '''Does the cint measurement'''
         device_dict = self.LCR_meter
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("Cint"):
                 self.stop_everything()
                 return
@@ -537,7 +537,7 @@ class stripscan_class:
     def do_CintAC(self, xvalue= -1, samples=5, freqscan=False, write_to_main=True):
         '''Does the cint measurement on the AC strips'''
         device_dict = self.LCR_meter
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("CintAC"):
                 self.stop_everything()
                 return
@@ -552,7 +552,7 @@ class stripscan_class:
     def do_Cac(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True):
         '''Does the cac measurement'''
         device_dict = self.LCR_meter
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("Cac"):
                 self.stop_everything()
                 return
@@ -565,7 +565,7 @@ class stripscan_class:
     def do_Cback(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True):
         '''Does a capacitance measurement from one strip to the backside'''
         device_dict = self.LCR_meter
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("Cback"):
                 self.stop_everything()
                 return

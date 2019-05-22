@@ -85,7 +85,7 @@ class IVCV_class:
         #sleep(2.)
 
         for i, voltage in enumerate(voltage_step_list):
-            if not self.main.stop_measurement: # To shut down if necessary
+            if not self.main.main.stop_measurement: # To shut down if necessary
                 self.main.change_value(bias_SMU, "set_voltage", str(voltage))
                 if not self.main.steady_state_check(bias_SMU, "get_read_current", max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=complience): # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
@@ -112,7 +112,7 @@ class IVCV_class:
 
                 self.main.write(self.main.measurement_files["IVCV"], string_to_write + "\n")  # writes correctly the units into the fileself.main.IVCV_file, string_to_write)
 
-            elif self.main.stop_measurement: # Stops the measurement if necessary
+            elif self.main.main.stop_measurement: # Stops the measurement if necessary
                 break
 
         #if self.main.save_data: # Closes the file after completion of measurement or abortion
@@ -134,7 +134,7 @@ class IVCV_class:
     #@timeit
     def do_IV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a current value and process the data'''
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             self.log.debug("IV measurement started...")
             if not self.switching.switch_to_measurement("IV"):
                 self.stop_everything()
@@ -162,7 +162,7 @@ class IVCV_class:
     #@timeit
     def do_CV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a capacity value (or more precicely the amplitude and the phase shift) and process the data'''
-        if not self.main.stop_measurement:
+        if not self.main.main.stop_measurement:
             self.log.debug("CV measurement started...")
             if not self.switching.switch_to_measurement("CV"):
                 self.stop_everything()

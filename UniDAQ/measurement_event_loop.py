@@ -119,7 +119,7 @@ class measurement_event_loop(Thread):
                 if not self.skip_init:
                     self.init_devices() # Initiates the device anew (defined state)
                 # Starts a thread for measuring
-                measthread = measurement_class(self, self.framework, self.measurements_to_conduct.copy())
+                measthread = measurement_class(self, self.framework, self.measurements_to_conduct.copy(), self.stop_measurement)
                 measthread.start()
                 self.log.info("Sended new measurement job. Orders: " + str(self.measurements_to_conduct))
                 self.measurements_to_conduct.clear() # Clears the measurement dict

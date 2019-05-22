@@ -77,7 +77,7 @@ class dynamicwaiting_class:
         self.yvalues = np.zeros((len(self.voltage_step_list), int(self.buffer)))
         # Conduct the measurement
         for i, voltage in enumerate(self.voltage_step_list):
-            if not self.main.stop_measurement:  # To shut down if necessary
+            if not self.main.main.stop_measurement:  # To shut down if necessary
 
                 # Some elusive error happens sometimes, where the smu forgets its pervious config
                 #self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples=self.buffer, interval=self.interval))
