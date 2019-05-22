@@ -101,8 +101,12 @@ class dynamicwaiting_class:
         if len(xvalues) == len(yvalues):
             data = np.array([xvalues, yvalues])
             #data = np.transpose(data)
-            # Write voltage header for each measurement
-            self.main.write(file, ''+''.join([format(el, '<{}'.format(self.justlength*2)) for el in voltages])+"\n")
+            # Write voltage header for each measurement first the voltages
+            self.main.write(file, 'V'+''.join([format(el, '<{}'.format(self.justlength*2)) for el in voltages])+"\n")
+            #Then the Units
+            self.main.write(file, ''.join([format("time[s]{}current[A]".format(" "*(self.justlength-7)),
+                                                  '<{}'.format(self.justlength*2)) for x in range(len(voltages))]) + "\n")
+
             for i in range(len(data[0,0,:])):
                 times = [format(time, '<{}'.format(self.justlength)) for time in data[:, :, i][0]]
                 curr = [format(curr, '<{}'.format(self.justlength)) for curr in data[:, :, i][1]]
