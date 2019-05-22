@@ -149,10 +149,10 @@ class measurement_event_loop(Thread):
                 self.log.info("Closing all measurements and shutdown program.")
 
             elif "MEASUREMENT_FINISHED" in self.status_query: # This comes from the measurement class
-                self.measurement_running = False # Now new measurements can be conducted
-                self.stop_measurement = False
                 if not self.skip_init:
                     self.init_devices()
+                self.measurement_running = False  # Now new measurements can be conducted
+                self.stop_measurement = False
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
                 self.default_dict["Measurement_running"] = False
 
