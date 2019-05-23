@@ -7,7 +7,7 @@ from time import sleep
 from scipy import stats
 
 
-class forge_tools(object):
+class tools(object):
     """Some tools for forging your own measurement plugin
     """
 

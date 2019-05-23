@@ -8,28 +8,36 @@ sys.path.append('../UniDAQ')
 import datetime
 from time import time, sleep
 from ..utilities import timeit, transformation
+from .forge_tools import tools
 
-
-class stripscan_class:
+class stripscan_class(tools):
 
     def __init__(self, main_class):
         """
-        This class takes only one parameter, the main class, in which all parameters must be prevalent. It further
-        starts the actual stripscan measuremnt, no further action need to be taken
+        This class can conduct a stripscan. Furthermore, it is baseclass for shortend stripscan measurements like
+        singlestrip and freqquencyscan. These measurements, in principal do the same like stripscan but only on one
+        strip. Therefore, 
 
         :param main_class:
         """
+        super(stripscan_class, self).__init__()
 
         self.main = main_class
+
+        # Aux. classes
         self.trans = transformation()
         self.vcw = self.main.framework["VCW"]
         self.switching = self.main.switching
+
+        # Devices
         self.bias_SMU = self.main.devices["BiasSMU"]
         self.LCR_meter = self.main.devices["Agilent E4980A"]
         self.SMU2 = self.main.devices["2410 Keithley SMU"]
         self.discharge_SMU = self.main.devices["2410 Keithley SMU"]
         self.discharge_switching = self.main.devices["temphum_controller"]
         self.elmeter = self.main.devices["6517B Keithley Elektrometer"]
+
+        # Measurements and corresponding units
         self.measurement_order = ["Istrip", "Rpoly", "Idark", "Cac", "Cint", "Cback", "Idiel", "Rint"]
         self.units = [("Istrip","current[A]"),
                       ("Rpoly", "res[Ohm]"),
@@ -39,30 +47,37 @@ class stripscan_class:
                       ("Cac", "Cp[F]", "Rp[Ohm]"),
                       ("Cint", "Cp[F]", "Rp[Ohm]"),
                       ("Cback", "Cp[F]", "Rp[Ohm]")]
+        # Misc.
+        self.job = self.main.job_details
+        self.sensor_pad_data = self.main.framework["Configs"]["additional_files"]["Pad_files"][self.job["Project"]][
+            self.job["Sensor"]]
+        self.strips = len(self.sensor_pad_data["data"])
         self.current_strip = self.main.main.default_dict["current_strip"] # Current pad position of the table
         self.height = self.main.main.default_dict["height_movement"]
         self.samples = 5
         self.last_istrip_pad = -1 # Number of the last pad on which a I strip was conducted, important for rpoly
         self.T = self.main.main.default_dict["trans_matrix"]
         self.V0 = self.main.main.default_dict["V0"]
-        self.job = self.main.job_details
-        self.sensor_pad_data = self.main.framework["Configs"]["additional_files"]["Pad_files"][self.job["Project"]][self.job["Sensor"]]
-        self.strips = len(self.sensor_pad_data["data"])
         self.justlength = 24
         self.rintslopes = [] # here all values from the rint is stored
         self.project = self.main.settings["settings"]["Current_project"] # Warning these values are mutable while runtime!!!
         self.sensor = self.main.settings["settings"]["Current_sensor"] # Use with care!!!
         self.current_voltage = self.main.settings["settings"]["bias_voltage"]
-        self.voltage_End = self.main.job_details["stripscan"]["EndVolt"]
-        self.voltage_Start = self.main.job_details["stripscan"]["StartVolt"]
-        self.voltage_steps = self.main.job_details["stripscan"]["Steps"]
-        self.complience = self.main.job_details["stripscan"]["Complience"]
+
+
         self.log = logging.getLogger(__name__)
         self.main.queue_to_main({"INFO": "Initialization of stripscan finished."})
 
     def run(self):
 
+        # Some parameters which a specific for stripscan
         self.main.queue_to_main({"INFO": "Started Stripscan measurement routines..."})
+        self.voltage_End = self.main.job_details["stripscan"]["EndVolt"]
+        self.voltage_Start = self.main.job_details["stripscan"]["StartVolt"]
+        self.voltage_steps = self.main.job_details["stripscan"]["Steps"]
+        self.complience = self.main.job_details["stripscan"]["Complience"]
+
+
         # Check if alignment is present or not, if not stop measurement
         if not self.main.main.default_dict["Alignment"]:
             self.log.error("Alignment is missing. Stripscan can only be conducted if a valid alignment is present.")

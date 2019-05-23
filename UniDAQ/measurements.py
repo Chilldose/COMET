@@ -1,15 +1,13 @@
 # Here the measurement procedures are defined
 import logging
 import numpy as np
-#from .VisaConnectWizard import VisaConnectWizard
 import os
 from time import sleep, time
 import datetime
-from scipy import stats
 import importlib
 from threading import Thread
 
-from .utilities import timeit, build_command, flush_to_file, create_new_file
+from .utilities import build_command, flush_to_file, create_new_file
 
 class measurement_class(Thread):
     #meas_loop, main_defaults, pad_data, devices, queue_to_main, queue_to_event_loop, job_details, queue_to_GUI, table, switching, stop_measurement)
@@ -22,7 +20,6 @@ class measurement_class(Thread):
         self.log.info("Initializing measurement thread...")
         self.queue_to_main = framework["Message_to_main"]
         self.main = event_loop
-        #self.stop_measurement = stop_measurement # this is a function and need to be called via brackets to work correctly!!!
         self.queue_to_event_loop = framework["Message_from_main"]
         self.queue_to_GUI = framework["Queue_to_GUI"]
         self.setup_not_ready = True
@@ -47,7 +44,6 @@ class measurement_class(Thread):
         # Build all data arrays
         for data_files in self.settings["settings"]["measurement_types"]:
             self.measurement_data.update({data_files: [[np.zeros(0)], [np.zeros(0)]]})
-
 
     def run(self):
         self.log.info("Starting measurement thread...")
