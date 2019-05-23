@@ -36,10 +36,14 @@ class stripscan_class:
         self.discharge_switching = self.main.devices["temphum_controller"]
         self.elmeter = self.main.devices["6517B Keithley Elektrometer"]
         self.measurement_order = ["Istrip", "Rpoly", "Idark", "Cac", "Cint", "Cback", "Idiel", "Rint"]
-        self.units = [("Istrip","current[A]"), ("Rpoly", "res[Ohm]"),
-                      ("Idiel","current[A]"), ("Idark","current[A]"),
-                      ("Rint", "res[Ohm]"), ("Cac", "cap[F]"),
-                      ("Cint", "cap[F]"), ("Cback", "cap[F]")]
+        self.units = [("Istrip","current[A]"),
+                      ("Rpoly", "res[Ohm]"),
+                      ("Idiel","current[A]"),
+                      ("Idark","current[A]"),
+                      ("Rint", "res[Ohm]"),
+                      ("Cac", "Cp[F]", "Rp[Ohm]"),
+                      ("Cint", "Cp[F]", "Rp[Ohm]"),
+                      ("Cback", "Cp[F]", "Rp[Ohm]")]
         self.current_strip = self.main.main.default_dict["current_strip"] # Current pad position of the table
         self.height = self.main.main.default_dict["height_movement"]
         self.samples = 5
@@ -291,7 +295,8 @@ class stripscan_class:
                     strip_list = self.main.ramp_value(min, max, delta)
                     self.main.job_details["stripscan"][measurement].update({"strip_list": strip_list})
                     unit_index = [x[0] for x in self.units].index(measurement) # gets me the index for the units
-                    unit_header += str(self.units[unit_index][1]).ljust(self.justlength)
+                    #unit_header += str(self.units[unit_index][1]).ljust(self.justlength)
+                    unit_header += "".join([format(el, '<{}'.format(self.justlength)) for el in self.units[unit_index][1:]])
                     measurement_header += str(measurement).ljust(self.justlength)
 
             # Now add humidity and temperature header
@@ -336,7 +341,7 @@ class stripscan_class:
                                     # Write this to the file
                                     if value and self.main.save_data:
                                         self.main.write(self.main.measurement_files["stripscan"],
-                                                str(float(value)).ljust(self.justlength))  # Writes the value to the file
+                                                "".join([format(el, '<{}'.format(self.justlength)) for el in value]))
                             else:
                                 if self.main.save_data:
                                     self.main.write(self.main.measurement_files["stripscan"], "--".ljust(
@@ -378,7 +383,9 @@ class stripscan_class:
                         self.main.main.default_dict["strip_scan_time"] = str(delta / 2.)  # updates the time for strip measurement
 
 
-    def __do_simple_measurement(self, str_name, device, xvalue = -1, samples = 5, write_to_main = True, query="get_read"):
+    def __do_simple_measurement(self, str_name, device, xvalue = -1,
+                                samples = 5, write_to_main = True,
+                                query="get_read", apply_to=None):
         '''
          Does a simple measurement - really simple. Only acquire some values and build the mean of it
 
@@ -387,21 +394,34 @@ class stripscan_class:
         :param xvalue: Which strip we are on, -1 means arbitrary
         :param samples: How many samples should be taken
         :param write_to_main: Writes the value back to the main loop
+        :param query: what query should be used
+        :param apply_to: data array will be given to a function for further calculations
         :return: Returns the mean of all aquired values
         '''
         # Do some averaging over values
         values = []
+        command = self.main.build_command(device, query)
         for i in range(samples): # takes samples
-            values.append(float(str(self.vcw.query(device, device[query])).split(",")[0]))
-        value = sum(values) / len(values)  # averaging
+            values.append(self.vcw.query(device, command))
+        values = np.array(map(lambda x: x.split(device.get("separator", ",")), values), dtype=float)
+        values = np.mean(values, axis=1)
 
+        if apply_to:
+            # Only a single float or int are allowed as returns
+            value = apply_to(values)
+        else:
+            value = values[0]
+
+        # Currently only x and y data are allowed for the gui to plot and to store the data temporarily.
+        # If the device returns more then one value only the first value will be stored here
+        # This changes nothing for the read out, all values will be stored!!!
         self.main.measurement_data[str(str_name)][0] = np.append(self.main.measurement_data[str(str_name)][0],[float(xvalue)])
         self.main.measurement_data[str(str_name)][1] = np.append(self.main.measurement_data[str(str_name)][1],[float(value)])
 
         if write_to_main: # Writes data to the main, or not
             self.main.queue_to_main.put({str(str_name): [float(xvalue), float(value)]})
 
-        return value
+        return values
 
     def do_Rpoly(self,  xvalue = -1, samples = 5, write_to_main = True):
         '''Does the rpoly measurement'''
