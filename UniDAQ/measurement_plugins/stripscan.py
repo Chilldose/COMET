@@ -203,8 +203,33 @@ class stripscan_class:
             else:
                 self.stop_everything()
 
+        # Perform the open correction
+        self.perform_open_correction(self.LCR_meter, "Cac")
+
         # Move the table up again
         self.main.table.move_up(self.height)
+
+    def perform_open_correction(self, LCR, measurement = "Cac"):
+        # Warning: table has to be down for that
+
+        if not self.switching.switch_to_measurement(measurement):
+            self.stop_everything()
+            return
+        sleep(0.2)
+        self.main.change_value(LCR, "set_perform_open_correction", "")
+        # Alot of time can be wasted by the timeout of the visa
+        ready_command = self.main.build_command(LCR, "get_all_done")
+        counter = 0  # counter how often the read attempt will be carried out
+        self.vcw.write(LCR, ready_command)
+        while True:
+            done = self.vcw.read(LCR)
+            if done:
+                break
+            else:
+                if counter > 10:
+                    self.log.error("LCR meter did not answer after 10 times during open correction calibration.")
+                    self.stop_everything()
+                counter += 1
 
     def do_singlestrip(self, job):
         """This function conducts the measurements defined for a single strip measurement"""
@@ -524,6 +549,8 @@ class stripscan_class:
     def do_Cint(self, xvalue = -1, samples = 5,  freqscan = False, write_to_main = True):
         '''Does the cint measurement'''
         device_dict = self.LCR_meter
+        # Config the LCR to the correct freq of 1 MHz
+        self.main.change_value(device_dict, "set_frequency", 1000000)
         if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("Cint"):
                 self.stop_everything()
@@ -538,6 +565,8 @@ class stripscan_class:
     def do_CintAC(self, xvalue= -1, samples=5, freqscan=False, write_to_main=True):
         '''Does the cint measurement on the AC strips'''
         device_dict = self.LCR_meter
+        # Config the LCR to the correct freq of 1 MHz
+        self.main.change_value(device_dict, "set_frequency", 1000000)
         if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("CintAC"):
                 self.stop_everything()
@@ -553,6 +582,8 @@ class stripscan_class:
     def do_Cac(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True):
         '''Does the cac measurement'''
         device_dict = self.LCR_meter
+        # Config the LCR to the correct freq of 1 kHz
+        self.main.change_value(device_dict, "set_frequency", 1000)
         if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("Cac"):
                 self.stop_everything()
@@ -566,6 +597,8 @@ class stripscan_class:
     def do_Cback(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True):
         '''Does a capacitance measurement from one strip to the backside'''
         device_dict = self.LCR_meter
+        # Config the LCR to the correct freq of 1 MHz
+        self.main.change_value(device_dict, "set_frequency", 1000000)
         if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("Cback"):
                 self.stop_everything()

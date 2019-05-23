@@ -4,7 +4,7 @@
 
     reset:
         - integration_time: LONG 
-        - voltage: 1. 
+        - voltage: 0.5 
         - correction_state: "OFF"
         - frequency: 1000 
         - output_format: ASC 
@@ -15,13 +15,13 @@
     set_cable_length: :CORR:LENG {}
     set_measurement_type: :FUNC:IMP {}
     set_correction_state: :CORR:LOAD:STAT {}
-    set_perform_open_correction: :CORR:OPEN:EXE {}
-    set_apply_short_correction: :CORR:SHORT:STAT {}
+    set_perform_open_correction: :CORR:OPEN
+    set_apply_open_correction: :CORR:OPEN:STAT
+    set_apply_short_correction: :CORR:SHORT:STAT
     set_correction_type: :CORR:LOAD:TYPE {}
     set_voltage: :VOLT {}
     set_output_format: :FORM:DATA {} 
-    set_perform_short_correction: :CORR:SHORT:EXE {} 
-    set_apply_open_correction: :CORR:OPEN:STAT {}
+    set_perform_short_correction: :CORR:SHORT
     set_clear_display: DISP:CCL {}
     set_frequency: :FREQ {}
     set_integration_time: :APER {}
