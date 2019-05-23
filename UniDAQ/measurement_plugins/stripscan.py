@@ -24,11 +24,6 @@ class stripscan_class:
         self.trans = transformation()
         self.vcw = self.main.framework["VCW"]
         self.switching = self.main.switching
-        self.current_voltage = self.main.settings["settings"]["bias_voltage"]
-        self.voltage_End = self.main.job_details["stripscan"]["EndVolt"]
-        self.voltage_Start = self.main.job_details["stripscan"]["StartVolt"]
-        self.voltage_steps = self.main.job_details["stripscan"]["Steps"]
-        self.complience = self.main.job_details["stripscan"]["Complience"]
         self.bias_SMU = self.main.devices["BiasSMU"]
         self.LCR_meter = self.main.devices["Agilent E4980A"]
         self.SMU2 = self.main.devices["2410 Keithley SMU"]
@@ -57,9 +52,17 @@ class stripscan_class:
         self.rintslopes = [] # here all values from the rint is stored
         self.project = self.main.settings["settings"]["Current_project"] # Warning these values are mutable while runtime!!!
         self.sensor = self.main.settings["settings"]["Current_sensor"] # Use with care!!!
+        self.current_voltage = self.main.settings["settings"]["bias_voltage"]
+        self.voltage_End = self.main.job_details["stripscan"]["EndVolt"]
+        self.voltage_Start = self.main.job_details["stripscan"]["StartVolt"]
+        self.voltage_steps = self.main.job_details["stripscan"]["Steps"]
+        self.complience = self.main.job_details["stripscan"]["Complience"]
         self.log = logging.getLogger(__name__)
+        self.main.queue_to_main({"INFO": "Initialization of stripscan finished."})
 
     def run(self):
+
+        self.main.queue_to_main({"INFO": "Started Stripscan measurement routines..."})
         # Check if alignment is present or not, if not stop measurement
         if not self.main.main.default_dict["Alignment"]:
             self.log.error("Alignment is missing. Stripscan can only be conducted if a valid alignment is present.")
@@ -80,11 +83,9 @@ class stripscan_class:
 
         # Actually does something
         if "stripscan" in self.main.job_details:
-            if "frequencyscan" not in self.main.job_details["stripscan"]:
-                if "singlestrip" in self.main.job_details["stripscan"]:
-                    self.do_singlestrip(self.main.job_details["stripscan"]["singlestrip"])
-                else:
-                    self.do_stripscan()
+            self.do_stripscan()
+        else:
+            self.log.error("Howdy partner, seems like you started the stripscan but no data for a stripscan is set.")
 
         # Ramp down the voltage after stripscan
         # Discharge the capacitors in the decouple box
@@ -103,6 +104,7 @@ class stripscan_class:
     def stop_everything(self):
         """Stops the measurement
         A signal will be genereated and send to the event loops, which sets the statemachine to stop all measurements"""
+        self.main.queue_to_main({"Warning": "Stop Stripscan was called..."})
         order = {"ABORT_MEASUREMENT": True}  # just for now
         self.main.queue_to_main.put(order)
         self.log.warning("Measurement STOP was called, check logs for more information")
@@ -167,10 +169,10 @@ class stripscan_class:
             header += "\n"
             file = self.main.create_data_file(header, filepath, filename)
 
-    def do_preparations_for_stripscan(self):
+    def do_preparations_for_stripscan(self, do_cal = True):
         """This function prepares the setup, like ramping the voltage and steady state check
         """
-        self.log.debug("Stripscan: Preparing everything for stripscans")
+        self.main.queue_to_main({"INFO": "Preparing everything for stripscans..."})
         if self.main.save_data and "frequencyscan" not in self.main.job_details["stripscan"]:
             self.main.write(self.main.measurement_files["stripscan"], self.main.job_details["stripscan"].get("Additional Header", ""))  # TODO: pretty useless, an additional header to the file if necessary
 
@@ -208,14 +210,15 @@ class stripscan_class:
                 self.stop_everything()
 
         # Perform the open correction
-        self.perform_open_correction(self.LCR_meter, "Cac")
+        if do_cal:
+            self.perform_open_correction(self.LCR_meter, "Cac")
 
         # Move the table up again
         self.main.table.move_up(self.height)
 
     def perform_open_correction(self, LCR, measurement = "Cac"):
         # Warning: table has to be down for that
-
+        self.main.queue_to_main({"INFO": "LCR open calibration on {} path...".format(measurement)})
         if not self.switching.switch_to_measurement(measurement):
             self.stop_everything()
             return
@@ -234,46 +237,7 @@ class stripscan_class:
                     self.log.error("LCR meter did not answer after 10 times during open correction calibration.")
                     self.stop_everything()
                 counter += 1
-
-    def do_singlestrip(self, job):
-        """This function conducts the measurements defined for a single strip measurement"""
-        self.log.debug("Stripscan: Singlestrip now started")
-        self.do_preparations_for_stripscan()
-
-        if not self.main.main.stop_measurement:
-            measurement_header = "Pad".ljust(self.justlength)  # indicates the measurement
-            unit_header = "#".ljust(self.justlength)  # indicates the units for the measurement
-
-            # Now add the new header to the file
-            if self.main.save_data:
-                self.main.write(self.main.measurement_files["stripscan"], measurement_header + "\n" + unit_header + "\n")
-
-            # Discharge the capacitors in the decouple box
-            if not self.main.capacitor_discharge(self.discharge_SMU, self.discharge_switching, "set_terminal", "FRONT", do_anyway=True): self.stop_everything()
-
-            # Conduct the actual measurements and send it to the main
-            for measurement in self.measurement_order:
-                if measurement in job["Measurements"] and not self.main.main.stop_measurement:  # looks if measurement should be done
-
-                    # Now conduct the measurement
-                    self.main.table.move_to_strip(self.sensor_pad_data, str(job["Strip"]), self.trans, self.T, self.V0, self.height)
-                    value = getattr(self, "do_" + measurement)(job["Strip"], self.samples, write_to_main = False)
-
-                    # Write this to the file
-                    if value and self.main.save_data:
-                        self.main.write(self.main.measurement_files["stripscan"],str(float(value)).ljust(self.justlength))  # Writes the value to the file
-                    else:
-                        if self.main.save_data:
-                            self.main.write(self.main.measurement_files["stripscan"],
-                                            "--".ljust(self.justlength))  # Writes nothing if no value is aquired
-
-                    # Write the data back to the GUI thread
-                    if value:
-                        self.main.queue_to_main.put({str(measurement): [int(job["Strip"]), float(value)]})
-
-            # Write new line
-            if self.main.save_data:
-                self.main.write(self.main.measurement_files["stripscan"], "\n")
+        self.main.queue_to_main({"INFO": "LCR open calibration on {} path finsihed.".format(measurement)})
 
     @timeit
     def do_stripscan(self):
@@ -316,72 +280,87 @@ class stripscan_class:
             #Todo: make it possible to measure from up to down
             #results = []
             for current_strip in range(1, int(self.strips+1)): # Loop over all strips
-                if not self.main.main.stop_measurement: # Prevents that empty entries will be written to file after aborting the measurement
-                    self.current_strip = current_strip
-                    #results.append({}) # Adds an empty dict to the results for the bad strip detection
-                    start = time()  # start timer for a strip measurement
-                    if self.main.save_data:
-                        self.main.write(self.main.measurement_files["stripscan"], str(self.sensor_pad_data["data"][str(current_strip)][0]).ljust(self.justlength))  # writes the strip to the file
-                    for measurement in self.measurement_order:
-                        if measurement in self.main.job_details["stripscan"] and not self.main.main.stop_measurement: # looks if measurement should be done
-                            # Now conduct the measurement
-                            # But first check if this strip should be measured with this specific measurement
-                            if current_strip in self.main.job_details["stripscan"][measurement]["strip_list"]:
-                                self.main.table.move_to_strip(self.sensor_pad_data, str(self.current_strip), self.trans, self.T, self.V0, self.height)
-                                if not self.main.main.stop_measurement and not self.main.check_complience(self.bias_SMU, self.complience):
-                                    value = 0
-                                    try:
-                                        self.log.info("Conducting measurement: {!s}".format(measurement))
-                                        value = getattr(self, "do_"+measurement)(current_strip, self.samples)
-                                        if not value:
-                                            self.log.error("An Error happened during strip measurement {!s}, please check logs!".format(measurement))
-                                    except Exception as err:
-                                        self.log.error("During strip measurement {!s} a fatal error occured: {!s}".format(measurement, err), exc_info=True)  # log exception info at FATAL log level
+                self.do_one_strip(current_strip)
 
-                                    # Write this to the file
-                                    if value and self.main.save_data:
-                                        self.main.write(self.main.measurement_files["stripscan"],
+
+    def do_one_strip(self, strip):
+        """Does all measurements which are to be done on one strip"""
+        if not self.main.main.stop_measurement:  # Prevents that empty entries will be written to file after aborting the measurement
+            self.current_strip = strip
+            # results.append({}) # Adds an empty dict to the results for the bad strip detection
+            start = time()  # start timer for a strip measurement
+            if self.main.save_data:
+                self.main.write(self.main.measurement_files["stripscan"],
+                                str(self.sensor_pad_data["data"][str(strip)][0]).ljust(
+                                    self.justlength))  # writes the strip to the file
+            for measurement in self.measurement_order:
+                if measurement in self.main.job_details[
+                    "stripscan"] and not self.main.main.stop_measurement:  # looks if measurement should be done
+                    # Now conduct the measurement
+                    # But first check if this strip should be measured with this specific measurement
+                    if strip in self.main.job_details["stripscan"][measurement]["strip_list"]:
+                        # Move to the strip
+                        self.main.table.move_to_strip(self.sensor_pad_data, str(self.current_strip), self.trans, self.T,
+                                                      self.V0, self.height)
+                        if not self.main.main.stop_measurement and not self.main.check_complience(self.bias_SMU,
+                                                                                                  self.complience):
+                            value = 0
+                            try:
+                                self.log.info("Conducting measurement: {!s}".format(measurement))
+                                value = getattr(self, "do_" + measurement)(strip, self.samples)
+                                if not value:
+                                    self.log.error(
+                                        "An Error happened during strip measurement {!s}, please check logs!".format(
+                                            measurement))
+                            except Exception as err:
+                                self.log.error(
+                                    "During strip measurement {!s} a fatal error occured: {!s}".format(measurement,
+                                                                                                       err),
+                                    exc_info=True)  # log exception info at FATAL log level
+
+                            # Write this to the file
+                            if value and self.main.save_data:
+                                self.main.write(self.main.measurement_files["stripscan"],
                                                 "".join([format(el, '<{}'.format(self.justlength)) for el in value]))
-                            else:
-                                if self.main.save_data:
-                                    self.main.write(self.main.measurement_files["stripscan"], "--".ljust(
-                                        self.justlength))  # Writes nothing if no value is aquired
-
-                    # In the end do a quick bad strip detection
-                    try:
-                        # Todo. This does not work now
-                        #badstrip = self.main.main.analysis.do_contact_check(self.main.measurement_data)
-                        badstrip = False
-                        if badstrip:
-                            self.log.error("Bad contact of needles detected!: " + str(current_strip))
-                            # Add the bad strip to the list of bad strips
-                            if str(current_strip) in self.main.badstrip_dict:
-                                self.main.badstrip_dict[str(current_strip)].update(badstrip)
-                            else:
-                                self.main.badstrip_dict[str(current_strip)] = badstrip
-                                self.main.main.default_dict["Bad_strips"] += 1  # increment the counter
-                    except Exception as e:
-                        self.log.error("An error happend while performing the bad contact determination with error: "
-                                       "{}".format(e))
-                        badstrip = False
-
-                    if not self.main.main.stop_measurement:
-                        # After all measurements are conducted write the environment variables to the file
-                        if self.main.job_details.get("enviroment", False):
-                            string_to_write = str(self.main.main.temperatur_history[-1]).ljust(self.justlength) + str(self.main.main.humidity_history[-1]).ljust(self.justlength)
-                        self.main.write(self.main.measurement_files["stripscan"], string_to_write)
-
-                        # Write new line
+                    else:
                         if self.main.save_data:
-                            self.main.write(self.main.measurement_files["stripscan"], "\n")
+                            self.main.write(self.main.measurement_files["stripscan"], "--".ljust(
+                                self.justlength))  # Writes nothing if no value is aquired
 
-                        # Do the bad strip detection
+            # In the end do a quick bad strip detection
+            try:
+                # Todo. This does not work now
+                # badstrip = self.main.main.analysis.do_contact_check(self.main.measurement_data)
+                badstrip = False
+                if badstrip:
+                    self.log.error("Bad contact of needles detected!: " + str(strip))
+                    # Add the bad strip to the list of bad strips
+                    if str(strip) in self.main.badstrip_dict:
+                        self.main.badstrip_dict[str(strip)].update(badstrip)
+                    else:
+                        self.main.badstrip_dict[str(strip)] = badstrip
+                        self.main.main.default_dict["Bad_strips"] += 1  # increment the counter
+            except Exception as e:
+                self.log.error("An error happend while performing the bad contact determination with error: "
+                               "{}".format(e))
+                badstrip = False
 
+            if not self.main.main.stop_measurement:
+                # After all measurements are conducted write the environment variables to the file
+                string_to_write = ""
+                if self.main.job_details.get("enviroment", False):
+                    string_to_write = str(self.main.main.temperatur_history[-1]).ljust(self.justlength) + str(
+                        self.main.main.humidity_history[-1]).ljust(self.justlength)
+                self.main.write(self.main.measurement_files["stripscan"], string_to_write)
 
-                    if abs(float(start - time())) > 1.: # Rejects all measurements which are to short to be real measurements
-                        delta = float(self.main.main.default_dict["strip_scan_time"]) + abs(start - time())
-                        self.main.main.default_dict["strip_scan_time"] = str(delta / 2.)  # updates the time for strip measurement
+                # Write new line
+                if self.main.save_data:
+                    self.main.write(self.main.measurement_files["stripscan"], "\n")
 
+            if abs(float(start - time())) > 1.:  # Rejects all measurements which are to short to be real measurements
+                delta = float(self.main.main.default_dict["strip_scan_time"]) + abs(start - time())
+                self.main.main.default_dict["strip_scan_time"] = str(
+                    delta / 2.)  # updates the time for strip measurement
 
     def __do_simple_measurement(self, str_name, device, xvalue = -1,
                                 samples = 5, write_to_main = True,
