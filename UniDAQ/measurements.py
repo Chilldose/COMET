@@ -258,14 +258,14 @@ class measurement_class(Thread):
             self.log.warning("Overwriting steady_state_check is not adviced. Use with caution")
             stop = False
         counter = 0
-        while not steady_state and not stop and check_complience:
+        while not steady_state and not stop :
             if counter > 5:
                 # If too many attempts where made
                 self.log.error("Attempt to reach steady state was not successfully after 5 times")
                 return False
             counter += 1
             values = []
-            if complience:
+            if complience and check_complience:
                 if self.check_complience(device, float(complience)):
                     self.stop_measurement()
                     return False
