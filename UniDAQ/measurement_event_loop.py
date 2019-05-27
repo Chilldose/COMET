@@ -28,6 +28,11 @@ class measurement_event_loop(Thread):
 
         # Generall state control of the measurement setup
         self.framework = framework_modules
+        self.default_dict = framework_modules["Configs"]["config"]["settings"]  # defaults_dict
+        self.vcw = framework_modules["VCW"]
+        self.devices = framework_modules["Devices"]
+
+
         self.humidity_history = []
         self.temperatur_history = []
         self.dry_air_on = "unknown"
@@ -39,10 +44,7 @@ class measurement_event_loop(Thread):
         self.status_requests = ["CLOSE", "GET_STATUS", "ABORT_MEASUREMENT", "MEASUREMENT_FINISHED"]
         self.order_types = ["Measurement", "Status", "Remeasure", "Alignment", "Sweep"]
         self.events = {}
-        self.default_dict = framework_modules["Configs"]["config"]["settings"] #defaults_dict
-        self.vcw = framework_modules["VCW"]
         self.skip_init = False
-        self.devices = framework_modules["Devices"]
         self.temphum_plugin = None
 
     def run(self):

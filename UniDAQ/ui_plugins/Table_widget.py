@@ -1,9 +1,7 @@
 
 import logging
 from PyQt5.QtWidgets import QMessageBox
-
-from PyQt5 import QtCore
-
+from PyQt5.QtCore import pyqtSignal
 
 class Table_widget(object):
 
