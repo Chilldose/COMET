@@ -12,14 +12,14 @@ from .utilities import build_command, flush_to_file, create_new_file
 class measurement_class(Thread):
     #meas_loop, main_defaults, pad_data, devices, queue_to_main, queue_to_event_loop, job_details, queue_to_GUI, table, switching, stop_measurement)
 
-    def __init__(self, event_loop, framework, job_details, stop_measurement):
+    def __init__(self, event_loop, framework, job_details):
 
         Thread.__init__(self)
         self.log = logging.getLogger(__name__)
         self.framework = framework
         self.log.info("Initializing measurement thread...")
         self.queue_to_main = framework["Message_to_main"]
-        self.main = event_loop
+        self.event_loop = event_loop
         self.queue_to_event_loop = framework["Message_from_main"]
         self.queue_to_GUI = framework["Queue_to_GUI"]
         self.setup_not_ready = True
@@ -52,7 +52,7 @@ class measurement_class(Thread):
         self.write_data()
 
         # Start the humidity/temperature control if checked
-        if self.main.default_dict["control_environment"] and "temphum_controller" in self.devices:
+        if self.event_loop.default_dict["control_environment"] and "temphum_controller" in self.devices:
             self.change_value(self.devices["temphum_controller"], "set_environement_control", "ON")
 
         # Perform the setup check and start the measurement
@@ -172,19 +172,19 @@ class measurement_class(Thread):
         else:
             self.log.warning("Variable missing for internal lights settings. No lights check!")
 
-        if "control_environment" in self.main.default_dict:
-            if self.main.default_dict["control_environment"]:
+        if "control_environment" in self.event_loop.default_dict:
+            if self.event_loop.default_dict["control_environment"]:
                 min = self.settings["settings"]["current_hummin"]
                 max = self.settings["settings"]["current_hummax"]
 
-                if (self.main.humidity_history[-1] < min or self.main.humidity_history[-1] > max): # If something is wrong
+                if (self.event_loop.humidity_history[-1] < min or self.event_loop.humidity_history[-1] > max): # If something is wrong
                     self.queue_to_main.put({"Info":"The humidity levels not reached. Wait until state is reached. Waiting time: " + str(self.env_waiting_time)})
                     wait_for_env = True
                     start_time = time()
                     while wait_for_env:
-                        if not self.main.stop_measurement:
+                        if not self.event_loop.stop_measurement:
                             sleep(1)
-                            if (self.main.humidity_history[-1] > min and self.main.humidity_history[-1] < max):
+                            if (self.event_loop.humidity_history[-1] > min and self.event_loop.humidity_history[-1] < max):
                                 self.queue_to_main.put({"Info": "Humidity levels reached, proceeding with measurement..." })
                                 wait_for_env = False
                             else:
@@ -206,7 +206,7 @@ class measurement_class(Thread):
         if "measurement_order" in self.settings["settings"]:
             for measurement in self.settings["settings"]["measurement_order"]:
                 abort = False
-                if self.main.stop_measurement: # Check if some abort signal was send
+                if self.event_loop.stop_measurement: # Check if some abort signal was send
                     return
                 if measurement in self.job_details and measurement in self.all_plugins:
                     if self.save_data:  # First create files, if necessary.
@@ -245,10 +245,19 @@ class measurement_class(Thread):
                                        " the measurement: {} with error: {}".format(measurement, err))
                 # Here the actual measurement starts -------------------------------------------------------------------
 
-
     def stop_measurement(self):
         """Stops the measurement"""
         self.log.critical("Measurement stop sended by framework...")
         order = {"ABORT_MEASUREMENT": True}  # just for now
-        self.main.message_to_main.put(order)
+        self.event_loop.message_to_main.put(order)
+
+    def change_value(self, device_dict, order, value=""):
+        '''This function sends a command to a device and changes the state in the dictionary (state machine)'''
+        if type(order) == list:
+            for com in order:
+                command = build_command(device_dict, (com, value))
+                self.vcw.write(device_dict, command) # writes the new order to the device
+        else:
+            command = build_command(device_dict, (order, value))
+            self.vcw.write(device_dict, command)  # writes the new order to the device
 

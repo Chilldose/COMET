@@ -6,7 +6,6 @@ except ImportError: import Queue as queue
 
 from .utilities import *
 from .measurements import *
-from .VisaConnectWizard import *
 import logging
 from threading import Thread
 from .globals import message_to_main, message_from_main, queue_to_GUI
@@ -38,7 +37,6 @@ class measurement_event_loop(Thread):
         self.measurements_to_conduct = {}
         self.status_query = {}
         self.status_requests = ["CLOSE", "GET_STATUS", "ABORT_MEASUREMENT", "MEASUREMENT_FINISHED"]
-        self.update_time = 50 # Milli Seconds
         self.order_types = ["Measurement", "Status", "Remeasure", "Alignment", "Sweep"]
         self.events = {}
         self.default_dict = framework_modules["Configs"]["config"]["settings"] #defaults_dict
@@ -119,7 +117,7 @@ class measurement_event_loop(Thread):
                 if not self.skip_init:
                     self.init_devices() # Initiates the device anew (defined state)
                 # Starts a thread for measuring
-                measthread = measurement_class(self, self.framework, self.measurements_to_conduct.copy(), self.stop_measurement)
+                measthread = measurement_class(self, self.framework, self.measurements_to_conduct.copy())
                 measthread.start()
                 self.log.info("Sended new measurement job. Orders: " + str(self.measurements_to_conduct))
                 self.measurements_to_conduct.clear() # Clears the measurement dict

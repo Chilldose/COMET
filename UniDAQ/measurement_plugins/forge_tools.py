@@ -5,11 +5,20 @@ Measurement plugins"""
 import numpy as np
 from time import sleep
 from scipy import stats
-
+from ..utilities import build_command
+import logging
 
 class tools(object):
     """Some tools for forging your own measurement plugin
     """
+
+    def __init__(self, framework, event_loop):
+        self.framework = framework
+        self.event_loop = event_loop
+        self.vcw = framework["VCW"]
+        self.settings = framework["Configs"]["config"]
+        self.queue_to_main = framework["message_to_main"]
+        self.toolslog = logging.getLogger(__name__)
 
     def steady_state_check(self, device, command="get_read", max_slope = 0.001,
                            wait = 0.2, samples = 4, Rsq = 0.95, complience = 50e-6, do_anyway = False,
@@ -17,15 +26,15 @@ class tools(object):
         '''This functions waits dynamically until the sensor has reached an equilibrium after changing the bias voltage'''
         # TODO: I have the feeling that this function is not exactly dooing what she is supposed to do, check!
         steady_state = False
-        stop = self.main.stop_measurement
+        stop = self.event_loop.stop_measurement
         if do_anyway:
-            self.log.warning("Overwriting steady_state_check is not adviced. Use with caution")
+            self.toolslog.warning("Overwriting steady_state_check is not advised. Use with caution")
             stop = False
         counter = 0
         while not steady_state and not stop :
             if counter > 5:
                 # If too many attempts where made
-                self.log.error("Attempt to reach steady state was not successfully after 5 times")
+                self.toolslog.error("Attempt to reach steady state was not successfully after 5 times")
                 return False
             counter += 1
             values = []
@@ -34,9 +43,9 @@ class tools(object):
                     self.stop_measurement()
                     return False
 
-            comm = self.build_command(device, command)
+            comm = build_command(device, command)
             for i in range(samples):
-                self.log.debug("Conducting steady state check...")
+                self.toolslog.debug("Conducting steady state check...")
                 values.append(float(str(self.vcw.query(device, comm)).split(",")[0]))
                 sleep(wait)
             slope, intercept, r_value, p_value, std_err = stats.linregress([i for i in range(len(values))], values)
@@ -93,7 +102,7 @@ class tools(object):
                 del_list.insert(start_ind + ind, elem)
             return del_list
         else:
-            self.log.error(
+            self.toolslog.error(
                 "Refining of array not possible. Boundaries for refinement must be inside source array. Returning input array")
             return ramp
 
@@ -141,7 +150,7 @@ class tools(object):
 
     def ramp_voltage(self, resource, order, voltage_Start, voltage_End, step, wait_time = 0.05, complience=100e-6):
         '''This functions ramps the voltage of a device'''
-        self.log.info("Start ramping voltage...")
+        self.toolslog.info("Start ramping voltage...")
         voltage_End = float(voltage_End)
         voltage_Start = float(voltage_Start)
         step = float(step)
@@ -169,13 +178,14 @@ class tools(object):
     def change_value_query(self, device_dict, order, value="", answer="1", ignore_answer=True):
         """This function query a command to a device and waits for a return value and compares
         it with the answer statement, if they are the same a true is returned"""
+        answ = ""
         if not ignore_answer:
             if type(order) == list:
                 for com in order:
-                    command = self.build_command(device_dict, (com, value))
+                    command = build_command(device_dict, (com, value))
                     answ = self.vcw.query(device_dict, command) # writes the new order to the device
             else:
-                command = self.build_command(device_dict, (order, value))
+                command = build_command(device_dict, (order, value))
                 answ = self.vcw.query(device_dict, command)  # writes the new order to the device
 
             answ = str(answ).strip()
@@ -184,8 +194,8 @@ class tools(object):
             else:
                 return answ # For errorhandling it is the return from the device which was not the expected answer
         else:
-            self.log.critical("Overwrite in progress in change_value_query, no check of correct answer is done!!!!")
-            command = self.build_command(device_dict, (order, value))
+            self.toolslog.critical("Overwrite in progress in change_value_query, no check of correct answer is done!!!!")
+            command = build_command(device_dict, (order, value))
             self.vcw.write(device_dict, command)
             return None
 
@@ -202,7 +212,7 @@ class tools(object):
         try:
             self.vcw.write(device_dict, str(command))  # writes the new order to the device
         except Exception as e:
-            self.log.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command, device=device_dict, error=e))
+            self.toolslog.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command, device=device_dict, error=e))
 
     def query_device(self, device_dict, command):
         """
@@ -217,7 +227,7 @@ class tools(object):
         try:
             return self.vcw.query(device_dict, str(command))  # writes the new order to the device
         except Exception as e:
-            self.log.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command,
+            self.toolslog.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command,
                                                                                                       device=device_dict,
                                                                                                       error=e))
 
@@ -225,45 +235,51 @@ class tools(object):
         '''This function sends a command to a device and changes the state in the dictionary (state machine)'''
         if type(order) == list:
             for com in order:
-                command = self.build_command(device_dict, (com, value))
+                command = build_command(device_dict, (com, value))
                 self.vcw.write(device_dict, command) # writes the new order to the device
         else:
-            command = self.build_command(device_dict, (order, value))
+            command = build_command(device_dict, (order, value))
             self.vcw.write(device_dict, command)  # writes the new order to the device
 
     def check_complience(self, device, complience = None, command="get_read_iv"):
         '''This function checks if the current complience is reached'''
         try:
             if complience == None:
-                self.log.error("No complience set for measurement, default complience is used! This may cause deamage to the sensor!")
+                self.toolslog.error("No complience set for measurement, default complience is used! This may cause deamage to the sensor!")
                 complience = device["default_complience"]
         except:
-            self.log.error("Device " + str(device) + " has no complience set!")
+            self.toolslog.error("Device " + str(device) + " has no complience set!")
 
-        command = self.build_command(device, command)
+        command = build_command(device, command)
         #value = float(str(self.vcw.query(device, command)).split(",")[0]) #237SMU
         value = str(self.vcw.query(device, command)).split("\t")
         self.settings["settings"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
         if 0. < (abs(float(value[0])) - abs(float(complience)*0.99)):
-            self.log.error("Complience reached in instrument " + str(device["Device_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(complience))
+            self.toolslog.error("Complience reached in instrument " + str(device["Device_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(complience))
             #self.queue_to_main.put({"MeasError": "Compliance reached. Value. " + str(value[0]) + " A"})
             return True
         else:
             return False
 
-    def config_setup(self, device, commands = []):
+    def config_setup(self, device, commands = ()):
         '''This function configures the setup for a specific measurement.
         Commands is a list of tuples, containing (command, values) if no value is defined only command will be send'''
 
         for command in commands:
-            final_string = self.build_command(device, command)
+            final_string = build_command(device, command)
             self.vcw.write(device, str(final_string))  # finally writes the command to the device
+
+    def stop_measurement(self):
+        """Stops the measurement"""
+        self.toolslog.critical("Measurement stop sended by tools functions...")
+        order = {"ABORT_MEASUREMENT": True}  # just for now
+        self.event_loop.message_to_main.put(order)
 
     def capacitor_discharge(self, device_dict, relay_dict, termorder = None, terminal = None, do_anyway=False):
         '''This function checks if the capacitor of the decouple box is correctly discharged
         First is input is the device which measure something and relay_dict is the relay which need to be switched'''
 
-        self.log.info("Discharging capacitors...")
+        self.toolslog.info("Discharging capacitors...")
         # First switch the smu terminals front/rear
         if termorder:
             self.change_value(device_dict, termorder, terminal)
@@ -273,18 +289,9 @@ class tools(object):
         error = self.change_value_query(relay_dict, "set_discharge", "ON", "OK")
         if error:
             self.queue_to_main.put({"RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " +  str("OK") + " got " + str(error) + " instead."})
-            self.log.error("Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " +  str("OK") + " got " + str(error) + " instead.")
+            self.toolslog.error("Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " +  str("OK") + " got " + str(error) + " instead.")
             return False
         sleep(1.) # relay is really slow
-
-        # Next discharge the capacitor by running a current measurement
-        #self.change_value(device_dict, device_dict["set_measure_current"])
-
-        # Set output to On for reading mode
-        #self.change_value(device_dict, device_dict["set_output"], "ON")
-
-        #if self.steady_state_check(device_dict, samples = 7, do_anyway = do_anyway):
-            #self.change_value(device_dict, device_dict["set_output"], "OFF")
         self.change_value(device_dict, "set_source_current")
         self.change_value(device_dict, "set_measure_voltage")
         self.change_value(device_dict, "set_output", "ON")
@@ -294,7 +301,7 @@ class tools(object):
             counter += 1
             voltage = []
             for i in range(3):
-                command = self.build_command(device_dict, "get_read")
+                command = build_command(device_dict, "get_read")
                 voltage.append(float(self.vcw.query(device_dict, command)))
 
             if sum(voltage)/len(voltage) <= 0.3: # this is when we break the loop
@@ -311,7 +318,7 @@ class tools(object):
                                                "RequestError": "Capacitor discharged failed! Switching the discharge"
                                                                " relay failed! Expected reply from device would be: "
                                                                + str("OK") + " got " + str(error) + " instead."})
-                    self.log.error(
+                    self.toolslog.error(
                         "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
                             "OK") + " got " + str(error) + " instead.")
 
@@ -324,14 +331,14 @@ class tools(object):
             if counter >= 5:
                 self.queue_to_main.put({"FatalError": "The capacitor discharge failed more than 5 times. Discharge the capacitor manually!"})
                 # Set output to on for reading mode
-                command = self.build_command(device_dict, ("set_output", "OFF"))  # switch back to default terminal
+                command = build_command(device_dict, ("set_output", "OFF"))  # switch back to default terminal
                 self.vcw.write(device_dict, command)  # writes the new order to the device
                 # return to default mode for this switching
                 error = self.change_value_query(relay_dict, "set_discharge", "OFF", "OK")
                 if error:
                     self.queue_to_main.put({"RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
                                             "OK") + " got " + str(error) + " instead."})
-                    self.log.error(
+                    self.toolslog.error(
                         "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: " + str(
                             "OK") + " got " + str(error) + " instead.")
 

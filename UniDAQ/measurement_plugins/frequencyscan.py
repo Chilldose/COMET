@@ -34,8 +34,6 @@ class frequencyscan_class(stripscan_class):
     def do_frequencyscan(self):
         '''This function performes a frequency scan of the lcr meter and at each step it executes a LIST of mesaurement'''
 
-        self.do_setup_preparations()
-
         if not self.main.main.stop_measurement():
             # Generate frequency list
             freq_list = self.main.ramp_value_log10(self.start_freq, self.end_freq, self.step_freq)

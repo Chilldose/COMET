@@ -16,13 +16,12 @@ class stripscan_class(tools):
         """
         This class can conduct a stripscan. Furthermore, it is baseclass for shortend stripscan measurements like
         singlestrip and freqquencyscan. These measurements, in principal do the same like stripscan but only on one
-        strip. Therefore, 
+        strip. Therefore, we can derive.
 
         :param main_class:
         """
-        super(stripscan_class, self).__init__()
-
         self.main = main_class
+        super(stripscan_class, self).__init__(self.main.framework, self.main)
 
         # Aux. classes
         self.trans = transformation()
@@ -69,15 +68,6 @@ class stripscan_class(tools):
         self.main.queue_to_main({"INFO": "Initialization of stripscan finished."})
 
     def run(self):
-
-        # Some parameters which a specific for stripscan
-        self.main.queue_to_main({"INFO": "Started Stripscan measurement routines..."})
-        self.voltage_End = self.main.job_details["stripscan"]["EndVolt"]
-        self.voltage_Start = self.main.job_details["stripscan"]["StartVolt"]
-        self.voltage_steps = self.main.job_details["stripscan"]["Steps"]
-        self.complience = self.main.job_details["stripscan"]["Complience"]
-
-
         # Check if alignment is present or not, if not stop measurement
         if not self.main.main.default_dict["Alignment"]:
             self.log.error("Alignment is missing. Stripscan can only be conducted if a valid alignment is present.")
@@ -98,6 +88,14 @@ class stripscan_class(tools):
 
         # Actually does something
         if "stripscan" in self.main.job_details:
+
+            # Some parameters which a specific for stripscan
+            self.main.queue_to_main({"INFO": "Started Stripscan measurement routines..."})
+            self.voltage_End = self.main.job_details["stripscan"]["EndVolt"]
+            self.voltage_Start = self.main.job_details["stripscan"]["StartVolt"]
+            self.voltage_steps = self.main.job_details["stripscan"]["Steps"]
+            self.complience = self.main.job_details["stripscan"]["Complience"]
+
             self.do_stripscan()
         else:
             self.log.error("Howdy partner, seems like you started the stripscan but no data for a stripscan is set.")
@@ -123,47 +121,6 @@ class stripscan_class(tools):
         order = {"ABORT_MEASUREMENT": True}  # just for now
         self.main.queue_to_main.put(order)
         self.log.warning("Measurement STOP was called, check logs for more information")
-
-
-    def estimate_duration(self, start_time, list_strip_measurements):
-        """Estimate time
-        Will not be correct, since CV usually is faster, but it is just a estimation.
-        -----------------------------------------------------------------------------
-        Start and end timer. all of this quick and dirty but it will suffice"""
-        # Todo: review code!!!
-        est_end = 0
-        for measurements in list_strip_measurements:
-            # Loop over all strip measurements
-            if measurements in self.job.get("stripscan", {}):
-                est_end += float(self.total_strips)*float(self.main.settings["settings"]["strip_scan_time"])
-                break # breaks out of loop if one measurement was found
-
-
-        if "IV" in self.job.get("IVCV", {}):
-            est_end += float(self.main.setting["settings"]["IVCV_time"])
-        if "CV" in self.job.get("IVCV", {}):
-            est_end += float(self.main.settings["settings"]["IVCV_time"])
-
-        est_end = start_time + datetime.timedelta(seconds=est_end)
-        self.main.settings["settings"]["End_time"] = str(est_end)
-        # Estimate time
-        # Will not be correct, since CV usually is faster, but it is just a estimation.
-        # -----------------------------------------------------------------------------
-
-    def find_stripnumber(self):
-        # Try find the strip number of the sensor.
-        # Todo: Review code!!!
-        try:
-            self.total_strips = len(self.sensor_pad_data[self.project][str(self.sensor)]["data"])
-            self.log.debug("Extracted strip number is: {!s}".format(self.total_strips))
-        except:
-            self.log.error("Sensor " + str(self.sensor) + " not recognized. Can be due to missing pad file.")
-            self.main.main.stop_measurement = True
-            self.main.framework["Message_to_main"].put({"DataError": "Sensor " + str(self.sensor) + " not recognized. Can be due to missing pad file."})
-            if "strip" in self.job:
-                self.log.error("Fatal error Sensor " + str(self.sensor) + " not recognized. Strip scan cannot be conducted. Check Pad files")
-                self.stop_everything()
-
 
     def save_rint_slopes(self):
         # If a rint measurement was done save the data to a file
@@ -296,7 +253,6 @@ class stripscan_class(tools):
             #results = []
             for current_strip in range(1, int(self.strips+1)): # Loop over all strips
                 self.do_one_strip(current_strip)
-
 
     def do_one_strip(self, strip):
         """Does all measurements which are to be done on one strip"""
