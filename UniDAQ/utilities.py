@@ -1551,18 +1551,19 @@ class KeyPress():
         if event.key() in self.keys:
             self.call(event)
 
+def parse_args():
+
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--reinit", help="Calls the init window to initialize the setups",
+                        action="store_true")
+
+    args = parser.parse_args()
+
+    return args
+
+
 
 if __name__ == "__main__":
 
-    device = {"separator": ",",
-              "set_voltage": "setting {}",
-              "set_amp": "setting {}, {}",
-              "set_triple": "setting {}, ,,, {},,,{}"
-    }
-
-    print(build_command(device, ("set_voltage", 10)))
-    print(build_command(device, ("set_voltage", [20])))
-    print(build_command(device, ("set_voltage", [20, 30])))
-    print(build_command(device, ("set_amp", (40,50))))
-    print(build_command(device, ("set_triple", (60,70))))
-    print(build_command(device, ("set_triple", (60, 70, 80))))
+    pass

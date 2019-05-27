@@ -16,6 +16,7 @@ punished!
 """
 
 import glob
+import argparse
 import logging
 import signal
 import time
@@ -83,11 +84,13 @@ def main():
     log.info("Logfile initiated...")
     log.critical("Initializing programm:")
 
+    # Parse Arguments
+    args = utilities.parse_args()
+
     # Loading all config files
     active_setup = QtCore.QSettings().value('active_setup', None)
-    # TODO on missing setup do a quick and dirty selection
-    # replace this by creating a pretty awesome welcome dialog ;)
-    if active_setup is None:
+    # The reinit is a overwrite, so the window can be called after e.g. failure with a gui.
+    if active_setup is None or args.reinit:
         dialog = PreferencesDialog(None)
         dialog.exec_()
         #active_setup = dialog.activeSetup() # Potential mismatch of setups if setup changes in between
