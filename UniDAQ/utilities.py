@@ -835,7 +835,6 @@ class Framework:
         timer.timeout.connect(self.update_)
         timer.start(self.update_interval)
         self.timer = timer
-
         return timer
 
     def update_(self):

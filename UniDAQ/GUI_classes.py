@@ -7,24 +7,16 @@
 
 
 import importlib
-import os
-import os.path as osp
-import sys
 import glob
 from time import sleep
-
 import pyqtgraph as pq
 from PyQt5 import uic
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-
 from .gui.MainWindow import MainWindow
 from .gui.PluginWidget import PluginWidget
-
 from .GUI_event_loop import *
 from .bad_strip_detection import *
-from .utilities import ErrorMessageBoxHandler
+
 
 QT_UI_DIR = 'QT_Designer_UI'
 """Name of directory containing all plugin UI files."""
@@ -40,32 +32,34 @@ class GUI_classes(QWidget):
         self.app = framework_variables["App"]
         self.log = logging.getLogger(__name__)
 
-        # Some Variables
-        self.message_to_main = message_to_main
-        self.message_from_main = message_from_main
+        # Framework variables
         self.vcw = framework_variables["VCW"]
         self.devices_dict = framework_variables["Devices"]
         self.default_values_dict = framework_variables["Configs"]["config"]
-        self.functions = []
-        self.update_interval = float(self.default_values_dict["settings"].get("GUI_update_interval", 100.))  # msec
-        self.queue_to_GUI = queue_to_GUI
         self.table = framework_variables["Table"]
         self.switching = framework_variables["Switching"]
         self.additional_files = framework_variables["Configs"]["additional_files"]
+        self.message_to_main = framework_variables["Message_to_main"]
+        self.message_from_main = framework_variables["Message_from_main"]
+        self.queue_to_GUI = framework_variables["Queue_to_GUI"]
+        self.framework_variables = framework_variables
+
+        # Some Variables
+        self.functions = [] # Function for the framework to update
+        self.update_interval = float(self.default_values_dict["settings"].get("GUI_update_interval", 100.))  # msec
+
         self.meas_data = {}
         self.all_plugin_modules = {}
         self.qt_designer_ui = []
         self.ui_widgets = {}
         self.final_tabs = []
         self.ui_plugins = {}
-        self.analysis = stripanalysis(self) # Not very good it is a loop condition
-        self.framework_variables = framework_variables
 
         # Load ui plugins
         self.load_GUI_plugins()
 
         # Measurement data for plotting
-        # Data type Dict for what kind of measurement (keys) values are tupel of numpy arrays (x,y)
+        # Data type Dict for what kind of measurement (keys) values are tuple of numpy arrays (x,y)
         # Extend as you please in the config file
         for measurments in self.default_values_dict["settings"].get("measurement_types",[]):
             self.meas_data.update({measurments: [np.array([]), np.array([])]})
@@ -74,7 +68,7 @@ class GUI_classes(QWidget):
         # This is the main Tab Widget in which all other tabs are implemented
         self.main_window = MainWindow(self.message_to_main)
 
-        # Plot style
+        # Base config for all qtgraph plots
         plot_style = QtCore.QSettings().value("plot_style")
         if plot_style == "light":
             pq.setConfigOption('background', 'w')
@@ -113,7 +107,7 @@ class GUI_classes(QWidget):
         '''This function generates all ui elements in form of tab widgets'''
         for module in self.all_plugin_modules:
             self.log.info("Constructing UI module: {!s}".format(module))
-            # Create plugin windget
+            # Create plugin widget
             widget = PluginWidget()
             layout = QGridLayout()  # Just a layout type
             widget.setLayout(layout)
@@ -196,18 +190,15 @@ class GUI_classes(QWidget):
         self.functions.append(func)
         self.log.info("Added framework function: " + str(func))
 
-    def give_framework_functions(self, args=None):
+    def give_framework_functions(self):
         return self.functions, self.update_interval
 
-    def reset_plot_data(self, args=None):
-
+    def reset_plot_data(self):
+        """Simply resets all plots"""
         self.log.debug("Resetting Plots...")
-        for data in self.meas_data: # resets the plot data when new measurement is conducted (called by the start button)
+        for data in self.meas_data: # resets the plot data when new measurement is conducted
+            # called by e.g. the start button
             self.meas_data[data][0] = np.array([])
             self.meas_data[data][1] = np.array([])
 
         self.default_values_dict["settings"]["new_data"] = True
-
-        # This functions need to be called in case that no clear statement is set during plotting
-        #for plot in self.plots:
-            #plot.clear()

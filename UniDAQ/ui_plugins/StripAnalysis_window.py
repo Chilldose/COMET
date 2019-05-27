@@ -9,6 +9,7 @@ from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from random import randint
+from ..bad_strip_detection import stripanalysis
 
 
 from ..utilities import change_axis_ticks, show_cursor_position, raise_exception
@@ -21,6 +22,7 @@ class StripAnalysis_window:
 
         self.variables = GUI
         self.layout = layout
+        self.analysis = stripanalysis(GUI)
                                 # Label: X-Axis, Y-Axis, Logx, Logy, InvertY
         self.measurement_dict = {"Idark": (["Pad", "#"], ["Current", "A"], [False, False], True),
                                  "Idiel": (["Pad", "#"], ["Current", "A"], [False, False], True),
@@ -36,7 +38,7 @@ class StripAnalysis_window:
 
         #self.plot_data = {"QTC":{"data": {"ab": 2}},
         #                  "QTC2": {"data": {"ab": 2, "c": 2, "b": 2}}} # should be a tree structure of dictionaries containig all data loaded, this must be the object from the bad strip detection!!!
-        self.plot_data = self.variables.analysis.all_data
+        self.plot_data = self.analysis.all_data
         self.output_directory = self.variables.default_values_dict["Badstrip"].get("output_folder", str(os.getcwd()))
         self.bins = 100
         self.setpg = pq
@@ -130,7 +132,7 @@ class StripAnalysis_window:
         """This starts the analysis of the loaded measurements"""
         if self.badstrip.which_plot.currentText():
 
-            self.variables.analysis.do_analysis()
+            self.analysis.do_analysis()
             measurement = self.badstrip.which_measurement.currentText()
             self.update_plot(measurement)
             self.update_results_text()
@@ -140,20 +142,21 @@ class StripAnalysis_window:
         self.variables.default_values_dict["Badstrip"]["export_results"] = self.badstrip.cb_Save_results.isChecked()
         self.variables.default_values_dict["Badstrip"]["export_plot"] = self.badstrip.cb_Save_plots.isChecked()
 
-    @raise_exception
+
     def update_results_text(self):
         """Updates the result text for a measurement"""
 
         # Get selected measurement
         measurement = self.badstrip.which_plot.currentText()
-        if "Analysis_conclusion" in self.variables.analysis.all_data[measurement]:
-            self.badstrip.report_label.setText(self.variables.analysis.all_data[measurement]["Analysis_conclusion"])
+        if "Analysis_conclusion" in self.analysis.all_data[measurement]:
+            self.badstrip.report_label.setText(self.analysis.all_data[measurement]["Analysis_conclusion"])
             #self.badstrip.radioData.setChecked(True)
         else:
             self.badstrip.report_label.setText("")
             #self.badstrip.radioData.setChecked(False)
-    @raise_exception
-    def update_stats(self, kwargs = None):
+
+
+    def update_stats(self):
         """Updates the text of the loaded files and such shit"""
         self.badstrip.label_output.setText(self.output_directory)
         meas = ""
@@ -265,8 +268,8 @@ class StripAnalysis_window:
 
                     # Make the histogram of the data
                     # y, x = np.histogram(np.array(ydata), bins=int(self.bins))
-                    yout, ind = self.variables.analysis.remove_outliner(ydata)
-                    x, y = self.variables.analysis.do_histogram(yout, self.bins)
+                    yout, ind = self.analysis.remove_outliner(ydata)
+                    x, y = self.analysis.do_histogram(yout, self.bins)
                     self.badstrip.strip_plot_histogram.plot(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80), clear=True, connect="finite")
 
                     self.update_specs_bars(measurement_name, ydata)
@@ -281,21 +284,6 @@ class StripAnalysis_window:
                         d = float(anadata["lms_fit"][measurement_name][1])
                         lmsdata = [[0, len(xdata)],[d, k*len(xdata)+d]]
                         self.badstrip.strip_plot.plot(lmsdata[0], lmsdata[1], pen="g")
-
-                        # Plot pdf in the histogram plot
-                        #pdfdata = anadata["pdf"][measurement_name]
-                        #self.pdf_viewbox.clear()
-                        #plot_item = self.setpg.PlotCurveItem(pdfdata[2], pdfdata[3],
-                        #                                pen={'color': "g", 'width': 2},
-                        #                                clear=True)
-                        #self.pdf_viewbox.addItem(plot_item)
-                        #del plot_item  # the plot class needs a plot item which can be rendered, to avoid a mem leak delete the created plot item or 20k ram will be used
-                        # hum_plot_obj.addItem(setpg.plot(self.variables.meas_data["humidity"][0],self.variables.meas_data["humidity"][1],pen={'color': "b", 'width': 2}, clear=True))
-                          # resize the second plot!
-                        #self.eq_text = self.setpg.TextItem(text="Some text", border='#000000', fill='#ccffff')
-                        #self.eq_text.setParentItem(self.pdf_viewbox)
-                        #self.eq_text.setPos(pdfdata[2][np.argmax(pdfdata[3])], y.max() * 0.9)
-                        #self.pdf_viewbox.setGeometry(self.badstrip.strip_plot_histogram.plotItem.vb.sceneBoundingRect())
 
                         # Update report text
                         self.badstrip.report_label.setText(anadata["report"][measurement_name])
@@ -321,7 +309,7 @@ class StripAnalysis_window:
             text += str(i) + ","
         self.badstrip.label_load.setText(text)
         l.info(str(len(files[0])) + " measurement files have been selected.")
-        self.variables.analysis.read_in_measurement_file(files[0])
+        self.analysis.read_in_measurement_file(files[0])
         self.update_meas_selector()
 
     def output_dir_action(self):
