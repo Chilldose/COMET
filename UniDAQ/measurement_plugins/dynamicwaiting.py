@@ -5,22 +5,28 @@ from time import time, sleep
 import sys
 import re
 sys.path.append('../UniDAQ')
-from ..utilities import timeit, transformation, create_new_file
-from ..VisaConnectWizard import VisaConnectWizard
+from ..utilities import timeit, transformation
+from .forge_tools import tools
 
-
-trans = transformation()
 ttime = time
 import numpy as np
 
-class dynamicwaiting_class:
+class dynamicwaiting_class(tools):
 
     def __init__(self, main_class):
+
+        # Init the tools class and the variables from the main
         self.main = main_class
+        super(dynamicwaiting_class, self).__init__(self.main.framework, self.main)
+        self.log = logging.getLogger(__name__)
+
+        # Get data from the framework
         self.vcw = main_class.framework["VCW"]
-        self.switching = self.main.switching
-        self.biasSMU = self.main.devices["BiasSMU"]
-        self.compliance = self.main.job_details["dynamicwaiting"]["Compliance"]
+        self.switching = main_class.framework["Switching"]
+        self.biasSMU = main_class.devices["BiasSMU"]
+
+        # Job specific variables
+        self.compliance = main_class.job_details["dynamicwaiting"]["Compliance"]
         self.justlength = 24
         # The intervall of every measurement, (is something else then the delay value!)
         self.interval = self.main.job_details["dynamicwaiting"]["Interval"]/1000.
@@ -32,14 +38,18 @@ class dynamicwaiting_class:
         # The Start delay defines a global offset before a measurement series actually starts
         self.start_delay = self.main.job_details["dynamicwaiting"]["start_delay"]
         self.SMURange = self.main.job_details["dynamicwaiting"]["Range"]
+
+        # Some variables
         self.current_voltage = None
         self.voltage_step_list = []
+        self.xvalues = []
+        self.yvalues = []
+
+
+        # Config parameters
         self.get_data_query = "printbuffer(1, {samples!s}, measbuffer)"
         self.get_timestamps_query = "printbuffer(1, {samples!s}, measbuffer.timestamps)"
         self.SMU_clean_buffer = "measbuffer = nil"
-        self.log = logging.getLogger(__name__)
-        self.xvalues = []
-        self.yvalues = []
 
         self.SMU_config = "smua.measure.count = {samples!s} \n" \
                           "smua.measure.interval = {interval!s}\n" \
@@ -102,9 +112,6 @@ class dynamicwaiting_class:
 
     def write_dyn_to_file(self, file, voltages, xvalues, yvalues):
         """
-        :param file: filepointer
-        :param dataarray: nd.array with the data each entry has to be a one measurement with its current values
-        :return: None
         """
 
         # Check if length of voltages matches the length of data array
@@ -150,7 +157,6 @@ class dynamicwaiting_class:
                                               ("set_meas_delay", str(self.delay))
                                              ])
         self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples = samples, interval = interval))
-        # Todo: set a first voltage to make sure it measures not only noise
         self.main.change_value(self.biasSMU, "set_voltage", "0.0")
         self.main.change_value(self.biasSMU, "set_output", "1")
 
@@ -169,14 +175,6 @@ class dynamicwaiting_class:
     def do_dynamic_measurement(self, str_name, device, voltage = 0, samples = 100, interval = 0.01, write_to_main = True):
         '''
          Does a simple dynamic waiting time measurement
-
-        :param str_name: What measurement is conducted, only important when write_to_main is true
-        :param device: Which device should be used
-        :param xvalue: XValue used
-        :param samples: How many samples should be taken
-        :param interval: measurement interval
-        :param write_to_main: Writes the value back to the main loop (default: True)
-        :return: Returns the mean of all acquired values
         '''
         from time import time
         #self.main.send_to_device(self.biasSMU, self.SMU_clean_buffer)
@@ -188,6 +186,8 @@ class dynamicwaiting_class:
         # Get the data from the device
         device_ansered = False
         iter = 0
+        ans = ""
+        times = ""
         while not device_ansered:
             ans = self.vcw.query(device, self.get_data_query.format(samples=samples)).strip()
             times = self.vcw.query(device, self.get_timestamps_query.format(samples=samples)).strip()
@@ -220,17 +220,11 @@ class dynamicwaiting_class:
     def pic_device_answer(self, values, times, offset):
         """
         Dissects the answer string and returns 2 array containing the x an y values
-        :param answer_string: String to dissect
-        :param interval: interval defined
-        :return: xvalues, yvalues
         """
         expression = re.compile("\S+e-\d+")
         yvalues = list(map(float, expression.findall(values)))
         xvalues = list(map(float, expression.findall(times)))
         xvalues.append(xvalues[-1]+abs(xvalues[-2]-xvalues[-1]))
         xvalues = [x+offset for x in xvalues]
-        #yvalues = answer_string.strip("[").strip("]").split(",")
-        #yvalues = list(map(float, yvalues))
-        #xvalues = [interval*x for x in range(len(yvalues))]
-        # todo: somehowe i get one timestep fewer as measurement values
+
         return xvalues, yvalues

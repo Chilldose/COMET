@@ -6,13 +6,15 @@ from time import sleep
 import numpy as np
 sys.path.append('../UniDAQ')
 from ..utilities import timeit
+from .forge_tools import tools
 
 
 
-class IVCV_class:
+class IVCV_class(tools):
 
     def __init__(self, main_class):
         self.main = main_class
+        super(IVCV_class, self).__init__(self.main.framework, self.main)
         self.log = logging.getLogger(__name__)
         self.switching = self.main.switching
         self.justlength = 24

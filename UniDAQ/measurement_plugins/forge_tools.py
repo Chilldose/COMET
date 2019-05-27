@@ -9,7 +9,7 @@ from ..utilities import build_command
 import logging
 
 class tools(object):
-    """Some tools for forging your own measurement plugin
+    """Some tools for forging your own measurement plugins
     """
 
     def __init__(self, framework, event_loop):

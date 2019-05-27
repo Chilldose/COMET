@@ -568,7 +568,7 @@ class stripscan_class(tools):
         '''Does a capacitance measurement from one strip to the backside'''
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 MHz
-        self.main.change_value(device_dict, "set_frequency", 1000000)
+        self.main.change_value(device_dict, "set_frequency", 1000)
         if not self.main.main.stop_measurement:
             if not self.switching.switch_to_measurement("Cback"):
                 self.stop_everything()
