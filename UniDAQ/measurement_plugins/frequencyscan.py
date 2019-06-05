@@ -4,7 +4,6 @@ import logging
 import sys
 import numpy as np
 sys.path.append('../UniDAQ')
-from ..utilities import transformation
 from .stripscan import stripscan_class
 
 

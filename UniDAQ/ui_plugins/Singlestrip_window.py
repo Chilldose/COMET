@@ -1,28 +1,13 @@
-import ast
-import json
 import os
-import os.path as osp
-import sys, importlib, logging
-
-import numpy as np
-import pyqtgraph as pq
-from PyQt5.QtCore import Qt
-from PyQt5 import QtGui
-from PyQt5.QtGui import *
+import logging
 from PyQt5.QtWidgets import *
 from .. import engineering_notation as en
 import time
 
-
-from ..utilities import raise_exception, ramp_voltage_job, transformation, change_axis_ticks
-
-
-
-
+from ..utilities import ramp_voltage_job, transformation, change_axis_ticks
 
 class Singlestrip_window:
 
-    @raise_exception
     def __init__(self, GUI, layout):
 
         self.variables = GUI
@@ -85,8 +70,7 @@ class Singlestrip_window:
                                 0, Steps, 0.3, Complience)
 
 
-    @raise_exception
-    def move_to_strip_action(self, kwargs=None):
+    def move_to_strip_action(self):
         '''Moves the table to the desired strip'''
         if self.variables.default_values_dict["settings"]["Alignment"]:
             self.project = self.variables.default_values_dict["settings"]["Current_project"]
@@ -108,8 +92,7 @@ class Singlestrip_window:
         else:
             self.log.error("Move to strip not possible without a valid alignment.")
 
-    @raise_exception
-    def update_text(self, kwargs = None):
+    def update_text(self):
         """This function updates the stext for the measurements"""
         if self.variables.default_values_dict["settings"]["new_data"]: # New data available ?
             self.single_strip.Idark_val.setText("I dark: " +str(en.EngNumber(self.variables.meas_data["Idark"][1][-1]) if len(self.variables.meas_data["Idark"][1]) > 0 else "NaN"))
@@ -119,9 +102,6 @@ class Singlestrip_window:
             self.single_strip.Rpoly_val.setText("R poly: " + str(en.EngNumber(self.variables.meas_data["Rpoly"][1][-1]) if len(self.variables.meas_data["Rpoly"][1]) > 0 else "NaN"))
             self.single_strip.Cint_val.setText("C int: " + str(en.EngNumber(self.variables.meas_data["Cint"][1][-1]) if len(self.variables.meas_data["Cint"][1]) > 0 else "NaN"))
             self.single_strip.Rint_val.setText("R int: " + str(en.EngNumber(self.variables.meas_data["Rint"][1][-1]) if len(self.variables.meas_data["Rint"][1]) > 0 else "NaN"))
-
-
-
 
     def new_plot_selection(self):
         self.plot_data = str(self.single_strip.which_plot.currentText())
@@ -156,8 +136,7 @@ class Singlestrip_window:
         self.single_strip.single_strip_plot.setLabel('bottom', str(yAxis[0]), units=str(yAxis[1]), **self.labelStyle)
         self.single_strip.single_strip_plot.plotItem.setLogMode(x=logscale[0], y=logscale[1])
 
-    @raise_exception
-    def update_plot(self, kwargs = None):
+    def update_plot(self):
         '''This handles the update of the plot'''
         # This clear here erases all data from the viewbox each time this function is called and draws all points again!
         # Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage
@@ -167,10 +146,11 @@ class Singlestrip_window:
                 if self.variables.meas_data[self.plot_data + "_scan"]:
                     self.single_strip.single_strip_plot.plot(self.variables.meas_data[self.plot_data + "_scan"][0], self.variables.meas_data[self.plot_data + "_scan"][1], pen="y", clear=True)
 
-    @raise_exception
-    def start_button_action(self,kwargs=None):
+
+    def start_button_action(self):
         '''Starts the single strip measuremnts'''
-        if self.variables.default_values_dict["settings"]["Current_filename"] and os.path.isdir(self.variables.default_values_dict["settings"]["Current_directory"]):
+        if self.variables.default_values_dict["settings"]["Current_filename"] and\
+                os.path.isdir(self.variables.default_values_dict["settings"]["Current_directory"]):
 
             additional_settings = {"Save_data": True,
                                    "Filepath": self.variables.default_values_dict["settings"]["Current_directory"],
@@ -201,7 +181,6 @@ class Singlestrip_window:
         # if a freq measurement should be conducted
         if self.single_strip.do_freq.isChecked():
             #for cap in self.capacitance_measurements:
-                #if getattr(getattr(self.single_strip, "do_" + str(cap)), "isChecked"):
                 todo_dict = {}
                 if self.single_strip.do_cac.isChecked():
                     todo_dict.update({"Cac": True})
@@ -210,21 +189,22 @@ class Singlestrip_window:
                 if self.single_strip.do_cint.isChecked():
                     todo_dict.update({"Cint": True})
 
-                self.final_job.update({"stripscan":{"StartVolt": 0,
+                self.final_job.update({"frequencyscan":
+                                           {        "StartVolt": 0,
                                                     "EndVolt": self.single_strip.max_voltage_strip.value(),
                                                     "Steps": self.single_strip.voltage_steps_strip.value(),
                                                     "Complience": self.single_strip.complience_strip.value(),
                                                     "Save_data": True,
-                                                    "frequencyscan": {"Measurements": todo_dict,
-                                                         "StartFreq": self.single_strip.minimum_freq.value(),
-                                                         "EndFreq": self.single_strip.maximum_freq.value(),
-                                                         "MinVolt": float(self.single_strip.minimum_volt.value())*1e-3,
-                                                         "MaxVolt": float(self.single_strip.maximum_volt.value())*1e-3,
-                                                         "DoLog10": self.single_strip.do_log10.isChecked(),
-                                                         "VoltSteps": self.single_strip.volt_steps.value(),
-                                                         "FreqSteps": self.single_strip.freq_steps.value(),
-                                                         "Strip": self.single_strip.which_strip.value()
-                                                         }}})
+                                                    "Measurements": todo_dict,
+                                                    "StartFreq": self.single_strip.minimum_freq.value(),
+                                                    "EndFreq": self.single_strip.maximum_freq.value(),
+                                                    "MinVolt": float(self.single_strip.minimum_volt.value())*1e-3,
+                                                    "MaxVolt": float(self.single_strip.maximum_volt.value())*1e-3,
+                                                    "DoLog10": self.single_strip.do_log10.isChecked(),
+                                                    "VoltSteps": self.single_strip.volt_steps.value(),
+                                                    "FreqSteps": self.single_strip.freq_steps.value(),
+                                                    "Strip": self.single_strip.which_strip.value()
+                                                    }})
 
         # if any other measuremnt should be conducted
         else:
@@ -240,12 +220,14 @@ class Singlestrip_window:
             #if self.single_strip.do_istrip_over.isChecked():
             #    todo_dict.update({"Istrip_over": True})
 
-            self.final_job.update({"stripscan": {"StartVolt": 0,
+            self.final_job.update({"singlestrip": {
+                                                  "StartVolt": 0,
                                                   "EndVolt": self.single_strip.max_voltage_strip.value(),
                                                   "Steps": self.single_strip.voltage_steps_strip.value(),
                                                   "Complience": self.single_strip.complience_strip.value(),
                                                   "Save_data": True,
-                                                  "singlestrip":{"Measurements": todo_dict, "Strip": self.single_strip.which_strip.value()}
+                                                  "Measurements": todo_dict,
+                                                  "Strip": self.single_strip.which_strip.value()
                                                   }
                                    }
                                   )

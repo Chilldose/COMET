@@ -1,7 +1,6 @@
 """This file contains a class containing all tools necessary for forging your own
 Measurement plugins"""
 
-
 import numpy as np
 from time import sleep
 from scipy import stats

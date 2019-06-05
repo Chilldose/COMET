@@ -183,7 +183,6 @@ class SetupLoader(object):
         '''Creates a dictionary with all values written in the file using yaml'''
 
         resource = os.path.join(filepath, filename)
-        #self.log.info("Loading file:" + str(filename))
         with open(resource, "r") as fp:
             return yaml.safe_load(fp)
 
@@ -239,9 +238,19 @@ class connect_to_devices:
                             self.log.error("Connection could not be established to device: " + str(device))
                     else:
                         self.log.error("Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
-                elif "IP" in str(connection_type).upper():
+
+                elif "IP" in str(connection_type).split(":")[0].upper():
                     # This manages the connections for IP devices
-                    self.log.error("The software is currently not capable of to connect to IP devices!")
+                    # Since TCP/IP is a bitch this connection type need special treatment
+                    address_start = str(connection_type).index(":")
+                    success = self.vcw.connect_to(
+                        self.vcw.resource_names.index(connection_type[address_start+1:]),
+                        device_IDN, device_IDN=IDN_query)
+
+                    if success:
+                        self.log.info("Connection established to device: " + str(device) + " at ")
+                    else:
+                        self.log.error("Connection could not be established to device: " + str(device))
                 # Add other connection types
                 else:
                     self.log.info("No valid connection type found for device " + str(device) + ". "
@@ -277,7 +286,12 @@ class connect_to_devices:
                     self.log.error("Device " + self.device_dict[device]["Device_name"] + " could not be found in active resources.")
 
                 # Append all infos from the config as well
-                self.device_lib[values["Device_name"]].update(self.device_dict[device])
+                try:
+                    self.device_lib[values["Device_name"]].update(self.device_dict[device])
+                except KeyError as kerr:
+                    self.log.error("It seems the desired device {} is not specified/configured. Please check "
+                                   "the device_lib folder if device is correctly added! "
+                                   "Error: {}".format(values["Device_name"], kerr))
 
         return self.device_lib
 

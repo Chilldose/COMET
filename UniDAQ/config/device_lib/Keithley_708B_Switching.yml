@@ -1,0 +1,23 @@
+---
+    Device_name: Keithley 708B Switching
+    Device_type: Switching relay 
+    
+    # Set
+    set_open_channel: :open (@{})
+    set_close_channel: :clos (@{})
+    set_open_channel_all: :open all
+    set_close_channel_all: :close all
+    
+    
+    # Get
+    get_check_channel: :clos? 
+    get_check_all_closed_channel: :clos:STAT?
+    get_operation_complete: "*OPC?"   
+
+
+    reset:
+        - open_channel_all: "" 
+
+    # Misc
+    separator: ","
+    syntax: "@(###)"

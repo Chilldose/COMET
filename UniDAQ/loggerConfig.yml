@@ -33,9 +33,9 @@ loggers:
   # Define the behavior of a specific logger, in this case the utility, which then can be seperatly switched off.
   utilities:
     handlers: [default, file, errorHandler]
-    level: INFO
+    level: WARNING
     propagate: True
 
 root:
-  level: DEBUG # This is some kind of global minimum logging level
+  level: WARNING # This is some kind of global minimum logging level
   handlers: [default, file, errorHandler]
