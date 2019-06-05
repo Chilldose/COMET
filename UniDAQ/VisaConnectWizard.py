@@ -118,7 +118,7 @@ class VisaConnectWizard:
 
         # enumerate and print all resources
         for i, j in enumerate(self.resource_names):
-            print("{} {}".format(i, j))
+            self.log.info("{} {}".format(i, j))
 
 
     def reconnect_to_device(self, device_dict):
