@@ -3,21 +3,43 @@
     Device_type: Switching relay 
     
     # Set
-    set_open_channel: :open (@{})
-    set_close_channel: :clos (@{})
-    set_open_channel_all: :open all
-    set_close_channel_all: :close all
+    set_open_channel: channel.open({})
+    set_exclusive_close_channel: channel.exclusiveclose({})
+    set_close_channel: channel.close("{}")
+    set_open_channel_all:  channel.open("allslots")
+    set_close_channel_all:  channel.close("allslots")
+    set_beeper: beeper.enable = {}
+    set_clear_forbidden_channels: channel.clearforbidden({})
+    set_forbidden_channels: channel.setforbidden({})
+    set_connect_rule: channel.connectrule = {}
+    set_connect_sequential: channel.connectsequential = {}
+    set_reset_channels: channel.reset({})
+    set_lockout: display.locallockout = {}
     
     
     # Get
-    get_check_channel: :clos? 
-    get_check_all_closed_channel: :clos:STAT?
-    get_operation_complete: "*OPC?"   
+    get_forbidden_channels: print(channel.getforbidden("allslots"))
+    get_closed_channels: print(channel.getclose("allslots"))
+    get_close_count: print(channel.getcount({}))
+    get_delay: print(channel.getdelay({}))
+    get_channel_state: print(channel.getstate("allslots"))
+    get_errorqueue_count: print(errorqueue.count)
+    get_error: print(errorqueue.next())
+    get_opc: print(opc())
 
-
+    # Warning: TSPlink reset only works if another device with a unique tsp node number is present in the system
+    reset_device: [reset(), errorqueue.clear()]
     reset:
-        - open_channel_all: "" 
+        - reset_channels: "'allslots'"
+        - beeper: beeper.OFF
+        - connect_rule: channel.BREAK_BEFORE_MAKE
+        - connect_sequential: channel.OFF
+        - lockout: display.UNLOCK
 
     # Misc
     separator: ","
-    syntax: "@(###)"
+    beep: beeper.beep({},{})
+    stop_script: exit()
+    wait_complete: waitcomplete()
+    reset_tsplink: tsplink.reset()
+    

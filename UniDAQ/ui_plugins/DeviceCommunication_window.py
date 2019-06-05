@@ -1,5 +1,6 @@
 import logging
 from PyQt5.QtWidgets import QWidget
+from ..utilities import build_command
 
 class DeviceCommunication_window:
 
@@ -33,6 +34,7 @@ class DeviceCommunication_window:
 
         try:
             self.currentDevice = self.variables.devices_dict[self.gui.device_comboBox.currentText()]
+            self.get_device_commands()
         except:
             self.log.info("It seems no devices are connected...")
 
@@ -60,20 +62,24 @@ class DeviceCommunication_window:
         """What happens when a new device is selected in the drop down menu"""
         if device in self.variables.devices_dict:
             self.currentDevice = self.variables.devices_dict[device]
+            self.get_device_commands()
         else:
             self.currentDevice = self.session_connections[device]
+            self.gui.commands_comboBox.clear()
 
     def write_action(self):
         self.gui.response_label.setText("")
+        message = self.get_message()
         """What to do when the write button is pressed"""
-        self.variables.vcw.write(self.currentDevice, self.gui.message_lineEdit.text())
+        self.variables.vcw.write(self.currentDevice, message)
         return None
 
     def query_action(self):
         """What to do when the query button is pressed"""
         self.gui.response_label.setText("")
+        message = self.get_message()
         try:
-            resp = self.variables.vcw.query(self.currentDevice, self.gui.message_lineEdit.text())
+            resp = self.variables.vcw.query(self.currentDevice, message, reconnect=False)
             self.gui.response_label.setText(resp)
             return resp
         except:
@@ -88,3 +94,22 @@ class DeviceCommunication_window:
             return resp
         except:
             return None
+
+    def get_message(self):
+        """Gets the message to write"""
+        lineedit = self.gui.message_lineEdit.text()
+        if lineedit:
+            return lineedit
+        else:
+            command = build_command(self.currentDevice, (self.gui.commands_comboBox.currentText(),
+                                                         self.gui.value_lineEdit.text()))
+            return command
+
+    def get_device_commands(self):
+        """Gerts the device commands for the selected device"""
+        commands = self.currentDevice.keys()
+        self.gui.commands_comboBox.clear()
+        for comm in sorted(commands):
+            if "set_" in comm or "get_" in comm:
+                self.gui.commands_comboBox.addItem(comm)
+

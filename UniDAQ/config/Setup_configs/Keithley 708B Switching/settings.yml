@@ -9,9 +9,9 @@
         - Switching
         - Resources
 
-    #Devices:
-    #    Matrix:
-    #        Device_name: Keithley 708B Switching
-    #        Connection_type: IP:TCPIP0::dyn-130-036.local.hephy.at::inst0::INSTR
-    #        Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
+    Devices:
+        Matrix:
+            Device_name: Keithley 708B Switching
+            Connection_type: IP:TCPIP0::dyn-130-036.local.hephy.at::inst0::INSTR
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
   

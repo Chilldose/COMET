@@ -87,10 +87,14 @@ class VisaConnectWizard:
     def reset_interface(self):
         '''Resets the interfaces'''
         try:
-            self.log.warning("Resetting the interface...")
-            self.GPIB_interface.send_ifc()
-            self.log.info("Reset of interface was successfull.")
-            return True
+            if self.GPIB_interface:
+                self.log.warning("Resetting the interface...")
+                self.GPIB_interface.send_ifc()
+                self.log.info("Reset of interface was successfull.")
+                return True
+            else:
+                self.log.info("No GPIB interface to reset...")
+                return True
         except Exception as e:
             self.log.error("Reset of interface was not successfull. Error: " + str(e))
             return False
@@ -272,7 +276,7 @@ class VisaConnectWizard:
         #Just check if a resource or object was passed and prepare everything
         try:
             resource = resource_dict["Visa_Resource"]
-            reconnect = True # if dict a reconection atempt is possible
+            #reconnect = True # if dict a reconection attempt is possible
         except KeyError:
             self.log.error("Could not access Visa Resource for device: " + str(resource_dict["Device_name"] +
                        ". This usually happens when the device is not connected."))

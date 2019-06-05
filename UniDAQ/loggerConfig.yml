@@ -37,5 +37,5 @@ loggers:
     propagate: True
 
 root:
-  level: WARNING # This is some kind of global minimum logging level
+  level: INFO # This is some kind of global minimum logging level
   handlers: [default, file, errorHandler]
