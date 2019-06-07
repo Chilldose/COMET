@@ -42,4 +42,6 @@
     stop_script: exit()
     wait_complete: waitcomplete()
     reset_tsplink: tsplink.reset()
+    Rows: [A,B,C,D,E,F,G,H]
+    Columns: [01,02,03,04,05,06,07,08,09,10,11,12]
     

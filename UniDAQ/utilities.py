@@ -1239,7 +1239,7 @@ class switching_control:
     This class handles all switching controls of all switching matrices
     """
 
-    def __init__(self, settings, devices, queue_to_main):
+    def __init__(self, settings, devices, queue_to_main, vcw):
         '''
         This class handles all switching actions
 
@@ -1249,9 +1249,15 @@ class switching_control:
         self.settings = settings
         self.message_to_main = queue_to_main
         self.devices = devices
-        self.vcw = VisaConnectWizard()
+        self.vcw = vcw
+        self.switching_systems = []
         self.build_command = build_command
         self.log = logging.getLogger(__name__)
+
+        # Find all switching relays and store them for easy access
+        for dev in self.devices.values():
+            if "Switching relay" in dev["Device_type"] and "Visa_Resource" in devices:
+                self.switching_systems.append(dev)
 
     def reset_switching(self, device="all"):
         '''
@@ -1259,24 +1265,23 @@ class switching_control:
         :param device: all oder device object:
         '''
         if device == "all": # opens all switches in all relays
-            for dev in self.devices.values():
-                if "Switching relay" in dev["Device_type"]:
-                    self.change_switching(dev, []) # Opens all closed switches
+            for dev in self.switching_systems:
+                self.change_switching(dev, []) # Opens all closed switches
         else:
             self.change_switching(device, [])
 
     def check_switching_action(self):
         """Checks what channels are closed on all switching devices"""
         current_switching = {}
-        for devices in self.devices.values():
-            if "Switching relay" in devices["Device_type"] and "Visa_Resource" in devices:
-                command = self.build_command(devices, "get_check_all_closed_channel")
-                switching = str(self.vcw.query(devices, command)).strip()
-                switching = self.pick_switch_response(devices, switching)
-                current_switching.update({devices["Device_name"]: switching})
-                self.settings["settings"]["current_switching"][devices["Device_name"]] = current_switching
+        for devices in self.switching_systems:
+            command = self.build_command(devices, "get_check_all_closed_channel")
+            switching = str(self.vcw.query(devices, command)).strip()
+            switching = self.pick_switch_response(devices, switching)
+            current_switching.update({devices["Device_name"]: switching})
+            self.settings["settings"]["current_switching"][devices["Device_name"]] = current_switching
         return current_switching
 
+    # Todo.Check i nimma
     def apply_specific_switching(self, switching_dict):
         """This function takes a dict of type {"Switching": [/switch nodes], ....} and switches to these specific type"""
 

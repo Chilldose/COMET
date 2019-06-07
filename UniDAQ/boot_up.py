@@ -243,9 +243,12 @@ class connect_to_devices:
                     # This manages the connections for IP devices
                     # Since TCP/IP is a bitch this connection type need special treatment
                     address_start = str(connection_type).index(":")
-                    success = self.vcw.connect_to(
-                        self.vcw.resource_names.index(connection_type[address_start+1:]),
-                        device_IDN, device_IDN=IDN_query)
+                    try:
+                        success = self.vcw.connect_to(
+                            self.vcw.resource_names.index(connection_type[address_start+1:]),
+                            device_IDN, device_IDN=IDN_query)
+                    except:
+                        success = False
 
                     if success:
                         self.log.info("Connection established to device: " + str(device) + " at ")

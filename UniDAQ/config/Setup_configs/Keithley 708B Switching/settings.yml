@@ -6,12 +6,13 @@
     GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
 
         - DeviceCommunication
-        - Switching
+        - SwitchingSystemQTC
         - Resources
 
     Devices:
         Matrix:
             Device_name: Keithley 708B Switching
-            Connection_type: IP:TCPIP0::dyn-130-036.local.hephy.at::inst0::INSTR
+            Connection_type: IP:TCPIP0::192.168.130.199::inst0::INSTR
             Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
+            Cards: 1 # Device specific variable used to determine how many cards are insereted
   

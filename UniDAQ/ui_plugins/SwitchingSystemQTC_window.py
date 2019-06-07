@@ -1,101 +1,81 @@
-import ast
-import json
-import os
-import os.path as osp
-import sys, importlib, logging
-from time import sleep
-
-import numpy as np
-import pyqtgraph as pq
-from PyQt5.QtCore import Qt
-from PyQt5 import QtGui
-from PyQt5.QtGui import *
+import logging
 from PyQt5.QtWidgets import *
+from ..utilities import build_command
 
-
-from ..utilities import raise_exception
-from .. import VisaConnectWizard
-
-l = logging.getLogger(__name__)
-
-vcw = VisaConnectWizard.VisaConnectWizard()
-
-class Switching_window:
+class SwitchingSystemQTC_window:
 
     def __init__(self, GUI_classes, layout):
+
         self.settings = GUI_classes
         self.layout = layout
         self.switching_control = GUI_classes.switching
         self.manual_switching = False
-
-        #self.switching_control.check_switching_action()
+        self.variables = self.settings.default_values_dict["settings"]
+        self.log = logging.getLogger(__name__)
+        self.num_7072_cards = self.variables["Devices"]["Matrix"]["Cards"] # Todo: Potential error if you rename Matrix
+        self.Keithley_7072 = self.settings.devices_dict["Keithley 708B Switching"]
+        self.measurements = self.settings.default_values_dict["Switching"].copy()
+        del self.measurements["Settings_name"]
 
         # Settings tab
         switching_widget = QWidget()
-        self.switching = self.settings.load_QtUi_file("Switching.ui", switching_widget)
+        self.switching = self.settings.load_QtUi_file("Switching_70xB.ui", switching_widget)
         self.layout.addWidget(switching_widget)
 
-        self.set_radio_buttons_checkable(False)
+        # Add the measurements to the comboBox
+        self.switching.select_meas_comboBox.addItems(sorted(self.measurements.keys()))
 
-        self.switching.apply_button.clicked.connect(self.apply_switching_button_action)
-        self.switching.check_switching_Button.clicked.connect(self.update_GUI_switching_scheme)
-        self.switching.reset_button.clicked.connect(self.reset_switching)
+        # Connect all buttons etc.
         self.switching.Override.clicked['bool'].connect(self.manual_override_action)
+        self.switching.matrix_sel_spinBox.setMaximum(self.num_7072_cards)
+        self.switching.check_switching_Button.clicked.connect(self.update_GUI_switching_scheme)
+
+        #self.set_radio_buttons_checkable(False)
+        #self.switching.apply_button.clicked.connect(self.apply_switching_button_action)
+        #self.switching.check_switching_Button.clicked.connect(self.update_GUI_switching_scheme)
+        #self.switching.reset_button.clicked.connect(self.reset_switching)
+
 
     def manual_override_action(self, bool):
         '''Manual switching enabling'''
-        self.set_radio_buttons_checkable(bool)
         if bool:
             self.manual_switching = True
         else:
             self.manual_switching = False
+        #self.switching.keithley_frame.setEnable(bool) # Done by the gui itself
+        #self.switching.brandbox_frame.setEnable(bool)
 
-    def set_radio_buttons_checkable(self, checkable = False):
-        '''Set all radio buttons uncheckable/checkable'''
-        switching = self.settings.devices_dict
-        for device in switching.values():  # loop over all switching systems
-            if "Switching relay" in device["Device_type"]:
-                if device["Device_name"] == "Brand Box":
-                    getattr(self.switching, "A1").setEnabled(checkable)
-                    getattr(self.switching, "A2").setEnabled(checkable)
-                    getattr(self.switching, "B1").setEnabled(checkable)
-                    getattr(self.switching, "B2").setEnabled(checkable)
-                    getattr(self.switching, "C1").setEnabled(checkable)
-                    getattr(self.switching, "C2").setEnabled(checkable)
+    def reset_selected_GUI_checkboxes(self):
+        """Resets all selected/eactivated GUI elements"""
 
-                if device["Device_name"] == "Switching":
-                    # First reset all previous checked radio buttons
-                    for i in range(1, 3):  # matrices
-                        for j in range(1, 5):  # Zeilen
-                            for k in range(1, 6):  # Spalten
-                                getattr(self.switching, "m" + str(i) + str(j) + str(k)).setEnabled(checkable)
-    @raise_exception
-    def update_GUI_switching_scheme(self, kwargs= None):
+        # Rreset Brandbox checkboxes
+        try:
+            self.switching.A1.setChecked(False)
+            self.switching.A2.setChecked(False)
+            self.switching.B1.setChecked(False)
+            self.switching.B2.setChecked(False)
+            self.switching.C1.setChecked(False)
+            self.switching.C2.setChecked(False)
+        except:
+            pass
+
+        # Reset all Matrices checkboxes
+        for row in self.Keithley_7072["Rows"]:
+            for column in self.Keithley_7072["Columns"]:
+                getattr(self.switching, "{row}{column}".format(row=row, column=column)).setChecked(False)
+
+    def update_GUI_switching_scheme(self):
         '''This function updates the GUI switching scheme'''
         switching = self.switching_control.check_switching_action()
+        self.reset_selected_GUI_checkboxes()
         for name, scheme in switching.items(): # loop over all switching systems
             if name == "Brand Box":
-                # First reset all previous checked radio buttons
-                self.switching.A1.setChecked(False)
-                self.switching.A2.setChecked(False)
-                self.switching.B1.setChecked(False)
-                self.switching.B2.setChecked(False)
-                self.switching.C1.setChecked(False)
-                self.switching.C2.setChecked(False)
-
                 # Now set all which need to be set
-
                 for item in scheme:
                     if item:
                         getattr(self.switching, item).setChecked(True)
 
             if name == "Switching":
-                #First reset all previous checked radio buttons
-
-                for i in range(1,3): #matrices
-                    for j in range(1,5): #Zeilen
-                        for k in range(1,6): # Spalten
-                            getattr(self.switching, "m" + str(i) + str(j) + str(k)).setChecked(False)
 
                 for item in scheme: # these must be of type 1!1!1 etc.
                     if item:
@@ -138,9 +118,6 @@ class Switching_window:
 
             if self.switching.Cac_radio.isChecked():
                 self.switching_control.switch_to_measurement("Cac")
-
-            #if self.switching.Cback_radio.isChecked():
-            #    self.switching_control.switch_to_measurement("Cback")
 
         else:
             self.apply_manual_switching()

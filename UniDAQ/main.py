@@ -148,6 +148,7 @@ def main():
         setup_loader.configs["config"],
         devices_dict,
         message_to_main,
+        vcw
     )
 
     # Gather auxiliary modules
