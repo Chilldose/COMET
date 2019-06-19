@@ -113,7 +113,11 @@ def main():
 
     # Initializing all modules
     log.critical("Initializing modules ...")
-    vcw = VisaConnectWizard()
+    try:
+        vcw = VisaConnectWizard()
+    except:
+        log.critical("NI-VISA backend could not be loaded, trying with pure python backend for VISA!")
+        vcw = VisaConnectWizard("@py")
 
 
     # Tries to connect to all available devices in the network, it returns a dict of
