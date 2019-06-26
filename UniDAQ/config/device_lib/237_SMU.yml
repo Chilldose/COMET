@@ -1,0 +1,44 @@
+---
+    Device_name: 237 Keithley SMU 
+    Device_type: SMU
+    
+    
+    # GET
+    get_read: H0
+    
+    # SET  
+    set_local_sense: O 
+    set_measure_mode: F 
+    set_filter: P
+    set_triggerONOFF: R 
+    set_terminator: Y  
+    set_complience: L 
+    set_trigger: T 
+    set_voltage: B 
+    set_output_dataformat: G 
+    set_integration_time: S 
+    set_output: N
+    
+    reset:
+        - trigger: 2,0,0,0 
+        - dintegration_time: 3
+        - output_dataformat: 4,2,0
+        - terminator: 0 
+        - local_sense: 0 
+        - triggerONOFF: 1
+        - output: 0
+        - filter: 3 
+        - voltage: 0,0,0
+        - measure_mode: 0,0
+        - complience: 5E-6,0
+        
+    # MISC
+    CSV_voltage: voltage,range,delay
+    complience_range: 0 
+    reset_device: [J0] 
+    CSV_complience: complience,range 
+    voltage_range: 0
+    execution_terminator: X 
+    voltage_delay: 0 
+    logical_operation: int 
+    separator: ","    

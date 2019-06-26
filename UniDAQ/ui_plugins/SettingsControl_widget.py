@@ -25,7 +25,7 @@ class SettingsControl_widget:
             list(self.variables.additional_files["Pad_files"].keys())[0]  # That one project is definetly choosen
         else:
             self.variables.default_values_dict["settings"].update(
-                {"Current_project": self.variables.default_values_dict["settings"].get("Projects", ["No Projects"])[0]})
+                {"Current_project": self.gui.proj_comboBox.currentText()})
 
         current_project = self.variables.default_values_dict["settings"].get("Current_project", None)
         self.gui.sensor_comboBox.addItems(self.variables.additional_files["Pad_files"][current_project])  # Adds all items to the combo box

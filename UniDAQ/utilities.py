@@ -1259,6 +1259,17 @@ class switching_control:
             if "Switching relay" in dev["Device_type"] and "Visa_Resource" in devices:
                 self.switching_systems.append(dev)
 
+    def check_if_switching_possible(self, f):
+        """Checks if switching is possible. If no switching is present in system a simple true will be returned
+        and an enrty in the log is made. This only works for functions with True or False response"""
+        def wrapper():
+            if self.switching_systems:
+                return f()
+            else:
+                self.log.warning("Tried to do a switching action but no switching system is present ins system. Dummy True will be returned")
+                return True
+        return wrapper
+
     def reset_switching(self, device="all"):
         '''
         This function resets all switching or one device switching
@@ -1296,7 +1307,7 @@ class switching_control:
                 self.log.error("Could not find switching device: {}".format(device))
                 return  False
 
-
+    #@check_if_switching_possible
     def switch_to_measurement(self, measurement):
         '''
         This function switches all switching systems to a specific measurement type

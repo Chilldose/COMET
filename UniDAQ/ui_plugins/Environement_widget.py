@@ -26,19 +26,6 @@ class Environement_widget(object):
 
         self.update_bars_and_spinboxes()
 
-        self.gui.min_temp_spin.valueChanged.connect(self.valuechange)
-        self.gui.max_temp_spin.valueChanged.connect(self.valuechange)
-        self.gui.max_hum_spin.valueChanged.connect(self.valuechange)
-        self.gui.min_hum_spin.valueChanged.connect(self.valuechange)
-        self.gui.env_control_check.stateChanged.connect(self.valuechange)
-        self.gui.log_env_check.stateChanged.connect(self.valuechange)
-
-        self.gui.env_control_check.setChecked(True)
-        self.gui.log_env_check.setChecked(True)
-
-        self.variables.default_values_dict["settings"]["control_environment"] = True
-        self.variables.default_values_dict["settings"]["log_environment"] = True
-
         # Config the progress bars
         self.gui.temperature_bar.setStyleSheet("QProgressBar::chunk{background-color: #cc1414;}")
         self.gui.temperature_bar.setValue(self.gui.min_temp_spin.value())
@@ -46,16 +33,31 @@ class Environement_widget(object):
         self.gui.humidity_bar.setStyleSheet("QProgressBar::chunk{background-color: #2662e2;}")
         self.gui.humidity_bar.setValue(self.gui.min_hum_spin.value())
 
+        self.variables.default_values_dict["settings"]["control_environment"] = True
+        self.variables.default_values_dict["settings"]["log_environment"] = True
+        self.gui.env_control_check.setChecked(True)
+        self.gui.log_env_check.setChecked(True)
+
         # Create plot and config it
         self.hum_plot_obj = pyqtgraph.ViewBox()  # generate new plot item
         self.temphum_plot = self.gui.pyqtPlotItem
         self.config_plot(self.temphum_plot, self.hum_plot_obj)  # config the plot items
 
-        self.variables.add_update_function(self.update_temphum_plots)
-
         # Go through all to set the value a the device as well
-        self.valuechange()
-        self.update_bars_and_spinboxes()
+        if "temphum_controller" in self.variables.devices_dict:
+            # Connect everything
+            self.gui.min_temp_spin.valueChanged.connect(self.valuechange)
+            self.gui.max_temp_spin.valueChanged.connect(self.valuechange)
+            self.gui.max_hum_spin.valueChanged.connect(self.valuechange)
+            self.gui.min_hum_spin.valueChanged.connect(self.valuechange)
+            self.gui.env_control_check.stateChanged.connect(self.valuechange)
+            self.gui.log_env_check.stateChanged.connect(self.valuechange)
+
+            self.variables.add_update_function(self.update_temphum_plots)
+            self.valuechange()
+            self.update_bars_and_spinboxes()
+        else:
+            self.envlog.error("No device found with name or alias 'temphum_controller'. No environement monitor can be started")
 
     def config_plot(self, plot, plot2):
         plot = plot.plotItem
