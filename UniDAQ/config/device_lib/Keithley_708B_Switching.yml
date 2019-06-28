@@ -25,7 +25,10 @@
     get_channel_state: print(channel.getstate("allslots"))
     get_errorqueue_count: print(errorqueue.count)
     get_error: print(errorqueue.next())
-    get_opc: print(opc())
+    get_operation_complete:
+            command: opc() waitcomplete() print("1")
+            success: 1
+            type: str
 
     # Warning: TSPlink reset only works if another device with a unique tsp node number is present in the system
     reset_device: [reset(), errorqueue.clear()]
@@ -44,4 +47,5 @@
     reset_tsplink: tsplink.reset()
     Rows: [A,B,C,D,E,F,G,H]
     Columns: [01,02,03,04,05,06,07,08,09,10,11,12]
+    device_exclusive_switching: True # If this is on true all switching logic will be done via the device. Make sure you configured the device correctly
     

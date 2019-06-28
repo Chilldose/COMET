@@ -13,7 +13,7 @@ class SwitchingSystemQTC_window:
         self.variables = self.settings.default_values_dict["settings"]
         self.log = logging.getLogger(__name__)
         self.num_7072_cards = self.variables["Devices"]["Matrix"]["Cards"] # Todo: Potential error if you rename Matrix
-        self.Keithley_7072 = self.settings.devices_dict["Keithley 708B Switching"]
+        self.Keithley_7072 = self.settings.devices_dict["LVSwitching"]
         self.measurements = self.settings.default_values_dict["Switching"].copy()
         del self.measurements["Settings_name"]
 
@@ -31,9 +31,9 @@ class SwitchingSystemQTC_window:
         self.switching.check_switching_Button.clicked.connect(self.update_GUI_switching_scheme)
 
         #self.set_radio_buttons_checkable(False)
-        #self.switching.apply_button.clicked.connect(self.apply_switching_button_action)
-        #self.switching.check_switching_Button.clicked.connect(self.update_GUI_switching_scheme)
-        #self.switching.reset_button.clicked.connect(self.reset_switching)
+        self.switching.apply_button.clicked.connect(self.apply_switching_button_action)
+        self.switching.check_switching_Button.clicked.connect(self.update_GUI_switching_scheme)
+        self.switching.reset_button.clicked.connect(self.reset_switching)
 
 
     def manual_override_action(self, bool):
@@ -62,7 +62,7 @@ class SwitchingSystemQTC_window:
         # Reset all Matrices checkboxes
         for row in self.Keithley_7072["Rows"]:
             for column in self.Keithley_7072["Columns"]:
-                getattr(self.switching, "{row}{column}".format(row=row, column=column)).setChecked(False)
+                getattr(self.switching, "{row}{column:02d}".format(row=row, column=int(column))).setChecked(False)
 
     def update_GUI_switching_scheme(self):
         '''This function updates the GUI switching scheme'''
@@ -87,7 +87,7 @@ class SwitchingSystemQTC_window:
     def reset_switching(self):
         for device in self.settings.devices_dict.values():
             if "Switching relay" in device["Device_type"]:
-                self.switching_control.change_switching(device, []) # Opens all closed switches
+                self.switching_control.reset_switching(device) # Opens all closed switches
                 self.update_GUI_switching_scheme()
 
     def apply_switching_button_action(self):

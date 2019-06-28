@@ -467,24 +467,34 @@ def build_command(device, command_tuple, single_commands = False):
         command_tuple = (command_tuple,"") # make da dummy command
 
     if command_tuple[0] in device:
+
+        if isinstance(device[command_tuple[0]], dict):
+            try:
+                com = device[command_tuple[0]]["command"]
+            except:
+                l.error("Dict command structure recognised but no actual command found for passed order {}".format(command_tuple))
+                return None
+        else:
+            com = device[command_tuple[0]]
+
         if isinstance(command_tuple[1], (str, float, int)):
-            return device[command_tuple[0]].format(command_tuple[1])
+            return com.format(command_tuple[1])
 
         elif single_commands:
             if isinstance(command_tuple[1], list) or isinstance(command_tuple[1], tuple) :
-                return [device[command_tuple[0]].format(single) for single in command_tuple[1]]
+                return [com.format(single) for single in command_tuple[1]]
             else:
-                l.log.error("In order to build a list command, a list has to be passed!")
+                l.error("In order to build a list command, a list has to be passed!")
                 return None
 
         elif isinstance(command_tuple[1], list) or isinstance(command_tuple[1], tuple):
             # Find occurance of {} in string if list is as long as occurance of {} then just pass otherwise join a string
             brackets_count = device[command_tuple[0]].count("{}")
             if len(command_tuple[1]) == brackets_count:
-                return device[command_tuple[0]].format(*command_tuple[1])
+                return com.format(*command_tuple[1])
             elif brackets_count == 1 and len(command_tuple[1]) > brackets_count:
                 sep = device.get("separator", " ")
-                return device[command_tuple[0]].format(sep.join([str(x) for x in command_tuple[1]]))
+                return com.format(sep.join([str(x) for x in command_tuple[1]]))
             elif len(command_tuple[1]) > brackets_count or len(command_tuple[1]) < brackets_count and brackets_count != 1:
                 l.error("Could not build command for input length {}"
                         " and input parameters length {}. Input parameters must be of same length"
@@ -1252,23 +1262,14 @@ class switching_control:
         self.vcw = vcw
         self.switching_systems = []
         self.build_command = build_command
+        self.settings["settings"]["current_switching"] = {}
         self.log = logging.getLogger(__name__)
 
         # Find all switching relays and store them for easy access
         for dev in self.devices.values():
             if "Switching relay" in dev["Device_type"] and "Visa_Resource" in devices:
+                self.settings["settings"]["current_switching"][dev["Device_name"]] = []
                 self.switching_systems.append(dev)
-
-    def check_if_switching_possible(self, f):
-        """Checks if switching is possible. If no switching is present in system a simple true will be returned
-        and an enrty in the log is made. This only works for functions with True or False response"""
-        def wrapper():
-            if self.switching_systems:
-                return f()
-            else:
-                self.log.warning("Tried to do a switching action but no switching system is present ins system. Dummy True will be returned")
-                return True
-        return wrapper
 
     def reset_switching(self, device="all"):
         '''
@@ -1277,9 +1278,13 @@ class switching_control:
         '''
         if device == "all": # opens all switches in all relays
             for dev in self.switching_systems:
-                self.change_switching(dev, []) # Opens all closed switches
+                configs = self.build_command(dev, "set_open_channel_all")
+                self.vcw.write(dev, configs)
+                self.check_all_closed_channel(dev, [])
         else:
-            self.change_switching(device, [])
+            configs = self.build_command(device, "set_open_channel_all")
+            self.vcw.write(device, configs)
+            self.check_all_closed_channel(device, [])
 
     def check_switching_action(self):
         """Checks what channels are closed on all switching devices"""
@@ -1316,6 +1321,11 @@ class switching_control:
         :return: true or false, so if switching was successfull or not
         '''
 
+        if not self.switching_systems:
+            self.log.critical("No switching systems defined but attempt to switch to measurement {}. "
+                              "Returning dummy True".format(measurement))
+            return True
+
         #Todo: Brandbox is sended twice due to double occurance (humidity controller), but maybe its for the best, since the thing isnt working properly
         #First find measurement
         switching_success = False
@@ -1351,6 +1361,10 @@ class switching_control:
         :param current_switching: is a string containing the current switching
 
         '''
+
+        if current_switching == "nil":
+            return []
+
         syntax_list = device.get("syntax", "")
         if syntax_list:
             syntax_list = syntax_list.split("###")# gets me header an footer from syntax
@@ -1390,15 +1404,13 @@ class switching_control:
 
     def change_switching(self, device, config): # Has to be a string command or a list of commands containing strings!!
 
-        #TODO: Switching better!!!
         '''
         Fancy name, but just sends the swithing command
 
         :param config: the list of nodes which need to be switched
         '''
-        # TODO: check when switching was not possible that the programm shutsdown! Now the due to the brandbox this is switched off
-
-        if type(config) == type(u"Unicode") or type(config) == str:
+        # Check if only a string is passed and not a list and convert into list if need be
+        if isinstance(config, str):
             configs = [config]
         else:
             configs = config
@@ -1409,37 +1421,65 @@ class switching_control:
             self.log.error("The VISA resource for device " + str(device["Device_name"]) + " could not be found. No switching possible.")
             return -1
 
+        if device.get("device_exclusive_switching", False):
+            self.log.debug("Device exclusive switching used...")
+            self.device_exclusive_switching(device, configs)
+        else:
+            self.manual_switching(device, configs, BBM = True)
+
+    def device_exclusive_switching(self, device, configs):
+        """Switching will be done exclusivly by the device itself. Warning make sure the device is correctly configured if
+        you are using this routine"""
+        self.__send_switching_command(device, "set_exclusive_close_channel", configs)
+        # Check if switching is done
+        self.check_all_closed_channel(device, configs)
+
+
+    def manual_switching(self, device, configs, BBM = True):
+        """Manual switching, so opening and closing of channels is done via this software. Old keithley will need this
+        Newer devices can do exclusive opening and closing.
+        BBM or Break-before-make is the order how to switch, if False make-before-break is used. This is not
+        recommended since it can dry weld the switches."""
         command = self.build_command(device, "get_check_all_closed_channel")
-        current_switching = str(self.vcw.query(resource, command)).strip()  # Get current switching
+        current_switching = str(self.vcw.query(device, command)).strip()  # Get current switching
         current_switching = self.pick_switch_response(device, current_switching)
 
         to_open_channels = list(set(current_switching) - (set(configs)))  # all channels which need to be closed
         to_close_channels = configs
 
-        # Close channels
-        self.__send_switching_command(device, "set_close_channel", to_close_channels)
+        if BBM:
+            comm = ["set_open_channel", "set_close_channel"]
+            channels = [to_open_channels, to_close_channels]
+        else:
+            comm = ["set_close_channel", "set_open_channel"]
+            channels = [to_close_channels, to_open_channels]
 
-        #sleep(0.01) # Just for safety reasons because the brandbox is very slow
+        # Close channels
+        self.__send_switching_command(device, comm[0], channels[0])
 
         # Open channels
-        self.__send_switching_command(device, "set_open_channel", to_open_channels)
+        self.__send_switching_command(device, comm[1], channels[1])
 
         # Check if switching is done (basically the same proceedure like before only in the end there is a check
+        self.check_all_closed_channel(device, configs)
 
+    def check_all_closed_channel(self, device, to_be):
+        """Checks if all channels are correctly closed"""
         device_not_ready = True
         counter = 0
+        opc_command = self.build_command(device, "get_operation_complete")
+        opc_success = str(device["get_operation_complete"].get("success", "1"))
+        all_closed_command = self.build_command(device, "get_closed_channels")
+
         while device_not_ready:
-            command = self.build_command(device, "get_operation_complete")
-            all_done = str(self.vcw.query(resource, command)).strip()
-            if all_done == "1" or all_done == "Done":
-                command = self.build_command(device, "get_check_all_closed_channel")
-                current_switching = str(self.vcw.query(device, command)).strip()
+            all_done = str(self.vcw.query(device, opc_command)).strip()
+            if all_done == opc_success:
+                current_switching = str(self.vcw.query(device, all_closed_command)).strip()
                 current_switching = self.pick_switch_response(device, current_switching)
                 self.settings["settings"]["current_switching"][device["Device_name"]] = current_switching
-
-                command_diff = list(set(configs).difference(set(current_switching)))
+                command_diff = list(set(to_be).difference(set(current_switching)))
                 if len(command_diff) != 0:  #Checks if all the right channels are closed
-                    self.log.error("Switching to {}  was not possible. Difference read:{}".format(configs, current_switching))
+                    self.log.error("Switching to {}  was not possible. Difference read:{}".format(to_be, current_switching))
                     return False
                 return True
             if counter > 5:
@@ -1448,51 +1488,6 @@ class switching_control:
 
         self.log.error("No response from switching system: " + device["Device_name"])
         return False
-
-    def build_command_depricated(self, device, command_tuple):
-        """
-        Builds the command correctly, so that the device recognise the command
-
-        :param device: device dictionary
-        :param command_tuple: (command, value), can also be a string for a final command
-        """
-        if type(command_tuple) == type(u"Unicode"):
-            command_tuple = (str(command_tuple),) # so the correct casting is done
-
-        # Make a loop over all items in the device dict
-        for key, value in device.items():
-            try:
-                # Search for the command in the dict
-                if command_tuple[0] == value: # finds the correct value
-                    command_keyword = str(key.split("_")[-1]) # extract the keyword, the essence of the command
-
-                    if ("CSV_command_" + command_keyword) in device: # searches for CSV command in dict
-                        data_struct = device["CSV_command_" + command_keyword].split(",")
-
-                        final_string = str(command_tuple[0]) + " "  # so the key word
-
-                        for i, given_orders in enumerate(command_tuple[1:]): # so if more values are given, these will be processed first
-                            final_string += str(given_orders).upper() + ","  # so the value
-
-                        if len(command_tuple[1:]) <= len(data_struct): # searches if additional data needs to be added
-                            for data in data_struct[i+1:]:
-                                # print device[command_keyword + "_" + data]
-                                if command_keyword + "_" + data in device:
-                                    final_string += str(device[command_keyword + "_" + data]).upper() + ","
-                                else:
-                                    final_string += ","# if no such value is in the dict
-
-                        return final_string[:-1] # because there is a colon to much in it
-
-                    else:
-                        if len(command_tuple) > 1:
-                            return str(command_tuple[0]) + " " + str(command_tuple[1])
-                        else:
-                            return str(command_tuple[0])
-
-            except Exception as e:
-                #print e
-                pass
 
 def load_QtCSS_StyleSheet(path):
     """Loads the QtCSS style sheet"""

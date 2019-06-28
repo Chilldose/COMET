@@ -165,17 +165,21 @@ class SetupLoader(object):
                 new_assignee.pop(lKey)
 
         # Add missing devices with aliases
-
+        key = None
+        not_found = []
         while len(new_assignee):
-            key, missing = list(new_assignee.items())[0]
-            for devic in devices.copy():
-                if missing in devices[devic]["Device_name"]:
-                    devices[key] = devices[devic].copy()
-                    new_assignee.pop(key)
-                    break
+            if key in new_assignee:
+                not_found.append(new_assignee.pop(key))
+            if new_assignee.items():
+                key, missing = list(new_assignee.items())[0]
+                for devic in devices.copy():
+                    if missing in devices[devic]["Device_name"]:
+                        devices[key] = devices[devic].copy()
+                        new_assignee.pop(key)
+                        break
 
-        if new_assignee:
-            self.log.warning("The devices aliases {} have been specified but where never used".format(new_assignee))
+        if not_found:
+            self.log.warning("The devices aliases {} have been specified but are never used".format(not_found))
         return devices
 
 

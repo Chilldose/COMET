@@ -39,14 +39,23 @@ class IVCV_class(tools):
         voltage_End = []
         voltage_Start = []
         voltage_steps = []
-        bias_SMU = self.main.devices["BiasSMU"]
-        LCR_meter = self.main.devices["Agilent E4980A"]
-        discharge_SMU = self.main.devices["2410 Keithley SMU"]
-        discharge_switching = self.main.devices["temphum_controller"]
+        self.log.info("Acquiring devices for measurements...")
+        discharge_SMU = None
+        bias_SMU = None
+        LCR_meter = None
+        discharge_switching = None
+        try:
+            bias_SMU = self.main.devices["BiasSMU"]
+            LCR_meter = self.main.devices["Agilent E4980A"]
+            discharge_SMU = self.main.devices["2410 Keithley SMU"]
+            discharge_switching = self.main.devices["temphum_controller"]
+        except ValueError as valErr:
+            self.log.critical("One or more devices could not be found for the IVCV measurements. Error: {}".format(valErr))
 
         # First perform a discharge of the decouple box capacitor and stop if there is a problem
-        if not self.main.capacitor_discharge(discharge_SMU, discharge_switching, "set_terminal", "FRONT"):
-            return # Exits the Measurement if need be
+        if discharge_SMU:
+            if not self.main.capacitor_discharge(discharge_SMU, discharge_switching, "set_terminal", "FRONT"):
+                return # Exits the Measurement if need be
 
         if "IV" in self.main.job_details["IVCV"]: # Creates the actual measurement plan
             job_list.append(self.do_IV)
@@ -106,7 +115,7 @@ class IVCV_class(tools):
                     if self.main.save_data:
                         string_to_write += str(self.main.measurement_data["CV"][0][-1]).ljust(self.justlength) + str(self.main.measurement_data["CV"][1][-1]).ljust(self.justlength)
 
-                # enviroment values
+                # environment values
                 if self.main.job_details.get("enviroment", False):
                     if "CV" in self.main.job_details["IVCV"] and abs(voltage) > abs(self.main.job_details["IVCV"]["CV"].get("EndVolt", 0)):
                         string_to_write += "--".ljust(self.justlength)+"--".ljust(self.justlength) # Writes nothing if no value is aquired
@@ -130,7 +139,8 @@ class IVCV_class(tools):
                                "This should not happen!!!")
 
         self.main.change_value(bias_SMU, "set_output", "0")
-        self.main.capacitor_discharge(discharge_SMU, discharge_switching, "set_terminal", "FRONT", do_anyway=True)
+        if discharge_SMU:
+            self.main.capacitor_discharge(discharge_SMU, discharge_switching, "set_terminal", "FRONT", do_anyway=True)
         return None
 
     #@timeit
