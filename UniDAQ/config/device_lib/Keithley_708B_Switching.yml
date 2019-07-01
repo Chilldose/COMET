@@ -4,7 +4,7 @@
     
     # Set
     set_open_channel: channel.open({})
-    set_exclusive_close_channel: channel.exclusiveclose({})
+    set_exclusive_close_channel: channel.exclusiveclose("{}")
     set_close_channel: channel.close("{}")
     set_open_channel_all:  channel.open("allslots")
     set_close_channel_all:  channel.close("allslots")
@@ -40,7 +40,7 @@
         - lockout: display.UNLOCK
 
     # Misc
-    separator: ","
+    separator: ";"
     beep: beeper.beep({},{})
     stop_script: exit()
     wait_complete: waitcomplete()

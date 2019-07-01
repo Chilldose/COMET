@@ -14,8 +14,7 @@ class SwitchingSystemQTC_window:
         self.log = logging.getLogger(__name__)
         self.num_7072_cards = self.variables["Devices"]["Matrix"]["Cards"] # Todo: Potential error if you rename Matrix
         self.Keithley_7072 = self.settings.devices_dict["LVSwitching"]
-        self.measurements = self.settings.default_values_dict["Switching"].copy()
-        del self.measurements["Settings_name"]
+        self.measurements = self.settings.default_values_dict["Switching"]["Switching_Schemes"].copy()
 
         # Settings tab
         switching_widget = QWidget()
@@ -34,6 +33,7 @@ class SwitchingSystemQTC_window:
         self.switching.apply_button.clicked.connect(self.apply_switching_button_action)
         self.switching.check_switching_Button.clicked.connect(self.update_GUI_switching_scheme)
         self.switching.reset_button.clicked.connect(self.reset_switching)
+        self.switching.matrix_sel_spinBox.valueChanged.connect(self.update_GUI_switching_scheme)
 
 
     def manual_override_action(self, bool):
@@ -75,14 +75,13 @@ class SwitchingSystemQTC_window:
                     if item:
                         getattr(self.switching, item).setChecked(True)
 
-            if name == "Switching":
-
-                for item in scheme: # these must be of type 1!1!1 etc.
+            if name == "Keithley 708B Switching":
+                matrix = self.switching.matrix_sel_spinBox.value()
+                for item in scheme:
                     if item:
-                        new_item = item.replace("!", "").replace("!", "") # removes the !
-                        getattr(self.switching, "m" + new_item).setChecked(True)
-        #self.manual_override_action(False) # so nobody can change a thing
-        #self.switching.Override.setChecked(False)  # so the button is in the right state
+                        # Todo: not the prettiest way to do it, may be cool to clean it up
+                        if item[0] == str(matrix): # Checks for the selected matrix
+                            getattr(self.switching, "{relay}".format(relay=item[1:])).setChecked(True)
 
     def reset_switching(self):
         for device in self.settings.devices_dict.values():
@@ -92,32 +91,8 @@ class SwitchingSystemQTC_window:
 
     def apply_switching_button_action(self):
         if not self.manual_switching:
-            if self.switching.IV_radio.isChecked():
-                self.switching_control.switch_to_measurement("IV")
-
-            if self.switching.CV_radio.isChecked():
-                self.switching_control.switch_to_measurement("CV")
-
-            if self.switching.Idark_radio.isChecked():
-                self.switching_control.switch_to_measurement("Idark")
-
-            if self.switching.Istrip_radio.isChecked():
-                self.switching_control.switch_to_measurement("Istrip")
-
-            if self.switching.Idiel_radio.isChecked():
-                self.switching_control.switch_to_measurement("Idiel")
-
-            if self.switching.Rpoly_radio.isChecked():
-                self.switching_control.switch_to_measurement("Rpoly")
-
-            if self.switching.Cint_radio.isChecked():
-                self.switching_control.switch_to_measurement("Cint")
-
-            if self.switching.Rint_radio.isChecked():
-                self.switching_control.switch_to_measurement("Rint")
-
-            if self.switching.Cac_radio.isChecked():
-                self.switching_control.switch_to_measurement("Cac")
+            selected_meas = self.switching.select_meas_comboBox.currentText()
+            self.switching_control.switch_to_measurement(selected_meas)
 
         else:
             self.apply_manual_switching()
@@ -139,12 +114,13 @@ class SwitchingSystemQTC_window:
 
         # Switching matrix
         to_switch.update({"LVSwitching": []})
+        matrix = self.switching.matrix_sel_spinBox.value()
         # Now get all nodes which need to be set
-        for i in range(1,3): #matrices
-            for j in range(1,5): #Zeilen
-                for k in range(1,6): # Spalten
-                    if getattr(self.switching, "m" + str(i) + str(j) + str(k)).isChecked():
-                        to_switch["LVSwitching"].append(str(i)+ "!" + str(j) + "!" + str(k))
+        # Reset all Matrices checkboxes
+        for row in self.Keithley_7072["Rows"]:
+            for column in self.Keithley_7072["Columns"]:
+                if getattr(self.switching, "{row}{column:02d}".format(row=row, column=int(column))).isChecked():
+                    to_switch["LVSwitching"].append("{matrix}{row}{column:02d}".format(matrix=matrix, row=row, column=int(column)))
 
 
         # No apply the switching

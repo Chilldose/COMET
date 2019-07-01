@@ -1,12 +1,14 @@
 ---
     Settings_name: Switching
-    ChannelA:
-        LVSwitching: # Name of the device or a alias (if defined) which is defined in the settings
-            - 1A01
-            - 1A02
-            - 1A03
-    ChannelB:
-        LVSwitching:
-            - 1B01
-            - 1B02
-            - 1B03
+    Device_type: "Switching relay"
+    Switching_Schemes:
+      ChannelA:
+          LVSwitching: # Name of the device or a alias (if defined) which is defined in the settings
+              - 1A01
+              - 1A02
+              - 1A03
+      ChannelB:
+          LVSwitching:
+              - 1B01
+              - 1B02
+              - 1B03

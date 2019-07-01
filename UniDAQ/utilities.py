@@ -1267,7 +1267,7 @@ class switching_control:
 
         # Find all switching relays and store them for easy access
         for dev in self.devices.values():
-            if "Switching relay" in dev["Device_type"] and "Visa_Resource" in devices:
+            if dev.get("Device_type","None").upper()=="Switching relay".upper() and "Visa_Resource" in dev:
                 self.settings["settings"]["current_switching"][dev["Device_name"]] = []
                 self.switching_systems.append(dev)
 
@@ -1290,27 +1290,26 @@ class switching_control:
         """Checks what channels are closed on all switching devices"""
         current_switching = {}
         for devices in self.switching_systems:
-            command = self.build_command(devices, "get_check_all_closed_channel")
+            command = self.build_command(devices, "get_closed_channels")
             switching = str(self.vcw.query(devices, command)).strip()
             switching = self.pick_switch_response(devices, switching)
             current_switching.update({devices["Device_name"]: switching})
             self.settings["settings"]["current_switching"][devices["Device_name"]] = current_switching
         return current_switching
 
-    # Todo.Check i nimma
     def apply_specific_switching(self, switching_dict):
         """This function takes a dict of type {"Switching": [/switch nodes], ....} and switches to these specific type"""
 
-        for device, to_switch in switching_dict.items():
-            if device in self.devices:
-                if not self.change_switching(self.devices[device], to_switch):
+        for device in self.devices:
+            if device in switching_dict.keys():
+                if not self.change_switching(self.devices[device], switching_dict[device]):
                     self.log.error("Manual switching was not possible")
                     return False
                 else:
                     return True
             else:
-                self.log.error("Could not find switching device: {}".format(device))
-                return  False
+                self.log.error("Could not find switching device: {}. It may not be connected or specified.".format(device))
+                #return  False
 
     #@check_if_switching_possible
     def switch_to_measurement(self, measurement):
@@ -1330,9 +1329,9 @@ class switching_control:
         #First find measurement
         switching_success = False
         self.log.info("Switching to measurement: {!s}".format(str(measurement)))
-        if measurement in self.settings["Switching"]:
+        if measurement in self.settings["Switching"]["Switching_Schemes"]:
             # When measurement was found
-            for name, switch_list in self.settings["Switching"][measurement].items():
+            for name, switch_list in self.settings["Switching"]["Switching_Schemes"][measurement].items():
                 if name in self.devices:
                     if not switch_list:
                         switch_list = []
@@ -1358,49 +1357,55 @@ class switching_control:
     def pick_switch_response(self, device, current_switching):
         '''
         This function picks the string response and returns a list.
+        This function searches for a separator in the device dict and uses it to discect the message, standard is ','
         :param current_switching: is a string containing the current switching
+
 
         '''
 
         if current_switching == "nil":
             return []
 
-        syntax_list = device.get("syntax", "")
-        if syntax_list:
-            syntax_list = syntax_list.split("###")# gets me header an footer from syntax
+
+        #syntax_list = device.get("syntax", "")
+        #if syntax_list:
+        #    syntax_list = syntax_list.split("###")# gets me header an footer from syntax
+
+        sep = device.get("separator", ",")
+        return current_switching.strip().split(sep)
+
 
         # Warning 7001 keithley sometimes seperates values by , and sometimes by : !!!!!!!!!
         # Sometimes it also happens that it mixes everything -> this means that the channel from to are closed etc.
-        # Todo: implement the : exception
-
-        if ":" in current_switching:
-            self.log.error("The switching syntax for this is not yet implemented, discrepancies do occure from displayed to actually switched case. TODO")
-            if "," in current_switching: # if this shitty mix happens
-                current_switching = current_switching.replace(",", ":")
-            if len(syntax_list) > 1:
-                current_switching = current_switching[len(syntax_list[0]): -len(syntax_list[1])]
-                return current_switching.strip().split(":")  # now we have the right commands
-            else:
-                return current_switching.strip().split(":")  # now we have the right commands
-
-        if "," in current_switching:
-            if ":" in current_switching: # if this shitty mix happens
-                current_switching = current_switching.replace(":", ",")
-            if len(syntax_list) > 1:
-                current_switching = current_switching[len(syntax_list[0]): -len(syntax_list[1])]
-                #current_switching = current_switching.split(syntax_list[0]).split(syntax_list[1])
-                return current_switching.strip().split(",")  # now we have the right commands
-            else:
-                return current_switching.strip().split(",")  # now we have the right commands
-
-        elif "@" in current_switching: # if no switching at all happens
-            if len(syntax_list) > 1:
-                current_switching = current_switching[len(syntax_list[0]): -len(syntax_list[1])]
-                return current_switching.strip().split()  # now we have the right commands
-            else:
-                return current_switching.strip().split()  # now we have the right commands
-        else:
-            return current_switching.strip().split()  # now we have the right commands
+        # LEGACY CODE
+        # if ":" in current_switching:
+        #     self.log.error("The switching syntax for this is not yet implemented, discrepancies do occure from displayed to actually switched case. TODO")
+        #     if "," in current_switching: # if this shitty mix happens
+        #         current_switching = current_switching.replace(",", ":")
+        #     if len(syntax_list) > 1:
+        #         current_switching = current_switching[len(syntax_list[0]): -len(syntax_list[1])]
+        #         return current_switching.strip().split(":")  # now we have the right commands
+        #     else:
+        #         return current_switching.strip().split(":")  # now we have the right commands
+        #
+        # if "," in current_switching:
+        #     if ":" in current_switching: # if this shitty mix happens
+        #         current_switching = current_switching.replace(":", ",")
+        #     if len(syntax_list) > 1:
+        #         current_switching = current_switching[len(syntax_list[0]): -len(syntax_list[1])]
+        #         #current_switching = current_switching.split(syntax_list[0]).split(syntax_list[1])
+        #         return current_switching.strip().split(",")  # now we have the right commands
+        #     else:
+        #         return current_switching.strip().split(",")  # now we have the right commands
+        #
+        # elif "@" in current_switching: # if no switching at all happens
+        #     if len(syntax_list) > 1:
+        #         current_switching = current_switching[len(syntax_list[0]): -len(syntax_list[1])]
+        #         return current_switching.strip().split()  # now we have the right commands
+        #     else:
+        #         return current_switching.strip().split()  # now we have the right commands
+        # else:
+        #     return current_switching.strip().split()  # now we have the right commands
 
     def change_switching(self, device, config): # Has to be a string command or a list of commands containing strings!!
 
@@ -1419,20 +1424,20 @@ class switching_control:
             resource = device
         else:
             self.log.error("The VISA resource for device " + str(device["Device_name"]) + " could not be found. No switching possible.")
-            return -1
+            return False
 
         if device.get("device_exclusive_switching", False):
             self.log.debug("Device exclusive switching used...")
-            self.device_exclusive_switching(device, configs)
+            return self.device_exclusive_switching(device, configs)
         else:
-            self.manual_switching(device, configs, BBM = True)
+             return self.manual_switching(device, configs, BBM = True)
 
     def device_exclusive_switching(self, device, configs):
         """Switching will be done exclusivly by the device itself. Warning make sure the device is correctly configured if
         you are using this routine"""
         self.__send_switching_command(device, "set_exclusive_close_channel", configs)
         # Check if switching is done
-        self.check_all_closed_channel(device, configs)
+        return self.check_all_closed_channel(device, configs)
 
 
     def manual_switching(self, device, configs, BBM = True):
@@ -1461,7 +1466,7 @@ class switching_control:
         self.__send_switching_command(device, comm[1], channels[1])
 
         # Check if switching is done (basically the same proceedure like before only in the end there is a check
-        self.check_all_closed_channel(device, configs)
+        return self.check_all_closed_channel(device, configs)
 
     def check_all_closed_channel(self, device, to_be):
         """Checks if all channels are correctly closed"""
