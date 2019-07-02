@@ -52,7 +52,8 @@
         - Settings
         - Stripscan
         - StripAnalysis
-        - Switching
+        - DeviceCommunication
+        - SwitchingSystemQTC
         - DataBrowser
         - Resources
         - Alignment
@@ -64,7 +65,7 @@
     Aliases:
         temphum_controller: BrandBox
         HVSwitching: BrandBox
-        LVSwitching: Keithley Switching Matrix
+        LVSwitching: Keithley 708B Switching
         BiasSMU: 2657 Keithley SMU
         Table_control: ITK Corvus
         lights_controller: BrandBox
@@ -97,9 +98,10 @@
             Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E
         
         Matrix:
-            Device_name: Keithley Switching Matrix
-            Connection_type: GPIB:14 
-            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 7001, 503327,A04  /A01 
+            Device_name: Keithley 708B Switching
+            Connection_type: IP:TCPIP0::192.168.130.199::inst0::INSTR
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
+            Cards: 1 # Device specific variable used to determine how many cards are inserted
         
         LCRmeter:
             Device_name: Agilent E4980A 

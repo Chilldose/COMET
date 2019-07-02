@@ -1267,7 +1267,7 @@ class switching_control:
 
         # Find all switching relays and store them for easy access
         for dev in self.devices.values():
-            if dev.get("Device_type","None").upper()=="Switching relay".upper() and "Visa_Resource" in dev:
+            if "Switching relay" in dev.get("Device_type","None") and "Visa_Resource" in dev:
                 self.settings["settings"]["current_switching"][dev["Device_name"]] = []
                 self.switching_systems.append(dev)
 
