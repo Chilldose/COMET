@@ -1445,7 +1445,7 @@ class switching_control:
         Newer devices can do exclusive opening and closing.
         BBM or Break-before-make is the order how to switch, if False make-before-break is used. This is not
         recommended since it can dry weld the switches."""
-        command = self.build_command(device, "get_check_all_closed_channel")
+        command = self.build_command(device, "get_closed_channels")
         current_switching = str(self.vcw.query(device, command)).strip()  # Get current switching
         current_switching = self.pick_switch_response(device, current_switching)
 

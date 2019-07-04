@@ -281,6 +281,8 @@ class VisaConnectWizard:
             self.log.error("Could not access Visa Resource for device: " + str(resource_dict["Device_name"] +
                        ". This usually happens when the device is not connected."))
             return False
+        except TypeError:
+            resource = resource_dict
         except Exception as e:
             self.log.exception("An unknown error occured while accessing a Visa resource with error {}".format(e))
             return False

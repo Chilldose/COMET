@@ -14,7 +14,6 @@ punished!
    If the defendant should win, he/she can use the software as he/she wishes,
    otherwise he/she will be punished as described before.
 """
-
 import glob
 import argparse
 import logging
