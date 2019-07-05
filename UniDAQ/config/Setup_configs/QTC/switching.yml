@@ -135,3 +135,15 @@
           - 1A06
           - 1C01
           - 1C02
+
+      RintAC:
+        HVSwitching:
+          - A1
+          - B1
+          - C1
+
+        LVSwitching:
+          - 1A07
+          - 1A08
+          - 1C03
+          - 1C04
