@@ -14,16 +14,25 @@ punished!
    If the defendant should win, he/she can use the software as he/she wishes,
    otherwise he/she will be punished as described before.
 """
-
+import glob
+import argparse
 import logging
+import signal
 import time
 import sys
 import os
 
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
+
+#sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+
 from . import utilities
 from . import boot_up
+from .core.config import DeviceLib
+from .core.config import Setup
+from .gui.PreferencesDialog import PreferencesDialog
 from .GUI_classes import GUI_classes
-from .cmd_inferface import DAQShell
 from .VisaConnectWizard import VisaConnectWizard
 from .measurement_event_loop import (
     measurement_event_loop,
@@ -38,6 +47,32 @@ def main():
     # Create timestamp
     start_time = time.time()
 
+    # Load Style sheet
+    StyleSheet = utilities.load_QtCSS_StyleSheet("Qt_Style.css")
+
+    # Create app
+    app = QtWidgets.QApplication(sys.argv)
+
+    # Create application settings.
+    app.setOrganizationName("HEPHY")
+    app.setOrganizationDomain("hephy.at")
+    app.setApplicationName("comet")
+
+    # Init global settings.
+    QtCore.QSettings()
+
+    # Set Style of the GUI
+    style = "Fusion"
+    app.setStyle(QtWidgets.QStyleFactory.create(style))
+    app.setStyleSheet(StyleSheet)
+    app.setQuitOnLastWindowClosed(False)
+
+    # Terminate application on SIG_INT signal.
+    signal.signal(signal.SIGINT, signal.SIG_DFL)
+
+    # Create a custom exception handler
+    sys.excepthook = utilities.exception_handler
+
     # Initialize logger using configuration
     rootdir = os.path.dirname(os.path.abspath(__file__))
     config = os.path.join(rootdir, "loggerConfig.yml")
@@ -48,21 +83,41 @@ def main():
     log.info("Logfile initiated...")
     log.critical("Initializing programm:")
 
-    # Creating help functions
-    hfs = utilities.help_functions()
+    # Parse Arguments
+    args = utilities.parse_args()
 
-    # Checking installation
-    #boot_up.check_installation()
+    # Loading all config files
+    active_setup = QtCore.QSettings().value('active_setup', None)
+    # The reinit is a overwrite, so the window can be called after e.g. failure with a gui.
+    if active_setup is None or args.reinit:
+        dialog = PreferencesDialog(None)
+        dialog.exec_()
+        del dialog
+        # Re-load active setup after configuration dialog.
+        active_setup = QtCore.QSettings().value('active_setup', None)
 
-    # Loading all config files and default files, as well as Pad files
-    log.critical("Loading setup files ...")
-    stats = boot_up.loading_init_files(hfs)
-    stats.default_values_dict = boot_up.update_defaults_dict().update(stats.default_values_dict)
+    log.critical("Loading setup '%s'...", active_setup)
+    # TODO load config
+    path = os.path.join(rootdir, 'config', 'device_lib')
+    device_lib = DeviceLib()
+    device_lib.load(path)
+
+    path = os.path.join(rootdir, 'config', 'Setup_configs', active_setup)
+    setup = Setup()
+    setup.load(path)
+
+    setup_loader = boot_up.SetupLoader()
+    setup_loader.load(active_setup) # TODO
+    setup_loader.default_values_dict = boot_up.update_defaults_dict(setup_loader.configs["config"], setup_loader.configs["config"].get("framework_variables", {}))
 
     # Initializing all modules
     log.critical("Initializing modules ...")
-    shell = DAQShell()
-    vcw = VisaConnectWizard()
+    try:
+        vcw = VisaConnectWizard()
+    except:
+        log.critical("NI-VISA backend could not be loaded, trying with pure python backend for VISA!")
+        vcw = VisaConnectWizard("@py")
+
 
     # Tries to connect to all available devices in the network, it returns a dict of
     # a dict. First dict contains the the device names as keys, the value is a dict
@@ -70,87 +125,59 @@ def main():
     log.critical("Try to connect to devices ...")
     # Connects to all devices and initiates them and returns the updated device_dict
     # with the actual visa resources
-    devices_dict = boot_up.connect_to_devices(vcw, stats.devices_dict).get_new_device_dict()
+    # Cut out all devices which are not specified in the settings
+    devices = []
+    if "Devices" in setup_loader.configs["config"]["settings"]:
+        for to_connect in setup_loader.configs["config"]["settings"]["Devices"].values():
+            devices.append(to_connect["Device_name"])
+        cuted_device_lib = {x: v for x, v in setup_loader.configs.get("device_lib", {}).items() if x in devices}
+        devices_dict = boot_up.connect_to_devices(vcw, setup_loader.configs["config"]["settings"]["Devices"],
+                                                  cuted_device_lib)
+        devices_dict = devices_dict.get_new_device_dict()
+        devices_dict = setup_loader.config_device_notation(devices_dict)
+    else:
+        devices_dict = {}
 
     log.critical("Starting the event loops ... ")
     table = utilities.table_control_class(
-        stats.default_values_dict,
+        setup_loader.configs["config"],
         devices_dict,
         message_to_main,
-        shell,
         vcw
     )
     if "Table_control" not in devices_dict:
         table = None
     switching = utilities.switching_control(
-        stats.default_values_dict,
+        setup_loader.configs["config"],
         devices_dict,
         message_to_main,
-        shell
+        vcw
     )
 
-    # Holds all active threads started from the main
-    threads = []
+    # Gather auxiliary modules
+    aux = {"Table": table, "Switching": switching,
+           "VCW": vcw, "Devices": devices_dict,
+           "rootdir": rootdir, "App": app,
+           "Message_from_main": message_from_main, "Message_to_main": message_to_main,
+           "Queue_to_GUI": queue_to_GUI, "Configs": setup_loader.configs}
 
     # Starts a new Thread for the measurement event loop
-    thread = utilities.newThread(
-        1,
-        "Measurement event loop",
-        measurement_event_loop,
-        devices_dict,
-        stats.default_values_dict,
-        stats.pad_files_dict,
-        vcw,
-        table,
-        switching,
-        shell
-    )
-    # Add threads to thread list and starts running it
-    threads.append(thread)
-
-    # Starts all threads (this starts correspond to the threading class!!!)
-    for thread in threads:
-        thread.start()
+    MEL = measurement_event_loop(aux)
+    MEL.start()
 
     log.critical("Starting GUI ...")
-    gui = GUI_classes(
-        message_from_main,
-        message_to_main,
-        devices_dict,
-        stats.default_values_dict,
-        stats.pad_files_dict,
-        hfs,
-        vcw,
-        queue_to_GUI,
-        table,
-        switching,
-        shell
-    )
+    gui = GUI_classes(aux)
     # Init the framework for update plots etc.
     frame = utilities.Framework(gui.give_framework_functions)
     # Starts the timer
     frame.start_timer()
 
-    #log.critical("Starting shell...")
-    #shell.start()
-
     log.critical("Start rendering GUI...")
     gui.app.exec_() # Starts the actual event loop for the GUI
-
-    # Wait for all threads to complete
-    log.critical("Joining threads...")
-    # Close the shell by sending the by command
-    #shell.onecmd("bye")
-    for thread in threads:
-        thread.join() # Synchronises the threads so that they finish all at ones.
-
     end_time = time.time()
 
     log.critical("Run time: %s seconds.", round(end_time-start_time, 2))
     log.critical("Reset all devices...")
-
-    # Reset all devices
-    utilities.reset_devices(devices_dict, vcw)
 
     log.critical("Close visa connections...")
     vcw.close_connections()

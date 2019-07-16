@@ -340,7 +340,7 @@ A simple IV measurement plugin can already be found in this folder.
                    return
                values = []
                for i in range(samples):
-                   command = self.main.build_command(device_dict, "Read") # returns 2 values!!!
+                   command = self.main.build_command(device_dict, "get_Read") # returns 2 values!!!
                    values.append(str(vcw.query(device_dict, command)).split("\t"))
 
                current = sum([float(x[0]) for x in values])/len(values) # Makes a mean out of it

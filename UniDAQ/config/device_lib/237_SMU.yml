@@ -1,42 +1,44 @@
-{
-    "default_integration_time": "3",
-    "Device_name": "237 Keithley SMU",
-    "default_output_dataformat": "4,2,0",
-    "default_terminator": "0",
-    "default_local_sense": "0",
-    "set_local_sense": "O",
-    "imp:default_trigger": "2,0,0,0",
-    "Read": "H0",
-    "Device_type": "SMU",
-    "default_triggerONOFF": "1",
-    "set_measure_mode": "F",
-    "CSV_voltage": "voltage,range,delay",
-    "set_filter": "P",
-    "Connection_type": "GPIB:18",
-    "set_triggerONOFF": "R",
-    "default_voltage": "0,0,0",
-    "Display_name": "SMU1",
-    "set_terminator": "Y",
-    "default_output": "0",
-    "set_complience": "L",
-    "default_filter": "3",
-    "complience_range": "0",
-    "set_trigger": "T",
-    "set_voltage": "B",
-    "CSV_complience": "complience,range",
-    "voltage_range": "0",
-    "reset_device": [
-        "J0"
-    ],
-    "Device_IDN": "237A10",
-    "set_output_dataformat": "G",
-    "set_integration_time": "S",
-    "execution_terminator": "X",
-    "voltage_delay": "0",
-    "default_complience": "5E-6,0",
-    "logical_operation": "int",
-    "default_measure_mode": "0,0",
-    "device_IDN_query": "U0X",
-    "set_output": "N",
-    "separator": ","
-}
+---
+    Device_name: 237 Keithley SMU 
+    Device_type: SMU
+    
+    
+    # GET
+    get_read: H0
+    
+    # SET  
+    set_local_sense: O 
+    set_measure_mode: F 
+    set_filter: P
+    set_triggerONOFF: R 
+    set_terminator: Y  
+    set_complience: L 
+    set_trigger: T 
+    set_voltage: B 
+    set_output_dataformat: G 
+    set_integration_time: S 
+    set_output: N
+    
+    reset:
+        - trigger: 2,0,0,0 
+        - dintegration_time: 3
+        - output_dataformat: 4,2,0
+        - terminator: 0 
+        - local_sense: 0 
+        - triggerONOFF: 1
+        - output: 0
+        - filter: 3 
+        - voltage: 0,0,0
+        - measure_mode: 0,0
+        - complience: 5E-6,0
+        
+    # MISC
+    CSV_voltage: voltage,range,delay
+    complience_range: 0 
+    reset_device: [J0] 
+    CSV_complience: complience,range 
+    voltage_range: 0
+    execution_terminator: X 
+    voltage_delay: 0 
+    logical_operation: int 
+    separator: ","    

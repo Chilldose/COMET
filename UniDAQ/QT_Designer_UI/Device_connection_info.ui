@@ -14,7 +14,7 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QLabel { background :rgb(85, 85, 255) }</string>
+   <string notr="true"/>
   </property>
   <widget class="QFrame" name="device_widget">
    <property name="geometry">
@@ -22,7 +22,7 @@
      <x>10</x>
      <y>10</y>
      <width>500</width>
-     <height>201</height>
+     <height>167</height>
     </rect>
    </property>
    <property name="sizePolicy">
@@ -47,7 +47,7 @@
     <bool>false</bool>
    </property>
    <property name="styleSheet">
-    <string notr="true">QFrame { background: rgb(234, 247, 255)}</string>
+    <string notr="true"/>
    </property>
    <property name="frameShape">
     <enum>QFrame::Box</enum>
@@ -56,15 +56,15 @@
     <enum>QFrame::Raised</enum>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <item row="3" column="0">
-     <widget class="QLabel" name="label_4">
+    <item row="1" column="0" colspan="2">
+     <widget class="QLabel" name="label_2">
       <property name="font">
        <font>
         <pointsize>10</pointsize>
        </font>
       </property>
       <property name="text">
-       <string>Device connected at: </string>
+       <string>Device IDN: </string>
       </property>
      </widget>
     </item>
@@ -83,6 +83,56 @@
       </property>
       <property name="text">
        <string>Device: </string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="0">
+     <widget class="QLabel" name="label_4">
+      <property name="font">
+       <font>
+        <pointsize>10</pointsize>
+       </font>
+      </property>
+      <property name="text">
+       <string>Device connected at: </string>
+      </property>
+     </widget>
+    </item>
+    <item row="3" column="2" colspan="4">
+     <widget class="QLabel" name="device_connected_at_label">
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Panel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="4" column="3" colspan="2">
+     <widget class="QLabel" name="device_connected_label">
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Panel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
       </property>
      </widget>
     </item>
@@ -110,7 +160,27 @@
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">QFrame { background :rgb(255, 255, 255) }</string>
+       <string notr="true"/>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::Panel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Sunken</enum>
+      </property>
+      <property name="text">
+       <string>TextLabel</string>
+      </property>
+     </widget>
+    </item>
+    <item row="2" column="2" colspan="4">
+     <widget class="QLabel" name="device_assigned_to_label">
+      <property name="autoFillBackground">
+       <bool>false</bool>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+</string>
       </property>
       <property name="frameShape">
        <enum>QFrame::Panel</enum>
@@ -147,7 +217,7 @@
        <bool>false</bool>
       </property>
       <property name="styleSheet">
-       <string notr="true">QFrame { background :rgb(255, 255, 255) }</string>
+       <string notr="true"/>
       </property>
       <property name="frameShape">
        <enum>QFrame::Panel</enum>
@@ -167,46 +237,11 @@
         <pointsize>10</pointsize>
        </font>
       </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
       <property name="text">
        <string>Device connected: </string>
-      </property>
-     </widget>
-    </item>
-    <item row="3" column="2" colspan="4">
-     <widget class="QLabel" name="device_connected_at_label">
-      <property name="autoFillBackground">
-       <bool>false</bool>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QFrame { background :rgb(255, 255, 255) }</string>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Panel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
-      </property>
-     </widget>
-    </item>
-    <item row="2" column="2" colspan="4">
-     <widget class="QLabel" name="device_assigned_to_label">
-      <property name="autoFillBackground">
-       <bool>false</bool>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QFrame { background :rgb(255, 255, 255) }</string>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Panel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Sunken</enum>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
       </property>
      </widget>
     </item>
@@ -219,37 +254,6 @@
       </property>
       <property name="text">
        <string>Device asigned to: </string>
-      </property>
-     </widget>
-    </item>
-    <item row="1" column="0" colspan="2">
-     <widget class="QLabel" name="label_2">
-      <property name="font">
-       <font>
-        <pointsize>10</pointsize>
-       </font>
-      </property>
-      <property name="text">
-       <string>Device IDN: </string>
-      </property>
-     </widget>
-    </item>
-    <item row="4" column="3" colspan="2">
-     <widget class="QLabel" name="device_connected_label">
-      <property name="autoFillBackground">
-       <bool>false</bool>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">QFrame { background :rgb(255, 255, 255) }</string>
-      </property>
-      <property name="frameShape">
-       <enum>QFrame::Panel</enum>
-      </property>
-      <property name="frameShadow">
-       <enum>QFrame::Raised</enum>
-      </property>
-      <property name="text">
-       <string>TextLabel</string>
       </property>
      </widget>
     </item>

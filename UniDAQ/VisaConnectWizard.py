@@ -21,7 +21,7 @@ def run_with_lock(method):
             llock.debug("Lock released by program: " + str(method.__name__))
         # raise the exception and print the stack trace
         except Exception as error:
-            llock.ERROR("A lock could not be acquired in " + str(method.__name__), exc_info=True)
+            llock.error("A lock could not be acquired in " + str(method.__name__), exc_info=True)
             # this is optional but sometime the raise does not work
             raise  # this raises the error with stack backtrace
         return result
@@ -32,7 +32,7 @@ def run_with_lock(method):
 class VisaConnectWizard:
     '''
     This Class is for connecting Rs232, GPIB, IP and USB devices via pyVisa.
-    
+
     It can be called with an argument, which defines the specific resource you want to connect to.
     Basic Functions are:
     connect_to_instruments(bool) - no argument: connects to all resources, False: lists all resources and let you decide which to connect to
@@ -44,7 +44,12 @@ class VisaConnectWizard:
 
 
     # initialization
-    def __init__(self,*arg):
+    def __init__(self,*arg, backend=None):
+        """Constructs a new connection manager.
+
+        Keyword arguments:
+        - backend -- VISA backend, None for NI driver, '@py' for PyVISA-py or '@sim' for PyVisa-sim
+        """
 
         # constants
         self.myInstruments = [] #contains list of all instruments connected to
@@ -55,12 +60,10 @@ class VisaConnectWizard:
         self.xonoff = True
         self.GPIB_interface = None
         self.log = logging.getLogger(__name__)
-
-        # Important ----------------------------------------------------------------
-        # Opens a resource manager
-        self.rm = visa.ResourceManager()
+        self.backend = backend or ''
+        # Create resource manager
+        self.rm = visa.ResourceManager(self.backend)
         #visa.log_to_screen()
-        # Important ----------------------------------------------------------------
 
         # Tries to connect to a GPIB interface if possible
         try:
@@ -84,10 +87,14 @@ class VisaConnectWizard:
     def reset_interface(self):
         '''Resets the interfaces'''
         try:
-            self.log.warning("Resetting the interface...")
-            self.GPIB_interface.send_ifc()
-            self.log.info("Reset of interface was successfull.")
-            return True
+            if self.GPIB_interface:
+                self.log.warning("Resetting the interface...")
+                self.GPIB_interface.send_ifc()
+                self.log.info("Reset of interface was successfull.")
+                return True
+            else:
+                self.log.info("No GPIB interface to reset...")
+                return True
         except Exception as e:
             self.log.error("Reset of interface was not successfull. Error: " + str(e))
             return False
@@ -111,16 +118,16 @@ class VisaConnectWizard:
 
         if self.resource_names == ():
             self.log.warning("No Visa resources found!")
-            return -1
+            return False
 
         # enumerate and print all resources
         for i, j in enumerate(self.resource_names):
-            print("{} {}".format(i, j))
+            self.log.info("{} {}".format(i, j))
 
 
     def reconnect_to_device(self, device_dict):
         '''This functions reconnects to a device'''
-        self.log.info("Try to reconnect to device: " + device_dict["Display_name"])
+        self.log.info("Try to reconnect to device: " + device_dict["Device_name"])
         resource_name = device_dict["Visa_Resource"].resource_name
 
         try:
@@ -133,12 +140,12 @@ class VisaConnectWizard:
         IDN = device_dict["Device_IDN"]
 
         # Query the IDN
-        IDN_query = self.query(resource, device_dict.get("device_IDN_query", "*IDN?"))
+        IDN_query = self.query(device_dict, device_dict.get("device_IDN_query", "*IDN?"))
         if str(IDN) == str(IDN_query).strip():
             device_dict["Visa_Resource"] = resource
-            self.log.info("Connection to the device: " + device_dict["Display_name"] + "is now reestablished")
+            self.log.info("Connection to the device: " + device_dict["Device_name"] + "is now reestablished")
         else:
-            self.log.error("Connection to the device: " + device_dict["Display_name"] + "could not be reestablished")
+            self.log.error("Connection to the device: " + device_dict["Device_name"] + "could not be reestablished")
 
 
 
@@ -154,17 +161,17 @@ class VisaConnectWizard:
             if IDN == str(self.verify_ID(len(self.myInstruments)-1, command=device_IDN)).strip(): # So that the last added device will be queried
                 self.myInstruments_dict.update({IDN: device_resource})  # Adds the device ID for each instrument into the dict
                 self.log.info(str(device_resource) + " => " + IDN.strip("\n"))
-                return 1 # this means success
+                return True # this means success
 
             else:
                 self.log.error("Device IDN for " + str(self.resource_names[device]) + " does not match with IDN from input Device " + str(self.myInstruments[-1]))
                 self.log.error(str(IDN) + " != " + str(self.verify_ID(len(self.myInstruments))))
                 self.myInstruments.pop()  # removes the item from the list
-                return 0
+                return False
 
         except:
             self.log.error("Attempt to connect to device: " + str(self.resource_names[device]) + " failed.")
-            return 0
+            return False
 
 
     #Connects to a instrument or all instruments available in the network
@@ -261,92 +268,88 @@ class VisaConnectWizard:
                     return self.myInstruments[number].query(str(command))
                 except:
                     self.no_response(self.myInstruments[number])
-                    return -1
+                    return False
 
     @run_with_lock # So only one talker and listener can be there
-    def query(self, resource_dict, code, terminator = ""):
-        """Makes a query to the resource (the same as first write than read)"""
-        reconnect = True
-
+    def query(self, resource_dict, code, reconnect = True):
+        """Makes a query to the resource (the same as first write then read)"""
         #Just check if a resource or object was passed and prepare everything
-        if type(resource_dict) == dict: # Checks if dict or only resource
-            try:
-                resource = resource_dict["Visa_Resource"]
-                reconnect = True # if dict a reconection atempt is possible
-            except KeyError:
-                self.log.error("An key error occured in dict " + str(resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
-                return -1
-            except Exception as e:
-                self.log.exception("An unknowen error occured while accessing a Visa resource " + str(e))
-                return -1
-        else:
+        try:
+            resource = resource_dict["Visa_Resource"]
+            #reconnect = True # if dict a reconection attempt is possible
+        except KeyError:
+            self.log.error("Could not access Visa Resource for device: " + str(resource_dict["Device_name"] +
+                       ". This usually happens when the device is not connected."))
+            return False
+        except TypeError:
             resource = resource_dict
+        except Exception as e:
+            self.log.exception("An unknown error occured while accessing a Visa resource with error {}".format(e))
+            return False
 
-        #self.log.info("Query command: " + str(code) + " to: " + str(resource))
 
-        #resource.timeout = 5000.
         try:
             query = str(resource.query(str(code))) # try to query
-            self.log.info("Written command: " + str(code) + " to: " + str(resource) + " was answered with: " + str(query).strip())
+            self.log.info("Query of: {} to device: {} was answered with: {}".format(code, resource_dict["Device_name"], query.strip()))
             return query
 
-        except Exception as e:
+        except Exception as err:
             # Try to reconnect to the device if no answer comes from the device in the timeout
-            self.log.error("The query of device " + str(resource) + " with query " + str(code) + " failed with error: " + str(e))
+            self.log.error("The query of device {} with query {} failed with error: {}".format(resource_dict["Device_name"],
+                                                                                               code, err))
 
             if reconnect and type(resource_dict) == dict:
-                if not self.reset_interface(): # For GPIB devices
-                    self.reconnect_to_device(resource_dict)
-
+                self.log.warning("Trying to reconnect to device and reset interfaces...")
+                self.reset_interface()
+                self.reconnect_to_device(resource_dict)
                 if "GPIB" not in str(resource): # For all other devices
-                    #self.reconnect_to_device(resource_dict)
                     self.write(resource, "\r\n") # tries to reset it this way
-
-                query = self.query(resource_dict["Visa_Resource"], code)
-                self.log.info("Query command: " + str(code) + " to: " + str(resource) + " was answered with: " + str(query).strip())
-                return query
+                query = self.query(resource_dict["Visa_Resource"], code, reconnect=False)
+                if query:
+                    self.log.info("Query command: {} to: {} was answered with: {}".format(code, resource_dict["Device_name"], query))
+                    return query
+                else:
+                    self.log.warning("Attempt to reconnect to device was not successful...")
+                    return False
             else:
-                return -1 # if no response a -1 will be returned
+                return False # if no response a -1 will be returned
 
-    #Writes a value to the resource
-    def write(self, resource_dict, code, terminator = ""):
+    #@run_with_lock  # So only one talker and listener can be there
+    def write(self, resource_dict, code):
         """Writes a vlaue to a resource, if a list is passed insted of a string all in the list will be send, one after another"""
 
         if type(resource_dict) == dict: # Checks if dict or only resource
             try:
                 resource = resource_dict["Visa_Resource"]
             except KeyError:
-                self.log.error("A key error occured in dict " + str(resource_dict["Display_name"] + ". This usually happens when the device is not connected."))
-                return -1
+                self.log.error("A key error occured in dict " + str(resource_dict["Device_name"] + ". This usually happens when the device is not connected."))
+                return False
             except Exception as e:
                 self.log.error("An unknown error occured while accessing a Visa resource " + str(e))
-                return -1
+                return False
         else:
             resource = resource_dict
 
         try:
             # Now look if the code is a list or not
             if type(code) == list:
-                for i in code:
-                    full_command = str(i) + str(terminator)
-                    resource.write(full_command)
-                    self.log.info("Write command: "+ str(full_command) + " to: " + str(resource))
-                return 0
+                self.list_write(resource_dict, code, delay = 0)
+                return True
 
             else:
-                full_command = str(code) + str(terminator)
+                full_command = str(code)
                 resource.write(full_command)
                 self.log.info("Write command: " + str(full_command) + " to: " + str(resource))
-                return 0
+                return True
         except:
-            return -1
+            return False
 
     #Reads a value from the resource
-    def read(self, resource):
+    def read(self, resource_dict):
         try:
-            return resource.read()
+            return resource_dict["Visa_Resource"].read()
         except:
-            return -1
+            return False
 
     #Closes the connection to all active resources and closes the visa resource manager
     def close_connections(self, inst = -1):
@@ -364,14 +367,12 @@ class VisaConnectWizard:
             self.log.info("Closed connection to device " + str(inst) + ".")
 
 
-    def initiate_instrument(self, resource, initiate_commands, terminator = ""): # Writes initiate commands to the device
-
-        for commands in initiate_commands:
-            self.write(resource, str(commands) + str(terminator))
-            sleep(0.1) #A better way possible but gives the instrument its time
-
-
-
+    def list_write(self, resource, commands, delay=0.): # Writes initiate commands to the device
+        """Writes a list of commands to the device specified. Usually you dont need this function. User the normal
+        write function, if you pass a list this function will automatically be called. This way it will also work nested"""
+        for command in commands:
+            self.write(resource, str(command))
+            sleep(delay) #A better way possible but gives the instrument its time
 
 
 class bcolors:
