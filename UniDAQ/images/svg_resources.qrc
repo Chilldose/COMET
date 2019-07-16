@@ -1,0 +1,14 @@
+<RCC>
+  <qresource prefix="up_chevron">
+    <file>chevron_up.svg</file>
+  </qresource>
+  <qresource prefix="down_chevron">
+    <file>chevron_down.svg</file>
+  </qresource>
+  <qresource prefix="play">
+    <file>start.svg</file>
+  </qresource>
+  <qresource prefix="stop">
+    <file>stop.svg</file>
+  </qresource>
+</RCC>

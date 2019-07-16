@@ -38,6 +38,37 @@
     <number>0</number>
    </property>
    <layout class="QFormLayout" name="formLayout">
+    <property name="horizontalSpacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item row="0" column="1">
+     <widget class="PlotWidget" name="single_strip_plot">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>0</width>
+        <height>0</height>
+       </size>
+      </property>
+     </widget>
+    </item>
     <item row="0" column="0">
      <widget class="QFrame" name="frame_6">
       <property name="minimumSize">
@@ -56,6 +87,21 @@
        <enum>QFrame::Raised</enum>
       </property>
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
        <item>
         <widget class="QFrame" name="frame_4">
          <property name="sizePolicy">
@@ -77,107 +123,47 @@
           <enum>QFrame::Raised</enum>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
-          <item row="0" column="3">
-           <widget class="QFrame" name="generalstripscan_label">
-            <property name="maximumSize">
-             <size>
-              <width>150</width>
-              <height>16777215</height>
-             </size>
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <property name="spacing">
+           <number>0</number>
+          </property>
+          <item row="3" column="2">
+           <widget class="QPushButton" name="start_button">
+            <property name="text">
+             <string>Start</string>
             </property>
-            <property name="font">
-             <font>
-              <weight>75</weight>
-              <bold>true</bold>
-              <underline>false</underline>
-             </font>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QPushButton" name="move_to_button">
+            <property name="text">
+             <string>Move to strip</string>
             </property>
-            <property name="autoFillBackground">
-             <bool>false</bool>
+           </widget>
+          </item>
+          <item row="6" column="2">
+           <widget class="QPushButton" name="stop_button">
+            <property name="text">
+             <string>Stop</string>
             </property>
-            <property name="styleSheet">
-             <string notr="true">QFrame { background :rgb(144, 144, 144) }</string>
+           </widget>
+          </item>
+          <item row="5" column="2">
+           <widget class="QPushButton" name="HV_button">
+            <property name="text">
+             <string>HV off</string>
             </property>
-            <property name="frameShape">
-             <enum>QFrame::Box</enum>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout">
-             <item>
-              <widget class="QLabel" name="max_voltage_label_strip">
-               <property name="text">
-                <string>Bias voltage [V]</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QDoubleSpinBox" name="max_voltage_strip">
-               <property name="decimals">
-                <number>0</number>
-               </property>
-               <property name="minimum">
-                <double>-1000.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>0.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>10.000000000000000</double>
-               </property>
-               <property name="value">
-                <double>-200.000000000000000</double>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="complience_label_strip">
-               <property name="text">
-                <string>Complience [uA]</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QDoubleSpinBox" name="complience_strip">
-               <property name="decimals">
-                <number>3</number>
-               </property>
-               <property name="minimum">
-                <double>-1000.000000000000000</double>
-               </property>
-               <property name="maximum">
-                <double>0.000000000000000</double>
-               </property>
-               <property name="singleStep">
-                <double>0.100000000000000</double>
-               </property>
-               <property name="value">
-                <double>-50.000000000000000</double>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QLabel" name="voltages_steps_label_strip">
-               <property name="text">
-                <string>voltage steps</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QDoubleSpinBox" name="voltage_steps_strip">
-               <property name="buttonSymbols">
-                <enum>QAbstractSpinBox::UpDownArrows</enum>
-               </property>
-               <property name="decimals">
-                <number>0</number>
-               </property>
-               <property name="value">
-                <double>10.000000000000000</double>
-               </property>
-              </widget>
-             </item>
-            </layout>
            </widget>
           </item>
           <item row="1" column="3" rowspan="6">
@@ -468,32 +454,107 @@
             </layout>
            </widget>
           </item>
-          <item row="6" column="2">
-           <widget class="QPushButton" name="stop_button">
-            <property name="text">
-             <string>Stop</string>
+          <item row="0" column="3">
+           <widget class="QFrame" name="generalstripscan_label">
+            <property name="maximumSize">
+             <size>
+              <width>16777215</width>
+              <height>16777215</height>
+             </size>
             </property>
-           </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QPushButton" name="start_button">
-            <property name="text">
-             <string>Start</string>
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+              <underline>false</underline>
+             </font>
             </property>
-           </widget>
-          </item>
-          <item row="4" column="2">
-           <widget class="QPushButton" name="move_to_button">
-            <property name="text">
-             <string>Move to strip</string>
+            <property name="autoFillBackground">
+             <bool>false</bool>
             </property>
-           </widget>
-          </item>
-          <item row="5" column="2">
-           <widget class="QPushButton" name="HV_button">
-            <property name="text">
-             <string>HV off</string>
+            <property name="styleSheet">
+             <string notr="true"/>
             </property>
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="0" column="0">
+              <widget class="QLabel" name="max_voltage_label_strip">
+               <property name="text">
+                <string>Bias voltage [V]</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QLabel" name="complience_label_strip">
+               <property name="text">
+                <string>Complience [uA]</string>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="0">
+              <widget class="QLabel" name="voltages_steps_label_strip">
+               <property name="text">
+                <string>voltage steps</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1">
+              <widget class="QDoubleSpinBox" name="max_voltage_strip">
+               <property name="decimals">
+                <number>0</number>
+               </property>
+               <property name="minimum">
+                <double>-1000.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>0.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>10.000000000000000</double>
+               </property>
+               <property name="value">
+                <double>-200.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QDoubleSpinBox" name="complience_strip">
+               <property name="decimals">
+                <number>3</number>
+               </property>
+               <property name="minimum">
+                <double>-1000.000000000000000</double>
+               </property>
+               <property name="maximum">
+                <double>0.000000000000000</double>
+               </property>
+               <property name="singleStep">
+                <double>0.100000000000000</double>
+               </property>
+               <property name="value">
+                <double>-50.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+             <item row="4" column="1">
+              <widget class="QDoubleSpinBox" name="voltage_steps_strip">
+               <property name="buttonSymbols">
+                <enum>QAbstractSpinBox::UpDownArrows</enum>
+               </property>
+               <property name="decimals">
+                <number>0</number>
+               </property>
+               <property name="value">
+                <double>10.000000000000000</double>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
@@ -715,22 +776,6 @@
       </layout>
      </widget>
     </item>
-    <item row="0" column="1">
-     <widget class="PlotWidget" name="single_strip_plot">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>0</width>
-        <height>0</height>
-       </size>
-      </property>
-     </widget>
-    </item>
    </layout>
    <zorder>single_strip_plot</zorder>
    <zorder>frame_6</zorder>
@@ -764,22 +809,6 @@
   <connection>
    <sender>do_freq</sender>
    <signal>clicked(bool)</signal>
-   <receiver>do_rpoly</receiver>
-   <slot>setDisabled(bool)</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>101</x>
-     <y>265</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>101</x>
-     <y>93</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>do_freq</sender>
-   <signal>clicked(bool)</signal>
    <receiver>do_istrip</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
@@ -796,7 +825,7 @@
   <connection>
    <sender>do_freq</sender>
    <signal>clicked(bool)</signal>
-   <receiver>do_rint</receiver>
+   <receiver>do_rpoly</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -805,7 +834,23 @@
     </hint>
     <hint type="destinationlabel">
      <x>101</x>
-     <y>201</y>
+     <y>93</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>do_freq</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>do_idark</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>101</x>
+     <y>265</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>101</x>
+     <y>120</y>
     </hint>
    </hints>
   </connection>
@@ -828,7 +873,7 @@
   <connection>
    <sender>do_freq</sender>
    <signal>clicked(bool)</signal>
-   <receiver>do_idark</receiver>
+   <receiver>do_rint</receiver>
    <slot>setDisabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
@@ -837,7 +882,7 @@
     </hint>
     <hint type="destinationlabel">
      <x>101</x>
-     <y>120</y>
+     <y>201</y>
     </hint>
    </hints>
   </connection>

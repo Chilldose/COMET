@@ -1,0 +1,137 @@
+---
+    Settings_name: Switching
+    Device_type: "Switching relay"
+    Switching_Schemes:
+      IV:
+        HVSwitching:
+          - A1
+          - B1
+          - C2
+      CV:
+        HVSwitching:
+          - A2
+          - B2
+          - C2
+      Rpoly:
+        HVSwitching:
+          - A1
+          - B1
+          - C1
+
+        LVSwitching:
+          - 1C05
+          - 1C06
+
+      Rpoly_beta:
+        HVSwitching:
+          - A1
+          - B1
+          - C1
+
+        LVSwitching:
+          - 1C01
+          - 1C02
+
+      Istrip:
+        HVSwitching:
+          - A1
+          - B1
+          - C2
+
+        LVSwitching:
+          - 1A05
+          - 1A06
+
+      Istrip_beta:
+        HVSwitching:
+          - A1
+          - B1
+          - C2
+
+        LVSwitching:
+          - 1A01
+          - 1A02
+
+      Idiel:
+        HVSwitching:
+          - A1
+          - B1
+          - C2
+
+        LVSwitching:
+          - 1D05
+          - 1D06
+          - 1C07
+          - 1C08
+
+      Idiel_beta:
+        HVSwitching:
+          - A1
+          - B1
+          - C2
+
+        LVSwitching:
+          - 1D01
+          - 1D02
+          - 1C03
+          - 1C04
+
+      Cac:
+        HVSwitching:
+          - A1
+          - B1
+          - C2
+
+        LVSwitching:
+          - 1G05
+          - 1G06
+          - 1H07
+          - 1H08
+
+      Cac_beta:
+        HVSwitching:
+          - A1
+          - B1
+          - C2
+
+        LVSwitching:
+          - 1G01
+          - 1G02
+          - 1H03
+          - 1H04
+
+      Cint:
+        HVSwitching:
+          - A1
+          - B1
+          - C2
+
+        LVSwitching:
+          - 1G01
+          - 1G02
+          - 1H05
+          - 1H06
+
+      CintAC:
+        HVSwitching:
+          - A1
+          - B1
+          - C2
+
+        LVSwitching:
+          - 1G03
+          - 1G04
+          - 1H07
+          - 1H08
+
+      Rint:
+        HVSwitching:
+          - A1
+          - B1
+          - C1
+
+        LVSwitching:
+          - 1A05
+          - 1A06
+          - 1C01
+          - 1C02

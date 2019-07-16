@@ -66,5 +66,6 @@ dependencies:
   - numba
   - pip:
     - pyvisa==1.9.0
+    - pyvisa-sim==3.0
     - pyqtgraph==0.10.0
 prefix: C:\Users\dbloech\Anaconda2\envs\UniDAQenv

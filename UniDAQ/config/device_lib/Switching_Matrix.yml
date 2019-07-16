@@ -1,19 +1,23 @@
-{
-    "Connection_type": "GPIB:14", 
-    "default_open_channel": "all", 
-    "Display_name": "Switching", 
-    "Device_IDN": "KEITHLEY INSTRUMENTS INC.,MODEL 7001, 503327,A04  /A01", 
-    "check_all_closed_channel": ":clos:STAT?", 
-    "Device_name": "Matrix", 
-    "check_channel": ":clos?", 
-    "set_open_channel": ":open",
-    "CSV_open_channel": "channel",
-    "CSV_close_channel": "channel",
-    "seperator": ",",
-    "Device_type": "Switching relay", 
-    "set_close_channel": ":clos", 
-    "syntax": "(@###)",
-    "separator": ",",
-    "operation_complete": "*OPC?",
-    "no_syntax_with_single_commmand": true
-}
+---
+    Device_name: Keithley Switching Matrix
+    Device_type: Switching relay 
+    
+    # Set
+    set_open_channel: :open (@{})
+    set_close_channel: :clos (@{})
+    set_open_channel_all: :open all
+    set_close_channel_all: :close all
+    
+    
+    # Get
+    get_check_channel: :clos? 
+    get_check_all_closed_channel: :clos:STAT?
+    get_operation_complete: "*OPC?"   
+
+
+    reset:
+        - open_channel_all: "" 
+
+    # Misc
+    separator: ","
+    syntax: "@(###)"

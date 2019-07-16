@@ -1,46 +1,78 @@
 # This file manages the dynamic waiting time measurements and it is intended to be used as a plugin for the QTC software
 
 import logging
-import time
+from time import time, sleep
 import sys
+import re
 sys.path.append('../UniDAQ')
-from ..utilities import *
-l = logging.getLogger(__name__)
+from ..utilities import timeit, transformation
+from .forge_tools import tools
 
-help = help_functions()
-vcw = VisaConnectWizard.VisaConnectWizard()
-trans = transformation()
 ttime = time
+import numpy as np
 
-class dynamicwaiting_class:
+class dynamicwaiting_class(tools):
 
     def __init__(self, main_class):
+
+        # Init the tools class and the variables from the main
         self.main = main_class
-        self.switching = self.main.switching
-        self.biasSMU = self.main.devices["IVSMU"]
-        self.compliance = self.main.job_details["dynamicwaiting"]["Compliance"]
+        super(dynamicwaiting_class, self).__init__(self.main.framework, self.main)
+        self.log = logging.getLogger(__name__)
+
+        # Get data from the framework
+        self.vcw = main_class.framework["VCW"]
+        self.switching = main_class.framework["Switching"]
+        self.biasSMU = main_class.devices["BiasSMU"]
+
+        # Job specific variables
+        self.compliance = main_class.job_details["dynamicwaiting"]["Compliance"]
         self.justlength = 24
-        self.interval = self.main.job_details["dynamicwaiting"].get("Interval", 100)/1000.
-        self.buffer = self.main.job_details["dynamicwaiting"].get("Samples", 100)
-        self.delay = self.main.job_details["dynamicwaiting"].get("Delay", 1.0)
-        self.NPLC = self.main.job_details["dynamicwaiting"].get("NPLC", 1.0)
+        # The intervall of every measurement, (is something else then the delay value!)
+        self.interval = self.main.job_details["dynamicwaiting"]["Interval"]/1000.
+        self.buffer = self.main.job_details["dynamicwaiting"]["Samples"]
+        # This delay is the fixed measurement delay, which delays EVERY measurement before a value is aquired
+        # If you get bad values increase this to give the ADC some time to aquire a value
+        self.delay = self.main.job_details["dynamicwaiting"]["Delay"]
+        self.NPLC = self.main.job_details["dynamicwaiting"]["NPLC"]
+        # The Start delay defines a global offset before a measurement series actually starts
+        self.start_delay = self.main.job_details["dynamicwaiting"]["start_delay"]
+        self.SMURange = self.main.job_details["dynamicwaiting"]["Range"]
+
+        # Some variables
         self.current_voltage = None
         self.voltage_step_list = []
+        self.xvalues = []
+        self.yvalues = []
+
+
+        # Config parameters
         self.get_data_query = "printbuffer(1, {samples!s}, measbuffer)"
+        self.get_timestamps_query = "printbuffer(1, {samples!s}, measbuffer.timestamps)"
+        self.SMU_clean_buffer = "measbuffer = nil"
+
+        self.SMU_config = "smua.measure.count = {samples!s} \n" \
+                          "smua.measure.interval = {interval!s}\n" \
+                          "measbuffer = smua.makebuffer(smua.measure.count)\n" \
+                          "measbuffer.collecttimestamps = 1" \
+
+        self.measureItobuffer = "smua.source.levelv = {level!s} \n" \
+                                "delay(" + str(self.start_delay) + ")"\
+                                "smua.measure.overlappedi(measbuffer)\n" \
+                                "waitcomplete()\n"
 
 
-
-        self.SMU_clean = "measbuffer = nil"
-
+    def run(self):
         # Starts the actual measurement
         time = self.do_dynamic_waiting()
+        self.log.info("Dynamic warting time took: {} sec".format(time))
 
     def stop_everything(self):
         """Stops the measurement"""
         order = {"ABORT_MEASUREMENT": True}  # just for now
         self.main.queue_to_main.put(order)
 
-    @hf.timeit
+    @timeit
     def do_dynamic_waiting(self):
         """
         This function does everything concerning the dynamic waiting time measurement
@@ -48,30 +80,59 @@ class dynamicwaiting_class:
         """
 
         # Config the SMU
-        self.do_preparations()
+        self.do_preparations(self.biasSMU, self.buffer, self.interval)
 
+        # Construct results array
+        self.xvalues = np.zeros((len(self.voltage_step_list), int(self.buffer)))
+        self.yvalues = np.zeros((len(self.voltage_step_list), int(self.buffer)))
         # Conduct the measurement
         for i, voltage in enumerate(self.voltage_step_list):
-            if not self.main.stop_measurement():  # To shut down if necessary
+            if not self.main.main.stop_measurement:  # To shut down if necessary
 
+                # Some elusive error happens sometimes, where the smu forgets its pervious config
+                #self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples=self.buffer, interval=self.interval))
                 # Here the magic happens it changes all values and so on
-                values = self.do_dynamic_measurement("dynamicwaiting", self.biasSMU, voltage, self.buffer, self.interval, True)
+                self.xvalues[i], self.yvalues[i], time = self.do_dynamic_measurement("dynamicwaiting", self.biasSMU, voltage, self.buffer, self.interval, True)
 
-                if self.main.check_complience(self.biasSMU, float(self.compliance)):
+                if self.main.check_complience(self.biasSMU, float(self.compliance), command="get_read",):
                     self.stop_everything()  # stops the measurement if compliance is reached
 
-                if not self.main.steady_state_check(self.biasSMU, max_slope=1e-6, wait=0, samples=5, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
+                if not self.main.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=5, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
 
+                sleep(1.)
+
         # Ramp down and switch all off
-        self.current_voltage = self.main.main.default_dict["Defaults"]["bias_voltage"]
+        self.current_voltage = self.main.main.default_dict["bias_voltage"]
         self.main.ramp_voltage(self.biasSMU, "set_voltage", self.current_voltage, 0, 20, 0.01)
         self.main.change_value(self.biasSMU, "set_voltage", "0")
         self.main.change_value(self.biasSMU, "set_output", "0")
 
+        self.write_dyn_to_file(self.main.measurement_files["dynamicwaiting"], self.voltage_step_list, self.xvalues, self.yvalues)
 
+    def write_dyn_to_file(self, file, voltages, xvalues, yvalues):
+        """
+        """
 
-    def do_preparations(self):
+        # Check if length of voltages matches the length of data array
+        if len(xvalues) == len(yvalues):
+            data = np.array([xvalues, yvalues])
+            #data = np.transpose(data)
+            # Write voltage header for each measurement first the voltages
+            self.main.write(file, 'V'+''.join([format(el, '<{}'.format(self.justlength*2)) for el in voltages])+"\n")
+            #Then the Units
+            self.main.write(file, ''.join([format("time[s]{}current[A]".format(" "*(self.justlength-7)),
+                                                  '<{}'.format(self.justlength*2)) for x in range(len(voltages))]) + "\n")
+
+            for i in range(len(data[0,0,:])):
+                times = [format(time, '<{}'.format(self.justlength)) for time in data[:, :, i][0]]
+                curr = [format(curr, '<{}'.format(self.justlength)) for curr in data[:, :, i][1]]
+                final = "".join([t+c for t, c in zip(times, curr)])
+                self.main.write(file, final+"\n")
+        else:
+            self.log.error("Length of results array are non matching, abort storing data to file")
+
+    def do_preparations(self, device, samples = 100, interval = 0.01):
         """This function prepares the setup, like ramping the voltage and steady state check
         """
 
@@ -86,79 +147,84 @@ class dynamicwaiting_class:
             self.stop_everything()
 
         # Configure the setup, compliance and switch on the smu
-        self.main.send_to_device(self.biasSMU, self.SMU_clean)
+        self.main.send_to_device(self.biasSMU, self.SMU_clean_buffer)
         self.main.change_value(self.biasSMU, "set_voltage", "0")
-        #("set_source_current_autorange", "smua.AUTORANGE_OFF"), ("set_current_range" ,"1e-9" )
-        # NPLC of 0.05 means 1 sec of measurement duration which adds up to the interval duration
-        self.main.config_setup(self.biasSMU, [("set_complience_current", str(self.compliance)+"e-6"), ("set_NPLC", "{!s}".format(self.NPLC)), ("set_measurement_delay_factor", "{!s}".format(self.delay))])
-        self.main.change_value(self.biasSMU, "set_voltage", "0")
+        self.main.config_setup(self.biasSMU, [("set_complience_current", str(self.compliance)),
+                                              ("set_NPLC", "{!s}".format(self.NPLC)),
+                                              #("set_measurement_delay_factor", "{!s}".format(self.delay)),
+                                              ("set_measure_adc", "smua.ADC_FAST"),
+                                              ("set_current_range_low", str(self.SMURange)),
+                                              ("set_meas_delay", str(self.delay))
+                                             ])
+        self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples = samples, interval = interval))
+        self.main.change_value(self.biasSMU, "set_voltage", "0.0")
         self.main.change_value(self.biasSMU, "set_output", "1")
 
-        if self.main.steady_state_check(self.biasSMU, max_slope=1e-6, wait=0, samples=3, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
-            self.current_voltage = self.main.main.default_dict["Defaults"]["bias_voltage"]
+        if self.main.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=3, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
+            self.current_voltage = self.main.main.default_dict["bias_voltage"]
         else:
             self.stop_everything()
+
+        # Try out the measurement a few time ( the 2657 does not behave correct in the first 2-4 iterations
+        #for i in range(3):
+        #    self.main.send_to_device(device, self.measureItobuffer.format(level=0))
+
+        #self.file = create_new_file(self.main.job_details["dynamicwaiting"]["filename"],
+        #                            self.main.job_details["dynamicwaiting"]["filepath"])
 
     def do_dynamic_measurement(self, str_name, device, voltage = 0, samples = 100, interval = 0.01, write_to_main = True):
         '''
          Does a simple dynamic waiting time measurement
-
-        :param str_name: What measurement is conducted, only important when write_to_main is true
-        :param device: Which device should be used
-        :param xvalue: XValue used
-        :param samples: How many samples should be taken
-        :param interval: measurement interval
-        :param write_to_main: Writes the value back to the main loop (default: True)
-        :return: Returns the mean of all acquired values
         '''
+        from time import time
+        #self.main.send_to_device(self.biasSMU, self.SMU_clean_buffer)
 
-        self.main.send_to_device(self.biasSMU, self.SMU_clean)
-
-        # Todo: Actually it is not necessary to generate this text every time
-        self.SMU_config = "smua.measure.count = {samples!s} \n" \
-                          "smua.measure.interval = {interval!s}\n" \
-                          "measbuffer = smua.makebuffer(smua.measure.count)\n" \
-                          "smua.source.levelv = {level!s} " \
-                          "smua.measure.overlappedi(measbuffer)\n" \
-                          "waitcomplete()\n".format(samples=samples, interval=interval, level=voltage)
         # Send the command to the device and wait till complete
-        starttime = ttime.time()
-        self.main.send_to_device(device, self.SMU_config)
-
-        # Waits the time it takes at least for the device to finish operation plus 100 ms
-        #sleep((samples*(interval)+100)/1000.)
+        starttime = time()
+        self.main.send_to_device(device, self.measureItobuffer.format(level=voltage))
 
         # Get the data from the device
-        ans = self.main.query_device(device, self.get_data_query.format(samples=samples))
-        endtime = ttime.time()
+        device_ansered = False
+        iter = 0
+        ans = ""
+        times = ""
+        while not device_ansered:
+            ans = self.vcw.query(device, self.get_data_query.format(samples=samples)).strip()
+            times = self.vcw.query(device, self.get_timestamps_query.format(samples=samples)).strip()
+            if ans:
+                device_ansered = True
+            elif iter > 5:
+                ans = ""
+                break
+            else:
+                iter += 1
+
+        endtime = time()
         time = abs(endtime - starttime)
 
-        if type(ans) != int:
-            xvalues, yvalues = self.pic_device_answer(ans, time/self.buffer)
+        if ans:
+            #xvalues, yvalues = self.pic_device_answer(ans, time/self.buffer)
+            xvalues, yvalues = self.pic_device_answer(ans, times, self.start_delay)
 
             if write_to_main: # Writes data to the main, or not
                 self.main.queue_to_main.put({str(str_name): [xvalues, yvalues]})
-
             # Clear buffer
-            self.main.send_to_device(device, self.SMU_clean)
-
-            return (xvalues, yvalues, time)
+            #self.main.send_to_device(device, self.SMU_clean_buffer)
+            return xvalues, yvalues, time
 
         else:
-            l.error("Timeout occured while reading from the device! Increase timeout for devices if necessary")
-            self.main.queue_to_main({"RequestError": "Timeout occured while reading from the device! Increase timeout for devices if necessary"})
-            return ([], [], 0.0)
+            self.log.error("Timeout occured while reading from the device! Increase timeout for devices if necessary"
+                           "Or a buffer overflow happend. Check the buffer of the device!")
+            return [], [], 0.0
 
-
-    def pic_device_answer(self, answer_string, interval=0.1):
+    def pic_device_answer(self, values, times, offset):
         """
         Dissects the answer string and returns 2 array containing the x an y values
-        :param answer_string: String to dissect
-        :param interval: interval defined
-        :return: xvalues, yvalues
         """
-        yvalues = answer_string.strip("[").strip("]").split(",")
-        yvalues = map(float, yvalues)
-        xvalues = [interval*x for x in range(len(yvalues))]
+        expression = re.compile("\S+e-\d+")
+        yvalues = list(map(float, expression.findall(values)))
+        xvalues = list(map(float, expression.findall(times)))
+        xvalues.append(xvalues[-1]+abs(xvalues[-2]-xvalues[-1]))
+        xvalues = [x+offset for x in xvalues]
 
         return xvalues, yvalues

@@ -1,77 +1,88 @@
 # This starts the event loop for the GUI
 #from GUI_classes import *
-from PyQt5.QtCore import QCoreApplication
+from PyQt5.QtCore import QCoreApplication, QThread, pyqtSignal
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMessageBox
 import numpy as np
 import logging
-from .utilities import newThread, Framework
-from .globals import *
+from .globals import message_to_main, message_from_main, queue_to_GUI
+from .utilities import ErrorMessageBoxHandler
+from threading import Timer
 
-
-class GUI_event_loop:
+#TODO: GUI event loop still QTC specific, fix it
+#TODO: class call with too many parameters, only give framework functions
+class GUI_event_loop(QThread):
     ''' This class is for starting and managing the event loop for the GUI. It starts the syncronised connection betweent ifself and the
         measurement event loop. Message based on dictionaries. '''
 
-    def __init__(self, main, message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, help, visa, meas_data):
+    # Create the signal for errBox handling
+    Errsig = pyqtSignal(str)
+    # message_from_main, message_to_main, devices_dict, default_values_dict, pad_files_dict, visa,
+    def __init__(self, main, framework_variables, meas_data):
 
         # Initialise the GUI class, classes
-        #GUI_classes.__init__(self)
+        super(GUI_event_loop, self).__init__()
 
         self.main = main
-        self.message_to_main = message_to_main
-        self.message_from_main = message_from_main
-        self.vcw = visa
-        self.device_dict = devices_dict
-        self.default_values_dict = default_values_dict
-        self.pad_files_dict = pad_files_dict
+        self.message_to_main = self.main.message_to_main
+        self.message_from_main = self.main.message_from_main
+        self.vcw = framework_variables["VCW"]
+        self.device_dict = framework_variables["Devices"]
+        self.default_values_dict = framework_variables["Configs"]["config"]
         self.stop_GUI_loop = False
         self.close_program = False
         self.measurement_running = False
         self.measurement_loop_running = True
         self.error_types = ["Info","MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "Warning", "FatalError", "ThresholdError", "ERROR", "Error"]
         self.fatal_errors = ["MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "FatalError", "ThresholdError"]
-        #self.measurement_types = ["IV", "IV_longterm", "CV", "R_int", "I_strip", "I_diel", "R_poly", "C_ac", "I_strip_overhang", "C_int", "I_dark", "humidity", "temperature", "Cback", "Cback_scan", "Cac_scan", "Cint_scan"]
-        self.measurement_types = self.default_values_dict["Defaults"].get("measurement_types", [])
+        self.measurement_types = self.default_values_dict["settings"].get("measurement_types", [])
         self.event_types = ["MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED"]
         self.error_list = []
         self.measurement_list = []
         self.event_list = [] # Messages send to the loop
         self.pending_events = {} # Messages which should processed after all other orders are processed
-        self.help = help
         self.error_log = []
+        self.default_values_dict["settings"]["new_data"] = True
+        self.default_values_dict["settings"]["update_counter"] = 0
+        self.default_values_dict["settings"]["last_plot_update"] = 0
         self.log = logging.getLogger(__name__)
 
         # Plot data
-        #self.IV_data = np.array([])
-        #self.IV_longterm_data = np.array([])
         self.meas_data = meas_data # This is a dict with keys like "IV" rtc and than [np.array, np.array] for x,y
 
+    def run(self):
         # Start additional timer for pending events, so that the GUI can shutdown properly
-        timer = QtCore.QTimer()
-        timer.timeout.connect(self.process_pending_events)
-        timer.start(1000)
+        self.main.add_update_function(self.process_pending_events)
 
         # Start the event loop
         self.start_loop()
 
-
-
     def start_loop(self):
         ''' This function actually starts the event loop. '''
+        self.log.info("Starting GUI event loop...")
         while not self.stop_GUI_loop:
             message = self.message_to_main.get()  # This function waits until a message is received from the measurement loop!
-            self.log.info("Got message: " + str(message))
-            self.translate_message(message)  # This translates the message
-            self.process_message(message)  # Here the message will be processed
-            self.process_pending_events()  # Here all events during message work will be send or done
+            if message and isinstance(message, dict):
+                self.log.info("Got message: " + str(message))
+                self.translate_message(message)  # This translates the message
+                self.process_message(message)  # Here the message will be processed
+                self.process_pending_events()  # Here all events during message work will be send or done
+            elif not isinstance(message, dict):
+                self.log.error("Messages to the GUI event loop "
+                               "have to be of type dict, not type {}. Got message:".format(type(message), message))
+
 
     def translate_message(self, message):
         '''This function converts the message to a measurement list which can be processed'''
 
         # A measurement message is a Dict of a Dict {SignalMessage: {Orders}, ...}
         # Other messages like errors or data from the measurement event loop can be simple dicts like {IV: value} etc..
-        message_key_set = set(message.keys())
+        if isinstance(message, dict):
+            message_key_set = set(message.keys())
+        else:
+            self.log.error("Got a message which is not a dict object, please check log, "
+                           "where this message comes from an fix the problem.")
+            message_key_set = []
 
         # Create list of all errors in the message Dict
         self.error_list = list(set(self.error_types).intersection(message_key_set))
@@ -93,21 +104,12 @@ class GUI_event_loop:
             if "INFO" in error.upper():
                 prepend = '<font color=\"green\">'
             elif "ERROR" in error.upper():
-                prepend = '<font color=\"red\">'
+                prepend = '<font color=\"#cc1414\">'
+                # Emit the signal
+                self.Errsig.emit(str(message[str(error)]))
             elif "WARNING" in error.upper():
                 prepend = '<font color=\"orange\">'
             self.error_log.append(prepend + str(error).upper() + ": " + str(message[str(error)]) + "</font> <br/>")
-
-            # TODO: Pop up messages would be great here
-            #if error in self.fatal_errors:
-                #self.ErrorBox = QMessageBox(None)
-                # ErrorBox.setIcon(QMessageBox.Warning)
-                # ErrorBox.setText(event)
-                # ErrorBox.setWindowTitle("Really bad error occured")
-                #self.ErrorBox.setStandardButtons(QMessageBox.Ok)
-                #self.ErrorBox.exec_()
-                #self.main.ErrorEvent("sdfsdf")
-
 
         for event in self.event_list: #besser if "dfdf" in self.events oder? TODO vlt hier die abfrage der events anders machen
 
@@ -138,14 +140,14 @@ class GUI_event_loop:
                 self.measurement_loop_running = False      # This will be processed in the pending event function
 
 
-            # Handles all data for coming from the measurements
+        # Handles all data for coming from the measurements
         for measurement in self.measurement_list:
 
-            self.default_values_dict["Defaults"]["new_data"] = True  # Initiates the update of the plots
-            self.default_values_dict["Defaults"]["last_plot_update"] = self.default_values_dict["Defaults"]["update_counter"]
+            self.default_values_dict["settings"]["new_data"] = True  # Initiates the update of the plots
+            self.default_values_dict["settings"]["last_plot_update"] = self.default_values_dict["settings"]["update_counter"]
 
             # Correctly write the data to the arrays for plotting
-            if measurement in self.default_values_dict["Defaults"]["measurement_types"]:
+            if measurement in self.default_values_dict["settings"]["measurement_types"]:
                 if type(message[measurement][0]) is not list:
                     self.meas_data[measurement][0] = np.append(self.meas_data[measurement][0], message[measurement][0])
                     self.meas_data[measurement][1] = np.append(self.meas_data[measurement][1], message[measurement][1])
@@ -164,6 +166,7 @@ class GUI_event_loop:
                 self.log.error("Measurement " + str(measurement) + " could not be found in active data arrays. Data discarded.")
 
 
+
     def process_pending_events(self):
         '''This function sends all occured events to the measurement loop and does some cleaning in the program'''
 
@@ -178,8 +181,9 @@ class GUI_event_loop:
 
         #This function checks if updates of plots has been made and sets the variable back to False, so that no unnessesary plotting is done
         #Will be called as last update function
-        if self.default_values_dict["Defaults"]["new_data"] and (self.default_values_dict["Defaults"]["update_counter"] > self.default_values_dict["Defaults"]["last_plot_update"]):
-            self.default_values_dict["Defaults"]["last_plot_update"] = self.default_values_dict["Defaults"]["update_counter"]
-            self.default_values_dict["Defaults"]["new_data"] = False
+        #print(self.default_values_dict["settings"])
+        if self.default_values_dict["settings"]["new_data"] and (self.default_values_dict["settings"]["update_counter"] > self.default_values_dict["settings"]["last_plot_update"]):
+            self.default_values_dict["settings"]["last_plot_update"] = self.default_values_dict["settings"]["update_counter"]
+            self.default_values_dict["settings"]["new_data"] = False
 
-        self.default_values_dict["Defaults"]["update_counter"] += 1
+        self.default_values_dict["settings"]["update_counter"] += 1
