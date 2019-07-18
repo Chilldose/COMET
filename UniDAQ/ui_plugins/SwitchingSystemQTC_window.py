@@ -12,7 +12,7 @@ class SwitchingSystemQTC_window:
         self.manual_switching = False
         self.variables = self.settings.default_values_dict["settings"]
         self.log = logging.getLogger(__name__)
-        self.num_7072_cards = self.variables["Devices"]["Keithley_Matrix"]["Cards"] # Todo: Potential error if you rename Matrix
+        self.num_7072_cards = self.variables["Devices"]["Matrix"]["Cards"] # Todo: Potential error if you rename Matrix
         self.Keithley_7072 = self.settings.devices_dict["LVSwitching"]
         self.measurements = self.settings.default_values_dict["Switching"]["Switching_Schemes"].copy()
 

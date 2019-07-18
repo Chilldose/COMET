@@ -159,7 +159,7 @@ def main():
            "VCW": vcw, "Devices": devices_dict,
            "rootdir": rootdir, "App": app,
            "Message_from_main": message_from_main, "Message_to_main": message_to_main,
-           "Queue_to_GUI": queue_to_GUI, "Configs": setup_loader.configs}
+           "Queue_to_GUI": queue_to_GUI, "Configs": setup_loader.configs, "Django": None}
 
     # Starts a new Thread for the measurement event loop
     MEL = measurement_event_loop(aux)
@@ -171,6 +171,20 @@ def main():
     frame = utilities.Framework(gui.give_framework_functions)
     # Starts the timer
     frame.start_timer()
+
+    # Starting Django Server if need be
+    if "Django_server" in aux["Configs"]["config"]["settings"]:
+        if aux["Configs"]["config"]["settings"]["Django_server"].get("Start_Server", False):
+            log.info("Starting Django server...")
+            try:
+                config = aux["Configs"]["config"]["settings"]["Django_server"]
+                import subprocess
+                path = os.path.normpath(config["Path"])#
+                Django = subprocess.Popen(["python", path, "runserver", str(config["Port"])], shell=True)
+                aux["Django"] = Django
+            except Exception as err:
+                log.error("Django server could not be started. Error: {}".format(err))
+
 
     log.critical("Start rendering GUI...")
     gui.app.exec_() # Starts the actual event loop for the GUI

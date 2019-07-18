@@ -9,8 +9,6 @@ from .globals import message_to_main, message_from_main, queue_to_GUI
 from .utilities import ErrorMessageBoxHandler
 from threading import Timer
 
-#TODO: GUI event loop still QTC specific, fix it
-#TODO: class call with too many parameters, only give framework functions
 class GUI_event_loop(QThread):
     ''' This class is for starting and managing the event loop for the GUI. It starts the syncronised connection betweent ifself and the
         measurement event loop. Message based on dictionaries. '''
