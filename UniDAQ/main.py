@@ -159,7 +159,8 @@ def main():
            "VCW": vcw, "Devices": devices_dict,
            "rootdir": rootdir, "App": app,
            "Message_from_main": message_from_main, "Message_to_main": message_to_main,
-           "Queue_to_GUI": queue_to_GUI, "Configs": setup_loader.configs, "Django": None}
+           "Queue_to_GUI": queue_to_GUI, "Configs": setup_loader.configs, "Django": None, "Server": None,
+           "Client": None}
 
     # Starts a new Thread for the measurement event loop
     MEL = measurement_event_loop(aux)
@@ -179,9 +180,16 @@ def main():
             try:
                 config = aux["Configs"]["config"]["settings"]["Django_server"]
                 import subprocess
+                # Import Server and Client class for communication with the Django server
+                from .socket_connections import Client_, Server_
                 path = os.path.normpath(config["Path"])#
                 Django = subprocess.Popen(["python", path, "runserver", str(config["Port"])], shell=True)
+                Server = Server_()
+                Server.run() # Starts the Server thread
+                Client = Client_()
                 aux["Django"] = Django
+                aux["Server"] = Server
+                aux["Client"] = Client
             except Exception as err:
                 log.error("Django server could not be started. Error: {}".format(err))
 
