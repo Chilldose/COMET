@@ -51,6 +51,15 @@
         IP: 127.0.0.1
         Port: 8000
 
+    Socket_connection: # Config for the socket connection, for data transfer between processes
+        Host:
+          IP: 127.0.0.2
+          Port: 65432
+
+        Client:
+          IP: 127.0.0.3
+          Port: 65432
+
     GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
 
         - QTCMain

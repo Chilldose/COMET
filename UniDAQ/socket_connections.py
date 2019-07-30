@@ -28,6 +28,7 @@ class Client_(socket_connections):
 
     def __init__(self, HOST='127.0.0.10', PORT=65432):
         super().__init__(HOST, PORT)
+        self.log.info("Initialized client at {}:{}".format(self.HOST, self.PORT))
 
     def send_message(self, message):
         # Sends a specific message, by starting a new client connection to the server
@@ -38,7 +39,7 @@ class Client_(socket_connections):
         # This only opens a connection and sends data to the server then closes the connection
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             # Connect to the socket
-            s.connect((self.HOST, self.PORT))
+            s.connect((self.HOST, int(self.PORT)))
             s.sendall(self.enc_messsage)
             self.log.debug("Send data to server {}, message reads: {}".format(self.HOST, self.enc_messsage.decode()))
             #data = s.recv(1024)
@@ -60,23 +61,22 @@ class Server_(socket_connections):
         self.keep_running = True
         self.log.info("Starting server at {}:{}".format(self.HOST, self.PORT))
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind((self.HOST, self.PORT))
+            s.bind((self.HOST, int(self.PORT)))
             s.listen()
             while self.keep_running:
                 try:
                     conn, addr = s.accept()
                     with conn:
-                        print('Connected by', addr)
+                        self.log.debug('Connected by {}:{}'.format(str(addr[0]),addr[1]))
                         final_data = b""
                         while True:
                             data = conn.recv(1024)
                             final_data += data
                             if not data:
                                 break
-                            #conn.sendall(b"Acc")
-                    self.log.debug("Received data from Client {}, which send {} bytes".format(addr, len(final_data)))
+                    self.log.debug("Received data from Client {}, which send {} bytes. Message reads: {}".format(addr, len(final_data), final_data.decode()))
                     self.message_queue.put(final_data)# Puts the data on the queue
-                    print(final_data.decode())
+                    #self.log.debug(final_data.decode())
                 except ConnectionResetError as ConErr:
                     self.log.critical(ConErr)
 

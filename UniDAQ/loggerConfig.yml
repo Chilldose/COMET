@@ -10,7 +10,7 @@ formatters:
 handlers:
   # Define a default handler, you can add more if you need them
   default:
-    level: INFO
+    level: DEBUG
     class: logging.StreamHandler
     formatter: STDOut
     stream: ext://sys.stdout
@@ -37,5 +37,5 @@ loggers:
     propagate: True
 
 root:
-  level: INFO # This is some kind of global minimum logging level
+  level: DEBUG # This is some kind of global minimum logging level
   handlers: [default, file, errorHandler]

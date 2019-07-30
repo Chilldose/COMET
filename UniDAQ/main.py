@@ -176,17 +176,19 @@ def main():
     # Starting Django Server if need be
     if "Django_server" in aux["Configs"]["config"]["settings"]:
         if aux["Configs"]["config"]["settings"]["Django_server"].get("Start_Server", False):
-            log.info("Starting Django server...")
+            log.info("Starting Django server at {}:{}...".format(aux["Configs"]["config"]["settings"]["Django_server"]["IP"],
+                                                                 aux["Configs"]["config"]["settings"]["Django_server"]["Port"]))
             try:
                 config = aux["Configs"]["config"]["settings"]["Django_server"]
+                config_socket = aux["Configs"]["config"]["settings"]["Socket_connection"]
                 import subprocess
                 # Import Server and Client class for communication with the Django server
                 from .socket_connections import Client_, Server_
                 path = os.path.normpath(config["Path"])#
-                Django = subprocess.Popen(["python", path, "runserver", str(config["Port"])], shell=True)
-                Server = Server_()
-                Server.run() # Starts the Server thread
-                Client = Client_()
+                Django = subprocess.Popen(["python", path, "runserver", str(config["IP"])+":"+str(config["Port"])], shell=True)
+                Server = Server_(HOST=config_socket["Host"]["IP"], PORT=config_socket["Host"]["Port"])
+                Server.start() # Starts the Server thread
+                Client = Client_(HOST=config_socket["Client"]["IP"], PORT=config_socket["Client"]["Port"])
                 aux["Django"] = Django
                 aux["Server"] = Server
                 aux["Client"] = Client

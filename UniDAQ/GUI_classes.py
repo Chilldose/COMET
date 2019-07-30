@@ -34,6 +34,8 @@ class GUI_classes(QWidget):
 
         # Framework variables
         self.vcw = framework_variables["VCW"]
+        self.client = framework_variables["Client"]
+        self.server = framework_variables["Server"]
         self.devices_dict = framework_variables["Devices"]
         self.default_values_dict = framework_variables["Configs"]["config"]
         self.table = framework_variables["Table"]
@@ -94,6 +96,9 @@ class GUI_classes(QWidget):
         self.event_loop_thread = GUI_event_loop(self, self.framework_variables, self.meas_data)
         self.event_loop_thread.Errsig.connect(self.main_window.errMsg.new_message)
         self.event_loop_thread.start()
+
+        # Add the update function for the socket connection
+        self.add_update_function(self.look_for_socket_data)
 
         self.log.info("Starting GUI ... ")
 
@@ -203,3 +208,17 @@ class GUI_classes(QWidget):
             self.meas_data[data][1] = np.array([])
 
         self.default_values_dict["settings"]["new_data"] = True
+
+
+    # Todo: Not sure if this is the correct place ot place the server_client_thing
+    def send_plot_data(self, measurement="all"):
+        """This function sends the data for a specified measurement over a socket connection
+        If 'all' is stated then all data will be send."""
+        self.client.send_message("It works!")
+
+    def look_for_socket_data(self):
+        """Looks if data is in the socket connection queue and processes the message"""
+        if self.server:
+            if not self.server.message_queue.empty():
+               message = self.server.message_queue.get()
+               print(message)
