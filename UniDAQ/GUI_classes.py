@@ -219,6 +219,8 @@ class GUI_classes(QWidget):
     def look_for_socket_data(self):
         """Looks if data is in the socket connection queue and processes the message"""
         if self.server:
-            if not self.server.message_queue.empty():
-               message = self.server.message_queue.get()
-               print(message)
+            message = self.server.get_message()
+            print(message)
+
+    def process_messages_from_Django_server(self, message):
+        """Processes the message recieved by a Django server. Message which cannot be interpreted will be protocoled"""
