@@ -244,6 +244,8 @@ class measurement_class(Thread):
                         self.log.error("An error happend while conducting"
                                        " the measurement: {} with error: {}".format(measurement, err))
                 # Here the actual measurement starts -------------------------------------------------------------------
+                if "store_data_as" in self.settings:
+                    self.save_data(self.settings["store_data_as"], self.job_details)
 
     def stop_measurement(self):
         """Stops the measurement"""
@@ -260,4 +262,24 @@ class measurement_class(Thread):
         else:
             command = build_command(device_dict, (order, value))
             self.vcw.write(device_dict, command)  # writes the new order to the device
+
+    def save_data(self, type="json", details={}):
+        """Saves data in a specific data format after completion of measurement.
+        This is for databank compatibility """
+
+        # Generate dict
+        data_to_dump = self.measurement_data.copy()
+        data_to_dump.update(details)
+        filepath = os.path.join(os.path.normpath(details["filepath"]), details.filename)
+
+        if type.lower() == "json":
+            import json
+            with open(filepath.split(".")[0]+".json") as fd:
+                json.dump(self.measurement_data, fd)
+
+        elif type.lower() == "yaml":
+            import yaml
+            with open(filepath.split(".")[0]+".yml") as fd:
+                yaml.safe_dump(self.measurement_data, fd)
+
 

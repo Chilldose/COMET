@@ -14,8 +14,6 @@ punished!
    If the defendant should win, he/she can use the software as he/she wishes,
    otherwise he/she will be punished as described before.
 """
-import glob
-import argparse
 import logging
 import signal
 import time
@@ -183,7 +181,7 @@ def main():
                 config_socket = aux["Configs"]["config"]["settings"]["Socket_connection"]
                 import subprocess
                 # Import Server and Client class for communication with the Django server
-                from .socket_connections import Client_, Server_
+                from UniDAQ.UniDAQ.misc_plugins.ServerClientApp.socket_connections import Client_, Server_
                 path = os.path.normpath(config["Path"])#
                 Django = subprocess.Popen(["python", path, "runserver", str(config["IP"])+":"+str(config["Port"])], shell=True)
                 Server = Server_(HOST=config_socket["Host"]["IP"], PORT=config_socket["Host"]["Port"])

@@ -45,6 +45,8 @@
     Test_mode: false # You dont want this
     GUI_update_interval: 200.0 # How often should the GUI be updated in ms
     elrange: 200e-9 # A predefined value for the elrange
+    store_data_as: json # Additional parameter, usually data will be stored as ascii during measurement,
+    # but if you need the data in another format you can specify it here
     Django_server:
         Start_Server: True
         Path: C:/Users/dbloech/PycharmProjects/DoHoCo/manage.py

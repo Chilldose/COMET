@@ -46,6 +46,9 @@ class GUI_classes(QWidget):
         self.queue_to_GUI = framework_variables["Queue_to_GUI"]
         self.framework_variables = framework_variables
 
+        # Config response function for the server
+        self.server.responder = self.process_messages_from_Django_server
+
         # Some Variables
         self.functions = [] # Function for the framework to update
         self.update_interval = float(self.default_values_dict["settings"].get("GUI_update_interval", 100.))  # msec
@@ -214,7 +217,7 @@ class GUI_classes(QWidget):
     def send_plot_data(self, measurement="all"):
         """This function sends the data for a specified measurement over a socket connection
         If 'all' is stated then all data will be send."""
-        self.client.send_message("It works!")
+        self.client.send_request("action", "value")
 
     def look_for_socket_data(self):
         """Looks if data is in the socket connection queue and processes the message"""
@@ -222,5 +225,6 @@ class GUI_classes(QWidget):
             message = self.server.get_message()
             print(message)
 
-    def process_messages_from_Django_server(self, message):
+    def process_messages_from_Django_server(self, action, value):
         """Processes the message recieved by a Django server. Message which cannot be interpreted will be protocoled"""
+        return 
