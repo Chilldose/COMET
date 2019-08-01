@@ -77,10 +77,7 @@ class Client_(socket_connections):
                         try:
                             message.process_events(mask)
                         except Exception:
-                            self.log.error(
-                                "main: error: exception for",
-                                f"{message.addr}:\n{traceback.format_exc()}",
-                            )
+                            self.log.error("main: error: exception for }:\n{}".format(message.addr, traceback.format_exc()))
                             message.close()
                     # Check for a socket being monitored to continue.
                     if not self.sel.get_map():
@@ -156,10 +153,7 @@ class Server_(socket_connections):
                         try:
                             message.process_events(mask)
                         except Exception:
-                            self.log.error(
-                                "main: error: exception for",
-                                f"{message.addr}:\n{traceback.format_exc()}",
-                            )
+                            self.log.error("main: error: exception for {}:\n{}".format(message.addr,traceback.format_exc()))
                             message.close()
         except KeyboardInterrupt:
             self.log.critical("caught keyboard interrupt, exiting")

@@ -164,13 +164,6 @@ def main():
     MEL = measurement_event_loop(aux)
     MEL.start()
 
-    log.critical("Starting GUI ...")
-    gui = GUI_classes(aux)
-    # Init the framework for update plots etc.
-    frame = utilities.Framework(gui.give_framework_functions)
-    # Starts the timer
-    frame.start_timer()
-
     # Starting Django Server if need be
     if "Django_server" in aux["Configs"]["config"]["settings"]:
         if aux["Configs"]["config"]["settings"]["Django_server"].get("Start_Server", False):
@@ -181,7 +174,7 @@ def main():
                 config_socket = aux["Configs"]["config"]["settings"]["Socket_connection"]
                 import subprocess
                 # Import Server and Client class for communication with the Django server
-                from UniDAQ.UniDAQ.misc_plugins.ServerClientApp.socket_connections import Client_, Server_
+                from .misc_plugins.ServerClientApp.socket_connections import Client_, Server_
                 path = os.path.normpath(config["Path"])#
                 Django = subprocess.Popen(["python", path, "runserver", str(config["IP"])+":"+str(config["Port"])], shell=True)
                 Server = Server_(HOST=config_socket["Host"]["IP"], PORT=config_socket["Host"]["Port"])
@@ -192,6 +185,13 @@ def main():
                 aux["Client"] = Client
             except Exception as err:
                 log.error("Django server could not be started. Error: {}".format(err))
+
+    log.critical("Starting GUI ...")
+    gui = GUI_classes(aux)
+    # Init the framework for update plots etc.
+    frame = utilities.Framework(gui.give_framework_functions)
+    # Starts the timer
+    frame.start_timer()
 
 
     log.critical("Start rendering GUI...")

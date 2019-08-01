@@ -47,7 +47,8 @@ class GUI_classes(QWidget):
         self.framework_variables = framework_variables
 
         # Config response function for the server
-        self.server.responder = self.process_messages_from_Django_server
+        if self.server:
+            self.server.responder = self.process_messages_from_Django_server
 
         # Some Variables
         self.functions = [] # Function for the framework to update
@@ -99,9 +100,6 @@ class GUI_classes(QWidget):
         self.event_loop_thread = GUI_event_loop(self, self.framework_variables, self.meas_data)
         self.event_loop_thread.Errsig.connect(self.main_window.errMsg.new_message)
         self.event_loop_thread.start()
-
-        # Add the update function for the socket connection
-        self.add_update_function(self.look_for_socket_data)
 
         self.log.info("Starting GUI ... ")
 
@@ -217,14 +215,27 @@ class GUI_classes(QWidget):
     def send_plot_data(self, measurement="all"):
         """This function sends the data for a specified measurement over a socket connection
         If 'all' is stated then all data will be send."""
-        self.client.send_request("action", "value")
+        if measurement != "all":
+            if measurement in self.meas_data:
+                return {measurement: [x.tolist() for x in self.meas_data[measurement]]}
+            else:
+                return "Measurement {} was not recognised".format(measurement)
+        if measurement == "all":
+            return self.meas_data
 
-    def look_for_socket_data(self):
-        """Looks if data is in the socket connection queue and processes the message"""
-        if self.server:
-            message = self.server.get_message()
-            print(message)
+        else:
+            return "Measurement {} was not recognised".format(measurement)
 
     def process_messages_from_Django_server(self, action, value):
         """Processes the message recieved by a Django server. Message which cannot be interpreted will be protocoled"""
-        return 
+
+        if action == "plot_data":
+            # If plot data should be send
+            return self.send_plot_data(value["Plot"])
+
+        if action == "get_plot_types":
+            return self.meas_data.keys()
+
+        else:
+            return "Action {} was not recognised.".format(action)
+
