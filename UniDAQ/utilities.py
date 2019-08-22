@@ -478,7 +478,11 @@ def build_command(device, command_tuple, single_commands = False):
             com = device[command_tuple[0]]
 
         if isinstance(command_tuple[1], (str, float, int)):
-            return com.format(command_tuple[1])
+            try:
+                return com.format(command_tuple[1])
+            except IndexError:
+                l.error("You attempted to send a command with the wrong number of parameters the command structure is: {}"
+                               " but you passed: [{}] as parameter(s)".format(com, command_tuple[1]))
 
         elif single_commands:
             if isinstance(command_tuple[1], list) or isinstance(command_tuple[1], tuple) :

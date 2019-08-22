@@ -25,6 +25,7 @@ class dynamicwaiting_class(tools):
         self.switching = main_class.framework["Switching"]
         self.biasSMU = main_class.devices["BiasSMU"]
 
+
         # Job specific variables
         self.compliance = main_class.job_details["dynamicwaiting"]["Compliance"]
         self.justlength = 24
@@ -45,21 +46,66 @@ class dynamicwaiting_class(tools):
         self.xvalues = []
         self.yvalues = []
 
+        # The commands differ from device to device
+        # Therefore I need to write the commands for every device on its own. Nice work Keithley....
 
-        # Config parameters
-        self.get_data_query = "printbuffer(1, {samples!s}, measbuffer)"
-        self.get_timestamps_query = "printbuffer(1, {samples!s}, measbuffer.timestamps)"
-        self.SMU_clean_buffer = "measbuffer = nil"
 
-        self.SMU_config = "smua.measure.count = {samples!s} \n" \
-                          "smua.measure.interval = {interval!s}\n" \
-                          "measbuffer = smua.makebuffer(smua.measure.count)\n" \
-                          "measbuffer.collecttimestamps = 1" \
+        if "2470 Keithley SMU" in self.biasSMU["Device_name"]:
+            # Config parameters for the 2470 Keithley SMU
+            self.get_data_query = "printbuffer(1, {samples!s}, measbuffer)"
+            self.get_timestamps_query = "printbuffer(1, {samples!s}, measbuffer.relativetimestamps)"
+            self.SMU_clean_buffer = "measbuffer = nil"
+            self.SMUON = "smu.ON"
+            self.SMUOFF = "smu.OFF"
+            self.separate = "\n"
 
-        self.measureItobuffer = "smua.source.levelv = {level!s} \n" \
-                                "delay(" + str(self.start_delay) + ")"\
-                                "smua.measure.overlappedi(measbuffer)\n" \
-                                "waitcomplete()\n"
+            self.SMU_config = "smu.measure.count = {samples!s} \n" \
+                              "measbuffer = buffer.make(smu.measure.count, buffer.STYLE_FULL)\n" \
+                              "smu.source.level = {level!s} \n" \
+                              "loadscript DiodeRelax \n" \
+                              "delay(" + str(self.start_delay) + ") \n" \
+                              "smu.measure.read(measbuffer)\n" \
+                              "waitcomplete()\n" \
+                              "endscript "
+
+            self.measureItobuffer = "measbuffer.clear() \n" \
+                                    "smu.source.level = {level!s} \n" \
+                                    "DiodeRelax()" # Maybe not the fastest method ???
+
+            self.setup_config = [("set_compliance", str(self.compliance)),
+                                 ("set_NPLC", "{!s}".format(self.NPLC)),
+                                 # ("set_measurement_delay_factor", "{!s}".format(self.delay)),
+                                 #("set_meas_range_low", str(self.SMURange)),
+                                 ("set_meas_delay", str(self.delay))
+                                 ]
+
+
+        else:
+            # Config parameters for the 2657 Keithley SMU
+            self.get_data_query = "printbuffer(1, {samples!s}, measbuffer)"
+            self.get_timestamps_query = "printbuffer(1, {samples!s}, measbuffer.timestamps)"
+            self.SMU_clean_buffer = "measbuffer = nil"
+            self.SMUON = "1"
+            self.SMUOFF = "0"
+            self.separate = None
+
+            self.SMU_config = "smua.measure.count = {samples!s} \n" \
+                              "smua.measure.interval = {interval!s}\n" \
+                              "measbuffer = smua.makebuffer(smua.measure.count)\n" \
+                              "measbuffer.collecttimestamps = 1" \
+
+            self.measureItobuffer = "smua.source.levelv = {level!s} \n" \
+                                    "delay(" + str(self.start_delay) + ")"\
+                                    "smua.measure.overlappedi(measbuffer)\n" \
+                                    "waitcomplete()\n"
+
+            self.setup_config = [("set_compliance_current", str(self.compliance)),
+                                              ("set_NPLC", "{!s}".format(self.NPLC)),
+                                              #("set_measurement_delay_factor", "{!s}".format(self.delay)),
+                                              ("set_measure_adc", "smua.ADC_FAST"),
+                                              ("set_current_range_low", str(self.SMURange)),
+                                              ("set_meas_delay", str(self.delay))
+                                             ]
 
 
     def run(self):
@@ -87,26 +133,26 @@ class dynamicwaiting_class(tools):
         self.yvalues = np.zeros((len(self.voltage_step_list), int(self.buffer)))
         # Conduct the measurement
         for i, voltage in enumerate(self.voltage_step_list):
-            if not self.main.main.stop_measurement:  # To shut down if necessary
+            if not self.main.event_loop.stop_all_measurements_query():  # To shut down if necessary
 
                 # Some elusive error happens sometimes, where the smu forgets its pervious config
                 #self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples=self.buffer, interval=self.interval))
                 # Here the magic happens it changes all values and so on
                 self.xvalues[i], self.yvalues[i], time = self.do_dynamic_measurement("dynamicwaiting", self.biasSMU, voltage, self.buffer, self.interval, True)
 
-                if self.main.check_complience(self.biasSMU, float(self.compliance), command="get_read",):
+                if self.check_complience(self.biasSMU, float(self.compliance), command="get_read",):
                     self.stop_everything()  # stops the measurement if compliance is reached
 
-                if not self.main.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=5, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
+                if not self.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=5, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
 
                 sleep(1.)
 
         # Ramp down and switch all off
-        self.current_voltage = self.main.main.default_dict["bias_voltage"]
-        self.main.ramp_voltage(self.biasSMU, "set_voltage", self.current_voltage, 0, 20, 0.01)
-        self.main.change_value(self.biasSMU, "set_voltage", "0")
-        self.main.change_value(self.biasSMU, "set_output", "0")
+        self.current_voltage = self.framework["Configs"]["config"]["settings"]["bias_voltage"]
+        self.ramp_voltage(self.biasSMU, "set_voltage", self.current_voltage, 0, 20, 0.01)
+        self.change_value(self.biasSMU, "set_voltage", "0")
+        self.change_value(self.biasSMU, "set_output", self.SMUOFF)
 
         self.write_dyn_to_file(self.main.measurement_files["dynamicwaiting"], self.voltage_step_list, self.xvalues, self.yvalues)
 
@@ -140,37 +186,26 @@ class dynamicwaiting_class(tools):
         voltage_Start = self.main.job_details["dynamicwaiting"].get("StartVolt", 0)
         voltage_End = self.main.job_details["dynamicwaiting"].get("EndVolt", 0)
         voltage_steps = self.main.job_details["dynamicwaiting"].get("Steps", 10)
-        self.voltage_step_list = self.main.ramp_value(voltage_Start, voltage_End, voltage_steps)
+        self.voltage_step_list = self.ramp_value(voltage_Start, voltage_End, voltage_steps)
 
         # Switch to IV for correct biasing for ramp
         if not self.switching.switch_to_measurement("IV"):
             self.stop_everything()
 
         # Configure the setup, compliance and switch on the smu
-        self.main.send_to_device(self.biasSMU, self.SMU_clean_buffer)
-        self.main.change_value(self.biasSMU, "set_voltage", "0")
-        self.main.config_setup(self.biasSMU, [("set_complience_current", str(self.compliance)),
-                                              ("set_NPLC", "{!s}".format(self.NPLC)),
-                                              #("set_measurement_delay_factor", "{!s}".format(self.delay)),
-                                              ("set_measure_adc", "smua.ADC_FAST"),
-                                              ("set_current_range_low", str(self.SMURange)),
-                                              ("set_meas_delay", str(self.delay))
-                                             ])
-        self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples = samples, interval = interval))
-        self.main.change_value(self.biasSMU, "set_voltage", "0.0")
-        self.main.change_value(self.biasSMU, "set_output", "1")
+        self.send_to_device(self.biasSMU, self.SMU_clean_buffer)
+        self.config_setup(self.biasSMU, self.setup_config)
+        self.change_value(self.biasSMU, "set_voltage", "0.0")
+        self.change_value(self.biasSMU, "set_output", self.SMUON)
 
-        if self.main.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=3, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
-            self.current_voltage = self.main.main.default_dict["bias_voltage"]
+        if self.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=3, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
+            self.current_voltage = self.framework["Configs"]["config"]["settings"]["bias_voltage"]
         else:
             self.stop_everything()
 
-        # Try out the measurement a few time ( the 2657 does not behave correct in the first 2-4 iterations
-        #for i in range(3):
-        #    self.main.send_to_device(device, self.measureItobuffer.format(level=0))
-
-        #self.file = create_new_file(self.main.job_details["dynamicwaiting"]["filename"],
-        #                            self.main.job_details["dynamicwaiting"]["filepath"])
+        # Send the sweep command to the device
+        self.send_to_device(self.biasSMU, self.SMU_config.format(samples=samples, interval=interval, level=0),
+                            self.separate)
 
     def do_dynamic_measurement(self, str_name, device, voltage = 0, samples = 100, interval = 0.01, write_to_main = True):
         '''
@@ -181,7 +216,8 @@ class dynamicwaiting_class(tools):
 
         # Send the command to the device and wait till complete
         starttime = time()
-        self.main.send_to_device(device, self.measureItobuffer.format(level=voltage))
+        self.send_to_device(device, self.measureItobuffer.format(level=voltage, samples=samples))
+        self.framework["Configs"]["config"]["settings"]["bias_voltage"] = voltage
 
         # Get the data from the device
         device_ansered = False
@@ -206,10 +242,15 @@ class dynamicwaiting_class(tools):
             #xvalues, yvalues = self.pic_device_answer(ans, time/self.buffer)
             xvalues, yvalues = self.pic_device_answer(ans, times, self.start_delay)
 
+            if len(xvalues) > samples:  # because some devices add an extra value to the end, and some dont. Good work again keithley
+                xvalues = xvalues[:int(samples)]
+                yvalues = yvalues[:int(samples)]
+
             if write_to_main: # Writes data to the main, or not
                 self.main.queue_to_main.put({str(str_name): [xvalues, yvalues]})
             # Clear buffer
             #self.main.send_to_device(device, self.SMU_clean_buffer)
+
             return xvalues, yvalues, time
 
         else:
@@ -221,7 +262,7 @@ class dynamicwaiting_class(tools):
         """
         Dissects the answer string and returns 2 array containing the x an y values
         """
-        expression = re.compile("\S+e-\d+")
+        expression = re.compile(r"\S+\b", re.MULTILINE)
         yvalues = list(map(float, expression.findall(values)))
         xvalues = list(map(float, expression.findall(times)))
         xvalues.append(xvalues[-1]+abs(xvalues[-2]-xvalues[-1]))

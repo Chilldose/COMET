@@ -31,7 +31,7 @@ class GUI_event_loop(QThread):
         self.close_program = False
         self.measurement_running = False
         self.measurement_loop_running = True
-        self.error_types = ["Info","MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "Warning", "FatalError", "ThresholdError", "ERROR", "Error"]
+        self.error_types = ["Critical", "Info","MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "Warning", "FatalError", "ThresholdError", "ERROR", "Error"]
         self.fatal_errors = ["MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "FatalError", "ThresholdError"]
         self.measurement_types = self.default_values_dict["settings"].get("measurement_types", [])
         self.event_types = ["MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED"]
@@ -106,6 +106,9 @@ class GUI_event_loop(QThread):
                 # Emit the signal
                 self.Errsig.emit(str(message[str(error)]))
             elif "WARNING" in error.upper():
+                prepend = '<font color=\"orange\">'
+
+            elif "CRITICAL" in error.upper():
                 prepend = '<font color=\"orange\">'
             self.error_log.append(prepend + str(error).upper() + ": " + str(message[str(error)]) + "</font> <br/>")
 

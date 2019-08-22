@@ -6,6 +6,7 @@ from time import sleep, time
 import datetime
 import importlib
 from threading import Thread
+import traceback
 
 from .utilities import build_command, flush_to_file, create_new_file
 
@@ -64,7 +65,10 @@ class measurement_class(Thread):
             else:
                 self.log.info("No external lights controller found")
             #-----------------------------------------------------------------------------------------------------------
-            self.make_measurement_plan()
+            try:
+                self.make_measurement_plan()
+            except Exception as err:
+                raise err
             #-----------------------------------------------------------------------------------------------------------
             sleep(0.1)
             if "lights_controller" in self.devices:
@@ -242,16 +246,18 @@ class measurement_class(Thread):
                         self.log.info("The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds.")
                     except Exception as err:
                         self.log.error("An error happend while conducting"
-                                       " the measurement: {} with error: {}".format(measurement, err))
+                                       " the measurement: {} with error: {} \n"
+                                       "Traceback: {}".format(measurement, err, traceback.format_exc()))
                 # Here the actual measurement starts -------------------------------------------------------------------
-                if "store_data_as" in self.settings:
-                    self.save_data(self.settings["store_data_as"], self.job_details)
+
+            if "store_data_as" in self.settings["settings"]:
+                self.save_data_as(self.settings["settings"]["store_data_as"], self.job_details)
 
     def stop_measurement(self):
         """Stops the measurement"""
         self.log.critical("Measurement stop sended by framework...")
         order = {"ABORT_MEASUREMENT": True}  # just for now
-        self.event_loop.message_to_main.put(order)
+        self.queue_to_main.put(order)
 
     def change_value(self, device_dict, order, value=""):
         '''This function sends a command to a device and changes the state in the dictionary (state machine)'''
@@ -263,23 +269,33 @@ class measurement_class(Thread):
             command = build_command(device_dict, (order, value))
             self.vcw.write(device_dict, command)  # writes the new order to the device
 
-    def save_data(self, type="json", details={}):
+    def save_data_as(self, type="json", details={}):
         """Saves data in a specific data format after completion of measurement.
         This is for databank compatibility """
 
         # Generate dict
         data_to_dump = self.measurement_data.copy()
         data_to_dump.update(details)
-        filepath = os.path.join(os.path.normpath(details["filepath"]), details.filename)
+        filepath = os.path.join(os.path.normpath(details["Filepath"]), details["Filename"])
+
+        for key, data in data_to_dump.copy().items():
+            try:
+                if len(data): # looks if the array has any data in it
+                    for i, item in enumerate(data): # serialize to list
+                        data_to_dump[key][i] = list(item)
+                else:
+                    data_to_dump.pop(key)
+            except:
+                data_to_dump.pop(key)
 
         if type.lower() == "json":
             import json
-            with open(filepath.split(".")[0]+".json") as fd:
-                json.dump(self.measurement_data, fd)
+            with open(filepath.split(".")[0]+".json", "w+") as fd:
+                json.dump(data_to_dump, fd)
 
         elif type.lower() == "yaml":
             import yaml
-            with open(filepath.split(".")[0]+".yml") as fd:
-                yaml.safe_dump(self.measurement_data, fd)
+            with open(filepath.split(".")[0]+".yml", "w+") as fd:
+                yaml.safe_dump(data_to_dump, fd)
 
 

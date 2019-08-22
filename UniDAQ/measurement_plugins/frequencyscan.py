@@ -33,7 +33,7 @@ class frequencyscan_class(stripscan_class):
     def do_frequencyscan(self):
         '''This function performes a frequency scan of the lcr meter and at each step it executes a LIST of mesaurement'''
 
-        if not self.main.main.stop_measurement():
+        if not self.main.event_loop.stop_all_measurements_query():
             # Generate frequency list
             freq_list = self.main.ramp_value_log10(self.start_freq, self.end_freq, self.step_freq)
 
@@ -60,14 +60,14 @@ class frequencyscan_class(stripscan_class):
             self.main.change_value(self.LCR_meter, "set_voltage", str(self.LCR_volt))
 
             for freq in freq_list: #does the loop over the frequencies
-                if not self.main.main.stop_measurement(): #stops the loop if shutdown is necessary
+                if not self.main.event_loop.stop_all_measurements_query(): #stops the loop if shutdown is necessary
                     self.main.change_value(self.LCR_meter, "set_frequency", str(freq))
                     value = []
                     for i, meas in enumerate(self.measurements):
                         func_name = str(meas)
                         value.append(getattr(self, "do_" + func_name)(freq, samples=self.samples, freqscan=True)) #calls the measurement
                         # Append the data to the data array and sends it to the main as frequency scan measurement
-                        if not self.main.main.stop_measurement():
+                        if not self.main.event_loop.stop_all_measurements_query():
                             self.main.measurement_data[func_name + "_scan"][0] = np.append(self.main.measurement_data[func_name + "_scan"][0],[float(freq)])
                             self.main.measurement_data[func_name + "_scan"][1] = np.append(self.main.measurement_data[func_name + "_scan"][1], [float(value[i])])
                             self.main.queue_to_main.put({func_name + "_scan": [float(freq), float(value[i])]})

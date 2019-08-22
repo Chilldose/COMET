@@ -127,20 +127,23 @@ class VisaConnectWizard:
 
     def reconnect_to_device(self, device_dict):
         '''This functions reconnects to a device'''
-        self.log.info("Try to reconnect to device: " + device_dict["Device_name"])
+        self.log.info("Try to solve error on device: " + device_dict["Device_name"])
         resource_name = device_dict["Visa_Resource"].resource_name
 
+        # Closing connection to device
         try:
             self.close_connections(device_dict["Visa_Resource"])
-        except:
-            pass
+        except Exception as err:
+            self.log.critical("An error happend while closing device: {}".format(err))
 
+        # Reopening connection to device
         resource = self.rm.open_resource(resource_name)  # Tries opening the connection to a device
+
         self.config_resource(resource_name, resource, device_dict.get("Baudrate", None))
         IDN = device_dict["Device_IDN"]
 
         # Query the IDN
-        IDN_query = self.query(device_dict, device_dict.get("device_IDN_query", "*IDN?"))
+        IDN_query = resource.query(device_dict.get("device_IDN_query", "*IDN?"))
         if str(IDN) == str(IDN_query).strip():
             device_dict["Visa_Resource"] = resource
             self.log.info("Connection to the device: " + device_dict["Device_name"] + "is now reestablished")
@@ -270,7 +273,7 @@ class VisaConnectWizard:
                     self.no_response(self.myInstruments[number])
                     return False
 
-    @run_with_lock # So only one talker and listener can be there
+    #@run_with_lock # So only one talker and listener can be there
     def query(self, resource_dict, code, reconnect = True):
         """Makes a query to the resource (the same as first write then read)"""
         #Just check if a resource or object was passed and prepare everything
@@ -358,11 +361,13 @@ class VisaConnectWizard:
             for instrument in self.myInstruments_dict.keys():
                 #self.initiate_instrument(self.myInstruments_dict[instrument], ["*rst"])
                 self.log.info("Closed connection to device " + str(self.myInstruments_dict[instrument]) + ".")
-                #self.myInstruments_dict[instrument].clear()
+                self.myInstruments_dict[instrument].clear()
                 self.myInstruments_dict[instrument].close()
+
             self.rm.close()
 
         else: # Closes the connection to a specific resource
+            inst.clear()
             inst.close()
             self.log.info("Closed connection to device " + str(inst) + ".")
 

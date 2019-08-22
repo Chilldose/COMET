@@ -46,6 +46,7 @@ class measurement_event_loop(Thread):
         self.events = {}
         self.skip_init = False
         self.temphum_plugin = None
+        self.measthread = None
 
     def run(self):
         # Init devices
@@ -119,8 +120,9 @@ class measurement_event_loop(Thread):
                 if not self.skip_init:
                     self.init_devices() # Initiates the device anew (defined state)
                 # Starts a thread for measuring
-                measthread = measurement_class(self, self.framework, self.measurements_to_conduct.copy())
-                measthread.start()
+                self.message_to_main.put({"Critical": "Measurement thread starts..."})
+                self.measthread = measurement_class(self, self.framework, self.measurements_to_conduct.copy())
+                self.measthread.start()
                 self.log.info("Sended new measurement job. Orders: " + str(self.measurements_to_conduct))
                 self.measurements_to_conduct.clear() # Clears the measurement dict
 
@@ -155,6 +157,7 @@ class measurement_event_loop(Thread):
                 self.stop_measurement = False
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
                 self.default_dict["Measurement_running"] = False
+                self.message_to_main.put({"Critical": "Measurement thread terminated..."})
 
             elif "MEASUREMENT_STATUS" in self.status_query: # Usually asked from the main to get status
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
@@ -168,6 +171,7 @@ class measurement_event_loop(Thread):
         self.message_to_main.put(self.events.copy())  #
         self.events.clear()  # Clears the dict so that new events can be written in
         self.status_query.clear() #Clears the status query Dict
+        self.check_if_measurement_still_runs()
 
     def init_devices(self):
         '''This function makes the necessary configuration for all devices before any measurement can be conducted'''
@@ -219,7 +223,7 @@ class measurement_event_loop(Thread):
                                " {} in device {}".format(order, device_obj["Device_name"]))
         return full_command_list
 
-    def ask_to_stop(self): # Just a simple return function if a measurement should be stopped
+    def stop_all_measurements_query(self): # Just a simple return function if a measurement should be stopped
         return self.stop_measurement
 
     #def load_measurement_plugins(self):
@@ -244,4 +248,17 @@ class measurement_event_loop(Thread):
             self.log.error("An error happend while importing module: {}. "
                            "With error: ".format(plugin_name, err))
             return None
+
+    def check_if_measurement_still_runs(self):
+        """This function checks if a measurement is still running and reports in case of a crash back as an error!
+        It further resets the state so a new measurement can be conducted"""
+
+        if self.measthread and self.measurement_running:
+            if not self.measthread.isAlive():
+                self.log.error("The measurement thread seems to have stopped working prematurely. Resetting state machine!"
+                               "Please check the logs. This should not be happening! Most likely an unhandled catastrophic "
+                               "error happend, please fix it.")
+                self.measurement_running = False
+
+
 

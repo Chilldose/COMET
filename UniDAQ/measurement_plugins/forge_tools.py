@@ -7,6 +7,7 @@ from scipy import stats
 from ..utilities import build_command
 import logging
 
+
 class tools(object):
     """Some tools for forging your own measurement plugins
     """
@@ -16,7 +17,7 @@ class tools(object):
         self.event_loop = event_loop
         self.vcw = framework["VCW"]
         self.settings = framework["Configs"]["config"]
-        self.queue_to_main = framework["message_to_main"]
+        self.queue_to_main = framework["Message_to_main"]
         self.toolslog = logging.getLogger(__name__)
 
     def steady_state_check(self, device, command="get_read", max_slope = 0.001,
@@ -25,24 +26,26 @@ class tools(object):
         '''This functions waits dynamically until the sensor has reached an equilibrium after changing the bias voltage'''
         # TODO: I have the feeling that this function is not exactly dooing what she is supposed to do, check!
         steady_state = False
-        stop = self.event_loop.stop_measurement
+        #stop = self.event_loop.stop_measurement
         if do_anyway:
             self.toolslog.warning("Overwriting steady_state_check is not advised. Use with caution")
             stop = False
         counter = 0
-        while not steady_state and not stop :
+        # Todo: the stop signal does not work correctly here.
+        while not steady_state:
             if counter > 5:
                 # If too many attempts where made
                 self.toolslog.error("Attempt to reach steady state was not successfully after 5 times")
                 return False
             counter += 1
             values = []
+
+            comm = build_command(device, command)
             if complience and check_complience:
-                if self.check_complience(device, float(complience)):
+                if self.check_complience(device, float(complience), command=command):
                     self.stop_measurement()
                     return False
 
-            comm = build_command(device, command)
             for i in range(samples):
                 self.toolslog.debug("Conducting steady state check...")
                 values.append(float(str(self.vcw.query(device, comm)).split(",")[0]))
@@ -50,6 +53,7 @@ class tools(object):
             slope, intercept, r_value, p_value, std_err = stats.linregress([i for i in range(len(values))], values)
             if std_err <= 1e-6 and abs(slope) <= abs(max_slope):
                 return True
+        return False
 
     def ramp_value_log10(self, min_value, max_value, deltasteps):
         '''This function takes a min and max value, deltasteps and generates a list of values in log10 format with each deltasteps values per decade'''
@@ -167,8 +171,9 @@ class tools(object):
 
         for voltage in voltage_step_list:
             self.change_value(resource, order, voltage)
-            if self.check_complience(resource, complience):
-                return False
+            if voltage != 0: # Otherwise measurement can take to long, which leads to a potential timeout error
+                if self.check_complience(resource, complience):
+                    return False
             #self.settings["settings"]["bias_voltage"] = float(voltage)  # changes the bias voltage
             sleep(wait_time)
 
@@ -198,18 +203,23 @@ class tools(object):
             self.vcw.write(device_dict, command)
             return None
 
-    def send_to_device(self, device_dict, command):
+    def send_to_device(self, device_dict, command, seperate=None):
         """
         This command just sends the command to the device. Warning it is not recommended to use this function. Use this
         function only if you must!
 
         :param device_dict: Dictionary of the device
         :param command: The command you want to send to the device
+        .param seperate: if specified, the string gets split and the command will be send separately at the separator
         :return: None
         """
 
         try:
-            self.vcw.write(device_dict, str(command))  # writes the new order to the device
+            if seperate:
+                for x in str(command).split(seperate):
+                    self.vcw.write(device_dict, str(x))
+            else:
+                self.vcw.write(device_dict, str(command))  # writes the new order to the device
         except Exception as e:
             self.toolslog.error("Could not send {command!s} to device {device!s}, error {error!s} occured".format(command=command, device=device_dict, error=e))
 
@@ -240,7 +250,7 @@ class tools(object):
             command = build_command(device_dict, (order, value))
             self.vcw.write(device_dict, command)  # writes the new order to the device
 
-    def check_complience(self, device, complience = None, command="get_read_iv"):
+    def check_complience(self, device, complience = None, command="get_read"):
         '''This function checks if the current complience is reached'''
         try:
             if complience == None:
@@ -252,7 +262,9 @@ class tools(object):
         command = build_command(device, command)
         #value = float(str(self.vcw.query(device, command)).split(",")[0]) #237SMU
         value = str(self.vcw.query(device, command)).split("\t")
-        self.settings["settings"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
+        if len(value) > 1:
+            self.settings["settings"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
+
         if 0. < (abs(float(value[0])) - abs(float(complience)*0.99)):
             self.toolslog.error("Complience reached in instrument " + str(device["Device_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(complience))
             #self.queue_to_main.put({"MeasError": "Compliance reached. Value. " + str(value[0]) + " A"})
@@ -260,19 +272,20 @@ class tools(object):
         else:
             return False
 
-    def config_setup(self, device, commands = ()):
+    def config_setup(self, device, commands = (), delay=0.0):
         '''This function configures the setup for a specific measurement.
         Commands is a list of tuples, containing (command, values) if no value is defined only command will be send'''
 
         for command in commands:
             final_string = build_command(device, command)
             self.vcw.write(device, str(final_string))  # finally writes the command to the device
+            sleep(delay)
 
     def stop_measurement(self):
         """Stops the measurement"""
         self.toolslog.critical("Measurement stop sended by tools functions...")
         order = {"ABORT_MEASUREMENT": True}  # just for now
-        self.event_loop.message_to_main.put(order)
+        self.queue_to_main.put(order)
 
     def capacitor_discharge(self, device_dict, relay_dict, termorder = None, terminal = None, do_anyway=False):
         '''This function checks if the capacitor of the decouple box is correctly discharged

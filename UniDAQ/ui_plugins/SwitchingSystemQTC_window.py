@@ -12,10 +12,14 @@ class SwitchingSystemQTC_window:
         self.manual_switching = False
         self.variables = self.settings.default_values_dict["settings"]
         self.log = logging.getLogger(__name__)
-        self.num_7072_cards = self.variables["Devices"]["Matrix"]["Cards"] # Todo: Potential error if you rename Matrix
-        self.Keithley_7072 = self.settings.devices_dict["LVSwitching"]
-        self.measurements = self.settings.default_values_dict["Switching"]["Switching_Schemes"].copy()
+        self.num_7072_cards = 0
+        try:
+            self.num_7072_cards = self.variables["Devices"]["Matrix"].get("Cards",1) # Todo: Potential error if you rename Matrix
+            self.Keithley_7072 = self.settings.devices_dict["LVSwitching"]
+        except Exception as err:
+            self.log.error("Switching system seems not correctly configured. System will start, but errors and crashed can/will happen. Error: {}".format(err))
 
+        self.measurements = self.settings.default_values_dict["Switching"]["Switching_Schemes"].copy()
         # Settings tab
         switching_widget = QWidget()
         self.switching = self.settings.load_QtUi_file("Switching_70xB.ui", switching_widget)

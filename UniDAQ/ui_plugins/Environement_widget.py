@@ -33,8 +33,8 @@ class Environement_widget(object):
         self.gui.humidity_bar.setStyleSheet("QProgressBar::chunk{background-color: #2662e2;}")
         self.gui.humidity_bar.setValue(self.gui.min_hum_spin.value())
 
-        self.variables.default_values_dict["settings"]["control_environment"] = True
-        self.variables.default_values_dict["settings"]["log_environment"] = True
+        self.variables.default_values_dict["settings"]["control_environment"] = False
+        self.variables.default_values_dict["settings"]["log_environment"] = False
         self.gui.env_control_check.setChecked(True)
         self.gui.log_env_check.setChecked(True)
 

@@ -37,7 +37,7 @@
    set_voltage: smua.source.levelv = {}
    set_measurement_delay_factor: smua.measure.delayfactor = {} # A factor by which the build in delay is in/decreased 1nA range has a standard delay of 1s!!!
    set_source_level_volts: smua.source.levelv = {}
-   set_complience_current: smua.source.limiti = {}
+   set_compliance_current: smua.source.limiti = {}
    set_complience: smua.source.limiti = {}
    set_complience_voltage: smua.source.limitv = {}
    set_offvoltage: smua.source.offfunc = {}
