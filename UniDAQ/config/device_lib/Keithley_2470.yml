@@ -33,6 +33,13 @@
    set_terminal: smu.terminals = {} #smu.TERMINALS_REAR/FRONT
    set_meas_range_low: smu.measure.autorangerangelow = {}
    set_meas_range_high: smu.measure.autorangerangelow = {}
+   set_source_range: smu.source.range = {}
+   set_meas_range: smu.measure.range = {}
+   set_range: smu.measure.range = {}
+   set_source_readback: smu.source.readback = {}
+   set_source_delay: smu.source.delay = {}
+   set_source_autodelay: smu.source.delay = {}
+
 
 
    # All get parameters
@@ -49,14 +56,16 @@
       - measurement_count: 1
       - filter_enable: smu.ON
       - filter: smu.FILTER_MOVING_AVG
-      - filter_count: 1
-      - NPLC: 1 # range from 0.001 to 25
+      - filter_count: 5
+      - NPLC: 1 # range from 0.01 to 10
       - source_func: smu.FUNC_DC_VOLTAGE
       - source_level: 0
       - source_compliance: smu.PROTECT_NONE
       - output: smu.OFF
       - terminal: smu.TERMINALS_FRONT
       - meas_delay: 0
+      - source_readback: smu.ON
+      - source_autodelay: 1
 
 
    # Misc parameters

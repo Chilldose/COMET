@@ -60,10 +60,9 @@ class dynamicwaiting_class(tools):
             self.separate = "\n"
 
             self.SMU_config = "smu.measure.count = {samples!s} \n" \
-                              "measbuffer = buffer.make(smu.measure.count, buffer.STYLE_FULL)\n" \
+                              "measbuffer = buffer.make(smu.measure.count, buffer.STYLE_COMPACT)\n" \
                               "smu.source.level = {level!s} \n" \
                               "loadscript DiodeRelax \n" \
-                              "delay(" + str(self.start_delay) + ") \n" \
                               "smu.measure.read(measbuffer)\n" \
                               "waitcomplete()\n" \
                               "endscript "
@@ -74,9 +73,13 @@ class dynamicwaiting_class(tools):
 
             self.setup_config = [("set_compliance", str(self.compliance)),
                                  ("set_NPLC", "{!s}".format(self.NPLC)),
-                                 # ("set_measurement_delay_factor", "{!s}".format(self.delay)),
-                                 #("set_meas_range_low", str(self.SMURange)),
-                                 ("set_meas_delay", str(self.delay))
+                                 ("set_autorange", "smu.OFF"),
+                                 ("set_range", str(self.SMURange)),
+                                 ("set_filter_enable", "smu.OFF"),
+                                 ("set_autozero", "smu.OFF"),
+                                 ("set_source_readback", "smu.OFF"),
+                                 ("set_autozero", "smu.OFF"),
+                                 ("set_source_delay", str(self.start_delay)) # will be done internally
                                  ]
 
 
@@ -153,6 +156,7 @@ class dynamicwaiting_class(tools):
         self.ramp_voltage(self.biasSMU, "set_voltage", self.current_voltage, 0, 20, 0.01)
         self.change_value(self.biasSMU, "set_voltage", "0")
         self.change_value(self.biasSMU, "set_output", self.SMUOFF)
+        self.framework["Configs"]["config"]["settings"]["bias_voltage"] = 0
 
         self.write_dyn_to_file(self.main.measurement_files["dynamicwaiting"], self.voltage_step_list, self.xvalues, self.yvalues)
 

@@ -250,8 +250,12 @@ class measurement_class(Thread):
                                        "Traceback: {}".format(measurement, err, traceback.format_exc()))
                 # Here the actual measurement starts -------------------------------------------------------------------
 
-            if "store_data_as" in self.settings["settings"]:
-                self.save_data_as(self.settings["settings"]["store_data_as"], self.job_details)
+            try:
+                if "store_data_as" in self.settings["settings"]:
+                    self.save_data_as(self.settings["settings"]["store_data_as"], self.job_details)
+            except Exception as err:
+                self.log.critical("Saving data was not possible due to an error: {}".format(err))
+
 
     def stop_measurement(self):
         """Stops the measurement"""
@@ -288,14 +292,16 @@ class measurement_class(Thread):
             except:
                 data_to_dump.pop(key)
 
-        if type.lower() == "json":
-            import json
-            with open(filepath.split(".")[0]+".json", "w+") as fd:
-                json.dump(data_to_dump, fd)
+        if data_to_dump:
+            if type.lower() == "json":
+                import json
+                with open(filepath.split(".")[0]+".json", "w+") as fd:
+                    json.dump(data_to_dump, fd)
 
-        elif type.lower() == "yaml":
-            import yaml
-            with open(filepath.split(".")[0]+".yml", "w+") as fd:
-                yaml.safe_dump(data_to_dump, fd)
-
+            elif type.lower() == "yaml":
+                import yaml
+                with open(filepath.split(".")[0]+".yml", "w+") as fd:
+                    yaml.safe_dump(data_to_dump, fd)
+        else:
+            self.log.info("No data for saving found...")
 
