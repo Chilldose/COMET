@@ -224,7 +224,7 @@ class VisaConnectWizard:
                     self.connection_error(self.resource_names[dummy])
 
 
-    def config_resource(self, resources_name, resource, baudrate = 9600): # For different types of connections different configurations can be done
+    def config_resource(self, resources_name, resource, baudrate = 9600, timeout = 5000.): # For different types of connections different configurations can be done
         # ASRL type resourses are RS232 they usually need some additional configuration
         # Furthermore this function is for a primitive configuration, we cannot know by now which device has which configuration. IDN is necessary for that,
         # but we can only ask for IDN if connection is valid.
@@ -243,6 +243,8 @@ class VisaConnectWizard:
             #resource.write_termination = '\r\n'
             #resource.read_termination = '\r\n'
             #resource.values_format.is_big_endian = False
+
+        resource.timeout = timeout # Setting a resource timeout
 
     #No response function
     def no_response(self, instrument):

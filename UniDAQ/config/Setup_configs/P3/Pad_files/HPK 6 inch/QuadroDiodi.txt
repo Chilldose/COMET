@@ -1,0 +1,13 @@
+# This pad file is for the HPK irradiation sensor for the 6inch runs
+
+Campaign: Hamamatsu 6inch Irradiation					
+Creator: Dominic Bloech 27.08.2019
+
+# Additional parameters
+implant_length: 20036
+metal_width: 35
+implant_width: 22
+metal_length: 19332.35
+pitch: 90
+thickness: 240
+type: p-type

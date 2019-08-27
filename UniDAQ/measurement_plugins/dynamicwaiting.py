@@ -71,10 +71,10 @@ class dynamicwaiting_class(tools):
                                     "smu.source.level = {level!s} \n" \
                                     "DiodeRelax()" # Maybe not the fastest method ???
 
-            self.setup_config = [("set_compliance", str(self.compliance)),
-                                 ("set_NPLC", "{!s}".format(self.NPLC)),
-                                 ("set_autorange", "smu.OFF"),
+            self.setup_config = [("set_autorange", "smu.OFF"),
                                  ("set_range", str(self.SMURange)),
+                                 ("set_compliance", str(self.compliance)),
+                                 ("set_NPLC", "{!s}".format(self.NPLC)),
                                  ("set_filter_enable", "smu.OFF"),
                                  ("set_autozero", "smu.OFF"),
                                  ("set_source_readback", "smu.OFF"),

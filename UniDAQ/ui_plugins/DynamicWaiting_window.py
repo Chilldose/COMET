@@ -151,10 +151,11 @@ class DynamicWaiting_window:
     def update(self):
         if self.variables.default_values_dict["settings"]["new_data"]:
             try:
-                self.dynamic.current_plot.clear()
-                for i, vstepdata in enumerate(self.variables.meas_data["dynamicwaiting"][0]):
-                    if vstepdata.any(): # To exclude exception spawning when measurement is not conducted
-                        self.dynamic.current_plot.plot(vstepdata, self.variables.meas_data["dynamicwaiting"][1][i], pen=self.setpg.mkPen(tuple(self.cmapLookup[i])))
-                        self.update_stats(len(self.variables.meas_data["dynamicwaiting"][0]))
+                if "dynamicwaiting" in self.variables.meas_data:
+                    self.dynamic.current_plot.clear()
+                    for i, vstepdata in enumerate(self.variables.meas_data["dynamicwaiting"][0]):
+                        if vstepdata.any(): # To exclude exception spawning when measurement is not conducted
+                            self.dynamic.current_plot.plot(vstepdata, self.variables.meas_data["dynamicwaiting"][1][i], pen=self.setpg.mkPen(tuple(self.cmapLookup[i])))
+                            self.update_stats(len(self.variables.meas_data["dynamicwaiting"][0]))
             except Exception as e:
-                l.warning("An exception in the Dynamic waiting time plot occured, with error {error!s}".format(error=e))
+                l.error("An exception in the Dynamic waiting time plot occured, with error {error!s}".format(error=e))

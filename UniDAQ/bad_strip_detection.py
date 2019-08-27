@@ -9,6 +9,7 @@ from time import time
 from numba import jit
 from scipy.stats import norm, stats
 from .engineering_notation import EngNumber
+import re
 
 class stripanalysis:
     """Class which provides all necessary functions for bad strip detection, for more information on its capabilites

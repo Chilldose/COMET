@@ -34,7 +34,7 @@ class GUI_event_loop(QThread):
         self.error_types = ["Critical", "Info","MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "Warning", "FatalError", "ThresholdError", "ERROR", "Error"]
         self.fatal_errors = ["MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "FatalError", "ThresholdError"]
         self.measurement_types = self.default_values_dict["settings"].get("measurement_types", [])
-        self.event_types = ["MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED"]
+        self.event_types = ["MEASUREMENT_STATUS", "MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED"]
         self.error_list = []
         self.measurement_list = []
         self.event_list = [] # Messages send to the loop
@@ -118,11 +118,15 @@ class GUI_event_loop(QThread):
                 if not self.measurement_running:
                     #self.measurement_running = True # If a measurement is running the loop will send and MeasError in which this value will be correted
                     self.message_from_main.put({"Measurement": message.get["START_MEASUREMENT", {}]})
+                    self.measurement_running = True
                 else:
                     self.message_to_main.put({"MeasError": True})
 
             elif event == "ABORT_MEASUREMENT":
                 self.message_from_main.put({"Status": {"ABORT_MEASUREMENT": True}})
+                if self.measurement_running:
+                    self.message_to_main.put({"Critical": "Measurement aborted by user interaction..."})
+
 
             elif event == "CLOSE_PROGRAM":
 
@@ -139,6 +143,12 @@ class GUI_event_loop(QThread):
 
             elif event == "MEASUREMENT_EVENT_LOOP_STOPED": # Signals that the event loop has stoped which means that the main gui loop needs to be stoped
                 self.measurement_loop_running = False      # This will be processed in the pending event function
+
+            elif event == "MEASUREMENT_STATUS":
+                self.measurement_running = message["MEASUREMENT_STATUS"]
+
+            else:
+                self.log.info("Event: {} was not recognised. No action taken!".format(event))
 
 
         # Handles all data for coming from the measurements

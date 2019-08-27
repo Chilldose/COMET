@@ -10,19 +10,21 @@ from PyQt5.QtCore import Qt
 from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
+from .settings_widget import settings_widget
 
 
 from ..utilities import raise_exception
 
 l = logging.getLogger(__name__)
 
-class Settings_window:
+class Settings_window(settings_widget):
 
     def __init__(self, GUI_classes, layout):
 
         self.variables = GUI_classes
         self.layout = layout
         self.measurements = self.variables.default_values_dict["settings"]["measurement_types"]
+        super(Settings_window, self).__init__()
 
         #self.measurements = ["IV_measure", "CV_measure", "Strip_measure", "Istrip_measure", "Idiel_measure", "Rpoly_measure", "Cac_measure", "Cback_measure", "Cint_measure", "Rint_measure"]
         # Settings tab
@@ -52,13 +54,14 @@ class Settings_window:
 
         return settings_dict
 
-
     def get_specific_settings_value(self, data_storage):
         '''This returns the values of a specific setting'''
         return self.variables.default_values_dict["settings"].get(str(data_storage),[False, 0, 0, 0])
 
-    def load_new_settings(self, args=None):
-        '''This function loads the new settings from the gui into the state machine'''
+    def load_new_settings(self):
+        '''This function loads the new settings from the gui into the state machine
+        This will most like only work with the corresponding GUI, for all other use you need to call the load_new_values
+        function.'''
 
         # IV
         self.load_new_values("IV_measure",
@@ -121,14 +124,12 @@ class Settings_window:
         self.load_new_values("CintAC_measure", self.settings.doCintAC_checkBox,
                              self.settings.CintAC_every, self.settings.CintAC_Start_strip, self.settings.CintAC_End_strip)
 
-
-
     def load_new_values(self, data_storage, checkbox, first_value, second_value, third_value):
         '''This functions loads the  the values into the state machine'''
         list = [checkbox.isChecked(), first_value.value(), second_value.value(), third_value.value()]
         self.variables.default_values_dict["settings"][str(data_storage)] = list
 
-    def configure_settings(self, args=None):
+    def configure_settings(self):
         '''This function initializes the new values for the state machine'''
 
         # IVCV generall settings
@@ -137,7 +138,7 @@ class Settings_window:
                        self.settings.complience,  self.settings.voltage_steps)
 
         self.configure(self.variables.default_values_dict["settings"]["CV_measure"],
-                       self.settings.doCV_checkBox, self.settings.max_voltage,
+                       self.settings.doCV_checkBox, self.settings.max_voltage_CV,
                        self.settings.complience, self.settings.voltage_steps)
 
         self.configure(self.variables.default_values_dict["settings"]["IVCV_refinement"],
