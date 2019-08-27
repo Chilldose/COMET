@@ -54,7 +54,11 @@ class Controls_widget(object):
                 self.variables.reset_plot_data()
 
             # Ensures that the new values are in the state machine
-            self.variables.ui_plugins["Settings_window"].load_new_settings()
+            #Todo: not really pretty, try pulling this out of here and place it at a better place
+            try:
+                self.variables.ui_plugins["Settings_window"].load_new_settings()
+            except:
+                pass
 
             additional_settings = {"Save_data": True,
                                            "Filepath": self.variables.default_values_dict["settings"]["Current_directory"],
