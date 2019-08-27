@@ -8,8 +8,9 @@ from .Table_widget import Table_widget
 from .Controls_widget import Controls_widget
 from .SettingsControl_widget import SettingsControl_widget
 from ..utilities import change_axis_ticks#, KeyPress
+from .settings_widget import settings_widget
 
-class P3Main_window(Environement_widget, SettingsControl_widget, Controls_widget):
+class P3Main_window(Environement_widget, SettingsControl_widget, Controls_widget, settings_widget):
 
     def __init__(self, GUI, layout):
 
@@ -17,7 +18,6 @@ class P3Main_window(Environement_widget, SettingsControl_widget, Controls_widget
         self.layout = layout
         self.log = logging.getLogger(__name__)
         self.job = measurement_job_generation(self, self.variables.default_values_dict, self.variables.message_from_main)
-
         #self.keyPressEvent = KeyPress(self.variables.framework_variables["App"], self.on_key_press, [QtCore.Qt.Key_Q])
 
         self.iv_plot = None
@@ -61,18 +61,18 @@ class P3Main_window(Environement_widget, SettingsControl_widget, Controls_widget
 
         # Load the IVCV and refinement settings into the statemachine
         # IV
-        self.variables.ui_plugins["Settings_window"].load_new_values("IV_measure",
+        self.load_new_values("IV_measure",
                                                                          self.gui.doIV_checkBox_2, self.gui.max_voltage_2,
                                                                          self.gui.complience_2, self.gui.voltage_steps_2)
 
         # CV
-        self.variables.ui_plugins["Settings_window"].load_new_values("CV_measure", self.gui.doCV_checkBox_2,
+        self.load_new_values("CV_measure", self.gui.doCV_checkBox_2,
                                                                          self.gui.max_voltage_CV,
                                                                          self.gui.complience_2,
                                                                          self.gui.voltage_steps_2)
 
         # Refinement
-        self.variables.ui_plugins["Settings_window"].load_new_values("IVCV_refinement", self.gui.doRef_checkBox_2,
+        self.load_new_values("IVCV_refinement", self.gui.doRef_checkBox_2,
                                                                          self.gui.min_refine_spin_2,
                                                                          self.gui.max_refine_spin_2,
                                                                          self.gui.refine_step_spin_2)

@@ -21,10 +21,10 @@ class Settings_window(settings_widget):
 
     def __init__(self, GUI_classes, layout):
 
+        super(Settings_window, self).__init__()
         self.variables = GUI_classes
         self.layout = layout
         self.measurements = self.variables.default_values_dict["settings"]["measurement_types"]
-        super(Settings_window, self).__init__()
 
         #self.measurements = ["IV_measure", "CV_measure", "Strip_measure", "Istrip_measure", "Idiel_measure", "Rpoly_measure", "Cac_measure", "Cback_measure", "Cint_measure", "Rint_measure"]
         # Settings tab
@@ -35,28 +35,6 @@ class Settings_window(settings_widget):
         if self.measurements:
             self.configure_settings()
 
-    def get_all_settings(self):
-        '''This function gets all settings'''
-
-        #Just a list of all settings which should be included
-        settings_list = self.measurements
-        settings_dict = {}
-
-        for setting in settings_list:
-            settings_to_write = self.get_specific_settings_value(str(setting)+"_measure")
-            if settings_to_write:
-                settings_dict.update({str(setting+"_measure"): settings_to_write})
-
-        # Special settings
-        settings_to_write = self.get_specific_settings_value("IVCV_refinement")
-        if settings_to_write:
-            settings_dict.update({"IVCV_refinement": settings_to_write})
-
-        return settings_dict
-
-    def get_specific_settings_value(self, data_storage):
-        '''This returns the values of a specific setting'''
-        return self.variables.default_values_dict["settings"].get(str(data_storage),[False, 0, 0, 0])
 
     def load_new_settings(self):
         '''This function loads the new settings from the gui into the state machine
@@ -123,11 +101,6 @@ class Settings_window(settings_widget):
         # CintAC
         self.load_new_values("CintAC_measure", self.settings.doCintAC_checkBox,
                              self.settings.CintAC_every, self.settings.CintAC_Start_strip, self.settings.CintAC_End_strip)
-
-    def load_new_values(self, data_storage, checkbox, first_value, second_value, third_value):
-        '''This functions loads the  the values into the state machine'''
-        list = [checkbox.isChecked(), first_value.value(), second_value.value(), third_value.value()]
-        self.variables.default_values_dict["settings"][str(data_storage)] = list
 
     def configure_settings(self):
         '''This function initializes the new values for the state machine'''
