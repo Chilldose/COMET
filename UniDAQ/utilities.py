@@ -101,9 +101,6 @@ class ErrorMessageBoxHandler:
         self.error_dialog.activateWindow()
         self.message_buffer = ""
 
-
-
-
 class QueueEmitHandler(logging.Handler):
     def __init__(self, queue):
         self.queue = eval(queue)
@@ -914,7 +911,6 @@ class transformation:
         """This function transforms a Vector from the sensor system to the table system by vs*T+V0=vt"""
         v = np.array(v)
         return np.add(v[0:2].dot(T),V0)
-
 
 class table_control_class:
     '''This class handles all interactions with the table. Movement, status etc.

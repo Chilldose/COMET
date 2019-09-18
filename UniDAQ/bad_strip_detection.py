@@ -1,6 +1,9 @@
 # This python program gives functions for bad strip detection of silicon based sensors
 # It is based on the bad strip detection of M. Valentan. Improvements done by D. Bloech
 
+__version__ = "0.1.1"
+__date__ = "11.Sept.2019"
+
 import yaml
 import logging
 import os, io
@@ -11,11 +14,27 @@ from scipy.stats import norm, stats
 from .engineering_notation import EngNumber
 import re
 
+
+class bad_strip_detection:
+    """This is a wrapper for the plotting scripts, which simply calls the stripanalysis"""
+
+    def __init__(self, data, configs):
+
+        self.data = data
+        self.configs = configs
+        self.analysis = stripanalysis(None, settings=self.configs["bad_strip_detection"]["Config"])
+
+    def run(self):
+        """Runs the script"""
+        self.analysis.do_analysis()
+        if self.configs["bad_strip_detection"].get("do_holoviews_table",False):
+            pass
+
 class stripanalysis:
     """Class which provides all necessary functions for bad strip detection, for more information on its capabilites
     look at the reference manual. Written by Dominic Bloech, based on Manfred Valentans bad strip detection"""
 
-    def __init__(self, main_obj, filepath = "analysis.ini"):
+    def __init__(self, main_obj = None, filepath = "analysis.ini", settings=None):
         """Just some initialization stuff"""
         self.main = main_obj
         self.settings = None
@@ -25,10 +44,14 @@ class stripanalysis:
         self.config_file = filepath
 
         # First read in the ini file if necessary
-        if not self.main:
+        if not self.main and not settings:
             self.read_in_config_file(filepath)
-        else:
+        elif self.main: # For the Comet Framework
             self.settings = self.main.default_values_dict.get("Badstrip", {})
+        elif settings:
+            self.settings = settings
+        else:
+            self.log.error("Bad strip detection could not be started due to invalid settings...")
 
     def reload_config_file(self):
         self.read_in_config_file(self.config_file)
@@ -57,7 +80,7 @@ class stripanalysis:
                 # Add filename and rest of the dict important values
                 filename = os.path.basename(str(files)).split(".")[0][4:]
                 data.update({"analysed": False, "plots": False})
-                self.all_data.update({filename: data}) # So nothing get deletet if additional file are loaded
+                self.all_data.update({filename: data}) # So nothing get deleted if additional files are loaded
 
         except Exception as e:
             self.log.error("Something went wrong while importing the file " + str(current_file) + " with error: " + str(e))

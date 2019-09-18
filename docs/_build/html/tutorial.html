@@ -1,14 +1,14 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 2.7" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 2.7" > <!--<![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 3.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 3.7" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Tutorials &mdash; UniDAQ beta documentation</title>
+  <title>How to &mdash; COMET beta documentation</title>
   
 
   
@@ -17,38 +17,39 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Data Structure" href="datastructure.html" />
     <link rel="prev" title="Getting Started" href="gettingstarted.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> UniDAQ
+            <a href="index.html" class="icon icon-home"> COMET
           
 
           
@@ -58,7 +59,7 @@
             
             
               <div class="version">
-                0.9.4
+                0.10.0
               </div>
             
           
@@ -83,13 +84,14 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="programstructure.html">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Tutorials</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#how-to-add-a-new-gui-element">How to add a new GUI element</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#how-to-add-a-new-device">How to add a new device</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#how-to-add-a-new-measurement">How to add a new measurement</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">How to</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#add-a-gui-element">Add a GUI element</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-a-new-device">Add a new device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#create-a-new-device">Create a new device</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-a-new-measurement">Add a new measurement</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
@@ -112,7 +114,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">UniDAQ</a>
+          <a href="index.html">COMET</a>
         
       </nav>
 
@@ -143,7 +145,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>Tutorials</li>
+      <li>How to</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -162,133 +164,192 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="tutorials">
-<h1>Tutorials<a class="headerlink" href="#tutorials" title="Permalink to this headline">¶</a></h1>
-<p>This tutorials should guide you through the process of generating your own customized GUI and measurement routines.
-But before we can start download the blank project from the &quot;tutorial&quot; branch from the git repository as described in <a class="reference internal" href="installation.html#installation"><span class="std std-ref">Installation</span></a>.
-Or, delete all previous existing GUI elements and so on from a working suite.
-To do that delete the content of the following folders, except for the <code class="docutils literal notranslate"><span class="pre">__init__.py</span></code> files.</p>
-<ul class="simple">
-<li>.init/devices</li>
-<li>.init/defaults</li>
-<li>.init/Pad_files</li>
-<li>.modules/QT_Designer_UI</li>
-<li>.modules/ui_plugins</li>
-</ul>
-<p>this makes a <em>tabula rasa</em> for your project</p>
-<p>the first thing we need now is a complete new <code class="docutils literal notranslate"><span class="pre">defaults.yaml</span></code> file, which is needed by the framework.
-I have set up one for you here, you can simply copy it</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">---</span> <span class="c1"># Block of dict entries</span>
-
-<span class="c1"># Critical parameters</span>
-<span class="n">Settings_name</span><span class="p">:</span> <span class="n">Defaults</span> <span class="c1"># The name of the settings which will be shown in the framework and will be the addressing name</span>
-<span class="n">Operator</span><span class="p">:</span> <span class="c1"># The operators working on this machine</span>
-  <span class="o">-</span> <span class="n">You</span>
-
-
-<span class="n">Projects</span><span class="p">:</span> <span class="c1"># The project names of your sensor batches etc. musst be conform with the sensors entries</span>
-    <span class="o">-</span> <span class="n">Test</span> <span class="n">Project</span>
-
-<span class="n">measurement_order</span><span class="p">:</span>
-    <span class="o">-</span> <span class="n">IVscan</span>
-
-
-<span class="c1"># Optional parameters</span>
-
-<span class="n">GUI_render_order</span><span class="p">:</span> <span class="c1"># Give a render order if need be, otherwise all found gui elements will be rendered</span>
-    <span class="o">-</span> <span class="n">Main</span>
-
-<span class="c1"># Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name</span>
-<span class="n">IVSMU</span><span class="p">:</span> <span class="n">Bias_SMU</span>
-</pre></div>
-</div>
-<p>This file needs to be saved in <code class="docutils literal notranslate"><span class="pre">.init/defaults</span></code> and it is written in YAML (json works as well).</p>
-<p>When you now try to run the program via</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">UniDAQ</span><span class="o">.</span><span class="n">py</span>
-</pre></div>
-</div>
-<p>you should get an empty GUI window with nothing in it.</p>
-<p>This is the start point for the rest of these tutorials</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">I recommend to download a working copy from the git repository branch &quot;tutorial&quot;, since this will definetely work.</p>
-</div>
-<div class="section" id="how-to-add-a-new-gui-element">
-<h2>How to add a new GUI element<a class="headerlink" href="#how-to-add-a-new-gui-element" title="Permalink to this headline">¶</a></h2>
-<p>Your program has now no GUI at all, if its want you wanted: Awesome. If not, we ought to change that.
-In order to do so we need to design a GUI.</p>
-<p>UniDAQ can work with <strong>QTDesigner</strong> <code class="docutils literal notranslate"><span class="pre">.ui</span></code> files.
+  <div class="section" id="how-to">
+<h1>How to<a class="headerlink" href="#how-to" title="Permalink to this headline">¶</a></h1>
+<p>These tutorials will guide you through the process of generating your own own customized GUI and measurement routines.</p>
+<p>Before we can start, please follow the steps in chapter <a class="reference internal" href="gettingstarted.html#your-first-gui"><span class="std std-ref">Your first GUI</span></a> and create an empty new Project with the name of your liking.</p>
+<div class="section" id="add-a-gui-element">
+<h2>Add a GUI element<a class="headerlink" href="#add-a-gui-element" title="Permalink to this headline">¶</a></h2>
+<p>Your program has - most likely - no productive GUI elements at all, if its want you wanted: <em>Awesome</em>. If not, we ought to change that.
+In order to do so we need to design a GUI first.</p>
+<p>COMET can work with <strong>QTDesigner</strong> <code class="docutils literal notranslate"><span class="pre">.ui</span></code> files.
 With the <a class="reference internal" href="installation.html#installation"><span class="std std-ref">Installation</span></a> of this software, which you have followed I hope, the so-called QtDesigner was installed as well.
 If features a simple GUI based program, in which you can generate your own GUI and save them in <code class="docutils literal notranslate"><span class="pre">.ui</span></code> format.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">I will not go into details on how you build GUIs in QtDesigner, there are plenty of tutorial videos in the web.</p>
+<p class="last">You can normally find the QTDesigner in your install directory of python under the QT directory in the lib. And I will not go into details on how you build GUIs in QtDesigner, there are plenty of tutorial videos in the web.</p>
 </div>
-<p>You know can build your own GUI, or you use one of mine. I have precoded a minimal example of an IV GUI, you can find it in the <code class="docutils literal notranslate"><span class="pre">tutorial_templates</span></code> folder.
-Now I will use this <code class="docutils literal notranslate"><span class="pre">Main.ui</span></code> file from this folder.</p>
-<p>Put the file in: <code class="docutils literal notranslate"><span class="pre">.modules/QT_Designer_UI</span></code></p>
-<p>Next we have to tell the Program to render this UI and in which order (when you have more than one UI). Open the <code class="docutils literal notranslate"><span class="pre">**defaults.yml**</span></code>
-file from before and add in the parameter <code class="docutils literal notranslate"><span class="pre">GUI_render_order</span></code> with a value of &quot;Main&quot;.</p>
-<p>Know we have to write some code so that the this UI has some logic. For this we generate a file in the folder <code class="docutils literal notranslate"><span class="pre">.modules/ui_plugins</span></code>.
-This file we call <code class="docutils literal notranslate"><span class="pre">Main_window.py</span></code>.</p>
+<p>When your GUI element is finished save it in the directory <code class="docutils literal notranslate"><span class="pre">.UniDAQ/QT_Designer_UI</span></code>. Now COMET can access them easily.</p>
+<p>The next step is to tell the Program to render this UI. Open the <code class="docutils literal notranslate"><span class="pre">settings.yml</span></code> in your project folder and
+add in the parameter <code class="docutils literal notranslate"><span class="pre">GUI_render_order</span></code> with a list value of <code class="docutils literal notranslate"><span class="pre">&lt;YourCoolGUI&gt;</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">GUI_render_order</span><span class="p">:</span>
+    <span class="o">-</span> <span class="n">YourCoolGUI</span>
+    <span class="o">-</span> <span class="n">DeviceCommunication</span>
+    <span class="o">-</span> <span class="n">Resources</span>
+    <span class="o">-</span> <span class="n">DataBrowser</span>
+</pre></div>
+</div>
+<p>Unfortunately this is not all. We know have to write some code to tell the framework that we want to render this <code class="docutils literal notranslate"><span class="pre">.ui</span></code> file you have just created.
+For this we generate a file in the directory <code class="docutils literal notranslate"><span class="pre">.UniDAQ/ui_plugins</span></code>. This file you have to call <code class="docutils literal notranslate"><span class="pre">&lt;YourCoolGUI&gt;_window.py</span></code>.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">A final minimal example can also be found in the <code class="docutils literal notranslate"><span class="pre">tutorials_templates</span></code> folder.</p>
+<p class="last">It is important, that you add the suffix <code class="docutils literal notranslate"><span class="pre">_window</span></code> to your python file, this makes it clear for the framework, that this is a window and treads it as one. All other files will be ignored and cannot be added this way!</p>
 </div>
-<p>The minimal example to run just the GUI without anything else is as follows:</p>
+<p>Inside your python GUI plugin you have to direct the framework what to do.
+The minimal example to run just the GUI without anything else is as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from .. import utilities
+import logging
 
-# Logger and utilities
-# Adds the logger object to the namespace
-l = logging.getLogger(__name__)
-# Adds the utilitifunctions to the namespace
-hf = utilities.help_functions()
-
-class &lt;GUI_name&gt;_window:
+class &lt;YourCoolGUI&gt;_window:
     def __init__(self, GUI_classes, layout):
         self.variables = GUI_classes    # Containing all variables and methods from the parent class for example the state machine
         self.layout = layout            # The layout class in which will be rendered
+        self.log = logging.getLogger(__name__) # This is optional, but you do want to write to the logger
 
         # Loading the UI plugin
-        &lt;GUI_name&gt;_widget = QWidget()
-        self.&lt;GUI_name&gt; = self.variables.load_QtUi_file(&quot;./modules/QT_Designer_UI/&lt;name_of_ui_file.ui&gt;&quot;, &lt;GUI_name&gt;_widget)
-        self.layout.addWidget(&lt;GUI_name&gt;_widget)
+        &lt;YourCoolGUI&gt;_widget = QWidget()
+        self.&lt;YourCoolGUI&gt; = self.variables.load_QtUi_file(&quot;./UniDAQ/QT_Designer_UI/&lt;YourCoolGUI&gt;&quot;, &lt;YourCoolGUI&gt;_widget)
+        self.layout.addWidget(&lt;YourCoolGUI&gt;_widget)
 </pre></div>
 </div>
-<p>In our case <strong>&lt;GUI_name&gt;</strong> would be <strong>Main_window.py</strong> and <strong>&lt;name_of_ui_file.ui&gt;</strong> would be <strong>Main.ui</strong>.
-After that it renders the GUI when you restart UniDAQ. But this code does not have and logic to it. You can add python
-member functions to it and access the ui classes e.g. buttons and so on via <code class="docutils literal notranslate"><span class="pre">&lt;GUI_name&gt;.foo()</span></code> etc.</p>
-<p>In <strong>Main.window.py</strong> are some predefined functions which give the GUI some logic for a simple IV measurement. Go check it out!</p>
-<p>If you restart UniDAQ you should see a window tab called &quot;Main&quot;. Wow, what an achievement!</p>
-<p>Now that we know how to add some GUI elements to our program we can proceed and add some devices too.</p>
+<p>After that it renders the GUI when you restart COMET. But this code does not have and logic to it. You can add python
+member functions to it. To access the ui classes from your GUI e.g. buttons and so on, you have to do it via <code class="docutils literal notranslate"><span class="pre">self.&lt;YourCoolGUI&gt;.foo()</span></code> etc.</p>
+<p>If you restart COMET you should see a window tab called &quot;&lt;YourCoolGUI&gt;&quot;. Wow, what an achievement!
+Now that we know how to add some GUI elements to our program we can proceed and add some devices too.</p>
 </div>
-<div class="section" id="how-to-add-a-new-device">
-<h2>How to add a new device<a class="headerlink" href="#how-to-add-a-new-device" title="Permalink to this headline">¶</a></h2>
-<p>Before we start with this tutorial be so kind and add the GUI <strong>Resources.ui</strong> and the respective <code class="docutils literal notranslate"><span class="pre">.py</span></code> from the templates.
-This will give you some feedback if a certain device is correctly connected to the framework or not. If you don't know how to add a GUI element to the framework, be sure to have done the previous tutorial point.</p>
+<div class="section" id="add-a-new-device">
+<h2>Add a new device<a class="headerlink" href="#add-a-new-device" title="Permalink to this headline">¶</a></h2>
+<p>Before we start with this tutorial make sure you have added the &quot;Resource&quot; tab to your GUI as described in the previous chapter or in the chatper <a class="reference internal" href="gettingstarted.html#your-first-gui"><span class="std std-ref">Your first GUI</span></a>.
+This will make it easy to see if a new device was added or not.</p>
 <p>Now that we have a GUI which can display all devices in the framework, we should add a device and see what happens.
-To do that go into the folder <code class="docutils literal notranslate"><span class="pre">.init/devices</span></code> and create a .yml file. The name of this file has no particular important
-meaning to the framework. But to keep it all simples lets choose the name like whats the device called e.g. <code class="docutils literal notranslate"><span class="pre">Keithley2410.yml</span></code>.</p>
-<p>This file need the following entries, where the values of the key,value pairs is one of your choosing but the key is fixed:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-    <span class="s2">&quot;Device_name&quot;</span><span class="p">:</span> <span class="s2">&quot;2410 Keithley SMU&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Device_type&quot;</span><span class="p">:</span> <span class="s2">&quot;SMU&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Display_name&quot;</span><span class="p">:</span> <span class="s2">&quot;SMU1&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;Device_IDN&quot;</span><span class="p">:</span> <span class="s2">&quot;KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H&quot;</span>
-<span class="p">}</span>
+To do so add the line:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Devices</span><span class="p">:</span> <span class="c1"># Name of the config entry</span>
+  <span class="o">&lt;</span><span class="n">Device_descriptor</span><span class="o">&gt;</span><span class="p">:</span> <span class="c1"># Some descriptor for the device</span>
+    <span class="n">Device_name</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">A</span> <span class="n">Device</span> <span class="n">name</span><span class="o">&gt;</span>  <span class="c1"># Name of the device, this must be the same name as of one in the device library                                                                # The actual device name from which it should get all commands</span>
+    <span class="n">Device_IDN</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">IDN</span> <span class="n">of</span> <span class="n">your</span> <span class="n">specific</span> <span class="n">device</span><span class="o">&gt;</span>
+    <span class="n">Connection_type</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Connection</span> <span class="nb">type</span><span class="o">&gt;</span>
 </pre></div>
 </div>
-<p>All other entries are your choosing, key and value. You only have to remember them later on for the measurements.</p>
-<ul class="simple">
-<li><em>Device_name</em>: Is a name you can give the Device for internal Display</li>
-<li><em>Device_type</em>: Specifies the decvice</li>
-<li><em>Display_name</em>: Is the name for internal reference (only value which has to be different for all devices)</li>
-<li><em>Device_IDN</em>: Specifies the devices own IDN</li>
+<p>The top entry <strong>Devices</strong> is a mandatory entry which tells the software that the following entries are devices.
+The sub-entries are up to your liking, but this will be the name of the internal representation of the device object in the software!</p>
+<dl class="docutils">
+<dt>The entires:</dt>
+<dd><ul class="first last simple">
+<li>Device_name</li>
+<li>Device_IDN</li>
+<li>Connection_type</li>
 </ul>
-<p>UniDAQ has the feature to run an initialization proceedure over a device, when the software boots up. In order to use
+</dd>
+</dl>
+<p>are mandatory for eacht sub-entries. You can extend this list as you like, the main framework will ignore them, but if you do need some additional parameters which cannot
+be configured in the main device config, knock yourself out.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you have a RS232 device connected you can add the <code class="docutils literal notranslate"><span class="pre">Baud_rate</span></code> parameter and change the default baud rate for the device. This also holds true for other RS232 parameters. For more information see, the device connection API reference for more information.</p>
+</div>
+<p><strong>Connection_type</strong> is a parameter which tells the framework what kind of connection the device listens to and at what port.
+Possible options are:</p>
+<blockquote>
+<div><ul class="simple">
+<li>RS232:&lt;ComPort&gt;</li>
+<li>GPIB:&lt;Address&gt;</li>
+<li>IP:&lt;IP_INSTR_descriptor&gt;</li>
+</ul>
+</div></blockquote>
+<p>If you then start the COMET software with your project selected. The device should appear in the resources tab. Depending if
+the device is connected to the PC the connection lamp should switch to green, which means that the software has successfully established
+a connection to the device and everything was configured correctly.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Most often, if you experience connection difficulties the Device_IDN is not completely correct entered.</p>
+</div>
+<p>The result schould lool like this:</p>
+<img alt="Flowchart_main" class="floatingflask" src="_images/Resources.png" />
+<p>COMET furthermore knows the concept of alias names for devices.
+This enables you to have an easy way to relabel devices and assign devices to more than one task. Imagine you have a device which
+does some switching and can monitor the environment as well. Either you load the device twice with a different name and so on. Or you
+assign an alias e.g. 1) &quot;HV Switching&quot; and 2) &quot;Humidity Monitor&quot; to the device. For the user it then looks like two devices but internally its the same device.
+This prevents async. read and write operations to the device and makes it more robust.</p>
+<p>To tell COMET to assign a alias to on device have a look at a specific example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name</span>
+ <span class="n">Aliases</span><span class="p">:</span>
+     <span class="n">temphum_controller</span><span class="p">:</span> <span class="n">BrandBox</span>
+     <span class="n">HVSwitching</span><span class="p">:</span> <span class="n">BrandBox</span>
+     <span class="n">BiasSMU</span><span class="p">:</span> <span class="mi">2470</span> <span class="n">Keithley</span> <span class="n">SMU</span>
+     <span class="n">lights_controller</span><span class="p">:</span> <span class="n">BrandBox</span>
+
+ <span class="n">Devices</span><span class="p">:</span>
+     <span class="mi">2470</span><span class="n">SMU</span><span class="p">:</span>
+         <span class="n">Device_name</span><span class="p">:</span> <span class="mi">2470</span> <span class="n">Keithley</span> <span class="n">SMU</span>
+         <span class="n">Device_IDN</span><span class="p">:</span> <span class="n">KEITHLEY</span> <span class="n">INSTRUMENTS</span><span class="p">,</span><span class="n">MODEL</span> <span class="mi">2470</span><span class="p">,</span><span class="mi">04424944</span><span class="p">,</span><span class="mf">1.6</span><span class="o">.</span><span class="mi">8</span><span class="n">d</span>
+         <span class="n">Connection_type</span><span class="p">:</span> <span class="n">IP</span><span class="p">:</span><span class="n">TCPIP0</span><span class="p">::</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">130.131</span><span class="p">::</span><span class="n">inst0</span><span class="p">::</span><span class="n">INSTR</span>
+
+     <span class="n">BrandBox</span><span class="p">:</span>
+         <span class="n">Device_name</span><span class="p">:</span> <span class="n">BrandBox</span>
+         <span class="n">Connection_type</span><span class="p">:</span> <span class="n">RS232</span><span class="p">:</span><span class="mi">15</span>
+         <span class="n">Device_IDN</span><span class="p">:</span> <span class="n">HV</span><span class="o">-</span><span class="n">Relay</span> <span class="n">Controller</span> <span class="n">V1</span><span class="o">.</span><span class="mi">6</span><span class="o">/</span><span class="mf">18.</span><span class="n">Apr</span><span class="o">.</span><span class="mi">2019</span>
+</pre></div>
+</div>
+<p>In this case the device &quot;2470 Keithley SMU&quot; will be renamed to &quot;BiasSMU&quot; and the device &quot;BrandBox&quot; will be devices
+&quot;temphum_controller&quot;, &quot;HVSwitching&quot;, and &quot;lights_controller&quot;. Which internally, e.g. in your measurement plugin can directly be addressed with these names.</p>
+</div>
+<div class="section" id="create-a-new-device">
+<h2>Create a new device<a class="headerlink" href="#create-a-new-device" title="Permalink to this headline">¶</a></h2>
+<p>COMET ships with a large variety of different devices which have been preconfigured for easy use.
+If you have a device which is not listed you have to add this device to the lib. To do so look in the directory, <code class="docutils literal notranslate"><span class="pre">configs\device_lib</span></code>.
+There you can add your device as as <code class="docutils literal notranslate"><span class="pre">.yml</span></code> styled file. You can choose the name of the file as you see fit. As long it does not
+interfere with another name in the same directory.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The software only accepts <code class="docutils literal notranslate"><span class="pre">.yml</span></code> files, all other files will be ignored.</p>
+</div>
+<p>Inside such a device file you can set a multitude of parameters. Such a exemplary device file looks as follows:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">---</span>
+<span class="n">Device_name</span><span class="p">:</span> <span class="mi">2470</span> <span class="n">Keithley</span> <span class="n">SMU</span>   <span class="c1"># Device name, the name you have to state in the settings file</span>
+<span class="n">Display_name</span><span class="p">:</span> <span class="n">BiasSMU</span> <span class="c1"># Some easy to read name for the user</span>
+<span class="n">Device_type</span><span class="p">:</span> <span class="n">SMU</span> <span class="c1"># Some descriptor what kind of device it is</span>
+
+<span class="c1"># All set parameters</span>
+<span class="n">set_beep</span><span class="p">:</span> <span class="n">beeper</span><span class="o">.</span><span class="n">beep</span><span class="p">({},</span> <span class="p">{})</span>
+<span class="n">set_delay</span><span class="p">:</span> <span class="n">delay</span><span class="p">({})</span> <span class="c1"># Sets a delay to to following command!</span>
+<span class="n">set_meas_delay</span><span class="p">:</span> <span class="n">smu</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">userdelay</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">set_measurement_function</span><span class="p">:</span> <span class="n">smu</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">func</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#  smu.FUNC_DC_VOLTAGE/smu.FUNC_DC_CURRENT/smu.FUNC_RESISTANCE</span>
+<span class="n">set_autorange_current</span><span class="p">:</span> <span class="n">smu</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">autorange</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="c1"># All get parameters</span>
+<span class="n">get_read</span><span class="p">:</span>  <span class="nb">print</span><span class="p">(</span><span class="n">smu</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+<span class="n">get_read_current</span><span class="p">:</span>  <span class="nb">print</span><span class="p">(</span><span class="n">smu</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+<span class="n">get_current_read</span><span class="p">:</span>  <span class="nb">print</span><span class="p">(</span><span class="n">smu</span><span class="o">.</span><span class="n">measure</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+
+<span class="c1"># All reset device parameters</span>
+<span class="n">reset</span><span class="p">:</span>
+   <span class="o">-</span> <span class="n">measurement_function</span><span class="p">:</span> <span class="n">smu</span><span class="o">.</span><span class="n">FUNC_DC_CURRENT</span>
+   <span class="o">-</span> <span class="n">current_compliance</span><span class="p">:</span> <span class="mf">2e-6</span>
+   <span class="o">-</span> <span class="n">autorange</span><span class="p">:</span> <span class="n">smu</span><span class="o">.</span><span class="n">ON</span>
+   <span class="o">-</span> <span class="n">autozero</span><span class="p">:</span> <span class="n">smu</span><span class="o">.</span><span class="n">ON</span>
+   <span class="o">-</span> <span class="n">measurement_count</span><span class="p">:</span> <span class="mi">1</span>
+   <span class="o">-</span> <span class="n">filter_enable</span><span class="p">:</span> <span class="n">smu</span><span class="o">.</span><span class="n">ON</span>
+
+<span class="c1"># Misc parameters</span>
+<span class="n">clear_errors</span><span class="p">:</span> <span class="n">errorqueue</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+<span class="n">exit_script</span><span class="p">:</span> <span class="n">exit</span><span class="p">()</span>
+<span class="n">device_IDN_query</span><span class="p">:</span> <span class="s2">&quot;*IDN?&quot;</span>
+<span class="n">reset_device</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;*rst&quot;</span><span class="p">,</span> <span class="s2">&quot;*cls&quot;</span><span class="p">]</span>
+<span class="n">separator</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span> <span class="c1"># The separator if queued commands are allowed</span>
+</pre></div>
+</div>
+<p>In principal you have four different sections in a device file:</p>
+<blockquote>
+<div><ul class="simple">
+<li><strong>Set Parameters</strong></li>
+<li><strong>Get Parameters</strong></li>
+<li><strong>Reset Parameters</strong></li>
+<li><strong>Misc. Parameters</strong></li>
+</ul>
+</div></blockquote>
+<p>COMET has the feature to run an initialization proceedure over a device, when the software boots up. In order to use
 this feature a format has to be considered for the keys in the dictionary.</p>
 <p>If a key has the prefix <code class="docutils literal notranslate"><span class="pre">default_</span></code> it will be executed during initialization. If the additional prefix <code class="docutils literal notranslate"><span class="pre">imp:</span></code> is stated
 then this command will be executed before all other commands. Each <code class="docutils literal notranslate"><span class="pre">default_</span></code> needs to have a <code class="docutils literal notranslate"><span class="pre">set_</span></code> value to work (but not the other way round).
@@ -319,8 +380,8 @@ to the framework.</p>
 With it you can browse all yml files (and more) you have just created. Furthermore, you can manipulate, add and save the data
 easily.</p>
 </div>
-<div class="section" id="how-to-add-a-new-measurement">
-<h2>How to add a new measurement<a class="headerlink" href="#how-to-add-a-new-measurement" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="add-a-new-measurement">
+<h2>Add a new measurement<a class="headerlink" href="#add-a-new-measurement" title="Permalink to this headline">¶</a></h2>
 <p>In this final tutorial I will show you how to add a measurement plugin as easily as the GUI plugins from the previous section.
 In order to not program a full GUI, please add the GUI elements <strong>Main_window.py</strong> as shown in the previous tutorials.</p>
 <p>First you need to implement a &quot;Project&quot;, this can be done if you open a new directory in <code class="docutils literal notranslate"><span class="pre">.init/Pad_files</span></code>, where
@@ -385,7 +446,7 @@ strip sensor. If you do not include xyz coordinates, such a file can be used as 
 </div>
 <p>Now comming to the fun part. Coding the actual measurement proceedure for a IV curve.
 Like it was with the other parts of this tutorial, adding a new measurement can be done via plugins.
-Simply add a &lt;name_of_your_measurement&gt;.py file into the folder <code class="docutils literal notranslate"><span class="pre">~/modules/measurement_plugins</span></code> and the program knows this measurement.</p>
+Simply add a &lt;name_of_your_measurement&gt;.py file into the folder <code class="docutils literal notranslate"><span class="pre">~/UniDAQ/measurement_plugins</span></code> and the program knows this measurement.</p>
 <p>A simple IV measurement plugin can already be found in this folder.</p>
 <div class="highlight-python notranslate"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre>  1
   2
@@ -497,10 +558,10 @@ Simply add a &lt;name_of_your_measurement&gt;.py file into the folder <code clas
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;../modules&#39;</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;../UniDAQ&#39;</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..VisaConnectWizard</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">..utilities</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="n">l</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">l</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">help</span> <span class="o">=</span> <span class="n">help_functions</span><span class="p">()</span>
 <span class="n">vcw</span> <span class="o">=</span> <span class="n">VisaConnectWizard</span><span class="o">.</span><span class="n">VisaConnectWizard</span><span class="p">()</span>
@@ -508,7 +569,7 @@ Simply add a &lt;name_of_your_measurement&gt;.py file into the folder <code clas
 <span class="nd">@help.timeit</span> <span class="c1"># Decorator for timing of a function (not crucial)</span>
 <span class="k">class</span> <span class="nc">IV_class</span><span class="p">:</span> <span class="c1"># Every measurement muss have a class named after the file AND the suffix &#39;_class&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_class</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_class</span><span class="p">):</span>
         <span class="c1"># Here all parameters can be definde, which are crucial for the module to work, you can add as much as you want</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">main</span> <span class="o">=</span> <span class="n">main_class</span> <span class="c1"># Import the main parameters and functions</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">justlength</span> <span class="o">=</span> <span class="mi">24</span> <span class="c1"># paramerter for the writting to file</span>
@@ -585,7 +646,7 @@ Simply add a &lt;name_of_your_measurement&gt;.py file into the folder <code clas
                 <span class="k">return</span>
             <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
-                <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">build_command</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="s2">&quot;Read&quot;</span><span class="p">)</span> <span class="c1"># returns 2 values!!!</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">build_command</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="s2">&quot;get_Read&quot;</span><span class="p">)</span> <span class="c1"># returns 2 values!!!</span>
                 <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">vcw</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">command</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">))</span>
 
             <span class="n">current</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">([</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">values</span><span class="p">])</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="c1"># Makes a mean out of it</span>
@@ -608,10 +669,10 @@ Simply add a &lt;name_of_your_measurement&gt;.py file into the folder <code clas
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">sys</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="kn">as</span> <span class="nn">np</span>
-<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;../modules&#39;</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;../UniDAQ&#39;</span><span class="p">)</span>
 <span class="kn">from</span> <span class="nn">..VisaConnectWizard</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">..utilities</span> <span class="kn">import</span> <span class="o">*</span>
-<span class="n">l</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+<span class="n">l</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
 <span class="n">help</span> <span class="o">=</span> <span class="n">help_functions</span><span class="p">()</span>
 <span class="n">vcw</span> <span class="o">=</span> <span class="n">VisaConnectWizard</span><span class="o">.</span><span class="n">VisaConnectWizard</span><span class="p">()</span>
@@ -631,7 +692,7 @@ plus the suffix <code class="docutils literal notranslate"><span class="pre">_cl
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">stripscan_class</span><span class="p">:</span>
 </pre></div>
 </div>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_class</span><span class="p">):</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_class</span><span class="p">):</span>
     <span class="c1"># Here all parameters can be definde, which are crucial for the module to work, you can add as much as you want</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">main</span> <span class="o">=</span> <span class="n">main_class</span> <span class="c1"># Import the main parameters and functions</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">justlength</span> <span class="o">=</span> <span class="mi">24</span> <span class="c1"># paramerter for the writting to file</span>
@@ -777,7 +838,7 @@ to safely store the measured data, even if the script is crashing (<code class="
         <a href="datastructure.html" class="btn btn-neutral float-right" title="Data Structure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="gettingstarted.html" class="btn btn-neutral" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="gettingstarted.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -786,7 +847,7 @@ to safely store the measured data, even if the script is crashing (<code class="
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Dominic Bloech.
+        &copy; Copyright 2018, Dominic Bloech
 
     </p>
   </div>
@@ -803,33 +864,16 @@ to safely store the measured data, even if the script is crashing (<code class="
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'beta',
-            LANGUAGE:'Python 2.7',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

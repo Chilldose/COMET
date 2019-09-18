@@ -1,142 +1,192 @@
-Tutorials
-=========
+How to
+======
 
-This tutorials should guide you through the process of generating your own customized GUI and measurement routines.
-But before we can start download the blank project from the "tutorial" branch from the git repository as described in :ref:`installation`.
-Or, delete all previous existing GUI elements and so on from a working suite.
-To do that delete the content of the following folders, except for the ``__init__.py`` files.
+These tutorials will guide you through the process of generating your own own customized GUI and measurement routines.
 
-- .init/devices
-- .init/defaults
-- .init/Pad_files
-- .UniDAQ/QT_Designer_UI
-- .UniDAQ/ui_plugins
+Before we can start, please follow the steps in chapter :ref:`Your first GUI` and create an empty new Project with the name of your liking.
 
-this makes a *tabula rasa* for your project
+Add a GUI element
+-----------------
 
-the first thing we need now is a complete new ``defaults.yaml`` file, which is needed by the framework.
-I have set up one for you here, you can simply copy it ::
+Your program has - most likely - no productive GUI elements at all, if its want you wanted: *Awesome*. If not, we ought to change that.
+In order to do so we need to design a GUI first.
 
-    --- # Block of dict entries
-
-    # Critical parameters
-    Settings_name: Defaults # The name of the settings which will be shown in the framework and will be the addressing name
-    Operator: # The operators working on this machine
-      - You
-
-
-    Projects: # The project names of your sensor batches etc. musst be conform with the sensors entries
-        - Test Project
-
-    measurement_order:
-        - IVscan
-
-
-    # Optional parameters
-
-    GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
-        - Main
-
-    # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name
-    IVSMU: Bias_SMU
-
-This file needs to be saved in ``.init/defaults`` and it is written in YAML (json works as well).
-
-When you now try to run the program via ::
-
-    python UniDAQ.py
-
-you should get an empty GUI window with nothing in it.
-
-This is the start point for the rest of these tutorials
-
-.. note:: I recommend to download a working copy from the git repository branch "tutorial", since this will definetely work.
-
-How to add a new GUI element
-----------------------------
-
-Your program has now no GUI at all, if its want you wanted: Awesome. If not, we ought to change that.
-In order to do so we need to design a GUI.
-
-UniDAQ can work with **QTDesigner** ``.ui`` files.
+COMET can work with **QTDesigner** ``.ui`` files.
 With the :ref:`installation` of this software, which you have followed I hope, the so-called QtDesigner was installed as well.
 If features a simple GUI based program, in which you can generate your own GUI and save them in ``.ui`` format.
 
-.. note:: I will not go into details on how you build GUIs in QtDesigner, there are plenty of tutorial videos in the web.
+.. note:: You can normally find the QTDesigner in your install directory of python under the QT directory in the lib. And I will not go into details on how you build GUIs in QtDesigner, there are plenty of tutorial videos in the web.
 
-You know can build your own GUI, or you use one of mine. I have precoded a minimal example of an IV GUI, you can find it in the ``tutorial_templates`` folder.
-Now I will use this ``Main.ui`` file from this folder.
+When your GUI element is finished save it in the directory ``.UniDAQ/QT_Designer_UI``. Now COMET can access them easily.
 
-Put the file in: ``.UniDAQ/QT_Designer_UI``
+The next step is to tell the Program to render this UI. Open the ``settings.yml`` in your project folder and
+add in the parameter ``GUI_render_order`` with a list value of ``<YourCoolGUI>``. ::
 
-Next we have to tell the Program to render this UI and in which order (when you have more than one UI). Open the ``**defaults.yml**``
-file from before and add in the parameter ``GUI_render_order`` with a value of "Main".
+    GUI_render_order:
+        - YourCoolGUI
+        - DeviceCommunication
+        - Resources
+        - DataBrowser
 
-Know we have to write some code so that the this UI has some logic. For this we generate a file in the folder ``.UniDAQ/ui_plugins``.
-This file we call ``Main_window.py``.
+Unfortunately this is not all. We know have to write some code to tell the framework that we want to render this ``.ui`` file you have just created.
+For this we generate a file in the directory ``.UniDAQ/ui_plugins``. This file you have to call ``<YourCoolGUI>_window.py``.
 
-.. note:: A final minimal example can also be found in the ``tutorials_templates`` folder.
+.. note:: It is important, that you add the suffix ``_window`` to your python file, this makes it clear for the framework, that this is a window and treads it as one. All other files will be ignored and cannot be added this way!
 
+Inside your python GUI plugin you have to direct the framework what to do.
 The minimal example to run just the GUI without anything else is as follows: ::
 
     from PyQt5 import QtGui
     from PyQt5.QtGui import *
     from PyQt5.QtWidgets import *
-    from .. import utilities
+    import logging
 
-    # Logger and utilities
-    # Adds the logger object to the namespace
-    l = logging.getLogger(__name__)
-    # Adds the utilitifunctions to the namespace
-    hf = utilities.help_functions()
-
-    class <GUI_name>_window:
+    class <YourCoolGUI>_window:
         def __init__(self, GUI_classes, layout):
             self.variables = GUI_classes    # Containing all variables and methods from the parent class for example the state machine
             self.layout = layout            # The layout class in which will be rendered
+            self.log = logging.getLogger(__name__) # This is optional, but you do want to write to the logger
 
             # Loading the UI plugin
-            <GUI_name>_widget = QWidget()
-            self.<GUI_name> = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/<name_of_ui_file.ui>", <GUI_name>_widget)
-            self.layout.addWidget(<GUI_name>_widget)
+            <YourCoolGUI>_widget = QWidget()
+            self.<YourCoolGUI> = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/<YourCoolGUI>", <YourCoolGUI>_widget)
+            self.layout.addWidget(<YourCoolGUI>_widget)
 
-In our case **<GUI_name>** would be **Main_window.py** and **<name_of_ui_file.ui>** would be **Main.ui**.
-After that it renders the GUI when you restart UniDAQ. But this code does not have and logic to it. You can add python
-member functions to it and access the ui classes e.g. buttons and so on via ``<GUI_name>.foo()`` etc.
+After that it renders the GUI when you restart COMET. But this code does not have and logic to it. You can add python
+member functions to it. To access the ui classes from your GUI e.g. buttons and so on, you have to do it via ``self.<YourCoolGUI>.foo()`` etc.
 
-In **Main.window.py** are some predefined functions which give the GUI some logic for a simple IV measurement. Go check it out!
-
-If you restart UniDAQ you should see a window tab called "Main". Wow, what an achievement!
-
+If you restart COMET you should see a window tab called "<YourCoolGUI>". Wow, what an achievement!
 Now that we know how to add some GUI elements to our program we can proceed and add some devices too.
 
-How to add a new device
------------------------
+Add a new device
+----------------
 
-Before we start with this tutorial be so kind and add the GUI **Resources.ui** and the respective ``.py`` from the templates.
-This will give you some feedback if a certain device is correctly connected to the framework or not. If you don't know how to add a GUI element to the framework, be sure to have done the previous tutorial point.
+Before we start with this tutorial make sure you have added the "Resource" tab to your GUI as described in the previous chapter or in the chatper :ref:`Your first GUI`.
+This will make it easy to see if a new device was added or not.
 
 Now that we have a GUI which can display all devices in the framework, we should add a device and see what happens.
-To do that go into the folder ``.init/devices`` and create a .yml file. The name of this file has no particular important
-meaning to the framework. But to keep it all simples lets choose the name like whats the device called e.g. ``Keithley2410.yml``.
+To do so add the line: ::
 
-This file need the following entries, where the values of the key,value pairs is one of your choosing but the key is fixed: ::
+    Devices: # Name of the config entry
+      <Device_descriptor>: # Some descriptor for the device
+        Device_name: <A Device name>  # Name of the device, this must be the same name as of one in the device library                                                                # The actual device name from which it should get all commands
+        Device_IDN: <IDN of your specific device>
+        Connection_type: <Connection type>
 
-    {
-        "Device_name": "2410 Keithley SMU",
-        "Device_type": "SMU",
-        "Display_name": "SMU1",
-        "Device_IDN": "KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H"
-    }
+The top entry **Devices** is a mandatory entry which tells the software that the following entries are devices.
+The sub-entries are up to your liking, but this will be the name of the internal representation of the device object in the software!
 
-All other entries are your choosing, key and value. You only have to remember them later on for the measurements.
+The entires:
+   * Device_name
+   * Device_IDN
+   * Connection_type
 
-- *Device_name*: Is a name you can give the Device for internal Display
-- *Device_type*: Specifies the decvice
-- *Display_name*: Is the name for internal reference (only value which has to be different for all devices)
-- *Device_IDN*: Specifies the devices own IDN
+are mandatory for eacht sub-entries. You can extend this list as you like, the main framework will ignore them, but if you do need some additional parameters which cannot
+be configured in the main device config, knock yourself out.
 
-UniDAQ has the feature to run an initialization proceedure over a device, when the software boots up. In order to use
+.. note:: If you have a RS232 device connected you can add the ``Baud_rate`` parameter and change the default baud rate for the device. This also holds true for other RS232 parameters. For more information see, the device connection API reference for more information.
+
+**Connection_type** is a parameter which tells the framework what kind of connection the device listens to and at what port.
+Possible options are:
+   * RS232:<ComPort>
+   * GPIB:<Address>
+   * IP:<IP_INSTR_descriptor>
+
+If you then start the COMET software with your project selected. The device should appear in the resources tab. Depending if
+the device is connected to the PC the connection lamp should switch to green, which means that the software has successfully established
+a connection to the device and everything was configured correctly.
+
+.. note:: Most often, if you experience connection difficulties the Device_IDN is not completely correct entered.
+
+The result schould lool like this:
+
+.. image:: pictures/Resources.png
+   :alt: Flowchart_main
+   :class: floatingflask
+
+
+COMET furthermore knows the concept of alias names for devices.
+This enables you to have an easy way to relabel devices and assign devices to more than one task. Imagine you have a device which
+does some switching and can monitor the environment as well. Either you load the device twice with a different name and so on. Or you
+assign an alias e.g. 1) "HV Switching" and 2) "Humidity Monitor" to the device. For the user it then looks like two devices but internally its the same device.
+This prevents async. read and write operations to the device and makes it more robust.
+
+To tell COMET to assign a alias to on device have a look at a specific example: ::
+
+   # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name
+    Aliases:
+        temphum_controller: BrandBox
+        HVSwitching: BrandBox
+        BiasSMU: 2470 Keithley SMU
+        lights_controller: BrandBox
+
+    Devices:
+        2470SMU:
+            Device_name: 2470 Keithley SMU
+            Device_IDN: KEITHLEY INSTRUMENTS,MODEL 2470,04424944,1.6.8d
+            Connection_type: IP:TCPIP0::192.168.130.131::inst0::INSTR
+
+        BrandBox:
+            Device_name: BrandBox
+            Connection_type: RS232:15
+            Device_IDN: HV-Relay Controller V1.6/18.Apr.2019
+
+In this case the device "2470 Keithley SMU" will be renamed to "BiasSMU" and the device "BrandBox" will become the devices
+"temphum_controller", "HVSwitching", and "lights_controller". Which internally, e.g. in your measurement plugin can directly be addressed with these names.
+
+Create a new device
+-------------------
+
+COMET ships with a large variety of different devices which have been preconfigured for easy use.
+If you have a device which is not listed you have to add this device to the lib. To do so look in the directory, ``configs\device_lib``.
+There you can add your device as as ``.yml`` styled file. You can choose the name of the file as you see fit. As long it does not
+interfere with another name in the same directory.
+
+.. note:: The software only accepts ``.yml`` files, all other files will be ignored.
+
+Inside such a device file you can set a multitude of parameters. Such a exemplary device file looks as follows: ::
+
+   ---
+   Device_name: 2470 Keithley SMU   # Device name, the name you have to state in the settings file
+   Display_name: BiasSMU # Some easy to read name for the user
+   Device_type: SMU # Some descriptor what kind of device it is
+
+   # All set parameters
+   set_beep: beeper.beep({}, {})
+   set_delay: delay({}) # Sets a delay to to following command!
+   set_meas_delay: smu.measure.userdelay[1] = {}
+   set_measurement_function: smu.measure.func = {} #  smu.FUNC_DC_VOLTAGE/smu.FUNC_DC_CURRENT/smu.FUNC_RESISTANCE
+   set_autorange_current: smu.measure.autorange = {}
+
+   # All get parameters
+   get_read:  print(smu.measure.read())
+   get_read_current:  print(smu.measure.read())
+   get_current_read:  print(smu.measure.read())
+
+   # All reset device parameters
+   reset:
+      - measurement_function: smu.FUNC_DC_CURRENT
+      - current_compliance: 2e-6
+      - autorange: smu.ON
+      - autozero: smu.ON
+      - measurement_count: 1
+      - filter_enable: smu.ON
+
+   # Misc parameters
+   clear_errors: errorqueue.clear()
+   exit_script: exit()
+   device_IDN_query: "*IDN?"
+   reset_device: ["*rst", "*cls"]
+   separator: "," # The separator if queued commands are allowed
+
+In principal you have four different sections in a device file:
+
+   * **Set Parameters**
+   * **Get Parameters**
+   * **Reset Parameters**
+   * **Misc. Parameters**
+
+COMET has the feature to run an initialization proceedure over a device, when the software boots up. In order to use
 this feature a format has to be considered for the keys in the dictionary.
 
 If a key has the prefix ``default_`` it will be executed during initialization. If the additional prefix ``imp:`` is stated
@@ -172,7 +222,7 @@ Furthermore, I would recommend to add further GUI elements from the repo, especi
 With it you can browse all yml files (and more) you have just created. Furthermore, you can manipulate, add and save the data
 easily.
 
-How to add a new measurement
+Add a new measurement
 ----------------------------
 
 In this final tutorial I will show you how to add a measurement plugin as easily as the GUI plugins from the previous section.

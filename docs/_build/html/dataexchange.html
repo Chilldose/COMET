@@ -1,14 +1,14 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 2.7" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 2.7" > <!--<![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 3.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 3.7" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Data Exchange &mdash; UniDAQ beta documentation</title>
+  <title>Data Exchange &mdash; COMET beta documentation</title>
   
 
   
@@ -17,38 +17,39 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Measurement Job Generation" href="measurementjobgen.html" />
     <link rel="prev" title="Data Structure" href="datastructure.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> UniDAQ
+            <a href="index.html" class="icon icon-home"> COMET
           
 
           
@@ -58,7 +59,7 @@
             
             
               <div class="version">
-                0.9.4
+                0.10.0
               </div>
             
           
@@ -83,19 +84,17 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="programstructure.html">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">How to</a></li>
 <li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Data Exchange</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#basic-idea">Basic Idea</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#framework-data-exchange">Framework Data Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#device-data-exchange">Device Data Exchange</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="code.html">API references</a></li>
 </ul>
 
             
@@ -110,7 +109,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">UniDAQ</a>
+          <a href="index.html">COMET</a>
         
       </nav>
 
@@ -164,9 +163,13 @@
 <h1>Data Exchange<a class="headerlink" href="#data-exchange" title="Permalink to this headline">¶</a></h1>
 <p>UniDAQ is a sophisticated program and works with multiple thread amd eventloops</p>
 <p>erkläre den mechanismus der queues und was für daten gesendet werden können</p>
-<div class="section" id="basic-idea">
-<h2>Basic Idea<a class="headerlink" href="#basic-idea" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="framework-data-exchange">
+<h2>Framework Data Exchange<a class="headerlink" href="#framework-data-exchange" title="Permalink to this headline">¶</a></h2>
 <p>some more text</p>
+</div>
+<div class="section" id="device-data-exchange">
+<h2>Device Data Exchange<a class="headerlink" href="#device-data-exchange" title="Permalink to this headline">¶</a></h2>
+<p>hier erklären wie daten verkehr mit geräten funktioniert</p>
 </div>
 </div>
 
@@ -181,7 +184,7 @@
         <a href="measurementjobgen.html" class="btn btn-neutral float-right" title="Measurement Job Generation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="datastructure.html" class="btn btn-neutral" title="Data Structure" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="datastructure.html" class="btn btn-neutral float-left" title="Data Structure" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -190,7 +193,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Dominic Bloech.
+        &copy; Copyright 2018, Dominic Bloech
 
     </p>
   </div>
@@ -207,33 +210,16 @@
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'beta',
-            LANGUAGE:'Python 2.7',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

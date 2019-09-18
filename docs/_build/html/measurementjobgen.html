@@ -1,14 +1,14 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 2.7" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 2.7" > <!--<![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 3.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 3.7" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Measurement Job Generation &mdash; UniDAQ beta documentation</title>
+  <title>Measurement Job Generation &mdash; COMET beta documentation</title>
   
 
   
@@ -17,38 +17,38 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="API references" href="code.html" />
     <link rel="prev" title="Data Exchange" href="dataexchange.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> UniDAQ
+            <a href="index.html" class="icon icon-home"> COMET
           
 
           
@@ -58,7 +58,7 @@
             
             
               <div class="version">
-                0.9.4
+                0.10.0
               </div>
             
           
@@ -83,10 +83,10 @@
             
             
               <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="programstructure.html">Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">How to</a></li>
 <li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Measurement Job Generation</a><ul>
@@ -94,9 +94,6 @@
 <li class="toctree-l2"><a class="reference internal" href="#accessing-measurement-data">Accessing measurement data</a></li>
 </ul>
 </li>
-</ul>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="code.html">API references</a></li>
 </ul>
 
             
@@ -111,7 +108,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">UniDAQ</a>
+          <a href="index.html">COMET</a>
         
       </nav>
 
@@ -235,19 +232,19 @@ So e.g. if you want to call the <code class="docutils literal notranslate"><span
 <div class="section" id="accessing-measurement-data">
 <h2>Accessing measurement data<a class="headerlink" href="#accessing-measurement-data" title="Permalink to this headline">¶</a></h2>
 <p>In order to use the data in the measurement plugin you have written you just need to access it via the designated object.
-If you have followed the <a class="reference internal" href="tutorial.html#tutorials"><span class="std std-ref">Tutorials</span></a> you should have directly access to the dictionary. Each plugin gets as first
+If you have followed the <span class="xref std std-ref">Tutorials</span> you should have directly access to the dictionary. Each plugin gets as first
 (and mostly only argument) the parent class object passed. If there you access the object <code class="docutils literal notranslate"><span class="pre">parentclass.job_details</span></code> you
 get the whole dictionary back you just created in the previous section.</p>
 <p>A small example:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">IV_class</span><span class="p">:</span> <span class="c1"># Every measurement muss have a class named after the file AND the suffix &#39;_class&#39;</span>
 
-<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_class</span><span class="p">):</span>
+<span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_class</span><span class="p">):</span>
     <span class="c1"># Here all parameters can be definde, which are crucial for the module to work, you can add as much as you want</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">main</span> <span class="o">=</span> <span class="n">main_class</span> <span class="c1"># Import the main parameters and functions (as well as the job dictionary</span>
 
 <span class="k">def</span> <span class="nf">show_the_job</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Simply prints the job details&quot;&quot;&quot;</span>
-    <span class="k">print</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span>
+    <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
@@ -261,10 +258,8 @@ get the whole dictionary back you just created in the previous section.</p>
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="code.html" class="btn btn-neutral float-right" title="API references" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
-      
-        <a href="dataexchange.html" class="btn btn-neutral" title="Data Exchange" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="dataexchange.html" class="btn btn-neutral float-left" title="Data Exchange" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -273,7 +268,7 @@ get the whole dictionary back you just created in the previous section.</p>
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Dominic Bloech.
+        &copy; Copyright 2018, Dominic Bloech
 
     </p>
   </div>
@@ -290,33 +285,16 @@ get the whole dictionary back you just created in the previous section.</p>
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'beta',
-            LANGUAGE:'Python 2.7',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

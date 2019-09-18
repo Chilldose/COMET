@@ -28,7 +28,7 @@ Transformation
 .. autoclass:: utilities.transformation
 	:members:
 	
-Measurement Job Generation
+Measurement generation
 --------------------------
 .. autoclass:: utilities.measurement_job_generation
 	:members:

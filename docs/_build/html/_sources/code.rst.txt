@@ -5,13 +5,13 @@ Help Functions
 --------------
 
 .. autoclass:: utilities.help_functions
-    :members:
+	:members:
 
 
 New Thread
 ----------
 .. autoclass:: utilities.newThread
-    :members: __init__, run, get
+	:members: __init__, run, get
 	
 LOG File
 --------
@@ -28,7 +28,7 @@ Transformation
 .. autoclass:: utilities.transformation
 	:members:
 	
-Measurement Job Generation
+Measurement generation
 --------------------------
 .. autoclass:: utilities.measurement_job_generation
 	:members:
