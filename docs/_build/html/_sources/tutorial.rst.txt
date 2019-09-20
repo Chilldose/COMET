@@ -2,6 +2,7 @@ How to
 ======
 
 These tutorials will guide you through the process of generating your own own customized GUI and measurement routines.
+Furthermore, it will guide you through the process to create and add new physical measurement devices.
 
 Before we can start, please follow the steps in chapter :ref:`Your first GUI` and create an empty new Project with the name of your liking.
 
@@ -131,7 +132,7 @@ To tell COMET to assign a alias to on device have a look at a specific example: 
             Connection_type: RS232:15
             Device_IDN: HV-Relay Controller V1.6/18.Apr.2019
 
-In this case the device "2470 Keithley SMU" will be renamed to "BiasSMU" and the device "BrandBox" will be devices
+In this case the device "2470 Keithley SMU" will be renamed to "BiasSMU" and the device "BrandBox" will become the devices
 "temphum_controller", "HVSwitching", and "lights_controller". Which internally, e.g. in your measurement plugin can directly be addressed with these names.
 
 Create a new device
@@ -186,113 +187,101 @@ In principal you have four different sections in a device file:
    * **Reset Parameters**
    * **Misc. Parameters**
 
-COMET has the feature to run an initialization proceedure over a device, when the software boots up. In order to use
-this feature a format has to be considered for the keys in the dictionary.
+**Set Parameters:**
 
-If a key has the prefix ``default_`` it will be executed during initialization. If the additional prefix ``imp:`` is stated
-then this command will be executed before all other commands. Each ``default_`` needs to have a ``set_`` value to work (but not the other way round).
-Out of both a command will be build.
+These parameters have the prefix ``set_``. This means that these parameters does not expect a response from the device.
+They are simple "fire-and-forget", you can not make sure, by simply sending the parameter, the device understood the command.
+You may have to send an additional "Get" parameter to ensure successful execution.
 
-Lets see an example to clarify. Imagine you want to initialize the instrument with voltage 0: ::
+**Get Parameters:**
 
-    {
-        "set_voltage": "SOUR:VOLT:LEV ",
-        "default_voltage": "0"
-    }
+These parameters have the prefix ``get_``. These parameters start a query routine, so first sending the paramerter and then
+waiting for an answer from the device. A simple example would be the ``get_read`` command, which gives you a simple reading from the device in most cases
 
-The command which will be send to the device will be *SOUR:VOLT:LEV 0*.
+**Reset Parameters:**
 
-.. note:: If you add the item ``"<alias_name>": "<Display_name>"`` to your *defaults.yml* file you can rename the device internally, think of it like a internal, consistent notation.
+COMET has the feature to run an initialization procedure over a device, when the software boots up, or a new measurement is started.
+This sets the device in a defined state and makes it easier to debug.
+In order to use this feature a format has to be considered for the keys in the dictionary.
+In this case you have a dict key ``reset`` followed by a list of commands. These commands need to have, for every key in the list, a
+corresponding ``set_<command>``. The value in the reset command will then be inserted in the set command.
+To complicated? A short example is in need. Imagine you have the following device config: ::
 
-Now that you have added all crucial commands for a device save it and restart UniDAQ, the result should look like
+    ---
+    Device_name: SMU   # Device name, the name you have to state in the settings file
+    Display_name: BiasSMU # Some easy to read name for the user
+    Device_type: Device # Some descriptor what kind of device it is
 
-.. image:: pictures/UniDAQ_resources.png
-   :alt: UniDAQ
-   :class: floatingflask
+    # All set parameters
+    set_beep: beeper.beep({}, {})
+    set_output: sma.output({}) # Sets a delay to to following command!
 
-.. note:: If you want a more detailed example, there is a full device configuration for a Keithley 2410 SMU in the templates folder.
+    # All reset device parameters
+    reset:
+      - output: smua.ON
 
-In a very short time we have achieved a lot, woudn' ya say? You now can add as many GUI elements and devices as you want and also add
-the logic to it.
 
-I would recommend to keep the code you have written now. It may come handy to know what and how many devices are defined/connected
-to the framework.
+As you can see the reset paramerter is ``output: smua.ON`` therefore, the program looks for a ``set_output`` parameter.
+If found the value ``smua.ON`` will be passed to the command ``set_output: sma.output({})`` which eventually result in the
+command sent to the device: ``sma.output(smua.ON)``. Which in this case switches on the output of the SMU.
 
-Furthermore, I would recommend to add further GUI elements from the repo, especially the "Data_Browser" will come in handy.
-With it you can browse all yml files (and more) you have just created. Furthermore, you can manipulate, add and save the data
-easily.
+
+**Misc. Parameters:**
+
+These parameters are completely optional, you can give them names as you like, you do not have to set any prefixes or whatsoever.
+I personally use these parametes for nice to know/have commands.
+
+.. note:: The only "important" parameter in the Misc. section is the ``reset_device: ["*rst", "*cls"]`` if you have this key in your config file, the software uses the list passed to soft-reset the device. But be aware, the software does not check any of these commands, it just sends them. Its up to you they are correct soft-reset commands!
+
+
+Device Command Structure
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+COMETs device command structure is fairly simple. It uses the python **format** structure to easily be compatible with the large
+varitiy of command structures for different measurement devices.
+
+All command files are YAML styled files. And the first order commands are e.g. set, get, reset ... parameters. These, commands
+consists of a Key: Value pair. As key, you -basically- can use whatever you want, but I would go with the recommended parameter structure described in this section.
+The value to every key is then the basic command for the specific device. If this command needs a variable as input, like:
+``set_voltage: smua.levelV = {}`` just put the two curly brackets at the point where to insert value. In the software you can then
+send this command via the simple command structure ``vcw.query(BiasSMU, "set_voltage", 100.0)``. BiasSMU is in this case
+the device object, containing all information about the device, "set_voltage" is the key and 100.0 the value. This results
+in the command send to the device "BiasSMU": ``smua.levelV = 100.0``.
+
+.. note:: If you have several variables to be passed. Like ``set_beep: beeper.beep({}, {})`` you can do ``vcw.query(BiasSMU, "set_beep", 24000, 1)``, and it will result in: ``beeper.beep(24000, 1)``
+
+The functionality how you can send commands is quiet extensive and would expand beyond the topic of this section. Therefore, please see
+section ??? for more details.
+
 
 Add a new measurement
 ----------------------------
 
 In this final tutorial I will show you how to add a measurement plugin as easily as the GUI plugins from the previous section.
-In order to not program a full GUI, please add the GUI elements **Main_window.py** as shown in the previous tutorials.
 
-First you need to implement a "Project", this can be done if you open a new directory in ``.init/Pad_files``, where
-the directory name resembles a "Project". If you have downloaded the turorial branch, then there should be a project already in there.
-In this project you find a txt file, which resembles a pad file. Such a file includes information about a specific sensor. In this case a
-strip sensor. If you do not include xyz coordinates, such a file can be used as header information file, instead of an strip file.
+Every measurement outputs data, which eventually can be plotted. So before we do anything else we tell the GUI to recognise
+the new measurement. This can be done by adding the line: ::
 
-For completeness reasons I show you now such a pad file and how it generally looks like ::
+   measurement_types:
+      - <measurement_name>
 
-   # This pad file is for the HPK irradiation sensor for the 6inch runs
+To the ``settings.yml`` of our project. This makes it possible to send data from the measurement thread to the GUI thread and the
+GUI saves your data. On how to send data exactely from a measurement thread to the GUI see chapters :ref:`The GUI event loop` and :ref:`???`.
 
-   Campaign: Hamamatsu 6inch Irradiation
-   Creator: Dominic Bloech 17.07.2018
+Next we need to write our measurement plugin. These plugins need to be stored as ordinary python files in the directory
+``UniDAQ\measurement_plugins``. You can name these plugins as you see fit. The important thing is that inside, there is a python
+class with the exact same name as the name of the file and it contains AND the suffix ``_class``. The measurement class needs to have a **run** function which starts the actual measurement routine.
+Furthermore, the class only becomes one parameter passed during init, this being the measurement event loop instance.
 
-   reference pad: 1
-   reference pad: 32
-   reference pad: 64
+.. footnotes:: The measurement event loop has a large variety of variables and function which you can use for building your own measurement plugin. For more information on that see chapter :ref:`???`
 
-   # Additional parameters
-   implant_length: 20036
-   metal_width: 35
-   implant_width: 22
-   metal_length: 19332.35
-   pitch: 90
-   thickness: 240
-   type: p-type
+Otherwise there are no real restrictions on how your measurement is working.
 
-   strip	x	y	z
-   1	    0	0	0
-   2	    0	90	0
-   3	    0	180	0
-   4	    0	270	0
-   5	    0	360	0
-   6	    0	450	0
-   7	    0	540	0
-   8	    0  	630	0
-   9	    0	720	0
-   10	    0	810	0
-   11	    0	900	0
-   12	    0	990	0
-   13	    0	1080	0
-   14	    0	1170	0
+.. note:: The whole measurement class will be run in a thread on their own. So make sure to be as thread save as possible when you program it. But you do not need to do anything concerning the thread capabilities of your routine. The framework takes care of that.
 
-In order for them to work you have to add a few items into the **defaults.yml** file, so please add ::
+Now comes to the fun part, coding the actual measurement procedure.
 
-   Operator:
-      - Your Name
-
-   Projects: # The project names of your sensor batches etc. musst be conform with the sensors entries
-        - Test Project
-
-   Sensor_types: # Different sensor types in the various projects
-       Test Project:
-            - Irradiation
-
-   measurement_types: # If this is prevalent, measurements can be added, these are the objects in which the measurement data can be stored.
-      - IV
-
-With this you should be able to start UniDAQ again. (All these parameters are included in the tutorials default file)
-
-.. warning:: Since we have only a fracture of the original program loaded, the program can experience some instabilities and crashes. Especially all table controls are susceptiple! So do not touch them, yet.
-
-Now comming to the fun part. Coding the actual measurement proceedure for a IV curve.
-Like it was with the other parts of this tutorial, adding a new measurement can be done via plugins.
-Simply add a <name_of_your_measurement>.py file into the folder ``~/UniDAQ/measurement_plugins`` and the program knows this measurement.
-
-A simple IV measurement plugin can already be found in this folder.
+As an example I show you a simple IV measurement plugin.
 
 .. code-block:: python
    :linenos:
@@ -301,279 +290,197 @@ A simple IV measurement plugin can already be found in this folder.
 
    import logging
    import sys
+   from time import sleep
    import numpy as np
    sys.path.append('../UniDAQ')
-   from ..VisaConnectWizard import *
-   from ..utilities import *
-   l = logging.getLogger(__name__)
+   from ..utilities import timeit
+   from .forge_tools import tools
 
-   help = help_functions()
-   vcw = VisaConnectWizard.VisaConnectWizard()
-
-   @help.timeit # Decorator for timing of a function (not crucial)
-   class IV_class: # Every measurement muss have a class named after the file AND the suffix '_class'
+   class IV_class(tools): # Every measurement muss have a class named after the file AND the suffix '_class'
 
        def __init__(self, main_class):
-           # Here all parameters can be definde, which are crucial for the module to work, you can add as much as you want
-           self.main = main_class # Import the main parameters and functions
-           self.justlength = 24 # paramerter for the writting to file
-           time = self.do_IV() # Starts the measurement
+           # Here all parameters can be defind, which are crucial for the module to work, you can add as much as you want
+           super(IV_class, self).__init__(self.main.framework, self.main) # Initializes the tool box function, which gives you pre defined functions for ramping etc.
+           self.log = logging.getLogger(__name__)
+           self.vcw = self.main.framework["VCW"]
+
+           # Get all devices necessary for the measurement
+           self.bias_SMU = self.main.devices[self.IVCV_configs["BiasSMU"]]
+
+           # COMET has a sophisticated logging, you can use it
+           self.log.info("Init of IV measurement plugin finished...")
 
        def stop_everything(self):
            """Stops the measurement, by sending a signal to the main loop, via a queue object"""
            order = {"ABORT_MEASUREMENT": True}
-           self.main.queue_to_main.put(order)
+           self.main.queue_to_main.put(order) # This is the mechanism to send data to the "GUI"
 
-       @help.timeit
-       def do_IVCV(self):
-           '''This function conducts an IV measurements'''
-           voltage_End = None
-           voltage_Start = None
-           voltage_steps = None
-           bias_SMU = self.main.devices["IVSMU"]
-
-           # Defining the min/max/steps for the meausrement
-           voltage_End.append(self.main.job_details["IV"].get("EndVolt", 0))
-           voltage_Start.append(self.main.job_details["IV"].get("StartVolt", 0))
-           voltage_steps.append(self.main.job_details["IV"].get("Steps", 0))
-
-           # Add the fileheader
-           if self.main.save_data:
-               self.main.write(self.main.measurement_files["IV"], self.main.job_details["IV"]["header"] + "\n") # writes correctly the units into the file
-
-           # Generates a voltagestep list
-           voltage_step_list = self.main.ramp_value(voltage_Start, voltage_End, voltage_steps)
-
-           # Config the setup for IV
-           complience = str(self.main.job_details["IV"].get("Complience", "50e-6"))
-           self.main.config_setup(bias_SMU, [("set_complience_current", complience)])
-           self.main.change_value(bias_SMU, "set_output", "1")
-
-           # Loop over all voltages which should be conducted
-           for i, voltage in enumerate(voltage_step_list):
-               if not self.main.stop_measurement(): # To shut down if necessary
-                   self.main.change_value(bias_SMU, "set_voltage", str(voltage))
-                   self.main.settings["Defaults"]["bias_voltage"] = voltage  # changes the bias voltage in the state machine
-                   if not self.main.steady_state_check(bias_SMU, max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=complience): # Is a dynamic waiting time for the measuremnts
-                       self.stop_everything()
-
-                   if self.main.check_complience(bias_SMU, float(complience)):
-                       self.stop_everything() # stops the measurement if complience is reached
-
-                   string_to_write = ""
-                   I, V = self.do_IV(voltage, bias_SMU, samples = 3)
-                   if self.main.save_data:
-                       string_to_write += str(I).ljust(self.justlength) + str(V).ljust(self.justlength)
-
-                   self.main.write(self.main.measurement_files["IVCV"], string_to_write + "\n")  # writes correctly the units into the fileself.main.IVCV_file, string_to_write)
-
-               elif self.main.stop_measurement(): # Stops the measurement if necessary
-                   break
-
-           if self.main.save_data: # Closes the file after completion of measurement or abortion
-               help.close_file(self.main.IVCV_file)
-
-           # After the measurement ramp down and switch of the SMU
-           self.main.ramp_voltage(bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01)
-           self.main.change_value(bias_SMU, "set_voltage", "0")
-           self.main.change_value(bias_SMU, "set_output", "0")
-
+       def run(self): # The mandatory run function
+           """Runs the IV measurement"""
+           self.log.info("Starting IV measurement...")
+           self.do_IV()
+           self.log.info("IV measurement finished...")
            return None
 
-       #@help.timeit
-       def do_IV(self, voltage, device_dict, samples = 5):
-           '''This function simply sends a request for reading a current value and process the data'''
-           if not self.main.stop_measurement():
-               if not self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=4,Rsq=0.5, complience=self.main.job_details["IVCV"]["IV"]["Complience"]):  # Is a dynamic waiting time for the measuremnt
-                   self.stop_everything()
-                   l.warning("Steady state could not be reached, shutdown of measurement")
-                   return
-               values = []
-               for i in range(samples):
-                   command = self.main.build_command(device_dict, "get_Read") # returns 2 values!!!
-                   values.append(str(vcw.query(device_dict, command)).split("\t"))
+       def do_IV():
+            # Does the whole measurement
+            voltage_step_list = self.ramp_value(voltage_Start, voltage_End, voltage_steps) # create a voltage list, with a tool box function
 
-               current = sum([float(x[0]) for x in values])/len(values) # Makes a mean out of it
-               voltage = sum([float(x[1]) for x in values]) / len(values)  # Makes a mean out of it
+            # Config your devices, either use the config_setup from the tool box or individual commands
+            self.config_setup(self.bias_SMU, [("set_output", "OFF"), ("set_voltage", 0)])
+            self.change_value(self.bias_SMU, "set_compliance_current", compliance)
+            self.change_value(self.bias_SMU, ("set_output", "ON"))
 
-               self.main.settings["Defaults"]["bias_voltage"] = voltage  # changes the bias voltage of the sate machine
+            for voltage in voltage_step_list:
 
-               self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], [float(voltage)])
-               self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1],[float(current)])
-               self.main.queue_to_main.put({"IV": [float(voltage), float(current)]})
+               self.log.debug("IV measurement at voltage step: {}...".format(voltage))
 
-               return (current, voltage)
+               if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary, by asking if somewhere the stop signal was send
+                  self.change_value(self.bias_SMU, "set_voltage", str(voltage)) # Change the bias voltage and wait until stead state is reached
+                  if not self.steady_state_check(self.bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=compliance): # Is a dynamic waiting time for the measuremnts
+                     self.stop_everything() # If steady state could not be reached send stop signal to framework
 
-.. note:: The mechanics and functions behind the actual measurement procedure is quiet big. Therefore, I will only talk about the here programmed example but note that the framework gives you a ton of functions to work with for measurement algorithm development. Please see for the deticated tutorial on that.
+                     if self.check_complience(bias_SMU, float(compliance)): # Check if compliance is reached
+                        self.stop_everything() # stops the measurement if compliance is reached
+
+                     # Make the measurement
+                     command = self.main.build_command(bias_SMU, "get_read") # Gives you the command for a read, Warning: read does not need a parameter, usually this command goes build_command(device_dict, (order, value))
+                     current = self.vcw.query(self.bias_SMU, command) # Queries the command from the device
+
+                     # Save the data in the measurement object and send it to the main/GUI
+                     self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], [float(voltage)])
+                     self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1],[float(current)])
+                     self.main.queue_to_main.put({"IV": [float(voltage), float(current)]})
+
+                     # Write the data to a file if specified
+                     if self.main.save_data:
+                        string_to_write += str(self.main.measurement_data["IV"][0][-1]).ljust(24) + str(self.main.measurement_data["IV"][1][-1]).ljust(24)
+                        self.main.write(self.main.measurement_files["IV"], string_to_write + "\n")
+
+            # Ramp down and switch off SMU
+            self.ramp_voltage(self.bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01) # This function automatically builds command
+            self.change_value(self.bias_SMU, ("set_output", "OFF"))
+
+
+
+
+
+
+.. note:: The mechanics and functions behind the actual measurement procedure is quiet big. Therefore, I will only talk about the here programmed example but note that the framework tool box gives you a ton of functions to work with for measurement algorithm development. Please see for the dedicated tutorials on that.
 
 So lets go through this program in detail:
 
 .. code-block:: python
 
+   # This file conducts a simple IV measurement
+
    import logging
    import sys
+   from time import sleep
    import numpy as np
    sys.path.append('../UniDAQ')
-   from ..VisaConnectWizard import *
-   from ..utilities import *
-   l = logging.getLogger(__name__)
+   from ..utilities import timeit
+   from .forge_tools import tools
 
-   help = help_functions()
-   vcw = VisaConnectWizard.VisaConnectWizard()
+   class IV_class(tools): # Every measurement muss have a class named after the file AND the suffix '_class'
 
-   @help.timeit # Decorator for timing of a function (not crucial)
-   class IV_class: # Every measurement muss have a class named after the file AND the suffix '_class'
+       def __init__(self, main_class):
+           # Here all parameters can be defind, which are crucial for the module to work, you can add as much as you want
+           super(IV_class, self).__init__(self.main.framework, self.main) # Initializes the tool box function, which gives you pre defined functions for ramping etc.
+           self.log = logging.getLogger(__name__)
+           self.vcw = self.main.framework["VCW"]
 
-Here basic modules are loaded, you are not restricted to them. You can add and remove as much as you like.
+           # Get all devices necessary for the measurement
+           self.bias_SMU = self.main.devices[self.IVCV_configs["BiasSMU"]]
 
-.. code-block:: python
+           # COMET has a sophisticated logging, you can use it
+           self.log.info("Init of IV measurement plugin finished...")
 
-   @help.timeit # Decorator for timing of a function (not crucial)
-   class IV_class: # Every measurement muss have a class named after the file AND the suffix '_class'
+Here basic modules are loaded, you are not restricted to them. You can add and remove as much as you like. The class IV_class is also
+stated with the init function. Note that I inherit the **tools** module. It contains a multitude of functions which can help you
+build your own measurement plugin. Please see the :ref:`API references` for more information.
+To actually use this tool box you have to init it with the ``super`` initiatior as shown above. This makes every function in
+the tool box a member of your measurement plugin. Then I initiate the logging and the "Visa Connect Wizard" from the parent class,
+passed as variable to the measurement plugin.
 
-Here the measurement class is initialized. It is important, that the class declaration has the same name as the file
-plus the suffix ``_class``. So, lets say you want the measurement **stripscan**. Just generate a python file with name
-``stripscan.py`` and declare the class
+In the end I create a variable, containing the bias SMU so I can easily access it.
 
-.. code-block:: python
-
-   class stripscan_class:
-
-.. code-block:: python
-
-   def __init__(self, main_class):
-       # Here all parameters can be definde, which are crucial for the module to work, you can add as much as you want
-       self.main = main_class # Import the main parameters and functions
-       self.justlength = 24 # paramerter for the writting to file
-       time = self.do_IV() # Starts the measurement
-
-Here the init function of the class is defined. Make sure the init function does all the work, so when the interpreter jumps
-out of the module, the desired measurement was conducted.
+The next part are some member functions:
 
 .. code-block:: python
 
    def stop_everything(self):
       """Stops the measurement, by sending a signal to the main loop, via a queue object"""
       order = {"ABORT_MEASUREMENT": True}
-      self.main.queue_to_main.put(order)
+      self.main.queue_to_main.put(order) # This is the mechanism to send data to the "GUI"
 
-This function is a message function to the main loop of the framework. If you put the on the ``queue_to_main``. This message
-will be interpreted by the framework as a deep core directive/message. There are a lot of different messages you can send
-see the chapter about **data exchange** in the Framework for that.
+   def run(self): # The mandatory run function
+      """Runs the IV measurement"""
+      self.log.info("Starting IV measurement...")
+      self.do_IV()
+      self.log.info("IV measurement finished...")
+      return None
 
-.. code-block:: python
+The ``stop_everything`` function is a message function to the main loop of the framework. It directs the framework to stop
+all measurements, this can come in handy if you reach the compliance and want to stop the measurement.
 
-   @help.timeit
-    def do_IVMain(self):
-        '''This function conducts an IV measurements'''
-        voltage_End = None
-        voltage_Start = None
-        voltage_steps = None
-        bias_SMU = self.main.devices["IVSMU"]
-
-        # Defining the min/max/steps for the meausrement
-        voltage_End.append(self.main.job_details["IV"].get("EndVolt", 0))
-        voltage_Start.append(self.main.job_details["IV"].get("StartVolt", 0))
-        voltage_steps.append(self.main.job_details["IV"].get("Steps", 0))
-
-        # Add the fileheader
-        if self.main.save_data:
-            self.main.write(self.main.measurement_files["IV"], self.main.job_details["IV"]["header"] + "\n") # writes correctly the units into the file
-
-        # Generates a voltagestep list
-        voltage_step_list = self.main.ramp_value(voltage_Start, voltage_End, voltage_steps)
-
-        # Config the setup for IV
-        complience = str(self.main.job_details["IV"].get("Complience", "50e-6"))
-        self.main.config_setup(bias_SMU, [("set_complience_current", complience)])
-        self.main.change_value(bias_SMU, "set_output", "1")
-
-        # Loop over all voltages which should be conducted
-        for i, voltage in enumerate(voltage_step_list):
-            if not self.main.stop_measurement(): # To shut down if necessary
-                self.main.change_value(bias_SMU, "set_voltage", str(voltage))
-                self.main.settings["Defaults"]["bias_voltage"] = voltage  # changes the bias voltage in the state machine
-                if not self.main.steady_state_check(bias_SMU, max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=complience): # Is a dynamic waiting time for the measuremnts
-                    self.stop_everything()
-
-                if self.main.check_complience(bias_SMU, float(complience)):
-                    self.stop_everything() # stops the measurement if complience is reached
-
-                string_to_write = ""
-                I, V = self.do_IV(voltage, bias_SMU, samples = 3)
-                if self.main.save_data:
-                    string_to_write += str(I).ljust(self.justlength) + str(V).ljust(self.justlength)
-
-                self.main.write(self.main.measurement_files["IVCV"], string_to_write + "\n")  # writes correctly the units into the fileself.main.IVCV_file, string_to_write)
-
-            elif self.main.stop_measurement(): # Stops the measurement if necessary
-                break
-
-        if self.main.save_data: # Closes the file after completion of measurement or abortion
-            help.close_file(self.main.IVCV_file)
-
-        # After the measurement ramp down and switch of the SMU
-        self.main.ramp_voltage(bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01)
-        self.main.change_value(bias_SMU, "set_voltage", "0")
-        self.main.change_value(bias_SMU, "set_output", "0")
-
-        return None
-
-Here the actual background tasks for the IV curve are programmed. It shouldn't be hard to decifer it, to understand howe it works.
-
-One important part is the object ``self.main.job_details``. This object contains all information about the sended job from the main framework.
-Think of it as a cook recipe for your measurement.
-
-.. warning:: The ``self.main.job_details`` has no fixed size or naming. The content should follow basic rules described in the **measurement generation** topic, though.
+The other function is the ``run`` function. This is a crucial function, every measurement plugin needs to have. In it you
+should put the mechanics to start the measurement and end it correctly. In this specific case it does not do much, except
+writing to the log file and call another function:
 
 .. code-block:: python
 
-   # Add the fileheader
-   if self.main.save_data:
-       self.main.write(self.main)
+   def do_IV():
+            # Does the whole measurement
+            voltage_step_list = self.ramp_value(voltage_Start, voltage_End, voltage_steps) # create a voltage list, with a tool box function
 
-Here the header will be written to a file, if you specified the option (default).
+            # Config your devices, either use the config_setup from the tool box or individual commands
+            self.config_setup(self.bias_SMU, [("set_output", "OFF"), ("set_voltage", 0)])
+            self.change_value(self.bias_SMU, "set_compliance_current", compliance)
+            self.change_value(self.bias_SMU, ("set_output", "ON"))
 
-.. code-block:: python
+            for voltage in voltage_step_list:
 
-   # Generates a voltagestep list
-   voltage_step_list = self.main.ramp_value(voltage_Start, voltage_End, voltage_steps)
+               self.log.debug("IV measurement at voltage step: {}...".format(voltage))
 
-Now coming to one of the most important parts of the framework. The framework gives you a ton of build in functions and variables to work with.
-All of them can be accessed via the object ``self.main`` (if correctly stated in the init function).
-These functions can be used to automatise some task, which are usually need by a user. One of these functions is ``ramp_value``.
-This function takes a start, end and step value and returns you a list, of values.
+               if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary, by asking if somewhere the stop signal was send
+                  self.change_value(self.bias_SMU, "set_voltage", str(voltage)) # Change the bias voltage and wait until stead state is reached
+                  if not self.steady_state_check(self.bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=compliance): # Is a dynamic waiting time for the measuremnts
+                     self.stop_everything() # If steady state could not be reached send stop signal to framework
 
-.. note:: For more information on these functions and how they work, see the reference manual or the corresponding topic in this doc.
+                     if self.check_complience(bias_SMU, float(compliance)): # Check if compliance is reached
+                        self.stop_everything() # stops the measurement if compliance is reached
 
-.. code-block:: python
+                     # Make the measurement
+                     command = self.main.build_command(bias_SMU, "get_read") # Gives you the command for a read, Warning: read does not need a parameter, usually this command goes build_command(device_dict, (order, value))
+                     current = self.vcw.query(self.bias_SMU, command) # Queries the command from the device
 
-   def do_IV(self, voltage, device_dict, samples = 5):
-           '''This function simply sends a request for reading a current value and process the data'''
-           if not self.main.stop_measurement():
-               if not self.main.steady_state_check(device_dict, max_slope=1e-6, wait=0, samples=4,Rsq=0.5, complience=self.main.job_details["IVCV"]["IV"]["Complience"]):  # Is a dynamic waiting time for the measuremnt
-                   self.stop_everything()
-                   l.warning("Steady state could not be reached, shutdown of measurement")
-                   return
-               values = []
-               for i in range(samples):
-                   command = self.main.build_command(device_dict, "Read") # returns 2 values!!!
-                   values.append(str(vcw.query(device_dict, command)).split("\t"))
+                     # Save the data in the measurement object and send it to the main/GUI
+                     self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], [float(voltage)])
+                     self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1],[float(current)])
+                     self.main.queue_to_main.put({"IV": [float(voltage), float(current)]})
 
-               current = sum([float(x[0]) for x in values])/len(values) # Makes a mean out of it
-               voltage = sum([float(x[1]) for x in values]) / len(values)  # Makes a mean out of it
+                     # Write the data to a file if specified
+                     if self.main.save_data:
+                        string_to_write += str(self.main.measurement_data["IV"][0][-1]).ljust(24) + str(self.main.measurement_data["IV"][1][-1]).ljust(24)
+                        self.main.write(self.main.measurement_files["IV"], string_to_write + "\n")
 
-               self.main.settings["Defaults"]["bias_voltage"] = voltage  # changes the bias voltage of the sate machine
+            # Ramp down and switch off SMU
+            self.ramp_voltage(self.bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01) # This function automatically builds command
+            self.change_value(self.bias_SMU, ("set_output", "OFF"))
 
-               self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], [float(voltage)])
-               self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1],[float(current)])
-               self.main.queue_to_main.put({"IV": [float(voltage), float(current)]})
+Here the actual tasks for the IV curve is programmed. It shouldn't be hard to deceiver it and understand how it works.
 
-               return (current, voltage)
+If you start a measurement, COMET generates a numpy array for every measurement in which you can store your data.
+This variable is called ``self.main.measurement_data`` and is a dict with keys being the different measurements possible.
+It is the same type of array a the GUI one. So you can keep track of your data, without worrying to much about it.
 
-Here the loop over the voltage list is conducted, using build-in functions from the framework.
-The only interesting part is, when it calls the ``do_IV(...)`` function. The purpose of this function is to simply accuire a value
-from a device. Here an algorithm was used to mitigate noise effects. Furthermore, the aquiered data is put in objects provided by the framework
-to safely store the measured data, even if the script is crashing (``self.main.measurement_data["IV"]``).
+One important thing is the automatic "write-to-file" capabilities of COMET, if you have correctly send a job to the framework
+it generates you a file in which you can easily write. To do so you have to access the write method from the main. In this case you simply call:
+``self.main.write(self.main.measurement_files["IV"], string_to_write + "\n")`` and the string gets written to the file.
+The ``self.main.measurement_files`` variable is a dict containing all file pointer.
 
-.. warning:: This automated storage generation will only work, if you have stated the measurement in the defaults file under the parameter ``measurement_types``.
+.. warning:: All this easy access of the main variable is solemnly possible if you make it a member of your measurement plugin, as I did in the init!!!
+
+
+
