@@ -13,6 +13,7 @@ from .utilities import build_command, flush_to_file, create_new_file
 class measurement_class(Thread):
     #meas_loop, main_defaults, pad_data, devices, queue_to_main, queue_to_event_loop, job_details, queue_to_GUI, table, switching, stop_measurement)
 
+    # Todo: write the framework function into the docs how you access all, and the simplification by directly accessing the member of measurement_class
     def __init__(self, event_loop, framework, job_details):
 
         Thread.__init__(self)

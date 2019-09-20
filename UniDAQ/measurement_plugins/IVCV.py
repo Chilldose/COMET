@@ -138,7 +138,7 @@ class IVCV_class(tools):
         #if self.main.save_data: # Closes the file after completion of measurement or abortion
         #    close_file(self.main.measurement_files["IVCV"])
 
-        self.ramp_voltage(bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01)
+        self.do_ramp_value(bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01)
         self.change_value(bias_SMU, *self.IVCV_configs["OutputOFF"])
         sleep(2.)
         self.main.settings["settings"]["bias_voltage"] = 0
@@ -177,7 +177,7 @@ class IVCV_class(tools):
                             break
 
             if not self.main.event_loop.stop_all_measurements_query():
-                self.ramp_voltage(bias_SMU, "set_voltage", voltage, 0, 10, 0.3, float(compliance))
+                self.do_ramp_value(bias_SMU, "set_voltage", voltage, 0, 10, 0.3, float(compliance))
 
 
         # Todo: write good readout to file

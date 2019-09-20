@@ -4,12 +4,16 @@ Measurement plugins"""
 import numpy as np
 from time import sleep
 from scipy import stats
-from ..utilities import build_command
+try:
+    from ..utilities import build_command
+except:
+    pass
 import logging
 
 
 class tools(object):
-    """Some tools for forging your own measurement plugins
+    """
+    Some tools for forging your own measurement plugins. It needs the framework and the event_loop object
     """
 
     def __init__(self, framework, event_loop):
@@ -21,9 +25,24 @@ class tools(object):
         self.toolslog = logging.getLogger(__name__)
 
     def steady_state_check(self, device, command="get_read", max_slope = 0.001,
-                           wait = 0.2, samples = 4, Rsq = 0.95, complience = 50e-6, do_anyway = False,
-                           check_complience=True):
-        '''This functions waits dynamically until the sensor has reached an equilibrium after changing the bias voltage'''
+                           wait = 0.2, samples = 4, Rsq = 0.95, compliance = 50e-6, do_anyway = False,
+                           check_compliance=True):
+        """
+        This function reads values from a device and fits a linear fit to it. If the fit exceeds a maximum slope it waits a
+        specified time and does ot again. If the slope condition is not reached after a few attempts the function returns False.
+        Otherwise it returns True and indicates a equilibrium has been reached.
+
+        :param device: The device object which should be queried
+        :param command: The command which should be queried
+        :param max_slope: The maximum slope
+        :param wait: How long to wait between attempts
+        :param samples: How many samples should be used
+        :param Rsq: Minimum R^2 value
+        :param compliance: The compliance value which the value should not exceed
+        :param do_anyway:
+        :param check_compliance: If the program should check the compliance value
+        :return: Bool - True means steady state reached
+        """
         # TODO: I have the feeling that this function is not exactly dooing what she is supposed to do, check!
         steady_state = False
         #stop = self.event_loop.stop_measurement
@@ -41,8 +60,8 @@ class tools(object):
             values = []
 
             comm = build_command(device, command)
-            if complience and check_complience:
-                if self.check_complience(device, float(complience), command=command):
+            if compliance and check_compliance:
+                if self.check_compliance(device, float(compliance), command=command):
                     self.stop_measurement()
                     return False
 
@@ -56,7 +75,14 @@ class tools(object):
         return False
 
     def ramp_value_log10(self, min_value, max_value, deltasteps):
-        '''This function takes a min and max value, deltasteps and generates a list of values in log10 format with each deltasteps values per decade'''
+        """
+        This function takes a min and max value, deltasteps and generates a list of values in log10 format with each deltasteps values per decade
+
+        :param min_value: Start value
+        :param max_value: End Value
+        :param deltasteps: How many steps per decade
+        :return: List
+        """
         #Todo: from max to min is not working yet
         if max_value > min_value:
             positive = True
@@ -92,7 +118,15 @@ class tools(object):
         return ramp_list
 
     def refine_ramp(self, ramp, start, stop, step):
-        """Refines a ramp of values eg. for IVCV, in the beginning it makes sense to refine the ramp"""
+        """
+        Refines a ramp of values eg. for IVCV, in the beginning it makes sense to refine the ramp
+
+        :param ramp: A list of values
+        :param start: Start point of refinement (must be inside of ramp)
+        :param stop: End point of refinement (must be inside of ramp)
+        :param step: The step size of the refinement
+        :return: Updated list
+        """
 
         if ramp[0] * start >= 0 and ramp[-1] * stop >= 0 and abs(ramp[0]) <= abs(start) and abs(ramp[-1]) >= abs(stop):
             # Todo: if the refined array has positive and negative values it does not work currently
@@ -110,8 +144,14 @@ class tools(object):
             return ramp
 
     def ramp_value(self, min_value, max_value, deltaI):
-        '''This function accepts single values and returns a list of values, which are interpreted as a ramp function
-        Furthermore min and max are corresponding to the absolute value of the number!!!'''
+        """
+        Generates a list of values in the defined stepsize between the and min/max values
+
+        :param min_value: Start point of list
+        :param max_value: End point of list
+        :param deltaI: Stepsize between points
+        :return: List
+        """
 
         #Find out if positive or negative ramp
         if max_value > min_value:
@@ -151,9 +191,20 @@ class tools(object):
 
         return ramp_list
 
-    def ramp_voltage(self, resource, order, voltage_Start, voltage_End, step, wait_time = 0.05, complience=100e-6):
-        '''This functions ramps the voltage of a device'''
-        self.toolslog.info("Start ramping voltage...")
+    def do_ramp_value(self, resource, order, voltage_Start, voltage_End, step, wait_time = 0.05, compliance=None):
+        """
+        This functions ramps a value from one point to another. It actually sends the commands to the device
+
+        :param resource: Device object
+        :param order: The command to set tje voltage
+        :param voltage_Start: Start point
+        :param voltage_End: End point
+        :param step: Stepsize
+        :param wait_time: Wait between values
+        :param compliance: Compliance, if None the compliance check will be skipped
+        :return: True
+        """
+        self.toolslog.info("Start ramping...")
         voltage_End = float(voltage_End)
         voltage_Start = float(voltage_Start)
         step = float(step)
@@ -162,26 +213,47 @@ class tools(object):
         voltage_step_list = self.ramp_value(voltage_Start, voltage_End, step)
 
         # Check if current bias voltage is inside this ramp and delete if necessary
-        bias_voltage = float(self.settings["settings"]["bias_voltage"])
+        #bias_voltage = float(self.settings["settings"]["bias_voltage"])
 
-        for i, voltage in enumerate(voltage_step_list):
-            if abs(voltage) > abs(bias_voltage):
-                voltage_step_list = voltage_step_list[i:]
-                break
+        #for i, voltage in enumerate(voltage_step_list):
+        #    if abs(voltage) > abs(bias_voltage):
+        #        voltage_step_list = voltage_step_list[i:]
+        #        break
 
         for voltage in voltage_step_list:
             self.change_value(resource, order, voltage)
-            if voltage != 0: # Otherwise measurement can take to long, which leads to a potential timeout error
-                if self.check_complience(resource, complience):
+            if voltage != 0 and compliance: # Otherwise measurement can take to long, which leads to a potential timeout error
+                if self.check_compliance(resource, compliance):
                     return False
             #self.settings["settings"]["bias_voltage"] = float(voltage)  # changes the bias voltage
             sleep(wait_time)
 
         return True
 
-    def change_value_query(self, device_dict, order, value="", answer="1", ignore_answer=True):
-        """This function query a command to a device and waits for a return value and compares
-        it with the answer statement, if they are the same a true is returned"""
+    def query_value(self, device_dict, order, value=""):
+        """
+        This function simply queries a command to a device.
+
+        :param device_dict: The device object
+        :param order: The command to be send
+        :param value: The value for the command
+        :return: the return from the device
+        """
+        command = build_command(device_dict, (order, value))
+        return self.vcw.query(device_dict, command)
+
+    def change_value_query(self, device_dict, order, value="", answer="1", ignore_answer=False):
+        """
+        This function query a command to a device and waits for a return value and compares
+        it with the answer statement, if they are the same a true is returned otherwise a None
+
+        :param device_dict: Device object
+        :param order: The command to be send
+        :param value: The value
+        :param answer: The answer it should have
+        :param ignore_answer: Should the answer be ignored
+        :return: Answer or None
+        """
         answ = ""
         if not ignore_answer:
             if type(order) == list:
@@ -205,12 +277,12 @@ class tools(object):
 
     def send_to_device(self, device_dict, command, seperate=None):
         """
-        This command just sends the command to the device. Warning it is not recommended to use this function. Use this
-        function only if you must!
+        This command just sends the command directly to the device. Warning it is not recommended to use this function. Use this
+        function only if you must! Use change_value instead.
 
         :param device_dict: Dictionary of the device
         :param command: The command you want to send to the device
-        .param seperate: if specified, the string gets split and the command will be send separately at the separator
+        :param seperate: if specified, the string gets split and the command will be send separately at the separator
         :return: None
         """
 
@@ -225,8 +297,8 @@ class tools(object):
 
     def query_device(self, device_dict, command):
         """
-        This command just sends the command to the device, and waits for an answer. Warning it is not recommended to use this function. Use this
-        function only if you must!
+        This command just sends the command directly to the device, and waits for an answer. Warning it is not recommended to use this function. Use this
+        function only if you must! Use query_value instead
 
         :param device_dict: Dictionary of the device
         :param command: The command you want to send to the device
@@ -241,23 +313,33 @@ class tools(object):
                                                                                                       error=e))
 
     def change_value(self, device_dict, order, value=""):
-        '''This function sends a command to a device and changes the state in the dictionary (state machine)'''
-        if type(order) == list:
-            for com in order:
-                command = build_command(device_dict, (com, value))
-                self.vcw.write(device_dict, command) # writes the new order to the device
-        else:
-            command = build_command(device_dict, (order, value))
-            self.vcw.write(device_dict, command)  # writes the new order to the device
+        """
+        This function simply sends a command to a device.
 
-    def check_complience(self, device, complience = None, command="get_read"):
-        '''This function checks if the current complience is reached'''
+        :param device_dict: The device object
+        :param order: The command to be send
+        :param value: The value for the command
+        :return: None
+        """
+        command = build_command(device_dict, (order, value))
+        self.vcw.write(device_dict, command)
+        return None
+
+    def check_compliance(self, device, compliance = None, command="get_read"):
+        """
+        This function checks if the current compliance is reached.
+
+        :param device: The device object
+        :param compliance: The compliance value
+        :param command: The command to check
+        :return: Bool
+        """
         try:
-            if complience == None:
-                self.toolslog.error("No complience set for measurement, default complience is used! This may cause deamage to the sensor!")
-                complience = device["default_complience"]
+            if compliance == None:
+                self.toolslog.error("No compliance set for measurement, default compliance is used! This may cause deamage to the sensor!")
+                compliance = device["default_compliance"]
         except:
-            self.toolslog.error("Device " + str(device) + " has no complience set!")
+            self.toolslog.error("Device " + str(device) + " has no compliance set!")
 
         command = build_command(device, command)
         #value = float(str(self.vcw.query(device, command)).split(",")[0]) #237SMU
@@ -265,16 +347,23 @@ class tools(object):
         if len(value) > 1:
             self.settings["settings"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
 
-        if 0. < (abs(float(value[0])) - abs(float(complience)*0.99)):
-            self.toolslog.error("Complience reached in instrument " + str(device["Device_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(complience))
+        if 0. < (abs(float(value[0])) - abs(float(compliance)*0.99)):
+            self.toolslog.error("Complience reached in instrument " + str(device["Device_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(compliance))
             #self.queue_to_main.put({"MeasError": "Compliance reached. Value. " + str(value[0]) + " A"})
             return True
         else:
             return False
 
     def config_setup(self, device, commands = (), delay=0.0):
-        '''This function configures the setup for a specific measurement.
-        Commands is a list of tuples, containing (command, values) if no value is defined only command will be send'''
+        """
+        This function configures the setup for a specific measurement.
+        Commands is a list of tuples, containing (command, values) if no value is defined only command will be send
+
+        :param device: The device object
+        :param commands: A list of tuples with (command, values). If no value is defined only command will be send
+        :param delay: The delay between each command
+        :return: None
+        """
 
         for command in commands:
             final_string = build_command(device, command)
@@ -282,19 +371,28 @@ class tools(object):
             sleep(delay)
 
     def stop_measurement(self):
-        """Stops the measurement"""
+        """Sends a signal to the framework to stop every measurement"""
         self.toolslog.critical("Measurement stop sended by tools functions...")
         order = {"ABORT_MEASUREMENT": True}  # just for now
         self.queue_to_main.put(order)
 
-    def capacitor_discharge(self, device_dict, relay_dict, termorder = None, terminal = None, do_anyway=False):
-        '''This function checks if the capacitor of the decouple box is correctly discharged
-        First is input is the device which measure something and relay_dict is the relay which need to be switched'''
+    def capacitor_discharge(self, device_dict, relay_dict, Setterminal = None, terminal = None, do_anyway=False):
+        """
+        This function is rather special for SQC. It checks if the capacitor of the decouple box is correctly discharged
 
+        :param device_dict: Device object
+        :param relay_dict: Relay object
+        :param Setterminal: set terminla command
+        :param terminal: terminal Front or back
+        :param do_anyway: Do it anyway
+        :return: Bool
+        """
+
+        #Todo: this function needs clean up and generalization
         self.toolslog.info("Discharging capacitors...")
         # First switch the smu terminals front/rear
-        if termorder:
-            self.change_value(device_dict, termorder, terminal)
+        if Setterminal:
+            self.change_value(device_dict, Setterminal, terminal)
 
         # Set the switching for the discharge (a relay must be switched in the decouple box by applying 5V
         #sleep(1.) # Slow switching shit on BB
@@ -321,7 +419,7 @@ class tools(object):
                 self.change_value(device_dict, "set_source_voltage")
                 self.change_value(device_dict, "set_measure_current")
 
-                self.change_value(device_dict, termorder, "REAR")
+                self.change_value(device_dict, Setterminal, "REAR")
                 # return to default mode for this switching
                 sleep(1.)  # Slow switching shit on BB
                 error = self.change_value_query(relay_dict, "set_discharge", "OFF", "OK")

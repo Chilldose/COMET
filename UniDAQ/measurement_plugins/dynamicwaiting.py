@@ -153,7 +153,7 @@ class dynamicwaiting_class(tools):
 
         # Ramp down and switch all off
         self.current_voltage = self.framework["Configs"]["config"]["settings"]["bias_voltage"]
-        self.ramp_voltage(self.biasSMU, "set_voltage", self.current_voltage, 0, 20, 0.01)
+        self.do_ramp_value(self.biasSMU, "set_voltage", self.current_voltage, 0, 20, 0.01)
         self.change_value(self.biasSMU, "set_voltage", "0")
         self.change_value(self.biasSMU, "set_output", self.SMUOFF)
         self.framework["Configs"]["config"]["settings"]["bias_voltage"] = 0

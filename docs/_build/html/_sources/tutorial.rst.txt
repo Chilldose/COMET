@@ -300,6 +300,7 @@ As an example I show you a simple IV measurement plugin.
 
        def __init__(self, main_class):
            # Here all parameters can be defind, which are crucial for the module to work, you can add as much as you want
+           self.main = main_class
            super(IV_class, self).__init__(self.main.framework, self.main) # Initializes the tool box function, which gives you pre defined functions for ramping etc.
            self.log = logging.getLogger(__name__)
            self.vcw = self.main.framework["VCW"]
@@ -358,7 +359,7 @@ As an example I show you a simple IV measurement plugin.
                         self.main.write(self.main.measurement_files["IV"], string_to_write + "\n")
 
             # Ramp down and switch off SMU
-            self.ramp_voltage(self.bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01) # This function automatically builds command
+            self.do_ramp_value(self.bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01) # This function automatically builds command
             self.change_value(self.bias_SMU, ("set_output", "OFF"))
 
 
@@ -386,6 +387,7 @@ So lets go through this program in detail:
 
        def __init__(self, main_class):
            # Here all parameters can be defind, which are crucial for the module to work, you can add as much as you want
+           self.main = main_class
            super(IV_class, self).__init__(self.main.framework, self.main) # Initializes the tool box function, which gives you pre defined functions for ramping etc.
            self.log = logging.getLogger(__name__)
            self.vcw = self.main.framework["VCW"]
@@ -398,7 +400,7 @@ So lets go through this program in detail:
 
 Here basic modules are loaded, you are not restricted to them. You can add and remove as much as you like. The class IV_class is also
 stated with the init function. Note that I inherit the **tools** module. It contains a multitude of functions which can help you
-build your own measurement plugin. Please see the :ref:`API references` for more information.
+build your own measurement plugin. Please see the :ref:`Measurement Tool Box functions` for more information.
 To actually use this tool box you have to init it with the ``super`` initiatior as shown above. This makes every function in
 the tool box a member of your measurement plugin. Then I initiate the logging and the "Visa Connect Wizard" from the parent class,
 passed as variable to the measurement plugin.
@@ -466,7 +468,7 @@ writing to the log file and call another function:
                         self.main.write(self.main.measurement_files["IV"], string_to_write + "\n")
 
             # Ramp down and switch off SMU
-            self.ramp_voltage(self.bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01) # This function automatically builds command
+            self.do_ramp_valueself.bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01) # This function automatically builds command
             self.change_value(self.bias_SMU, ("set_output", "OFF"))
 
 Here the actual tasks for the IV curve is programmed. It shouldn't be hard to deceiver it and understand how it works.

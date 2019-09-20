@@ -18,6 +18,20 @@ An easy rule of thumb to avoid race conditions and unnecessary variables declara
 
 With these simple rules you should not have problems with this state machine.
 
+Framework variables
+~~~~~~~~~~~~~~~~~~~
+
+The framework main object with all variables etc
+
+Measurements Main Object
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The main file and its member
+
+GUI Main Object
+~~~~~~~~~~~~~~~
+
+The main file and its member
 
 Main Files
 ~~~~~~~~~~

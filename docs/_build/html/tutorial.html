@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Data Structure" href="datastructure.html" />
+    <link rel="next" title="Measurement Tool Box functions" href="Tools.html" />
     <link rel="prev" title="Getting Started" href="gettingstarted.html" /> 
 </head>
 
@@ -97,6 +97,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#add-a-new-measurement">Add a new measurement</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
 <li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
@@ -505,7 +506,8 @@ Furthermore, the class only becomes one parameter passed during init, this being
 71
 72
 73
-74</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># This file conducts a simple IV measurement</span>
+74
+75</pre></div></td><td class="code"><div class="highlight"><pre><span></span><span class="c1"># This file conducts a simple IV measurement</span>
 
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">sys</span>
@@ -519,6 +521,7 @@ Furthermore, the class only becomes one parameter passed during init, this being
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_class</span><span class="p">):</span>
         <span class="c1"># Here all parameters can be defind, which are crucial for the module to work, you can add as much as you want</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span> <span class="o">=</span> <span class="n">main_class</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">IV_class</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">framework</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">)</span> <span class="c1"># Initializes the tool box function, which gives you pre defined functions for ramping etc.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">framework</span><span class="p">[</span><span class="s2">&quot;VCW&quot;</span><span class="p">]</span>
@@ -577,7 +580,7 @@ Furthermore, the class only becomes one parameter passed during init, this being
                      <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_files</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">],</span> <span class="n">string_to_write</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
          <span class="c1"># Ramp down and switch off SMU</span>
-         <span class="bp">self</span><span class="o">.</span><span class="n">ramp_voltage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_voltage&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">voltage_step_list</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span> <span class="c1"># This function automatically builds command</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">do_ramp_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_voltage&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">voltage_step_list</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span> <span class="c1"># This function automatically builds command</span>
          <span class="bp">self</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;set_output&quot;</span><span class="p">,</span> <span class="s2">&quot;OFF&quot;</span><span class="p">))</span>
 </pre></div>
 </td></tr></table></div>
@@ -600,6 +603,7 @@ Furthermore, the class only becomes one parameter passed during init, this being
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">main_class</span><span class="p">):</span>
         <span class="c1"># Here all parameters can be defind, which are crucial for the module to work, you can add as much as you want</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">main</span> <span class="o">=</span> <span class="n">main_class</span>
         <span class="nb">super</span><span class="p">(</span><span class="n">IV_class</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">framework</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="p">)</span> <span class="c1"># Initializes the tool box function, which gives you pre defined functions for ramping etc.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">framework</span><span class="p">[</span><span class="s2">&quot;VCW&quot;</span><span class="p">]</span>
@@ -613,7 +617,7 @@ Furthermore, the class only becomes one parameter passed during init, this being
 </div>
 <p>Here basic modules are loaded, you are not restricted to them. You can add and remove as much as you like. The class IV_class is also
 stated with the init function. Note that I inherit the <strong>tools</strong> module. It contains a multitude of functions which can help you
-build your own measurement plugin. Please see the <a class="reference internal" href="code.html#api-references"><span class="std std-ref">API references</span></a> for more information.
+build your own measurement plugin. Please see the <a class="reference internal" href="Tools.html#measurement-tool-box-functions"><span class="std std-ref">Measurement Tool Box functions</span></a> for more information.
 To actually use this tool box you have to init it with the <code class="docutils literal notranslate"><span class="pre">super</span></code> initiatior as shown above. This makes every function in
 the tool box a member of your measurement plugin. Then I initiate the logging and the &quot;Visa Connect Wizard&quot; from the parent class,
 passed as variable to the measurement plugin.</p>
@@ -673,7 +677,7 @@ writing to the log file and call another function:</p>
                      <span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">measurement_files</span><span class="p">[</span><span class="s2">&quot;IV&quot;</span><span class="p">],</span> <span class="n">string_to_write</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
 
          <span class="c1"># Ramp down and switch off SMU</span>
-         <span class="bp">self</span><span class="o">.</span><span class="n">ramp_voltage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_voltage&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">voltage_step_list</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span> <span class="c1"># This function automatically builds command</span>
+         <span class="bp">self</span><span class="o">.</span><span class="n">do_ramp_valueself</span><span class="o">.</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="s2">&quot;set_voltage&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">voltage_step_list</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]),</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mf">0.01</span><span class="p">)</span> <span class="c1"># This function automatically builds command</span>
          <span class="bp">self</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bias_SMU</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;set_output&quot;</span><span class="p">,</span> <span class="s2">&quot;OFF&quot;</span><span class="p">))</span>
 </pre></div>
 </div>
@@ -700,7 +704,7 @@ The <code class="docutils literal notranslate"><span class="pre">self.main.measu
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="datastructure.html" class="btn btn-neutral float-right" title="Data Structure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="Tools.html" class="btn btn-neutral float-right" title="Measurement Tool Box functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="gettingstarted.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

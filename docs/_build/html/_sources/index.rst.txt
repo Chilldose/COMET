@@ -22,6 +22,7 @@ Contents
    installation
    gettingstarted
    tutorial
+   Tools
    datastructure
    dataexchange
    measurementjobgen

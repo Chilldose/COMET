@@ -105,7 +105,7 @@ class stripscan_class(tools):
         # Switch to IV for correct biasing for ramp
         self.switching.switch_to_measurement("IV")  # correct bias is applied
 
-        self.main.ramp_voltage(self.bias_SMU, "set_voltage", self.current_voltage, 0, self.voltage_steps, wait_time=0.3, complience=0.001)
+        self.main.do_ramp_value(self.bias_SMU, "set_voltage", self.current_voltage, 0, self.voltage_steps, wait_time=0.3, complience=0.001)
         self.main.change_value(self.bias_SMU,"set_voltage", "0")
         self.main.change_value(self.bias_SMU, "set_output", "0")
 
@@ -168,7 +168,7 @@ class stripscan_class(tools):
         self.main.table.move_down(self.height)
 
         # Ramps the voltage, if ramp voltage returns false something went wrong -> stop
-        if not self.main.ramp_voltage(self.bias_SMU, "set_voltage", self.voltage_Start, self.voltage_End, self.voltage_steps, wait_time = 1, complience=self.complience):
+        if not self.main.do_ramp_value(self.bias_SMU, "set_voltage", self.voltage_Start, self.voltage_End, self.voltage_steps, wait_time = 1, complience=self.complience):
             self.current_voltage = self.main.main.default_dict["bias_voltage"]
             self.stop_everything()
 
