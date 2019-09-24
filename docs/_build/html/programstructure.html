@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>COMET Structure &mdash; COMET beta documentation</title>
+  <title>COMET layout &mdash; COMET beta documentation</title>
   
 
   
@@ -83,8 +83,9 @@
               
             
             
-              <ul class="current">
-<li class="toctree-l1 current"><a class="current reference internal" href="#">COMET Structure</a><ul>
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">COMET layout</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#main-structure">Main Structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#measurement-event-loop">Measurement event loop</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#the-gui-event-loop">The GUI event loop</a></li>
@@ -93,13 +94,28 @@
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">How to</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
 <li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="code.html">API references</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/IVCV.html">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">GUI Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
 </ul>
 
             
@@ -145,7 +161,7 @@
     
       <li><a href="index.html">Docs</a> &raquo;</li>
         
-      <li>COMET Structure</li>
+      <li>COMET layout</li>
     
     
       <li class="wy-breadcrumbs-aside">
@@ -164,8 +180,8 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="comet-structure">
-<h1>COMET Structure<a class="headerlink" href="#comet-structure" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="comet-layout">
+<h1>COMET layout<a class="headerlink" href="#comet-layout" title="Permalink to this headline">¶</a></h1>
 <p>The Framework is based on a multi-thread python environment. Since python is generally not thread-safe and race conditions
 are often a problem, several precautions have to be made to safely share data between the different threads. In short, COMET
 has two main threads which are handling the data exchange between the GUI side and the measurement side of the program. For the GUI
@@ -195,7 +211,7 @@ To not have race conditions, the rule in the GUI-Thread is:</p>
 <p class="last">Never change variables that do not directly belong to the GUI. Only access non-member variables by read operations and check if the data is valid.</p>
 </div>
 <p>But <strong>DO NOT PANIC</strong> only a few variables are susceptible to race conditions (if you are using predefined work suits like the QTC-Software).
-If you are using a blank project, like it is described in the <span class="xref std std-ref">Tutorials</span> section. EVERYTHING is safe and you can use it as you please.
+If you are using a blank project, like it is described in the ??? section. EVERYTHING is safe and you can use it as you please.
 But be aware, you are the master of the thread save variables!!!</p>
 <p>To stop the program, you have to send the right signal to the GUI-event loop. This message reads as follows: <code class="docutils literal notranslate"><span class="pre">{&quot;Status&quot;:</span> <span class="pre">{&quot;CLOSE&quot;:</span> <span class="pre">True}}</span></code></p>
 <div class="admonition warning">

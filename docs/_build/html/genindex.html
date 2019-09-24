@@ -82,18 +82,35 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET Structure</a></li>
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">How to</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
 <li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="code.html">API references</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/IVCV.html">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">GUI Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
 </ul>
 
             
@@ -162,10 +179,14 @@
 <div class="genindex-jumpbox">
  <a href="#C"><strong>C</strong></a>
  | <a href="#D"><strong>D</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#N"><strong>N</strong></a>
  | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ | <a href="#W"><strong>W</strong></a>
  
 </div>
 <h2 id="C">C</h2>
@@ -175,13 +196,23 @@
 </li>
       <li><a href="Tools.html#measurement_plugins.forge_tools.tools.change_value">change_value() (measurement_plugins.forge_tools.tools method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Tools.html#measurement_plugins.forge_tools.tools.change_value_query">change_value_query() (measurement_plugins.forge_tools.tools method)</a>
 </li>
       <li><a href="Tools.html#measurement_plugins.forge_tools.tools.check_compliance">check_compliance() (measurement_plugins.forge_tools.tools method)</a>
 </li>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.close_connections">close_connections() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.config_resource">config_resource() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
       <li><a href="Tools.html#measurement_plugins.forge_tools.tools.config_setup">config_setup() (measurement_plugins.forge_tools.tools method)</a>
+</li>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.connect_to">connect_to() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.connect_to_instruments">connect_to_instruments() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.connection_error">connection_error() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -194,13 +225,31 @@
   </ul></td>
 </tr></table>
 
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.list_write">list_write() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="N">N</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.no_response">no_response() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="Q">Q</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.query_device">query_device() (measurement_plugins.forge_tools.tools method)</a>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.query">query() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.query_device">query_device() (measurement_plugins.forge_tools.tools method)</a>
+</li>
       <li><a href="Tools.html#measurement_plugins.forge_tools.tools.query_value">query_value() (measurement_plugins.forge_tools.tools method)</a>
 </li>
   </ul></td>
@@ -211,11 +260,17 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Tools.html#measurement_plugins.forge_tools.tools.ramp_value">ramp_value() (measurement_plugins.forge_tools.tools method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Tools.html#measurement_plugins.forge_tools.tools.ramp_value_log10">ramp_value_log10() (measurement_plugins.forge_tools.tools method)</a>
 </li>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.read">read() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.reconnect_to_device">reconnect_to_device() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
       <li><a href="Tools.html#measurement_plugins.forge_tools.tools.refine_ramp">refine_ramp() (measurement_plugins.forge_tools.tools method)</a>
+</li>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.reset_interface">reset_interface() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -225,8 +280,12 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Tools.html#measurement_plugins.forge_tools.tools.send_to_device">send_to_device() (measurement_plugins.forge_tools.tools method)</a>
 </li>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.show_instruments">show_instruments() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.show_resources">show_resources() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
       <li><a href="Tools.html#measurement_plugins.forge_tools.tools.steady_state_check">steady_state_check() (measurement_plugins.forge_tools.tools method)</a>
 </li>
       <li><a href="Tools.html#measurement_plugins.forge_tools.tools.stop_measurement">stop_measurement() (measurement_plugins.forge_tools.tools method)</a>
@@ -238,6 +297,26 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="Tools.html#measurement_plugins.forge_tools.tools">tools (class in measurement_plugins.forge_tools)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.verify_ID">verify_ID() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard">VisaConnectWizard (class in VisaConnectWizard)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="W">W</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.write">write() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
   </ul></td>
 </tr></table>

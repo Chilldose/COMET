@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="COMET Structure" href="programstructure.html" /> 
+    <link rel="next" title="COMET layout" href="programstructure.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -82,18 +82,35 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET Structure</a></li>
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="tutorial.html">How to</a></li>
-<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
 <li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="code.html">API references</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/IVCV.html">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">GUI Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
 </ul>
 
             
@@ -163,11 +180,10 @@
 <p>This software was developed by Dominic Blöch during his Phd Thesis at HEPHY Vienna.
 It features a GUI based software for testing semiconductor Sensor.
 The core program features easy device implementation through plugin support. The same holds for adding GUI elements and measurements.</p>
-<div class="section" id="contents">
-<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">COMET Guides</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET Structure</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET layout</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="programstructure.html#main-structure">Main Structure</a></li>
 <li class="toctree-l2"><a class="reference internal" href="programstructure.html#measurement-event-loop">Measurement event loop</a></li>
 <li class="toctree-l2"><a class="reference internal" href="programstructure.html#the-gui-event-loop">The GUI event loop</a></li>
@@ -191,21 +207,8 @@ The core program features easy device implementation through plugin support. The
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#add-a-new-device">Add a new device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#create-a-new-device">Create a new device</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tutorial.html#add-a-new-measurement">Add a new measurement</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="datastructure.html#framework-variables">Framework variables</a></li>
-<li class="toctree-l2"><a class="reference internal" href="datastructure.html#measurements-main-object">Measurements Main Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="datastructure.html#gui-main-object">GUI Main Object</a></li>
-<li class="toctree-l2"><a class="reference internal" href="datastructure.html#main-files">Main Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="datastructure.html#device-files">Device Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="datastructure.html#sensor-files">Sensor Files</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="dataexchange.html#framework-data-exchange">Framework Data Exchange</a></li>
-<li class="toctree-l2"><a class="reference internal" href="dataexchange.html#device-data-exchange">Device Data Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#add-a-continuous-environment-monitor">Add a continuous environment monitor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html#change-the-behaviour-of-the-framework-and-misc">Change the behaviour of the framework and misc.</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a><ul>
@@ -215,28 +218,46 @@ The core program features easy device implementation through plugin support. The
 </li>
 </ul>
 </div>
-</div>
-<div class="section" id="references">
-<h2>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="code.html">API references</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="code.html#help-functions">Help Functions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#new-thread">New Thread</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#log-file">LOG File</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#framework">Framework</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#transformation">Transformation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#measurement-generation">Measurement generation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#table-control">Table control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#switching-control">Switching control</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#check-installation">Check installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#load-initialization-files">Load initialization files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#connect-to-devices">Connect to  devices</a></li>
-<li class="toctree-l2"><a class="reference internal" href="code.html#update-state-machine">Update state machine</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#framework-variables">Framework variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#measurements-main-object">Measurements Main Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#gui-main-object">GUI Main Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#config-files">Config Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datastructure.html#addtional-files">Addtional Files</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="dataexchange.html#framework-data-exchange">Framework Data Exchange</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dataexchange.html#device-data-exchange">Device Data Exchange</a></li>
 </ul>
 </li>
 </ul>
 </div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/IVCV.html">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">GUI Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+</ul>
+</div>
+<div class="toctree-wrapper compound">
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
+</ul>
 </div>
 </div>
 <div class="section" id="indices-and-tables">
@@ -256,7 +277,7 @@ The core program features easy device implementation through plugin support. The
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="programstructure.html" class="btn btn-neutral float-right" title="COMET Structure" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="programstructure.html" class="btn btn-neutral float-right" title="COMET layout" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
     </div>

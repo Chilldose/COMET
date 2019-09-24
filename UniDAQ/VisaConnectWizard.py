@@ -30,17 +30,14 @@ def run_with_lock(method):
 
 #Opens a connection to a VISA resource device (GPIB, USB, RS232, IP)
 class VisaConnectWizard:
-    '''
-    This Class is for connecting Rs232, GPIB, IP and USB devices via pyVisa.
+    """
+    This Class is for connecting RS232, GPIB, IP and USB devices via pyVisa.
 
-    It can be called with an argument, which defines the specific resource you want to connect to.
-    Basic Functions are:
-    connect_to_instruments(bool) - no argument: connects to all resources, False: lists all resources and let you decide which to connect to
-    show_instruments - gathers list of all resources
-    show_resources - lists all resources (needs show_instruments first)
-    verify_ID(int) - shows ID of int device, no argument, shows all devices ID
-    close_connections - closes all open connections
-    '''
+    It can be called with arguments, which defines the specific resource you want to connect to.
+
+    With the kwarg 'backend' you can define the backend. '\@py' uses the pyvisa-py backend or '\@sim' for PyVisa-sim,
+    if you pass nothing the standard pyvisa with the NI-Visa bindings will be used.
+    """
 
 
     # initialization
@@ -85,7 +82,7 @@ class VisaConnectWizard:
             self.connection_error(arg[0])
 
     def reset_interface(self):
-        '''Resets the interfaces'''
+        """Resets the GPIB interfaces, if none is present nothing will happen, but a log will be written"""
         try:
             if self.GPIB_interface:
                 self.log.warning("Resetting the interface...")
@@ -103,15 +100,23 @@ class VisaConnectWizard:
 
     #If connections fails this will be called
     def connection_error(self, failed_resource):
+        """
+        Writes an error to the log, with the information on the passed resource
+
+        :param failed_resource: A visa resource object
+        :return: None
+        """
         self.log.error("Attemp to connect to visa resource " + str(failed_resource) + " failed.")
 
 
     #Lists all connected resources (no sniff)
     def show_resources(self):
+        """This function shows you all available resources currently connected to this machine"""
         print(self.myInstruments)
 
     #Looks for all Instruments in the network and shows them
     def show_instruments(self):
+        """This function will search for instruments available to the machine and list them"""
         # Lists all available resources found
         self.log.info("All available visa resources:")
         self.resource_names = self.rm.list_resources()
@@ -126,7 +131,12 @@ class VisaConnectWizard:
 
 
     def reconnect_to_device(self, device_dict):
-        '''This functions reconnects to a device'''
+        """
+        This functions reconnects to a device
+
+        :param device_dict: a device_dict object, containing the visa resource
+        :return: None
+        """
         self.log.info("Try to solve error on device: " + device_dict["Device_name"])
         resource_name = device_dict["Visa_Resource"].resource_name
 
@@ -153,7 +163,15 @@ class VisaConnectWizard:
 
 
     def connect_to(self, device, IDN, baudrate = 57600, device_IDN = "*IDN?"):
-        '''This function connects to a specific device'''
+        """
+        This function connects to a specific device
+
+        :param device:
+        :param IDN:
+        :param baudrate:
+        :param device_IDN:
+        :return:
+        """
 
         try:
             self.log.debug("Try connecting to device: " + self.resource_names[device])
@@ -179,7 +197,13 @@ class VisaConnectWizard:
 
     #Connects to a instrument or all instruments available in the network
     def connect_to_instruments(self, connect_to_all=True, connect_to=[]): # If no args are given it will try to connect to all available resourses
-        '''Debricated'''
+        '''
+        Debricated function
+
+        :param connect_to_all:
+        :param connect_to:
+        :return:
+        '''
         if connect_to_all:
 
             self.show_instruments()  # Lists all resourses
@@ -225,6 +249,17 @@ class VisaConnectWizard:
 
 
     def config_resource(self, resources_name, resource, baudrate = 9600, timeout = 5000.): # For different types of connections different configurations can be done
+        """
+
+
+        :param resources_name:
+        :param resource:
+        :param baudrate:
+        :param timeout:
+        :return:
+        """
+
+
         # ASRL type resourses are RS232 they usually need some additional configuration
         # Furthermore this function is for a primitive configuration, we cannot know by now which device has which configuration. IDN is necessary for that,
         # but we can only ask for IDN if connection is valid.
@@ -248,12 +283,24 @@ class VisaConnectWizard:
 
     #No response function
     def no_response(self, instrument):
+        """
+
+
+        :param instrument:
+        :return:
+        """
         self.log.warning('The device ' + str(instrument) + " is not responing.")
 
 
     #Verifing the ID of connected resources typing -1 asks for all id of all resources
     def verify_ID(self, number=-1, command = "*IDN?"):
+            """
 
+
+            :param number:
+            :param command:
+            :return:
+            """
             if number == -1:
 
                 self.log.info("All IDN of devices:")
@@ -277,7 +324,14 @@ class VisaConnectWizard:
 
     #@run_with_lock # So only one talker and listener can be there
     def query(self, resource_dict, code, reconnect = True):
-        """Makes a query to the resource (the same as first write then read)"""
+        """
+        Makes a query to the resource (the same as first write then read)
+
+        :param resource_dict:
+        :param code:
+        :param reconnect:
+        :return:
+        """
         #Just check if a resource or object was passed and prepare everything
         try:
             resource = resource_dict["Visa_Resource"]
@@ -321,7 +375,13 @@ class VisaConnectWizard:
 
     #@run_with_lock  # So only one talker and listener can be there
     def write(self, resource_dict, code):
-        """Writes a vlaue to a resource, if a list is passed insted of a string all in the list will be send, one after another"""
+        """
+        Writes a vlaue to a resource, if a list is passed insted of a string all in the list will be send, one after another
+
+        :param resource_dict:
+        :param code:
+        :return:
+        """
 
         if type(resource_dict) == dict: # Checks if dict or only resource
             try:
@@ -351,6 +411,12 @@ class VisaConnectWizard:
 
     #Reads a value from the resource
     def read(self, resource_dict):
+        """
+
+
+        :param resource_dict:
+        :return:
+        """
         try:
             return resource_dict["Visa_Resource"].read()
         except:
@@ -358,6 +424,12 @@ class VisaConnectWizard:
 
     #Closes the connection to all active resources and closes the visa resource manager
     def close_connections(self, inst = -1):
+        """
+
+
+        :param inst:
+        :return:
+        """
 
         if inst == -1:
             for instrument in self.myInstruments_dict.keys():
@@ -375,8 +447,15 @@ class VisaConnectWizard:
 
 
     def list_write(self, resource, commands, delay=0.): # Writes initiate commands to the device
-        """Writes a list of commands to the device specified. Usually you dont need this function. User the normal
-        write function, if you pass a list this function will automatically be called. This way it will also work nested"""
+        """
+        Writes a list of commands to the device specified. Usually you dont need this function. User the normal
+        write function, if you pass a list this function will automatically be called. This way it will also work nested
+
+        :param resource:
+        :param commands:
+        :param delay:
+        :return:
+        """
         for command in commands:
             self.write(resource, str(command))
             sleep(delay) #A better way possible but gives the instrument its time

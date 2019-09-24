@@ -1,5 +1,3 @@
-.. _gettingstarted:
-
 Getting Started
 ===============
 
@@ -20,7 +18,7 @@ If you do not have Anaconda installed, start the program via ::
 
 .. note:: If you running COMET in a normal python distribution you have to install all modules by hand. No environment will be set up for you. For needed modules see the requirements.yml file.
 
-.. warning:: If you run into a problem like, python does not find the environement, python was not recognised or a module cannot be found. Make sure the Anaconda python is accessible from the command prompt.
+.. warning:: If you run into a problem like, python does not find the environment, python was not recognised or a module cannot be found. Make sure the Anaconda python is accessible from the command prompt.
 
 If something does not work out as planned try to test if everything was correctly installed on your system. Just follow
 the instructions on :ref:`Once installed, test`
@@ -41,7 +39,7 @@ After that the main GUI should pop up. Depending on which setup you selected you
 
 .. note:: This GUI selection window will only appear at first start up. Next time you start the software the PC knows which setup you initially loaded and will automatically load this setup. If you want to load another setup you have to pass the cmd argument "--reinit" when starting the script. Or inside the program, navigate to "Edit/Preferences" and choose the setup you want to load.
 
-.. note:: In order to add your own setups to this list, please see the chapter :ref:`Tutorials`. There everything is explained in detail.
+.. note:: In order to add your own setups to this list, please see the chapter :ref:`Getting Started`. There everything is explained in detail.
 
 
 Your first GUI

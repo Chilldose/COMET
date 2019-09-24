@@ -1,5 +1,5 @@
-COMET Structure
-=========
+COMET layout
+============
 
 The Framework is based on a multi-thread python environment. Since python is generally not thread-safe and race conditions
 are often a problem, several precautions have to be made to safely share data between the different threads. In short, COMET
@@ -35,7 +35,7 @@ To not have race conditions, the rule in the GUI-Thread is:
 .. caution:: Never change variables that do not directly belong to the GUI. Only access non-member variables by read operations and check if the data is valid.
 
 But **DO NOT PANIC** only a few variables are susceptible to race conditions (if you are using predefined work suits like the QTC-Software).
-If you are using a blank project, like it is described in the :ref:`Tutorials` section. EVERYTHING is safe and you can use it as you please.
+If you are using a blank project, like it is described in the ??? section. EVERYTHING is safe and you can use it as you please.
 But be aware, you are the master of the thread save variables!!!
 
 To stop the program, you have to send the right signal to the GUI-event loop. This message reads as follows: ``{"Status": {"CLOSE": True}}``

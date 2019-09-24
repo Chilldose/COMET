@@ -34,7 +34,7 @@
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Measurement Tool Box functions" href="Tools.html" />
+    <link rel="next" title="Measurement Job Generation" href="measurementjobgen.html" />
     <link rel="prev" title="Getting Started" href="gettingstarted.html" /> 
 </head>
 
@@ -83,8 +83,9 @@
               
             
             
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET Structure</a></li>
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">How to</a><ul>
@@ -95,15 +96,32 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#add-a-new-measurement">Add a new measurement</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#add-a-continuous-environment-monitor">Add a continuous environment monitor</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#change-the-behaviour-of-the-framework-and-misc">Change the behaviour of the framework and misc.</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
-<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
 <li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="code.html">API references</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/IVCV.html">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">GUI Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
 </ul>
 
             
@@ -417,7 +435,10 @@ section ??? for more details.</p>
 <p>Every measurement outputs data, which eventually can be plotted. So before we do anything else we tell the GUI to recognise
 the new measurement. This can be done by adding the line:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">measurement_types</span><span class="p">:</span>
-   <span class="o">-</span> <span class="o">&lt;</span><span class="n">measurement_name</span><span class="o">&gt;</span>
+   <span class="o">-</span> <span class="o">&lt;</span><span class="n">measurement_name</span><span class="o">&gt;</span> <span class="c1"># The name of a meas., if a meas. plugin gives you more than one measurement, state all here.</span>
+
+<span class="n">measurement_order</span><span class="p">:</span>
+   <span class="o">-</span> <span class="o">&lt;</span><span class="n">name_of_measurement_plugin</span><span class="o">&gt;</span> <span class="c1"># The order implies which meas. plugin is executed before another</span>
 </pre></div>
 </div>
 <p>To the <code class="docutils literal notranslate"><span class="pre">settings.yml</span></code> of our project. This makes it possible to send data from the measurement thread to the GUI thread and the
@@ -694,6 +715,48 @@ The <code class="docutils literal notranslate"><span class="pre">self.main.measu
 <p class="last">All this easy access of the main variable is solemnly possible if you make it a member of your measurement plugin, as I did in the init!!!</p>
 </div>
 </div>
+<div class="section" id="add-a-continuous-environment-monitor">
+<h2>Add a continuous environment monitor<a class="headerlink" href="#add-a-continuous-environment-monitor" title="Permalink to this headline">¶</a></h2>
+<p>COMET has the functionality to run a script for a indefinitely amount of time to monitor continuously the environment in
+a setup etc. To tell COMET which script it should call you have to add the following lines to the <code class="docutils literal notranslate"><span class="pre">settings.yml</span></code> file
+in you project:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">temp_history</span><span class="p">:</span> <span class="mi">3600</span> <span class="c1"># How much should be shown in the humidity history in seconds</span>
+<span class="n">temphum_update_intervall</span><span class="p">:</span> <span class="mi">5000</span> <span class="c1"># Update interval of the humidity control in ms</span>
+<span class="n">temphum_plugin</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">plugin_name</span><span class="o">&gt;</span>
+<span class="n">time_format</span><span class="p">:</span> <span class="s2">&quot;%H:%M:%S&quot;</span> <span class="c1"># Time format of the humidity control</span>
+</pre></div>
+</div>
+<p>Most of these parameters should be self explanatory. Note: The temphum_plugin must be located with the other measurement
+plugins. The same rules for naming are applying for this plugin. So the class inside must be the same name as the file.</p>
+<p>This plugin gets three parameters passed by the measurement_event_loop: <em>The event loop object</em>, the <em>framework</em> variables and
+the <em>update_interval</em>. This plugin class must have, like with all other measurement classes, a run directive, which starts the
+routine. Furthermore, the plugin is spawned in its own thread, but the framework does not handel recalling the function. It is
+in your responability the thread does not kill itself after a run through!</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">The spawned thread is a demonized thread! So it shuts down automatically when the framework shuts down.</p>
+</div>
+<p>For data storage of the data, the measurement_event_loop has two numpy arrays for storage: <code class="docutils literal notranslate"><span class="pre">measurement_event_loop.humidity_history</span></code>
+and <code class="docutils literal notranslate"><span class="pre">measurement_event_loop.temperature_history</span></code>. You can store your data there or use your own storage solution.
+If you want to pass your data to the GUI use the dedicated queue objects for data sharing like with any other measurement plugin.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Do not forget to add the measurements to your settings, so your GUI recognizes your data!!! See <a class="reference internal" href="#add-a-new-measurement"><span class="std std-ref">Add a new measurement</span></a></p>
+</div>
+</div>
+<div class="section" id="change-the-behaviour-of-the-framework-and-misc">
+<h2>Change the behaviour of the framework and misc.<a class="headerlink" href="#change-the-behaviour-of-the-framework-and-misc" title="Permalink to this headline">¶</a></h2>
+<p>In this chapter we discuss several features of COMET which cannot justify a own chapter but are somewhat crucial.
+All these features can be accessed by a parameter in the <code class="docutils literal notranslate"><span class="pre">settings.yml</span></code> file of your project.</p>
+<p><strong>GUI_update_intervall: &lt;time_in_ms&gt;</strong></p>
+<p>This parameter handles the update interval -in ms- of the GUI, this includes the framework functions which you specified as well.</p>
+<div class="admonition caution">
+<p class="first admonition-title">Caution</p>
+<p class="last">Too low values can cause the GUI to freeze or be lagging. This depends on how resource depended your functions are. To high values can cause the GUI to be unresponsive.</p>
+</div>
+<p><strong>store_data_as: &lt;data_type&gt;</strong></p>
+<p>This parameter defines an additional data type, your measurement data will be stored. Currently only <em>json</em> is supported.</p>
+</div>
 </div>
 
 
@@ -704,7 +767,7 @@ The <code class="docutils literal notranslate"><span class="pre">self.main.measu
   
     <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
       
-        <a href="Tools.html" class="btn btn-neutral float-right" title="Measurement Tool Box functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+        <a href="measurementjobgen.html" class="btn btn-neutral float-right" title="Measurement Job Generation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
         <a href="gettingstarted.html" class="btn btn-neutral float-left" title="Getting Started" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>

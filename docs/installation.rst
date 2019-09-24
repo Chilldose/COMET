@@ -1,7 +1,5 @@
-.. _installation:
-
 Installation
-===============
+============
 
 What you need
 ~~~~~~~~~~~~~
@@ -63,5 +61,5 @@ If you just want the latest version of COMET, download it from my GitHub reposit
 
 `Git repo <https://github.com/Chilldose/UniDAQ>`_.
 
-Once you have the version you like, continue with the :ref:`gettingstarted` section.
+Once you have the version you like, continue with the :ref:`Getting Started` section.
 

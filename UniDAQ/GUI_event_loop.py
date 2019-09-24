@@ -46,7 +46,7 @@ class GUI_event_loop(QThread):
         self.log = logging.getLogger(__name__)
 
         # Plot data
-        self.meas_data = meas_data # This is a dict with keys like "IV" rtc and than [np.array, np.array] for x,y
+        self.meas_data = meas_data # This is a dict with keys like "IV" etc. and than [np.array, np.array] for x,y
 
     def run(self):
         # Start additional timer for pending events, so that the GUI can shutdown properly

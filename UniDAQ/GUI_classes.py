@@ -106,8 +106,9 @@ class GUI_classes(QWidget):
 
     def add_rendering_function(self, widget, name):
         '''This function adds a widget for rendering'''
-        self.final_tabs.append((widget, name))
         self.log.debug("Adding rendering function: %s", name)
+        self.final_tabs.append((widget, name))
+
 
     def construct_ui(self):
         '''This function generates all ui elements in form of tab widgets'''
@@ -118,9 +119,11 @@ class GUI_classes(QWidget):
             layout = QGridLayout()  # Just a layout type
             widget.setLayout(layout)
 
+            # Here the init function of all UI python plugins will be called
             plugin = getattr(self.all_plugin_modules[module], module)(self, layout)
             self.ui_plugins.update({module: plugin})
 
+            # Add the ui to the renderer
             self.add_rendering_function(widget, module.split("_")[0])
 
     def load_QtUi_file(self, filename, widget):

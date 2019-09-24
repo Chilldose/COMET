@@ -255,7 +255,7 @@ section ??? for more details.
 
 
 Add a new measurement
-----------------------------
+---------------------
 
 In this final tutorial I will show you how to add a measurement plugin as easily as the GUI plugins from the previous section.
 
@@ -263,7 +263,10 @@ Every measurement outputs data, which eventually can be plotted. So before we do
 the new measurement. This can be done by adding the line: ::
 
    measurement_types:
-      - <measurement_name>
+      - <measurement_name> # The name of a meas., if a meas. plugin gives you more than one measurement, state all here.
+
+   measurement_order:
+      - <name_of_measurement_plugin> # The order implies which meas. plugin is executed before another
 
 To the ``settings.yml`` of our project. This makes it possible to send data from the measurement thread to the GUI thread and the
 GUI saves your data. On how to send data exactely from a measurement thread to the GUI see chapters :ref:`The GUI event loop` and :ref:`???`.
@@ -483,6 +486,54 @@ it generates you a file in which you can easily write. To do so you have to acce
 The ``self.main.measurement_files`` variable is a dict containing all file pointer.
 
 .. warning:: All this easy access of the main variable is solemnly possible if you make it a member of your measurement plugin, as I did in the init!!!
+
+
+Add a continuous environment monitor
+------------------------------------
+
+COMET has the functionality to run a script for a indefinitely amount of time to monitor continuously the environment in
+a setup etc. To tell COMET which script it should call you have to add the following lines to the ``settings.yml`` file
+in you project: ::
+
+    temp_history: 3600 # How much should be shown in the humidity history in seconds
+    temphum_update_intervall: 5000 # Update interval of the humidity control in ms
+    temphum_plugin: <plugin_name>
+    time_format: "%H:%M:%S" # Time format of the humidity control
+
+Most of these parameters should be self explanatory. Note: The temphum_plugin must be located with the other measurement
+plugins. The same rules for naming are applying for this plugin. So the class inside must be the same name as the file.
+
+This plugin gets three parameters passed by the measurement_event_loop: *The event loop object*, the *framework* variables and
+the *update_interval*. This plugin class must have, like with all other measurement classes, a run directive, which starts the
+routine. Furthermore, the plugin is spawned in its own thread, but the framework does not handel recalling the function. It is
+in your responability the thread does not kill itself after a run through!
+
+.. warning:: The spawned thread is a demonized thread! So it shuts down automatically when the framework shuts down.
+
+For data storage of the data, the measurement_event_loop has two numpy arrays for storage: ``measurement_event_loop.humidity_history``
+and ``measurement_event_loop.temperature_history``. You can store your data there or use your own storage solution.
+If you want to pass your data to the GUI use the dedicated queue objects for data sharing like with any other measurement plugin.
+
+.. note:: Do not forget to add the measurements to your settings, so your GUI recognizes your data!!! See :ref:`Add a new measurement`
+
+
+
+Change the behaviour of the framework and misc.
+-----------------------------------------------
+
+In this chapter we discuss several features of COMET which cannot justify a own chapter but are somewhat crucial.
+All these features can be accessed by a parameter in the ``settings.yml`` file of your project.
+
+**GUI_update_intervall: <time_in_ms>**
+
+This parameter handles the update interval -in ms- of the GUI, this includes the framework functions which you specified as well.
+
+.. caution:: Too low values can cause the GUI to freeze or be lagging. This depends on how resource depended your functions are. To high values can cause the GUI to be unresponsive.
+
+**store_data_as: <data_type>**
+
+This parameter defines an additional data type, your measurement data will be stored. Currently only *json* is supported.
+
 
 
 

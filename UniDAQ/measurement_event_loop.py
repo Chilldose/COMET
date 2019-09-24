@@ -60,6 +60,7 @@ class measurement_event_loop(Thread):
                                         ["config"]["settings"].get("temphum_plugin", "NoPlugin"))\
                                         (self, self.framework, self.framework["Configs"]
                                     ["config"]["settings"].get("temphum_update_intervall:", 5000))
+            self.temphumhread.setDaemon(True)
             self.temphumhread.start() # Starts the thread
 
         # This starts the loop to get the messages from the main thread

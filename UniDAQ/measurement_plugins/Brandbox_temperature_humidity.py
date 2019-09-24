@@ -70,7 +70,7 @@ class Brandbox_temperature_humidity(Thread):
         if not self.main.stop_measurement_loop:
             self.start_timer(self.run)
         else:
-            self.log.info("Shutting down environement control due to stop of measurement loop")
+            self.log.info("Shutting down environment control due to stop of measurement loop")
 
 
     def start_timer(self, object):
