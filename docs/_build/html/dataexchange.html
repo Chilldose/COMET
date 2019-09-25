@@ -116,6 +116,8 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Tools.html#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html#xyz-stage-control-class">XYZ-Stage Control Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html#switching-system-control-class">Switching System Control Class</a></li>
 </ul>
 
             
@@ -182,13 +184,118 @@
             
   <div class="section" id="data-exchange">
 <h1>Data Exchange<a class="headerlink" href="#data-exchange" title="Permalink to this headline">¶</a></h1>
+<p>In this section the basic data exchange mechanisms will be explained COMET uses to exchange data between the GUI and the
+measurement thread, as well the exchange of data between measurement devices.</p>
 <div class="section" id="framework-data-exchange">
 <h2>Framework Data Exchange<a class="headerlink" href="#framework-data-exchange" title="Permalink to this headline">¶</a></h2>
-<p>Describe the queues used in the framework</p>
+<p>Since you have learned that COMET uses several threads and event loops to work, a save way for data exchange has to be installed
+to ensure thread save operations of the software.
+Therefore, I have established several FIFO Queue objects you can use to exchange data from the GUI threads to the measuerment
+threads.</p>
+<p>These queue objects are:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Message_to_main</li>
+<li>Message_from_main</li>
+</ul>
+</div></blockquote>
+<p>and they can be accessed by the <a class="reference internal" href="datastructure.html#framework-variables"><span class="std std-ref">Framework variables</span></a> object, your measurement plugin has access to.</p>
+<p><strong>Message_to_main:</strong>
+is for sending data to the GUI event loop (or the Main program). Like with all messages in COMET the
+message send over this queue must be a python dict object. Key being the message type and the value, the value this key should represent.
+The GUI understands the following message types:</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Errors:</th><td class="field-body">&quot;Critical&quot;, &quot;Info&quot;,&quot;MeasError&quot;, &quot;DataError&quot;, &quot;RequestError&quot;, &quot;MEASUREMENT_FAILED&quot;, &quot;Warning&quot;, &quot;FatalError&quot;, &quot;ThresholdError&quot;, &quot;ERROR&quot;, &quot;Error&quot;</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Measurements:</th><td class="field-body">All measurements keys you have defined in your project settings file under the key <code class="docutils literal notranslate"><span class="pre">measurement_types</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Events:</th><td class="field-body">&quot;MEASUREMENT_STATUS&quot;, &quot;MEASUREMENT_FINISHED&quot;, &quot;CLOSE_PROGRAM&quot;, &quot;ABORT_MEASUREMENT&quot;, &quot;START_MEASUREMENT&quot;, &quot;MEASUREMENT_EVENT_LOOP_STOPED&quot;</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>As a User you only have to concern about the first to message types, so Errors and Measurements.</p>
+<p><strong>Error</strong> messages always looks like <code class="docutils literal notranslate"><span class="pre">{&quot;Info&quot;:</span> <span class="pre">&quot;Some</span> <span class="pre">info</span> <span class="pre">you</span> <span class="pre">want</span> <span class="pre">to</span> <span class="pre">tell</span> <span class="pre">the</span> <span class="pre">GUI&quot;}</span></code>. So the key is the error type
+and the value is a string.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">It has always to be a string the value! But it is not important what is inside this string, this is up to the user!</p>
+</div>
+<p>This message is then written to the member variable of the GUI event loop <code class="docutils literal notranslate"><span class="pre">error_log</span></code>, which the user can use to display the errors inside the GUI.
+Other actions will not be taken by the framework with this kind of messages.</p>
+<div class="admonition hint">
+<p class="first admonition-title">Hint</p>
+<p class="last">The message types are furthermore color coded. All errors are red, infos are green and warnings etc. are orange.</p>
+</div>
+<p><strong>Measurements</strong> types have the same structure as the error types. The difference being, that the key must be a valid name you specified in your settings
+under the key <code class="docutils literal notranslate"><span class="pre">measurement_types</span></code>. Otherwise COMET will discard this event. The value of this message must always be a list of np.arrays or single values.
+So an example message would be: <code class="docutils literal notranslate"><span class="pre">{&quot;IV&quot;:</span> <span class="pre">[np.array[],</span> <span class="pre">np.array[]]}</span></code> these arrays will be appended to the existing data array for measurement data storage.
+Which is in turn a np.array object.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">You do not have to send single value arrays over this queue. If you send a longer array of data, it will be appended via the numpy function np.append(measurement_array, yourarray).</p>
+</div>
+<p><strong>Events</strong> are message types which are only used by core features of COMET and the user should never meddle with it. It can compromise the
+stability of COMET. But if you really want to know. These messages are only flag messages so a message would look like:
+<code class="docutils literal notranslate"><span class="pre">{&quot;CLOSE_PROGRAM&quot;:</span> <span class="pre">True}</span></code> which will shut down the program.</p>
+<div class="admonition tip">
+<p class="first admonition-title">Tip</p>
+<p class="last">This &quot;CLOSE_PROGRAM&quot; message is with &quot;ABORT_MEASUREMENT&quot; the only messages you as user should use.</p>
+</div>
+<p><strong>Message_from_main:</strong>
+This queue is for sending data to the measurement event loop. Like with all messages in COMET the
+message send over this queue must be a python dict object. Key being the message type and the value, the value this key should represent.
+The event loop understands the following message types:</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status:</th><td class="field-body">&quot;CLOSE&quot;, &quot;MEASUREMENT_FINISHED&quot;, &quot;MEASUREMENT_STATUS&quot;, &quot;ABORT_MEASUREMENT&quot;</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Measurements:</th><td class="field-body">&quot;Measurement&quot;, &quot;Status&quot;, &quot;Remeasure&quot;, &quot;Alignment&quot;, &quot;Sweep&quot;</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p><strong>Status:</strong>
+These type of messages are message types which are only used by core features of COMET These messages are only flag messages so a message would look like:
+<code class="docutils literal notranslate"><span class="pre">{&quot;ABORT_MEASUREMENT&quot;:</span> <span class="pre">True}</span></code> which will end the measurement.</p>
+<p><strong>Measurements:</strong>
+These are messages concerning the starting of a measurement plugin status and so on. To generate a measurement job please
+see the dedicated chapter <a class="reference internal" href="measurementjobgen.html#measurement-job-generation"><span class="std std-ref">Measurement Job Generation</span></a>.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">&quot;Remeasure&quot;, &quot;Alignment&quot;, &quot;Sweep&quot; are deprecated messages, which will be deleted in future releases.</p>
+</div>
 </div>
 <div class="section" id="device-data-exchange">
 <h2>Device Data Exchange<a class="headerlink" href="#device-data-exchange" title="Permalink to this headline">¶</a></h2>
-<p>Describe the VCW</p>
+<p>COMET uses the pyVisa module to exchange data with all kinds of measurement devices. This module is based on the
+National Instruments VISA driver, and therefore needs its dependencies to work.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">There is a pyvisa-py module which is not dependent on the NI-Visa drivers, but its not as stable as the NI variant.</p>
+</div>
+<p>To advantage of this driver is, that it abstracts the device connection type to an easy usable interface. Basically, if
+you have established a connection to a device, be it RS232, GPIB, TCP/IP or USB you do not need to concern yourself with
+the details of this connection. All devices uses the same functions for reading and writing and the drivers does the correct
+adjustments.</p>
+<p>For further abstraction I have written a module which is a wrapper around pyvisa and makes thinks even more easy for you.
+It is called the <a class="reference internal" href="Tools.html#vcw-visa-connect-wizard"><span class="std std-ref">VCW - Visa Connect Wizard</span></a>. In it are some tools you can use to connect to devices. It features a more
+sophisticated error handling and automatic reconnection if a devices somehow loses the connection to the computer.</p>
+<p>An instance of a VCW with all connected devices is supplied by the <a class="reference internal" href="datastructure.html#framework-variables"><span class="std std-ref">Framework variables</span></a> object all your measurement plugins
+get passed. You can access the VCW instance by the key <code class="docutils literal notranslate"><span class="pre">VCW</span></code>.</p>
+<p>The member <code class="docutils literal notranslate"><span class="pre">VCW.myInstruments</span></code> gives you a dict of all connected devices, the key being the VISA resource name and the key the actual resource.</p>
+<p>The most important functions for a user are the <code class="docutils literal notranslate"><span class="pre">read</span></code>, <code class="docutils literal notranslate"><span class="pre">write</span></code> and <code class="docutils literal notranslate"><span class="pre">query</span></code> function, with them you can directly send a command
+to a device. But you most likely want to use a toolbox function for that, because it will build a correct command the device will understand.
+If you encounter a command which is not coped by the device command set, then you can use this commands, otherwise I would recommend
+to use a toolbox function.</p>
+<p>In the Code Reference section under <a class="reference internal" href="Tools.html#vcw-visa-connect-wizard"><span class="std std-ref">VCW - Visa Connect Wizard</span></a> you find all member functions you can use with the VCW.</p>
 </div>
 </div>
 

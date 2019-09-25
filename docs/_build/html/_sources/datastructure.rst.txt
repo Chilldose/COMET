@@ -219,4 +219,3 @@ This will result in a dictionary in the ``Configs`` parameters as: ::
                                 }
                     }
 
-.. important:: Do not use any whitespace or special character for naming of files and directory!!! Otherwise python cannot generate dictionary keys, and the program will stop at this point!

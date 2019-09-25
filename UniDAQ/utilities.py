@@ -1,19 +1,4 @@
 #This class provides usefull functions for gernerall purposes
-#Class functions:
-#create_new_file,
-
-#IO-functions
-# open_file,
-# close_file,
-# flush_to_file,
-# close_file,
-# read_from_file,
-# write_to_file,
-#
-#Ramping
-# ramp_voltage
-
-
 
 import os, sys, os.path, re
 #sys.path.append(os.path.join( os.path.dirname(__file__), '..',))
@@ -29,7 +14,6 @@ import numpy as np
 from numpy.linalg import inv
 import datetime
 import pyqtgraph as pg
-from .VisaConnectWizard import VisaConnectWizard
 import logging
 from .engineering_notation import EngUnit
 import queue
@@ -914,7 +898,13 @@ class transformation:
 
 class table_control_class:
     '''This class handles all interactions with the table. Movement, status etc.
-    This class is designed to be running in different instances.'''
+    This class is designed to be running in different instances.
+
+    :param main_variables: Defaults dict
+    :param device: The VISA device object
+    :param queue_to_GUI: Queue object to the main
+    :param vcw: A VISA connect wizard instance
+    '''
 
     def __init__(self, main_variables, devices, queue_to_GUI, vcw):
         """
@@ -922,7 +912,7 @@ class table_control_class:
         :param main_variables: Defaults dict
         :param device: The VISA device object
         :param queue_to_GUI:
-        :param shell: The UniDAQ shell object
+        :param vcw: A VISA connect wizard instance
         """
         self.variables = main_variables["settings"]
         self.devices = devices
@@ -968,6 +958,7 @@ class table_control_class:
     def check_if_ready(self, timeout = 0, maxcounter = -1):
         '''
         This function checks if the movement of the table is done or not
+
         :param timeout: Timeout how long to wait between the attempts
         :param maxcounter: How often does the function try to get an answer, -1 infinite
         :return: 0 if ok error if not
@@ -1246,16 +1237,23 @@ class table_control_class:
 
 class switching_control:
     """
-    This class handles all switching controls of all switching matrices
-    """
+        This class handles all switching actions, for all switching devices
+
+        :param settings: default settings ( state machine )
+        :param devices: devices dict
+        :param queue_to_main: The queue object to the main
+        :param vcw: A visa connect wizard instance
+        """
 
     def __init__(self, settings, devices, queue_to_main, vcw):
-        '''
+        """
         This class handles all switching actions
 
         :param settings: default settings ( state machine )
         :param devices: devices dict
-        '''
+        :param queue_to_main: The queue object to the main
+        :param vcw: A visa connect wizard instance
+        """
         self.settings = settings
         self.message_to_main = queue_to_main
         self.devices = devices
@@ -1274,6 +1272,7 @@ class switching_control:
     def reset_switching(self, device="all"):
         '''
         This function resets all switching or one device switching
+
         :param device: all oder device object:
         '''
         if device == "all": # opens all switches in all relays
@@ -1358,9 +1357,8 @@ class switching_control:
         '''
         This function picks the string response and returns a list.
         This function searches for a separator in the device dict and uses it to discect the message, standard is ','
+
         :param current_switching: is a string containing the current switching
-
-
         '''
 
         if current_switching == "nil":

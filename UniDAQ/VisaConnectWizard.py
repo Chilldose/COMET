@@ -82,7 +82,7 @@ class VisaConnectWizard:
             self.connection_error(arg[0])
 
     def reset_interface(self):
-        """Resets the GPIB interfaces, if none is present nothing will happen, but a log will be written"""
+        """Resets the GPIB interface, if none is present nothing will happen, but a log will be written"""
         try:
             if self.GPIB_interface:
                 self.log.warning("Resetting the interface...")
@@ -166,11 +166,11 @@ class VisaConnectWizard:
         """
         This function connects to a specific device
 
-        :param device:
-        :param IDN:
-        :param baudrate:
-        :param device_IDN:
-        :return:
+        :param device: The Visa resource name
+        :param IDN: The identification string of the device
+        :param baudrate: A baudrate (only used for RS232 devices)
+        :param device_IDN: The IDN query string (default: *IDN?)
+        :return: bool
         """
 
         try:
@@ -199,10 +199,6 @@ class VisaConnectWizard:
     def connect_to_instruments(self, connect_to_all=True, connect_to=[]): # If no args are given it will try to connect to all available resourses
         '''
         Debricated function
-
-        :param connect_to_all:
-        :param connect_to:
-        :return:
         '''
         if connect_to_all:
 
@@ -250,13 +246,14 @@ class VisaConnectWizard:
 
     def config_resource(self, resources_name, resource, baudrate = 9600, timeout = 5000.): # For different types of connections different configurations can be done
         """
+        Configs the resource for correct usage. Currently only RS232 devices are configured with this.
+        All other devices config them self.
 
-
-        :param resources_name:
-        :param resource:
-        :param baudrate:
-        :param timeout:
-        :return:
+        :param resources_name: The visa resource name
+        :param resource: The resource object
+        :param baudrate: The baudrate
+        :param timeout: A timeout in ms
+        :return: None
         """
 
 
@@ -284,10 +281,10 @@ class VisaConnectWizard:
     #No response function
     def no_response(self, instrument):
         """
+        Log entry for a no response error
 
-
-        :param instrument:
-        :return:
+        :param instrument: The instrument resource name
+        :return: None
         """
         self.log.warning('The device ' + str(instrument) + " is not responing.")
 
@@ -295,11 +292,11 @@ class VisaConnectWizard:
     #Verifing the ID of connected resources typing -1 asks for all id of all resources
     def verify_ID(self, number=-1, command = "*IDN?"):
             """
+            Prints all IDN of all devices connected to this machine
 
-
-            :param number:
-            :param command:
-            :return:
+            :param number: The number in the myInstruments, pass -1 for all devices
+            :param command: The IDN query
+            :return: False or None
             """
             if number == -1:
 
@@ -312,7 +309,7 @@ class VisaConnectWizard:
                     except:
                         self.no_response(str(instrument))
                         #self.close_connections(instrument) # Closes the connection to the not responding instruments
-                return 0
+                return False
 
 
             else:
@@ -327,10 +324,10 @@ class VisaConnectWizard:
         """
         Makes a query to the resource (the same as first write then read)
 
-        :param resource_dict:
-        :param code:
-        :param reconnect:
-        :return:
+        :param resource_dict: The device resource object (with the commands)
+        :param code: The string to write to the device
+        :param reconnect: If a timeout happens, if you want to reconnect
+        :return: Response (str) or False
         """
         #Just check if a resource or object was passed and prepare everything
         try:
@@ -376,11 +373,11 @@ class VisaConnectWizard:
     #@run_with_lock  # So only one talker and listener can be there
     def write(self, resource_dict, code):
         """
-        Writes a vlaue to a resource, if a list is passed insted of a string all in the list will be send, one after another
+        Writes a value to a resource, if a list is passed instead of a string all in the list will be send, one after another
 
-        :param resource_dict:
-        :param code:
-        :return:
+        :param resource_dict: The device resource object (with the commands)
+        :param code: The string to write to the device
+        :return: bool
         """
 
         if type(resource_dict) == dict: # Checks if dict or only resource
@@ -412,10 +409,10 @@ class VisaConnectWizard:
     #Reads a value from the resource
     def read(self, resource_dict):
         """
+        Reads from a device
 
-
-        :param resource_dict:
-        :return:
+        :param resource_dict: The device resource object (with the commands)
+        :return: Response (str) or False
         """
         try:
             return resource_dict["Visa_Resource"].read()
@@ -425,10 +422,10 @@ class VisaConnectWizard:
     #Closes the connection to all active resources and closes the visa resource manager
     def close_connections(self, inst = -1):
         """
+        Closes the connection to a device
 
-
-        :param inst:
-        :return:
+        :param inst: Either the visa device to close or -1 (default) for all devices
+        :return: None
         """
 
         if inst == -1:
@@ -451,10 +448,10 @@ class VisaConnectWizard:
         Writes a list of commands to the device specified. Usually you dont need this function. User the normal
         write function, if you pass a list this function will automatically be called. This way it will also work nested
 
-        :param resource:
-        :param commands:
-        :param delay:
-        :return:
+        :param resource: The device resource dictionary
+        :param commands: A list of commands to write
+        :param delay: A delay between the commands
+        :return: None
         """
         for command in commands:
             self.write(resource, str(command))

@@ -103,7 +103,7 @@ class measurement_event_loop(Thread):
                 else:
                     self.log.error("Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\"")
         except Exception as err:
-            self.log.error("An unknown error occcured while translating the message: {} with error {}".format(message, err))
+            self.log.error("An unknown error occured while translating the message: {} with error {}".format(message, err))
 
     def process_message(self):
         '''This function will do some actions in case of a valid new operation'''

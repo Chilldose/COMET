@@ -22,3 +22,31 @@ object. With it you can easy and savely send your devices any kind of command di
 
 .. autoclass:: VisaConnectWizard.VisaConnectWizard
 	:members:
+
+
+XYZ-Stage Control Class
+=======================
+
+The XYZ-Stage Control Class is a core feature of COMET it allows you to safely operate any configured automated table.
+An instance is generated on start up -if a stage is configured- in the :ref:`Framework variables`. It features several
+move functions which has build in the functionality to first move down the stage and then move to another location and
+if in position move the table up again. This prevents scratches on e.g. silicon sensors when contacted with needles.
+
+Furthermore, it checks the position of the stage to make sure the table is always on the correct location. If not an error
+will be raised in the COMETs internal error handling system.
+
+.. autoclass:: UniDAQ.utilities.table_control_class
+	:members:
+
+Switching System Control Class
+==============================
+
+The Switching System Control Class gives you functions to safely operate a switching system. It has the ability to cope
+with lots of different variants of switching systems. In the following section the needed config files and a how to will
+be explained.
+
+**TODO**
+
+.. autoclass:: UniDAQ.utilities.switching_control
+	:members:
+
