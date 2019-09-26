@@ -1297,7 +1297,12 @@ class switching_control:
         return current_switching
 
     def apply_specific_switching(self, switching_dict):
-        """This function takes a dict of type {"Switching": [/switch nodes], ....} and switches to these specific type"""
+        """
+        This function takes a dict of type {"Switching": [/switch nodes], ....} and switches to these specific type
+
+        :param switching_dict: What to switch
+        :return: bool
+        """
 
         for device in self.devices:
             if device in switching_dict.keys():
@@ -1358,6 +1363,7 @@ class switching_control:
         This function picks the string response and returns a list.
         This function searches for a separator in the device dict and uses it to discect the message, standard is ','
 
+        :device: The device object
         :param current_switching: is a string containing the current switching
         '''
 
@@ -1410,6 +1416,7 @@ class switching_control:
         '''
         Fancy name, but just sends the swithing command
 
+        :device: The device object
         :param config: the list of nodes which need to be switched
         '''
         # Check if only a string is passed and not a list and convert into list if need be
@@ -1428,21 +1435,35 @@ class switching_control:
             self.log.debug("Device exclusive switching used...")
             return self.device_exclusive_switching(device, configs)
         else:
+             #Normal switching
              return self.manual_switching(device, configs, BBM = True)
 
     def device_exclusive_switching(self, device, configs):
-        """Switching will be done exclusivly by the device itself. Warning make sure the device is correctly configured if
-        you are using this routine"""
+        """
+        Switching will be done exclusivly by the device itself. Warning make sure the device is correctly configured if
+        you are using this routine
+
+        :param device:  The device
+        :param configs:  The configs dict
+        :return: bool
+        """
         self.__send_switching_command(device, "set_exclusive_close_channel", configs)
         # Check if switching is done
         return self.check_all_closed_channel(device, configs)
 
 
     def manual_switching(self, device, configs, BBM = True):
-        """Manual switching, so opening and closing of channels is done via this software. Old keithley will need this
+        """
+        Manual switching, so opening and closing of channels is done via this software. Old keithley will need this
         Newer devices can do exclusive opening and closing.
         BBM or Break-before-make is the order how to switch, if False make-before-break is used. This is not
-        recommended since it can dry weld the switches."""
+        recommended since it can dry weld the switches.
+
+        :param device:  The device
+        :param configs:  The configs dict
+        :param BBM: Break before make or make before break,
+        :return: bool
+        """
         command = self.build_command(device, "get_closed_channels")
         current_switching = str(self.vcw.query(device, command)).strip()  # Get current switching
         current_switching = self.pick_switch_response(device, current_switching)
@@ -1467,7 +1488,13 @@ class switching_control:
         return self.check_all_closed_channel(device, configs)
 
     def check_all_closed_channel(self, device, to_be):
-        """Checks if all channels are correctly closed"""
+        """
+        Checks if all channels are correctly closed
+
+        :param device: The device
+        :param to_be: the to be state of the relays for this device
+        :return: bool
+        """
         device_not_ready = True
         counter = 0
         opc_command = self.build_command(device, "get_operation_complete")

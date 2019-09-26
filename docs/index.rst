@@ -40,7 +40,7 @@ The core program features easy device implementation through plugin support. The
 
 .. toctree::
    :maxdepth: 1
-   :caption: GUI Plugins
+   :caption: General Purpose GUI Plugins
 
    GUI_plugins/resources
    GUI_plugins/Device_Com
