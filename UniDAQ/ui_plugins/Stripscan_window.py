@@ -1,15 +1,12 @@
-import ast
-import json
-import os
-import os.path as osp
-import sys, importlib, logging
 
+import logging
 import numpy as np
 import pyqtgraph as pq
-from PyQt5.QtCore import Qt
-from PyQt5 import QtGui
-from PyQt5.QtGui import *
+
+from time import sleep
 from PyQt5.QtWidgets import *
+from .. import engineering_notation as en
+from .Pause_stripscan_widget import pause_stripscan_widget
 
 
 from ..utilities import raise_exception, change_axis_ticks, get_thicks_for_timestamp_plot
@@ -34,18 +31,13 @@ class Stripscan_window:
                                  ("Rpoly", ["Pad", "#"], ["Resistance", "Ohm"], [False, False], False),
                                  ("Rint", ["Pad", "#"], ["Resistance", "Ohm"], [False, False], False),
                                  ("Cac", ["Pad", "#"], ["Capacitance", "F"], [False, False], False),
-                                 ("Cint", ["Pad", "#"], ["Capacitance", "F"], [False, False], False),
-                                 ("Cback", ["Pad", "#"], ["Capacitance", "F"], [False, False], False)
+                                 ("Cint", ["Pad", "#"], ["Capacitance", "F"], [False, False], False)
                                  ]
 
         # Settings tab
         stripscan_widget = QWidget()
 
         self.stripscan = self.variables.load_QtUi_file("stripscan.ui", stripscan_widget)
-        #self.stripscan.gridLayout_2.setSpacing(0.)
-        #self.stripscan.gridLayout_2.setContentsMargins(40., 4., 4., 4.)
-        #self.stripscan.gridLayout_2.setSpacing(0)
-        #self.stripscan.gridLayout_2.setMargin(0)
         self.layout.addWidget(stripscan_widget)
         self.strip = -1
         self.new_meas = True
@@ -56,6 +48,12 @@ class Stripscan_window:
         # Config plots
         for items in self.measurement_list:
             self.config_plot(items[0], items[1], items[2], items[3], items[4])
+
+        # Config value text
+        self.update_text()
+
+        # Button actions
+        self.stripscan.Pause_button.clicked.connect(self.pause_button_action)
 
         # Adds the function to the framework function, so that they called everytime the framework is updated
         self.variables.add_update_function(self.update_strip_stat)
@@ -76,6 +74,36 @@ class Stripscan_window:
 
         change_axis_ticks(object, self.ticksStyle)
 
+    def update_text(self):
+        """This function updates the stext for the measurements"""
+        if self.variables.default_values_dict["settings"]["new_data"]:  # New data available ?
+            self.stripscan.Idark_value.setText(str(
+                en.EngNumber(self.variables.meas_data["Idark"][1][-1]) if len(
+                    self.variables.meas_data["Idark"][1]) > 0 else "NaN"))
+
+            self.stripscan.Idiel_value.setText(str(
+                en.EngNumber(self.variables.meas_data["Idiel"][1][-1]) if len(
+                    self.variables.meas_data["Idiel"][1]) > 0 else "NaN"))
+
+            self.stripscan.Istrip_value.setText(str(
+                en.EngNumber(self.variables.meas_data["Istrip"][1][-1]) if len(
+                    self.variables.meas_data["Istrip"][1]) > 0 else "NaN"))
+
+            self.stripscan.Cac_value.setText(str(
+                en.EngNumber(self.variables.meas_data["Cac"][1][-1]) if len(
+                    self.variables.meas_data["Cac"][1]) > 0 else "NaN"))
+
+            self.stripscan.Rpoly_value.setText(str(
+                en.EngNumber(self.variables.meas_data["Rpoly"][1][-1]) if len(
+                    self.variables.meas_data["Rpoly"][1]) > 0 else "NaN"))
+
+            self.stripscan.Cint_value.setText(str(
+                en.EngNumber(self.variables.meas_data["Cint"][1][-1]) if len(
+                    self.variables.meas_data["Cint"][1]) > 0 else "NaN"))
+
+            self.stripscan.Rint_value.setText(str(
+                en.EngNumber(self.variables.meas_data["Rint"][1][-1]) if len(
+                    self.variables.meas_data["Rint"][1]) > 0 else "NaN"))
 
     def update_plots(self):
         '''This function updates all strip data plots'''
@@ -87,7 +115,8 @@ class Stripscan_window:
                 if len(self.variables.meas_data[meas[0]][0]) == len(self.variables.meas_data[meas[0]][1]):  # sometimes it happens that the values are not yet ready
                     plot_item.plot(self.variables.meas_data[meas[0]][0], self.variables.meas_data[meas[0]][1], pen="#e53d46", clear=True)
 
-
+        # Config value text
+        self.update_text()
 
     def to_many_bad_strips_action(self):
         '''Things to do when to many bad strips are detected'''
@@ -95,7 +124,9 @@ class Stripscan_window:
 
     def pause_button_action(self):
         '''This button pauses the strip scan, it asks if the HV should be shut of or not and if the table should go into the down position'''
-        pass
+        dialog = pause_stripscan_widget(self, parent=self.layout)
+        dialog.exec_()
+        sleep(3.)
 
     def update_strip_stat(self):
         '''This function updates the statistics window'''

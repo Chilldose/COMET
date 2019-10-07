@@ -24,10 +24,6 @@ class DataBrowser_window:
         self.layout = layout
         self._translate = QtCore.QCoreApplication.translate
 
-        # If no Padfiles etc exist
-        #if not self.variables.additional_files.get("Pad_files", {}):
-        #    self.variables.additional_files["Pad_files"] = {}
-
         self.log = logging.getLogger(__name__)
 
         # Data browser
@@ -103,27 +99,6 @@ class DataBrowser_window:
             file = file[dire]
         if "raw" in file:
             self.data_ui.pad_text.setText(file["raw"])
-            #self.data_ui.pad_text.setText(self._translate("data_browser", file["raw"]))
-
-        # file_found = False
-        # proj = ""
-        # sens = ""
-        # for projects in self.variables.additional_files["Pad_files"].keys():
-        #     for sensors in self.variables.additional_files["Pad_files"][projects]:
-        #         if item.text(0) == sensors:
-        #             sensor_found = True
-        #             proj = projects
-        #             sens = sensors
-        #             break
-        #     if sensor_found:
-        #         break
-        # else:
-        #     self.data_ui.pad_text.setText(self._translate("data_browser", ""))
-        #
-        # if sensor_found:
-        #     self.data_ui.pad_text.setText(self._translate("data_browser",
-        #                                                   self.variables.additional_files["Pad_files"][proj][sens][
-        #                                                       "raw"]))
 
     # functions for the device tab
     @raise_exception

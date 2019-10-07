@@ -24,6 +24,9 @@
        <strikeout>false</strikeout>
       </font>
      </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);</string>
+     </property>
      <property name="frameShape">
       <enum>QFrame::Panel</enum>
      </property>
