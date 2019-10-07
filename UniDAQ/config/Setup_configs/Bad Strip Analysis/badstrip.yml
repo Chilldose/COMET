@@ -5,7 +5,7 @@
   author: Dominic Bloech
   author_email: dominic.bloech@oeaw.ac.at
   fit_cluster_size: 10 # How large should be the cluster size for fitting
-  output_folder: C:\Users\dbloech\PycharmProjects\Doktorat\QTC-Software\UniDAQ\rubbish
+  output_folder: C:\Users\dbloech\PycharmProjects\Doktorat\QTC-Software\COMET\rubbish
   header_lines: 19 # How many header lines are there
   measurement_description: 20 # line where the different measurements are described
   units_line: 21 # Which line ist the units line

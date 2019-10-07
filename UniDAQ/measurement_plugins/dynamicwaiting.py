@@ -4,7 +4,7 @@ import logging
 from time import time, sleep
 import sys
 import re
-sys.path.append('../UniDAQ')
+sys.path.append('../COMET')
 from ..utilities import timeit, transformation
 from .forge_tools import tools
 

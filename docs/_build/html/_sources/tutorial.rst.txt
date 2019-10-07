@@ -18,7 +18,7 @@ If features a simple GUI based program, in which you can generate your own GUI a
 
 .. note:: You can normally find the QTDesigner in your install directory of python under the QT directory in the lib. And I will not go into details on how you build GUIs in QtDesigner, there are plenty of tutorial videos in the web.
 
-When your GUI element is finished save it in the directory ``.UniDAQ/QT_Designer_UI``. Now COMET can access them easily.
+When your GUI element is finished save it in the directory ``.COMET/QT_Designer_UI``. Now COMET can access them easily.
 
 The next step is to tell the Program to render this UI. Open the ``settings.yml`` in your project folder and
 add in the parameter ``GUI_render_order`` with a list value of ``<YourCoolGUI>``. ::
@@ -30,7 +30,7 @@ add in the parameter ``GUI_render_order`` with a list value of ``<YourCoolGUI>``
         - DataBrowser
 
 Unfortunately this is not all. We know have to write some code to tell the framework that we want to render this ``.ui`` file you have just created.
-For this we generate a file in the directory ``.UniDAQ/ui_plugins``. This file you have to call ``<YourCoolGUI>_window.py``.
+For this we generate a file in the directory ``.COMET/ui_plugins``. This file you have to call ``<YourCoolGUI>_window.py``.
 
 .. note:: It is important, that you add the suffix ``_window`` to your python file, this makes it clear for the framework, that this is a window and treads it as one. All other files will be ignored and cannot be added this way!
 
@@ -50,7 +50,7 @@ The minimal example to run just the GUI without anything else is as follows: ::
 
             # Loading the UI plugin
             <YourCoolGUI>_widget = QWidget()
-            self.<YourCoolGUI> = self.variables.load_QtUi_file("./UniDAQ/QT_Designer_UI/<YourCoolGUI>", <YourCoolGUI>_widget)
+            self.<YourCoolGUI> = self.variables.load_QtUi_file("./COMET/QT_Designer_UI/<YourCoolGUI>", <YourCoolGUI>_widget)
             self.layout.addWidget(<YourCoolGUI>_widget)
 
 After that it renders the GUI when you restart COMET. But this code does not have and logic to it. You can add python
@@ -272,7 +272,7 @@ To the ``settings.yml`` of our project. This makes it possible to send data from
 GUI saves your data. On how to send data exactely from a measurement thread to the GUI see chapters :ref:`The GUI event loop` and :ref:`???`.
 
 Next we need to write our measurement plugin. These plugins need to be stored as ordinary python files in the directory
-``UniDAQ\measurement_plugins``. You can name these plugins as you see fit. The important thing is that inside, there is a python
+``COMET\measurement_plugins``. You can name these plugins as you see fit. The important thing is that inside, there is a python
 class with the exact same name as the name of the file and it contains AND the suffix ``_class``. The measurement class needs to have a **run** function which starts the actual measurement routine.
 Furthermore, the class only becomes one parameter passed during init, this being the measurement event loop instance.
 
@@ -295,7 +295,7 @@ As an example I show you a simple IV measurement plugin.
    import sys
    from time import sleep
    import numpy as np
-   sys.path.append('../UniDAQ')
+   sys.path.append('../COMET')
    from ..utilities import timeit
    from .forge_tools import tools
 
@@ -382,7 +382,7 @@ So lets go through this program in detail:
    import sys
    from time import sleep
    import numpy as np
-   sys.path.append('../UniDAQ')
+   sys.path.append('../COMET')
    from ..utilities import timeit
    from .forge_tools import tools
 

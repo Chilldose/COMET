@@ -720,7 +720,7 @@ def lmsalgorithm(x, y, q):
 
 
 if __name__ == "__main__":
-    det = stripanalysis(None, "C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\UniDAQ\\UniDAQ\\config\\config\\badstrip.yml")
+    det = stripanalysis(None, "C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\COMET\\COMET\\config\\config\\badstrip.yml")
     det.read_in_measurement_file(["C:\\Users\\dbloech\\Desktop\\str_VPX28442_38_2S (defects by MV).txt"])
     det.do_analysis()
 

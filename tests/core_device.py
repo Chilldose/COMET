@@ -3,8 +3,8 @@ import logging
 import re
 import sys, os
 
-from UniDAQ.VisaConnectWizard import VisaConnectWizard as VisaDeviceManager
-from UniDAQ.core.device import Device
+from COMET.VisaConnectWizard import VisaConnectWizard as VisaDeviceManager
+from COMET.core.device import Device
 
 if __name__ == '__main__':
 

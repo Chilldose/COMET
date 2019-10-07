@@ -3,7 +3,7 @@
 import logging
 import sys
 import numpy as np
-sys.path.append('../UniDAQ')
+sys.path.append('../COMET')
 from .stripscan import stripscan_class
 
 

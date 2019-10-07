@@ -28,7 +28,7 @@ class PreferencesDialog(QtWidgets.QDialog):
         super(PreferencesDialog, self).__init__(parent)
         dialogBox, QtBaseClass = uic.loadUiType(
             os.path.join(os.getcwd(),
-            os.path.normpath("UniDAQ\\QT_Designer_UI\\PreferenceDialog.ui")
+            os.path.normpath("COMET\\QT_Designer_UI\\PreferenceDialog.ui")
                          ))
         self.diaologBox = dialogBox()
         self.diaologBox.setupUi(self)

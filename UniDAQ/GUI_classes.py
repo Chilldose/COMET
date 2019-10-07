@@ -168,7 +168,7 @@ class GUI_classes(QWidget):
         if "GUI_render_order" in self.default_values_dict["settings"]:
             for modules in self.default_values_dict["settings"]["GUI_render_order"]:  # import all modules from all files in the plugins folder
                 if modules+"_window" in self.ui_classes:
-                    self.all_plugin_modules.update({modules+"_window": importlib.import_module("UniDAQ.ui_plugins." + str(modules+"_window"))})
+                    self.all_plugin_modules.update({modules+"_window": importlib.import_module("COMET.ui_plugins." + str(modules+"_window"))})
                 else:
                     self.log.error("The GUI element {} was specified but could not be found as resource!".format(modules+"_window"))
 

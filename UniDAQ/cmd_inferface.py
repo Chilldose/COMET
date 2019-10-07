@@ -10,12 +10,12 @@ class DAQShell(cmd.Cmd):
     If you want to add additional functions, you can pass an callable object to
     self.add_cmd_command(obj) and you also can access it in the shell.
     Use list to show all available commands"""
-    intro = '\n\nWelcome to the UniDAQ Shell.   \n' \
+    intro = '\n\nWelcome to the COMET Shell.   \n' \
             'Type help or ? to list commands concerning generall help.\n' \
-            'Type list to list all commands within the UniDAQ framework. \n' \
+            'Type list to list all commands within the COMET framework. \n' \
             'This was programmed by Dominic Bloech during his Phd thesis at HEPHY Vienna \n' \
             'at a cloudy day while his student measured some sensors.'
-    prompt = '(UniDAQ) '
+    prompt = '(COMET) '
     file = None
     global get_shell
 
@@ -37,13 +37,13 @@ class DAQShell(cmd.Cmd):
         #new_class_member = types.MethodType(object, None, self)
 
     def do_list(self, arg=None):
-        """Just calls do_UniDAQ_functions"""
-        self.do_UniDAQ_functions()
+        """Just calls do_COMET_functions"""
+        self.do_COMET_functions()
 
 
-    def do_UniDAQ_functions(self, arg=None):
-        """This function writes back all functions added for use in the UniDAQ framework"""
-        print("All functions provided by the UniDAQ framework:")
+    def do_COMET_functions(self, arg=None):
+        """This function writes back all functions added for use in the COMET framework"""
+        print("All functions provided by the COMET framework:")
         for i in self.list_of_objects:
             print(i.__name__)
         print("==================================================")
@@ -64,8 +64,8 @@ class DAQShell(cmd.Cmd):
             print("^C")
 
     def do_bye(self, arg):
-        'Stops the UniDAQ shell'
-        print('Thank you for using UniDAQ')
+        'Stops the COMET shell'
+        print('Thank you for using COMET')
         return True
 
     def precmd(self, line):

@@ -118,7 +118,7 @@ on every update of the GUI, you can pass any function object to this function an
 Config Files
 ~~~~~~~~~~~~
 
-To configure a project setup you need to have a directory in your ``UniDAQ\config\Setup_configs`` with the name of your  liking.
+To configure a project setup you need to have a directory in your ``COMET\config\Setup_configs`` with the name of your  liking.
 The only restriction is that this directory you created has a YAML styled file called ``settings.yml`` and inside at least
 the entry ``Settings_name: settings`` is configured. The rest is -in theory- optional.
 

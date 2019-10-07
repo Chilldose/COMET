@@ -35,7 +35,7 @@ if in position move the table up again. This prevents scratches on e.g. silicon 
 Furthermore, it checks the position of the stage to make sure the table is always on the correct location. If not an error
 will be raised in the COMETs internal error handling system.
 
-.. autoclass:: UniDAQ.utilities.table_control_class
+.. autoclass:: COMET.utilities.table_control_class
 	:members:
 
 Switching System Control Class
@@ -91,6 +91,6 @@ For non exclusive switching devices the switching logic will be done via the swi
 
 .. note:: In future releases there will be a config option to decide BBM or MBB. Currently it is hard coded to BBM since this is the recommended way to do it.
 
-.. autoclass:: UniDAQ.utilities.switching_control
+.. autoclass:: COMET.utilities.switching_control
 	:members:
 

@@ -7,16 +7,16 @@ with open("README.md") as f:
 with open("LICENSE.md") as f:
     license = f.read()
 
-version = imp.load_source('UniDAQ.main', 'UniDAQ/__init__.py').__version__
+version = imp.load_source('COMET.main', 'COMET/__init__.py').__version__
 
 setup(
-    name="UniDAQ",
+    name="COMET",
     version=version,
     description="A framework for automated DAQ for semiconductor device testing",
     long_description=readme,
     author="Dominic Blöch",
     author_email="dominic.bloech@oeaw.ac.at",
-    url="https://github.com/Chilldose/UniDAQ",
+    url="https://github.com/Chilldose/COMET",
     license=license,
     packages=find_packages(),
     install_requires=[
@@ -34,11 +34,11 @@ setup(
     ],
     entry_points={
         'gui_scripts': [
-            'UniDAQ = UniDAQ.main:main'
+            'COMET = COMET.main:main'
         ]
     },
     package_data={
-        "UniDAQ": [
+        "COMET": [
             "config/*.json",
             "config/default/*.yml",
             "config/device_lib/*.yml",

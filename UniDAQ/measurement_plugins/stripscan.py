@@ -4,7 +4,7 @@ import logging
 import sys
 import numpy as np
 from scipy import stats
-sys.path.append('../UniDAQ')
+sys.path.append('../COMET')
 import datetime
 from time import time, sleep
 from ..utilities import timeit, transformation

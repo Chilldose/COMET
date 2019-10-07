@@ -14,8 +14,8 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../UniDAQ'))
-sys.path.insert(0, os.path.abspath('UniDAQ'))
+sys.path.insert(0, os.path.abspath('../COMET'))
+sys.path.insert(0, os.path.abspath('COMET'))
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 
@@ -141,7 +141,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'COMET.tex', u'UniDAQ Documentation',
+    (master_doc, 'COMET.tex', u'COMET Documentation',
      u'Dominic Bloech', 'manual'),
 ]
 

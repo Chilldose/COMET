@@ -9,7 +9,7 @@ from ..utilities import ErrorMessageBoxHandler
 from .CentralWidget import CentralWidget
 from .PreferencesDialog import PreferencesDialog
 
-ContentsURL = "https://chilldose.github.io/UniDAQ/_build/html/index.html"
+ContentsURL = "https://chilldose.github.io/COMET/_build/html/index.html"
 """URL to primary documentation."""
 
 ResourcePath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images')

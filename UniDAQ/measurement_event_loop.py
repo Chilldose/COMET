@@ -237,7 +237,7 @@ class measurement_event_loop(Thread):
 
         try:
             if plugin_name in all_measurement_functions:
-                self.temphum_plugin = importlib.import_module("UniDAQ.measurement_plugins." + plugin_name)
+                self.temphum_plugin = importlib.import_module("COMET.measurement_plugins." + plugin_name)
                 self.log.info("Imported module: {}".format(plugin_name))
                 return self.temphum_plugin
             else:

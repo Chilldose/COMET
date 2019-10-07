@@ -10,7 +10,7 @@ Running/Initializing The Program
 
 Now it should be possible to run the program by: ::
 
-    python UniDAQ.py
+    python COMET.py
 
 If you do not have Anaconda installed, start the program via ::
 

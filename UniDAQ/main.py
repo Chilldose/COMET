@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-UniDAQ
+COMET
 
 This program is developed for IV/CV measurements as well as strip scan
 measurements for the QTC setup at HEPHY Vienna.

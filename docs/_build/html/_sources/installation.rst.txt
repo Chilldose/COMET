@@ -43,8 +43,8 @@ instructions on :ref:`Setting Up The Environment`. When this is done open the An
 the new environment which should have been set-up for you while installation. After that import the PyVisa module and
 try to start a resource manager ::
 
-    (base) activate UniDAQenv
-    (UniDAQenv) python
+    (base) activate COMETenv
+    (COMETenv) python
     Python 3.7 |Anaconda, Inc.| (default, May  1 2018, 18:37:09) [MSC v.1500 64 bit (AMD64)] on win32
     Type "help", "copyright", "credits" or "license" for more information.
     >>> import visa
@@ -59,7 +59,7 @@ Download the COMET source code
 
 If you just want the latest version of COMET, download it from my GitHub repository.
 
-`Git repo <https://github.com/Chilldose/UniDAQ>`_.
+`Git repo <https://github.com/Chilldose/COMET>`_.
 
 Once you have the version you like, continue with the :ref:`Getting Started` section.
 

@@ -135,7 +135,7 @@ class measurement_class(Thread):
         # import all modules specified in the measurement order, so not all are loaded
         for modules in self.settings["settings"]["measurement_order"]:
             if modules in all_measurement_functions:
-                self.all_plugins.update({modules: importlib.import_module("UniDAQ.measurement_plugins." + modules)})
+                self.all_plugins.update({modules: importlib.import_module("COMET.measurement_plugins." + modules)})
                 self.log.info("Imported module: {}".format(modules))
             else:
                 if modules not in to_ignore:

@@ -2,9 +2,9 @@ import logging
 import random
 import time
 
-from UniDAQ.core.process import Process, StopProcessIteration
-from UniDAQ.core.measurement import Measurement
-from UniDAQ.VisaConnectWizard import VisaConnectWizard import VisaDeviceManager
+from COMET.core.process import Process, StopProcessIteration
+from COMET.core.measurement import Measurement
+from COMET.VisaConnectWizard import VisaConnectWizard import VisaDeviceManager
 
 class ClimateChamberDevice(object):
     """Fake climate chamber device."""

@@ -49,7 +49,7 @@ class DynamicWaiting_window:
         self.dynamic.StopButton.clicked.connect(self.stop_button_action)
 
         # Give the Output a default value
-        self.dynamic.output_directory.setText("C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\UniDAQ\\rubbish")
+        self.dynamic.output_directory.setText("C:\\Users\\dbloech\\PycharmProjects\\Doktorat\\QTC-Software\\COMET\\rubbish")
         self.dynamic.output_file.setText("test.txt")
 
         # Add the plot function to the framework

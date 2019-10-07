@@ -1,4 +1,4 @@
-name: UniDAQenv
+name: COMETenv
 channels:
   - https://repo.anaconda.com/pkgs/pro/noarch
   - https://repo.anaconda.com/pkgs/pro/win-64
@@ -68,4 +68,4 @@ dependencies:
     - pyvisa==1.9.0
     - pyvisa-sim==3.0
     - pyqtgraph==0.10.0
-prefix: C:\Users\dbloech\Anaconda2\envs\UniDAQenv
+prefix: C:\Users\dbloech\Anaconda2\envs\COMETenv
