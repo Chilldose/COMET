@@ -44,7 +44,7 @@ PYTHONPATH=$(pwd) python tests/table_measurement.py
 
 ## How to Use
 
-There is a documentation and a section called "Tutorial", this will guide you through the process of how to use this software and it will give you even more additional information about the software. You can access the documentation via this [Link](https://chilldose.github.io/UniDAQ/) or if you look into the folder ~/docs/index.html.
+There is a documentation and a section called "Tutorial", this will guide you through the process of how to use this software and it will give you even more additional information about the software. You can access the documentation via this [Link](https://chilldose.github.io/COMET/) or if you look into the folder ~/docs/index.html.
 
 
 
