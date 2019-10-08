@@ -79,7 +79,7 @@ class SetupLoader(object):
         for dir in additional_dirs:
             self.gen_directory_tree(self.configs["additional_files"], os.path.join(setup_dir, dir), self.read_file)
 
-    def gen_directory_tree(self, parent_dict, path, function, pattern="*.txt",):
+    def gen_directory_tree(self, parent_dict, path, function, pattern=("*.*")):
         """Loads all files (as txt files into the specified directory with key = filename
         function is the object which will be applied to the """
         further_dir = [d for d in os.listdir(path) if os.path.isdir(os.path.join(path, d))]

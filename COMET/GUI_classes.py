@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import *
 from .gui.MainWindow import MainWindow
 from .gui.PluginWidget import PluginWidget
 from .GUI_event_loop import *
-from .bad_strip_detection import *
+import os
 
 
 QT_UI_DIR = 'QT_Designer_UI'
@@ -120,11 +120,14 @@ class GUI_classes(QWidget):
             widget.setLayout(layout)
 
             # Here the init function of all UI python plugins will be called
-            plugin = getattr(self.all_plugin_modules[module], module)(self, layout)
-            self.ui_plugins.update({module: plugin})
+            try:
+                plugin = getattr(self.all_plugin_modules[module], module)(self, layout)
+                self.ui_plugins.update({module: plugin})
 
-            # Add the ui to the renderer
-            self.add_rendering_function(widget, module.split("_")[0])
+                # Add the ui to the renderer
+                self.add_rendering_function(widget, module.split("_")[0])
+            except AttributeError as err:
+                self.log.error("The Module {} for the GUI app generation could not be found. Error: {}".format(module, err))
 
     def load_QtUi_file(self, filename, widget):
         '''This function returns a qt generated Ui object.'''
