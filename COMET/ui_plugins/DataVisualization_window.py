@@ -4,6 +4,7 @@ from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl, Qt
 from PyQt5.Qt import QApplication
 import numpy as np
+from ..utilities import save_dict_as_hdf5, save_dict_as_json
 
 import yaml, json
 try:
@@ -149,11 +150,9 @@ class DataVisualization_window:
 
         if type == "json":
             # JSON serialize
-            json_dump = json.dumps(self.plotting_Object.data, cls=NumpyEncoder)
-            with open(os.path.join(os.path.normpath(dirr), "data", "data.json"), 'w') as outfile:
-                json.dump(json_dump, outfile)
+            save_dict_as_json(self.plotting_Object.data, os.path.join(os.path.normpath(dirr), "data", "data.json"))
         if type == "hdf5":
-            self.log.error("HDF5 save not yet implemented")
+            save_dict_as_hdf5(self.plotting_Object.data, os.path.join(os.path.normpath(dirr), "data", "data.hdf5"))
 
     def save_as_action(self):
         """Saves the plots etc to the defined directory"""
@@ -189,9 +188,3 @@ class DataVisualization_window:
 
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()
-
-class NumpyEncoder(json.JSONEncoder):
-        def default(self, obj):
-            if isinstance(obj, np.ndarray):
-                return obj.tolist()
-            return json.JSONEncoder.default(self, obj)

@@ -16,6 +16,8 @@ import datetime
 import pyqtgraph as pg
 import logging
 from .engineering_notation import EngUnit
+import json
+import pandas as pd
 import queue
 from .globals import message_to_main, message_from_main, queue_to_GUI
 #from __future__ import print_function # Needed for the rtd functions that its written in 3
@@ -1601,6 +1603,49 @@ def parse_args():
     args = parser.parse_args()
 
     return args
+
+def convert_to_df(to_convert, abs = False):
+    """
+    Converts a dict to panda dataframes for easy manipulation etc.
+    :param data: Dictionary with data
+    :param abs: if the data returned will be the absolute value of the data
+    :return: pandas data frame object
+    """
+    # Convert all data to panda data frames
+    index = list(to_convert.keys())
+    columns = list(to_convert[index[0]]["data"].keys())
+    return_dict = {"All": pd.DataFrame(columns=columns), "keys": index, "columns":columns}
+    for key, data in to_convert.items():
+        return_dict[key] = data
+        try:
+            if abs:
+                for meas, arr in data["data"].items():
+                    data["data"][meas] = np.abs(arr)
+            data["data"]["Name"] = [key for i in range(len(data["data"][list(data["data"].keys())[0]]))]
+            df = pd.DataFrame(data=data["data"])
+        except KeyError as err:
+            l.error("In order to convert the data to panda dataframe, the data structure needs to have a key:'data'")
+            raise err
+        return_dict[key]["data"] = df
+        return_dict["All"] = pd.concat([return_dict["All"],df], sort=True)
+
+    return return_dict
+
+
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+           return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+
+def save_dict_as_json(data, dirr):
+    json_dump = json.dumps(data, cls=NumpyEncoder)
+    with open(os.path.join(os.path.normpath(dirr), "data", "data.json"), 'w') as outfile:
+        json.dump(json_dump, outfile)
+
+def save_dict_as_hdf5(data, dirr):
+    df = convert_to_df(data)
+    df["All"].to_hdf(dirr, key='df', mode='w')
 
 
 

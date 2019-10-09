@@ -6,6 +6,7 @@ ASCII_file_specs:
 Analysis:
 - IVCV_QTC
 Files:
+- //heros/dbloech/QTC_measurements/IVCV/VPX28442/IVC_VPX28442_2S_19.txt
 - //heros/dbloech/QTC_measurements/IVCV/VPX28442/IVC_VPX28442_2S_20.txt
 - //heros/dbloech/QTC_measurements/IVCV/VPX28442/IVC_VPX28442_2S_38.txt
 - //heros/dbloech/QTC_measurements/IVCV/VPX28442/IVC_VPX28442_2S_39.txt
@@ -125,4 +126,4 @@ IVCV_QTC:
     PlotLabel: Temperature
     PlotOptions:
       show_grid: false
-Output: C:/Users/dbloech/Desktop/Test
+Output: C:/Users/dbloech/Desktop/test
