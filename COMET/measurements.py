@@ -8,7 +8,7 @@ import importlib
 from threading import Thread
 import traceback
 
-from .utilities import build_command, flush_to_file, create_new_file
+from .utilities import build_command, flush_to_file, create_new_file, save_dict_as_hdf5, save_dict_as_json
 
 class measurement_class(Thread):
     #meas_loop, main_defaults, pad_data, devices, queue_to_main, queue_to_event_loop, job_details, queue_to_GUI, table, switching, stop_measurement)
@@ -293,16 +293,15 @@ class measurement_class(Thread):
             except:
                 data_to_dump.pop(key)
 
-        if data_to_dump:
-            if type.lower() == "json":
-                import json
-                with open(filepath.split(".")[0]+".json", "w+") as fd:
-                    json.dump(data_to_dump, fd)
+        try:
+            if data_to_dump:
+                if type.lower() == "json":
+                    save_dict_as_json(data_to_dump, filepath.split(".")[0]+".json")
 
-            elif type.lower() == "yaml":
-                import yaml
-                with open(filepath.split(".")[0]+".yml", "w+") as fd:
-                    yaml.safe_dump(data_to_dump, fd)
+                elif type.lower() == "hdf5":
+                    save_dict_as_json(data_to_dump, filepath.split(".")[0]+".hdf5")
+        except:
+            self.log.error("Measurement output could not be saved as {}".format(type))
         else:
             self.log.info("No data for saving found...")
 

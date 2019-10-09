@@ -3,6 +3,8 @@ from PyQt5.QtWidgets import QWidget, QFileDialog, QTreeWidgetItem
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl, Qt
 from PyQt5.Qt import QApplication
+from PyQt5 import QtGui
+from PyQt5 import QtCore
 import numpy as np
 from ..utilities import save_dict_as_hdf5, save_dict_as_json
 
@@ -58,7 +60,7 @@ class DataVisualization_window:
         self.widget.files_comboBox.clear()
         fileDialog = QFileDialog()
         files = fileDialog.getOpenFileNames()
-        self.widget.files_comboBox.addItems(files[0])
+        self.config_files_combo_box(files[0])
         self.allFiles = files[0]
 
     def select_save_to_action(self):
@@ -88,7 +90,7 @@ class DataVisualization_window:
         template = self.parse_yaml_string(template)
 
         # Add the parameters
-        template["Files"] = self.allFiles
+        template["Files"] = [self.widget.files_comboBox.itemText(i) for i in range(self.widget.files_comboBox.count())]
         template["Output"] = self.widget.save_lineEdit.text()
 
         # Dump the yaml file in the output directory
@@ -153,6 +155,17 @@ class DataVisualization_window:
             save_dict_as_json(self.plotting_Object.data, os.path.join(os.path.normpath(dirr), "data", "data.json"))
         if type == "hdf5":
             save_dict_as_hdf5(self.plotting_Object.data, os.path.join(os.path.normpath(dirr), "data", "data.hdf5"))
+
+    def config_files_combo_box(self, items):
+        """Set dragable combobox"""
+        model = QtGui.QStandardItemModel()
+        for text in items:
+            item = QtGui.QStandardItem(text)
+            item.setFlags(item.flags() & ~QtCore.Qt.ItemIsDropEnabled)
+            model.appendRow(item)
+
+        self.widget.files_comboBox.setModel(model)
+        self.widget.files_comboBox.view().setDragDropMode(QtGui.QAbstractItemView.InternalMove)
 
     def save_as_action(self):
         """Saves the plots etc to the defined directory"""

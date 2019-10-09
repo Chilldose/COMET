@@ -9,7 +9,7 @@ from PyQt5 import QtGui
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from random import randint
-from ..bad_strip_detection import stripanalysis
+from ..misc_plugins.bad_strip_detection import stripanalysis
 
 
 from ..utilities import change_axis_ticks, show_cursor_position, raise_exception
