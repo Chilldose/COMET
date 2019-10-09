@@ -2,10 +2,10 @@
 
   Filetype: ASCII # Other options are json
 
-  Output: C:\Users\dbloech\Desktop\QTC_Plots\VPX28442\IVCV #Output basename of the plots
+  #Output: C:\Users\dbloech\Desktop\QTC_Plots\VPX28442\IVCV #Output basename of the plots
 
-  Save_as: # Possible options: html, (svg), png, pdf -> Only works if wkhtmltopdf is installed and html plot is generated,
-    - html
+  #Save_as: # Possible options: html, (svg), png, pdf -> Only works if wkhtmltopdf is installed and html plot is generated,
+    #- html
     #- png
     #- svg
     #- pdf # does not work correctly
@@ -13,7 +13,7 @@
   Analysis:
     - IVCV_QTC # The type of analysis, which will be performed
 
-  Poolsize: 4 # Maximum pool size of simultaneous analysis scripts
+  #Poolsize: 4 # Maximum pool size of simultaneous analysis scripts
 
 # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files

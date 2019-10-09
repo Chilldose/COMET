@@ -46,6 +46,8 @@ The core program features easy device implementation through plugin support. The
    GUI_plugins/Device_Com
    GUI_plugins/Data_Explorer
    GUI_plugins/Data_Visualization
+   GUI_plugins/Documentation
+
 
 
 .. toctree::
