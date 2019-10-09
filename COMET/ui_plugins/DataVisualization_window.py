@@ -2,7 +2,6 @@ import logging
 from PyQt5.QtWidgets import QWidget, QFileDialog, QTreeWidgetItem
 from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl, Qt
-from PyQt5.Qt import QApplication
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 import numpy as np
@@ -74,6 +73,11 @@ class DataVisualization_window:
         dct = yaml.load(fd)
         return dct
 
+    def save_config_yaml(self, config, dirr):
+        """Simply saves the dict as yaml"""
+        with open(dirr, 'w') as outfile:
+            yaml.dump(config, outfile, default_flow_style=False)
+
     def render_action(self):
         """Stats the plotting scripts"""
         # Sets the cursor to wait
@@ -133,7 +137,7 @@ class DataVisualization_window:
 
     def config_save_options(self):
         """Configs the save options like json,hdf5,etc"""
-        options = ["html", "html/png", "html/json", "html/png/json", "png", "html/hdf5"]
+        options = ["html", "html/png", "html/json", "html/png/json", "html/png/json/hdf5", "png", "html/hdf5", "hdf5/json"]
         self.widget.save_as_comboBox.addItems(options)
 
     def config_selectable_templates(self):
@@ -150,11 +154,19 @@ class DataVisualization_window:
         except:
             pass
 
+        # Save the config.yml file
+        self.log.info("Saving config file...")
+        self.save_config_yaml(self.plotting_Object.config ,os.path.join(os.path.normpath(dirr), "CONFIG.yml"))
+
         if type == "json":
             # JSON serialize
+            self.log.info("Saving JSON file...")
             save_dict_as_json(self.plotting_Object.data, os.path.join(os.path.normpath(dirr), "data", "data.json"))
         if type == "hdf5":
+            self.log.info("Saving HDF5 file...")
             save_dict_as_hdf5(self.plotting_Object.data, os.path.join(os.path.normpath(dirr), "data", "data.hdf5"))
+
+
 
     def config_files_combo_box(self, items):
         """Set dragable combobox"""

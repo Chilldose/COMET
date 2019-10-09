@@ -1640,7 +1640,7 @@ class NumpyEncoder(json.JSONEncoder):
 
 def save_dict_as_json(data, dirr):
     json_dump = json.dumps(data, cls=NumpyEncoder)
-    with open(os.path.join(os.path.normpath(dirr), "data", "data.json"), 'w') as outfile:
+    with open(dirr, 'w') as outfile:
         json.dump(json_dump, outfile)
 
 def save_dict_as_hdf5(data, dirr):
