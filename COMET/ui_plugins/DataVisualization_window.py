@@ -5,6 +5,7 @@ from PyQt5.QtCore import QUrl, Qt
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 import numpy as np
+import ast
 from ..utilities import save_dict_as_hdf5, save_dict_as_json
 
 import yaml, json
@@ -25,6 +26,8 @@ class DataVisualization_window:
         self.allFiles = []
         self.plotting_Object = None
         self.plot_path = {}
+        self.selected_plot_option = ()
+        self.current_plot_object = None
 
         # Device communication widget
         self.VisWidget = QWidget()
@@ -41,7 +44,9 @@ class DataVisualization_window:
         self.widget.save_toolButton.clicked.connect(self.select_save_to_action)
         self.widget.render_pushButton.clicked.connect(self.render_action)
         self.widget.output_tree.itemClicked.connect(self.load_html_to_screen)
+        self.widget.plot_options_treeWidget.itemClicked.connect(self.tree_option_select_action)
         self.widget.save_as_pushButton.clicked.connect(self.save_as_action)
+        self.widget.apply_option_pushButton.clicked.connect(self.apply_option_button)
 
     def load_html_to_screen(self, item):
         """Loads a html file plot to the screen"""
@@ -52,7 +57,14 @@ class DataVisualization_window:
                 plot = getattr(plot, self.plot_path[item.text(0)][1])
                 filepath = self.plotting_Object.temp_html_output(plot)
                 self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
+                self.current_plot_object = plot
+                self.update_plot_options_tree(plot)
         self.variables.app.restoreOverrideCursor()
+
+    def replot_and_reload_html(self, plot):
+        """Replots a plot and displays it"""
+        filepath = self.plotting_Object.temp_html_output(plot)
+        self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
 
     def select_files_action(self):
         """Opens a file selection window and writes it to the data files drop down menu"""
@@ -114,12 +126,82 @@ class DataVisualization_window:
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()
 
+    def tree_option_select_action(self, item):
+        """Action what happens when an option is selected"""
+        key = item.text(0)
+        value = item.text(1)
+        self.widget.options_lineEdit.setText("{}: {}".format(key, value))
 
+    def apply_option_button(self):
+        """Applies the option made to the plot and repolts the current plot"""
+
+        # get the correct options
+        configs = self.plotting_Object.config
+
+        if self.selected_plot_option:
+            for path in self.selected_plot_option:
+                configs = configs[path]
+
+            # Find the plot options otherwise generate
+            if not "PlotOptions" in configs:
+                configs["PlotOptions"] = {}
+
+            # Find index of first colon
+            line = self.widget.options_lineEdit.text()
+            ind =  line.find(":")
+            #Try  to evaluate
+            try:
+                value = ast.literal_eval(line[ind + 1:].strip())
+            except:
+                value = line[ind + 1:].strip()
+            newItem = {line[:ind].strip(): value}
+            try:
+                self.apply_options_to_plot(self.current_plot_object, **newItem)
+                self.replot_and_reload_html(self.current_plot_object)
+                configs["PlotOptions"].update(newItem)
+                self.update_plot_options_tree(self.current_plot_object)
+            except Exception as err:
+                self.log.error("An error happened with the newly passed option with error: {} Option will be removed!".format(err))
+
+
+    def apply_options_to_plot(self, plot, **opts):
+        """Applies the opts to the plot"""
+        plot.opts(**opts)
+
+    def update_plot_options_tree(self, plot):
+        """Updates the plot options tree for the plot"""
+        self.widget.plot_options_treeWidget.clear()
+        self.widget.options_lineEdit.setText("")
+        configs = self.plotting_Object.config
+        try:
+            plotLabel = plot._label
+            for ana in configs["Analysis"]:
+                for plot_name, plt_opt in configs[ana].items():
+                    try:
+                        if plotLabel == plt_opt.get("PlotLabel", ""):
+                            # Save current options tree
+                            self.selected_plot_option = (ana, plot_name)
+
+                            # Add the key to the tree
+                            for opt, value in plt_opt.get("PlotOptions", {}).items():
+                                tree = QTreeWidgetItem({str(opt): "Option", str(value): "Value"})
+                                self.widget.plot_options_treeWidget.addTopLevelItem(tree)
+                    except:
+                        pass
+
+
+        except:
+            self.log.debug("Plot object has no label...")
 
     def update_plt_tree(self, plotting_output):
         """Updates the plot tree"""
         # Delete all values from the combo box
         self.widget.output_tree.clear()
+        self.widget.plot_options_treeWidget.clear()
+        self.widget.options_lineEdit.setText("")
+        self.selected_plot_option = ()
+        self.current_plot_object = None
+
         for analy in plotting_output.plotObjects:
             Allplots = analy.get("All", {})
             try:
@@ -166,8 +248,6 @@ class DataVisualization_window:
             self.log.info("Saving HDF5 file...")
             save_dict_as_hdf5(self.plotting_Object.data, os.path.join(os.path.normpath(dirr), "data", "data.hdf5"))
 
-
-
     def config_files_combo_box(self, items):
         """Set dragable combobox"""
         model = QtGui.QStandardItemModel()
@@ -194,6 +274,11 @@ class DataVisualization_window:
             plotters = ["html", "png", "svg"]
             data = ["json", "hdf5"]
 
+            # Start data saver
+            for ty in data:
+                if ty in options:
+                    self.save_data(ty, directory)
+
             # Start renderer
             if self.plotting_Object.config:
                 self.plotting_Object.config["Save_as"] = []
@@ -203,10 +288,7 @@ class DataVisualization_window:
                         self.plotting_Object.config["Save_as"].append(plot)
                 self.plotting_Object.save_to() # Starts the routine
 
-                # Start data saver
-                for ty in data:
-                    if ty in options:
-                        self.save_data(ty, directory)
+
 
         else:
             self.log.error("Path {} does not exist, please choose a valid path".format(directory))

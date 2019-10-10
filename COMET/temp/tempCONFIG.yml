@@ -6,21 +6,8 @@ ASCII_file_specs:
 Analysis:
 - IVCV_QTC
 Files:
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_04.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_11.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_13.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_14.txt
 - //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_15.txt
 - //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_17.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_18.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_19.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_20.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_38.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_39.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_40.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_41.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_42.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_43.txt
 Filetype: ASCII
 IVCV_QTC:
   1C2:
@@ -136,4 +123,4 @@ IVCV_QTC:
     PlotLabel: Temperature
     PlotOptions:
       show_grid: false
-Output: C:/Users/dbloech/Desktop/QTC_Plots/VPX28442/IVCV
+Output: ''
