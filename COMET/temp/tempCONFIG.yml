@@ -6,8 +6,10 @@ ASCII_file_specs:
 Analysis:
 - IVCV_QTC
 Files:
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_15.txt
-- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_17.txt
+- C:/Users/dbloech/PycharmProjects/Doktorat/PlotScripts/testdata/IVC_VPX28442_2S_11_Katja.txt
+- C:/Users/dbloech/PycharmProjects/Doktorat/PlotScripts/testdata/IVC_VPX28442_2S_14_ALDI.txt
+- C:/Users/dbloech/PycharmProjects/Doktorat/PlotScripts/testdata/IVC_VPX28442_2S_17_ALDI.txt
+- C:/Users/dbloech/PycharmProjects/Doktorat/PlotScripts/testdata/IVC_VPX28442_2S_18_ALDI.txt
 Filetype: ASCII
 IVCV_QTC:
   1C2:

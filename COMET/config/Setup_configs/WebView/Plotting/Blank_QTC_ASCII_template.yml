@@ -1,0 +1,33 @@
+--- # Dummy config file for testing
+
+  Filetype: ASCII # Other options are json
+
+  #Output: ??? #Output basename of the plots
+
+  #Save_as: # Possible options: html, (svg), png, pdf -> Only works if wkhtmltopdf is installed and html plot is generated,
+    #- html
+    #- png
+    #- svg
+    #- pdf # does not work correctly
+
+  Analysis:
+    - Curve_plots # The type of analysis, which will be performed
+
+# Optional Parameters
+  ASCII_file_specs: # The specifications for the ascii file type measurements files
+    header_lines: 8
+    measurement_description: 9
+    units_line: 9
+    data_start: 10
+
+  # Options for the different Analyses scripts
+  # These options are entirely up to you and what you need in your analysis
+  Curve_plots:
+      General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 1200
+          height: 700
+          shared_axes: False
+      Layout:
+          cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter

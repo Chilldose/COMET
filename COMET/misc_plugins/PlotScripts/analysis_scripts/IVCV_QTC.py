@@ -35,6 +35,7 @@ class IVCV_QTC:
             self.data["columns"].insert(3,"1C2") # because we are adding it later on
             self.capincluded = True
         self.measurements = self.data["columns"]
+        self.xaxis = self.measurements[0]
 
         if "voltage" in self.measurements:
             self.xaxis = "voltage"
@@ -59,11 +60,6 @@ class IVCV_QTC:
                 self.data[df]["units"].append("arb. units")
                 self.data[df]["measurements"].append("1C2")
 
-            elif "Capacity" in self.data[df]["data"]: # For wolfgangs data files
-                self.data[df]["data"].insert(3, "1C2", 1 / self.data[df]["data"]["Capacity"].pow(2))
-                self.data[df]["units"].append("arb. units")
-                self.data[df]["measurements"].append("1C2")
-
         # Add the measurement to the list
 
         # Plot all Measurements
@@ -72,8 +68,9 @@ class IVCV_QTC:
         self.PlotDict["All"] = self.basePlots
 
         # Add full depletion point to 1/c^2 curve
-        c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion
-        self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion = self.find_full_depletion(c2plot, self.data, self.config)
+        if "1C2" in self.data[df]["measurements"]:
+            c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion
+            self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion = self.find_full_depletion(c2plot, self.data, self.config)
 
         # Whiskers Plot
         self.WhiskerPlots = dospecialPlots(self.data, self.config, "IVCV_QTC", "BoxWhisker", self.measurements)
@@ -112,7 +109,10 @@ class IVCV_QTC:
         for i, samplekey in enumerate(data["keys"]):
             self.log.debug("Data: {}".format(samplekey))
             sample = deepcopy(data[samplekey])
-            df = pd.DataFrame({"xaxis": sample["data"]["voltage"], "yaxis": sample["data"]["1C2"]})
+            try:
+                df = pd.DataFrame({"xaxis": sample["data"]["voltage"], "yaxis": sample["data"]["1C2"]})
+            except:
+                df = pd.DataFrame({"xaxis": sample["data"]["Voltage"], "yaxis": sample["data"]["1C2"]})
             df = df.dropna()
 
 

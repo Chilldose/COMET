@@ -96,35 +96,40 @@ class DataVisualization_window:
         self.variables.app.setOverrideCursor(Qt.WaitCursor)
 
         try:
-            os.mkdir(os.path.join(os.getcwd(), "COMET", "temp"))
+            try:
+                os.mkdir(os.path.join(os.getcwd(), "COMET", "temp"))
+            except:
+                pass
+
+            # Find template and load the yaml file
+            plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
+            template = plotConfigs[(self.widget.templates_comboBox.currentText()+"_template")]["raw"]
+            template = self.parse_yaml_string(template)
+
+            # Add the parameters
+            template["Files"] = [self.widget.files_comboBox.itemText(i) for i in range(self.widget.files_comboBox.count())]
+            template["Output"] = self.widget.save_lineEdit.text()
+
+            # Dump the yaml file in the output directory
+            filepath = os.path.normpath(os.path.join(os.getcwd(), "COMET", "temp", "{}.yml".format("tempCONFIG")))
+            with open(filepath, 'w') as outfile:
+                yaml.dump(template, outfile, default_flow_style=False)
+
+            args = ["--config", "{}".format(filepath), "--show"]
+            plotting = PlottingMain(configs=args)
+            plotting.run()
+
+            self.update_plt_tree(plotting)
+
+            # Store current session
+            self.plotting_Object = plotting
+
+            # Restore Cursor
+            self.variables.app.restoreOverrideCursor()
         except:
-            pass
-
-        # Find template and load the yaml file
-        plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
-        template = plotConfigs[(self.widget.templates_comboBox.currentText()+"_template")]["raw"]
-        template = self.parse_yaml_string(template)
-
-        # Add the parameters
-        template["Files"] = [self.widget.files_comboBox.itemText(i) for i in range(self.widget.files_comboBox.count())]
-        template["Output"] = self.widget.save_lineEdit.text()
-
-        # Dump the yaml file in the output directory
-        filepath = os.path.normpath(os.path.join(os.getcwd(), "COMET", "temp", "{}.yml".format("tempCONFIG")))
-        with open(filepath, 'w') as outfile:
-            yaml.dump(template, outfile, default_flow_style=False)
-
-        args = ["--config", "{}".format(filepath), "--show"]
-        plotting = PlottingMain(configs=args)
-        plotting.run()
-
-        self.update_plt_tree(plotting)
-
-        # Store current session
-        self.plotting_Object = plotting
-
-        # Restore Cursor
-        self.variables.app.restoreOverrideCursor()
+            # Restore Cursor
+            self.variables.app.restoreOverrideCursor()
+            raise
 
     def tree_option_select_action(self, item):
         """Action what happens when an option is selected"""
@@ -219,7 +224,7 @@ class DataVisualization_window:
 
     def config_save_options(self):
         """Configs the save options like json,hdf5,etc"""
-        options = ["html", "html/png", "html/json", "html/png/json", "html/png/json/hdf5", "png", "html/hdf5", "hdf5/json"]
+        options = ["html/png/json/hdf5", "html", "html/png", "html/json", "html/png/json", "png", "html/hdf5", "hdf5/json", "svg"]
         self.widget.save_as_comboBox.addItems(options)
 
     def config_selectable_templates(self):
