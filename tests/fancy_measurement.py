@@ -3,9 +3,9 @@ import time
 import random
 import sys, os
 
-from UniDAQ.core.process import Process, StopProcessIteration, SkipProcessIteration
-from UniDAQ.core.measurement import Measurement, StopMeasurement
-from UniDAQ.VisaConnectWizard import VisaConnectWizard import VisaDeviceManager
+from COMET.core.process import Process, StopProcessIteration, SkipProcessIteration
+from COMET.core.measurement import Measurement, StopMeasurement
+from COMET.VisaConnectWizard import VisaConnectWizard import VisaDeviceManager
 
 class MySubProcess(Process):
 

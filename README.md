@@ -1,4 +1,4 @@
-# UniDAQ
+# COMET
 
 This software was developed by Dominic Blöch during his Phd Thesis at the HEPHY Vienna. It features a GUI implementation of a semiconductor Sensor test software.
 With it it is possible to "plugin" measurements devices via config files. Furthermore, measurements schemes and GUI objects can also easily be plugged in.
@@ -12,7 +12,7 @@ In order to run this program you need either Anaconda2 or Python3 and the NI-Vis
 With python up and running you can install the application using pip.
 
 ```bash
-pip install git+https://github.com/chilldose/UniDAQ@0.10.0
+pip install git+https://github.com/chilldose/COMET@0.10.0
 ```
 
 this will automatically install all required dependencies for the program to run.
@@ -27,13 +27,13 @@ pip install -r requirements.txt
 If you installed the program using pip just run:
 
 ```bash
-UniDAQ
+COMET
 ```
 
 If you run a development version locally, execute the `main` module (not the file):
 
 ```
-python -m UniDAQ.main
+python -m COMET.main
 ```
 
 ## Running tests

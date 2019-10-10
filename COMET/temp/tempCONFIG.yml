@@ -1,0 +1,126 @@
+ASCII_file_specs:
+  data_start: 10
+  header_lines: 8
+  measurement_description: 9
+  units_line: 9
+Analysis:
+- IVCV_QTC
+Files:
+- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_15.txt
+- //heros/dbloech/QTC_measurements/IVCV/VPX28442/Latest/IVC_VPX28442_2S_17.txt
+Filetype: ASCII
+IVCV_QTC:
+  1C2:
+    PlotLabel: CV CURVES - Full depletion
+    PlotOptions:
+      gridstyle:
+        grid_line_color: black
+        grid_line_width: 1.5
+        minor_xgrid_line_color: lightgray
+        minor_ygrid_line_color: lightgray
+        xgrid_line_dash:
+        - 4
+        - 4
+        ygrid_line_dash:
+        - 10
+        - 4
+      invert_xaxis: false
+      invert_yaxis: false
+      logx: false
+      logy: false
+      padding: !!python/tuple
+      - 0
+      - 0.1
+      shared_axes: false
+      show_grid: true
+      ylabel: 1/c^2 [arb. units]
+      ylim: !!python/tuple
+      - 0
+      - 0.08
+  BoxWhiskerOptions:
+    box_alpha: 0.3
+    height: 900
+    shared_axes: false
+    width: 1200
+  DoSpecialPlots:
+  - BoxWhisker
+  General:
+    fontsize:
+      labels: 24
+      legend: 11
+      title: 28
+      xticks: 24
+      yticks: 24
+    height: 700
+    responsive: false
+    shared_axes: false
+    width: 1200
+  Layout:
+    cols: 1
+  capacitance:
+    PlotLabel: CV CURVES
+    PlotOptions:
+      gridstyle:
+        grid_line_color: black
+        grid_line_width: 1.5
+        minor_xgrid_line_color: lightgray
+        minor_ygrid_line_color: lightgray
+        xgrid_line_dash:
+        - 4
+        - 4
+        ygrid_line_dash:
+        - 10
+        - 4
+      invert_xaxis: false
+      invert_yaxis: false
+      legend_position: bottom_right
+      logx: false
+      logy: false
+      padding: !!python/tuple
+      - 0
+      - 0.1
+      shared_axes: false
+      show_grid: true
+    UnitConversion: nano
+  current:
+    PlotLabel: IV CURVES
+    PlotOptions:
+      gridstyle:
+        grid_line_color: black
+        grid_line_width: 1.5
+        minor_xgrid_line_color: lightgray
+        minor_ygrid_line_color: lightgray
+        xgrid_line_dash:
+        - 4
+        - 4
+        ygrid_line_dash:
+        - 10
+        - 4
+      invert_xaxis: false
+      invert_yaxis: false
+      legend_position: bottom_right
+      logx: false
+      logy: true
+      padding: !!python/tuple
+      - 0
+      - 0.1
+      shared_axes: false
+      show_grid: true
+      xformatter: '%.0f'
+      yformatter: '%.0f'
+    ToolsOptions:
+      yaxisENG: true
+    UnitConversion: nano
+  humidity:
+    AdditionalPlots:
+    - BoxWhisker
+    PlotLabel: Humidity
+    PlotOptions:
+      show_grid: false
+  temperature:
+    AdditionalPlots:
+    - BoxWhisker
+    PlotLabel: Temperature
+    PlotOptions:
+      show_grid: false
+Output: ''

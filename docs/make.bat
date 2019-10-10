@@ -9,7 +9,7 @@ if "%SPHINXBUILD%" == "" (
 )
 set SOURCEDIR=.
 set BUILDDIR=_build
-set SPHINXPROJ=UniDAQ
+set SPHINXPROJ=COMET
 
 if "%1" == "" goto help
 

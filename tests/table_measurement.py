@@ -1,8 +1,8 @@
 import logging
 
-from UniDAQ.core.process import Process
-from UniDAQ.core.measurement import Measurement
-from UniDAQ.VisaConnectWizard import VisaConnectWizard import VisaDeviceManager
+from COMET.core.process import Process
+from COMET.core.measurement import Measurement
+from COMET.VisaConnectWizard import VisaConnectWizard import VisaDeviceManager
 
 class ProcessY(Process):
 

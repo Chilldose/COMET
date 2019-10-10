@@ -1,0 +1,85 @@
+---
+   Device_name: 2470 Keithley SMU
+   Display_name: BiasSMU
+   Device_type: SMU
+
+   # All set parameters
+   set_beep: beeper.beep({}, {})
+   set_delay: delay({}) # Sets a delay to to following command!
+   set_meas_delay: smu.measure.userdelay[1] = {}
+   set_measurement_function: smu.measure.func = {} #  smu.FUNC_DC_VOLTAGE/smu.FUNC_DC_CURRENT/smu.FUNC_RESISTANCE
+   set_autorange_current: smu.measure.autorange = {}
+   set_autorange: smu.measure.autorange = {}
+   set_autozero: smu.measure.autozero.enable = {} # smu.OFF/ON
+   set_measurement_count: smu.measure.count = {}
+   set_filter_count: smu.measure.filter.count = {}
+   set_NPLC: smu.measure.nplc = {}
+   set_source_autorange: smu.source.autorange = {} # smu.OFF/ON
+   set_filter_enable: smu.measure.filter.enable = {} # smu.OFF/ON
+   set_source_func: smu.source.func = {} #  smu.FUNC_DC_CURRENT/smu.FUNC_DC_VOLTAGE
+   set_filter: smu.measure.filter.type = {} #smu.FILTER_MOVING_AVG/ smu.FILTER_REPEAT_AVG
+   set_voltage: smu.source.level = {}
+   set_current: smu.source.level = {}
+   set_source_level: smu.source.level = {}
+   set_source_compliance: smu.source.protect.level = {} # smu.PROTECT_x
+   set_compliance: smu.source.ilimit.level = {}
+   set_current_compliance: smu.source.ilimit.level = {}
+   set_compliance_current: smu.source.ilimit.level = {}
+   set_voltage_compliance: smu.source.vlimit.level = {}
+   set_current_range: smu.measure.range = {}
+   set_offmode: smu.source.offmode = {} #smu.OFFMODE_NORMAL/smu.OFFMODE_ZERO/smu.OFFMODE_HIGHZ/smu.OFFMODE_GUARD
+   set_output: smu.source.output = {}
+   set_queueclear: dataqueue.clear()
+   set_terminal: smu.terminals = {} #smu.TERMINALS_REAR/FRONT
+   set_meas_range_low: smu.measure.autorangerangelow = {}
+   set_meas_range_high: smu.measure.autorangerangelow = {}
+   set_source_range: smu.source.range = {}
+   set_meas_range: smu.measure.range = {}
+   set_range: smu.measure.range = {}
+   set_source_readback: smu.source.readback = {}
+   set_source_delay: smu.source.delay = {}
+   set_source_autodelay: smu.source.delay = {}
+
+
+
+   # All get parameters
+   get_read:  print(smu.measure.read())
+   get_read_current:  print(smu.measure.read())
+   get_current_read:  print(smu.measure.read())
+
+
+  # All reset device parameters
+   reset:
+      - measurement_function: smu.FUNC_DC_CURRENT
+      - current_compliance: 2e-6
+      - autorange: smu.ON
+      - autozero: smu.ON
+      - measurement_count: 1
+      - filter_enable: smu.ON
+      - filter: smu.FILTER_MOVING_AVG
+      - filter_count: 2
+      - NPLC: 1 # range from 0.01 to 10
+      - source_func: smu.FUNC_DC_VOLTAGE
+      - source_level: 0
+      - source_compliance: smu.PROTECT_NONE
+      - output: smu.OFF
+      - terminal: smu.TERMINALS_FRONT
+      - meas_delay: 0
+      - source_readback: smu.ON
+      - source_autodelay: 1
+
+
+   # Misc parameters
+   clear_errors: errorqueue.clear()
+   exit_script: exit()
+   device_IDN_query: "*IDN?"
+   reset_device: ["*rst", "*cls"]
+   abort: trigger.model.abort()
+   separator: ","
+
+
+
+
+
+
+

@@ -2,14 +2,14 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 2.7" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 2.7" > <!--<![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 3.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 3.7" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Index &mdash; UniDAQ beta documentation</title>
+  <title>Index &mdash; COMET beta documentation</title>
   
 
   
@@ -18,36 +18,37 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="#" />
     <link rel="search" title="Search" href="search.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> UniDAQ
+            <a href="index.html" class="icon icon-home"> COMET
           
 
           
@@ -57,7 +58,7 @@
             
             
               <div class="version">
-                0.9.4
+                0.10.0
               </div>
             
           
@@ -81,17 +82,37 @@
               
             
             
-              <ul>
-<li class="toctree-l1"><a class="reference internal" href="programstructure.html">Structure</a></li>
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">How to</a></li>
 <li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="code.html">API references</a></li>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/IVCV.html">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Purpose GUI Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html#xyz-stage-control-class">XYZ-Stage Control Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html#switching-system-control-class">Switching System Control Class</a></li>
 </ul>
 
             
@@ -106,7 +127,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">UniDAQ</a>
+          <a href="index.html">COMET</a>
         
       </nav>
 
@@ -158,51 +179,27 @@
 <h1 id="index">Index</h1>
 
 <div class="genindex-jumpbox">
- <a href="#_"><strong>_</strong></a>
- | <a href="#A"><strong>A</strong></a>
- | <a href="#B"><strong>B</strong></a>
+ <a href="#A"><strong>A</strong></a>
  | <a href="#C"><strong>C</strong></a>
- | <a href="#F"><strong>F</strong></a>
+ | <a href="#D"><strong>D</strong></a>
  | <a href="#G"><strong>G</strong></a>
- | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
- | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
- | <a href="#U"><strong>U</strong></a>
  | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  
 </div>
-<h2 id="_">_</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.newThread.__init__">__init__() (utilities.newThread method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.switching_control.apply_specific_switching">apply_specific_switching() (utilities.switching_control method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="B">B</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.help_functions.build_command">build_command() (utilities.help_functions method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.switching_control.build_command_depricated">build_command_depricated() (utilities.switching_control method)</a>
+      <li><a href="Tools.html#COMET.utilities.switching_control.apply_specific_switching">apply_specific_switching() (COMET.utilities.switching_control method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -210,33 +207,49 @@
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.table_control_class.check_if_ready">check_if_ready() (utilities.table_control_class method)</a>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.capacitor_discharge">capacitor_discharge() (measurement_plugins.forge_tools.tools method)</a>
 </li>
-      <li><a href="code.html#boot_up.check_installation">check_installation (class in boot_up)</a>
+      <li><a href="Tools.html#COMET.utilities.switching_control.change_switching">change_switching() (COMET.utilities.switching_control method)</a>
 </li>
-      <li><a href="code.html#utilities.table_control_class.check_position">check_position() (utilities.table_control_class method)</a>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.change_value">change_value() (measurement_plugins.forge_tools.tools method)</a>
+</li>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.change_value_query">change_value_query() (measurement_plugins.forge_tools.tools method)</a>
+</li>
+      <li><a href="Tools.html#COMET.utilities.switching_control.check_all_closed_channel">check_all_closed_channel() (COMET.utilities.switching_control method)</a>
+</li>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.check_compliance">check_compliance() (measurement_plugins.forge_tools.tools method)</a>
+</li>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.check_if_ready">check_if_ready() (COMET.utilities.table_control_class method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.switching_control.check_switching_action">check_switching_action() (utilities.switching_control method)</a>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.check_position">check_position() (COMET.utilities.table_control_class method)</a>
 </li>
-      <li><a href="code.html#utilities.help_functions.close_file">close_file() (utilities.help_functions method)</a>
+      <li><a href="Tools.html#COMET.utilities.switching_control.check_switching_action">check_switching_action() (COMET.utilities.switching_control method)</a>
 </li>
-      <li><a href="code.html#boot_up.connect_to_devices">connect_to_devices (class in boot_up)</a>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.close_connections">close_connections() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
-      <li><a href="code.html#utilities.help_functions.create_new_file">create_new_file() (utilities.help_functions method)</a>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.config_resource">config_resource() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.config_setup">config_setup() (measurement_plugins.forge_tools.tools method)</a>
+</li>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.connect_to">connect_to() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.connect_to_instruments">connect_to_instruments() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.connection_error">connection_error() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
   </ul></td>
 </tr></table>
 
-<h2 id="F">F</h2>
+<h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.help_functions.flush_to_file">flush_to_file() (utilities.help_functions method)</a>
+      <li><a href="Tools.html#COMET.utilities.switching_control.device_exclusive_switching">device_exclusive_switching() (COMET.utilities.switching_control method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.Framework">Framework (class in utilities)</a>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.do_ramp_value">do_ramp_value() (measurement_plugins.forge_tools.tools method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -244,35 +257,7 @@
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.measurement_job_generation.generate_IVCV">generate_IVCV() (utilities.measurement_job_generation method)</a>
-</li>
-      <li><a href="code.html#utilities.measurement_job_generation.generate_job">generate_job() (utilities.measurement_job_generation method)</a>
-</li>
-      <li><a href="code.html#utilities.measurement_job_generation.generate_strip">generate_strip() (utilities.measurement_job_generation method)</a>
-</li>
-      <li><a href="code.html#utilities.newThread.get">get() (utilities.newThread method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.table_control_class.get_current_position">get_current_position() (utilities.table_control_class method)</a>
-</li>
-      <li><a href="code.html#utilities.LogFile.get_logging_level">get_logging_level() (utilities.LogFile method)</a>
-</li>
-      <li><a href="code.html#utilities.help_functions.get_thicks_for_timestamp_plot">get_thicks_for_timestamp_plot() (utilities.help_functions method)</a>
-</li>
-      <li><a href="code.html#utilities.help_functions.get_timestring_from_int">get_timestring_from_int() (utilities.help_functions method)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="H">H</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.help_functions">help_functions (class in utilities)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.help_functions.CAxisTime">help_functions.CAxisTime (class in utilities)</a>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.get_current_position">get_current_position() (COMET.utilities.table_control_class method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -280,27 +265,15 @@
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.table_control_class.initiate_table">initiate_table() (utilities.table_control_class method)</a>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.initiate_table">initiate_table() (COMET.utilities.table_control_class method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.help_functions.int2dt">int2dt() (utilities.help_functions method)</a>
-
-      <ul>
-        <li><a href="code.html#utilities.help_functions.CAxisTime.int2dt">(utilities.help_functions.CAxisTime method)</a>
-</li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#boot_up.loading_init_files">loading_init_files (class in boot_up)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.LogFile">LogFile (class in utilities)</a>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.list_write">list_write() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -308,17 +281,17 @@
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.measurement_job_generation">measurement_job_generation (class in utilities)</a>
+      <li><a href="Tools.html#COMET.utilities.switching_control.manual_switching">manual_switching() (COMET.utilities.switching_control method)</a>
 </li>
-      <li><a href="code.html#utilities.table_control_class.move_down">move_down() (utilities.table_control_class method)</a>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.move_down">move_down() (COMET.utilities.table_control_class method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.table_control_class.move_to">move_to() (utilities.table_control_class method)</a>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.move_to">move_to() (COMET.utilities.table_control_class method)</a>
 </li>
-      <li><a href="code.html#utilities.table_control_class.move_to_strip">move_to_strip() (utilities.table_control_class method)</a>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.move_to_strip">move_to_strip() (COMET.utilities.table_control_class method)</a>
 </li>
-      <li><a href="code.html#utilities.table_control_class.move_up">move_up() (utilities.table_control_class method)</a>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.move_up">move_up() (COMET.utilities.table_control_class method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -326,15 +299,7 @@
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.newThread">newThread (class in utilities)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="O">O</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.help_functions.open_file">open_file() (utilities.help_functions method)</a>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.no_response">no_response() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -342,7 +307,21 @@
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.switching_control.pick_switch_response">pick_switch_response() (utilities.switching_control method)</a>
+      <li><a href="Tools.html#COMET.utilities.switching_control.pick_switch_response">pick_switch_response() (COMET.utilities.switching_control method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.query">query() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.query_device">query_device() (measurement_plugins.forge_tools.tools method)</a>
+</li>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.query_value">query_value() (measurement_plugins.forge_tools.tools method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -350,21 +329,23 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.help_functions.raise_exception">raise_exception() (utilities.help_functions method)</a>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.ramp_value">ramp_value() (measurement_plugins.forge_tools.tools method)</a>
 </li>
-      <li><a href="code.html#utilities.help_functions.ramp_voltage_job">ramp_voltage_job() (utilities.help_functions method)</a>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.ramp_value_log10">ramp_value_log10() (measurement_plugins.forge_tools.tools method)</a>
 </li>
-      <li><a href="code.html#utilities.help_functions.read_from_file">read_from_file() (utilities.help_functions method)</a>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.read">read() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.reconnect_to_device">reconnect_to_device() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.table_control_class.relative_move_to">relative_move_to() (utilities.table_control_class method)</a>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.refine_ramp">refine_ramp() (measurement_plugins.forge_tools.tools method)</a>
 </li>
-      <li><a href="code.html#utilities.switching_control.reset_switching">reset_switching() (utilities.switching_control method)</a>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.relative_move_to">relative_move_to() (COMET.utilities.table_control_class method)</a>
 </li>
-      <li><a href="code.html#utilities.newThread.run">run() (utilities.newThread method)</a>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.reset_interface">reset_interface() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
-      <li><a href="code.html#utilities.help_functions.run_with_lock">run_with_lock() (utilities.help_functions method)</a>
+      <li><a href="Tools.html#COMET.utilities.switching_control.reset_switching">reset_switching() (COMET.utilities.switching_control method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -372,19 +353,29 @@
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.table_control_class.set_axis">set_axis() (utilities.table_control_class method)</a>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.send_to_device">send_to_device() (measurement_plugins.forge_tools.tools method)</a>
 </li>
-      <li><a href="code.html#utilities.table_control_class.set_joystick_speed">set_joystick_speed() (utilities.table_control_class method)</a>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.set_axis">set_axis() (COMET.utilities.table_control_class method)</a>
 </li>
-      <li><a href="code.html#utilities.Framework.start_timer">start_timer() (utilities.Framework method)</a>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.set_joystick">set_joystick() (COMET.utilities.table_control_class method)</a>
+</li>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.set_joystick_speed">set_joystick_speed() (COMET.utilities.table_control_class method)</a>
+</li>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.show_instruments">show_instruments() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.table_control_class.stop_move">stop_move() (utilities.table_control_class method)</a>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.show_resources">show_resources() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
-      <li><a href="code.html#utilities.switching_control.switch_to_measurement">switch_to_measurement() (utilities.switching_control method)</a>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.steady_state_check">steady_state_check() (measurement_plugins.forge_tools.tools method)</a>
 </li>
-      <li><a href="code.html#utilities.switching_control">switching_control (class in utilities)</a>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools.stop_measurement">stop_measurement() (measurement_plugins.forge_tools.tools method)</a>
+</li>
+      <li><a href="Tools.html#COMET.utilities.table_control_class.stop_move">stop_move() (COMET.utilities.table_control_class method)</a>
+</li>
+      <li><a href="Tools.html#COMET.utilities.switching_control.switch_to_measurement">switch_to_measurement() (COMET.utilities.switching_control method)</a>
+</li>
+      <li><a href="Tools.html#COMET.utilities.switching_control">switching_control (class in COMET.utilities)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -392,27 +383,11 @@
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.table_control_class">table_control_class (class in utilities)</a>
-</li>
-      <li><a href="code.html#utilities.help_functions.CAxisTime.tickStrings">tickStrings() (utilities.help_functions.CAxisTime method)</a>
+      <li><a href="Tools.html#COMET.utilities.table_control_class">table_control_class (class in COMET.utilities)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.help_functions.timeit">timeit() (utilities.help_functions method)</a>
-</li>
-      <li><a href="code.html#utilities.transformation">transformation (class in utilities)</a>
-</li>
-  </ul></td>
-</tr></table>
-
-<h2 id="U">U</h2>
-<table style="width: 100%" class="indextable genindextable"><tr>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.Framework.update_">update_() (utilities.Framework method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#boot_up.update_defaults_dict">update_defaults_dict (class in boot_up)</a>
+      <li><a href="Tools.html#measurement_plugins.forge_tools.tools">tools (class in measurement_plugins.forge_tools)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -420,7 +395,11 @@
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.transformation.vector_trans">vector_trans() (utilities.transformation method)</a>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.verify_ID">verify_ID() (VisaConnectWizard.VisaConnectWizard method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard">VisaConnectWizard (class in VisaConnectWizard)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -428,11 +407,7 @@
 <h2 id="W">W</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.help_functions.write_init_file">write_init_file() (utilities.help_functions method)</a>
-</li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="code.html#utilities.help_functions.write_to_file">write_to_file() (utilities.help_functions method)</a>
+      <li><a href="Tools.html#VisaConnectWizard.VisaConnectWizard.write">write() (VisaConnectWizard.VisaConnectWizard method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -449,7 +424,7 @@
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Dominic Bloech.
+        &copy; Copyright 2018, Dominic Bloech
 
     </p>
   </div>
@@ -466,33 +441,16 @@
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'beta',
-            LANGUAGE:'Python 2.7',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

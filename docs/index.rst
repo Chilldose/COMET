@@ -1,38 +1,60 @@
-.. UniDAQ documentation master file, created by
+.. COMET documentation master file, created by
    sphinx-quickstart on Thu Aug 02 08:34:07 2018.
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
 :orphan:
 
-Welcome to the UniDAQ documentation!
+Welcome to the COMET documentation!
 ====================================
 
 This software was developed by Dominic Blöch during his Phd Thesis at HEPHY Vienna.
 It features a GUI based software for testing semiconductor Sensor.
 The core program features easy device implementation through plugin support. The same holds for adding GUI elements and measurements.
 
-Contents
---------
-
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :caption: COMET Guides
 
    programstructure
    installation
    gettingstarted
    tutorial
-   datastructure
-   dataexchange
    measurementjobgen
-
-References
-----------
 
 .. toctree::
    :maxdepth: 2
+   :caption: COMET Structure
 
-   code
+   datastructure
+   dataexchange
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Measurement Plugins
+
+   measurement_plugins/IVCV
+   measurement_plugins/Stripscan
+   measurement_plugins/RelaxTimeAnalysis
+
+.. toctree::
+   :maxdepth: 1
+   :caption: General Purpose Plugins
+
+   GUI_plugins/resources
+   GUI_plugins/Device_Com
+   GUI_plugins/Data_Explorer
+   GUI_plugins/Data_Visualization
+   GUI_plugins/Documentation
+
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Code references
+
+   Tools
 
 
 Indices and tables

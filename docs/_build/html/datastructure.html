@@ -1,14 +1,14 @@
 
 
 <!DOCTYPE html>
-<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 2.7" > <![endif]-->
-<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 2.7" > <!--<![endif]-->
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 3.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 3.7" > <!--<![endif]-->
 <head>
   <meta charset="utf-8">
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Data Structure &mdash; UniDAQ beta documentation</title>
+  <title>Data Structure &mdash; COMET beta documentation</title>
   
 
   
@@ -17,38 +17,39 @@
   
 
   
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
 
-  
-  
     
 
   
-
   <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Data Exchange" href="dataexchange.html" />
-    <link rel="prev" title="Tutorials" href="tutorial.html" /> 
-
-  
-  <script src="_static/js/modernizr.min.js"></script>
-
+    <link rel="prev" title="Measurement Job Generation" href="measurementjobgen.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
 
    
   <div class="wy-grid-for-nav">
-
     
     <nav data-toggle="wy-nav-shift" class="wy-nav-side">
       <div class="wy-side-scroll">
-        <div class="wy-side-nav-search">
+        <div class="wy-side-nav-search" >
           
 
           
-            <a href="index.html" class="icon icon-home"> UniDAQ
+            <a href="index.html" class="icon icon-home"> COMET
           
 
           
@@ -58,7 +59,7 @@
             
             
               <div class="version">
-                0.9.4
+                0.10.0
               </div>
             
           
@@ -82,28 +83,44 @@
               
             
             
-              <ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="programstructure.html">Structure</a></li>
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
-<li class="toctree-l1"><a class="reference internal" href="tutorial.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">How to</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
+<ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Data Structure</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#main-files">Main Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#device-files">Device Files</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#ordertypes">Ordertypes</a></li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="#sensor-files">Sensor Files</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#accessing-pad-data">Accessing Pad data</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#framework-variables">Framework variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#measurements-main-object">Measurements Main Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gui-main-object">GUI Main Object</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#config-files">Config Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#addtional-files">Addtional Files</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
-<li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
 </ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="code.html">API references</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/IVCV.html">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Purpose GUI Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html">Measurement Tool Box functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html#xyz-stage-control-class">XYZ-Stage Control Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Tools.html#switching-system-control-class">Switching System Control Class</a></li>
 </ul>
 
             
@@ -118,7 +135,7 @@
       <nav class="wy-nav-top" aria-label="top navigation">
         
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">UniDAQ</a>
+          <a href="index.html">COMET</a>
         
       </nav>
 
@@ -170,11 +187,11 @@
             
   <div class="section" id="data-structure">
 <h1>Data Structure<a class="headerlink" href="#data-structure" title="Permalink to this headline">¶</a></h1>
-<p>The data storage and state variables are stored in global accessible variables. This means they can (provided you follow
+<p>In this chapter the base data structure of COMET is explained. The data storage and state variables are stored in global accessible variables. This means they can (provided you follow
 the rules provided in this doc) accessed from anywhere in the framework. Every user can add, delete or alter variables.
 So be warned, do not meddle with variables you do not know! For the sake of dynamicallity of the software
-it is necessary for the data structures to be not thread safe. This means every variable can be deprecated or out of date
-after accessing it. Furthermore, fast writting and reading can lead to race conditions inside of the program, when
+it is necessary for the data structures not to be thread safe. This means every variable can be out of date
+after accessing it. Furthermore, fast writing to a variable can lead to race conditions inside of the program, if
 badly written.</p>
 <p>An easy rule of thumb to avoid race conditions and unnecessary variables declarations are:</p>
 <blockquote>
@@ -186,157 +203,261 @@ badly written.</p>
 </ul>
 </div></blockquote>
 <p>With these simple rules you should not have problems with this state machine.</p>
-<div class="section" id="main-files">
-<h2>Main Files<a class="headerlink" href="#main-files" title="Permalink to this headline">¶</a></h2>
-<p>The main data structure is the <code class="docutils literal notranslate"><span class="pre">default_values_dict</span></code> it contains at least one dictionary called <em>defaults</em>.
-In this dictionary all data stored in the <code class="docutils literal notranslate"><span class="pre">defaults.yml</span></code> file are prevalent. Furthermore, additional parameters are created
-which are not stored in the YAML file. These parameters are crucial parameters which are not part of a configuriation file,
-since the have to be always be there or represent dumb variables. These variables can be extendend or reduced only in the
-actual code (for now). In the <code class="docutils literal notranslate"><span class="pre">boot_up.py</span></code> under the function <code class="docutils literal notranslate"><span class="pre">update_defaults_dict.to_update()</span></code> these variables can be accessed.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">By placing more then one YAML file in the <code class="docutils literal notranslate"><span class="pre">defaults</span></code> folder, more dictionaries will be created in the <code class="docutils literal notranslate"><span class="pre">default_values_dict</span></code>. But you have to create at least the item <code class="docutils literal notranslate"><span class="pre">Settings_name:</span> <span class="pre">name</span> <span class="pre">of</span> <span class="pre">the</span> <span class="pre">setting</span></code> entry. Otherwise the program does not know how to name these settings. These settings can then be accessed via the name.</p>
-</div>
-</div>
-<div class="section" id="device-files">
-<h2>Device Files<a class="headerlink" href="#device-files" title="Permalink to this headline">¶</a></h2>
-<p>Like with the main dicts, which are more of general settings and state files, the <code class="docutils literal notranslate"><span class="pre">devices_dict</span></code> is a more specialiced
-dictionary. This main dict will be populated by the content of the <code class="docutils literal notranslate"><span class="pre">devices</span></code> folder. So every YAML file in there will
-have a entry in the dictionary. The basic structure or minimal structure of such a file is as follows:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="s2">&quot;Device_name&quot;</span><span class="p">:</span> <span class="s2">&quot;2410 Keithley SMU&quot;</span><span class="p">,</span>
-<span class="s2">&quot;Device_type&quot;</span><span class="p">:</span> <span class="s2">&quot;SMU&quot;</span><span class="p">,</span>
-<span class="s2">&quot;Display_name&quot;</span><span class="p">:</span> <span class="s2">&quot;SMU1&quot;</span><span class="p">,</span>
-<span class="s2">&quot;Device_IDN&quot;</span><span class="p">:</span> <span class="s2">&quot;KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H&quot;</span><span class="p">,</span>
-
-<span class="s2">&quot;Output_ON&quot;</span><span class="p">:</span> <span class="s2">&quot;OUTP ON&quot;</span><span class="p">,</span>
-<span class="s2">&quot;imp:default_voltage_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;FIXED&quot;</span><span class="p">,</span>
-<span class="s2">&quot;set_voltage_mode&quot;</span><span class="p">:</span> <span class="s2">&quot;SOUR:VOLT:MODE &quot;</span><span class="p">,</span>
-<span class="s2">&quot;default_terminal&quot;</span><span class="p">:</span> <span class="s2">&quot;REAR&quot;</span><span class="p">,</span>
-<span class="s2">&quot;set_terminal&quot;</span><span class="p">:</span> <span class="s2">&quot;ROUT:TERM&quot;</span><span class="p">,</span>
-<span class="p">}</span>
-</pre></div>
-</div>
-<p>So to round this up: You need at least the first four parameters. From the fifth parameter onwards it is a order type.</p>
-<p>Display name fehlt noch zum erklaren</p>
-<div class="section" id="ordertypes">
-<h3>Ordertypes<a class="headerlink" href="#ordertypes" title="Permalink to this headline">¶</a></h3>
-<p>The software is highly adaptable to input data and data structures for different codecs. To achieve this some parametes
-have to be set to teach the program how to be so intelligent. First the program features a initialization routine when starting
-the software or a measurement.</p>
-<p>If you want to run a specific command on start up you have to prefix this command with <code class="docutils literal notranslate"><span class="pre">default_</span></code> after that the command is
-of your liking. The value of this item is the actual ASCII code which defines the command for the device. Each <code class="docutils literal notranslate"><span class="pre">default_</span></code>
-value has to have a <code class="docutils literal notranslate"><span class="pre">set_</span></code> command (otherwise the default command will be send without parameter). So each <code class="docutils literal notranslate"><span class="pre">default_</span></code>
-and <code class="docutils literal notranslate"><span class="pre">set_</span></code> pair define a full command. If the program encounters such a pair during initialization it tries to build a command.
-In our case such a command can be build out of <code class="docutils literal notranslate"><span class="pre">&quot;default_terminal&quot;:</span> <span class="pre">&quot;REAR&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">&quot;set_terminal&quot;:</span> <span class="pre">&quot;ROUT:TERM&quot;</span></code>. In our case
-this would result in the command: <code class="docutils literal notranslate"><span class="pre">ROUT:TERM</span> <span class="pre">REAR</span></code>.</p>
-<p>If it is necessary to send some order before some others, another prefix can be added, the <code class="docutils literal notranslate"><span class="pre">imp:</span></code> prefix. With this
-the program is ordered to send these parameters before all others.</p>
+<div class="section" id="framework-variables">
+<h2>Framework variables<a class="headerlink" href="#framework-variables" title="Permalink to this headline">¶</a></h2>
+<p>Every main part of COMET has access to an unique dictionary, containing all important variables and objects for COMET to
+run. This dictionary is generated in the <code class="docutils literal notranslate"><span class="pre">main.py</span></code> file and is then passed to the event loops and eventually passed to
+all measurement plugins.</p>
+<p>With it you can access all important variables of the state machine, xyz-Stages etc. This dictionary is not restricted to
+the amount of entries listed below. So if you see fit or need more variables, which need to be accessible across all threads and parts
+of the program you can add some.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">If more then one <code class="docutils literal notranslate"><span class="pre">imp:</span></code> parameter is defined, then these items will be send in a random order!</p>
+<p class="last">Some of the variables are crucial for a stable working program, so be careful when edition this dictionary!</p>
 </div>
-<p>While using the program you will encounter the situation that you have to build your own commands with changing input.
-This can be changing the bias voltage of a device etc. With the utility function <code class="docutils literal notranslate"><span class="pre">build_command(device_dict,</span> <span class="pre">command_tuple):</span></code>
-the program can help you generates the full ASCII coded command which the device should recognize.</p>
-<p>This function is designed to only take a bare minimum of input and build a fully functional command out of it, without
-you knowing the command structure of the device. Such a command can look like this:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">helpfull_functions</span><span class="o">.</span><span class="n">build_command</span><span class="p">(</span><span class="n">devices_dict</span><span class="p">[</span><span class="s2">&quot;SMU1&quot;</span><span class="p">],</span> <span class="p">(</span><span class="s2">&quot;set_voltage&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span>
-</pre></div>
-</div>
-<p>This command then returns the string (for this demo case) <code class="docutils literal notranslate"><span class="pre">SOUR:VOLT:LEV</span> <span class="pre">10</span></code>.
-The first parameter has to be the device which you want the command build for, the second parameter is a tuple, first
-entry in this tuple beeing the key in the dictionary aka. the command and the second beeing the value you want it set to.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This is only the simples usage of this function!!! A full list of the capabilities of this build function can be found in the dedicated doc section or the source-code file <code class="docutils literal notranslate"><span class="pre">utilities.py</span></code>, in which a multitude of possibilities for input and output is shown.</p>
-</div>
-</div>
-</div>
-<div class="section" id="sensor-files">
-<h2>Sensor Files<a class="headerlink" href="#sensor-files" title="Permalink to this headline">¶</a></h2>
-<p>Yet another config files type are the Sensor or Pad files. In these files general information about the Sensor or to measure
-device are stored as well as optional location information. This location information are for automated test in a probe station.
-These files are stored in the <code class="docutils literal notranslate"><span class="pre">Pad_files</span></code> folder, which again can contain subfolder with names of your liking. These
-additional folder will be interpreted as different projects you are working on. (See accessing the data section below).</p>
-<p>Such a Pad file can look like this:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Campaign</span><span class="p">:</span> <span class="n">Hamamatsu</span> <span class="mi">6</span><span class="n">inch</span> <span class="n">Irradiation</span>
-<span class="n">Creator</span><span class="p">:</span> <span class="n">Dominic</span> <span class="n">Bloech</span> <span class="mf">17.07</span><span class="o">.</span><span class="mi">2018</span>
-
-<span class="n">reference</span> <span class="n">pad</span><span class="p">:</span> <span class="mi">1</span>
-<span class="n">reference</span> <span class="n">pad</span><span class="p">:</span> <span class="mi">32</span>
-<span class="n">reference</span> <span class="n">pad</span><span class="p">:</span> <span class="mi">64</span>
-
-<span class="c1"># Additional parameters</span>
-<span class="n">implant_length</span><span class="p">:</span> <span class="mi">20036</span>
-<span class="n">metal_width</span><span class="p">:</span> <span class="mi">35</span>
-<span class="n">implant_width</span><span class="p">:</span> <span class="mi">22</span>
-<span class="n">metal_length</span><span class="p">:</span> <span class="mf">19332.35</span>
-<span class="n">pitch</span><span class="p">:</span> <span class="mi">90</span>
-<span class="n">thickness</span><span class="p">:</span> <span class="mi">240</span>
-<span class="nb">type</span><span class="p">:</span> <span class="n">p</span><span class="o">-</span><span class="nb">type</span>
-
-<span class="n">strip</span>        <span class="n">x</span>       <span class="n">y</span>       <span class="n">z</span>
-<span class="mi">1</span>        <span class="mi">0</span>   <span class="mi">0</span>       <span class="mi">0</span>
-<span class="mi">2</span>        <span class="mi">0</span>   <span class="mi">90</span>      <span class="mi">0</span>
-<span class="mi">3</span>        <span class="mi">0</span>   <span class="mi">180</span>     <span class="mi">0</span>
-<span class="mi">4</span>        <span class="mi">0</span>   <span class="mi">270</span>     <span class="mi">0</span>
-<span class="mi">5</span>        <span class="mi">0</span>   <span class="mi">360</span>     <span class="mi">0</span>
-<span class="mi">6</span>        <span class="mi">0</span>   <span class="mi">450</span>     <span class="mi">0</span>
-<span class="mi">7</span>        <span class="mi">0</span>   <span class="mi">540</span>     <span class="mi">0</span>
-<span class="mi">8</span>        <span class="mi">0</span>   <span class="mi">630</span>     <span class="mi">0</span>
-<span class="mi">9</span>        <span class="mi">0</span>   <span class="mi">720</span>     <span class="mi">0</span>
-<span class="mi">10</span>       <span class="mi">0</span>   <span class="mi">810</span>     <span class="mi">0</span>
-<span class="mi">11</span>       <span class="mi">0</span>   <span class="mi">900</span>     <span class="mi">0</span>
-<span class="mi">12</span>       <span class="mi">0</span>   <span class="mi">990</span>     <span class="mi">0</span>
-<span class="mi">13</span>       <span class="mi">0</span>   <span class="mi">1080</span>    <span class="mi">0</span>
-<span class="mi">14</span>       <span class="mi">0</span>   <span class="mi">1170</span>    <span class="mi">0</span>
-</pre></div>
-</div>
-<p>In the first few lines of text the header is defined. Each line with a '#' is considered to be a comment line. The other
-lines having a semicolon represent a item type variable for additional information. Non of these parameters in the header
-are mandatory and you also can extend these parameters. How you use it in your workflow is to your liking.</p>
-<p>If you want to make automated measurements in a probestation on the other hand you will need at least the <code class="docutils literal notranslate"><span class="pre">reference_pad:</span> <span class="pre">1</span></code>
-items. These specify (if correctly implemented) the three points/pad numbers for the coordinate transformation.</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This structure is implemented as a plugin, if you write your own plugins for the alignment you can exchange this mechanism with one you like!</p>
-</div>
-<p>The second part of this file are coordinates. Here the starting line is <code class="docutils literal notranslate"><span class="pre">strip</span> <span class="pre">x</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">y</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">z</span></code>. This line HAS to start with
-the word strip, otherwise the program will not know where the coordinates start. (Except you teach the program to).</p>
-<div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">You can add more parameters if you want, e.g. an angle or so.</p>
-</div>
-<p>After that the program reads in the data separated by tabs or spaces in a list of lists. See accessing data part for clarification.</p>
-<div class="section" id="accessing-pad-data">
-<h3>Accessing Pad data<a class="headerlink" href="#accessing-pad-data" title="Permalink to this headline">¶</a></h3>
-<p>The corresponding data structure is called <code class="docutils literal notranslate"><span class="pre">pad_files_dict</span></code>. The type of this structure is again a dictionary containing
-as items the different folders in the <code class="docutils literal notranslate"><span class="pre">Pad_files</span></code> folder. These are as mentioned before interpreted as some kind of
-projects you have. Inside those folders are then the individual pad files.</p>
-<p>The accessing scheme is a hierarchical one. Meaning the keys of <code class="docutils literal notranslate"><span class="pre">pad_files_dict</span></code> are the names of the project aka. folder
-names. Inside the value to this key you find yet again a dictionary with the keys being the individual sensors. Inside those
-you find also a dictionary with the keys <code class="docutils literal notranslate"><span class="pre">reference_pads</span></code>, <code class="docutils literal notranslate"><span class="pre">header</span></code>, <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">additional_params</span></code>.</p>
+<p>When you start a clean instance of COMET this dictionary contains the following entries:</p>
 <blockquote>
-<div><ul class="simple">
-<li>The <code class="docutils literal notranslate"><span class="pre">reference_pads</span></code> entry contains the pad and the locations of the defined reference pads</li>
-<li>The <code class="docutils literal notranslate"><span class="pre">header</span></code> entry contains the whole header</li>
-<li>The <code class="docutils literal notranslate"><span class="pre">additional_params</span></code> entry contains the parameters of the header with : as dictionary</li>
-<li>The <code class="docutils literal notranslate"><span class="pre">data</span></code> entry is a list of the length of the coordinate lines in the pad file. Each list entry is another list, containing the tab or space separated values form the coordiante section of the pad file.</li>
-</ul>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name"><strong>Configs</strong>:</th><td class="field-body">The Configs dictionary containing all variables of the state machine and the other dict objects in the setup config.</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>Devices</strong>:</th><td class="field-body">A dictionary containing all connected and loaded devices.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>VCW</strong>:</th><td class="field-body">A Visa Connect Wizard instance which has all functions for communication with devices.</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>rootdir</strong>:</th><td class="field-body">The root directory of the software.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>App</strong>:</th><td class="field-body">The Qt App object this software is running in.</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>Table</strong>:</th><td class="field-body">The xyz-Stage object the software is connected to (None if no table is configured/connected).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>Switching</strong>:</th><td class="field-body">A switching object instance the software is connected to (None if none is configured/connected).</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><strong>Message_to_main</strong>:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">A Queue object to the GUI event loop.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><strong>Message_from_main</strong>:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">A Queue object to the measurement event loop.</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>Queue_to_GUI</strong>:</th><td class="field-body">Deprecated Queue object, which will be integrated into message_to_main.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>Django</strong>:</th><td class="field-body">The Django web-server object the software is connected to (None if none is configured/connected).</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>Server</strong>:</th><td class="field-body">The TCP/IP server the software is connected to (None if none is configured/connected).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>Client</strong>:</th><td class="field-body">The TCP/IP client the software is connected to (None if none is configured/connected).</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
-<p>Wow, a lot of dictionaries and list, to clarify a small example how you access data.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xcor</span> <span class="o">=</span> <span class="n">pad_files_dict</span><span class="p">[</span><span class="s2">&quot;My_project&quot;</span><span class="p">][</span><span class="s2">&quot;Sensor_1&quot;</span><span class="p">][</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># Will be 0</span>
-<span class="n">ycor</span> <span class="o">=</span> <span class="n">pad_files_dict</span><span class="p">[</span><span class="s2">&quot;My_project&quot;</span><span class="p">][</span><span class="s2">&quot;Sensor_1&quot;</span><span class="p">][</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="c1"># Will be 90</span>
-<span class="n">zcor</span> <span class="o">=</span> <span class="n">pad_files_dict</span><span class="p">[</span><span class="s2">&quot;My_project&quot;</span><span class="p">][</span><span class="s2">&quot;Sensor_1&quot;</span><span class="p">][</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="c1"># Will be 0</span>
-
-<span class="n">metal_width</span> <span class="o">=</span> <span class="n">pad_files_dict</span><span class="p">[</span><span class="s2">&quot;My_project&quot;</span><span class="p">][</span><span class="s2">&quot;Sensor_1&quot;</span><span class="p">][</span><span class="s2">&quot;additional_params&quot;</span><span class="p">][</span><span class="s2">&quot;metal_width&quot;</span><span class="p">]</span> <span class="c1"># Will be 35</span>
-</pre></div>
+<p>For the normal user the only important keys form this dictionary are: Configs, Devices, VCW, Table and Switching. With these
+few you have everything, that is necessary to build your own setup, with GUI and measurement plugins.</p>
 </div>
+<div class="section" id="measurements-main-object">
+<h2>Measurements Main Object<a class="headerlink" href="#measurements-main-object" title="Permalink to this headline">¶</a></h2>
+<p>The measurements Main Object is located in the file <code class="docutils literal notranslate"><span class="pre">measurements.py</span></code> file. It contains the class: <code class="docutils literal notranslate"><span class="pre">measurements_classs</span></code>,
+which inherits from the <strong>Thread</strong> module.</p>
+<p>Started only by the measurement event loop as an own thread, it gets passed the measurement event loop instance, the framework
+variables and the measurement job details.</p>
+<p>While the first parameter is only used internally and should not bother you the framework and the job details, my be of interest.
+The <strong>framework</strong> is a dictionary containing all important variables like the state machine variables, for more information see the previous chapter
+<a class="reference internal" href="#framework-variables"><span class="std std-ref">Framework variables</span></a>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Each measurement plugin gets passed the <code class="docutils literal notranslate"><span class="pre">measurement_class</span></code> object, and therefore your plugin can access these variables, via <code class="docutils literal notranslate"><span class="pre">measurement_class.framework</span></code>.</p>
+</div>
+<p>The <strong>job_details</strong> is a dict, that was send by the user, and is containing all information concerning the current measurement job.
+Like with the framework variable this object is accessible via <code class="docutils literal notranslate"><span class="pre">measurement_class.job_details</span></code>.</p>
+<p>To make the access to the important framework variables (and more) easier for the user, the measurement class has some of the
+variables as members.</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name"><strong>.settings</strong>:</th><td class="field-body">The state machine dict</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>.devices</strong>:</th><td class="field-body">The devices object dict</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>.VCW</strong>:</th><td class="field-body">The VCW object</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>.table</strong>:</th><td class="field-body">The table object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>.switching</strong>:</th><td class="field-body">The switching object</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><strong>.queue_to_event_loop</strong>:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">Queue object to the measurement event loop</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>.queue_to_main</strong>:</th><td class="field-body">Queue object to the GUI event loop</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<hr class="docutils" />
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name"><strong>.build_command</strong>:</th><td class="field-body">A function which can build you device commands. See API for more information</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><strong>.measurement_data</strong>:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">A dict containing keys for all measurements and inside are numpy arrays holding the measured data</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><strong>.measurement_files</strong>:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">The files object for automatic generated output files for each running measurement type.</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+</div>
+<div class="section" id="gui-main-object">
+<h2>GUI Main Object<a class="headerlink" href="#gui-main-object" title="Permalink to this headline">¶</a></h2>
+<p>The GUI Main Object is located in the file <code class="docutils literal notranslate"><span class="pre">GUI_classes.py</span></code> file. It contains the class: <code class="docutils literal notranslate"><span class="pre">GUI_classes</span></code>,
+which inherits from the <strong>QWidget</strong> module.</p>
+<p>Directly started by the <code class="docutils literal notranslate"><span class="pre">main.py</span></code> file it only gets passed the framework variables. Which is then accessible via <code class="docutils literal notranslate"><span class="pre">GUI_classes.framework</span></code>
+from all your GUI plugins, since the GUI object gets passed to every GUI plugin.</p>
+<p>To make the access to the important framework variables (and more) easier for the user, the measurement class has some of the
+variables as members.</p>
+<blockquote>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2"><strong>.default_values_dict</strong>:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">The state machine dict</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>.devices_dict</strong>:</th><td class="field-body">The devices object dict</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>.VCW</strong>:</th><td class="field-body">The VCW object</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>.table</strong>:</th><td class="field-body">The table object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>.switching</strong>:</th><td class="field-body">The switching object</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><strong>.message_from_main</strong>:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">Queue object to the measurement event loop</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><strong>.message_to_main</strong>:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">Queue object to the GUI event loop</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>.client</strong>:</th><td class="field-body">TCP/IP client</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>.server</strong>:</th><td class="field-body">TCP/IP server</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><strong>.additional_files</strong>:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">The dict object for additional files specified in the configs</td>
+</tr>
+</tbody>
+</table>
+</div></blockquote>
+<p>One important member of the <code class="docutils literal notranslate"><span class="pre">GUI_classes</span></code> is the <code class="docutils literal notranslate"><span class="pre">GUI_classes.add_update_function</span></code>. If you want to have a function called
+on every update of the GUI, you can pass any function object to this function and it will add it to the GUI update framework.</p>
 <div class="admonition warning">
 <p class="first admonition-title">Warning</p>
-<p class="last">Be careful while accessing data from the dictionaries, if the key does not exist python will say No and the program stops. So make sure you check the availability while accessing!!!</p>
+<p class="last">But be aware! If your function draws to much computing power you may experience lags and or crashed or freezes!</p>
 </div>
+</div>
+<div class="section" id="config-files">
+<h2>Config Files<a class="headerlink" href="#config-files" title="Permalink to this headline">¶</a></h2>
+<p>To configure a project setup you need to have a directory in your <code class="docutils literal notranslate"><span class="pre">COMET\config\Setup_configs</span></code> with the name of your  liking.
+The only restriction is that this directory you created has a YAML styled file called <code class="docutils literal notranslate"><span class="pre">settings.yml</span></code> and inside at least
+the entry <code class="docutils literal notranslate"><span class="pre">Settings_name:</span> <span class="pre">settings</span></code> is configured. The rest is -in theory- optional.</p>
+<p>A good starting point would be a file with at least these</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">---</span> <span class="c1"># Block of dict entries</span>
+
+<span class="c1"># Critical parameters</span>
+<span class="n">Settings_name</span><span class="p">:</span> <span class="n">settings</span> <span class="c1"># The name of the settings which will be shown in the framework and will be the addressing name (settings here is important)</span>
+
+<span class="n">measurement_types</span><span class="p">:</span> <span class="c1"># Different measurement types which can be conducted</span>
+    <span class="o">-</span> <span class="n">temperature</span>
+    <span class="o">-</span> <span class="n">humidity</span>
+
+<span class="n">measurement_order</span><span class="p">:</span> <span class="c1"># aka. all measurement plugins</span>
+    <span class="o">-</span> <span class="n">IVCV</span>
+
+
+<span class="c1"># Optional parameters</span>
+<span class="n">temp_history</span><span class="p">:</span> <span class="mi">3600</span> <span class="c1"># How much should be shown in the humidity history in seconds</span>
+<span class="n">temphum_update_intervall</span><span class="p">:</span> <span class="mi">5000</span> <span class="c1"># Update intervall of the humidity controll in ms</span>
+<span class="n">temphum_plugin</span><span class="p">:</span> <span class="n">Brandbox_temperature_humidity</span>
+<span class="n">time_format</span><span class="p">:</span> <span class="s2">&quot;%H:%M:%S&quot;</span> <span class="c1"># Time format of the humidity control</span>
+<span class="n">GUI_update_interval</span><span class="p">:</span> <span class="mf">200.0</span> <span class="c1"># How often should the GUI be updated in ms</span>
+<span class="n">store_data_as</span><span class="p">:</span> <span class="n">json</span> <span class="c1"># Additional parameter, usually data will be stored as ascii during measurement,</span>
+<span class="c1"># but if you need the data in another format you can specify it here</span>
+
+<span class="n">GUI_render_order</span><span class="p">:</span> <span class="c1"># Give a render order if need be, otherwise all found gui elements will be rendered</span>
+    <span class="o">-</span> <span class="n">DeviceCommunication</span>
+    <span class="o">-</span> <span class="n">DataBrowser</span>
+    <span class="o">-</span> <span class="n">Resources</span>
+
+
+
+<span class="c1"># Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name</span>
+<span class="n">Aliases</span><span class="p">:</span>
+    <span class="n">BiasSMU</span><span class="p">:</span> <span class="mi">2470</span> <span class="n">Keithley</span> <span class="n">SMU</span>
+
+<span class="n">Devices</span><span class="p">:</span>
+      <span class="mi">2470</span><span class="n">SMU</span><span class="p">:</span>
+        <span class="n">Device_name</span><span class="p">:</span> <span class="mi">2470</span> <span class="n">Keithley</span> <span class="n">SMU</span> <span class="c1"># The actual device name from which it should get all commands</span>
+        <span class="n">Device_IDN</span><span class="p">:</span> <span class="n">KEITHLEY</span> <span class="n">INSTRUMENTS</span><span class="p">,</span><span class="n">MODEL</span> <span class="mi">2470</span><span class="p">,</span><span class="mi">04424944</span><span class="p">,</span><span class="mf">1.6</span><span class="o">.</span><span class="mi">8</span><span class="n">d</span>
+        <span class="n">Connection_type</span><span class="p">:</span> <span class="n">IP</span><span class="p">:</span><span class="n">TCPIP0</span><span class="p">::</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">130.131</span><span class="p">::</span><span class="n">inst0</span><span class="p">::</span><span class="n">INSTR</span>
+</pre></div>
+</div>
+<p>parameters, though. If you want to know more how and why these parameters are nice to have, see chapter <a class="reference internal" href="tutorial.html#how-to"><span class="std std-ref">How to</span></a>.
+Here all parameters are explained in detail.</p>
+<p>This YAML file will be added as aa dictionary in the <a class="reference internal" href="#framework-variables"><span class="std std-ref">Framework variables</span></a>, accessible under the path <code class="docutils literal notranslate"><span class="pre">Configs\settings</span></code>
+By placing more than one YAML file in the projects folder, more dictionaries will be created in the <code class="docutils literal notranslate"><span class="pre">Configs</span></code> of the framework variables.
+Each of these YAML files must have a <code class="docutils literal notranslate"><span class="pre">Settings_name</span></code> which is unique!</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The name to access it is the the value you are giving under the entry <code class="docutils literal notranslate"><span class="pre">Settings_name</span></code>.</p>
+</div>
+<p>A special place here is if you create a YAML file with the <code class="docutils literal notranslate"><span class="pre">Settings_name:</span> <span class="pre">framework_variables</span></code>, these are additional
+parameters which you want to have in your <code class="docutils literal notranslate"><span class="pre">settings.yml</span></code> file, but to keep the <code class="docutils literal notranslate"><span class="pre">settings.yml</span></code> file clean you can write
+them in here. Usually this file is used to define default values for state machine parameters your plugins need.</p>
+</div>
+<div class="section" id="addtional-files">
+<h2>Addtional Files<a class="headerlink" href="#addtional-files" title="Permalink to this headline">¶</a></h2>
+<p>What if you have some further data files, which you need for your measurement plugin to work, which does not fit in any
+of the previously explained solutions.</p>
+<p>Do not worry! COMET has the capability to load any (UNICODE) file in variable path depth. Any directory you place in your
+project directory will get an entry in the <code class="docutils literal notranslate"><span class="pre">Configs</span></code> dictionary of the framework variables, so: <code class="docutils literal notranslate"><span class="pre">framework\Configs\&lt;YourDirName&gt;</span></code>.
+Every file inside this directory will be interpreted as text file and read in as such. The individual files are again
+accessible by key. So: <code class="docutils literal notranslate"><span class="pre">framework\Configs\&lt;YourDirName&gt;\&lt;File1&gt;</span></code>.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">If in your directory other directories are present, COMET will do the same with this directory and so on!</p>
+</div>
+<p>To make this mechanism more clear see the example below, image you have a project directory path structure like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>│   badstrip.yml
+│   framework_variables.yml
+│   settings.yml
+│   switching.yml
+│
+└───Pad_files
+    ├───HPK 6 inch
+    │       Irradiation2.txt
+    │
+    ├───HPK 6 inch 2018
+    │       2S.txt
+    │       PSlight_notcorr.txt
+</pre></div>
+</div>
+<p>This will result in a dictionary in the <code class="docutils literal notranslate"><span class="pre">Configs</span></code> parameters as:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">YourProject</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">settings</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">dict</span><span class="o">&gt;</span>
+                <span class="n">badstrip</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">dict</span><span class="o">&gt;</span>
+                <span class="n">switching</span><span class="p">:</span> <span class="o">&lt;</span><span class="nb">dict</span><span class="o">&gt;</span>
+
+                <span class="n">Pad_files</span><span class="p">:</span> <span class="p">{</span>
+                            <span class="n">HPK</span> <span class="mi">6</span> <span class="n">inch</span><span class="p">:</span> <span class="p">{</span><span class="n">Irradiation2</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">txt</span><span class="o">&gt;</span><span class="p">}</span>
+                            <span class="n">HPK</span> <span class="mi">6</span> <span class="n">inch</span> <span class="mi">2018</span><span class="p">:</span> <span class="p">{</span><span class="mi">2</span><span class="n">S</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">txt</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">PSlight_notcorr</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">txt</span><span class="o">&gt;</span><span class="p">}</span>
+                            <span class="p">}</span>
+                <span class="p">}</span>
+</pre></div>
 </div>
 </div>
 </div>
@@ -352,7 +473,7 @@ you find also a dictionary with the keys <code class="docutils literal notransla
         <a href="dataexchange.html" class="btn btn-neutral float-right" title="Data Exchange" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="tutorial.html" class="btn btn-neutral" title="Tutorials" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="measurementjobgen.html" class="btn btn-neutral float-left" title="Measurement Job Generation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   
@@ -361,7 +482,7 @@ you find also a dictionary with the keys <code class="docutils literal notransla
 
   <div role="contentinfo">
     <p>
-        &copy; Copyright 2018, Dominic Bloech.
+        &copy; Copyright 2018, Dominic Bloech
 
     </p>
   </div>
@@ -378,33 +499,16 @@ you find also a dictionary with the keys <code class="docutils literal notransla
   
 
 
-  
-
-    <script type="text/javascript">
-        var DOCUMENTATION_OPTIONS = {
-            URL_ROOT:'./',
-            VERSION:'beta',
-            LANGUAGE:'Python 2.7',
-            COLLAPSE_INDEX:false,
-            FILE_SUFFIX:'.html',
-            HAS_SOURCE:  true,
-            SOURCELINK_SUFFIX: '.txt'
-        };
-    </script>
-      <script type="text/javascript" src="_static/jquery.js"></script>
-      <script type="text/javascript" src="_static/underscore.js"></script>
-      <script type="text/javascript" src="_static/doctools.js"></script>
-      <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
-
-  
-
-  <script type="text/javascript" src="_static/js/theme.js"></script>
-
   <script type="text/javascript">
       jQuery(function () {
           SphinxRtdTheme.Navigation.enable(true);
       });
-  </script> 
+  </script>
+
+  
+  
+    
+   
 
 </body>
 </html>

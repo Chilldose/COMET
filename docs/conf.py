@@ -14,15 +14,15 @@
 #
 import os
 import sys
-sys.path.insert(0, os.path.abspath('../UniDAQ'))
-sys.path.insert(0, os.path.abspath('UniDAQ'))
+sys.path.insert(0, os.path.abspath('../COMET'))
+sys.path.insert(0, os.path.abspath('COMET'))
 sys.path.insert(0, os.path.abspath('.'))
 sys.path.insert(0, os.path.abspath('../'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = u'UniDAQ'
+project = u'COMET'
 copyright = u'2018, Dominic Bloech'
 author = u'Dominic Bloech'
 
@@ -71,7 +71,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = 'Python 2.7'
+language = 'Python 3.7'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -114,7 +114,7 @@ html_static_path = ['_static']
 # -- Options for HTMLHelp output ---------------------------------------------
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'UniDAQdoc'
+htmlhelp_basename = 'COMETdoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
@@ -141,7 +141,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'UniDAQ.tex', u'UniDAQ Documentation',
+    (master_doc, 'COMET.tex', u'COMET Documentation',
      u'Dominic Bloech', 'manual'),
 ]
 
@@ -151,7 +151,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    (master_doc, 'unidaq', u'UniDAQ Documentation',
+    (master_doc, 'COMET', u'COMET Documentation',
      [author], 1)
 ]
 
@@ -162,8 +162,8 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'UniDAQ', u'UniDAQ Documentation',
-     author, 'UniDAQ', 'One line description of project.',
+    (master_doc, 'COMET', u'COMET Documentation',
+     author, 'COMET', 'One line description of project.',
      'Miscellaneous'),
 ]
 

@@ -1,11 +1,12 @@
+
 Data Structure
 ==============
 
-The data storage and state variables are stored in global accessible variables. This means they can (provided you follow
+In this chapter the base data structure of COMET is explained. The data storage and state variables are stored in global accessible variables. This means they can (provided you follow
 the rules provided in this doc) accessed from anywhere in the framework. Every user can add, delete or alter variables.
 So be warned, do not meddle with variables you do not know! For the sake of dynamicallity of the software
-it is necessary for the data structures to be not thread safe. This means every variable can be deprecated or out of date
-after accessing it. Furthermore, fast writting and reading can lead to race conditions inside of the program, when
+it is necessary for the data structures not to be thread safe. This means every variable can be out of date
+after accessing it. Furthermore, fast writing to a variable can lead to race conditions inside of the program, if
 badly written.
 
 An easy rule of thumb to avoid race conditions and unnecessary variables declarations are:
@@ -17,168 +18,204 @@ An easy rule of thumb to avoid race conditions and unnecessary variables declara
 
 With these simple rules you should not have problems with this state machine.
 
+Framework variables
+~~~~~~~~~~~~~~~~~~~
 
-Main Files
-~~~~~~~~~~
+Every main part of COMET has access to an unique dictionary, containing all important variables and objects for COMET to
+run. This dictionary is generated in the ``main.py`` file and is then passed to the event loops and eventually passed to
+all measurement plugins.
 
-The main data structure is the ``default_values_dict`` it contains at least one dictionary called *defaults*.
-In this dictionary all data stored in the ``defaults.yml`` file are prevalent. Furthermore, additional parameters are created
-which are not stored in the YAML file. These parameters are crucial parameters which are not part of a configuriation file,
-since the have to be always be there or represent dumb variables. These variables can be extendend or reduced only in the
-actual code (for now). In the ``boot_up.py`` under the function ``update_defaults_dict.to_update()`` these variables can be accessed.
+With it you can access all important variables of the state machine, xyz-Stages etc. This dictionary is not restricted to
+the amount of entries listed below. So if you see fit or need more variables, which need to be accessible across all threads and parts
+of the program you can add some.
 
-.. note:: By placing more then one YAML file in the ``defaults`` folder, more dictionaries will be created in the ``default_values_dict``. But you have to create at least the item ``Settings_name: name of the setting`` entry. Otherwise the program does not know how to name these settings. These settings can then be accessed via the name.
+.. warning:: Some of the variables are crucial for a stable working program, so be careful when edition this dictionary!
 
-Device Files
+When you start a clean instance of COMET this dictionary contains the following entries:
+
+    :**Configs**: The Configs dictionary containing all variables of the state machine and the other dict objects in the setup config.
+    :**Devices**: A dictionary containing all connected and loaded devices.
+    :**VCW**: A Visa Connect Wizard instance which has all functions for communication with devices.
+    :**rootdir**: The root directory of the software.
+    :**App**: The Qt App object this software is running in.
+    :**Table**: The xyz-Stage object the software is connected to (None if no table is configured/connected).
+    :**Switching**: A switching object instance the software is connected to (None if none is configured/connected).
+    :**Message_to_main**: A Queue object to the GUI event loop.
+    :**Message_from_main**: A Queue object to the measurement event loop.
+    :**Queue_to_GUI**: Deprecated Queue object, which will be integrated into message_to_main.
+    :**Django**: The Django web-server object the software is connected to (None if none is configured/connected).
+    :**Server**: The TCP/IP server the software is connected to (None if none is configured/connected).
+    :**Client**: The TCP/IP client the software is connected to (None if none is configured/connected).
+
+For the normal user the only important keys form this dictionary are: Configs, Devices, VCW, Table and Switching. With these
+few you have everything, that is necessary to build your own setup, with GUI and measurement plugins.
+
+Measurements Main Object
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The measurements Main Object is located in the file ``measurements.py`` file. It contains the class: ``measurements_classs``,
+which inherits from the **Thread** module.
+
+Started only by the measurement event loop as an own thread, it gets passed the measurement event loop instance, the framework
+variables and the measurement job details.
+
+While the first parameter is only used internally and should not bother you the framework and the job details, my be of interest.
+The **framework** is a dictionary containing all important variables like the state machine variables, for more information see the previous chapter
+:ref:`Framework variables`.
+
+.. note:: Each measurement plugin gets passed the ``measurement_class`` object, and therefore your plugin can access these variables, via ``measurement_class.framework``.
+
+The **job_details** is a dict, that was send by the user, and is containing all information concerning the current measurement job.
+Like with the framework variable this object is accessible via ``measurement_class.job_details``.
+
+To make the access to the important framework variables (and more) easier for the user, the measurement class has some of the
+variables as members.
+
+    :**.settings**: The state machine dict
+    :**.devices**: The devices object dict
+    :**.VCW**: The VCW object
+    :**.table**: The table object
+    :**.switching**: The switching object
+    :**.queue_to_event_loop**: Queue object to the measurement event loop
+    :**.queue_to_main**: Queue object to the GUI event loop
+
+------------------------------------------------------------------------------------------------------------------------
+
+    :**.build_command**: A function which can build you device commands. See API for more information
+    :**.measurement_data**: A dict containing keys for all measurements and inside are numpy arrays holding the measured data
+    :**.measurement_files**: The files object for automatic generated output files for each running measurement type.
+
+
+GUI Main Object
+~~~~~~~~~~~~~~~
+
+The GUI Main Object is located in the file ``GUI_classes.py`` file. It contains the class: ``GUI_classes``,
+which inherits from the **QWidget** module.
+
+Directly started by the ``main.py`` file it only gets passed the framework variables. Which is then accessible via ``GUI_classes.framework``
+from all your GUI plugins, since the GUI object gets passed to every GUI plugin.
+
+To make the access to the important framework variables (and more) easier for the user, the measurement class has some of the
+variables as members.
+
+    :**.default_values_dict**: The state machine dict
+    :**.devices_dict**: The devices object dict
+    :**.VCW**: The VCW object
+    :**.table**: The table object
+    :**.switching**: The switching object
+    :**.message_from_main**: Queue object to the measurement event loop
+    :**.message_to_main**: Queue object to the GUI event loop
+    :**.client**: TCP/IP client
+    :**.server**: TCP/IP server
+    :**.additional_files**: The dict object for additional files specified in the configs
+
+One important member of the ``GUI_classes`` is the ``GUI_classes.add_update_function``. If you want to have a function called
+on every update of the GUI, you can pass any function object to this function and it will add it to the GUI update framework.
+
+.. warning:: But be aware! If your function draws to much computing power you may experience lags and or crashed or freezes!
+
+
+Config Files
 ~~~~~~~~~~~~
 
-Like with the main dicts, which are more of general settings and state files, the ``devices_dict`` is a more specialiced
-dictionary. This main dict will be populated by the content of the ``devices`` folder. So every YAML file in there will
-have a entry in the dictionary. The basic structure or minimal structure of such a file is as follows:
+To configure a project setup you need to have a directory in your ``COMET\config\Setup_configs`` with the name of your  liking.
+The only restriction is that this directory you created has a YAML styled file called ``settings.yml`` and inside at least
+the entry ``Settings_name: settings`` is configured. The rest is -in theory- optional.
 
-.. code-block:: python
+A good starting point would be a file with at least these ::
 
-        {
-        "Device_name": "2410 Keithley SMU",
-        "Device_type": "SMU",
-        "Display_name": "SMU1",
-        "Device_IDN": "KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H",
+    --- # Block of dict entries
 
-        "Output_ON": "OUTP ON",
-        "imp:default_voltage_mode": "FIXED",
-        "set_voltage_mode": "SOUR:VOLT:MODE ",
-        "default_terminal": "REAR",
-        "set_terminal": "ROUT:TERM",
-        }
+    # Critical parameters
+    Settings_name: settings # The name of the settings which will be shown in the framework and will be the addressing name (settings here is important)
 
-So to round this up: You need at least the first four parameters. From the fifth parameter onwards it is a order type.
+    measurement_types: # Different measurement types which can be conducted
+        - temperature
+        - humidity
 
-Display name fehlt noch zum erklaren
-
-Ordertypes
-**********
-
-The software is highly adaptable to input data and data structures for different codecs. To achieve this some parametes
-have to be set to teach the program how to be so intelligent. First the program features a initialization routine when starting
-the software or a measurement.
-
-If you want to run a specific command on start up you have to prefix this command with ``default_`` after that the command is
-of your liking. The value of this item is the actual ASCII code which defines the command for the device. Each ``default_``
-value has to have a ``set_`` command (otherwise the default command will be send without parameter). So each ``default_``
-and ``set_`` pair define a full command. If the program encounters such a pair during initialization it tries to build a command.
-In our case such a command can be build out of ``"default_terminal": "REAR"`` and ``"set_terminal": "ROUT:TERM"``. In our case
-this would result in the command: ``ROUT:TERM REAR``.
-
-If it is necessary to send some order before some others, another prefix can be added, the ``imp:`` prefix. With this
-the program is ordered to send these parameters before all others.
-
-.. warning:: If more then one ``imp:`` parameter is defined, then these items will be send in a random order!
-
-While using the program you will encounter the situation that you have to build your own commands with changing input.
-This can be changing the bias voltage of a device etc. With the utility function ``build_command(device_dict, command_tuple):``
-the program can help you generates the full ASCII coded command which the device should recognize.
-
-This function is designed to only take a bare minimum of input and build a fully functional command out of it, without
-you knowing the command structure of the device. Such a command can look like this:
-
-.. code-block:: python
-
-    helpfull_functions.build_command(devices_dict["SMU1"], ("set_voltage", 10))
-
-This command then returns the string (for this demo case) ``SOUR:VOLT:LEV 10``.
-The first parameter has to be the device which you want the command build for, the second parameter is a tuple, first
-entry in this tuple beeing the key in the dictionary aka. the command and the second beeing the value you want it set to.
-
-.. note:: This is only the simples usage of this function!!! A full list of the capabilities of this build function can be found in the dedicated doc section or the source-code file ``utilities.py``, in which a multitude of possibilities for input and output is shown.
+    measurement_order: # aka. all measurement plugins
+        - IVCV
 
 
-Sensor Files
-~~~~~~~~~~~~
+    # Optional parameters
+    temp_history: 3600 # How much should be shown in the humidity history in seconds
+    temphum_update_intervall: 5000 # Update intervall of the humidity controll in ms
+    temphum_plugin: Brandbox_temperature_humidity
+    time_format: "%H:%M:%S" # Time format of the humidity control
+    GUI_update_interval: 200.0 # How often should the GUI be updated in ms
+    store_data_as: json # Additional parameter, usually data will be stored as ascii during measurement,
+    # but if you need the data in another format you can specify it here
 
-Yet another config files type are the Sensor or Pad files. In these files general information about the Sensor or to measure
-device are stored as well as optional location information. This location information are for automated test in a probe station.
-These files are stored in the ``Pad_files`` folder, which again can contain subfolder with names of your liking. These
-additional folder will be interpreted as different projects you are working on. (See accessing the data section below).
-
-Such a Pad file can look like this:
-
-.. code-block:: python
-
-   Campaign: Hamamatsu 6inch Irradiation
-   Creator: Dominic Bloech 17.07.2018
-
-   reference pad: 1
-   reference pad: 32
-   reference pad: 64
-
-   # Additional parameters
-   implant_length: 20036
-   metal_width: 35
-   implant_width: 22
-   metal_length: 19332.35
-   pitch: 90
-   thickness: 240
-   type: p-type
-
-   strip	x	y	z
-   1	    0	0	0
-   2	    0	90	0
-   3	    0	180	0
-   4	    0	270	0
-   5	    0	360	0
-   6	    0	450	0
-   7	    0	540	0
-   8	    0  	630	0
-   9	    0	720	0
-   10	    0	810	0
-   11	    0	900	0
-   12	    0	990	0
-   13	    0	1080	0
-   14	    0	1170	0
+    GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
+        - DeviceCommunication
+        - DataBrowser
+        - Resources
 
 
 
-In the first few lines of text the header is defined. Each line with a '#' is considered to be a comment line. The other
-lines having a semicolon represent a item type variable for additional information. Non of these parameters in the header
-are mandatory and you also can extend these parameters. How you use it in your workflow is to your liking.
+    # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name
+    Aliases:
+        BiasSMU: 2470 Keithley SMU
 
-If you want to make automated measurements in a probestation on the other hand you will need at least the ``reference_pad: 1``
-items. These specify (if correctly implemented) the three points/pad numbers for the coordinate transformation.
+    Devices:
+          2470SMU:
+            Device_name: 2470 Keithley SMU # The actual device name from which it should get all commands
+            Device_IDN: KEITHLEY INSTRUMENTS,MODEL 2470,04424944,1.6.8d
+            Connection_type: IP:TCPIP0::192.168.130.131::inst0::INSTR
 
-.. note:: This structure is implemented as a plugin, if you write your own plugins for the alignment you can exchange this mechanism with one you like!
+parameters, though. If you want to know more how and why these parameters are nice to have, see chapter :ref:`How to`.
+Here all parameters are explained in detail.
 
-The second part of this file are coordinates. Here the starting line is ``strip	x	y	z``. This line HAS to start with
-the word strip, otherwise the program will not know where the coordinates start. (Except you teach the program to).
+This YAML file will be added as aa dictionary in the :ref:`Framework variables`, accessible under the path ``Configs\settings``
+By placing more than one YAML file in the projects folder, more dictionaries will be created in the ``Configs`` of the framework variables.
+Each of these YAML files must have a ``Settings_name`` which is unique!
 
-.. note:: You can add more parameters if you want, e.g. an angle or so.
+.. note::  The name to access it is the the value you are giving under the entry ``Settings_name``.
 
-After that the program reads in the data separated by tabs or spaces in a list of lists. See accessing data part for clarification.
+A special place here is if you create a YAML file with the ``Settings_name: framework_variables``, these are additional
+parameters which you want to have in your ``settings.yml`` file, but to keep the ``settings.yml`` file clean you can write
+them in here. Usually this file is used to define default values for state machine parameters your plugins need.
 
-Accessing Pad data
-******************
 
-The corresponding data structure is called ``pad_files_dict``. The type of this structure is again a dictionary containing
-as items the different folders in the ``Pad_files`` folder. These are as mentioned before interpreted as some kind of
-projects you have. Inside those folders are then the individual pad files.
+Addtional Files
+~~~~~~~~~~~~~~~
 
-The accessing scheme is a hierarchical one. Meaning the keys of ``pad_files_dict`` are the names of the project aka. folder
-names. Inside the value to this key you find yet again a dictionary with the keys being the individual sensors. Inside those
-you find also a dictionary with the keys ``reference_pads``, ``header``, ``data`` and ``additional_params``.
+What if you have some further data files, which you need for your measurement plugin to work, which does not fit in any
+of the previously explained solutions.
 
-    * The ``reference_pads`` entry contains the pad and the locations of the defined reference pads
-    * The ``header`` entry contains the whole header
-    * The ``additional_params`` entry contains the parameters of the header with : as dictionary
-    * The ``data`` entry is a list of the length of the coordinate lines in the pad file. Each list entry is another list, containing the tab or space separated values form the coordiante section of the pad file.
+Do not worry! COMET has the capability to load any (UNICODE) file in variable path depth. Any directory you place in your
+project directory will get an entry in the ``Configs`` dictionary of the framework variables, so: ``framework\Configs\<YourDirName>``.
+Every file inside this directory will be interpreted as text file and read in as such. The individual files are again
+accessible by key. So: ``framework\Configs\<YourDirName>\<File1>``.
 
-Wow, a lot of dictionaries and list, to clarify a small example how you access data.
+.. important:: If in your directory other directories are present, COMET will do the same with this directory and so on!
 
-.. code-block:: python
+To make this mechanism more clear see the example below, image you have a project directory path structure like: ::
 
-    xcor = pad_files_dict["My_project"]["Sensor_1"]["data"][2][1] # Will be 0
-    ycor = pad_files_dict["My_project"]["Sensor_1"]["data"][2][2] # Will be 90
-    zcor = pad_files_dict["My_project"]["Sensor_1"]["data"][2][3] # Will be 0
+    │   badstrip.yml
+    │   framework_variables.yml
+    │   settings.yml
+    │   switching.yml
+    │
+    └───Pad_files
+        ├───HPK 6 inch
+        │       Irradiation2.txt
+        │
+        ├───HPK 6 inch 2018
+        │       2S.txt
+        │       PSlight_notcorr.txt
 
-    metal_width = pad_files_dict["My_project"]["Sensor_1"]["additional_params"]["metal_width"] # Will be 35
 
-.. warning:: Be careful while accessing data from the dictionaries, if the key does not exist python will say No and the program stops. So make sure you check the availability while accessing!!!
+This will result in a dictionary in the ``Configs`` parameters as: ::
+
+    YourProject = {
+                    settings: <dict>
+                    badstrip: <dict>
+                    switching: <dict>
+
+                    Pad_files: {
+                                HPK 6 inch: {Irradiation2: <txt>}
+                                HPK 6 inch 2018: {2S: <txt>, PSlight_notcorr: <txt>}
+                                }
+                    }
 

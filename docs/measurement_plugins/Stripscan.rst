@@ -1,0 +1,4 @@
+Stripscan
+=========
+
+Stripscan docs
