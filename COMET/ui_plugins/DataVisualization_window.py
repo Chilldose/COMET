@@ -192,11 +192,36 @@ class DataVisualization_window:
                                 tree = QTreeWidgetItem({str(opt): "Option", str(value): "Value"})
                                 self.widget.plot_options_treeWidget.addTopLevelItem(tree)
                     except:
-                        pass
-
-
+                        self.selected_plot_option = ()
         except:
-            self.log.debug("Plot object has no label...")
+            self.log.debug("Plot object has no label, trying with group parameter...")
+
+            # In case of special plots other access needed
+            try:
+                plotLabel = plot._group_param_value
+                plotLabel = plotLabel.split(":")
+
+                for ana in configs["Analysis"]:
+                    for plot_name, plt_opt in configs[ana].items():
+                        try:
+                            if plotLabel[1].strip() == plt_opt.get("PlotLabel", "") or plotLabel[1].strip() == plot_name:
+                                if "{}".format(plotLabel[0].strip()) in plt_opt:
+                                    # Save current options tree
+                                    self.selected_plot_option = (ana, plot_name, "{}".format(plotLabel[0].strip()))
+
+                                    # Add the key to the tree
+                                    for opt, value in plt_opt["{}".format(plotLabel[0].strip())].get("PlotOptions", {}).items():
+                                        tree = QTreeWidgetItem({str(opt): "Option", str(value): "Value"})
+                                        self.widget.plot_options_treeWidget.addTopLevelItem(tree)
+                                    return
+                                else:
+                                    # If this entry is missing generate an empty dict so options can be added later on
+                                    self.selected_plot_option = (ana, plot_name, "{}".format(plotLabel[0].strip()))
+                                    plt_opt["{}".format(plotLabel[0].strip())] = {}
+                        except:
+                            self.selected_plot_option = ()
+            except:
+                self.selected_plot_option = ()
 
     def update_plt_tree(self, plotting_output):
         """Updates the plot tree"""
@@ -241,10 +266,6 @@ class DataVisualization_window:
         except:
             pass
 
-        # Save the config.yml file
-        self.log.info("Saving config file...")
-        self.save_config_yaml(self.plotting_Object.config ,os.path.join(os.path.normpath(dirr), "CONFIG.yml"))
-
         if type == "json":
             # JSON serialize
             self.log.info("Saving JSON file...")
@@ -273,6 +294,11 @@ class DataVisualization_window:
         # Check if valid dir was given
         directory = self.widget.save_lineEdit.text()
         if os.path.exists(directory):
+
+            # Save the config.yml file
+            self.log.info("Saving config file...")
+            self.save_config_yaml(self.plotting_Object.config, os.path.join(os.path.normpath(directory), "CONFIG.yml"))
+
             # Get save option
             options = self.widget.save_as_comboBox.currentText().split("/")
 

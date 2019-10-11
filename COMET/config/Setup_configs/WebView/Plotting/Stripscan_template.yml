@@ -98,6 +98,10 @@
               xlabel: Pad [#]
               #ylabel: current [A]
               ylim: !!python/tuple [0, -800]
+          Concatenated Histogram:
+              PlotOptions:
+                fill_color: red
+              
 
       Idiel:
           PlotLabel: Current through dielectric

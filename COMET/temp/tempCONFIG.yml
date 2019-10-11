@@ -1,19 +1,29 @@
 ASCII_file_specs:
-  data_start: 10
-  header_lines: 8
-  measurement_description: 9
-  units_line: 9
+  data_start: 22
+  header_lines: 18
+  measurement_description: 20
+  units_line: 21
 Analysis:
-- IVCV_QTC
+- Stripscan
 Files:
-- C:/Users/dbloech/PycharmProjects/Doktorat/PlotScripts/testdata/IVC_VPX28442_2S_11_Katja.txt
-- C:/Users/dbloech/PycharmProjects/Doktorat/PlotScripts/testdata/IVC_VPX28442_2S_14_ALDI.txt
-- C:/Users/dbloech/PycharmProjects/Doktorat/PlotScripts/testdata/IVC_VPX28442_2S_17_ALDI.txt
-- C:/Users/dbloech/PycharmProjects/Doktorat/PlotScripts/testdata/IVC_VPX28442_2S_18_ALDI.txt
+- //heros/dbloech/QTC_measurements/Stripscans/VPX28442/2S/str_VPX28442_14_2S.txt
+- //heros/dbloech/QTC_measurements/Stripscans/VPX28442/2S/str_VPX28442_15_2S.txt
 Filetype: ASCII
-IVCV_QTC:
-  1C2:
-    PlotLabel: CV CURVES - Full depletion
+Output: ''
+Poolsize: 4
+Save_as:
+- html
+Stripscan:
+  BoxWhiskerOptions:
+    box_alpha: 0.3
+    height: 1200
+    shared_axes: false
+    width: 1200
+  Cac:
+    AdditionalPlots:
+    - Violin
+    - concatHistogram
+    PlotLabel: Coupling Capacitance
     PlotOptions:
       gridstyle:
         grid_line_color: black
@@ -26,25 +36,49 @@ IVCV_QTC:
         ygrid_line_dash:
         - 10
         - 4
-      invert_xaxis: false
-      invert_yaxis: false
-      logx: false
-      logy: false
+      legend_position: bottom_left
       padding: !!python/tuple
-      - 0
       - 0.1
-      shared_axes: false
+      - 0.1
       show_grid: true
-      ylabel: 1/c^2 [arb. units]
+      xlabel: Pad [#]
+      ylim: !!python/tuple
+      - 120
+      - 160
+    PlotStyles:
+    - Scatter
+    UnitConversion: pico
+  Cint:
+    AdditionalPlots:
+    - Violin
+    - concatHistogram
+    PlotLabel: Interstrip Capacitance
+    PlotOptions:
+      gridstyle:
+        grid_line_color: black
+        grid_line_width: 1.5
+        minor_xgrid_line_color: lightgray
+        minor_ygrid_line_color: lightgray
+        xgrid_line_dash:
+        - 4
+        - 4
+        ygrid_line_dash:
+        - 10
+        - 4
+      padding: !!python/tuple
+      - 0.1
+      - 0.1
+      show_grid: true
+      xlabel: Pad [#]
       ylim: !!python/tuple
       - 0
-      - 0.08
-  BoxWhiskerOptions:
-    box_alpha: 0.3
-    height: 900
-    shared_axes: false
-    width: 1200
+      - 5
+    PlotStyles:
+    - Scatter
+    UnitConversion: pico
   DoSpecialPlots:
+  - concatHistogram
+  - Violin
   - BoxWhisker
   General:
     fontsize:
@@ -54,75 +88,247 @@ IVCV_QTC:
       xticks: 24
       yticks: 24
     height: 700
+    padding: !!python/tuple
+    - 0
+    - 0.1
     responsive: false
     shared_axes: false
     width: 1200
-  Layout:
-    cols: 1
-  capacitance:
-    PlotLabel: CV CURVES
-    PlotOptions:
-      gridstyle:
-        grid_line_color: black
-        grid_line_width: 1.5
-        minor_xgrid_line_color: lightgray
-        minor_ygrid_line_color: lightgray
-        xgrid_line_dash:
-        - 4
-        - 4
-        ygrid_line_dash:
-        - 10
-        - 4
-      invert_xaxis: false
-      invert_yaxis: false
-      legend_position: bottom_right
-      logx: false
-      logy: false
-      padding: !!python/tuple
-      - 0
-      - 0.1
-      shared_axes: false
-      show_grid: true
-    UnitConversion: nano
-  current:
-    PlotLabel: IV CURVES
-    PlotOptions:
-      gridstyle:
-        grid_line_color: black
-        grid_line_width: 1.5
-        minor_xgrid_line_color: lightgray
-        minor_ygrid_line_color: lightgray
-        xgrid_line_dash:
-        - 4
-        - 4
-        ygrid_line_dash:
-        - 10
-        - 4
-      invert_xaxis: false
-      invert_yaxis: false
-      legend_position: bottom_right
-      logx: false
-      logy: true
-      padding: !!python/tuple
-      - 0
-      - 0.1
-      shared_axes: false
-      show_grid: true
-      xformatter: '%.0f'
-      yformatter: '%.0f'
-    ToolsOptions:
-      yaxisENG: true
-    UnitConversion: nano
-  humidity:
+  HistogramOptions:
+    alpha: 0.6
+    shared_axes: false
+  Humidity:
     AdditionalPlots:
     - BoxWhisker
     PlotLabel: Humidity
     PlotOptions:
       show_grid: false
-  temperature:
+      xlabel: Pad [#]
+      ylabel: Humidity [rel%]
+  Idark:
+    AdditionalPlots:
+    - Violin
+    - concatHistogram
+    PlotLabel: Total Sensor Current
+    PlotOptions:
+      gridstyle:
+        grid_line_color: black
+        grid_line_width: 1.5
+        minor_xgrid_line_color: lightgray
+        minor_ygrid_line_color: lightgray
+        xgrid_line_dash:
+        - 4
+        - 4
+        ygrid_line_dash:
+        - 10
+        - 4
+      legend_position: bottom_left
+      padding: !!python/tuple
+      - 0.1
+      - 0.1
+      show_grid: true
+      xlabel: Pad [#]
+    PlotStyles:
+    - Scatter
+    UnitConversion: nano
+  Idiel:
+    AdditionalPlots:
+    - Violin
+    - concatHistogram
+    PlotLabel: Current through dielectric
+    PlotOptions:
+      gridstyle:
+        grid_line_color: black
+        grid_line_width: 1.5
+        minor_xgrid_line_color: lightgray
+        minor_ygrid_line_color: lightgray
+        xgrid_line_dash:
+        - 4
+        - 4
+        ygrid_line_dash:
+        - 10
+        - 4
+      padding: !!python/tuple
+      - 0.1
+      - 0.1
+      show_grid: true
+      xlabel: Pad [#]
+    PlotStyles:
+    - Scatter
+    UnitConversion: pico
+  Istrip:
+    AdditionalPlots:
+    - Violin
+    - concatHistogram
+    Concatenated Histogram:
+      PlotOptions:
+        fill_color: red
+    PlotLabel: Strip Currents
+    PlotOptions:
+      gridstyle:
+        grid_line_color: black
+        grid_line_width: 1.5
+        minor_xgrid_line_color: lightgray
+        minor_ygrid_line_color: lightgray
+        xgrid_line_dash:
+        - 4
+        - 4
+        ygrid_line_dash:
+        - 10
+        - 4
+      padding: !!python/tuple
+      - 0.1
+      - 0.1
+      show_grid: true
+      xlabel: Pad [#]
+      ylim: !!python/tuple
+      - 0
+      - -800
+    PlotStyles:
+    - Scatter
+    UnitConversion: pico
+  Layout:
+    cols: 1
+  Rint:
+    AdditionalPlots:
+    - Violin
+    - concatHistogram
+    PlotLabel: Interstrip Resistance
+    PlotOptions:
+      gridstyle:
+        grid_line_color: black
+        grid_line_width: 1.5
+        minor_xgrid_line_color: lightgray
+        minor_ygrid_line_color: lightgray
+        xgrid_line_dash:
+        - 4
+        - 4
+        ygrid_line_dash:
+        - 10
+        - 4
+      legend_position: bottom_right
+      padding: !!python/tuple
+      - 0.1
+      - 0.1
+      show_grid: true
+      xlabel: Pad [#]
+    PlotStyles:
+    - Scatter
+    UnitConversion: giga
+  Rpoly:
+    AdditionalPlots:
+    - Violin
+    - concatHistogram
+    PlotLabel: Poly-Silicon Resistor Resitance
+    PlotOptions:
+      gridstyle:
+        grid_line_color: black
+        grid_line_width: 1.5
+        minor_xgrid_line_color: lightgray
+        minor_ygrid_line_color: lightgray
+        xgrid_line_dash:
+        - 4
+        - 4
+        ygrid_line_dash:
+        - 10
+        - 4
+      legend_position: bottom_left
+      padding: !!python/tuple
+      - 0.1
+      - 0.1
+      show_grid: true
+      xlabel: Pad [#]
+      ylim: !!python/tuple
+      - 0
+      - 2.5
+    PlotStyles:
+    - Scatter
+    UnitConversion: mega
+  Temperature:
     AdditionalPlots:
     - BoxWhisker
     PlotLabel: Temperature
     PlotOptions:
       show_grid: false
-Output: ''
+      xlabel: Pad [#]
+      ylabel: Temperature [deg]
+  ViolinOptions:
+    box_alpha: 0.3
+    height: 1200
+    shared_axes: false
+    width: 1200
+bad_strip_detection:
+  Config:
+    Cac:
+    - 1.4e-10
+    - - 120e-12
+      - 160e-12
+    - 5
+    Capfactor: 1.5
+    Cint:
+    - 7.0e-13
+    - - 3.0e-13
+      - 5e-12
+    - 5
+    HighIstrip: 3
+    HighRpoly: 2.5
+    Humidity:
+    - 22
+    - - 18
+      - 27
+    - 10
+    Idark:
+    - 5e-6
+    - - -500e-9
+      - -150e-9
+    - 5.0
+    Idiel:
+    - 1e-12
+    - - -5.0e-10
+      - 5.0e-10
+    - 20
+    IdielThresholdCurrent: 5.0e-10
+    Istrip:
+    - -100e-12
+    - - -200e-12
+      - 0
+    - 20
+    Istripfactor: 3
+    LMSsize: 50
+    LowCap: 0.8
+    MeasStripvsTotal: 1.3
+    Rint:
+    - 100e9
+    - - 50e9
+      - 1e12
+    - 50.0
+    Rpoly:
+    - 1500000
+    - - 1200000
+      - 1800000
+    - 5
+    Rpolyfactor: 3
+    Temperature:
+    - 23
+    - - 20
+      - 23
+    - 2
+    atol: 0
+    fit_cluster_size: 10
+    maximumCapOutliner: 30
+    outlier_std: 3
+    quantile: 0.95
+    remove_outliner: true
+    rtol: 0.35
+  General:
+    fontsize:
+      labels: 24
+      legend: 11
+      title: 28
+      xticks: 24
+      yticks: 24
+    height: 1000
+    width: 1500
+  Layout:
+    cols: 1
+  do_holoviews_table: true
