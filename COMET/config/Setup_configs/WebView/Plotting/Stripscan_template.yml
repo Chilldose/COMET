@@ -98,9 +98,6 @@
               xlabel: Pad [#]
               #ylabel: current [A]
               ylim: !!python/tuple [0, -800]
-          Concatenated Histogram:
-              PlotOptions:
-                fill_color: red
               
 
       Idiel:
@@ -136,7 +133,7 @@
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               padding: !!python/tuple [0.1, 0.1]
               show_grid: True
-              legend_position: bottom_left
+              #legend_position: bottom_left
               gridstyle:
                   grid_line_color: black
                   grid_line_width: 1.5
@@ -158,7 +155,7 @@
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               padding: !!python/tuple [0.1, 0.1]
               show_grid: True
-              legend_position: bottom_left
+              #legend_position: bottom_left
               gridstyle:
                   grid_line_color: black
                   grid_line_width: 1.5
@@ -180,7 +177,7 @@
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               padding: !!python/tuple [0.1, 0.1]
               show_grid: True
-              legend_position: bottom_right
+              #legend_position: bottom_right
               gridstyle:
                   grid_line_color: black
                   grid_line_width: 1.5
@@ -201,7 +198,7 @@
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               padding: !!python/tuple [0.1, 0.1]
               show_grid: True
-              legend_position: bottom_left
+              #legend_position: bottom_left
               gridstyle:
                   grid_line_color: black
                   grid_line_width: 1.5

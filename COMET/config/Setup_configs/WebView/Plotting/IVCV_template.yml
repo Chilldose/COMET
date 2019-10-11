@@ -71,7 +71,7 @@
               invert_yaxis: false
               #ylim: !!python/tuple [0, 10e-6]
               #xlim: !!python/tuple [0, 1000]
-              legend_position: "bottom_right"
+              #legend_position: "bottom_right"
               #aspect: equal
               padding: !!python/tuple [0, 0.1]
               show_grid: True
@@ -101,7 +101,7 @@
               invert_yaxis: False
               #ylim: !!python/tuple [0, 10e-6]
               #xlim: !!python/tuple [0, 1000]
-              legend_position: "bottom_right"
+              #legend_position: "bottom_right"
               #aspect: equal
               padding: !!python/tuple [0, 0.1]
               show_grid: True
