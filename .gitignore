@@ -109,3 +109,5 @@ venv.bak/
 merge_strip_file.py
 *.xml
 *.iml
+COMET/misc_plugins/PlotScripts/html/temp_plot.html
+COMET/temp/tempCONFIG.yml

@@ -96,35 +96,40 @@ class DataVisualization_window:
         self.variables.app.setOverrideCursor(Qt.WaitCursor)
 
         try:
-            os.mkdir(os.path.join(os.getcwd(), "COMET", "temp"))
+            try:
+                os.mkdir(os.path.join(os.getcwd(), "COMET", "temp"))
+            except:
+                pass
+
+            # Find template and load the yaml file
+            plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
+            template = plotConfigs[(self.widget.templates_comboBox.currentText()+"_template")]["raw"]
+            template = self.parse_yaml_string(template)
+
+            # Add the parameters
+            template["Files"] = [self.widget.files_comboBox.itemText(i) for i in range(self.widget.files_comboBox.count())]
+            template["Output"] = self.widget.save_lineEdit.text()
+
+            # Dump the yaml file in the output directory
+            filepath = os.path.normpath(os.path.join(os.getcwd(), "COMET", "temp", "{}.yml".format("tempCONFIG")))
+            with open(filepath, 'w') as outfile:
+                yaml.dump(template, outfile, default_flow_style=False)
+
+            args = ["--config", "{}".format(filepath), "--show"]
+            plotting = PlottingMain(configs=args)
+            plotting.run()
+
+            self.update_plt_tree(plotting)
+
+            # Store current session
+            self.plotting_Object = plotting
+
+            # Restore Cursor
+            self.variables.app.restoreOverrideCursor()
         except:
-            pass
-
-        # Find template and load the yaml file
-        plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
-        template = plotConfigs[(self.widget.templates_comboBox.currentText()+"_template")]["raw"]
-        template = self.parse_yaml_string(template)
-
-        # Add the parameters
-        template["Files"] = [self.widget.files_comboBox.itemText(i) for i in range(self.widget.files_comboBox.count())]
-        template["Output"] = self.widget.save_lineEdit.text()
-
-        # Dump the yaml file in the output directory
-        filepath = os.path.normpath(os.path.join(os.getcwd(), "COMET", "temp", "{}.yml".format("tempCONFIG")))
-        with open(filepath, 'w') as outfile:
-            yaml.dump(template, outfile, default_flow_style=False)
-
-        args = ["--config", "{}".format(filepath), "--show"]
-        plotting = PlottingMain(configs=args)
-        plotting.run()
-
-        self.update_plt_tree(plotting)
-
-        # Store current session
-        self.plotting_Object = plotting
-
-        # Restore Cursor
-        self.variables.app.restoreOverrideCursor()
+            # Restore Cursor
+            self.variables.app.restoreOverrideCursor()
+            raise
 
     def tree_option_select_action(self, item):
         """Action what happens when an option is selected"""
@@ -187,11 +192,36 @@ class DataVisualization_window:
                                 tree = QTreeWidgetItem({str(opt): "Option", str(value): "Value"})
                                 self.widget.plot_options_treeWidget.addTopLevelItem(tree)
                     except:
-                        pass
-
-
+                        self.selected_plot_option = ()
         except:
-            self.log.debug("Plot object has no label...")
+            self.log.debug("Plot object has no label, trying with group parameter...")
+
+            # In case of special plots other access needed
+            try:
+                plotLabel = plot._group_param_value
+                plotLabel = plotLabel.split(":")
+
+                for ana in configs["Analysis"]:
+                    for plot_name, plt_opt in configs[ana].items():
+                        try:
+                            if plotLabel[1].strip() == plt_opt.get("PlotLabel", "") or plotLabel[1].strip() == plot_name:
+                                if "{}".format(plotLabel[0].strip()) in plt_opt:
+                                    # Save current options tree
+                                    self.selected_plot_option = (ana, plot_name, "{}".format(plotLabel[0].strip()))
+
+                                    # Add the key to the tree
+                                    for opt, value in plt_opt["{}".format(plotLabel[0].strip())].get("PlotOptions", {}).items():
+                                        tree = QTreeWidgetItem({str(opt): "Option", str(value): "Value"})
+                                        self.widget.plot_options_treeWidget.addTopLevelItem(tree)
+                                    return
+                                else:
+                                    # If this entry is missing generate an empty dict so options can be added later on
+                                    self.selected_plot_option = (ana, plot_name, "{}".format(plotLabel[0].strip()))
+                                    plt_opt["{}".format(plotLabel[0].strip())] = {}
+                        except:
+                            self.selected_plot_option = ()
+            except:
+                self.selected_plot_option = ()
 
     def update_plt_tree(self, plotting_output):
         """Updates the plot tree"""
@@ -219,7 +249,7 @@ class DataVisualization_window:
 
     def config_save_options(self):
         """Configs the save options like json,hdf5,etc"""
-        options = ["html", "html/png", "html/json", "html/png/json", "html/png/json/hdf5", "png", "html/hdf5", "hdf5/json"]
+        options = ["html/png/json/hdf5", "html", "html/png", "html/json", "html/png/json", "png", "html/hdf5", "hdf5/json", "svg"]
         self.widget.save_as_comboBox.addItems(options)
 
     def config_selectable_templates(self):
@@ -235,10 +265,6 @@ class DataVisualization_window:
             os.mkdir(os.path.join(os.path.normpath(dirr), "data"))
         except:
             pass
-
-        # Save the config.yml file
-        self.log.info("Saving config file...")
-        self.save_config_yaml(self.plotting_Object.config ,os.path.join(os.path.normpath(dirr), "CONFIG.yml"))
 
         if type == "json":
             # JSON serialize
@@ -268,6 +294,11 @@ class DataVisualization_window:
         # Check if valid dir was given
         directory = self.widget.save_lineEdit.text()
         if os.path.exists(directory):
+
+            # Save the config.yml file
+            self.log.info("Saving config file...")
+            self.save_config_yaml(self.plotting_Object.config, os.path.join(os.path.normpath(directory), "CONFIG.yml"))
+
             # Get save option
             options = self.widget.save_as_comboBox.currentText().split("/")
 

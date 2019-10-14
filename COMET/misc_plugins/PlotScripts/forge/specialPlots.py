@@ -66,6 +66,7 @@ def dospecialPlots(data, config, analysisType, plotType, measurements, **plotCon
 
 def BoxWhisker(dfs, measurement, configs, analysisType, **addConfigs):
     """Plots a measurement from all df as boxwisker"""
+    newConfigs = addConfigs
     log.info("Generating BoxWhisker Plot for {}".format(measurement))
     plot = hv.BoxWhisker(dfs["All"], kdims="Name", vdims=measurement, group="BoxWhisker: {}".format(measurement))
     # get labels from the configs
@@ -78,13 +79,16 @@ def BoxWhisker(dfs, measurement, configs, analysisType, **addConfigs):
 
 
     # Update the plot specific options if need be
-    addConfigs.update(configs[analysisType].get("{}Options".format("BoxWhisker"), {}))
-    plot = customize_plot(plot, "", configs[analysisType], **addConfigs)
+    data_options = configs[analysisType].get(measurement, {}).get("BoxWhisker", {}).get("PlotOptions",{})
+    newConfigs.update(configs[analysisType].get("{}Options".format("BoxWhisker"), {}))
+    newConfigs.update(data_options)
+    plot = customize_plot(plot, "", configs[analysisType], **newConfigs)
 
     return plot
 
 def Violin(dfs, measurement, configs, analysisType, **addConfigs):
     """Plots a measurement from all df as boxwisker"""
+    newConfigs = addConfigs
     log.info("Generating Violin Plot for {}".format(measurement))
     plot = hv.Violin(dfs["All"], kdims="Name", vdims=measurement, group="Violin: {}".format(measurement))
     # get labels from the configs
@@ -96,15 +100,17 @@ def Violin(dfs, measurement, configs, analysisType, **addConfigs):
               )
 
     # Update the plot specific options if need be
-    addConfigs.update(configs[analysisType].get("{}Options".format("Violin"), {}))
-    plot = customize_plot(plot, "", configs[analysisType], **addConfigs)
+    data_options = configs[analysisType].get(measurement, {}).get("Violin", {}).get("PlotOptions", {})
+    newConfigs.update(configs[analysisType].get("{}Options".format("Violin"), {}))
+    newConfigs.update(data_options)
+    plot = customize_plot(plot, "", configs[analysisType], **newConfigs)
 
     return plot
 
 
 def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=0.5, **addConfigs):
     """Concatenates dataframes and generates a Histogram for all passed columns"""
-
+    newConfigs = addConfigs
     log.info("Generating concat histograms for measurements {}...".format(measurement))
     df = dfs["All"]
 
@@ -120,9 +126,11 @@ def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=0.5, 
                               dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
     plt.opts(xlabel=xlabel)
     # Update the plot specific options if need be
-    addConfigs.update(configs[analysisType].get("{}Options".format("Histogram"), {}))
+    data_options = configs[analysisType].get(measurement, {}).get("Concatenated Histogram", {}).get("PlotOptions", {})
+    newConfigs.update(configs[analysisType].get("{}Options".format("Histogram"), {}))
+    newConfigs.update(data_options)
     #addConfigs.update({"xlabel": measurement})
-    plots = customize_plot(plt, "", configs[analysisType], **addConfigs)
+    plots = customize_plot(plt, "", configs[analysisType], **newConfigs)
 
     return plots
 
