@@ -5,6 +5,7 @@ from PyQt5.QtCore import QUrl, Qt
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 import numpy as np
+import copy
 import ast
 from ..utilities import save_dict_as_hdf5, save_dict_as_json
 
@@ -25,7 +26,8 @@ class DataVisualization_window:
         self.log = logging.getLogger(__name__)
         self.allFiles = []
         self.plotting_Object = None
-        self.plot_path = {}
+        self.plot_path = {} # The plot hierachy inside the "all" entry of the plotObject
+        self.plot_analysis = {} # The analysis each individual plot comes from
         self.selected_plot_option = ()
         self.current_plot_object = None
 
@@ -51,14 +53,19 @@ class DataVisualization_window:
     def load_html_to_screen(self, item):
         """Loads a html file plot to the screen"""
         self.variables.app.setOverrideCursor(Qt.WaitCursor)
-        for analy in self.plotting_Object.plotObjects:
-            if hasattr(analy["All"], item.text(0)):
-                plot = getattr(analy["All"], self.plot_path[item.text(0)][0])
-                plot = getattr(plot, self.plot_path[item.text(0)][1])
-                filepath = self.plotting_Object.temp_html_output(plot)
-                self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
-                self.current_plot_object = plot
-                self.update_plot_options_tree(plot)
+        try:
+            for analy in self.plotting_Object.plotObjects:
+                if self.plot_analysis[item.text(0)] == analy["Name"]:
+                    plot = analy["All"]
+                    for path_part in self.plot_path[item.text(0)]:
+                        plot = getattr(plot, path_part)
+                    filepath = self.plotting_Object.temp_html_output(plot)
+                    self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
+                    self.current_plot_object = plot
+                    self.update_plot_options_tree(plot)
+                    break
+        except Exception as err:
+            self.log.error("Plot could not be loaded. If this issue is not resolvable, re-render the plots! Error: {}".format(err))
         self.variables.app.restoreOverrideCursor()
 
     def replot_and_reload_html(self, plot):
@@ -166,18 +173,21 @@ class DataVisualization_window:
                 configs["PlotOptions"].update(newItem)
                 self.update_plot_options_tree(self.current_plot_object)
             except Exception as err:
-                self.log.error("An error happened with the newly passed option with error: {} Option will be removed!".format(err))
-
+                self.log.error("An error happened with the newly passed option with error: {} Option will be removed! "
+                               "Warning: Depending on the error, you may have compromised the plot object and a re-render "
+                               "may be needed!".format(err))
 
     def apply_options_to_plot(self, plot, **opts):
         """Applies the opts to the plot"""
         plot.opts(**opts)
+
 
     def update_plot_options_tree(self, plot):
         """Updates the plot options tree for the plot"""
         self.widget.plot_options_treeWidget.clear()
         self.widget.options_lineEdit.setText("")
         configs = self.plotting_Object.config
+        self.selected_plot_option = ()
         try:
             plotLabel = plot._label
             for ana in configs["Analysis"]:
@@ -191,8 +201,10 @@ class DataVisualization_window:
                             for opt, value in plt_opt.get("PlotOptions", {}).items():
                                 tree = QTreeWidgetItem({str(opt): "Option", str(value): "Value"})
                                 self.widget.plot_options_treeWidget.addTopLevelItem(tree)
+                            break
                     except:
-                        self.selected_plot_option = ()
+                        pass
+                        #self.selected_plot_option = ()
         except:
             self.log.debug("Plot object has no label, trying with group parameter...")
 
@@ -238,9 +250,17 @@ class DataVisualization_window:
                 for name, subdict in Allplots.keys():
                     tree = QTreeWidgetItem([name+"_"+subdict])
                     self.plot_path[name+"_"+subdict] = (name, subdict)
+                    self.plot_analysis[name+"_"+subdict] = analy.get("Name", "")
                     self.widget.output_tree.addTopLevelItem(tree)
             except AttributeError as err:
-                self.log.error("Attribute Error happened during plot object access. Error: {}".format(err))
+                self.log.warning("Attribute error happened during plot object access. Error: {}. "
+                                 "Tyring to adapt...".format(err))
+                tree = QTreeWidgetItem([Allplots._group_param_value])
+                self.widget.output_tree.addTopLevelItem(tree)
+                self.plot_path[Allplots._group_param_value] = ()
+                self.plot_analysis[Allplots._group_param_value] = analy["Name"]
+            except Exception as err:
+                self.log.error("An error happened during plot object access. Error: {}".format(err))
 
 
     def upload_to_DB(self):

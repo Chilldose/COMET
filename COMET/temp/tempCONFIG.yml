@@ -5,10 +5,11 @@ ASCII_file_specs:
   units_line: 21
 Analysis:
 - Stripscan
+- bad_strip_detection
 Files:
-- C:/Users/dbloech/Desktop/Stripscans/VPX28442/2S/str_VPX28442_14_2S.txt
 - C:/Users/dbloech/Desktop/Stripscans/VPX28442/2S/str_VPX28442_15_2S.txt
 - C:/Users/dbloech/Desktop/Stripscans/VPX28442/2S/str_VPX28442_17_2S.txt
+- C:/Users/dbloech/Desktop/Stripscans/VPX28442/2S/str_VPX28442_18_2S.txt
 Filetype: ASCII
 Output: ''
 Poolsize: 4

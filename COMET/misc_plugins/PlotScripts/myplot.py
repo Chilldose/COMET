@@ -132,7 +132,6 @@ class PlottingMain:
                 if "All" in plot:
                     self.log.info("Saving all subplots from the 'All' plot...")
                     Allplots = plot["All"]
-                    # todo: saving of table not working with keys!!!
                     try:
                         plotslist_tuple = Allplots.keys()
                         for path in plotslist_tuple:
