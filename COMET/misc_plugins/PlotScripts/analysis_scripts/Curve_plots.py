@@ -8,9 +8,6 @@ import holoviews as hv
 
 hv.extension('bokeh')
 
-from bokeh.models import CustomJS
-from bokeh.models.widgets import Button
-
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout
 from forge.tools import twiny, relabelPlot
 from forge.tools import plot_all_measurements, convert_to_EngUnits
@@ -41,5 +38,5 @@ class Curve_plots:
         self.PlotDict["All"] = self.basePlots
 
         # Reconfig the plots to be sure
-        self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config["Curve_plots"].get("Layout", {}))
+        self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config.get("Curve_plots", {}).get("Layout", {}))
         return self.PlotDict

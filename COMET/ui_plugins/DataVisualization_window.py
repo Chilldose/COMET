@@ -247,10 +247,10 @@ class DataVisualization_window:
         for analy in plotting_output.plotObjects:
             Allplots = analy.get("All", {})
             try:
-                for name, subdict in Allplots.keys():
-                    tree = QTreeWidgetItem([name+"_"+subdict])
-                    self.plot_path[name+"_"+subdict] = (name, subdict)
-                    self.plot_analysis[name+"_"+subdict] = analy.get("Name", "")
+                for path in Allplots.keys():
+                    tree = QTreeWidgetItem(["_".join(path)])
+                    self.plot_path["_".join(path)] = path
+                    self.plot_analysis["_".join(path)] = analy.get("Name", "")
                     self.widget.output_tree.addTopLevelItem(tree)
             except AttributeError as err:
                 self.log.warning("Attribute error happened during plot object access. Error: {}. "
@@ -279,7 +279,7 @@ class DataVisualization_window:
             if "_template" in key:
                 self.widget.templates_comboBox.addItem(key.split("_template")[0])
 
-    def save_data(self, type, dirr):
+    def save_data(self, type, dirr, base_name="data"):
         """Saves the data in the specified type"""
         try:
             os.mkdir(os.path.join(os.path.normpath(dirr), "data"))
@@ -289,10 +289,10 @@ class DataVisualization_window:
         if type == "json":
             # JSON serialize
             self.log.info("Saving JSON file...")
-            save_dict_as_json(self.plotting_Object.data, os.path.join(os.path.normpath(dirr), "data", "data.json"))
+            save_dict_as_json(deepcopy(self.plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
         if type == "hdf5":
             self.log.info("Saving HDF5 file...")
-            save_dict_as_hdf5(self.plotting_Object.data, os.path.join(os.path.normpath(dirr), "data", "data.hdf5"))
+            save_dict_as_hdf5(deepcopy(self.plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
 
     def config_files_combo_box(self, items):
         """Set dragable combobox"""
@@ -313,7 +313,7 @@ class DataVisualization_window:
 
         # Check if valid dir was given
         directory = self.widget.save_lineEdit.text()
-        if os.path.exists(directory):
+        if os.path.exists(directory) and self.plotting_Object:
 
             # Save the config.yml file
             self.log.info("Saving config file...")
@@ -328,7 +328,7 @@ class DataVisualization_window:
             # Start data saver
             for ty in data:
                 if ty in options:
-                    self.save_data(ty, directory)
+                    self.save_data(ty, directory, os.path.basename(directory))
 
             # Start renderer
             if self.plotting_Object.config:
@@ -338,11 +338,8 @@ class DataVisualization_window:
                     if plot in options:
                         self.plotting_Object.config["Save_as"].append(plot)
                 self.plotting_Object.save_to() # Starts the routine
-
-
-
         else:
-            self.log.error("Path {} does not exist, please choose a valid path".format(directory))
+            self.log.error("Either the path {} does not exist, or you must first render a few plots".format(directory))
 
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()

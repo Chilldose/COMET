@@ -1638,14 +1638,21 @@ class NumpyEncoder(json.JSONEncoder):
            return obj.tolist()
         return json.JSONEncoder.default(self, obj)
 
-def save_dict_as_json(data, dirr):
+def save_dict_as_json(data, dirr, base_name):
     json_dump = json.dumps(data, cls=NumpyEncoder)
-    with open(dirr, 'w') as outfile:
+    with open(os.path.join(dirr, base_name+".json"), 'w') as outfile:
         json.dump(json_dump, outfile)
 
-def save_dict_as_hdf5(data, dirr):
+    for key in data:
+        with open(os.path.join(dirr, "{}.json".format(key)), 'w') as outfile:
+            json_dump = json.dumps(data[key], cls=NumpyEncoder)
+            json.dump(json_dump, outfile)
+
+def save_dict_as_hdf5(data, dirr, base_name):
     df = convert_to_df(data)
-    df["All"].to_hdf(dirr, key='df', mode='w')
+    df["All"].to_hdf(os.path.join(dirr, base_name+".hdf5"), key='df', mode='w')
+    for key in df.get("keys", []):
+        data[key]["data"].to_hdf(os.path.join(dirr, "{}.hdf5".format(key)), key='df', mode='w')
 
 
 

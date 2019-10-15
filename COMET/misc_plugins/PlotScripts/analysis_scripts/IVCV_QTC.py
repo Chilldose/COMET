@@ -63,7 +63,7 @@ class IVCV_QTC:
         # Add the measurement to the list
 
         # Plot all Measurements
-        self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, "IVCV_QTC", do_not_plot=("voltage[V]"))
+        self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, "IVCV_QTC", do_not_plot=("voltage", "voltage_1"))
         self.PlotDict["BasePlots"] = self.basePlots
         self.PlotDict["All"] = self.basePlots
 
