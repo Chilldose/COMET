@@ -13,6 +13,8 @@ import pandas as pd
 from bokeh.models import LinearAxis, Range1d
 from bokeh.io import export_svgs, export_png
 from bokeh.io import save
+import json, yaml
+from copy import deepcopy
 try:
     import pdfkit
 except:
@@ -415,3 +417,41 @@ def parse_file_data(filecontent, settings):
 
     return_dict = {"data": data_dict, "header": header, "measurements": parsed_obj[0][:len(parsed_data[0])], "units": parsed_obj[1][:len(parsed_data[0])]}
     return return_dict
+
+
+class NumpyEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, np.ndarray):
+           return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
+
+def save_dict_as_json(data, dirr, base_name):
+    json_dump = json.dumps(data, cls=NumpyEncoder)
+    with open(os.path.join(dirr, base_name+".json"), 'w') as outfile:
+        json.dump(json_dump, outfile)
+
+    for key in data:
+        with open(os.path.join(dirr, "{}.json".format(key)), 'w') as outfile:
+            json_dump = json.dumps(data[key], cls=NumpyEncoder)
+            json.dump(json_dump, outfile)
+
+def save_dict_as_hdf5(data, dirr, base_name):
+    df = convert_to_df(data)
+    df["All"].to_hdf(os.path.join(dirr, base_name+".hdf5"), key='df', mode='w')
+    for key in df.get("keys", []):
+        data[key]["data"].to_hdf(os.path.join(dirr, "{}.hdf5".format(key)), key='df', mode='w')
+
+def save_data(self, type, dirr, base_name="data"):
+        """Saves the data in the specified type"""
+        try:
+            os.mkdir(os.path.join(os.path.normpath(dirr), "data"))
+        except:
+            pass
+
+        if type == "json":
+            # JSON serialize
+            self.log.info("Saving JSON file...")
+            save_dict_as_json(deepcopy(self.plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
+        if type == "hdf5":
+            self.log.info("Saving HDF5 file...")
+            save_dict_as_hdf5(deepcopy(self.plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
