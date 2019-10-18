@@ -35,7 +35,7 @@ if in position move the table up again. This prevents scratches on e.g. silicon 
 Furthermore, it checks the position of the stage to make sure the table is always on the correct location. If not an error
 will be raised in the COMETs internal error handling system.
 
-.. autoclass:: COMET.utilities.table_control_class
+.. autoclass:: utilities.table_control_class
 	:members:
 
 Switching System Control Class

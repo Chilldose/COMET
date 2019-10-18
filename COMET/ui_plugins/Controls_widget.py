@@ -8,16 +8,16 @@ class Controls_widget(object):
 
     def __init__(self, gui):
         """Configures the cotrols widget"""
-        super(Controls_widget, self).__init__()
-        self.gui = gui
+        super(Controls_widget, self).__init__(gui)
+        self.Start_Stop_gui = gui.Settings_widget
         self.Conlog = logging.getLogger(__name__)
 
-        self.gui.quit_button.clicked.connect(self.exit_order)
-        self.gui.start_button.clicked.connect(self.Start_order)
-        self.gui.stop_button.clicked.connect(self.Stop_order)
+        self.Start_Stop_gui.quit_button.clicked.connect(self.exit_order)
+        self.Start_Stop_gui.start_button.clicked.connect(self.Start_order)
+        self.Start_Stop_gui.stop_button.clicked.connect(self.Stop_order)
 
-        self.gui.progressBar.setRange(0,100)
-        self.gui.progressBar.setValue(0)
+        self.Start_Stop_gui.progressBar.setRange(0,100)
+        self.Start_Stop_gui.progressBar.setValue(0)
 
         # Adding update functions
         self.variables.add_update_function(self.error_update)
@@ -28,10 +28,10 @@ class Controls_widget(object):
     def update_current_state(self):
         """Updates the label of the state of the program. Either IDLE or Measurement running"""
 
-        if self.variables.default_values_dict["settings"]["Measurement_running"] and not self.gui.state_indi.text() == "Measurement running":
-            self.gui.state_indi.setText("Measurement running")
-        elif not self.variables.default_values_dict["settings"]["Measurement_running"] and not self.gui.state_indi.text() == "IDLE":
-            self.gui.state_indi.setText("IDLE")
+        if self.variables.default_values_dict["settings"]["Measurement_running"] and not self.Start_Stop_gui.state_indi.text() == "Measurement running":
+            self.Start_Stop_gui.state_indi.setText("Measurement running")
+        elif not self.variables.default_values_dict["settings"]["Measurement_running"] and not self.Start_Stop_gui.state_indi.text() == "IDLE":
+            self.Start_Stop_gui.state_indi.setText("IDLE")
 
 
     # Orders
@@ -65,7 +65,7 @@ class Controls_widget(object):
                                            "Filename": self.variables.default_values_dict["settings"]["Current_filename"],
                                            "Project": self.variables.default_values_dict["settings"]["Current_project"],
                                            "Sensor": self.variables.default_values_dict["settings"]["Current_sensor"],
-                                           "enviroment": self.gui.log_env_check.isChecked(), # if enviroment surveillance should be done
+                                           "enviroment": self.Start_Stop_gui.log_env_check.isChecked(), # if enviroment surveillance should be done
                                            "skip_init": False} #warning this prevents the device init
 
             self.job.generate_job(additional_settings)
@@ -90,9 +90,9 @@ class Controls_widget(object):
             reply = QMessageBox.information(None, 'Warning', "You cannot load a measurement files while data taking is in progress.", QMessageBox.Ok)
 
     def update_statistics(self):
-            self.gui.bias_voltage_lcd.display(float(self.variables.default_values_dict["settings"].get("bias_voltage","0")))
-            self.gui.current_pad_lcd.display(self.variables.default_values_dict["settings"].get("current_strip", None))
-            self.gui.bad_pads_lcd.display(self.variables.default_values_dict["settings"].get("Bad_strips", None))
+            self.Start_Stop_gui.bias_voltage_lcd.display(float(self.variables.default_values_dict["settings"].get("bias_voltage","0")))
+            self.Start_Stop_gui.current_pad_lcd.display(self.variables.default_values_dict["settings"].get("current_strip", None))
+            self.Start_Stop_gui.bad_pads_lcd.display(self.variables.default_values_dict["settings"].get("Bad_strips", None))
 
 
     # Update functions
@@ -100,8 +100,8 @@ class Controls_widget(object):
         last_errors = self.variables.event_loop_thread.error_log
         error_text = "\n".join(last_errors[-14:])
 
-        if self.gui.event_log.text() != error_text: # Only update text if necessary
-            self.gui.event_log.setText(error_text)
+        if self.Start_Stop_gui.event_log.text() != error_text: # Only update text if necessary
+            self.Start_Stop_gui.event_log.setText(error_text)
 
     def led_update(self):
 

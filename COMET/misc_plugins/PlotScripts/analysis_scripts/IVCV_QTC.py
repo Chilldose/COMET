@@ -68,9 +68,11 @@ class IVCV_QTC:
         self.PlotDict["All"] = self.basePlots
 
         # Add full depletion point to 1/c^2 curve
-        if "1C2" in self.data[df]["measurements"]:
+        try:
             c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion
             self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion = self.find_full_depletion(c2plot, self.data, self.config)
+        except:
+            self.log.warning("No full depletion calculation possible...")
 
         # Whiskers Plot
         self.WhiskerPlots = dospecialPlots(self.data, self.config, "IVCV_QTC", "BoxWhisker", self.measurements)
@@ -104,55 +106,59 @@ class IVCV_QTC:
         full_depletion_voltages = np.zeros((len(data["keys"]), 2))
         Left_stats = np.zeros((len(data["keys"]), 6), dtype=np.object)
         Right_stats = np.zeros((len(data["keys"]), 6), dtype=np.object)
-        self.log.info("Searching for full depeltion voltage in all files...")
+        self.log.info("Searching for full depletion voltage in all files...")
 
         for i, samplekey in enumerate(data["keys"]):
-            self.log.debug("Data: {}".format(samplekey))
-            sample = deepcopy(data[samplekey])
-            try:
-                df = pd.DataFrame({"xaxis": sample["data"]["voltage"], "yaxis": sample["data"]["1C2"]})
-            except:
-                df = pd.DataFrame({"xaxis": sample["data"]["Voltage"], "yaxis": sample["data"]["1C2"]})
-            df = df.dropna()
+            if "1C2" not in sample["data"]:
+                self.log.warning("Full depletion calculation could not be done for data set: {}".format(samplekey))
+
+            else:
+                self.log.debug("Data: {}".format(samplekey))
+                sample = deepcopy(data[samplekey])
+                try:
+                    df = pd.DataFrame({"xaxis": sample["data"]["voltage"], "yaxis": sample["data"]["1C2"]})
+                except:
+                    df = pd.DataFrame({"xaxis": sample["data"]["Voltage"], "yaxis": sample["data"]["1C2"]})
+                df = df.dropna()
 
 
-            # Loop one time from the right side and from the left, to get both slopes
-            LR2 = 0 # r^2 values for both sides
-            RR2 = 0
+                # Loop one time from the right side and from the left, to get both slopes
+                LR2 = 0 # r^2 values for both sides
+                RR2 = 0
 
 
-            for idx in range(5, len(df)-5):
-                # Left
-                slope_left, intercept_left, r_left, p_value, std_err_left = linregress(df["xaxis"][:-idx],df["yaxis"][:-idx])
-                r2_left = r_left * r_left
-                self.log.debug("Left side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
-                    slope_left, intercept_left, r2_left, std_err_left)
-                )
-
-                # Right
-                slope_right, intercept_right, r_right, p_value, std_err_right = linregress(df["xaxis"][idx:],df["yaxis"][idx:])
-                r2_right = r_right * r_right
-                self.log.debug("Right side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
-                    slope_right, intercept_right, r2_right, std_err_right)
-                )
-
-                # See if the r2 value has increased and store end points
-                if r2_left >= LR2:
-                    LR2 = r2_left
-                    LeftEndPoints = (
-                        (df["xaxis"][0], intercept_left),
-                        (df["xaxis"][idx], slope_left * df["xaxis"][idx] + intercept_left)
+                for idx in range(5, len(df)-5):
+                    # Left
+                    slope_left, intercept_left, r_left, p_value, std_err_left = linregress(df["xaxis"][:-idx],df["yaxis"][:-idx])
+                    r2_left = r_left * r_left
+                    self.log.debug("Left side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+                        slope_left, intercept_left, r2_left, std_err_left)
                     )
-                    Left_stats[i] = (LeftEndPoints, slope_left, intercept_left, r_left, p_value, std_err_left)
 
-                # See if the r2 value has increased and store it
-                if r2_right >= RR2:
-                    RR2 = r2_right
-                    RightEndPoints = (
-                        (df["xaxis"][idx], slope_right * df["xaxis"][idx] + intercept_right),
-                        (df["xaxis"][len(df["xaxis"]) - 1], slope_right * df["xaxis"][len(df["xaxis"]) - 1] + intercept_right),
+                    # Right
+                    slope_right, intercept_right, r_right, p_value, std_err_right = linregress(df["xaxis"][idx:],df["yaxis"][idx:])
+                    r2_right = r_right * r_right
+                    self.log.debug("Right side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+                        slope_right, intercept_right, r2_right, std_err_right)
                     )
-                    Right_stats[i] = (RightEndPoints, slope_right, intercept_right, r_right, p_value, std_err_right)
+
+                    # See if the r2 value has increased and store end points
+                    if r2_left >= LR2:
+                        LR2 = r2_left
+                        LeftEndPoints = (
+                            (df["xaxis"][0], intercept_left),
+                            (df["xaxis"][idx], slope_left * df["xaxis"][idx] + intercept_left)
+                        )
+                        Left_stats[i] = (LeftEndPoints, slope_left, intercept_left, r_left, p_value, std_err_left)
+
+                    # See if the r2 value has increased and store it
+                    if r2_right >= RR2:
+                        RR2 = r2_right
+                        RightEndPoints = (
+                            (df["xaxis"][idx], slope_right * df["xaxis"][idx] + intercept_right),
+                            (df["xaxis"][len(df["xaxis"]) - 1], slope_right * df["xaxis"][len(df["xaxis"]) - 1] + intercept_right),
+                        )
+                        Right_stats[i] = (RightEndPoints, slope_right, intercept_right, r_right, p_value, std_err_right)
 
             # Make the line intersection
             full_depletion_voltages[i] = line_intersection(LeftEndPoints, RightEndPoints)

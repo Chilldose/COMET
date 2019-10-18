@@ -46,29 +46,33 @@ def convert_to_EngUnits(data, dataType, unit="nano"):
 
     for file in data["keys"]:
         # Find current order of magnitude
-        idx = data[file]["measurements"].index(dataType)
-        if len(data[file]["units"][idx]) > 1:
-            oldunit = data[file]["units"][idx][0] # The first should be the correct magnitude
-        else: oldunit = ""
+        if dataType in data[file]["measurements"]:
+            idx = data[file]["measurements"].index(dataType)
+            if len(data[file]["units"][idx]) > 1:
+                oldunit = data[file]["units"][idx][0] # The first should be the correct magnitude
+            else: oldunit = ""
 
-        # find unit to convert to old and new
-        old_unit_key = ("","")
-        for keys in engUnits.keys():
-            if unit in keys:
-                to_convert = keys
-            if oldunit in keys:
-                old_unit_key = keys
+            # find unit to convert to old and new
+            old_unit_key = ("","")
+            for keys in engUnits.keys():
+                if unit in keys:
+                    to_convert = keys
+                if oldunit in keys:
+                    old_unit_key = keys
 
-        # Calc difference between the units
-        factor = engUnits[old_unit_key]/engUnits[to_convert]
-        data[file]["data"][dataType] = data[file]["data"][dataType]*factor
+            # Calc difference between the units
+            factor = engUnits[old_unit_key]/engUnits[to_convert]
+            data[file]["data"][dataType] = data[file]["data"][dataType]*factor
 
-        if len(data[file]["units"][idx]) > 1:
-            # Todo: error in units if several conversions are made!!!!
-            # Convert the units to the correct representation
-            data[file]["units"][idx] = to_convert[0] + data[file]["units"][idx][:]
+            if len(data[file]["units"][idx]) > 1:
+                # Todo: error in units if several conversions are made!!!!
+                # Convert the units to the correct representation
+                data[file]["units"][idx] = to_convert[0] + data[file]["units"][idx][:]
+            else:
+                data[file]["units"][idx] = to_convert[0] + data[file]["units"][idx]
         else:
-            data[file]["units"][idx] = to_convert[0] + data[file]["units"][idx]
+            log.warning("Conversion of units could not be done due to missing data! Data set: {}".format(file))
+            return data
 
     # Convert the all df as well
     factor = engUnits[old_unit_key] / engUnits[to_convert]
@@ -268,14 +272,17 @@ def holoplot(plotType, df_list, configs, xdata, ydata, **addConfigs):
         log.info("Generating plot {} in Style {}".format(plotType, type))
         for key in df_list["keys"]:
             if hasattr(hv,type):
-                log.debug("Generating plot {} for {}".format(key, plotType))
-                # get labels from the configs
-                ylabel = "{} [{}]".format(ydata, df_list[key]["units"][df_list[key]["measurements"].index(ydata)])
-                xlabel = "{} [{}]".format(xdata, df_list[key]["units"][df_list[key]["measurements"].index(xdata)])
-                if plot:
-                    plot *= getattr(hv, type)(df_list[key]["data"], xdata, ydata, label=key)
-                else: plot = getattr(hv, type)(df_list[key]["data"], xdata, ydata, label=key)
-                plot.opts(xlabel=xlabel, ylabel=ylabel)
+                if ydata in df_list[key]["data"]:
+                    log.debug("Generating plot {} for {}".format(key, plotType))
+                    # get labels from the configs
+                    ylabel = "{} [{}]".format(ydata, df_list[key]["units"][df_list[key]["measurements"].index(ydata)])
+                    xlabel = "{} [{}]".format(xdata, df_list[key]["units"][df_list[key]["measurements"].index(xdata)])
+                    if plot:
+                        plot *= getattr(hv, type)(df_list[key]["data"], xdata, ydata, label=key)
+                    else: plot = getattr(hv, type)(df_list[key]["data"], xdata, ydata, label=key)
+                    plot.opts(xlabel=xlabel, ylabel=ylabel)
+                else:
+                    log.warning("The data key: {} is not present in dataset {}. Skipping this particular plot.".format(ydata, key))
             else:
                 log.error("The plot type {} is not part of Holoviews.".format(type))
         log.debug("Generated plot: {} of type {}".format(plot, type))

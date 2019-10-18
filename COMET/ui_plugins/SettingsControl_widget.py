@@ -10,14 +10,17 @@ class SettingsControl_widget:
 
     def __init__(self, gui):
         """Configures the settings widget"""
-        super(SettingsControl_widget, self).__init__(gui)
-        self.gui = gui
+        self.Settings_gui = gui.Start_widget
         self.Setlog = logging.getLogger(__name__)
+        try:
+            super(SettingsControl_widget, self).__init__(gui)
+        except:
+            super(SettingsControl_widget, self).__init__()
 
         # TODO: The init needs to be cleaned up a bit, currently not very pythonic structured
         # Adds all projects to the combo box
         for projects in self.variables.additional_files.get("Pad_files", {}):
-            self.gui.proj_comboBox.addItem(str(projects))
+            self.Settings_gui.proj_comboBox.addItem(str(projects))
 
 
         if "Current_project" in self.variables.default_values_dict["settings"]:
@@ -25,10 +28,10 @@ class SettingsControl_widget:
             list(self.variables.additional_files["Pad_files"].keys())[0]  # That one project is definetly choosen
         else:
             self.variables.default_values_dict["settings"].update(
-                {"Current_project": self.gui.proj_comboBox.currentText()})
+                {"Current_project": self.Settings_gui.proj_comboBox.currentText()})
 
         current_project = self.variables.default_values_dict["settings"].get("Current_project", None)
-        self.gui.sensor_comboBox.addItems(self.variables.additional_files["Pad_files"][current_project])  # Adds all items to the combo box
+        self.Settings_gui.sensor_comboBox.addItems(self.variables.additional_files["Pad_files"][current_project])  # Adds all items to the combo box
 
 
         if "Current_sensor" in self.variables.default_values_dict["settings"]:
@@ -45,13 +48,13 @@ class SettingsControl_widget:
                 self.variables.default_values_dict["settings"].update({"Current_sensor": "None"})
 
         if "Current_filename" in self.variables.default_values_dict["settings"]:
-            self.gui.filename.setText(str(self.variables.default_values_dict["settings"]["Current_filename"]))
+            self.Settings_gui.filename.setText(str(self.variables.default_values_dict["settings"]["Current_filename"]))
         else:
             self.variables.default_values_dict["settings"].update({"Current_filename": "enter_filename_here"})
-            self.gui.filename.setText(str(self.variables.default_values_dict["settings"]["Current_filename"]))
+            self.Settings_gui.filename.setText(str(self.variables.default_values_dict["settings"]["Current_filename"]))
 
         for projects in self.variables.default_values_dict["settings"].get("Operator", "None"):
-            self.gui.operator_comboBox.addItem(str(projects))  # Adds all items to the combo box
+            self.Settings_gui.operator_comboBox.addItem(str(projects))  # Adds all items to the combo box
 
         if "Current_operator" in self.variables.default_values_dict["settings"]:
             self.variables.default_values_dict["settings"]["Current_operator"] = \
@@ -61,19 +64,19 @@ class SettingsControl_widget:
                 {"Current_operator": self.variables.default_values_dict["settings"].get("Operator", ["None", ])[0]})
 
         if "Current_directory" in self.variables.default_values_dict["settings"]:  # TODO check if directory exists
-            self.gui.output_dir_edit.setText(str(self.variables.default_values_dict["settings"]["Current_directory"]))
+            self.Settings_gui.output_dir_edit.setText(str(self.variables.default_values_dict["settings"]["Current_directory"]))
         else:
             self.variables.default_values_dict["settings"].update(
                 {"Current_directory": str(os.path.join(os.path.dirname(sys.modules[__name__].__file__)))})
-            self.gui.output_dir_edit.setText(str(os.path.join(os.path.dirname(sys.modules[__name__].__file__))))
+            self.Settings_gui.output_dir_edit.setText(str(os.path.join(os.path.dirname(sys.modules[__name__].__file__))))
 
-        self.gui.load_settings_button.clicked.connect(self.load_measurement_settings_file)
-        self.gui.save_settings_button.clicked.connect(self.save_measurement_settings_file)
-        self.gui.save_to_button.clicked.connect(self.dir_selector_action)
-        self.gui.operator_comboBox.activated[str].connect(self.operator_selector_action)
-        self.gui.sensor_comboBox.activated[str].connect(self.sensor_selector_action)
-        self.gui.proj_comboBox.activated[str].connect(self.project_selector_action)
-        self.gui.filename.textChanged[str].connect(self.change_name)
+        self.Settings_gui.load_settings_button.clicked.connect(self.load_measurement_settings_file)
+        self.Settings_gui.save_settings_button.clicked.connect(self.save_measurement_settings_file)
+        self.Settings_gui.save_to_button.clicked.connect(self.dir_selector_action)
+        self.Settings_gui.operator_comboBox.activated[str].connect(self.operator_selector_action)
+        self.Settings_gui.sensor_comboBox.activated[str].connect(self.sensor_selector_action)
+        self.Settings_gui.proj_comboBox.activated[str].connect(self.project_selector_action)
+        self.Settings_gui.filename.textChanged[str].connect(self.change_name)
 
     # Order functions
     def change_name(self, filename):
@@ -92,7 +95,7 @@ class SettingsControl_widget:
     def dir_selector_action(self):
         fileDialog = QFileDialog()
         directory = fileDialog.getExistingDirectory()
-        self.gui.output_dir_edit.setText(directory)
+        self.Settings_gui.output_dir_edit.setText(directory)
         self.variables.default_values_dict["settings"]["Current_directory"] = str(directory)
 
     def load_measurement_settings_file(self):
@@ -129,12 +132,12 @@ class SettingsControl_widget:
     def load_valid_sensors_for_project(self, project_name):
         '''This function loads the valid sensors for each project'''
         #Warning sensor_comboBox must be accessable for this function to work
-        self.gui.sensor_comboBox.clear()
+        self.Settings_gui.sensor_comboBox.clear()
         try:
             # self.variables.default_values_dict["settings"]["Sensor_types"][project_name]
-            self.gui.sensor_comboBox.addItems(list(self.variables.additional_files["Pad_files"][project_name].keys()))  # Adds all items to the combo box
+            self.Settings_gui.sensor_comboBox.addItems(list(self.variables.additional_files["Pad_files"][project_name].keys()))  # Adds all items to the combo box
             # Select the first element to be right, if possible
-            self.variables.default_values_dict["settings"]["Current_sensor"] = self.gui.sensor_comboBox.currentText()
+            self.variables.default_values_dict["settings"]["Current_sensor"] = self.Settings_gui.sensor_comboBox.currentText()
 
         except:
             self.log.error("No sensors defined for project: " + str(project_name))

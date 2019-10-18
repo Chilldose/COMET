@@ -47,6 +47,7 @@ The core program features easy device implementation through plugin support. The
    GUI_plugins/Data_Explorer
    GUI_plugins/Data_Visualization
    GUI_plugins/Documentation
+   GUI_plugins/Switching_Control
 
 
 

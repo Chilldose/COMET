@@ -44,12 +44,18 @@ class Alignment_window(Table_widget):
         self.layout = layout
         self.trans = transformation()
 
-        # Settings tab
+        # Alignment tab
         alignment_widget = QWidget()
         self.alignment = self.variables.load_QtUi_file("Alignment.ui", alignment_widget)
-        #self.table_move_ui = self.alignment # this is for the table control so it can be a copy from the other ui
         self.layout.addWidget(alignment_widget)
-        #self.table_move = self.table_move()
+
+        # Table widget
+        Table_widget = QWidget()
+        self.table_widget = self.variables.load_QtUi_file("table_control.ui", Table_widget)
+        self.alignment.Table_Layout.addWidget(Table_widget)
+
+        # Init the other classes
+        super(Alignment_window, self).__init__(self) # I need the main
 
         # Load camera
         try:
@@ -71,9 +77,9 @@ class Alignment_window(Table_widget):
         self.alignment.camera_on_Button.clicked.connect(self.camera.start)
         self.alignment.camera_off_Button.clicked.connect(self.camera.stop)
 
-        self.variables.add_update_function(self.current_strip_lcd)
+        #self.variables.add_update_function(self.current_strip_lcd)
 
-        super(Alignment_window, self).__init__(self.alignment)
+
 
         # Find pad data in the additional files and parse them
         self.pad_files = self.variables.framework_variables["Configs"]["additional_files"].get("Pad_files",{})
@@ -179,11 +185,13 @@ class Alignment_window(Table_widget):
     def next_step_action(self, step = None):
         '''This updates all gui elements for the next step'''
 
+        maximum_step = 5
+
         if step == None:
             self.alignment_step += 1 # so the next step is executed
             step = self.alignment_step
 
-        if step > 5 or not self.alignment_started:
+        if step > maximum_step or not self.alignment_started:
             self.what_to_do_text(-1) # Resets the text
             if self.variables.default_values_dict["settings"]["Alignment"]:
                 success = self.variables.table.move_to_strip(self.sensor_pad_file, self.reference_pads[0],
@@ -200,7 +208,7 @@ class Alignment_window(Table_widget):
             self.what_to_do_text(step)
             self.do_alignment(step)
 
-        if step == 5:
+        if step == maximum_step:
             self.alignment_started = False
 
     def set_checkboxes(self, list):

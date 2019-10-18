@@ -279,27 +279,27 @@ class measurement_class(Thread):
         This is for databank compatibility """
 
         # Generate dict
+        # Todo: deepcopy may be better here
         data_to_dump = self.measurement_data.copy()
         data_to_dump.update(details)
-        filepath = os.path.join(os.path.normpath(details["Filepath"]), details["Filename"])
+        filepath = os.path.normpath(details["Filepath"])
 
         for key, data in data_to_dump.copy().items():
             try:
-                if len(data): # looks if the array has any data in it
-                    for i, item in enumerate(data): # serialize to list
-                        data_to_dump[key][i] = list(item)
-                else:
+                if not len(data): # looks if the array has any data in it
                     data_to_dump.pop(key)
-            except:
+            except: # f some other error happens
                 data_to_dump.pop(key)
 
         try:
             if data_to_dump:
                 if type.lower() == "json":
-                    save_dict_as_json(data_to_dump, filepath.split(".")[0]+".json")
+                    save_dict_as_json(data_to_dump, filepath, details["Filename"])
 
                 elif type.lower() == "hdf5":
-                    save_dict_as_json(data_to_dump, filepath.split(".")[0]+".hdf5")
+                    self.log.error("HDF5 saving must be tested, this will crash")
+                    return
+                    save_dict_as_hdf5(data_to_dump, filepath, details["Filename"])
         except:
             self.log.error("Measurement output could not be saved as {}".format(type))
         else:

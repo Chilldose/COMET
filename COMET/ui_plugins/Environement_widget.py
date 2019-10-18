@@ -10,7 +10,7 @@ class Environement_widget(object):
 
     def __init__(self, gui):
         super(Environement_widget, self).__init__(gui)
-        self.gui = gui
+        self.gui = gui.gui
         self.envlog = logging.getLogger(__name__)
 
         # Config the Spin boxes for min and max

@@ -9,7 +9,7 @@ from .Controls_widget import Controls_widget
 from .SettingsControl_widget import SettingsControl_widget
 from ..utilities import change_axis_ticks#, KeyPress
 
-class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, Controls_widget):
+class QTCMain_window(Environement_widget, Controls_widget, SettingsControl_widget, Table_widget):
 
     def __init__(self, GUI, layout):
 
@@ -28,15 +28,30 @@ class QTCMain_window(Environement_widget, SettingsControl_widget, Table_widget, 
         self.labelStyle = {'color': '#FFF', 'font-size': '15px'}
         self.titleStyle = {'color': '#FFF', 'size': '18px'}
 
-        # Dynamic waiting time detection tab
+        # QTC Main tab
         self.Widget = QWidget()
         self.gui = self.variables.load_QtUi_file("QTC_Main.ui",  self.Widget)
         self.layout.addWidget(self.Widget)
 
+        # Table widget
+        Table_Qwidget = QWidget()
+        self.table_widget = self.variables.load_QtUi_file("table_control.ui", Table_Qwidget)
+        self.gui.Table_Layout.addWidget(Table_Qwidget)
+
+        # Settings widget
+        Settings_Qwidget = QWidget()
+        self.Settings_widget = self.variables.load_QtUi_file("Start_Stop.ui", Settings_Qwidget)
+        self.gui.controls_layout.addWidget(Settings_Qwidget)
+
+        # start stop eventlog widget
+        Start_Qwidget = QWidget()
+        self.Start_widget = self.variables.load_QtUi_file("Project_selector.ui", Start_Qwidget)
+        self.gui.settings_layout.addWidget(Start_Qwidget)
+
         self.config_IV_plot()
         self.config_CV_plot()
 
-        super(QTCMain_window, self).__init__(self.gui)
+        super(QTCMain_window, self).__init__(self)
 
         self.variables.add_update_function(self.update_IVplot)
         self.variables.add_update_function(self.update_CVplot)

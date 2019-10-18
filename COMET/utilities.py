@@ -926,6 +926,9 @@ class table_control_class:
         self.log = logging.getLogger("Table_control")
         self.pos_pattern = re.compile(r"(-?\d+.\d+)\s+(-?\d+.\d+)\s+(-?\d+.\d+)")
         self.lifting = 800
+        self.previous_xloc = 0
+        self.previous_yloc = 0
+        self.previous_zloc = 0
 
         if "Table_control" in self.devices:
             if "Visa_Resource" in self.devices["Table_control"]:
@@ -938,6 +941,65 @@ class table_control_class:
                 self.log.error("Table control could not be initialized! Visa Resource missing")
         else:
             self.table_ready = False
+
+    def move_table_to_edge(self, axis, minimum=True, lifting=800):
+        """
+        Moves the table to the edge of the axis, the minimum indicates 0 or maximum possible value
+        :param axis: Axis to move
+        :param minimum: 0 (True, default) value of table or maximum
+        :return: bool after finished
+        """
+
+        # Get the current position
+        pos = self.variables.table.get_current_position()
+        if pos:
+            self.previous_xloc = pos[0]
+            self.previous_yloc = pos[1]
+            self.previous_zloc = pos[2]
+
+        # Move to the edge
+        var = "table_{}{}".format(axis, "min" if minimum else "max")
+        if var in self.variables.devices_dict["Table_control"]:
+            pos = self.variables.devices_dict["Table_control"][var]
+
+            if axis == "x":
+                pos = [pos, self.previous_yloc, self.previous_zloc]
+            elif axis == "y":
+                pos = [self.previous_xloc, pos, self.previous_zloc]
+            elif axis == "z":
+                pos = [self.previous_xloc, self.previous_yloc, pos]
+            else:
+                pos = [self.previous_xloc, self.previous_yloc, self.previous_zloc]
+                self.log.error("Table position recognition error. Table pos could not be determined correctly")
+
+        else:
+            self.log.error("Key for table maxima not included: {}".format(var))
+
+        # Moves the table and reports back
+        return self.move_to(pos, True, lifting)
+
+
+    def move_previous_position(self, lifting=800):
+        """Moves to the previous position, after the last move command. Only move commands from this class are taken into
+        account. So if you move with the joystick. This will have no effect."""
+
+        return self.move_to([self.previous_xloc, self.previous_yloc, self.previous_zloc], True, lifting)
+
+    def new_previous_position(self, pos):
+        """Stores the list of positions to the previous position variables"""
+        self.previous_xloc = pos[0]
+        self.previous_yloc = pos[1]
+        self.previous_zloc = pos[2]
+        return True
+
+    def store_current_position_as_previous(self):
+        """Stores the current position of the table, as the 'previous' one."""
+        pos = self.get_current_position()
+        self.previous_xloc = pos[0]
+        self.previous_yloc = pos[1]
+        self.previous_zloc = pos[2]
+        return pos
+
 
     def get_current_position(self):
         '''Queries the current position of the table and writes it to the state machine'''
@@ -1010,7 +1072,7 @@ class table_control_class:
         '''
         This function triggers the table initiation
 
-        :return: 0 if ok error if not
+        :return: False if ok error if not
         '''
         if self.table_ready and not self.variables["table_is_moving"]:
             self.variables["table_is_moving"] = True
@@ -1120,6 +1182,7 @@ class table_control_class:
         if self.table_ready and not self.variables["table_is_moving"]:
             # get me the current position
             old_pos = self.get_current_position()
+            self.new_previous_position(old_pos)
             desired_pos = position[:]
 
             #Move the table down if necessary
