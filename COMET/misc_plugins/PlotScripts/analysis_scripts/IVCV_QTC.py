@@ -71,8 +71,8 @@ class IVCV_QTC:
         try:
             c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion
             self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion = self.find_full_depletion(c2plot, self.data, self.config)
-        except:
-            self.log.warning("No full depletion calculation possible...")
+        except Exception as err:
+            self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
         # Whiskers Plot
         self.WhiskerPlots = dospecialPlots(self.data, self.config, "IVCV_QTC", "BoxWhisker", self.measurements)
@@ -109,7 +109,7 @@ class IVCV_QTC:
         self.log.info("Searching for full depletion voltage in all files...")
 
         for i, samplekey in enumerate(data["keys"]):
-            if "1C2" not in sample["data"]:
+            if "1C2" not in data[samplekey]["data"]:
                 self.log.warning("Full depletion calculation could not be done for data set: {}".format(samplekey))
 
             else:
@@ -160,11 +160,13 @@ class IVCV_QTC:
                         )
                         Right_stats[i] = (RightEndPoints, slope_right, intercept_right, r_right, p_value, std_err_right)
 
-            # Make the line intersection
-            full_depletion_voltages[i] = line_intersection(LeftEndPoints, RightEndPoints)
+                # Make the line intersection
+                full_depletion_voltages[i] = line_intersection(LeftEndPoints, RightEndPoints)
 
         # Add vertical line for full depletion
-        vline = hv.VLine(np.median(full_depletion_voltages[:,0])).opts(color='black', line_width=5.0)
+        # Find nonzero indizes
+        valid_indz = np.nonzero(full_depletion_voltages[:, 0])
+        vline = hv.VLine(np.median(full_depletion_voltages[valid_indz], axis=0)[0]).opts(color='black', line_width=5.0)
 
         # Add slopes
         xmax = df["xaxis"][len(df["yaxis"])-1]
@@ -176,11 +178,11 @@ class IVCV_QTC:
 
         # Add text
         self.log.info('Full depletion voltage: {} V, '
-                        'Error: {} V'.format(np.round(np.median(full_depletion_voltages[:, 0]), 2),
-                                           np.round(np.std(full_depletion_voltages[:, 0]), 2)))
+                        'Error: {} V'.format(np.round(np.median(full_depletion_voltages[valid_indz, 0]), 2),
+                                           np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2)))
         text = hv.Text(700, 0.055, 'Depletion voltage: {} V \n'
                         'Error: {} V'.format(np.round(np.median(full_depletion_voltages[:, 0]), 2),
-                                           np.round(np.std(full_depletion_voltages[:, 0]), 2))
+                                           np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2))
                        ).opts(fontsize=30)
 
 

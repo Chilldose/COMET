@@ -1,21 +1,29 @@
 
 import logging
-from PyQt5.QtWidgets import QFileDialog
+from PyQt5.QtWidgets import QFileDialog, QWidget
 import yaml
 import os, sys
 from ..utilities import write_init_file
 
 
-class SettingsControl_widget:
+class SettingsControl_widget(object):
 
     def __init__(self, gui):
         """Configures the settings widget"""
-        self.Settings_gui = gui.Start_widget
         self.Setlog = logging.getLogger(__name__)
-        try:
-            super(SettingsControl_widget, self).__init__(gui)
-        except:
-            super(SettingsControl_widget, self).__init__()
+
+        # Project widget
+        if not "Settings" in gui.child_layouts:
+            self.Tablog.error("No layout found to render settings widget. Skipping...")
+            return
+        settings_Qwidget = QWidget()
+        self.settings_layout = gui.child_layouts["Settings"]
+        self.settings_widget = self.variables.load_QtUi_file("Project_selector.ui", settings_Qwidget)
+        self.settings_layout.addWidget(settings_Qwidget)
+        super(SettingsControl_widget, self).__init__(gui)
+
+        self.Settings_gui = self.settings_widget
+
 
         # TODO: The init needs to be cleaned up a bit, currently not very pythonic structured
         # Adds all projects to the combo box

@@ -42,6 +42,7 @@ class Alignment_window(Table_widget):
         self.transformation_matrix = self.variables.default_values_dict["settings"]["trans_matrix"]
         self.V0 = self.variables.default_values_dict["settings"]["V0"]
         self.layout = layout
+        self.child_layouts = {"Table": None}
         self.trans = transformation()
 
         # Alignment tab
@@ -49,10 +50,7 @@ class Alignment_window(Table_widget):
         self.alignment = self.variables.load_QtUi_file("Alignment.ui", alignment_widget)
         self.layout.addWidget(alignment_widget)
 
-        # Table widget
-        Table_widget = QWidget()
-        self.table_widget = self.variables.load_QtUi_file("table_control.ui", Table_widget)
-        self.alignment.Table_Layout.addWidget(Table_widget)
+        self.child_layouts["Table"] = self.alignment.Table_Layout
 
         # Init the other classes
         super(Alignment_window, self).__init__(self) # I need the main

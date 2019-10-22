@@ -13,256 +13,153 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_7">
-   <item row="0" column="4" rowspan="5">
-    <spacer name="verticalSpacer">
-     <property name="orientation">
-      <enum>Qt::Vertical</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
-      <size>
-       <width>5</width>
-       <height>500</height>
-      </size>
-     </property>
-    </spacer>
-   </item>
-   <item row="1" column="1" rowspan="2">
-    <layout class="QGridLayout" name="Table_Layout"/>
-   </item>
-   <item row="0" column="1">
-    <layout class="QGridLayout" name="settings_layout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetDefaultConstraint</enum>
-     </property>
-     <property name="spacing">
-      <number>7</number>
-     </property>
-    </layout>
-   </item>
-   <item row="0" column="2" rowspan="2">
-    <widget class="PlotWidget" name="IV_plot">
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <item row="0" column="0" rowspan="3">
+    <widget class="QFrame" name="frame">
      <property name="minimumSize">
       <size>
-       <width>0</width>
-       <height>250</height>
+       <width>300</width>
+       <height>0</height>
       </size>
      </property>
-    </widget>
-   </item>
-   <item row="2" column="2" rowspan="3">
-    <widget class="PlotWidget" name="CV_plot">
-     <property name="minimumSize">
-      <size>
-       <width>0</width>
-       <height>250</height>
-      </size>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
      </property>
-    </widget>
-   </item>
-   <item row="5" column="2" colspan="3">
-    <layout class="QGridLayout" name="environement_control_layout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetFixedSize</enum>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
      </property>
-     <item row="7" column="6">
-      <widget class="QDoubleSpinBox" name="min_hum_spin"/>
-     </item>
-     <item row="4" column="8" rowspan="4" colspan="2">
-      <widget class="QFrame" name="lcd_display">
-       <property name="frameShape">
-        <enum>QFrame::StyledPanel</enum>
-       </property>
-       <property name="frameShadow">
-        <enum>QFrame::Raised</enum>
-       </property>
-       <layout class="QFormLayout" name="formLayout">
-        <item row="0" column="0">
-         <widget class="QLabel" name="temp_lcd_label">
-          <property name="text">
-           <string>Temperature</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QLCDNumber" name="temp_lcd">
-          <property name="styleSheet">
-           <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb(255, 44, 16), stop:1 rgb(255, 85, 70));</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="hum_lcd_label">
-          <property name="text">
-           <string>Humidity</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QLCDNumber" name="hum_lcd">
-          <property name="styleSheet">
-           <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb(21, 71, 255), stop:1 rgb(53, 56, 255));</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="dew_point_lcd_label">
-          <property name="text">
-           <string>Dew point</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLCDNumber" name="dew_point_lcd">
-          <property name="styleSheet">
-           <string notr="true">background-color: qlineargradient(spread:pad, x1:0, y1:0, x2:1, y2:0, stop:0 rgb(11, 208, 67), stop:1 rgb(25, 161, 48));</string>
-          </property>
-         </widget>
-        </item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <layout class="QGridLayout" name="settings_layout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
        </layout>
-      </widget>
-     </item>
-     <item row="6" column="4">
-      <widget class="QCheckBox" name="log_env_check">
-       <property name="text">
-        <string>Log environment</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="7">
-      <widget class="QDoubleSpinBox" name="min_temp_spin"/>
-     </item>
-     <item row="6" column="5">
-      <widget class="QLabel" name="max_label">
-       <property name="text">
-        <string>Max</string>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="6">
-      <widget class="QDoubleSpinBox" name="max_hum_spin"/>
-     </item>
-     <item row="5" column="6">
-      <widget class="QLabel" name="humm_levels_label">
-       <property name="text">
-        <string>Humidity levels</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="4">
-      <widget class="QCheckBox" name="env_control_check">
-       <property name="text">
-        <string>Environment control</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="9">
-      <widget class="QLabel" name="min_hum">
-       <property name="text">
-        <string>Min</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="5">
-      <widget class="QLabel" name="min_label">
-       <property name="text">
-        <string>Min</string>
-       </property>
-      </widget>
-     </item>
-     <item row="5" column="7">
-      <widget class="QLabel" name="temp_levels_label">
-       <property name="text">
-        <string>Temperature levels</string>
-       </property>
-      </widget>
-     </item>
-     <item row="2" column="9">
-      <widget class="QProgressBar" name="humidity_bar">
-       <property name="value">
-        <number>24</number>
-       </property>
-       <property name="textVisible">
-        <bool>false</bool>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-      </widget>
-     </item>
-     <item row="6" column="7">
-      <widget class="QDoubleSpinBox" name="max_temp_spin"/>
-     </item>
-     <item row="0" column="4" rowspan="4" colspan="5">
-      <widget class="PlotWidget" name="pyqtPlotItem">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>16777215</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="9">
-      <widget class="QLabel" name="max_hum">
-       <property name="text">
-        <string>Max</string>
-       </property>
-      </widget>
-     </item>
-     <item row="0" column="3">
-      <widget class="QLabel" name="max_temp">
-       <property name="text">
-        <string>Max</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="3">
-      <widget class="QLabel" name="min_temp">
-       <property name="text">
-        <string>Min</string>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="3" rowspan="2">
-      <widget class="QProgressBar" name="temperature_bar">
-       <property name="layoutDirection">
-        <enum>Qt::LeftToRight</enum>
-       </property>
-       <property name="value">
-        <number>50</number>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-       </property>
-       <property name="textVisible">
-        <bool>false</bool>
-       </property>
-       <property name="orientation">
-        <enum>Qt::Vertical</enum>
-       </property>
-       <property name="invertedAppearance">
-        <bool>false</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="Table_Layout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+       </layout>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="controls_layout">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetDefaultConstraint</enum>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
-   <item row="4" column="1" rowspan="2">
-    <layout class="QGridLayout" name="controls_layout"/>
-   </item>
-   <item row="3" column="1">
-    <spacer name="horizontalSpacer">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="sizeHint" stdset="0">
+   <item row="0" column="1" rowspan="3">
+    <widget class="QFrame" name="frame_2">
+     <property name="minimumSize">
       <size>
-       <width>40</width>
-       <height>20</height>
+       <width>1000</width>
+       <height>0</height>
       </size>
      </property>
-    </spacer>
+     <property name="frameShape">
+      <enum>QFrame::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Raised</enum>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <property name="spacing">
+       <number>0</number>
+      </property>
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <widget class="PlotWidget" name="IV_plot">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>800</width>
+          <height>250</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="PlotWidget" name="CV_plot">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>0</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QGridLayout" name="environement_control_layout" rowminimumheight="0" columnminimumwidth="0">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMinimumSize</enum>
+        </property>
+        <property name="spacing">
+         <number>0</number>
+        </property>
+       </layout>
+      </item>
+     </layout>
+    </widget>
    </item>
   </layout>
  </widget>

@@ -674,7 +674,7 @@ class Main_window:
                                            "Filename": self.variables.default_values_dict["settings"]["Current_filename"],
                                            "Project": self.variables.default_values_dict["settings"]["Current_project"],
                                            "Sensor": self.variables.default_values_dict["settings"]["Current_sensor"],
-                                           "enviroment": True, # if enviroment surveillance should be done
+                                           "environment": True, # if enviroment surveillance should be done
                                            "skip_init": False} #warning this prevents the device init
 
                     self.job.generate_job(additional_settings)
@@ -834,8 +834,8 @@ class Main_window:
                     return
 
 
-                elif current_state != "enviroment" and not enviroment and alignment and not running:
-                    self.variables.default_values_dict["settings"]["current_led_state"] = "enviroment"
+                elif current_state != "environment" and not enviroment and alignment and not running:
+                    self.variables.default_values_dict["settings"]["current_led_state"] = "environment"
                     textbox_led.setStyleSheet("background : rgb(255,153,51); border-radius: 25px")
                     textbox_led.setText("Environment status not ok")
                     return

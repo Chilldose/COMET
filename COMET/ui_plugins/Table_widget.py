@@ -1,40 +1,34 @@
 
 import logging
-from PyQt5.QtWidgets import QMessageBox
+from PyQt5.QtWidgets import QMessageBox, QWidget
 from PyQt5.QtCore import pyqtSignal
 
 class Table_widget(object):
 
     def __init__(self, gui):
         """Configures the table widget"""
+
+        self.Tablog = logging.getLogger(__name__)
+
+        # Table widget
+        if not "Table" in gui.child_layouts:
+            self.Tablog.error("No layout found to render table widget. Skipping...")
+            return
+        Table_Qwidget = QWidget()
+        self.table_layout = gui.child_layouts["Table"]
+        self.table_widget = self.variables.load_QtUi_file("table_control.ui", Table_Qwidget)
+        self.table_layout.addWidget(Table_Qwidget)
+
         try:
             super(Table_widget, self).__init__(gui)
         except:
-            super(Table_widget, self).__init__()
-        self.Table_gui = gui.table_widget
-        #self.variables = self.Table_gui #legacy thing
-        # self.variables will be provided by the child
-        self.Tablog = logging.getLogger(__name__)
+            pass
+
+        self.Table_gui = self.table_widget
         self.Table_gui.table_frame.setDisabled(True)
         
         if "Table_control" in self.variables.devices_dict:
-            self.Table_gui.x_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_xmin"]))
-            self.Table_gui.x_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_xmax"]))
-
-            self.Table_gui.y_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_ymin"]))
-            self.Table_gui.y_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_ymax"]))
-
-            self.Table_gui.z_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_zmin"]))
-            self.Table_gui.z_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_zmax"]))
-
-            if "current_speed" in self.variables.devices_dict["Table_control"]:
-                speed = int(float(self.variables.devices_dict["Table_control"]["current_speed"]) / float(self.variables.devices_dict["Table_control"]["default_speed"])* 100)
-                self.Table_gui.Table_speed.setValue(speed)
-            else:
-                self.Table_gui.Table_speed.setValue(100)
-                self.variables.devices_dict["Table_control"].update({"current_speed" : float(self.variables.devices_dict["Table_control"]["default_speed"])})
-
-
+            self.init_table_position_indicators()
         else:
             self.Table_gui.x_move.setMinimum(float(0))
             self.Table_gui.x_move.setMaximum(float(0))
@@ -42,7 +36,8 @@ class Table_widget(object):
             self.Table_gui.y_move.setMaximum(float(0))
             self.Table_gui.z_move.setMinimum(float(0))
             self.Table_gui.z_move.setMaximum(float(0))
-            self.Table_gui.Table_speed.setValue(10)
+            self.Table_gui.Table_speed.setValue(0)
+
 
         self.Table_gui.x_move.sliderReleased.connect(self.adjust_x_pos)
         self.Table_gui.y_move.sliderReleased.connect(self.adjust_y_pos)
@@ -51,11 +46,19 @@ class Table_widget(object):
         self.Table_gui.Table_speed.valueChanged.connect(self.adjust_table_speed)
         self.Table_gui.unlock_Z.clicked.connect(self.z_pos_warning)
         self.Table_gui.Enable_table.clicked['bool'].connect(self.enable_table_control)
-        self.variables.add_update_function(self.table_move_indi)
         self.Table_gui.init_table_Button.clicked.connect(self.init_table_action)
         self.Table_gui.move_down_button.clicked.connect(self.move_down_action)
         self.Table_gui.move_up_button.clicked.connect(self.move_up_action)
         self.Table_gui.check_position.clicked.connect(self.check_position_action)
+        self.Table_gui.Unload_sensorpushButton.clicked.connect(self.unload_sensor_action)
+        self.Table_gui.load_sensor_pushButton.clicked.connect(self.load_sensor_action)
+        self.Table_gui.got_to_previous.clicked.connect(self.move_previous)
+        #self.Table_gui.Stepx_spinBox.valueChanged.connect(self.step_size_adjust_action)
+        #self.Table_gui.Stepy_spinBox.valueChanged.connect(self.step_size_adjust_action)
+        #self.Table_gui.Stepz_spinBox.valueChanged.connect(self.step_size_adjust_action)
+        #self.Table_gui.XPos.valueChanged.connect(self.move_to_position_action)
+        #self.Table_gui.YPos.valueChanged.connect(self.move_to_position_action)
+        #self.Table_gui.ZPos.valueChanged.connect(self.move_to_position_action)
 
 
     def check_position_action(self):
@@ -113,7 +116,7 @@ class Table_widget(object):
 
 
     def adjust_y_pos(self):
-        '''This function adjusts the xpos of the table'''
+        '''This function adjusts the ypos of the table'''
         pos = self.variables.table.get_current_position()
         self.variables.table.set_joystick(False)
         self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
@@ -123,7 +126,7 @@ class Table_widget(object):
         self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
 
     def adjust_z_pos(self):
-        '''This function adjusts the xpos of the table'''
+        '''This function adjusts the zpos of the table'''
         pos = self.variables.table.get_current_position()
         self.variables.table.set_joystick(False)
         self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
@@ -208,7 +211,7 @@ class Table_widget(object):
         self.variables.table.set_axis([True, True, True]) # so all axis can be adressed
         self.variables.table.move_previous_position(self.variables.default_values_dict["settings"]["height_movement"])
         self.variables.table.set_axis([True, True, False])  # so z axis is off again
-        self.variables.table.set_joystick(True)
+
 
     def z_pos_warning(self):
         if self.variables.default_values_dict["settings"]["zlock"]:
@@ -227,9 +230,62 @@ class Table_widget(object):
             self.Table_gui.unlock_Z.setChecked(False)
             self.variables.table.set_joystick(True)
 
-    def table_move_update(self):
+    def init_table_position_indicators(self):
+        """Configs the the table move position indicators with the maximum and minimum values"""
+        try:
+
+            # Slider
+            self.Table_gui.x_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_xmin"]))
+            self.Table_gui.x_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_xmax"]))
+
+            self.Table_gui.y_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_ymin"]))
+            self.Table_gui.y_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_ymax"]))
+
+            self.Table_gui.z_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_zmin"]))
+            self.Table_gui.z_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_zmax"]))
+
+            if "current_speed" in self.variables.devices_dict["Table_control"]:
+                speed = int(float(self.variables.devices_dict["Table_control"]["current_speed"]) / float(self.variables.devices_dict["Table_control"]["default_speed"])* 100)
+                self.Table_gui.Table_speed.setValue(speed)
+            else:
+                self.Table_gui.Table_speed.setValue(100)
+                self.variables.devices_dict["Table_control"].update({"current_speed" : float(self.variables.devices_dict["Table_control"]["default_speed"])})
+
+        except Exception as err:
+            self.Tablog.error("Table position indicator config error. Error: {}".format(err))
+
+    def position_indicators_update(self):
         '''Here all functions concerning the table move update are handled'''
-        pos = self.variables.table.get_current_position()
-        self.Table_gui.x_move.setProperty("value", int(pos[0]))
-        self.Table_gui.y_move.setProperty("value", int(pos[1]))
-        self.Table_gui.z_move.setProperty("value", int(pos[2]))
+        if self.variables.table:
+            pos = self.variables.table.get_current_position()
+            self.Table_gui.x_move.setProperty("value", int(pos[0]))
+            self.Table_gui.y_move.setProperty("value", int(pos[1]))
+            self.Table_gui.z_move.setProperty("value", int(pos[2]))
+
+            self.Table_gui.XPos.setText(str(pos[0]))
+            self.Table_gui.YPos.setText(str(pos[1]))
+            self.Table_gui.ZPos.setText(str(pos[2]))
+        else:
+            self.Tablog("Table position update not possible, due to missing Table instance.")
+
+
+    def move_to_position_action(self, axis):
+        """Moves table to a new position, based on the double spin boxes"""
+        try:
+            x = float(self.Table_gui.XPos.text())
+            y = float(self.Table_gui.YPos.text())
+            z = float(self.Table_gui.ZPos.text())
+        except:
+            self.Tablog.error("Non valid table coordinate input. Number needed.")
+
+        if self.variables.table:
+            self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
+            self.variables.table.move_to([x,y,z], False)
+            self.variables.table.set_axis([True, True, False])  # so z axis is off again
+            self.position_indicators_update()
+        else:
+            self.Tablog.error("No table connected... Do dummy increase.")
+            
+
+
+

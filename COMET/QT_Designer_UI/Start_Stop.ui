@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>577</width>
-    <height>274</height>
+    <width>1143</width>
+    <height>491</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -24,13 +24,6 @@
        <property name="icon">
         <iconset resource="../images/svg_resources.qrc">
          <normaloff>:/stop/stop.svg</normaloff>:/stop/stop.svg</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="1">
-      <widget class="QPushButton" name="quit_button">
-       <property name="text">
-        <string>Quit</string>
        </property>
       </widget>
      </item>
@@ -56,93 +49,21 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="3">
-      <widget class="QLCDNumber" name="bad_pads_lcd">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>30</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="1" column="2">
-      <widget class="QLabel" name="current_pad_label">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>25</height>
-        </size>
-       </property>
+     <item row="1" column="1">
+      <widget class="QPushButton" name="quit_button">
        <property name="text">
-        <string>Current pad:</string>
+        <string>Quit</string>
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
-      <widget class="QLabel" name="bad_pads_label">
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>25</height>
-        </size>
-       </property>
+     <item row="0" column="0">
+      <widget class="QPushButton" name="start_button">
        <property name="text">
-        <string>Bad pads:</string>
+        <string>Start</string>
        </property>
-      </widget>
-     </item>
-     <item row="1" column="3">
-      <widget class="QLCDNumber" name="current_pad_lcd">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>30</height>
-        </size>
-       </property>
-      </widget>
-     </item>
-     <item row="4" column="0" rowspan="4" colspan="4">
-      <widget class="QLabel" name="event_log">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>400</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>16777215</width>
-         <height>400</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>No errors =)</string>
-       </property>
-       <property name="wordWrap">
-        <bool>true</bool>
-       </property>
-       <property name="textInteractionFlags">
-        <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
-       </property>
-      </widget>
-     </item>
-     <item row="8" column="1" colspan="3">
-      <widget class="QProgressBar" name="progressBar">
-       <property name="value">
-        <number>24</number>
+       <property name="icon">
+        <iconset resource="../images/svg_resources.qrc">
+         <normaloff>:/play/start.svg</normaloff>:/play/start.svg</iconset>
        </property>
       </widget>
      </item>
@@ -159,39 +80,96 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="0">
-      <widget class="QLabel" name="progress_label">
-       <property name="text">
-        <string>Progress:</string>
+     <item row="3" column="0" colspan="4">
+      <widget class="QScrollArea" name="scrollArea">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>300</height>
+        </size>
        </property>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
+       </property>
+       <property name="sizeAdjustPolicy">
+        <enum>QAbstractScrollArea::AdjustToContents</enum>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>1117</width>
+          <height>362</height>
+         </rect>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="spacing">
+          <number>0</number>
+         </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item>
+          <widget class="QLabel" name="event_log">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+            </font>
+           </property>
+           <property name="text">
+            <string>TextLabel</string>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
       </widget>
      </item>
-     <item row="0" column="0">
-      <widget class="QPushButton" name="start_button">
-       <property name="text">
-        <string>Start</string>
-       </property>
-       <property name="icon">
-        <iconset resource="../images/svg_resources.qrc">
-         <normaloff>:/play/start.svg</normaloff>:/play/start.svg</iconset>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="0" colspan="2">
-      <widget class="QLabel" name="event_log_label">
-       <property name="text">
-        <string>Event Log:</string>
-       </property>
-      </widget>
-     </item>
-     <item row="3" column="2">
+     <item row="1" column="2">
       <widget class="QLabel" name="state_label">
        <property name="text">
         <string>Current State:</string>
        </property>
       </widget>
      </item>
-     <item row="3" column="3">
+     <item row="1" column="3">
       <widget class="QLabel" name="state_indi">
        <property name="font">
         <font>
@@ -207,6 +185,27 @@
        </property>
        <property name="alignment">
         <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="0">
+      <widget class="QLabel" name="event_log_label">
+       <property name="text">
+        <string>Event Log:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="1">
+      <widget class="QLabel" name="progress_label">
+       <property name="text">
+        <string>Progress:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2" colspan="2">
+      <widget class="QProgressBar" name="progressBar">
+       <property name="value">
+        <number>24</number>
        </property>
       </widget>
      </item>

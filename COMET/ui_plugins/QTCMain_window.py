@@ -15,6 +15,8 @@ class QTCMain_window(Environement_widget, Controls_widget, SettingsControl_widge
 
         self.variables = GUI
         self.layout = layout
+
+
         self.log = logging.getLogger(__name__)
         self.job = measurement_job_generation(self.variables.default_values_dict, self.variables.message_from_main)
 
@@ -33,20 +35,11 @@ class QTCMain_window(Environement_widget, Controls_widget, SettingsControl_widge
         self.gui = self.variables.load_QtUi_file("QTC_Main.ui",  self.Widget)
         self.layout.addWidget(self.Widget)
 
-        # Table widget
-        Table_Qwidget = QWidget()
-        self.table_widget = self.variables.load_QtUi_file("table_control.ui", Table_Qwidget)
-        self.gui.Table_Layout.addWidget(Table_Qwidget)
-
-        # Settings widget
-        Settings_Qwidget = QWidget()
-        self.Settings_widget = self.variables.load_QtUi_file("Start_Stop.ui", Settings_Qwidget)
-        self.gui.controls_layout.addWidget(Settings_Qwidget)
-
-        # start stop eventlog widget
-        Start_Qwidget = QWidget()
-        self.Start_widget = self.variables.load_QtUi_file("Project_selector.ui", Start_Qwidget)
-        self.gui.settings_layout.addWidget(Start_Qwidget)
+        # Define the layouts for the indicidual plugins
+        self.child_layouts = {"Environment": self.gui.environement_control_layout,
+                              "Table": self.gui.Table_Layout,
+                              "Start": self.gui.controls_layout,
+                              "Settings": self.gui.settings_layout}
 
         self.config_IV_plot()
         self.config_CV_plot()

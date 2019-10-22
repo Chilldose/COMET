@@ -1,6 +1,6 @@
 
 import logging
-from PyQt5.QtWidgets import QMessageBox, QFileDialog
+from PyQt5.QtWidgets import QMessageBox, QFileDialog, QWidget
 import os
 
 
@@ -8,9 +8,21 @@ class Controls_widget(object):
 
     def __init__(self, gui):
         """Configures the cotrols widget"""
-        super(Controls_widget, self).__init__(gui)
-        self.Start_Stop_gui = gui.Settings_widget
+
         self.Conlog = logging.getLogger(__name__)
+
+        # Controls widget
+        if not "Start" in gui.child_layouts:
+            self.Conlog.error("No layout found to render controls widget. Skipping...")
+            return
+        controls_Qwidget = QWidget()
+        self.controls_layout = gui.child_layouts["Start"]
+        self.controls_widget = self.variables.load_QtUi_file("Start_Stop.ui", controls_Qwidget)
+        self.controls_layout.addWidget(controls_Qwidget)
+
+        super(Controls_widget, self).__init__(gui)
+        self.Start_Stop_gui = self.controls_widget
+
 
         self.Start_Stop_gui.quit_button.clicked.connect(self.exit_order)
         self.Start_Stop_gui.start_button.clicked.connect(self.Start_order)
@@ -65,7 +77,7 @@ class Controls_widget(object):
                                            "Filename": self.variables.default_values_dict["settings"]["Current_filename"],
                                            "Project": self.variables.default_values_dict["settings"]["Current_project"],
                                            "Sensor": self.variables.default_values_dict["settings"]["Current_sensor"],
-                                           "enviroment": self.Start_Stop_gui.log_env_check.isChecked(), # if enviroment surveillance should be done
+                                           "environment": self.Start_Stop_gui.log_env_check.isChecked(), # if enviroment surveillance should be done
                                            "skip_init": False} #warning this prevents the device init
 
             self.job.generate_job(additional_settings)
@@ -91,14 +103,14 @@ class Controls_widget(object):
 
     def update_statistics(self):
             self.Start_Stop_gui.bias_voltage_lcd.display(float(self.variables.default_values_dict["settings"].get("bias_voltage","0")))
-            self.Start_Stop_gui.current_pad_lcd.display(self.variables.default_values_dict["settings"].get("current_strip", None))
-            self.Start_Stop_gui.bad_pads_lcd.display(self.variables.default_values_dict["settings"].get("Bad_strips", None))
+            #self.Start_Stop_gui.current_pad_lcd.display(self.variables.default_values_dict["settings"].get("current_strip", None))
+            #self.Start_Stop_gui.bad_pads_lcd.display(self.variables.default_values_dict["settings"].get("Bad_strips", None))
 
 
     # Update functions
     def error_update(self):
         last_errors = self.variables.event_loop_thread.error_log
-        error_text = "\n".join(last_errors[-14:])
+        error_text = "\n".join(reversed(last_errors[-14:]))
 
         if self.Start_Stop_gui.event_log.text() != error_text: # Only update text if necessary
             self.Start_Stop_gui.event_log.setText(error_text)
@@ -124,8 +136,8 @@ class Controls_widget(object):
             return
 
 
-        elif current_state != "enviroment" and not enviroment and alignment and not running:
-            self.variables.default_values_dict["settings"]["current_led_state"] = "enviroment"
+        elif current_state != "environment" and not enviroment and alignment and not running:
+            self.variables.default_values_dict["settings"]["current_led_state"] = "environment"
             textbox_led.setStyleSheet("background : rgb(255,153,51); border-radius: 25px")
             textbox_led.setText("Environment status not ok")
             return

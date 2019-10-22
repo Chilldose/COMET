@@ -319,7 +319,7 @@ class stripscan_class(tools):
             if not self.main.event_loop.stop_all_measurements_query():
                 # After all measurements are conducted write the environment variables to the file
                 string_to_write = ""
-                if self.main.job_details.get("enviroment", False):
+                if self.main.job_details.get("environment", False):
                     string_to_write = str(self.main.main.temperatur_history[-1]).ljust(self.justlength) + str(
                         self.main.main.humidity_history[-1]).ljust(self.justlength)
                 self.main.write(self.main.measurement_files["stripscan"], string_to_write)

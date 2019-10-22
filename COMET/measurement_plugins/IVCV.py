@@ -212,7 +212,7 @@ class IVCV_class(tools):
                         string_to_write += str(self.main.measurement_data["CV"][0][-1]).ljust(self.justlength) + str(self.main.measurement_data["CV"][1][-1]).ljust(self.justlength)
 
                 # environment values
-                if self.main.job_details.get("enviroment", False):
+                if self.main.job_details.get("environment", False):
                     if "CV" in self.main.job_details["IVCV"] and abs(voltage) > abs(self.main.job_details["IVCV"]["CV"].get("EndVolt", 0)):
                         string_to_write += "--".ljust(self.justlength)+"--".ljust(self.justlength) # Writes nothing if no value is aquired
                     if self.main.event_loop.temphum_plugin:

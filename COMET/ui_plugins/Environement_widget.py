@@ -5,53 +5,65 @@
 import pyqtgraph
 from .. utilities import get_thicks_for_timestamp_plot, build_command
 import logging
+from PyQt5.QtWidgets import *
 
 class Environement_widget(object):
 
     def __init__(self, gui):
-        super(Environement_widget, self).__init__(gui)
-        self.gui = gui.gui
+
         self.envlog = logging.getLogger(__name__)
 
-        # Config the Spin boxes for min and max
-        self.gui.max_hum_spin.setRange(21,100)
-        self.gui.min_hum_spin.setRange(0,100)
-        self.gui.min_hum_spin.setValue(20)
-        self.gui.max_hum_spin.setValue(25)
+        # Environment widget
+        if not "Environment" in gui.child_layouts:
+            self.envlog.error("No layout found to render Environment widget. Skipping...")
+            return
+        Env_Qwidget = QWidget()
+        self.env_layout = gui.child_layouts["Environment"]
+        self.Env_Widget = self.variables.load_QtUi_file("environement_control.ui", Env_Qwidget)
+        self.env_layout.addWidget(Env_Qwidget)
 
-        self.gui.max_temp_spin.setRange(21, 100)
-        self.gui.min_temp_spin.setRange(0, 100)
-        self.gui.min_temp_spin.setValue(20)
-        self.gui.max_temp_spin.setValue(25)
+        # Continue with the other plugins
+        super(Environement_widget, self).__init__(gui)
+
+        # Config the Spin boxes for min and max
+        self.Env_Widget.max_hum_spin.setRange(21,100)
+        self.Env_Widget.min_hum_spin.setRange(0,100)
+        self.Env_Widget.min_hum_spin.setValue(20)
+        self.Env_Widget.max_hum_spin.setValue(25)
+
+        self.Env_Widget.max_temp_spin.setRange(21, 100)
+        self.Env_Widget.min_temp_spin.setRange(0, 100)
+        self.Env_Widget.min_temp_spin.setValue(20)
+        self.Env_Widget.max_temp_spin.setValue(25)
 
         self.update_bars_and_spinboxes()
 
         # Config the progress bars
-        self.gui.temperature_bar.setStyleSheet("QProgressBar::chunk{background-color: #cc1414;}")
-        self.gui.temperature_bar.setValue(self.gui.min_temp_spin.value())
+        self.Env_Widget.temperature_bar.setStyleSheet("QProgressBar::chunk{background-color: #cc1414;}")
+        self.Env_Widget.temperature_bar.setValue(self.Env_Widget.min_temp_spin.value())
 
-        self.gui.humidity_bar.setStyleSheet("QProgressBar::chunk{background-color: #2662e2;}")
-        self.gui.humidity_bar.setValue(self.gui.min_hum_spin.value())
+        self.Env_Widget.humidity_bar.setStyleSheet("QProgressBar::chunk{background-color: #2662e2;}")
+        self.Env_Widget.humidity_bar.setValue(self.Env_Widget.min_hum_spin.value())
 
         self.variables.default_values_dict["settings"]["control_environment"] = False
         self.variables.default_values_dict["settings"]["log_environment"] = False
-        self.gui.env_control_check.setChecked(True)
-        self.gui.log_env_check.setChecked(True)
+        self.Env_Widget.env_control_check.setChecked(True)
+        self.Env_Widget.log_env_check.setChecked(True)
 
         # Create plot and config it
         self.hum_plot_obj = pyqtgraph.ViewBox()  # generate new plot item
-        self.temphum_plot = self.gui.pyqtPlotItem
+        self.temphum_plot = self.Env_Widget.pyqtPlotItem
         self.config_plot(self.temphum_plot, self.hum_plot_obj)  # config the plot items
 
         # Go through all to set the value a the device as well
         if "temphum_controller" in self.variables.devices_dict:
             # Connect everything
-            self.gui.min_temp_spin.valueChanged.connect(self.valuechange)
-            self.gui.max_temp_spin.valueChanged.connect(self.valuechange)
-            self.gui.max_hum_spin.valueChanged.connect(self.valuechange)
-            self.gui.min_hum_spin.valueChanged.connect(self.valuechange)
-            self.gui.env_control_check.stateChanged.connect(self.valuechange)
-            self.gui.log_env_check.stateChanged.connect(self.valuechange)
+            self.Env_Widget.min_temp_spin.valueChanged.connect(self.valuechange)
+            self.Env_Widget.max_temp_spin.valueChanged.connect(self.valuechange)
+            self.Env_Widget.max_hum_spin.valueChanged.connect(self.valuechange)
+            self.Env_Widget.min_hum_spin.valueChanged.connect(self.valuechange)
+            self.Env_Widget.env_control_check.stateChanged.connect(self.valuechange)
+            self.Env_Widget.log_env_check.stateChanged.connect(self.valuechange)
 
             self.variables.add_update_function(self.update_temphum_plots)
             self.valuechange()
@@ -106,28 +118,28 @@ class Environement_widget(object):
             if self.variables.meas_data["temperature"][1].any() and self.variables.meas_data["humidity"][1].any():
                 temp = self.variables.meas_data["temperature"][1][-1]
                 hum = self.variables.meas_data["humidity"][1][-1]
-                self.gui.temp_lcd.display(temp)
-                self.gui.hum_lcd.display(hum)
+                self.Env_Widget.temp_lcd.display(temp)
+                self.Env_Widget.hum_lcd.display(hum)
 
                 # Set temp bar
-                if temp <= self.gui.max_temp_spin.value() and temp >= self.gui.min_temp_spin.value():
-                    self.gui.temperature_bar.setValue(temp)
-                elif temp > self.gui.max_temp_spin.value():
-                    self.gui.temperature_bar.setValue(self.gui.max_temp_spin.value())
-                elif temp < self.gui.min_temp_spin.value():
-                    self.gui.temperature_bar.setValue(self.gui.min_temp_spin.value())
+                if temp <= self.Env_Widget.max_temp_spin.value() and temp >= self.Env_Widget.min_temp_spin.value():
+                    self.Env_Widget.temperature_bar.setValue(temp)
+                elif temp > self.Env_Widget.max_temp_spin.value():
+                    self.Env_Widget.temperature_bar.setValue(self.Env_Widget.max_temp_spin.value())
+                elif temp < self.Env_Widget.min_temp_spin.value():
+                    self.Env_Widget.temperature_bar.setValue(self.Env_Widget.min_temp_spin.value())
 
                 # Set temp bar
-                if hum <= self.gui.max_hum_spin.value() and temp >= self.gui.min_hum_spin.value():
-                    self.gui.humidity_bar.setValue(hum)
-                elif hum > self.gui.max_hum_spin.value():
-                    self.gui.humidity_bar.setValue(self.gui.max_hum_spin.value())
-                elif hum < self.gui.min_hum_spin.value():
-                    self.gui.humidity_bar.setValue(self.gui.min_hum_spin.value())
+                if hum <= self.Env_Widget.max_hum_spin.value() and temp >= self.Env_Widget.min_hum_spin.value():
+                    self.Env_Widget.humidity_bar.setValue(hum)
+                elif hum > self.Env_Widget.max_hum_spin.value():
+                    self.Env_Widget.humidity_bar.setValue(self.Env_Widget.max_hum_spin.value())
+                elif hum < self.Env_Widget.min_hum_spin.value():
+                    self.Env_Widget.humidity_bar.setValue(self.Env_Widget.min_hum_spin.value())
 
                 # Very approyximate Dew point calc
                 dew = temp-(100-hum)/5
-                self.gui.dew_point_lcd.display(dew)
+                self.Env_Widget.dew_point_lcd.display(dew)
 
             self.temphum_plot.clear()  # clears the plot and prevents a memory leak
             self.hum_plot_obj.clear()
@@ -160,26 +172,26 @@ class Environement_widget(object):
 
         self.update_bars_and_spinboxes()
 
-        self.variables.default_values_dict["settings"]["control_environment"] = self.gui.env_control_check.isChecked()
-        self.variables.default_values_dict["settings"]["log_environment"] = self.gui.log_env_check.isChecked()
+        self.variables.default_values_dict["settings"]["control_environment"] = self.Env_Widget.env_control_check.isChecked()
+        self.variables.default_values_dict["settings"]["log_environment"] = self.Env_Widget.log_env_check.isChecked()
 
-        max = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummax", self.gui.max_hum_spin.value()))
-        min = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummin", self.gui.min_hum_spin.value()))
+        max = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummax", self.Env_Widget.max_hum_spin.value()))
+        min = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummin", self.Env_Widget.min_hum_spin.value()))
 
         self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], max)
         self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], min)
 
     def update_bars_and_spinboxes(self):
         """This function simply updates the spin bixes and bars to min max values etc."""
-        self.gui.min_temp_spin.setMaximum(self.gui.max_temp_spin.value())
-        self.gui.max_temp_spin.setMinimum(self.gui.min_temp_spin.value())
-        self.gui.min_hum_spin.setMaximum(self.gui.max_hum_spin.value())
-        self.gui.max_hum_spin.setMinimum(self.gui.min_hum_spin.value())
+        self.Env_Widget.min_temp_spin.setMaximum(self.Env_Widget.max_temp_spin.value())
+        self.Env_Widget.max_temp_spin.setMinimum(self.Env_Widget.min_temp_spin.value())
+        self.Env_Widget.min_hum_spin.setMaximum(self.Env_Widget.max_hum_spin.value())
+        self.Env_Widget.max_hum_spin.setMinimum(self.Env_Widget.min_hum_spin.value())
 
-        self.gui.temperature_bar.setRange(self.gui.min_temp_spin.value(),self.gui.max_temp_spin.value())
-        self.gui.humidity_bar.setRange(self.gui.min_hum_spin.value(),self.gui.max_hum_spin.value())
+        self.Env_Widget.temperature_bar.setRange(self.Env_Widget.min_temp_spin.value(),self.Env_Widget.max_temp_spin.value())
+        self.Env_Widget.humidity_bar.setRange(self.Env_Widget.min_hum_spin.value(),self.Env_Widget.max_hum_spin.value())
 
-        self.variables.default_values_dict["settings"]["current_tempmin"] = self.gui.min_temp_spin.value()
-        self.variables.default_values_dict["settings"]["current_tempmax"] = self.gui.max_temp_spin.value()
-        self.variables.default_values_dict["settings"]["current_hummin"] = self.gui.min_hum_spin.value()
-        self.variables.default_values_dict["settings"]["current_hummax"] = self.gui.max_hum_spin.value()
+        self.variables.default_values_dict["settings"]["current_tempmin"] = self.Env_Widget.min_temp_spin.value()
+        self.variables.default_values_dict["settings"]["current_tempmax"] = self.Env_Widget.max_temp_spin.value()
+        self.variables.default_values_dict["settings"]["current_hummin"] = self.Env_Widget.min_hum_spin.value()
+        self.variables.default_values_dict["settings"]["current_hummax"] = self.Env_Widget.max_hum_spin.value()
