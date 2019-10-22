@@ -40,9 +40,9 @@ IVCV_QTC:
       - 0.08
   BoxWhiskerOptions:
     box_alpha: 0.3
-    height: 900
+    height: 1500
     shared_axes: false
-    width: 1200
+    width: 2600
   DoSpecialPlots:
   - BoxWhisker
   General:
@@ -52,10 +52,10 @@ IVCV_QTC:
       title: 28
       xticks: 24
       yticks: 24
-    height: 700
+    height: 1000
     responsive: false
     shared_axes: false
-    width: 1200
+    width: 1600
   Layout:
     cols: 1
   capacitance:

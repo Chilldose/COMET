@@ -10,16 +10,18 @@ class environement_setup:
         python_type = sys.version
         python_version = sys.version_info
 
-        if "Anaconda" in python_type:
-            #import conda.cli
-            #envs = conda.cli.main('conda', 'info', '--envs')
+        print("Version INFOS")
+        print(python_type)
+        print(python_version)
+
+        try:
             cmd = "conda env create -f requirements.yml"
             os.system(cmd)
-        else:
+        except:
             print("No Anaconda installation found please install all modules listed in the requirements.yml via pip")
 
-        if python_version[0] != 2:
-            print("Warning: Python version must be 2.x to work properly")
+        if python_version[0] != 3:
+            print("Warning: Python version must be 3.x to work properly")
 
 if __name__ == "__main__":
     env = environement_setup()

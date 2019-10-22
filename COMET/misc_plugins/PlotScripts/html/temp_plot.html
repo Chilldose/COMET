@@ -4,42 +4,42 @@
 
 <!DOCTYPE html>
 <html lang="en">
-  
+
   <head>
-    
+
       <meta charset="utf-8">
       <title>temp_plot</title>
-      
-      
-        
-          
-        
-        
-          
+
+
+
+
+
+
+
         <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-1.3.4.min.js"></script>
         <script type="text/javascript">
             Bokeh.set_log_level("info");
         </script>
-        
-      
-      
-    
+
+
+
+
   </head>
-  
-  
+
+
   <body>
-    
-      
-        
-          
-          
-            
+
+
+
+
+
+
               <div class="bk-root" id="d9eae180-bbe9-4be3-a664-3db233ca652b" data-root-id="19430"></div>
-            
-          
-        
-      
-      
+
+
+
+
+
         <script type="application/json" id="19658">
           {"5c182560-39f9-4e82-a315-7b7a0612d3e1":{"roots":{"references":[{"attributes":{"dimension":1,"grid_line_color":null,"ticker":{"id":"19445","type":"BasicTicker"}},"id":"19448","type":"Grid"},{"attributes":{"line_alpha":0.2,"line_color":"#fc4f30","line_width":2,"x":{"field":"voltage"},"y":{"field":"temperature"}},"id":"19486","type":"Line"},{"attributes":{"data_source":{"id":"19481","type":"ColumnDataSource"},"glyph":{"id":"19484","type":"Line"},"hover_glyph":null,"muted_glyph":{"id":"19486","type":"Line"},"nonselection_glyph":{"id":"19485","type":"Line"},"selection_glyph":null,"view":{"id":"19488","type":"CDSView"}},"id":"19487","type":"GlyphRenderer"},{"attributes":{"line_alpha":0.1,"line_color":"#30a2da","line_width":2,"x":{"field":"voltage"},"y":{"field":"temperature"}},"id":"19469","type":"Line"},{"attributes":{"bottom_units":"screen","fill_alpha":{"value":0.5},"fill_color":{"value":"lightgrey"},"left_units":"screen","level":"overlay","line_alpha":{"value":1.0},"line_color":{"value":"black"},"line_dash":[4,4],"line_width":{"value":2},"render_mode":"css","right_units":"screen","top_units":"screen"},"id":"19478","type":"BoxAnnotation"},{"attributes":{"source":{"id":"19465","type":"ColumnDataSource"}},"id":"19472","type":"CDSView"},{"attributes":{"click_policy":"mute","items":[{"id":"19480","type":"LegendItem"},{"id":"19497","type":"LegendItem"}],"label_text_font_size":{"value":"11pt"}},"id":"19479","type":"Legend"},{"attributes":{"source":{"id":"19481","type":"ColumnDataSource"}},"id":"19488","type":"CDSView"},{"attributes":{},"id":"19463","type":"BasicTickFormatter"},{"attributes":{"label":{"value":"IVC_VPX28441_03_2S"},"renderers":[{"id":"19471","type":"GlyphRenderer"}]},"id":"19480","type":"LegendItem"},{"attributes":{},"id":"19494","type":"UnionRenderers"},{"attributes":{"label":{"value":"IVC_VPX28441_07_2S"},"renderers":[{"id":"19487","type":"GlyphRenderer"}]},"id":"19497","type":"LegendItem"},{"attributes":{"below":[{"id":"19439","type":"LinearAxis"}],"center":[{"id":"19443","type":"Grid"},{"id":"19448","type":"Grid"},{"id":"19479","type":"Legend"}],"left":[{"id":"19444","type":"LinearAxis"}],"margin":null,"min_border_bottom":10,"min_border_left":10,"min_border_right":10,"min_border_top":10,"plot_height":700,"plot_width":1200,"renderers":[{"id":"19471","type":"GlyphRenderer"},{"id":"19487","type":"GlyphRenderer"}],"sizing_mode":"fixed","title":{"id":"19431","type":"Title"},"toolbar":{"id":"19454","type":"Toolbar"},"toolbar_location":null,"x_range":{"id":"19426","type":"Range1d"},"x_scale":{"id":"19435","type":"LinearScale"},"y_range":{"id":"19427","type":"Range1d"},"y_scale":{"id":"19437","type":"LinearScale"}},"id":"19430","subtype":"Figure","type":"Plot"},{"attributes":{"text":"Temperature","text_color":{"value":"black"},"text_font_size":{"value":"28pt"}},"id":"19431","type":"Title"},{"attributes":{"callback":null,"renderers":[{"id":"19471","type":"GlyphRenderer"},{"id":"19487","type":"GlyphRenderer"}],"tags":["hv_created"],"tooltips":[["voltage","@{voltage}"],["temperature","@{temperature}"]]},"id":"19428","type":"HoverTool"},{"attributes":{},"id":"19449","type":"SaveTool"},{"attributes":{},"id":"19505","type":"UnionRenderers"},{"attributes":{"grid_line_color":null,"ticker":{"id":"19440","type":"BasicTicker"}},"id":"19443","type":"Grid"},{"attributes":{},"id":"19450","type":"PanTool"},{"attributes":{},"id":"19461","type":"BasicTickFormatter"},{"attributes":{"callback":null,"data":{"temperature":{"__ndarray__":"ZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskFmZrJBZmayQWZmskE=","dtype":"float32","shape":[146]},"voltage":{"__ndarray__":"cvodPIyZn0DD0x9BE81vQUvqn0Hj7MdBZ+nvQSP2C0JI9R9CwPYzQiX1R0Jx9ltCd/RvQvP6gULn+4tCrfqVQpn7n0KT+qlCQfuzQkD6vULZ+sdCkPvRQl7620Lh+uVC2/nvQl76+ULu/AFD7vwGQ3H9C0Pu/BBDL/0VQ5b8GkPu/B9DavwkQ+78KUPY/C5DavwzQ6z8OEMp/D1DavxCQ+f7R0Pb+UxDHfpRQx36VkPh+ltD4fpgQw37ZUNY+WpDWPlvQ9v5dEMd+nlDXvp+Qy/9gUNQfYRDavyGQ4B8iUOL/ItDzXyOQ838kEPNfJND7vyVQwh8mEMe/JpDanydQ3X8n0OLfKJDi/ykQ818p0Py+6lD53usQyn8rkMpfLFDKfyzQ0p8tkN1/LhDpnu7Q7z7vUPne8BD5/vCQ+d7xUMp/MdDP3zKQ0T7zEN6e89DOfvRQ0R71EOm+9ZDpnvZQ8f720MCe95DI/vgQwJ740MN++VDRHvoQ1n76kOFe+1Dy/rvQ8t68kPB+vRDAnv3Qxj7+UPUb/xDevL+Q7+4AEQm+AFELDkDRKR4BERXuAVEY/kGRPs4CERieAlE9bcKRDL5C0SOOA1EEHgORCe5D0SO+BBEFjgSRF55E0TKuBRER/gVRM83F0QBeRhE2rgZRBb4GkRIORxE0HgdRBu4HkS09x9E4DghRFJ4IkTPtyNEBvkkRH44JkQQeCdEEbkoRI74KUTwNytEqXcsRNW4LUQ8+C5EzzcwRNV4MUSOuDJE8PczRPD3M0Q=","dtype":"float32","shape":[146]}},"selected":{"id":"19482","type":"Selection"},"selection_policy":{"id":"19505","type":"UnionRenderers"}},"id":"19481","type":"ColumnDataSource"},{"attributes":{"callback":null,"data":{"temperature":{"__ndarray__":"MzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQTMzr0EzM69BMzOvQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBBAACwQQAAsEEAALBB","dtype":"float32","shape":[168]},"voltage":{"__ndarray__":"7k4gPLubn0BM1B9BNs1vQb/pn0EG7cdBnOnvQU72C0I/9R9C0fYzQhT1R0KD9ltCS/RvQtn6gUKv+4tCffqVQmn7n0J4+qlCOfuzQgL6vUK2+sdCvPvRQl7620Lh+uVC2/nvQl76+ULC/AFD7vwGQ3H9C0Mv/RBDRf0VQ6z8GkPu/B9DavwkQ+78KUPC/C5DavwzQ6z8OEMp/D1DavxCQ+f7R0Md+kxDXvpRQ176VkPh+ltDI/tgQw37ZUNY+WpDmvlvQ9v5dENI+nlDXvp+QyT9gUMvfYRDavyGQ2p8iUOL/ItDzXyOQ838kEPNfJNDDv2VQxN8mENK/JpDi3ydQ6z8n0OsfKJDrPykQ818p0Pn+6lD53usQyn8rkMIfLFDKfyzQ2B8tkN1/LhDpnu7Q7z7vUPne8BD3fvCQ+d7xUMI/MdDKXzKQ0T7zENve89DT/vRQ0971EOQ+9ZDm3vZQ8f720P3et5DI/vgQw1740MY++VDRHvoQ2T76kOFe+1DtvrvQ8t68kPh+vRDAnv3QyP7+UMWcPxDQ/L+Q224AEQL+AFENzkDRK94BERouAVEmvkGRAw5CESOeAlEBbgKRCf5C0S6OA1ELHgORDe5D0Sk+BBEMTgSRFN5E0TauBRETPgVRNQ3F0TreBhEyrgZRAX4GkQsORxE0HgdRCy4HkTf9x9EATkhRG14IkTatyNEAfkkRJM4JkQWeCdEN7koRMX4KUQ3OCtE6ncsRPa4LUR++C5ECzgwRBd5MUTFuDJEQvgzREI5NUSkeDZEN7g3RJ73OETrODpEg3g7RMm3PEQM+T1EYjg/RBB4QERXt0FEePhCRN83RERXd0VEv7hGRBb4R0R9N0lEunhKRBC4S0SC90xE+jZORBt4T0QbeE9E","dtype":"float32","shape":[168]}},"selected":{"id":"19466","type":"Selection"},"selection_policy":{"id":"19494","type":"UnionRenderers"}},"id":"19465","type":"ColumnDataSource"},{"attributes":{"line_alpha":0.1,"line_color":"#fc4f30","line_width":2,"x":{"field":"voltage"},"y":{"field":"temperature"}},"id":"19485","type":"Line"},{"attributes":{},"id":"19451","type":"WheelZoomTool"},{"attributes":{},"id":"19466","type":"Selection"},{"attributes":{},"id":"19437","type":"LinearScale"},{"attributes":{"callback":null,"end":22.299999237060547,"reset_end":22.299999237060547,"reset_start":21.899999618530273,"start":21.899999618530273,"tags":[[["temperature","temperature",null]]]},"id":"19427","type":"Range1d"},{"attributes":{"overlay":{"id":"19478","type":"BoxAnnotation"}},"id":"19452","type":"BoxZoomTool"},{"attributes":{},"id":"19435","type":"LinearScale"},{"attributes":{},"id":"19453","type":"ResetTool"},{"attributes":{},"id":"19482","type":"Selection"},{"attributes":{"axis_label":"voltage [V]","axis_label_text_font_size":{"value":"24pt"},"bounds":"auto","formatter":{"id":"19461","type":"BasicTickFormatter"},"major_label_orientation":"horizontal","major_label_text_font_size":{"value":"24pt"},"ticker":{"id":"19440","type":"BasicTicker"}},"id":"19439","type":"LinearAxis"},{"attributes":{"line_color":"#30a2da","line_width":2,"x":{"field":"voltage"},"y":{"field":"temperature"}},"id":"19468","type":"Line"},{"attributes":{},"id":"19440","type":"BasicTicker"},{"attributes":{},"id":"19445","type":"BasicTicker"},{"attributes":{"active_drag":"auto","active_inspect":"auto","active_multi":null,"active_scroll":"auto","active_tap":"auto","tools":[{"id":"19428","type":"HoverTool"},{"id":"19449","type":"SaveTool"},{"id":"19450","type":"PanTool"},{"id":"19451","type":"WheelZoomTool"},{"id":"19452","type":"BoxZoomTool"},{"id":"19453","type":"ResetTool"}]},"id":"19454","type":"Toolbar"},{"attributes":{"axis_label":"temperature [deg]","axis_label_text_font_size":{"value":"24pt"},"bounds":"auto","formatter":{"id":"19463","type":"BasicTickFormatter"},"major_label_orientation":"horizontal","major_label_text_font_size":{"value":"24pt"},"ticker":{"id":"19445","type":"BasicTicker"}},"id":"19444","type":"LinearAxis"},{"attributes":{"line_alpha":0.2,"line_color":"#30a2da","line_width":2,"x":{"field":"voltage"},"y":{"field":"temperature"}},"id":"19470","type":"Line"},{"attributes":{"line_color":"#fc4f30","line_width":2,"x":{"field":"voltage"},"y":{"field":"temperature"}},"id":"19484","type":"Line"},{"attributes":{"callback":null,"end":829.8766479492188,"reset_end":829.8766479492188,"reset_start":0.009642230346798897,"start":0.009642230346798897,"tags":[[["voltage","voltage",null]]]},"id":"19426","type":"Range1d"},{"attributes":{"data_source":{"id":"19465","type":"ColumnDataSource"},"glyph":{"id":"19468","type":"Line"},"hover_glyph":null,"muted_glyph":{"id":"19470","type":"Line"},"nonselection_glyph":{"id":"19469","type":"Line"},"selection_glyph":null,"view":{"id":"19472","type":"CDSView"}},"id":"19471","type":"GlyphRenderer"}],"root_ids":["19430"]},"title":"Bokeh Application","version":"1.3.4"}}
         </script>
@@ -49,11 +49,11 @@
               Bokeh.safely(function() {
                 (function(root) {
                   function embed_document(root) {
-                    
+
                   var docs_json = document.getElementById('19658').textContent;
                   var render_items = [{"docid":"5c182560-39f9-4e82-a315-7b7a0612d3e1","roots":{"19430":"d9eae180-bbe9-4be3-a664-3db233ca652b"}}];
                   root.Bokeh.embed.embed_items(docs_json, render_items);
-                
+
                   }
                   if (root.Bokeh !== undefined) {
                     embed_document(root);
@@ -78,7 +78,7 @@
             else document.addEventListener("DOMContentLoaded", fn);
           })();
         </script>
-    
+
   </body>
-  
+
 </html>
