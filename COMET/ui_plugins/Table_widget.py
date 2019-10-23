@@ -19,6 +19,15 @@ class Table_widget(object):
         self.table_widget = self.variables.load_QtUi_file("table_control.ui", Table_Qwidget)
         self.table_layout.addWidget(Table_Qwidget)
 
+        # Some variables which are needed
+        if not "height_movement" in self.variables.default_values_dict["settings"]:
+            self.Tablog.warning("No height movement for table specified, defaulting to 800")
+            self.variables.default_values_dict["settings"]["height_movement"] = 800
+
+        if not "clearance" in self.variables.default_values_dict["settings"]:
+            self.Tablog.warning("No clearance for table specified, defaulting to 200")
+            self.variables.default_values_dict["settings"]["clearance"] = 200
+
         try:
             super(Table_widget, self).__init__(gui)
         except:
@@ -52,7 +61,6 @@ class Table_widget(object):
         self.Table_gui.check_position.clicked.connect(self.check_position_action)
         self.Table_gui.Unload_sensorpushButton.clicked.connect(self.unload_sensor_action)
         self.Table_gui.load_sensor_pushButton.clicked.connect(self.load_sensor_action)
-        self.Table_gui.got_to_previous.clicked.connect(self.move_previous)
         self.Table_gui.Up_button.clicked.connect(self.moveYplus)
         self.Table_gui.Down_button.clicked.connect(self.moveYminus)
         self.Table_gui.Left_button.clicked.connect(self.moveXplus)
@@ -67,15 +75,25 @@ class Table_widget(object):
 
     def check_position_action(self):
         """Checks the position of the table."""
-        return self.variables.table.get_current_position()
+        if self.variables.table:
+            pos = self.variables.table.get_current_position()
+            self.position_indicators_update()
+            return pos
+        else:
+            self.Tablog.error("No table connected...")
+
 
     def move_up_action(self):
         """Moves the table up"""
-        return self.variables.table.move_up(lifting = self.variables.default_values_dict["settings"]["height_movement"])
+        succ = self.variables.table.move_up(lifting = self.variables.default_values_dict["settings"]["height_movement"])
+        self.position_indicators_update()
+        return succ
 
     def move_down_action(self):
         """Moves the table up"""
-        return self.variables.table.move_down(lifting = self.variables.default_values_dict["settings"]["height_movement"])
+        succ = self.variables.table.move_down(lifting = self.variables.default_values_dict["settings"]["height_movement"])
+        self.position_indicators_update()
+        return succ
 
     def init_table_action(self):
         """Does the init for the Table"""
@@ -90,6 +108,7 @@ class Table_widget(object):
             self.variables.table.move_to([self.variables.devices_dict["Table_control"]["table_xmax"] / 2,
                                          self.variables.devices_dict["Table_control"]["table_ymax"] / 2,
                                          self.variables.devices_dict["Table_control"]["table_zmax"] / 2,])
+            self.position_indicators_update()
         else:
             self.Tablog.info("No table init will be done...")
 
@@ -117,6 +136,7 @@ class Table_widget(object):
         error = self.variables.table.move_to([xpos, pos[1], pos[2]], True, self.variables.default_values_dict["settings"]["height_movement"])
         self.variables.table.set_joystick(True)
         self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
+        self.position_indicators_update()
 
 
     def adjust_y_pos(self):
@@ -128,6 +148,7 @@ class Table_widget(object):
         error = self.variables.table.move_to([pos[0], ypos, pos[2]], self.variables.default_values_dict["settings"]["height_movement"])
         self.variables.table.set_joystick(True)
         self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
+        self.position_indicators_update()
 
     def adjust_z_pos(self):
         '''This function adjusts the zpos of the table'''
@@ -138,9 +159,11 @@ class Table_widget(object):
         error = self.variables.table.move_to([pos[0], pos[1], zpos], self.variables.default_values_dict["settings"]["height_movement"])
         self.variables.table.set_joystick(True)
         self.variables.table.set_axis([True, True, False])  # so z axis cannot be adressed
+        self.position_indicators_update()
 
     def enable_table_control(self, bool):
         '''This function enables the table and the joystick frame'''
+        self.position_indicators_update()
         if bool and self.variables.default_values_dict["settings"]["table_ready"]:
             #This will be called, when the table control is enabled
             reply = QMessageBox.question(None, 'Warning', "Are you sure move the table? \n Warning: If measurement is running table movement is not possible", QMessageBox.Yes, QMessageBox.No)
@@ -200,27 +223,44 @@ class Table_widget(object):
 
     def unload_sensor_action(self):
         """Moves the table to the edge so you can load a new sensor"""
-        self.variables.table.set_joystick(False)
-        self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
-        self.variables.table.move_table_to_edge("y", True, self.variables.default_values_dict["settings"]["height_movement"])
-        self.variables.table.set_axis([True, True, False])  # so z axis is off again
+        if self.variables.table:
+            self.variables.table.set_joystick(False)
+            self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
+            self.variables.table.move_table_to_edge("y", True, self.variables.default_values_dict["settings"]["height_movement"])
+            self.variables.table.set_axis([True, True, False])  # so z axis is off again
+            self.position_indicators_update()
+        else:
+            self.Tablog.error("No table connected...")
 
     def load_sensor_action(self):
         """Moves the table to the edge so you can load a new sensor"""
-        self.move_previous()
+        if self.variables.table:
+            self.variables.table.set_joystick(False)
+            self.variables.table.set_axis([True, True, True])  # so all axis can be addressed
+            self.variables.table.move_previous_position(self.variables.default_values_dict["settings"]["height_movement"],
+                                                        clearance = self.variables.default_values_dict["settings"]["clearance"])
+            self.variables.table.set_axis([True, True, False])  # so z axis is off again
+            self.position_indicators_update()
+        else:
+            self.Tablog.error("No table connected...")
 
     def move_previous(self):
         '''This function moves the table back to the previous position'''
-        self.variables.table.set_joystick(False)
-        self.variables.table.set_axis([True, True, True]) # so all axis can be adressed
-        self.variables.table.move_previous_position(self.variables.default_values_dict["settings"]["height_movement"])
-        self.variables.table.set_axis([True, True, False])  # so z axis is off again
+        if self.variables.table:
+            self.variables.table.set_joystick(False)
+            self.variables.table.set_axis([True, True, True]) # so all axis can be addressed
+            self.variables.table.move_previous_position(self.variables.default_values_dict["settings"]["height_movement"])
+            self.variables.table.set_axis([True, True, False])  # so z axis is off again
+            self.position_indicators_update()
+        else:
+            self.Tablog.error("No table connected...")
 
 
     def z_pos_warning(self):
         if self.variables.default_values_dict["settings"]["zlock"]:
             move_z = QMessageBox.question(None, 'Warning',"Moving the table in Z, can cause serious demage on the setup and sensor.", QMessageBox.Ok)
             if move_z:
+                self.position_indicators_update()
                 self.variables.table.set_axis([False, False, True])
                 self.Table_gui.unlock_Z.setChecked(True)
                 self.variables.default_values_dict["settings"]["zlock"] = False
@@ -381,8 +421,13 @@ class Table_widget(object):
             valid = True
         except:
             self.Tablog.error("Non valid table coordinate input. Number needed.")
+            x,y,z=0,0,0
+            return
 
-        if valid:
+        move = QMessageBox.question(None, 'Warning',
+                                    "Are you sure to move the table to the position {}.\nThis can cause serious damage to a sensor and setup!".format([x,y,z]),
+                                    QMessageBox.Ok, QMessageBox.Abort)
+        if valid and move == QMessageBox.Ok:
             self.move_to_position_action([x, y, z])
 
 

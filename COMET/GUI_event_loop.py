@@ -5,6 +5,7 @@ from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMessageBox
 import numpy as np
 import logging
+from datetime import datetime
 from .globals import message_to_main, message_from_main, queue_to_GUI
 from .utilities import ErrorMessageBoxHandler
 from threading import Timer
@@ -110,7 +111,9 @@ class GUI_event_loop(QThread):
 
             elif "CRITICAL" in error.upper():
                 prepend = '<font color=\"orange\">'
-            self.error_log.append(prepend + str(error).upper() + ": " + str(message[str(error)]) + "</font> <br/>")
+
+            now = datetime.now()
+            self.error_log.append((str(now) ,prepend + str(error).upper() + ": " + str(message[str(error)]) + "</font> <br/>"))
 
         for event in self.event_list: #besser if "dfdf" in self.events oder? TODO vlt hier die abfrage der events anders machen
 

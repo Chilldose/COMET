@@ -942,7 +942,7 @@ class table_control_class:
         else:
             self.table_ready = False
 
-    def move_table_to_edge(self, axis, minimum=True, lifting=800):
+    def move_table_to_edge(self, axis, minimum=True, lifting=800, **kwargs):
         """
         Moves the table to the edge of the axis, the minimum indicates 0 or maximum possible value
         :param axis: Axis to move
@@ -976,14 +976,14 @@ class table_control_class:
             self.log.error("Key for table maxima not included: {}".format(var))
 
         # Moves the table and reports back
-        return self.move_to(pos, True, lifting)
+        return self.move_to(pos, True, lifting, **kwargs)
 
 
-    def move_previous_position(self, lifting=800):
+    def move_previous_position(self, lifting=800, **kwargs):
         """Moves to the previous position, after the last move command. Only move commands from this class are taken into
         account. So if you move with the joystick. This will have no effect."""
 
-        return self.move_to([self.previous_xloc, self.previous_yloc, self.previous_zloc], True, lifting)
+        return self.move_to([self.previous_xloc, self.previous_yloc, self.previous_zloc], True, lifting, **kwargs)
 
     def new_previous_position(self, pos):
         """Stores the list of positions to the previous position variables"""
@@ -1135,7 +1135,7 @@ class table_control_class:
         return True
 
 
-    def move_to_strip(self, pad_file, strip, transfomation_class, T, V0, height_movement):
+    def move_to_strip(self, pad_file, strip, transfomation_class, T, V0, height_movement, **kwargs):
         '''
         Moves to a specific strip
 
@@ -1149,7 +1149,7 @@ class table_control_class:
                 pad_pos = pad_file["data"][strip]
                 self.log.info("Moving to strip: {} at position {},{},{}.".format(strip, pad_pos[0], pad_pos[1], pad_pos[2]))
                 table_abs_pos = list(transfomation_class.vector_trans(pad_pos, T, V0))
-                success = self.move_to(table_abs_pos, move_down=True, lifting = height_movement)
+                success = self.move_to(table_abs_pos, move_down=True, lifting = height_movement, **kwargs)
             else:
                 return True
 
@@ -1160,24 +1160,30 @@ class table_control_class:
             return False
 
 
-    def relative_move_to(self, position, move_down = True, lifting = 800):
+    def relative_move_to(self, position, move_down = True, lifting = 800, **kwargs):
         '''
         This function moves the table to the desired position (relative). position is a list of coordinates
         The move down parameter can prohibit a down and up movement with the move, !!!!USE WITH CARE!!!!
 
         :return: none or error code
         '''
-        success = self.move_to(position, move_down, lifting, True)
+        success = self.move_to(position, move_down, lifting, True, **kwargs)
         return success
 
 
-    def move_to(self, position, move_down = True, lifting  = 800, relative_move = False):
-        '''
+    def move_to(self, position, move_down=True, lifting=800, relative_move=False, clearance=0.0):
+        """
         This function moves the table to the desired position. position is a list of coordinates
         The move down parameter can prohibits a down and up movement with the move, !!!!USE WITH CARE!!!!
 
+
+        :param position: A position list in form of [x,y,z]
+        :param move_down: If the table must be moved down by lifting
+        :param lifting: the height how far down to move
+        :param relative_move: If the position is a relative movement
+        :param clearence: If move_down, instead of moving up the full lifting, the height movement ist lifting-clearance
         :return: None or errorcode
-        '''
+        """
         self.log.info("Try moving table to {!s}".format(position))
         if self.table_ready and not self.variables["table_is_moving"]:
             # get me the current position
@@ -1211,7 +1217,7 @@ class table_control_class:
 
             # Move the table back up again
             if move_down:
-                success = self.move_up(lifting)
+                success = self.move_up(lifting-clearance)
                 if not success:
                     return False
 
@@ -1231,7 +1237,7 @@ class table_control_class:
                            " the setup OR the table is currently moving.")
             return False
 
-    def move_up(self, lifting):
+    def move_up(self, lifting, **kwargs):
         '''
         This function moves the table up
 
@@ -1240,7 +1246,7 @@ class table_control_class:
         '''
         self.log.info("Moving table up by {!s} microns".format(lifting))
         if not self.variables["Table_state"]:
-            success = self.move_to([0,0,lifting], False, 0, True)
+            success = self.move_to([0,0,lifting], False, 0, True, **kwargs)
             if success:
                 self.variables["Table_state"] = True # true means up
             return success
@@ -1248,7 +1254,7 @@ class table_control_class:
             self.queue.put({"Info": "Table already in the up position..."})
         return True
 
-    def move_down(self, lifting):
+    def move_down(self, lifting, **kwargs):
         '''
         This function moves the table down
 
@@ -1257,7 +1263,7 @@ class table_control_class:
         '''
         self.log.info("Moving table down by {!s} microns".format(lifting))
         if self.variables["Table_state"]:
-            success = self.move_to([0,0,-lifting], False, 0, True)
+            success = self.move_to([0,0,-lifting], False, 0, True, **kwargs)
             if success:
                 self.variables["Table_state"] = False
             return success

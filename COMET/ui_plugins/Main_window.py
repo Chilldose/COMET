@@ -803,7 +803,9 @@ class Main_window:
 
             def error_update():
                 last_errors = self.variables.event_loop_thread.error_log
-                error_text = "\n".join(last_errors[-14:])
+                error_text = ""
+                for error in reversed(last_errors[-100:]):
+                    error_text += ": ".join(error) + "\n"
 
                 if self.errors.text() != error_text: # Only update text if necessary
                     self.errors.setText(error_text)

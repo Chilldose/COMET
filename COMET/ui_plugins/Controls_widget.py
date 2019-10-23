@@ -110,7 +110,9 @@ class Controls_widget(object):
     # Update functions
     def error_update(self):
         last_errors = self.variables.event_loop_thread.error_log
-        error_text = "\n".join(reversed(last_errors[-14:]))
+        error_text = ""
+        for error in reversed(last_errors[-100:]):
+            error_text += ": ".join(error) + "\n"
 
         if self.Start_Stop_gui.event_log.text() != error_text: # Only update text if necessary
             self.Start_Stop_gui.event_log.setText(error_text)
