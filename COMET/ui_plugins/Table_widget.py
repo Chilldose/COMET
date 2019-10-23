@@ -2,6 +2,7 @@
 import logging
 from PyQt5.QtWidgets import QMessageBox, QWidget
 from PyQt5.QtCore import pyqtSignal
+from PyQt5 import QtCore
 
 class Table_widget(object):
 
@@ -62,7 +63,31 @@ class Table_widget(object):
         self.Table_gui.YPos.returnPressed.connect(self.move_to_user_defined_pos)
         self.Table_gui.ZPos.returnPressed.connect(self.move_to_user_defined_pos)
 
+        # Set key press events
 
+        setattr(Table_Qwidget, "keyPressEvent", self.keyPressEvent)
+
+    def keyPressEvent(self, event):
+        if self.Table_gui.Arro_control_frame.isEnabled():
+            if event.key() == QtCore.Qt.Key_Up or event.key() == QtCore.Qt.Key_W:
+                self.moveYplus()
+                self.Tablog.debug("Pressed move Y plus keys. Key: {}".format(event.key()))
+            elif event.key() == QtCore.Qt.Key_Down or event.key() == QtCore.Qt.Key_S:
+                self.moveYminus()
+                self.Tablog.debug("Pressed move Y minus keys. Key: {}".format(event.key()))
+            elif event.key() == QtCore.Qt.Key_Left or event.key() == QtCore.Qt.Key_A:
+                self.moveXminus()
+                self.Tablog.debug("Pressed move X minus keys. Key: {}".format(event.key()))
+            elif event.key() == QtCore.Qt.Key_Right or event.key() == QtCore.Qt.Key_D:
+                self.moveXplus()
+                self.Tablog.debug("Pressed move X plus keys. Key: {}".format(event.key()))
+            elif event.key() == QtCore.Qt.Key_PageUp:
+                self.moveZplus()
+                self.Tablog.debug("Pressed move Z plus keys. Key: {}".format(event.key()))
+            elif event.key() == QtCore.Qt.Key_PageDown:
+                self.moveZminus()
+                self.Tablog.debug("Pressed move Z minus keys. Key: {}".format(event.key()))
+            event.accept()
 
     def check_position_action(self):
         """Checks the position of the table."""
