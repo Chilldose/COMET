@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1035</width>
-    <height>365</height>
+    <width>1606</width>
+    <height>333</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -39,8 +39,8 @@
      </property>
      <property name="maximumSize">
       <size>
-       <width>900</width>
-       <height>350</height>
+       <width>16777215</width>
+       <height>16777215</height>
       </size>
      </property>
      <layout class="QGridLayout" name="gridLayout_3">
@@ -59,35 +59,6 @@
       <property name="spacing">
        <number>5</number>
       </property>
-      <item row="0" column="0" colspan="2">
-       <widget class="QLabel" name="Tablecontrolpanellabel">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>14</pointsize>
-          <weight>75</weight>
-          <bold>true</bold>
-         </font>
-        </property>
-        <property name="text">
-         <string>Table control panel</string>
-        </property>
-        <property name="alignment">
-         <set>Qt::AlignCenter</set>
-        </property>
-       </widget>
-      </item>
       <item row="1" column="1">
        <widget class="QFrame" name="Buttons_frame">
         <property name="maximumSize">
@@ -210,19 +181,6 @@ background-color: grey;</string>
             <property name="verticalSpacing">
              <number>0</number>
             </property>
-            <item row="1" column="4">
-             <spacer name="horizontalSpacer">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>40</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
             <item row="1" column="5" colspan="2">
              <widget class="QPushButton" name="Up_button">
               <property name="sizePolicy">
@@ -568,6 +526,32 @@ background-color: grey;</string>
               </property>
              </widget>
             </item>
+            <item row="2" column="3">
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="3" colspan="2">
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
            </layout>
           </widget>
          </item>
@@ -722,25 +706,6 @@ background-color: grey;</string>
          <number>2</number>
         </property>
         <layout class="QGridLayout" name="gridLayout">
-         <item row="0" column="0" rowspan="4">
-          <widget class="QDial" name="Table_speed">
-           <property name="enabled">
-            <bool>false</bool>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="minimum">
-            <number>0</number>
-           </property>
-           <property name="maximum">
-            <number>100</number>
-           </property>
-          </widget>
-         </item>
          <item row="8" column="1">
           <widget class="QSlider" name="x_move">
            <property name="enabled">
@@ -812,6 +777,25 @@ background-color: grey;</string>
            </property>
            <property name="checkable">
             <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0" rowspan="4">
+          <widget class="QDial" name="Table_speed">
+           <property name="enabled">
+            <bool>false</bool>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="minimum">
+            <number>0</number>
+           </property>
+           <property name="maximum">
+            <number>100</number>
            </property>
           </widget>
          </item>
@@ -916,6 +900,35 @@ background-color: grey;</string>
           </widget>
          </item>
         </layout>
+       </widget>
+      </item>
+      <item row="0" column="0" colspan="2">
+       <widget class="QLabel" name="Tablecontrolpanellabel">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>14</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="text">
+         <string>Table control panel</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
        </widget>
       </item>
      </layout>
