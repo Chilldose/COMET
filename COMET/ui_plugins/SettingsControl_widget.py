@@ -61,7 +61,7 @@ class SettingsControl_widget(object):
             self.variables.default_values_dict["settings"].update({"Current_filename": "enter_filename_here"})
             self.Settings_gui.filename.setText(str(self.variables.default_values_dict["settings"]["Current_filename"]))
 
-        for projects in self.variables.default_values_dict["settings"].get("Operator", "None"):
+        for projects in self.variables.default_values_dict["settings"].get("Operator", ["None", ]):
             self.Settings_gui.operator_comboBox.addItem(str(projects))  # Adds all items to the combo box
 
         if "Current_operator" in self.variables.default_values_dict["settings"]:

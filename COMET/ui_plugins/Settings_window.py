@@ -15,8 +15,6 @@ from .settings_widget import settings_widget
 
 from ..utilities import raise_exception
 
-l = logging.getLogger(__name__)
-
 class Settings_window(settings_widget):
 
     def __init__(self, GUI_classes, layout):
@@ -24,13 +22,25 @@ class Settings_window(settings_widget):
         super(Settings_window, self).__init__()
         self.variables = GUI_classes
         self.layout = layout
-        self.measurements = self.variables.default_values_dict["settings"]["measurement_types"]
+        self.measurements = self.variables.default_values_dict["settings"].get("measurement_types", [])
+        self.settingslog = logging.getLogger(__name__)
 
         #self.measurements = ["IV_measure", "CV_measure", "Strip_measure", "Istrip_measure", "Idiel_measure", "Rpoly_measure", "Cac_measure", "Cback_measure", "Cint_measure", "Rint_measure"]
         # Settings tab
         settings_widget = QWidget()
         self.settings = self.variables.load_QtUi_file("settings_gui.ui", settings_widget)
         self.layout.addWidget(settings_widget)
+
+        # Settings lookup
+        settings = ["IV_measure", "CV_measure", "Stripscan_measure", "Idiel_measure", "Rpoly_measure",
+                    "Cac_measure", "Idark_measure", "Rint_measure", "Cint_measure", "Cback_measure",
+                    "Istrip_measure", "IV_longterm_measure", "IVCV_refinement", "CintAC_measure"]
+
+        for conf in settings:
+            if conf not in self.variables.default_values_dict["settings"]:
+                self.variables.default_values_dict["settings"][conf] = [False, 0,0,0]
+                self.settingslog.warning("{} config could not be found, defaulting to [False, 0, 0, 0]. Consider adding it to your settings or to the framwork_variables")
+
 
         if self.measurements:
             self.configure_settings()
@@ -164,7 +174,7 @@ class Settings_window(settings_widget):
                        self.settings.CintAC_every, self.settings.CintAC_Start_strip, self.settings.CintAC_End_strip)
 
 
-        l.info("Measurement settings are reconfigured...")
+        self.settingslog.info("Measurement settings are reconfigured...")
 
     def configure(self, data, checkbox, first_value, second_value, third_value):
         if data[0]:

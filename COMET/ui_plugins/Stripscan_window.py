@@ -40,6 +40,11 @@ class Stripscan_window:
         self.stripscan = self.variables.load_QtUi_file("stripscan.ui", stripscan_widget)
         self.layout.addWidget(stripscan_widget)
         self.strip = -1
+        self.variables.default_values_dict["settings"]["current_strip"] = self.strip
+        self.variables.default_values_dict["settings"]["Bad_strips"] = 0
+        self.variables.default_values_dict["settings"]["Start_time"] = None
+        self.variables.default_values_dict["settings"]["End_time"] = None
+        self.variables.default_values_dict["settings"]["strip_scan_time"] = 0
         self.new_meas = True
         self.number_of_strips = 0
 

@@ -30,7 +30,7 @@
         - Rint_scan
         - dynamicwaiting
 
-    measurement_order: # aka. all measurement plugins
+    measurements_order: # aka. all measurement plugins
         - IVCV
         - stripscan
         - frequencyscan
@@ -44,7 +44,6 @@
     time_format: "%H:%M:%S" # Time format of the humidity control
     Test_mode: false # You dont want this
     GUI_update_interval: 200.0 # How often should the GUI be updated in ms
-    elrange: 200e-9 # A predefined value for the elrange
     store_data_as: json # Additional parameter, usually data will be stored as ascii during measurement,
     # but if you need the data in another format you can specify it here
     Django_server:

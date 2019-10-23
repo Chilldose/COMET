@@ -39,8 +39,8 @@ class Alignment_window(Table_widget):
         self.sensor_pad_file = None
 
         self.variables = GUI
-        self.transformation_matrix = self.variables.default_values_dict["settings"]["trans_matrix"]
-        self.V0 = self.variables.default_values_dict["settings"]["V0"]
+        self.transformation_matrix = self.variables.default_values_dict["settings"].get("trans_matrix", None)
+        self.V0 = self.variables.default_values_dict["settings"].get("V0", None)
         self.layout = layout
         self.child_layouts = {"Table": None}
         self.trans = transformation()

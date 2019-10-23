@@ -930,6 +930,24 @@ class table_control_class:
         self.previous_yloc = 0
         self.previous_zloc = 0
 
+        # Some variables which are needed
+        self.variables["Alignment"] = False
+        self.variables["trans_matrix"] = None
+        self.variables["Table_state"] = True # Means he is up
+        self.variables["Table_stay_down"] = True # Means he is up
+        self.variables["joystick"] = False
+        self.variables["table_ready"] = False
+        self.variables["zlock"] = True
+        self.variables["table_is_moving"] = False
+
+        if not "height_movement" in self.variables:
+            self.log.warning("No height_movement for table specified, defaulting to 800")
+            self.variables["height_movement"] = 800
+
+        if not "clearance" in self.variables:
+            self.log.warning("No clearance for table specified, defaulting to 200")
+            self.variables["clearance"] = 200
+
         if "Table_control" in self.devices:
             if "Visa_Resource" in self.devices["Table_control"]:
                 self.visa_resource = self.devices["Table_control"]["Visa_Resource"]

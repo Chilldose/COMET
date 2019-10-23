@@ -45,6 +45,8 @@ class GUI_classes(QWidget):
         self.message_from_main = framework_variables["Message_from_main"]
         self.queue_to_GUI = framework_variables["Queue_to_GUI"]
         self.framework_variables = framework_variables
+        self.default_values_dict["settings"]["new_data"] = False
+        self.default_values_dict["settings"]["Measurement_running"] = False
 
         # Config response function for the server
         if self.server:
@@ -52,7 +54,11 @@ class GUI_classes(QWidget):
 
         # Some Variables
         self.functions = [] # Function for the framework to update
-        self.update_interval = float(self.default_values_dict["settings"].get("GUI_update_interval", 100.))  # msec
+
+        if "GUI_update_interval" not in self.default_values_dict["settings"]:
+            self.variables.default_values_dict["settings"]["GUI_update_interval"] = 200
+            self.envlog.warning("No time_format defined, defaulting to 200")
+        self.update_interval = float(self.default_values_dict["settings"]["GUI_update_interval"])  # msec
 
         self.meas_data = {}
         self.all_plugin_modules = {}
@@ -67,8 +73,11 @@ class GUI_classes(QWidget):
         # Measurement data for plotting
         # Data type Dict for what kind of measurement (keys) values are tuple of numpy arrays (x,y)
         # Extend as you please in the config file
-        for measurments in self.default_values_dict["settings"].get("measurement_types",[]):
-            self.meas_data.update({measurments: [np.array([]), np.array([])]})
+        if "measurement_types" in self.default_values_dict["settings"]:
+            for measurments in self.default_values_dict["settings"].get("measurement_types",[]):
+                self.meas_data.update({measurments: [np.array([]), np.array([])]})
+        else:
+            self.log.warning("No measurement_types specified, no data storage initiated!")
 
 
         # This is the main Tab Widget in which all other tabs are implemented
@@ -174,7 +183,8 @@ class GUI_classes(QWidget):
                     self.all_plugin_modules.update({modules+"_window": importlib.import_module("COMET.ui_plugins." + str(modules+"_window"))})
                 else:
                     self.log.error("The GUI element {} was specified but could not be found as resource!".format(modules+"_window"))
-
+        else:
+            self.log.error("No GUI_render_order defined, no GUI can be rendered!")
     def updateWidget(self, widget):
         '''This function updates the QApplication'''
         widget.repaint()

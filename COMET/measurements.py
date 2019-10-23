@@ -44,8 +44,11 @@ class measurement_class(Thread):
 
 
         # Build all data arrays
-        for data_files in self.settings["settings"]["measurement_types"]:
-            self.measurement_data.update({data_files: [[np.zeros(0)], [np.zeros(0)]]})
+        if self.settings["settings"].get("measurement_types", None):
+            for data_files in self.settings["settings"]["measurement_types"]:
+                self.measurement_data.update({data_files: [[np.zeros(0)], [np.zeros(0)]]})
+        else:
+            self.log.warning("No measurement_types specified, no data storage initiated!")
 
     def run(self):
         self.log.info("Starting measurement thread...")
@@ -133,14 +136,19 @@ class measurement_class(Thread):
         self.log.info("All measurement functions found: " + str(all_measurement_functions) + ".")
 
         # import all modules specified in the measurement order, so not all are loaded
-        for modules in self.settings["settings"]["measurement_order"]:
-            if modules in all_measurement_functions:
-                self.all_plugins.update({modules: importlib.import_module("COMET.measurement_plugins." + modules)})
-                self.log.info("Imported module: {}".format(modules))
-            else:
-                if modules not in to_ignore:
-                    self.log.error("Could not load module: {}. It was specified in the settings but"
-                               " no module matches this name.".format(modules))
+        if "measurement_order" in self.settings["settings"]:
+            for modules in self.settings["settings"]["measurement_order"]:
+                if modules in all_measurement_functions:
+                    self.all_plugins.update({modules: importlib.import_module("COMET.measurement_plugins." + modules)})
+                    self.log.info("Imported module: {}".format(modules))
+                else:
+                    if modules not in to_ignore:
+                        self.log.error("Could not load module: {}. It was specified in the settings but"
+                                   " no module matches this name.".format(modules))
+        else:
+            self.settings["settings"]["measurement_order"] = []
+            self.log.warning("No measurement_order specified, no measurements can be conducted!")
+
 
     def create_data_file(self, header, filepath, filename="default"):
         self.log.info("Creating new data file with name: {!s}".format(filename))

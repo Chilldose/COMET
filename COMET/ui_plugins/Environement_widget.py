@@ -25,6 +25,19 @@ class Environement_widget(object):
         # Continue with the other plugins
         super(Environement_widget, self).__init__(gui)
 
+        # Variables
+        if "temp_history" not in self.variables.default_values_dict["settings"]:
+            self.variables.default_values_dict["settings"]["temp_history"] = 3600
+            self.envlog.warning("No temp_history defined, defaulting to 3600s")
+
+        if "temphum_update_intervall" not in self.variables.default_values_dict["settings"]:
+            self.variables.default_values_dict["settings"]["temphum_update_intervall"] = 5000
+            self.envlog.warning("No temp_history defined, defaulting to 5000ms")
+
+        if "time_format" not in self.variables.default_values_dict["settings"]:
+            self.variables.default_values_dict["settings"]["time_format"] = "%H:%M:%S"
+            self.envlog.warning("No time_format defined, defaulting to %H:%M:%S")
+
         # Config the Spin boxes for min and max
         self.Env_Widget.max_hum_spin.setRange(21,100)
         self.Env_Widget.min_hum_spin.setRange(0,100)

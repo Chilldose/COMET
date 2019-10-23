@@ -62,6 +62,9 @@ class stripscan_class(tools):
         self.project = self.main.settings["settings"]["Current_project"] # Warning these values are mutable while runtime!!!
         self.sensor = self.main.settings["settings"]["Current_sensor"] # Use with care!!!
         self.current_voltage = self.main.settings["settings"]["bias_voltage"]
+        if "Rint_MinMax" not in self.main.main.default_dict:
+            self.main.main.default_dict["Rint_MinMax"] = [-1.,1.,0.1]
+            self.log.warning("No Rint boundaries given, defaulting to [-1.,1.,0.1]. Consider adding it to your settings")
 
 
         self.log = logging.getLogger(__name__)

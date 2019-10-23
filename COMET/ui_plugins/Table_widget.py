@@ -19,15 +19,6 @@ class Table_widget(object):
         self.table_widget = self.variables.load_QtUi_file("table_control.ui", Table_Qwidget)
         self.table_layout.addWidget(Table_Qwidget)
 
-        # Some variables which are needed
-        if not "height_movement" in self.variables.default_values_dict["settings"]:
-            self.Tablog.warning("No height movement for table specified, defaulting to 800")
-            self.variables.default_values_dict["settings"]["height_movement"] = 800
-
-        if not "clearance" in self.variables.default_values_dict["settings"]:
-            self.Tablog.warning("No clearance for table specified, defaulting to 200")
-            self.variables.default_values_dict["settings"]["clearance"] = 200
-
         try:
             super(Table_widget, self).__init__(gui)
         except:
