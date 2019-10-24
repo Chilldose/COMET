@@ -93,41 +93,43 @@
           2470SMU:
             Device_name: 2470 Keithley SMU                                                                  # The actual device name from which it should get all commands
             Device_IDN: KEITHLEY INSTRUMENTS,MODEL 2470,04424944,1.6.8d
-            Connection_type: IP:TCPIP0::192.168.130.131::inst0::INSTR
+            Connection_resource: IP:TCPIP0::192.168.130.131::inst0::INSTR
+            VISA_attributes:
+              read_termination: "\r"
 
 #        2410SMU: # This is the name at which the device will be called. You can define an alias name as well in the aliases section
 #            Device_name: 2410 Keithley SMU                                                                  # The actual device name from which it should get all commands
 #            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H
-#            Connection_type: GPIB:16
+#            Connection_resource: GPIB:16
 #
 #        Corvus:
 #            Device_name: ITK Corvus
 #            Device_IDN: Corvus 1 462 1 0
-#            Connection_type: RS232:17
+#            Connection_resource: RS232:17
 #            Baud_rate: 9600
 #
 #        25657SMU:
 #            Device_name: 2657 Keithley SMU
-#            Connection_type: GPIB:26
+#            Connection_resource: GPIB:26
 #            Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.5
 #
 #        BrandBox:
 #            Device_name: BrandBox
-#            Connection_type: RS232:15
+#            Connection_resource: RS232:15
 #            Device_IDN: HV-Relay Controller V1.6/18.Apr.2019
 #
 #        Elektrometer:
 #            Device_name: 6517B Keithley Elektrometer
-#            Connection_type: GPIB:15
+#            Connection_resource: GPIB:15
 #            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E
 #
 #        Matrix:
 #            Device_name: Keithley 708B Switching
-#            Connection_type: IP:TCPIP0::192.168.130.199::inst0::INSTR
+#            Connection_resource: IP:TCPIP0::192.168.130.199::inst0::INSTR
 #            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
 #            Cards: 1 # Device specific variable used to determine how many cards are inserted
 #
 #        LCRmeter:
 #            Device_name: Agilent E4980A
 #            Device_IDN: Agilent Technologies,E4980A,MY46208270,A.06.15
-#            Connection_type: GPIB:19
+#            Connection_resource: GPIB:19

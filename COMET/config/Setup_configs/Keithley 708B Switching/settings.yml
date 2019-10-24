@@ -16,12 +16,12 @@
     Devices:
         Keithley_Matrix:
             Device_name: Keithley 708B Switching
-            Connection_type: IP:TCPIP0::192.168.130.199::inst0::INSTR
+            Connection_resource: IP:TCPIP0::192.168.130.199::inst0::INSTR
             Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
             Cards: 1 # Device specific variable used to determine how many cards are inserted
 
         BrandBox:
           Device_name: BrandBox
-          Connection_type: RS232:5
+          Connection_resource: RS232:5
           Device_IDN: HV-Relay Controller V1.6/18.Apr.2019
   

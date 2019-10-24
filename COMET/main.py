@@ -129,13 +129,14 @@ def main():
     if "Devices" in setup_loader.configs["config"]["settings"]:
         for to_connect in setup_loader.configs["config"]["settings"]["Devices"].values():
             devices.append(to_connect["Device_name"])
-        cuted_device_lib = {x: v for x, v in setup_loader.configs.get("device_lib", {}).items() if x in devices}
+        #cuted_device_lib = {x: v for x, v in setup_loader.configs.get("device_lib", {}).items() if x in devices}
         devices_dict = boot_up.connect_to_devices(vcw, setup_loader.configs["config"]["settings"]["Devices"],
-                                                  cuted_device_lib)
+                                                  setup_loader.configs.get("device_lib", {}))
         devices_dict = devices_dict.get_new_device_dict()
         devices_dict = setup_loader.config_device_notation(devices_dict)
     else:
         devices_dict = {}
+        log.warning("No devices specified in the settings...")
 
     log.critical("Starting the event loops ... ")
     table = utilities.table_control_class(

@@ -161,7 +161,7 @@ A good starting point would be a file with at least these ::
           2470SMU:
             Device_name: 2470 Keithley SMU # The actual device name from which it should get all commands
             Device_IDN: KEITHLEY INSTRUMENTS,MODEL 2470,04424944,1.6.8d
-            Connection_type: IP:TCPIP0::192.168.130.131::inst0::INSTR
+            Connection_resource: IP:TCPIP0::192.168.130.131::inst0::INSTR
 
 parameters, though. If you want to know more how and why these parameters are nice to have, see chapter :ref:`How to`.
 Here all parameters are explained in detail.
