@@ -56,7 +56,7 @@ class Table_widget(object):
         self.Table_gui.Up_button.clicked.connect(self.moveYplus)
         self.Table_gui.Down_button.clicked.connect(self.moveYminus)
         self.Table_gui.Left_button.clicked.connect(self.moveXplus)
-        self.Table_gui.Right_button.clicked.connect(self.moveYminus)
+        self.Table_gui.Right_button.clicked.connect(self.moveXminus)
         self.Table_gui.Zup_button.clicked.connect(self.moveZplus)
         self.Table_gui.Zdown_button.clicked.connect(self.moveYminus)
         self.Table_gui.XPos.returnPressed.connect(self.move_to_user_defined_pos)
@@ -136,6 +136,9 @@ class Table_widget(object):
         else:
             self.Table_gui.table_ind.setStyleSheet("background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
 
+    def table_move_indi_decorator(self):
+        "A decorator which updates the table move on specific functions"
+        pass
 
     def adjust_table_speed(self): # must be here because of reasons
         '''This function adjusts the speed of the table'''
@@ -342,90 +345,49 @@ class Table_widget(object):
         else:
             self.Tablog.error("No table connected...")
 
+    def rmove_to_position_action(self, pos):
+        """Moves table to a new position, based on the double spin boxes"""
+
+        if self.variables.table and not self.variables.default_values_dict["settings"]["table_is_moving"]:
+            self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
+            self.variables.table.relative_move_to(pos, False)
+            self.variables.table.set_axis([True, True, False])  # so z axis is off again
+            self.position_indicators_update()
+        elif self.variables.default_values_dict["settings"]["table_is_moving"]:
+            self.Tablog.warning("Table is currently moving, wait until movement is finished...")
+        else:
+            self.Tablog.error("No table connected...")
+
     def moveYplus(self):
         """Moves the table in the yplus direction"""
         step = self.Table_gui.Stepy_spinBox.value()
-        valid = False
-        try:
-            x = float(self.Table_gui.XPos.text())
-            y = float(self.Table_gui.YPos.text()) + float(step)
-            z = float(self.Table_gui.ZPos.text())
-        except:
-            self.Tablog.error("Non valid table coordinate input. Number needed.")
-
-        if valid:
-            self.move_to_position_action([x, y, z])
+        self.rmove_to_position_action([0, step, 0])
 
     def moveYminus(self):
         """Moves the table in the yplus direction"""
         step = self.Table_gui.Stepy_spinBox.value()
-        valid = False
-        try:
-            x = float(self.Table_gui.XPos.text())
-            y = float(self.Table_gui.YPos.text()) - float(step)
-            z = float(self.Table_gui.ZPos.text())
-        except:
-            self.Tablog.error("Non valid table coordinate input. Number needed.")
-
-        if valid:
-            self.move_to_position_action([x, y, z])
+        self.rmove_to_position_action([0, -step, 0])
 
     def moveXplus(self):
         """Moves the table in the yplus direction"""
         step = self.Table_gui.Stepx_spinBox.value()
-        valid=False
-        try:
-            x = float(self.Table_gui.XPos.text()) + float(step)
-            y = float(self.Table_gui.YPos.text())
-            z = float(self.Table_gui.ZPos.text())
-        except:
-            self.Tablog.error("Non valid table coordinate input. Number needed.")
-
-        if valid:
-            self.move_to_position_action([x, y, z])
+        self.rmove_to_position_action([step, 0, 0])
 
     def moveXminus(self):
         """Moves the table in the yplus direction"""
         step = self.Table_gui.Stepx_spinBox.value()
-        valid = False
-        try:
-            x = float(self.Table_gui.XPos.text()) - float(step)
-            y = float(self.Table_gui.YPos.text())
-            z = float(self.Table_gui.ZPos.text())
-        except:
-            self.Tablog.error("Non valid table coordinate input. Number needed.")
-
-        if valid:
-            self.move_to_position_action([x, y, z])
+        self.rmove_to_position_action([-step, 0, 0])
 
 
     def moveZplus(self):
         """Moves the table in the yplus direction"""
         step = self.Table_gui.Stepz_spinBox.value()
-        valid = False
-        try:
-            x = float(self.Table_gui.XPos.text())
-            y = float(self.Table_gui.YPos.text())
-            z = float(self.Table_gui.ZPos.text()) + float(step)
-        except:
-            self.Tablog.error("Non valid table coordinate input. Number needed.")
-
-        if valid:
-            self.move_to_position_action([x, y, z])
+        self.rmove_to_position_action([0, 0, step])
 
     def moveZminus(self):
         """Moves the table in the yplus direction"""
         step = self.Table_gui.Stepz_spinBox.value()
-        valid = False
-        try:
-            x = float(self.Table_gui.XPos.text())
-            y = float(self.Table_gui.YPos.text())
-            z = float(self.Table_gui.ZPos.text()) - float(step)
-        except:
-            self.Tablog.error("Non valid table coordinate input. Number needed.")
-
-        if valid:
-            self.move_to_position_action([x, y, z])
+        self.rmove_to_position_action([0, 0, -step])
 
     def move_to_user_defined_pos(self):
         """Moves to a user defined position"""

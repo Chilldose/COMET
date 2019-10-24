@@ -145,8 +145,10 @@ def main():
         message_to_main,
         vcw
     )
+
     if "Table_control" not in devices_dict:
         table = None
+
     switching = utilities.switching_control(
         setup_loader.configs["config"],
         devices_dict,

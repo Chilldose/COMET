@@ -159,7 +159,7 @@ class SetupLoader(object):
         # Searches for devices in the device list, returns false if not found (real device is the value dict of the device
         for device in devices.copy():
             if devices[device].get("Device_name", "") in new_assignee.values() and devices[device].get("Device_name", "") not in assigned_dicts:
-                lKey = [key for key, value in new_assignee.items() if value == device][0]
+                lKey = [key for key, value in new_assignee.items() if value == devices[device].get("Device_name", "")][0]
                 devices[lKey] = devices.pop(device)
                 assigned_dicts.append(devices[lKey]["Device_name"])
                 new_assignee.pop(lKey)
@@ -240,10 +240,9 @@ class connect_to_devices:
                 # Here the device gets connected
                 try:
                     if device_VISA_resource_name:
-                        resource = self.vcw.connect_to(device_VISA_resource_name, device_IDN,
-                                                      device_IDN=IDN_query, **VISA_attributes)  # Connects to the device Its always ASRL*::INSTR
+                        resource = self.vcw.connect_to(device_VISA_resource_name, device_IDN, IDN_query, **VISA_attributes)  # Connects to the device Its always ASRL*::INSTR
                         if resource:
-                            self.log.info("Connection established to device: " + str(device) + " at ")
+                            self.log.info("Connection established to device: " + str(device))
                             self.append_resource_to_device_dict(device, resource)
                         else:
                             self.log.error("Connection could not be established to device: " + str(device))
@@ -266,7 +265,7 @@ class connect_to_devices:
 
         settings_dict = self.device_dict[device] # device_dict is a dictionary containing dictionaries from the settings
         settings_dict["Visa_Resource"] = resource
-        settings_dict.update(self.device_lib[device])
+        settings_dict.update(self.device_lib[settings_dict["Device_name"]])
         self.new_device_dict[device] = settings_dict
 
 

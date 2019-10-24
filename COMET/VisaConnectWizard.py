@@ -152,7 +152,7 @@ class VisaConnectWizard:
 
 
 
-    def connect_to(self, device, IDN, device_IDN_query = "*IDN?", **attributes):
+    def connect_to(self, device, IDN, device_IDN_query, **attributes):
         """
         This function connects to a specific device
 
@@ -190,7 +190,7 @@ class VisaConnectWizard:
                 return device_resource
 
         except Exception as err:
-            self.log.error("Attempt to connect to device: " + str(device) + " failed. with error: ".format(err))
+            self.log.error("Attempt to connect to device: " + str(device) + " failed. with error: {}".format(err))
             return False
 
 

@@ -40,7 +40,7 @@ class DeviceCommunication_window:
 
     def list_all_action(self):
         """Lists all devices"""
-        self.variables.vcw.show_instruments()
+        self.variables.vcw.search_for_instruments()
         self.gui.all_devices_comboBox.clear()
         self.gui.all_devices_comboBox.addItems(self.variables.vcw.resource_names)
 
