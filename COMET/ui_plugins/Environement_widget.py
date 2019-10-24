@@ -15,7 +15,7 @@ class Environement_widget(object):
 
         # Environment widget
         if not "Environment" in gui.child_layouts:
-            self.envlog.error("No layout found to render Environment widget. Skipping...")
+            self.envlog.error("No layout found to render environment widget in. Skipping...")
             return
         Env_Qwidget = QWidget()
         self.env_layout = gui.child_layouts["Environment"]
