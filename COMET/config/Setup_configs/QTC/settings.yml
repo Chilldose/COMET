@@ -113,12 +113,12 @@
 #            Connection_resource: RS232:15
 #            Device_IDN: HV-Relay Controller V1.6/18.Apr.2019
 #
-#       Elektrometer:
-#            Device_name: 6517B Keithley Elektrometer
-#            Connection_resource: IP:TCPIP0::10.0.0.5::10002::SOCKET
-#            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E
-#            VISA_attributes:
-#              read_termination: "\r"
+       Elektrometer:
+            Device_name: 6517B Keithley Elektrometer
+            Connection_resource: IP:TCPIP0::10.0.0.5::10002::SOCKET
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E
+            VISA_attributes:
+              read_termination: "\r"
 
        Matrix:
             Device_name: Keithley 708B Switching

@@ -40,6 +40,7 @@ class Table_widget(object):
             self.Table_gui.Table_speed.setValue(0)
 
 
+
         self.Table_gui.x_move.sliderReleased.connect(self.adjust_x_pos)
         self.Table_gui.y_move.sliderReleased.connect(self.adjust_y_pos)
         self.Table_gui.z_move.sliderReleased.connect(self.adjust_z_pos)
@@ -53,12 +54,12 @@ class Table_widget(object):
         self.Table_gui.check_position.clicked.connect(self.check_position_action)
         self.Table_gui.Unload_sensorpushButton.clicked.connect(self.unload_sensor_action)
         self.Table_gui.load_sensor_pushButton.clicked.connect(self.load_sensor_action)
-        self.Table_gui.Up_button.clicked.connect(self.moveYplus)
-        self.Table_gui.Down_button.clicked.connect(self.moveYminus)
+        self.Table_gui.Up_button.clicked.connect(self.moveYminus)
+        self.Table_gui.Down_button.clicked.connect(self.moveYplus)
         self.Table_gui.Left_button.clicked.connect(self.moveXplus)
         self.Table_gui.Right_button.clicked.connect(self.moveXminus)
         self.Table_gui.Zup_button.clicked.connect(self.moveZplus)
-        self.Table_gui.Zdown_button.clicked.connect(self.moveYminus)
+        self.Table_gui.Zdown_button.clicked.connect(self.moveZminus)
         self.Table_gui.XPos.returnPressed.connect(self.move_to_user_defined_pos)
         self.Table_gui.YPos.returnPressed.connect(self.move_to_user_defined_pos)
         self.Table_gui.ZPos.returnPressed.connect(self.move_to_user_defined_pos)
@@ -135,10 +136,6 @@ class Table_widget(object):
             self.Table_gui.table_ind.setStyleSheet("background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
         else:
             self.Table_gui.table_ind.setStyleSheet("background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
-
-    def table_move_indi_decorator(self):
-        "A decorator which updates the table move on specific functions"
-        pass
 
     def adjust_table_speed(self): # must be here because of reasons
         '''This function adjusts the speed of the table'''
@@ -243,17 +240,24 @@ class Table_widget(object):
     def unload_sensor_action(self):
         """Moves the table to the edge so you can load a new sensor"""
         if self.variables.table:
+            self.Table_gui.table_ind.setStyleSheet(
+                "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
-            self.variables.table.move_table_to_edge("y", True, self.variables.default_values_dict["settings"]["height_movement"])
+            self.variables.table.move_table_to_edge("x", False, self.variables.default_values_dict["settings"]["height_movement"],
+                                                    clearance = self.variables.default_values_dict["settings"]["height_movement"])
             self.variables.table.set_axis([True, True, False])  # so z axis is off again
             self.position_indicators_update()
         else:
             self.Tablog.error("No table connected...")
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
 
     def load_sensor_action(self):
         """Moves the table to the edge so you can load a new sensor"""
         if self.variables.table:
+            self.Table_gui.table_ind.setStyleSheet(
+                "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True])  # so all axis can be addressed
             self.variables.table.move_previous_position(self.variables.default_values_dict["settings"]["height_movement"],
@@ -262,6 +266,8 @@ class Table_widget(object):
             self.position_indicators_update()
         else:
             self.Tablog.error("No table connected...")
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
 
     def move_previous(self):
         '''This function moves the table back to the previous position'''
@@ -298,11 +304,11 @@ class Table_widget(object):
         try:
 
             # Slider
-            self.Table_gui.x_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_xmin"]))
-            self.Table_gui.x_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_xmax"]))
+            self.Table_gui.x_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_ymin"]))
+            self.Table_gui.x_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_ymax"]))
 
-            self.Table_gui.y_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_ymin"]))
-            self.Table_gui.y_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_ymax"]))
+            self.Table_gui.y_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_xmin"]))
+            self.Table_gui.y_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_xmax"]))
 
             self.Table_gui.z_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_zmin"]))
             self.Table_gui.z_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_zmax"]))
@@ -321,12 +327,12 @@ class Table_widget(object):
         '''Here all functions concerning the table move update are handled'''
         if self.variables.table:
             pos = self.variables.table.get_current_position()
-            self.Table_gui.x_move.setProperty("value", int(pos[0]))
-            self.Table_gui.y_move.setProperty("value", int(pos[1]))
+            self.Table_gui.y_move.setProperty("value", int(pos[0]))
+            self.Table_gui.x_move.setProperty("value", int(pos[1]))
             self.Table_gui.z_move.setProperty("value", int(pos[2]))
 
-            self.Table_gui.XPos.setText(str(pos[0]))
-            self.Table_gui.YPos.setText(str(pos[1]))
+            self.Table_gui.YPos.setText(str(pos[0]))
+            self.Table_gui.XPos.setText(str(pos[1]))
             self.Table_gui.ZPos.setText(str(pos[2]))
         else:
             self.Tablog.critical("Table position update not possible, due to missing Table instance.")
@@ -358,43 +364,72 @@ class Table_widget(object):
         else:
             self.Tablog.error("No table connected...")
 
-    def moveYplus(self):
-        """Moves the table in the yplus direction"""
-        step = self.Table_gui.Stepy_spinBox.value()
-        self.rmove_to_position_action([0, step, 0])
-
-    def moveYminus(self):
-        """Moves the table in the yplus direction"""
-        step = self.Table_gui.Stepy_spinBox.value()
-        self.rmove_to_position_action([0, -step, 0])
-
     def moveXplus(self):
         """Moves the table in the yplus direction"""
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
         step = self.Table_gui.Stepx_spinBox.value()
-        self.rmove_to_position_action([step, 0, 0])
+        self.rmove_to_position_action([0, step, 0])
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
+
+
 
     def moveXminus(self):
         """Moves the table in the yplus direction"""
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
         step = self.Table_gui.Stepx_spinBox.value()
+        self.rmove_to_position_action([0, -step, 0])
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
+
+    def moveYplus(self):
+        """Moves the table in the yplus direction"""
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
+        step = self.Table_gui.Stepy_spinBox.value()
+        self.rmove_to_position_action([step, 0, 0])
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
+
+    def moveYminus(self):
+        """Moves the table in the yplus direction"""
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
+        step = self.Table_gui.Stepy_spinBox.value()
         self.rmove_to_position_action([-step, 0, 0])
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
 
 
     def moveZplus(self):
         """Moves the table in the yplus direction"""
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
         step = self.Table_gui.Stepz_spinBox.value()
         self.rmove_to_position_action([0, 0, step])
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
 
     def moveZminus(self):
         """Moves the table in the yplus direction"""
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
         step = self.Table_gui.Stepz_spinBox.value()
         self.rmove_to_position_action([0, 0, -step])
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
 
     def move_to_user_defined_pos(self):
         """Moves to a user defined position"""
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
         valid = False
         try:
-            x = float(self.Table_gui.XPos.text())
-            y = float(self.Table_gui.YPos.text())
+            # Table at QTC is switched by 90 deg
+            x = float(self.Table_gui.YPos.text())
+            y = float(self.Table_gui.XPos.text())
             z = float(self.Table_gui.ZPos.text())
             valid = True
         except:
@@ -407,6 +442,9 @@ class Table_widget(object):
                                     QMessageBox.Ok, QMessageBox.Abort)
         if valid and move == QMessageBox.Ok:
             self.move_to_position_action([x, y, z])
+
+        self.Table_gui.table_ind.setStyleSheet(
+            "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
 
 
 

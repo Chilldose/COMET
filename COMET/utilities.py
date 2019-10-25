@@ -969,7 +969,7 @@ class table_control_class:
         """
 
         # Get the current position
-        pos = self.variables.table.get_current_position()
+        pos = self.get_current_position()
         if pos:
             self.previous_xloc = pos[0]
             self.previous_yloc = pos[1]
@@ -977,8 +977,8 @@ class table_control_class:
 
         # Move to the edge
         var = "table_{}{}".format(axis, "min" if minimum else "max")
-        if var in self.variables.devices_dict["Table_control"]:
-            pos = self.variables.devices_dict["Table_control"][var]
+        if var in self.devices["Table_control"]:
+            pos = self.devices["Table_control"][var]
 
             if axis == "x":
                 pos = [pos, self.previous_yloc, self.previous_zloc]
@@ -1222,11 +1222,12 @@ class table_control_class:
         if self.table_ready and not self.variables["table_is_moving"]:
             # get me the current position
             old_pos = self.get_current_position()
-            self.new_previous_position(old_pos)
+            if move_down: # So only parent move orders are stored and not every height movement
+                self.new_previous_position(old_pos)
             desired_pos = position[:]
 
             # If the table is somehow moving or reported an error before, so check if all errors have vanished
-            success = self.check_if_ready()
+            #success = self.check_if_ready()
 
             #Move the table down if necessary
             if move_down:
@@ -1255,6 +1256,7 @@ class table_control_class:
             # Move the table back up again
             if move_down:
                 success = self.move_up(lifting-clearance)
+                position[2] -= clearance # Adapt the position to make sure the check works
                 if not success:
                     return False
 
