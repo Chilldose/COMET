@@ -159,7 +159,7 @@ class SetupLoader(object):
         # Searches for devices in the device list, returns false if not found (real device is the value dict of the device
         for device in devices.copy():
             if devices[device].get("Device_name", "") in new_assignee.values() and devices[device].get("Device_name", "") not in assigned_dicts:
-                lKey = [key for key, value in new_assignee.items() if value == device][0]
+                lKey = [key for key, value in new_assignee.items() if value == devices[device].get("Device_name", "")][0]
                 devices[lKey] = devices.pop(device)
                 assigned_dicts.append(devices[lKey]["Device_name"])
                 new_assignee.pop(lKey)
@@ -207,100 +207,66 @@ class connect_to_devices:
         self.vcw = vcw
         self.device_dict = device_dict
         self.device_lib = device_lib
-        self.vcw.show_instruments()
+        self.new_device_dict = {}
 
         for device in device_dict:  # device_dict is a dictionary containing dictionaries
             # Check if device is present in the device lib
             if device_dict[device]["Device_name"] not in device_lib:
                 self.log.error("No additional parameters for device {} found! This may result in further errors".format(device))
+                device_lib[device_dict[device]["Device_name"]] = {}
             try:
-                device_IDN = device_dict[device]["Device_IDN"]  # gets me the IDN for each device loaded
-                connection_type = device_dict[device].get("Connection_type", -1) # Gets me the type of the connection
-                if "device_IDN_query" in device_lib[device_dict[device]["Device_name"]]:
-                    IDN_query = device_lib[device_dict[device]["Device_name"]]["device_IDN_query"]
-                else:
-                    IDN_query = "*IDN?"
-                if "GPIB" in str(connection_type).upper():
+                device_IDN = device_dict[device].get("Device_IDN", None)  # gets me the IDN for each device loaded
+                if not device_IDN:
+                    self.log.warning("No IDN string defined for device {}, please make sure you have connected the correct device!".format(device))
+                connection_type = device_dict[device]["Connection_resource"] # Gets me the type of the connection
+                VISA_attributes = device_dict[device].get("VISA_attributes", {})
+                IDN_query = device_lib[device_dict[device]["Device_name"]].get("device_IDN_query", "*IDN?")
+                device_VISA_resource_name = None
+
+                # Find connection resource
+                if "GPIB" == connection_type.split(":")[0].upper():
                     # This manages the connections for GBIP devices
+                    device_VISA_resource_name = "GPIB0::"+str(connection_type.split(":")[-1]) + "::INSTR"
 
-                    if ("GPIB0::"+str(connection_type.split(":")[-1]) + "::INSTR") in self.vcw.resource_names: # Searches for a match in the resource list
-                        success = self.vcw.connect_to(self.vcw.resource_names.index("GPIB0::"+str(connection_type.split(":")[-1]) + "::INSTR"), device_IDN, device_IDN=IDN_query) # Connects to the device Its always ASRL*::INSTR
-                        if success:
-                            self.log.info("Connection established to device: " + str(device) + " at ")
-                        else:
-                            self.log.error("Connection could not be established to device: " + str(device))
-                    else:
-                        self.log.error("GPIB instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
-                elif "RS232" in str(connection_type).upper():
+                elif "RS232" in connection_type.split(":")[0].upper():
                     # This maneges the connections for Serial devices
-                    if ("ASRL"+str(connection_type.split(":")[-1]) + "::INSTR") in self.vcw.resource_names: # Searches for a match in the resource list
-                        #print(self.device_dict[device].get("Baud_rate", 57600))
-                        success = self.vcw.connect_to(self.vcw.resource_names.index("ASRL"+str(connection_type.split(":")[-1]) + "::INSTR"), device_IDN, baudrate=self.device_dict[device].get("Baud_rate", 57600), device_IDN=IDN_query) # Connects to the device Its always ASRL*::INSTR
-                        if success:
-                            self.log.info("Connection established to device: " + str(device) + " at ")
-                        else:
-                            self.log.error("Connection could not be established to device: " + str(device))
-                    else:
-                        self.log.error("Serial instrument at port " + str(connection_type.split(":")[-1]) + " is not connected.")
+                    device_VISA_resource_name = "ASRL"+str(connection_type.split(":")[-1]) + "::INSTR"
 
-                elif "IP" in str(connection_type).split(":")[0].upper():
+                elif "IP" in connection_type.split(":")[0].upper():
                     # This manages the connections for IP devices
                     # Since TCP/IP is a bitch this connection type need special treatment
-                    address_start = str(connection_type).index(":")
-                    try:
-                        success = self.vcw.connect_to(
-                            self.vcw.resource_names.index(connection_type[address_start+1:]),
-                            device_IDN, device_IDN=IDN_query)
-                    except:
-                        success = False
+                    device_VISA_resource_name = connection_type[connection_type.find(":")+1:]
 
-                    if success:
-                        self.log.info("Connection established to device: " + str(device) + " at ")
+                # Here the device gets connected
+                try:
+                    if device_VISA_resource_name:
+                        resource = self.vcw.connect_to(device_VISA_resource_name, device_IDN, IDN_query, **VISA_attributes)  # Connects to the device Its always ASRL*::INSTR
+                        if resource:
+                            self.log.info("Connection established to device: " + str(device))
+                            self.append_resource_to_device_dict(device, resource)
+                        else:
+                            self.log.error("Connection could not be established to device: " + str(device))
                     else:
-                        self.log.error("Connection could not be established to device: " + str(device))
-                # Add other connection types
-                else:
-                    self.log.info("No valid connection type found for device " + str(device) + ". "
-                                "Therefore no connection established. You may proceed but measurements will fail.")
+                        self.log.error("No valid VISA resource name given for connection! Connection resource name {} not recognized.".format(connection_type))
+
+                except Exception as err:
+                    self.log.error(
+                        "Unknown error happened, during connection attempt to device: {} with error: {}".format(device,
+                                                                                                                err))
             except KeyError:
                 self.log.error("Device " + device_dict[device]["Device_name"] + " has no IDN.")
-
-        self.new_device_dict = self.append_resource_to_device_dict() # Appends the resources to the device dict
-
-
 
     def get_new_device_dict(self):
         """Returns all connected devices."""
         return self.new_device_dict
 
-    def append_resource_to_device_dict(self):
+    def append_resource_to_device_dict(self, device, resource):
         '''Appends all valid resources to the dictionaries for the devices'''
 
-        valid_resources =  self.vcw.myInstruments_dict # gets me the dict with the resources which are currently connected
-        for device, values in self.device_dict.items(): # device_dict is a dictionary containing dictionaries
-                device_IDN = "No IDN"
-                try:
-                    device_IDN = self.device_dict[device]["Device_IDN"] # gets me the IDN for each device loaded
-                except KeyError:
-                    self.log.error("Device " + self.device_dict[device]["Device_name"] + " has no IDN.")
-
-                resource = valid_resources.get(str(device_IDN).strip(), "Not listed")
-
-                if resource != "Not listed":
-                    self.device_lib[values["Device_name"]].update({"Visa_Resource": resource})  # If resource was found with same IDN the resource gets appended to the dict
-                    self.log.info("Device " + self.device_dict[device]["Device_name"] + " is assigned to " + str(resource) + " with IDN: " + str(device_IDN).strip())
-                elif resource == "Not listed":
-                    self.log.error("Device " + self.device_dict[device]["Device_name"] + " could not be found in active resources.")
-
-                # Append all infos from the config as well
-                try:
-                    self.device_lib[values["Device_name"]].update(self.device_dict[device])
-                except KeyError as kerr:
-                    self.log.error("It seems the desired device {} is not specified/configured. Please check "
-                                   "the device_lib folder if device is correctly added! "
-                                   "Error: {}".format(values["Device_name"], kerr))
-
-        return self.device_lib
+        settings_dict = self.device_dict[device] # device_dict is a dictionary containing dictionaries from the settings
+        settings_dict["Visa_Resource"] = resource
+        settings_dict.update(self.device_lib[settings_dict["Device_name"]])
+        self.new_device_dict[device] = settings_dict
 
 
 def update_defaults_dict(dict, additional_dict):

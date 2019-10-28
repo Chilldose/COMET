@@ -258,7 +258,7 @@ To do so add the line:</p>
   <span class="o">&lt;</span><span class="n">Device_descriptor</span><span class="o">&gt;</span><span class="p">:</span> <span class="c1"># Some descriptor for the device</span>
     <span class="n">Device_name</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">A</span> <span class="n">Device</span> <span class="n">name</span><span class="o">&gt;</span>  <span class="c1"># Name of the device, this must be the same name as of one in the device library                                                                # The actual device name from which it should get all commands</span>
     <span class="n">Device_IDN</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">IDN</span> <span class="n">of</span> <span class="n">your</span> <span class="n">specific</span> <span class="n">device</span><span class="o">&gt;</span>
-    <span class="n">Connection_type</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Connection</span> <span class="nb">type</span><span class="o">&gt;</span>
+    <span class="n">Connection_resource</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Connection</span> <span class="nb">type</span><span class="o">&gt;</span>
 </pre></div>
 </div>
 <p>The top entry <strong>Devices</strong> is a mandatory entry which tells the software that the following entries are devices.
@@ -268,7 +268,7 @@ The sub-entries are up to your liking, but this will be the name of the internal
 <dd><ul class="first last simple">
 <li>Device_name</li>
 <li>Device_IDN</li>
-<li>Connection_type</li>
+<li>Connection_resource</li>
 </ul>
 </dd>
 </dl>
@@ -278,7 +278,7 @@ be configured in the main device config, knock yourself out.</p>
 <p class="first admonition-title">Note</p>
 <p class="last">If you have a RS232 device connected you can add the <code class="docutils literal notranslate"><span class="pre">Baud_rate</span></code> parameter and change the default baud rate for the device. This also holds true for other RS232 parameters. For more information see, the device connection API reference for more information.</p>
 </div>
-<p><strong>Connection_type</strong> is a parameter which tells the framework what kind of connection the device listens to and at what port.
+<p><strong>Connection_resource</strong> is a parameter which tells the framework what kind of connection the device listens to and at what port.
 Possible options are:</p>
 <blockquote>
 <div><ul class="simple">
@@ -313,11 +313,11 @@ This prevents async. read and write operations to the device and makes it more r
      <span class="mi">2470</span><span class="n">SMU</span><span class="p">:</span>
          <span class="n">Device_name</span><span class="p">:</span> <span class="mi">2470</span> <span class="n">Keithley</span> <span class="n">SMU</span>
          <span class="n">Device_IDN</span><span class="p">:</span> <span class="n">KEITHLEY</span> <span class="n">INSTRUMENTS</span><span class="p">,</span><span class="n">MODEL</span> <span class="mi">2470</span><span class="p">,</span><span class="mi">04424944</span><span class="p">,</span><span class="mf">1.6</span><span class="o">.</span><span class="mi">8</span><span class="n">d</span>
-         <span class="n">Connection_type</span><span class="p">:</span> <span class="n">IP</span><span class="p">:</span><span class="n">TCPIP0</span><span class="p">::</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">130.131</span><span class="p">::</span><span class="n">inst0</span><span class="p">::</span><span class="n">INSTR</span>
+         <span class="n">Connection_resource</span><span class="p">:</span> <span class="n">IP</span><span class="p">:</span><span class="n">TCPIP0</span><span class="p">::</span><span class="mf">192.168</span><span class="o">.</span><span class="mf">130.131</span><span class="p">::</span><span class="n">inst0</span><span class="p">::</span><span class="n">INSTR</span>
 
      <span class="n">BrandBox</span><span class="p">:</span>
          <span class="n">Device_name</span><span class="p">:</span> <span class="n">BrandBox</span>
-         <span class="n">Connection_type</span><span class="p">:</span> <span class="n">RS232</span><span class="p">:</span><span class="mi">15</span>
+         <span class="n">Connection_resource</span><span class="p">:</span> <span class="n">RS232</span><span class="p">:</span><span class="mi">15</span>
          <span class="n">Device_IDN</span><span class="p">:</span> <span class="n">HV</span><span class="o">-</span><span class="n">Relay</span> <span class="n">Controller</span> <span class="n">V1</span><span class="o">.</span><span class="mi">6</span><span class="o">/</span><span class="mf">18.</span><span class="n">Apr</span><span class="o">.</span><span class="mi">2019</span>
 </pre></div>
 </div>

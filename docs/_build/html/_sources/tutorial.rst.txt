@@ -72,7 +72,7 @@ To do so add the line: ::
       <Device_descriptor>: # Some descriptor for the device
         Device_name: <A Device name>  # Name of the device, this must be the same name as of one in the device library                                                                # The actual device name from which it should get all commands
         Device_IDN: <IDN of your specific device>
-        Connection_type: <Connection type>
+        Connection_resource: <Connection type>
 
 The top entry **Devices** is a mandatory entry which tells the software that the following entries are devices.
 The sub-entries are up to your liking, but this will be the name of the internal representation of the device object in the software!
@@ -80,14 +80,14 @@ The sub-entries are up to your liking, but this will be the name of the internal
 The entires:
    * Device_name
    * Device_IDN
-   * Connection_type
+   * Connection_resource
 
 are mandatory for eacht sub-entries. You can extend this list as you like, the main framework will ignore them, but if you do need some additional parameters which cannot
 be configured in the main device config, knock yourself out.
 
 .. note:: If you have a RS232 device connected you can add the ``Baud_rate`` parameter and change the default baud rate for the device. This also holds true for other RS232 parameters. For more information see, the device connection API reference for more information.
 
-**Connection_type** is a parameter which tells the framework what kind of connection the device listens to and at what port.
+**Connection_resource** is a parameter which tells the framework what kind of connection the device listens to and at what port.
 Possible options are:
    * RS232:<ComPort>
    * GPIB:<Address>
@@ -125,11 +125,11 @@ To tell COMET to assign a alias to on device have a look at a specific example: 
         2470SMU:
             Device_name: 2470 Keithley SMU
             Device_IDN: KEITHLEY INSTRUMENTS,MODEL 2470,04424944,1.6.8d
-            Connection_type: IP:TCPIP0::192.168.130.131::inst0::INSTR
+            Connection_resource: IP:TCPIP0::192.168.130.131::inst0::INSTR
 
         BrandBox:
             Device_name: BrandBox
-            Connection_type: RS232:15
+            Connection_resource: RS232:15
             Device_IDN: HV-Relay Controller V1.6/18.Apr.2019
 
 In this case the device "2470 Keithley SMU" will be renamed to "BiasSMU" and the device "BrandBox" will become the devices

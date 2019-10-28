@@ -90,7 +90,7 @@ In order to add a device to the software, you can add the entry: ::
       2470SMU: # Some descriptor for the device
         Device_name: 2470 Keithley SMU  # Name of the device, this must be the same name as of one in the device library                                                                # The actual device name from which it should get all commands
         Device_IDN: KEITHLEY INSTRUMENTS,MODEL 2470,04424944,1.6.8d
-        Connection_type: IP:TCPIP0::192.168.130.131::inst0::INSTR
+        Connection_resource: IP:TCPIP0::192.168.130.131::inst0::INSTR
 
 .. note:: Don't panic! If you do not understand everything now what all this means. In the following chapters (:ref:`Add a new device`) the correct and in depth explanation is written.
 

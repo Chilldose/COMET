@@ -1,4 +1,4 @@
-import visa
+import pyvisa as visa
 import logging
 import threading
 from time import sleep
@@ -26,7 +26,7 @@ def run_with_lock(method):
             raise  # this raises the error with stack backtrace
         return result
 
-    return with_lock  # here the memberfunction timed will be called
+    return with_lock  # here the member function timed will be called
 
 #Opens a connection to a VISA resource device (GPIB, USB, RS232, IP)
 class VisaConnectWizard:
@@ -49,12 +49,10 @@ class VisaConnectWizard:
         """
 
         # constants
-        self.myInstruments = [] #contains list of all instruments connected to
+        self.myInstruments = [] #contains list of all instruments connected to within this instance
         self.choose_default_instrument = False
         self.resource_names = []
         self.myInstruments_dict = {} #contains a dict, in which only the devices are present, which responded to the IDN query value = resourse key = IDN
-        self.baud_rate = 57600
-        self.xonoff = True
         self.GPIB_interface = None
         self.log = logging.getLogger(__name__)
         self.backend = backend or ''
@@ -65,10 +63,9 @@ class VisaConnectWizard:
         # Tries to connect to a GPIB interface if possible
         try:
             self.GPIB_interface = self.rm.open_resource('GPIB::INTFC')
-            self.reset_interface()
+            self.reset_GBIP_interface()
         except:
-            self.log.warning("No GPIB interface could be found")
-
+            self.log.warning("No GPIB interface could be found...")
 
         #Connects to an instrument given in arg (this function will be obsolete if no argument is given)
         try:
@@ -79,9 +76,9 @@ class VisaConnectWizard:
                 self.myInstruments.append(self.rm.open_resource(arg[0]))
                 # Important ----------------------------------------------------------------
         except:
-            self.connection_error(arg[0])
+            self.log.error("Attempt to connect to visa resource " + str(arg[0]) + " failed.")
 
-    def reset_interface(self):
+    def reset_GBIP_interface(self):
         """Resets the GPIB interface, if none is present nothing will happen, but a log will be written"""
         try:
             if self.GPIB_interface:
@@ -96,26 +93,19 @@ class VisaConnectWizard:
             self.log.error("Reset of interface was not successfull. Error: " + str(e))
             return False
 
-
-
-    #If connections fails this will be called
-    def connection_error(self, failed_resource):
-        """
-        Writes an error to the log, with the information on the passed resource
-
-        :param failed_resource: A visa resource object
-        :return: None
-        """
-        self.log.error("Attemp to connect to visa resource " + str(failed_resource) + " failed.")
-
-
     #Lists all connected resources (no sniff)
     def show_resources(self):
-        """This function shows you all available resources currently connected to this machine"""
+        """This function shows you all available resources currently connected to this machine.
+        Warning: This resources must not be correctly configured and working. This is just the list
+        the script as attached itself to!"""
         print(self.myInstruments)
 
+    def get_connected_resources(self):
+        """Returns all connected resources to this instance of VCW"""
+        return self.myInstruments_dict
+
     #Looks for all Instruments in the network and shows them
-    def show_instruments(self):
+    def search_for_instruments(self):
         """This function will search for instruments available to the machine and list them"""
         # Lists all available resources found
         self.log.info("All available visa resources:")
@@ -162,164 +152,83 @@ class VisaConnectWizard:
 
 
 
-    def connect_to(self, device, IDN, baudrate = 57600, device_IDN = "*IDN?"):
+    def connect_to(self, device, IDN, device_IDN_query, **attributes):
         """
         This function connects to a specific device
 
-        :param device: The Visa resource name
+        :param device: The Visa resource name like TCPIP0::192.168.130.131::inst0::INSTR etc.
         :param IDN: The identification string of the device
-        :param baudrate: A baudrate (only used for RS232 devices)
         :param device_IDN: The IDN query string (default: *IDN?)
-        :return: bool
+        :return: resource or False
         """
 
+        device_IDN_query = "*IDN?" if device_IDN_query == None else device_IDN_query
         try:
-            self.log.debug("Try connecting to device: " + self.resource_names[device])
-            device_resource = self.rm.open_resource(self.resource_names[device])# Tries opening the connection to a device
+            self.log.debug("Try connecting to device: " + device)
+            device_resource = self.rm.open_resource(device)# Tries opening the connection to a device
+            self.config_resource(device_resource, **attributes)
             self.myInstruments.append(device_resource)  # If valid, append it to the List, for now
-            self.config_resource(self.resource_names[device], device_resource, baudrate)
 
-            if IDN == str(self.verify_ID(len(self.myInstruments)-1, command=device_IDN)).strip(): # So that the last added device will be queried
-                self.myInstruments_dict.update({IDN: device_resource})  # Adds the device ID for each instrument into the dict
-                self.log.info(str(device_resource) + " => " + IDN.strip("\n"))
-                return True # this means success
+            # Query the IDN from the device and match it with the it value
+            if IDN:
+                device_idn_return = str(self.verify_ID(device_resource, command=device_IDN_query)).strip()
+                if IDN == device_idn_return:
+                    self.myInstruments_dict.update({IDN: device_resource})  # Adds the device ID for each instrument into the dict
+                    self.log.info("Successfully connected to device {}".format(device_resource))
+                    return device_resource # this means success
 
+                elif device_idn_return == "False":
+                    self.log.error("Connection error happend during IDN query... Connection could not be established to device {}".format(device_resource))
+
+                else:
+                    self.log.error("Could not connect to device {} to to IDN string mismatch. Devices IDN return :'{}', does not match"
+                                   "the IDN '{}' this device should have.".format(device_resource, device_idn_return, IDN))
+                    self.myInstruments.pop().close()  # removes the item from the list
+                    return False
             else:
-                self.log.error("Device IDN for " + str(self.resource_names[device]) + " does not match with IDN from input Device " + str(self.myInstruments[-1]))
-                self.log.error(str(IDN) + " != " + str(self.verify_ID(len(self.myInstruments))))
-                self.myInstruments.pop()  # removes the item from the list
-                return False
+                self.log.warning("No IDN specified, for device {}, connection established but no checks performed.".format(device_resource))
+                return device_resource
 
-        except:
-            self.log.error("Attempt to connect to device: " + str(self.resource_names[device]) + " failed.")
+        except Exception as err:
+            self.log.error("Attempt to connect to device: " + str(device) + " failed. with error: {}".format(err))
             return False
 
 
-    #Connects to a instrument or all instruments available in the network
-    def connect_to_instruments(self, connect_to_all=True, connect_to=[]): # If no args are given it will try to connect to all available resourses
-        '''
-        Debricated function
-        '''
-        if connect_to_all:
-
-            self.show_instruments()  # Lists all resourses
-
-            for instrument in self.resource_names: # Loop over all resoruses
-                try:
-                    self.rm.open_resource(instrument) # Tries opening the resourse
-                    self.myInstruments.append(self.rm.open_resource(instrument)) # If valid, append it to the List
-                    self.config_resource(instrument, self.myInstruments[-1]) # Makes a first configuration of the instrument (not for all resource types necessary)
-                    #Warning: this are only preset values, they may differ to config files now
-                except:
-                    self.connection_error(instrument)
-
-        elif connect_to != [] and connect_to_all == False: # Connection type for another case
-
-            for instrument in connect_to:
-                try:
-                    self.myInstruments.append(self.rm.open_resource(self.resource_names[instrument]))
-                    self.config_resource(self.resource_names[instrument], self.myInstruments[-1])
-                except:
-                    self.connection_error(self.resource_names[instrument])
-
-
-        else:
-            dummy = input("Choose resource from list above: \nTyping -1 will try to connect to all available instruments \n")
-
-            if dummy == -1:
-
-
-                for instrument in self.resource_names:
-                    try:
-                        self.myInstruments.append(self.rm.open_resource(instrument))
-                        self.config_resource(instrument, self.myInstruments[-1])
-                    except:
-                        self.connection_error(instrument)
-
-            else:
-                try:
-                    self.myInstruments.append(self.rm.open_resource(self.resource_names[dummy]))
-                    self.config_resource(self.resource_names[dummy], self.myInstruments[-1])
-                except:
-                    self.connection_error(self.resource_names[dummy])
-
-
-    def config_resource(self, resources_name, resource, baudrate = 9600, timeout = 5000.): # For different types of connections different configurations can be done
+    def config_resource(self, resource, **attributes): # For different types of connections different configurations can be done
         """
         Configs the resource for correct usage. Currently only RS232 devices are configured with this.
         All other devices config them self.
 
-        :param resources_name: The visa resource name
         :param resource: The resource object
-        :param baudrate: The baudrate
-        :param timeout: A timeout in ms
+        :param **attributes: VISA resource kwargs the device needs to be configured with (they must be VISA Attributes)
         :return: None
         """
 
-
-        # ASRL type resourses are RS232 they usually need some additional configuration
-        # Furthermore this function is for a primitive configuration, we cannot know by now which device has which configuration. IDN is necessary for that,
-        # but we can only ask for IDN if connection is valid.
-
-        if resources_name[:4] == 'ASRL':
-            # Additional Parameters for rs232, usually the baudrate is the only configuration needed, pyvisa will do the rest
-            resource.baud_rate = int(baudrate)
-            #resource.values_format.is_binary = False
-            #resource.values_format.datatype = 'd'w e
-            #resource.StopBit=visa.constants.StopBits.one
-            #resource.Parity=visa.constants.Parity.even
-            #resource.SerialTermination=visa.constants.SerialTermination.termination_break
-            #resource.write_terminator = visa.constants.SerialTermination.termination_char
-            #resource.read_terminator = visa.constants.SerialTermination.termination_char
-            resource.xoxoff = self.xonoff
-            #resource.write_termination = '\r\n'
-            #resource.read_termination = '\r\n'
-            #resource.values_format.is_big_endian = False
-
-        resource.timeout = timeout # Setting a resource timeout
-
-    #No response function
-    def no_response(self, instrument):
-        """
-        Log entry for a no response error
-
-        :param instrument: The instrument resource name
-        :return: None
-        """
-        self.log.warning('The device ' + str(instrument) + " is not responing.")
+        for att, value in attributes.items():
+            try:
+                setattr(resource, att, value)
+            except AttributeError:
+                self.log.error("Could not set VISA attribute {} due to an attribute error. Is the attribute valid?".format(att))
+            except Exception as err:
+                self.log.error("Could not set VISA attribute {}, Error: {}".format(att, err))
 
 
     #Verifing the ID of connected resources typing -1 asks for all id of all resources
-    def verify_ID(self, number=-1, command = "*IDN?"):
+    def verify_ID(self, resource, command = "*IDN?"):
             """
             Prints all IDN of all devices connected to this machine
 
-            :param number: The number in the myInstruments, pass -1 for all devices
+            :param resource: the visa resource
             :param command: The IDN query
             :return: False or None
             """
-            if number == -1:
-
-                self.log.info("All IDN of devices:")
-                for instrument in self.myInstruments:
-                    try:
-                        device_IDN = instrument.query(str(command)) #Gets me the IDN for the device
-                        self.myInstruments_dict.update({device_IDN: instrument}) # Adds the device ID for each instrument into the dict
-                        self.log.info(str(instrument) + " => " + device_IDN.strip("\n"))
-                    except:
-                        self.no_response(str(instrument))
-                        #self.close_connections(instrument) # Closes the connection to the not responding instruments
+            try:
+                return resource.query(str(command))
+            except TimeoutError:
+                self.log.warning('The device ' + str(resource) + " is not responding.")
                 return False
 
 
-            else:
-                try:
-                    return self.myInstruments[number].query(str(command))
-                except:
-                    self.no_response(self.myInstruments[number])
-                    return False
-
-    #@run_with_lock # So only one talker and listener can be there
     def query(self, resource_dict, code, reconnect = True):
         """
         Makes a query to the resource (the same as first write then read)
@@ -356,7 +265,7 @@ class VisaConnectWizard:
 
             if reconnect and type(resource_dict) == dict:
                 self.log.warning("Trying to reconnect to device and reset interfaces...")
-                self.reset_interface()
+                self.reset_GBIP_interface()
                 self.reconnect_to_device(resource_dict)
                 if "GPIB" not in str(resource): # For all other devices
                     self.write(resource, "\r\n") # tries to reset it this way
@@ -457,13 +366,3 @@ class VisaConnectWizard:
             self.write(resource, str(command))
             sleep(delay) #A better way possible but gives the instrument its time
 
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
