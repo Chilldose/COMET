@@ -908,6 +908,8 @@ class table_control_class:
     :param vcw: A VISA connect wizard instance
     '''
 
+    # Todo: Currently only for corvus typed tables with the venus command structure.
+
     def __init__(self, main_variables, devices, queue_to_GUI, vcw):
         """
 
@@ -1109,6 +1111,7 @@ class table_control_class:
         '''
         if self.table_ready and not self.variables["table_is_moving"]:
             self.variables["table_is_moving"] = True
+            self.set_axis([True, True, True])
             commands = self.device["calibrate_motor"]
             for order in commands:
                 self.vcw.write(self.device, order)
@@ -1127,10 +1130,12 @@ class table_control_class:
                     self.variables["table_is_moving"] = False
                     return success
             self.variables["table_is_moving"] = False
+            self.set_axis([True, True, False])
             return True
         else:
             self.log.error("An error occured while trying to initiate the table. This can happen if either no "
                            "Table is connected to the setup OR the table is currently moving.")
+            self.set_axis([True, True, False])
             return False
 
     def check_position(self, desired_pos):
