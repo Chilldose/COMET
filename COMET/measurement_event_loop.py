@@ -180,8 +180,8 @@ class measurement_event_loop(Thread):
         self.message_to_main.put({"Info": "Initializing of instruments..."})
 
         for device, device_obj in self.devices.items(): # Loop over all devices
-            if "Visa_Resource" in self.devices[device]: # Looks if a Visa resource is assigned to the device.
-                self.log.info("Resetting instrument: {!s}".format(self.devices[device].get("Device_name", "NoName")))
+            if self.devices[device].get("Visa_Resource", None): # Looks if a Visa resource is assigned to the device.
+                self.log.info("Configuring instrument: {!s}".format(self.devices[device].get("Device_name", "NoName")))
 
                 # Sends the resets commands to the device
                 if "reset_device" in device_obj:
@@ -189,13 +189,17 @@ class measurement_event_loop(Thread):
                 else:
                     self.vcw.list_write(device, ["*rst", "*cls"], delay=0.1)
 
-                # Beginn sending commands from te reset list
+                self.devices[device]["State"] = "UNCONFIGURED"
+
+                # Begin sending commands from the reset list
                 if "reset" in device_obj:
                     for comm in device_obj["reset"]:
                         command, values = list(comm.items())[0]
                         command_list = self.build_init_command(device_obj, command, values)
                         self.vcw.list_write(device_obj, command_list, delay=0.05)
 
+                    # Only if reset commands are prevalent, otherwise its not configured
+                    self.devices[device]["State"] = "CONFIGURED"
 
         self.message_to_main.put({"Info": "Initializing DONE!"})
 

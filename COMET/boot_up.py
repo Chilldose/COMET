@@ -222,6 +222,7 @@ class connect_to_devices:
                 VISA_attributes = device_dict[device].get("VISA_attributes", {})
                 IDN_query = device_lib[device_dict[device]["Device_name"]].get("device_IDN_query", "*IDN?")
                 device_VISA_resource_name = None
+                self.device_dict[device]["State"] = "NOT CONNECTED"
 
                 # Find connection resource
                 if "GPIB" == connection_type.split(":")[0].upper():
@@ -243,9 +244,13 @@ class connect_to_devices:
                         resource = self.vcw.connect_to(device_VISA_resource_name, device_IDN, IDN_query, **VISA_attributes)  # Connects to the device Its always ASRL*::INSTR
                         if resource:
                             self.log.info("Connection established to device: " + str(device))
+                            self.device_dict[device]["State"] = "CONNECTED"
                             self.append_resource_to_device_dict(device, resource)
+
                         else:
                             self.log.error("Connection could not be established to device: " + str(device))
+                            self.device_dict[device]["State"] = "NOT CONNECTED"
+                            self.append_resource_to_device_dict(device, None)
                     else:
                         self.log.error("No valid VISA resource name given for connection! Connection resource name {} not recognized.".format(connection_type))
 

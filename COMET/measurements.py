@@ -161,7 +161,7 @@ class measurement_class(Thread):
         self.log.debug("Conducting setup check...")
         # Check if all devices have a visa resource assigned otherwise return false
         for device in self.devices.values():
-            if "Visa_Resource" not in device:
+            if not device.get("Visa_Resource", None):
                 self.log.error(device["Device_name"] + " has no Visa Resource assigned! Measurement cannot be conducted.")
                 return False
 

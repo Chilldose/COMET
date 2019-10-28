@@ -16,36 +16,31 @@ class Resources_window:
 
 
         self.list_of_instruments = []
-        self.possible_states = [("INIT", "QFrame { background :rgb(232, 239, 26) }"),
-                                ("CONFIGURED", "QFrame { background :rgb(36, 216, 93) }"),
-                                ("ERROR", "QFrame { background :rgb(214, 40, 49) }")]
+        self.possible_states = {"CONNECTED": "QFrame { background :rgb(232, 239, 26) }",
+                                "CONFIGURED": "QFrame { background :rgb(36, 216, 93) }",
+                                "UNCONFIGURED": "QFrame { background :rgb(36, 216, 93) }",
+                                "NOT CONNECTED": "QFrame { background :rgb(214, 40, 49) }",
+                                "None": "QFrame {}"}
 
         self.device_widget = QtWidgets.QFrame()
-        self.device_widget.setGeometry(QtCore.QRect(10, 10, 1000, 1800))
         self.device_widget.setAutoFillBackground(False)
-        # self.device_widget.setStyleSheet("QFrame { background: rgb(234, 247, 255)}")
         self.device_widget.setFrameShape(QtWidgets.QFrame.Box)
         self.device_widget.setFrameShadow(QtWidgets.QFrame.Raised)
         self.device_widget.setObjectName("device_widget")
         self.gridLayout = QtWidgets.QGridLayout(self.device_widget)
         self.gridLayout.setObjectName("gridLayout")
 
-        # Settings tab
-        # resources_widget = QWidget()
-        # self.resources = Ui_device_info() # Starts the init of the ui file
-        # self.resources_widget.setupUi(resources_widget)
-        # self.layout.addWidget(resources_widget)
-
         # Begin finding all resources and render them
         self.get_all_instruments()
         self.begin_rendering_of_instruments()
 
-    def device_state(self, device, state):  # Not used yet
+    def device_state(self, device, GUI, state):
         """This function changes the state of a device"""
-        for states in self.possible_states:
-            if state.upper() == states[0]:  # makes a list out of the states
-                #device.setText(states[0])
-                device.setStyleSheet(states[1])
+        GUI.device_connected_label.setStyleSheet(self.possible_states.get(state, "None"))
+        GUI.device_connected_at_label.setText(str(device["Visa_Resource"]))
+        GUI.device_connected_label.setText(state)
+
+
 
     def get_all_instruments(self):
         """Gets all instruments which are listed"""
@@ -60,13 +55,10 @@ class Resources_window:
                 device_dict = self.variables.devices_dict[device]
                 resources_widget = QWidget()
 
-                # Standard test labels
-                # instrument = Ui_device_info()  # Starts the init of the ui file
-                # instrument.setupUi(resources_widget)
                 instrument = self.variables.load_QtUi_file("Device_connection_info.ui",
                                                            resources_widget)
                 instrument.device_name_label.setText(device_dict["Device_name"])
-                instrument.device_IDN_label.setText(device_dict["Device_IDN"])
+                instrument.device_IDN_label.setText(device_dict.get("Device_IDN", "None"))
 
                 if type(device_dict.get("Device_type", "MissingNo")) == list:
                     device_type = ""
@@ -76,23 +68,21 @@ class Resources_window:
                     device_type = str(device_dict.get("Device_type", "MissingNo"))
                 instrument.device_assigned_to_label.setText(device_type)
 
-                # To be checked values
-                if "Visa_Resource" in device_dict:
-                    self.log.info("Resource found for device: {}".format(device_dict["Device_name"]))
-                    instrument.device_connected_at_label.setText(str(device_dict["Visa_Resource"]))
-                    instrument.device_connected_label.setText("CONNECTED")
-                    self.device_state(instrument.device_connected_label, "CONFIGURED")
-                    # instrument.device_connected_checkbox.setChecked(True) # legacy
-                    #instrument.device_connected_label.setStyleSheet("QFrame { background :rgb(0, 255, 0) }")
-                else:
-                    self.log.info("Resource NOT found for device: {}".format(device_dict["Device_name"]))
-                    instrument.device_connected_at_label.setText("None")
-                    instrument.device_connected_label.setText("NOT CONNECTED")
-                    self.device_state(instrument.device_connected_label, "ERROR")
-                    # instrument.device_state_label.setText("ERROR")
-                    # instrument.device_connected_checkbox.setChecked(False) #legacy
-                    #instrument.device_connected_label.setStyleSheet("QFrame { background :rgb(255, 0, 0) }")
-                    # instrument.device_state_label.setStyleSheet("QFrame { background :rgb(255, 0, 0) }")
+                # Define device state
+                state = device_dict.get("State", None)
+                self.device_state(device_dict, instrument, state)
+
+                # if device_dict.get("Visa_Resource", None):
+                #     self.log.info("Resource found for device: {}".format(device_dict["Device_name"]))
+                #     instrument.device_connected_at_label.setText(str(device_dict["Visa_Resource"]))
+                #     instrument.device_connected_label.setText("CONNECTED")
+                #     self.device_state(instrument.device_connected_label, "CONFIGURED")
+                #
+                # else:
+                #     self.log.info("Resource NOT found for device: {}".format(device_dict["Device_name"]))
+                #     instrument.device_connected_at_label.setText("None")
+                #     instrument.device_connected_label.setText("NOT CONNECTED")
+                #     self.device_state(instrument.device_connected_label, "ERROR")
 
                 self.list_of_instruments.append(resources_widget)
 

@@ -134,7 +134,10 @@ class VisaConnectWizard:
         try:
             self.close_connections(device_dict["Visa_Resource"])
         except Exception as err:
-            self.log.critical("An error happend while closing device: {}".format(err))
+            self.log.critical("An error happened while closing device: {}".format(err))
+
+        # Change the state
+        device_dict["State"] = "NOT CONNECTED"
 
         # Reopening connection to device
         resource = self.rm.open_resource(resource_name)  # Tries opening the connection to a device
@@ -146,8 +149,10 @@ class VisaConnectWizard:
         IDN_query = resource.query(device_dict.get("device_IDN_query", "*IDN?"))
         if str(IDN) == str(IDN_query).strip():
             device_dict["Visa_Resource"] = resource
+            device_dict["State"] = "CONNECTED"
             self.log.info("Connection to the device: " + device_dict["Device_name"] + "is now reestablished")
         else:
+            device_dict["State"] = "NOT CONNECTED"
             self.log.error("Connection to the device: " + device_dict["Device_name"] + "could not be reestablished")
 
 

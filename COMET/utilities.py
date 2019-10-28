@@ -951,7 +951,7 @@ class table_control_class:
             self.variables["clearance"] = 200
 
         if "Table_control" in self.devices:
-            if "Visa_Resource" in self.devices["Table_control"]:
+            if self.devices["Table_control"].get("Visa_Resource", None):
                 self.visa_resource = self.devices["Table_control"]["Visa_Resource"]
                 self.table_ready = True
                 self.variables["table_ready"] = True
@@ -1547,7 +1547,7 @@ class switching_control:
         else:
             configs = config
 
-        if "Visa_Resource" in device: #Searches for the visa resource
+        if device.get("Visa_Resource", None): #Searches for the visa resource
             resource = device
         else:
             self.log.error("The VISA resource for device " + str(device["Device_name"]) + " could not be found. No switching possible.")
@@ -1679,7 +1679,7 @@ def reset_devices(devices_dict, vcw):
     l.critical("You are using a depricated reset devices function please remove it from your code")
     for device in devices_dict:
         # Looks if a Visa resource is assigned to the device.
-        if "Visa_Resource" in devices_dict[device]:
+        if devices_dict[device].get("Visa_Resource", None):
 
             # Initiate the instrument and resets it
             if "reset_device" in devices_dict[device]:
