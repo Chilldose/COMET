@@ -369,7 +369,7 @@ class Table_widget(object):
         self.Table_gui.table_ind.setStyleSheet(
             "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
         step = self.Table_gui.Stepx_spinBox.value()
-        self.rmove_to_position_action([0, step, 0])
+        self.rmove_to_position_action([step, 0, 0])
         self.Table_gui.table_ind.setStyleSheet(
             "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
 
@@ -380,7 +380,7 @@ class Table_widget(object):
         self.Table_gui.table_ind.setStyleSheet(
             "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
         step = self.Table_gui.Stepx_spinBox.value()
-        self.rmove_to_position_action([0, -step, 0])
+        self.rmove_to_position_action([-step, 0, 0])
         self.Table_gui.table_ind.setStyleSheet(
             "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
 
@@ -389,7 +389,7 @@ class Table_widget(object):
         self.Table_gui.table_ind.setStyleSheet(
             "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
         step = self.Table_gui.Stepy_spinBox.value()
-        self.rmove_to_position_action([step, 0, 0])
+        self.rmove_to_position_action([0, step, 0])
         self.Table_gui.table_ind.setStyleSheet(
             "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
 
@@ -398,7 +398,7 @@ class Table_widget(object):
         self.Table_gui.table_ind.setStyleSheet(
             "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
         step = self.Table_gui.Stepy_spinBox.value()
-        self.rmove_to_position_action([-step, 0, 0])
+        self.rmove_to_position_action([0, -step, 0])
         self.Table_gui.table_ind.setStyleSheet(
             "background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
 

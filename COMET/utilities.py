@@ -1087,7 +1087,7 @@ class table_control_class:
                 return False
 
             elif done == 32.:
-                self.log.warning("Table reported Status code 32, which means IN-Window.")
+                self.log.debug("Table reported Status code 32, which means IN-Window.")
                 #return False
 
             elif done > 4.: # joystick active

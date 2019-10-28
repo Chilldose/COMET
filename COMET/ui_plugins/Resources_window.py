@@ -15,9 +15,10 @@ class Resources_window:
         self.log = logging.getLogger(__name__)
 
 
-        self.list_of_instruments = []
-        self.possible_states = {"CONNECTED": "QFrame { background :rgb(232, 239, 26) }",
-                                "CONFIGURED": "QFrame { background :rgb(36, 216, 93) }",
+        self.list_of_instruments = {}
+        self.list_of_widgets = {}
+        self.possible_states = {"CONNECTED": "QFrame { background :rgb(255, 215, 0) }",
+                                "CONFIGURED": "QFrame { background :rgb(55, 205, 0) }",
                                 "UNCONFIGURED": "QFrame { background :rgb(36, 216, 93) }",
                                 "NOT CONNECTED": "QFrame { background :rgb(214, 40, 49) }",
                                 "None": "QFrame {}"}
@@ -34,13 +35,21 @@ class Resources_window:
         self.get_all_instruments()
         self.begin_rendering_of_instruments()
 
-    def device_state(self, device, GUI, state):
+        # Add the device update function
+        self.variables.add_update_function(self.update_device_states)
+
+    def device_state(self, device, GUI):
         """This function changes the state of a device"""
+        state = device.get("State", None)
         GUI.device_connected_label.setStyleSheet(self.possible_states.get(state, "None"))
         GUI.device_connected_at_label.setText(str(device["Visa_Resource"]))
         GUI.device_connected_label.setText(state)
 
-
+    def update_device_states(self):
+        """Updates the device state flag"""
+        for device, widget in self.list_of_instruments.items():
+            if not self.variables.devices_dict[device].get("State", "None") == widget.device_connected_label.text():
+                self.device_state(self.variables.devices_dict[device], widget)
 
     def get_all_instruments(self):
         """Gets all instruments which are listed"""
@@ -69,22 +78,10 @@ class Resources_window:
                 instrument.device_assigned_to_label.setText(device_type)
 
                 # Define device state
-                state = device_dict.get("State", None)
-                self.device_state(device_dict, instrument, state)
+                self.device_state(device_dict, instrument)
 
-                # if device_dict.get("Visa_Resource", None):
-                #     self.log.info("Resource found for device: {}".format(device_dict["Device_name"]))
-                #     instrument.device_connected_at_label.setText(str(device_dict["Visa_Resource"]))
-                #     instrument.device_connected_label.setText("CONNECTED")
-                #     self.device_state(instrument.device_connected_label, "CONFIGURED")
-                #
-                # else:
-                #     self.log.info("Resource NOT found for device: {}".format(device_dict["Device_name"]))
-                #     instrument.device_connected_at_label.setText("None")
-                #     instrument.device_connected_label.setText("NOT CONNECTED")
-                #     self.device_state(instrument.device_connected_label, "ERROR")
-
-                self.list_of_instruments.append(resources_widget)
+                self.list_of_instruments[device] = instrument
+                self.list_of_widgets[device] = resources_widget
 
 
             else:
@@ -99,7 +96,7 @@ class Resources_window:
         row = 0  # Current render row
         line = 0  # Current render line
 
-        for instrument in self.list_of_instruments:
+        for instrument in self.list_of_widgets.values():
             self.gridLayout.addWidget(instrument, line, row, 1, 1)
             row += 1
             if row >= 3:
