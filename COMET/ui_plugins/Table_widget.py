@@ -55,6 +55,7 @@ class Table_widget(object):
         self.Table_gui.Unload_sensorpushButton.clicked.connect(self.unload_sensor_action)
         self.Table_gui.load_sensor_pushButton.clicked.connect(self.load_sensor_action)
         self.Table_gui.Up_button.clicked.connect(self.moveYminus)
+        # The directions are setup specific
         self.Table_gui.Down_button.clicked.connect(self.moveYplus)
         self.Table_gui.Left_button.clicked.connect(self.moveXplus)
         self.Table_gui.Right_button.clicked.connect(self.moveXminus)

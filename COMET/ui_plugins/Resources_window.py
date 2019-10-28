@@ -2,6 +2,8 @@ import logging
 
 from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtWidgets import *
+from functools import partial
+
 
 
 
@@ -37,6 +39,41 @@ class Resources_window:
 
         # Add the device update function
         self.variables.add_update_function(self.update_device_states)
+
+    def reconnect_action(self, device):
+        """Reconnects to the device"""
+        if self.variables.devices_dict[device].get("Visa_resource"):
+            self.variables.vcw.reconnect_to_device(self.variables.devices_dict[device])
+        else:
+            self.log.error("In order to reconnect to a device, a previous connection has to be present...")
+
+    def test_connection_action(self, device):
+        """Test the connection to a device by sending the IDN query"""
+        if self.variables.devices_dict[device].get("Visa_resource"):
+            success = self.variables.vcw.verify_ID(self.variables.devices_dict[device]["Visa_resource"], self.variables.devices_dict[device].get("device_IDN_query","*IDN?"))
+            if success == self.variables.devices_dict[device]["Device_IDN"]:
+                reply = QMessageBox.question(None, 'INFO',
+                                             "The device is responding and seems fully functional..",
+                                             QMessageBox.Ok)
+            else:
+                self.log.error("Device IDN request did not match. Answer from device {} was not {}".format(success,
+                                                                                                           self.variables.devices_dict[device]["Device_IDN"]))
+        else:
+            self.log.error("Can not query device, because not device is connected...")
+
+    def configure_device_action(self, device):
+        """Configs the the device"""
+        if self.variables.devices_dict[device].get("Visa_resource"):
+            self.init_device(self.variables.devices_dict[device])
+        else:
+            self.log.error("Can not config device, because not device is connected...")
+
+    def reset_device_action(self, device):
+        """Sends the device reset commands to the device"""
+        if self.variables.devices_dict[device].get("Visa_resource"):
+            self.reset_device(self.variables.devices_dict[device])
+        else:
+            self.log.error("Can not reset device, because not device is connected...")
 
     def device_state(self, device, GUI):
         """This function changes the state of a device"""
@@ -83,6 +120,11 @@ class Resources_window:
                 self.list_of_instruments[device] = instrument
                 self.list_of_widgets[device] = resources_widget
 
+                # Connect the device widget and buttons to the actions
+                instrument.Test_pushButton.clicked.connect(partial(self.test_connection_action, device))
+                instrument.Configure_pushButton.clicked.connect(partial(self.configure_device_action, device))
+                instrument.Reconnect_pushButton.clicked.connect(partial(self.reconnect_action, device))
+                instrument.Reset_pushButton.clicked.connect(partial(self.reset_device_action, device))
 
             else:
                 pass
@@ -104,3 +146,44 @@ class Resources_window:
                 line += 1
 
         self.layout.addWidget(self.device_widget)
+
+
+    def reset_device(self, device_dict):
+        """Sends the reset device commands"""
+        if device_dict.get("Visa_Resource", None):  # Looks if a Visa resource is assigned to the device.
+            self.log.info("Configuring instrument: {!s}".format(device_dict.get("Device_name", "NoName")))
+
+            # Sends the resets commands to the device
+            if "reset_device" in device_dict:
+                self.variables.vcw.write(device_dict, list(device_dict["reset_device"]))
+            else:
+                self.variables.vcw.list_write(device_dict, ["*rst", "*cls"], delay=0.1)
+
+            device_dict["State"] = "UNCONFIGURED"
+
+
+    def init_device(self, device_dict):
+            '''This function makes the necessary configuration for a device'''
+
+            if device_dict.get("Visa_Resource", None): # Looks if a Visa resource is assigned to the device.
+                self.log.info("Configuring instrument: {!s}".format(device_dict.get("Device_name", "NoName")))
+
+                # Sends the resets commands to the device
+                if "reset_device" in device_dict:
+                    self.variables.vcw.write(device_dict, list(device_dict["reset_device"]))
+                else:
+                    self.variables.vcw.list_write(device_dict, ["*rst", "*cls"], delay=0.1)
+
+                device_dict["State"] = "UNCONFIGURED"
+
+                # Begin sending commands from the reset list
+                if "reset" in device_dict:
+                    for comm in device_dict["reset"]:
+                        command, values = list(comm.items())[0]
+                        command_list = self.variables.build_init_command(device_dict, command, values)
+                        self.variables.vcw.list_write(device_dict, command_list, delay=0.05)
+
+                    # Only if reset commands are prevalent, otherwise its not configured
+                    device_dict["State"] = "CONFIGURED"
+
+
