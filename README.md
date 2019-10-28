@@ -26,7 +26,7 @@ installed on your pc. If so, make sure in the NiMAX app what version of NI-Visa 
 
 The program is known to be running on Windows, Linux (Centos7) and Mac.
 
-##Setting Up The Environment
+## Setting Up The Environment
 
 With python up and running, you can run the the **environement_setup.py** file by::
 
@@ -57,7 +57,7 @@ connected to your system these should be listed now.
 
 If you just want the latest version of COMET, download it from my GitHub repository.
 
-`Git repo <https://github.com/Chilldose/COMET>`_.
+[Git repo](https://github.com/Chilldose/COMET)
 
 ## How to Use
 
