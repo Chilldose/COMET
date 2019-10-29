@@ -120,40 +120,63 @@ class VisaConnectWizard:
             self.log.info("{} {}".format(i, j))
 
 
-    def reconnect_to_device(self, device_dict):
+    def reconnect_to_device(self, device_dict, resource_name = None):
         """
         This functions reconnects to a device
 
         :param device_dict: a device_dict object, containing the visa resource
+        :param resource_name: If you have a specific VISA resource name present for this connection. E.g. if you changed something and want it know different connected
         :return: None
         """
-        self.log.info("Try to solve error on device: " + device_dict["Device_name"])
-        resource_name = device_dict["Visa_Resource"].resource_name
+        self.log.info("Try to reconnect to device: " + device_dict["Device_name"])
+        if not resource_name and device_dict["Visa_Resource"]:
+            try:
+                resource_name = device_dict["Visa_Resource"].resource_name
+            except visa.InvalidSession:
+                resource_name = None
+
+        if not resource_name:
+            self.log.error("No valid resource name passed to reconnect to...")
+            return
 
         # Closing connection to device
         try:
             self.close_connections(device_dict["Visa_Resource"])
         except Exception as err:
-            self.log.critical("An error happened while closing device: {}".format(err))
+            self.log.critical("An error happened while closing device: {}. This can happend if no resource was defined".format(err))
 
         # Change the state
         device_dict["State"] = "NOT CONNECTED"
 
         # Reopening connection to device
-        resource = self.rm.open_resource(resource_name)  # Tries opening the connection to a device
+        try:
+            resource = self.rm.open_resource(resource_name)  # Tries opening the connection to a device
+        except visa.VisaIOError:
+            try:
+                resource = self.rm.get_instrument(resource_name) # If the connection was extablished before but failed somehow, usually this happens with socket connections
+            except visa.VisaIOError as err:
+                device_dict["State"] = "NOT CONNECTED"
+                device_dict["Visa_Resource"] = None
+                self.log.error("VISA resource {} could not be found in active resource or the connection attempt failed. Error: {}".format(resource_name, err))
+                return
 
-        self.config_resource(resource_name, resource, device_dict.get("Baudrate", None))
+        self.config_resource(resource, **device_dict.get("VISA_attributes", {}))
         IDN = device_dict["Device_IDN"]
 
         # Query the IDN
-        IDN_query = resource.query(device_dict.get("device_IDN_query", "*IDN?"))
-        if str(IDN) == str(IDN_query).strip():
-            device_dict["Visa_Resource"] = resource
-            device_dict["State"] = "CONNECTED"
-            self.log.info("Connection to the device: " + device_dict["Device_name"] + "is now reestablished")
-        else:
-            device_dict["State"] = "NOT CONNECTED"
-            self.log.error("Connection to the device: " + device_dict["Device_name"] + "could not be reestablished")
+        try:
+            IDN_query = resource.query(device_dict.get("device_IDN_query", "*IDN?"))
+            if str(IDN) == str(IDN_query).strip():
+                device_dict["Visa_Resource"] = resource
+                device_dict["State"] = "CONNECTED"
+                self.log.info("Connection to the device: " + device_dict["Device_name"] + "is now reestablished")
+            else:
+                device_dict["State"] = "NOT CONNECTED"
+                device_dict["Visa_Resource"] = None
+                self.log.error("Connection to the device: " + device_dict["Device_name"] +
+                               "could not be reestablished , due to IDN query mismatch. Responded IDN was: '{}'".format(str(IDN_query).strip()))
+        except Exception as err:
+            self.log.error("Could not query device {}, if this error persists, please restart software... Error: {}".format(err))
 
 
 
@@ -231,6 +254,9 @@ class VisaConnectWizard:
                 return resource.query(str(command))
             except TimeoutError:
                 self.log.warning('The device ' + str(resource) + " is not responding.")
+                return False
+            except Exception as err:
+                self.log.warning("The device {} raised an error: {}".format(resource, err))
                 return False
 
 

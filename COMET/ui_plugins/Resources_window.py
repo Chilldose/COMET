@@ -23,6 +23,7 @@ class Resources_window:
                                 "CONFIGURED": "QFrame { background :rgb(55, 205, 0) }",
                                 "UNCONFIGURED": "QFrame { background :rgb(36, 216, 93) }",
                                 "NOT CONNECTED": "QFrame { background :rgb(214, 40, 49) }",
+                                "ERROR": "QFrame { background :rgb(214, 40, 49) }",
                                 "None": "QFrame {}"}
 
         self.device_widget = QtWidgets.QFrame()
@@ -42,20 +43,59 @@ class Resources_window:
 
     def reconnect_action(self, device):
         """Reconnects to the device"""
-        if self.variables.devices_dict[device].get("Visa_resource"):
+        if self.variables.devices_dict[device].get("Visa_Resource"):
             self.variables.vcw.reconnect_to_device(self.variables.devices_dict[device])
         else:
-            self.log.error("In order to reconnect to a device, a previous connection has to be present...")
+            device_dict = self.variables.devices_dict[device]
+            try:
+                device_IDN = device_dict.get("Device_IDN", None)  # gets me the IDN for each device loaded
+                if not device_IDN:
+                    self.log.warning(
+                        "No IDN string defined for device {}, please make sure you have connected the correct device!".format(device))
+                connection_type = device_dict["Connection_resource"]  # Gets me the type of the connection
+                device_VISA_resource_name = None
+                device_dict["State"] = "NOT CONNECTED"
+
+                # Find connection resource
+                if "GPIB" == connection_type.split(":")[0].upper():
+                    # This manages the connections for GBIP devices
+                    device_VISA_resource_name = "GPIB0::" + str(connection_type.split(":")[-1]) + "::INSTR"
+
+                elif "RS232" in connection_type.split(":")[0].upper():
+                    # This maneges the connections for Serial devices
+                    device_VISA_resource_name = "ASRL" + str(connection_type.split(":")[-1]) + "::INSTR"
+
+                elif "IP" in connection_type.split(":")[0].upper():
+                    # This manages the connections for IP devices
+                    # Since TCP/IP is a bitch this connection type need special treatment
+                    device_VISA_resource_name = connection_type[connection_type.find(":") + 1:]
+
+                # Here the device gets connected
+                try:
+                    if device_VISA_resource_name:
+                        resource = self.variables.vcw.reconnect_to_device(device_dict, device_VISA_resource_name)  # Connects to the device Its always ASRL*::INSTR
+                    else:
+                        self.log.error("No valid VISA resource name given for connection! Connection resource name {} not recognized.".format(connection_type))
+                except Exception as err:
+                    self.log.error("Unknown error happened, during connection attempt to device: {} with error: {}".format(device, err))
+            except Exception as err:
+                self.log.error("Unknown error happened, during connection establishment attempt to device: {} with error: {}".format(device, err))
+
+
 
     def test_connection_action(self, device):
         """Test the connection to a device by sending the IDN query"""
-        if self.variables.devices_dict[device].get("Visa_resource"):
-            success = self.variables.vcw.verify_ID(self.variables.devices_dict[device]["Visa_resource"], self.variables.devices_dict[device].get("device_IDN_query","*IDN?"))
-            if success == self.variables.devices_dict[device]["Device_IDN"]:
+        if self.variables.devices_dict[device].get("Visa_Resource"):
+            success = self.variables.vcw.verify_ID(self.variables.devices_dict[device]["Visa_Resource"], self.variables.devices_dict[device].get("device_IDN_query","*IDN?"))
+            if not success:
+                self.log.error("Connection test failed with device {}. Please see logs to find error!".format(device))
+                self.variables.devices_dict[device]["State"] = "ERROR"
+            elif str(success).strip() == self.variables.devices_dict[device]["Device_IDN"]:
                 reply = QMessageBox.question(None, 'INFO',
                                              "The device is responding and seems fully functional...",
                                              QMessageBox.Ok)
             else:
+                self.variables.devices_dict[device]["State"] = "ERROR"
                 self.log.error("Device IDN request did not match. Answer from device {} was not {}".format(success,
                                                                                                            self.variables.devices_dict[device]["Device_IDN"]))
         else:
@@ -63,17 +103,17 @@ class Resources_window:
 
     def configure_device_action(self, device):
         """Configs the the device"""
-        if self.variables.devices_dict[device].get("Visa_resource"):
+        if self.variables.devices_dict[device].get("Visa_Resource"):
             self.init_device(self.variables.devices_dict[device])
         else:
-            self.log.error("Can not config device, because not device is connected...")
+            self.log.error("Can not config device, because no device is connected...")
 
     def reset_device_action(self, device):
         """Sends the device reset commands to the device"""
-        if self.variables.devices_dict[device].get("Visa_resource"):
+        if self.variables.devices_dict[device].get("Visa_Resource"):
             self.reset_device(self.variables.devices_dict[device])
         else:
-            self.log.error("Can not reset device, because not device is connected...")
+            self.log.error("Can not reset device, because no device is connected...")
 
     def device_state(self, device, GUI):
         """This function changes the state of a device"""
@@ -175,15 +215,40 @@ class Resources_window:
                     self.variables.vcw.list_write(device_dict, ["*rst", "*cls"], delay=0.1)
 
                 device_dict["State"] = "UNCONFIGURED"
+                self.update_device_states() # Just for the optics
 
                 # Begin sending commands from the reset list
                 if "reset" in device_dict:
                     for comm in device_dict["reset"]:
                         command, values = list(comm.items())[0]
-                        command_list = self.variables.build_init_command(device_dict, command, values)
+                        command_list = self.build_init_command(device_dict, command, values)
                         self.variables.vcw.list_write(device_dict, command_list, delay=0.05)
 
                     # Only if reset commands are prevalent, otherwise its not configured
                     device_dict["State"] = "CONFIGURED"
+
+    def build_init_command(self, device_obj, order, values):
+        '''This function builds the correct orders together, it always returns a list, if a order needs to be sended several times with different values
+        It differs to the normal build command function, it takes, exactly the string or list and sends it as it is.'''
+        if type(values) != list: # ensures we have a list
+            values_list = [values]
+        else:
+            values_list = values
+
+        full_command_list = []
+        if "set_" + order in device_obj:
+            for item in values_list:
+                    command = device_obj["set_" + order]
+                    try:
+                        full_command_list.append(command.format(str(item).strip()))
+                    except Exception as err:
+                        self.log.error("An error happend while constructing init command"
+                                       " for device {device}. Attempted build was {command} and value {value}"
+                                       " with error: {error}".format(device=device_obj["Device_name"],
+                                                                     command=command, value=item, error=err))
+        else:
+            self.log.error("Could not find set command for reset parameter:"
+                               " {} in device {}".format(order, device_obj["Device_name"]))
+        return full_command_list
 
 

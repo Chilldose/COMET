@@ -98,21 +98,21 @@
 
        Corvus:
             Device_name: ITK Corvus
-            Device_IDN: Corvus 1 462 1 280
+            Device_IDN: Corvus 1 462 1 0
             Connection_resource: IP:TCPIP0::10.0.0.5::10003::SOCKET
             VISA_attributes:
               read_termination: "\r"
-#
-#        25657SMU:
-#            Device_name: 2657 Keithley SMU
-#            Connection_resource: GPIB:26
-#            Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.5
-#
-#        BrandBox:
-#            Device_name: BrandBox
-#            Connection_resource: RS232:15
-#            Device_IDN: HV-Relay Controller V1.6/18.Apr.2019
-#
+
+       25657SMU:
+            Device_name: 2657 Keithley SMU
+            Connection_resource: GPIB:26
+            Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.5
+
+       BrandBox:
+            Device_name: BrandBox
+            Connection_resource: RS232:15
+            Device_IDN: HV-Relay Controller V1.6/18.Apr.2019
+
        Elektrometer:
             Device_name: 6517B Keithley Elektrometer
             Connection_resource: IP:TCPIP0::10.0.0.5::10002::SOCKET
