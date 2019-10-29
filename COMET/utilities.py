@@ -908,6 +908,8 @@ class table_control_class:
     :param vcw: A VISA connect wizard instance
     '''
 
+    # Todo: Currently only for corvus typed tables with the venus command structure.
+
     def __init__(self, main_variables, devices, queue_to_GUI, vcw):
         """
 
@@ -949,7 +951,7 @@ class table_control_class:
             self.variables["clearance"] = 200
 
         if "Table_control" in self.devices:
-            if "Visa_Resource" in self.devices["Table_control"]:
+            if self.devices["Table_control"].get("Visa_Resource", None):
                 self.visa_resource = self.devices["Table_control"]["Visa_Resource"]
                 self.table_ready = True
                 self.variables["table_ready"] = True
@@ -969,7 +971,7 @@ class table_control_class:
         """
 
         # Get the current position
-        pos = self.variables.table.get_current_position()
+        pos = self.get_current_position()
         if pos:
             self.previous_xloc = pos[0]
             self.previous_yloc = pos[1]
@@ -977,8 +979,8 @@ class table_control_class:
 
         # Move to the edge
         var = "table_{}{}".format(axis, "min" if minimum else "max")
-        if var in self.variables.devices_dict["Table_control"]:
-            pos = self.variables.devices_dict["Table_control"][var]
+        if var in self.devices["Table_control"]:
+            pos = self.devices["Table_control"][var]
 
             if axis == "x":
                 pos = [pos, self.previous_yloc, self.previous_zloc]
@@ -1053,7 +1055,11 @@ class table_control_class:
         while cal_not_done:
             done = self.vcw.read(self.device)
             if done:
-                done = float(done.strip())
+                try:
+                    done = float(done.strip())
+                except:
+                    self.log.error("Table status query failed to interpret: {} must be a float convertible".format(done))
+                    done = -1
 
             if maxcounter != -1:
                 counter += 1
@@ -1067,7 +1073,12 @@ class table_control_class:
             elif done == 1.: # motors are in movement
                 self.vcw.write(self.device, ready_command) # writes the command again
 
-            elif done == 2.: # joystick active
+            elif done%2==1.:
+                self.vcw.write(self.device, ready_command)  # writes the command again
+                self.log.critical("Table status has reported several status messages besides table moving. Additional Status: {}".format((done-1.)))
+                done = done-1.
+
+            if done == 2.: # joystick active
                 self.log.error("Joystick of table control is active.")
                 return False
 
@@ -1075,13 +1086,19 @@ class table_control_class:
                 self.log.error("Table control is not switched on.")
                 return False
 
+            elif done == 32.:
+                self.log.debug("Table reported Status code 32, which means IN-Window.")
+                #return False
+
             elif done > 4.: # joystick active
-                self.log.error("The table control reported an unknown error, with errorcode: " + str(done))
+                self.log.error("The table control reported an unknown error, with errorcode: " + str(done) + ". Please see the manual.")
                 return False
 
             elif done == 0.: # when corvus is read again
-                self.get_current_position()
                 return True
+
+            elif done == -1: # when corvus fucked up
+                return False
 
             QApplication.processEvents() # Updates the GUI, maybe after some iterations
             sleep(timeout)
@@ -1094,6 +1111,7 @@ class table_control_class:
         '''
         if self.table_ready and not self.variables["table_is_moving"]:
             self.variables["table_is_moving"] = True
+            self.set_axis([True, True, True])
             commands = self.device["calibrate_motor"]
             for order in commands:
                 self.vcw.write(self.device, order)
@@ -1109,12 +1127,15 @@ class table_control_class:
                             self.device["table_ymax"] = float(pos[1])
                             self.device["table_zmax"] = float(pos[2])
                 else:
+                    self.variables["table_is_moving"] = False
                     return success
             self.variables["table_is_moving"] = False
+            self.set_axis([True, True, False])
             return True
         else:
             self.log.error("An error occured while trying to initiate the table. This can happen if either no "
                            "Table is connected to the setup OR the table is currently moving.")
+            self.set_axis([True, True, False])
             return False
 
     def check_position(self, desired_pos):
@@ -1206,8 +1227,12 @@ class table_control_class:
         if self.table_ready and not self.variables["table_is_moving"]:
             # get me the current position
             old_pos = self.get_current_position()
-            self.new_previous_position(old_pos)
+            if move_down: # So only parent move orders are stored and not every height movement
+                self.new_previous_position(old_pos)
             desired_pos = position[:]
+
+            # If the table is somehow moving or reported an error before, so check if all errors have vanished
+            #success = self.check_if_ready()
 
             #Move the table down if necessary
             if move_down:
@@ -1236,23 +1261,31 @@ class table_control_class:
             # Move the table back up again
             if move_down:
                 success = self.move_up(lifting-clearance)
+                position[2] -= clearance # Adapt the position to make sure the check works
                 if not success:
                     return False
 
             # Finally make sure the position is correct
             if relative_move:
                 success = self.check_position([sum(x) for x in zip(old_pos, position)])
+                if success:
+                    self.log.info("Successfully moved table relative to {!s}".format(position))
             else:
                 success = self.check_position(position)
+                if success:
+                    self.log.info("Successfully moved table to {!s}".format(position))
             if not success:
                 return False
 
             self.variables["table_is_moving"] = False
-            self.log.info("Successfully moved table to {!s}".format(position))
+
             return True
+
+        elif self.variables["table_is_moving"]:
+            self.log.warning("Table is currently moving, no new move order can be placed...")
         else:
             self.log.error("Table could not be moved due to an error. This usually happens if no table is connected to"
-                           " the setup OR the table is currently moving.")
+                           " the setup")
             return False
 
     def move_up(self, lifting, **kwargs):
@@ -1392,17 +1425,17 @@ class switching_control:
         :param switching_dict: What to switch
         :return: bool
         """
-
+        found_any = False
         for device in self.devices:
             if device in switching_dict.keys():
+                found_any = True
                 if not self.change_switching(self.devices[device], switching_dict[device]):
-                    self.log.error("Manual switching was not possible")
+                    self.log.error("Manual switching was not possible for device {}".format(device))
                     return False
-                else:
-                    return True
-            else:
-                self.log.error("Could not find switching device: {}. It may not be connected or specified.".format(device))
-                #return  False
+        if not found_any:
+            self.log.error("Could not find switching device: {}. It may not be connected or specified.".format(device))
+            return False
+        return True
 
     #@check_if_switching_possible
     def switch_to_measurement(self, measurement):
@@ -1514,7 +1547,7 @@ class switching_control:
         else:
             configs = config
 
-        if "Visa_Resource" in device: #Searches for the visa resource
+        if device.get("Visa_Resource", None): #Searches for the visa resource
             resource = device
         else:
             self.log.error("The VISA resource for device " + str(device["Device_name"]) + " could not be found. No switching possible.")
@@ -1646,7 +1679,7 @@ def reset_devices(devices_dict, vcw):
     l.critical("You are using a depricated reset devices function please remove it from your code")
     for device in devices_dict:
         # Looks if a Visa resource is assigned to the device.
-        if "Visa_Resource" in devices_dict[device]:
+        if devices_dict[device].get("Visa_Resource", None):
 
             # Initiate the instrument and resets it
             if "reset_device" in devices_dict[device]:

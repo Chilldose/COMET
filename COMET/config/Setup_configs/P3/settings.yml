@@ -44,7 +44,7 @@
       2470SMU:
         Device_name: 2470 Keithley SMU                                                                  # The actual device name from which it should get all commands
         Device_IDN: KEITHLEY INSTRUMENTS,MODEL 2470,04424944,1.6.8d
-        Connection_type: IP:TCPIP0::192.168.130.131::inst0::INSTR
+        Connection_resource: IP:TCPIP0::192.168.130.131::inst0::INSTR
 
 
     Measurement_configs: # These are optional values. Here you can change the standard configs for e.g. IVCV measurement

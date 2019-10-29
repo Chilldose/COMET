@@ -30,11 +30,11 @@
     get_position: pos  
 
     table_zmin: 0.0 
-    table_zmax: 11100.0
+    table_zmax: 20000.
     table_xmin: 0.0 
-    table_xmax: 97300.0 
+    table_xmax: 193260.
     table_ymin: 0.0 
-    table_ymax: 193000.0 
+    table_ymax: 97551.
     abort_movement: Ctrl C
     calibrate_motor: 
         - calibrate 

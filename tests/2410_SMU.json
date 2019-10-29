@@ -2,7 +2,7 @@
     "Device_name": "2410 Keithley SMU",
     "Device_type": "SMU",
     "Display_name": "SMU2",
-    "Connection_type": "GPIB:16",
+    "Connection_resource": "GPIB:16",
     "Baud_rate": 57600,
     "Flow_control": "ON",
     "Device_IDN": "KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H",
