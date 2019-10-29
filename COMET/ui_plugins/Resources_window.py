@@ -53,7 +53,7 @@ class Resources_window:
             success = self.variables.vcw.verify_ID(self.variables.devices_dict[device]["Visa_resource"], self.variables.devices_dict[device].get("device_IDN_query","*IDN?"))
             if success == self.variables.devices_dict[device]["Device_IDN"]:
                 reply = QMessageBox.question(None, 'INFO',
-                                             "The device is responding and seems fully functional..",
+                                             "The device is responding and seems fully functional...",
                                              QMessageBox.Ok)
             else:
                 self.log.error("Device IDN request did not match. Answer from device {} was not {}".format(success,
