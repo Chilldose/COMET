@@ -1,0 +1,76 @@
+--- # Block of dict entries
+
+    # Critical parameters
+    Settings_name: MeasurementSettings # The name of the settings which will be shown in the framework and will be the addressing name (settings here is important)
+    
+    IVCV:
+        Do: True
+        Measurements:
+            IV:
+                Do: True
+                End Voltage[V]: [0,-1000,5,-1000] # Min/Max/SpinStep/Value
+                Voltage Step [V]: [0,-100,5,5] # Min/Max/SpinStep/Value
+                Compliance [uA]: [0,-1000,10, 50] # Min/Max/SpinStep/Value
+            CV:
+                Do: True
+                End Voltage[V]: [0, -1000, 10,-600] # Min/Max/SpinStep/Value
+                Voltage Step [V]: [0, -100, 10, 5] # Min/Max/SpinStep/Value
+                Compliance [uA]: [0, -1000, 10, 50] # Min/Max/SpinStep/Value
+            Voltage Steps Refinement:
+                Do: True
+                Start Voltage[V]: [0, -1000, 0,1] # Min/Max/SpinStep/Value
+                End Voltage[V]: [0,-1000,-1000,0] # Min/Max/SpinStep/Value
+                Voltage Step [V]: [0,-100,1, 50] # Min/Max/SpinStep/Value
+    Stripscan:
+        Do: True
+        Measurements:
+            Istrip:
+                Do: True
+                Measure Every: [0,2032,1,1] # Min/Max/SpinStep/Value
+                Start Strip: [0,2032,1,0] # Min/Max/SpinStep/Value
+                End Strip: [0,2032,1,2032] # Min/Max/SpinStep/Value
+            Idiel:
+                Do: True
+                Measure Every: [0,2032,1,1] # Min/Max/SpinStep/Value
+                Start Strip: [0,2032,1,0] # Min/Max/SpinStep/Value
+                End Strip: [0,2032,1,2032] # Min/Max/SpinStep/Value
+            Idark:
+                Do: True
+                Measure Every: [0,2032,1,1] # Min/Max/SpinStep/Value
+                Start Strip: [0,2032,1,0] # Min/Max/SpinStep/Value
+                End Strip: [0,2032,1,2032] # Min/Max/SpinStep/Value
+            Cac:
+                Do: True
+                Measure Every: [0,2032,1,1] # Min/Max/SpinStep/Value
+                Start Strip: [0,2032,1,0] # Min/Max/SpinStep/Value
+                End Strip: [0,2032,1,2032] # Min/Max/SpinStep/Value
+            Rpoly:
+                Do: True
+                Measure Every: [0,2032,1,1] # Min/Max/SpinStep/Value
+                Start Strip: [0,2032,1,0] # Min/Max/SpinStep/Value
+                End Strip: [0,2032,1,2032] # Min/Max/SpinStep/Value
+            Rint:
+                Do: True
+                Measure Every: [0,2032,1,1] # Min/Max/SpinStep/Value
+                Start Strip: [0,2032,1,0] # Min/Max/SpinStep/Value
+                End Strip: [0,2032,1,2032] # Min/Max/SpinStep/Value
+            Cint:
+                Do: True
+                Measure Every: [0,2032,1,1] # Min/Max/SpinStep/Value
+                Start Strip: [0,2032,1,0] # Min/Max/SpinStep/Value
+                End Strip: [0,2032,1,2032] # Min/Max/SpinStep/Value
+                
+    Frequency Scan:
+        Do: False
+        Measurements:
+            Cac:
+                Do: True
+                EndFreq: [0,1000000,10000,1000000] # Min/Max/SpinStep/Value
+                Amplitude: [0,1,0.1,0.5] # Min/Max/SpinStep/Value
+                Bias Voltage: [0,-1000,10,300] # Min/Max/SpinStep/Value
+            Cint:
+                Do: True
+                EndFreq: [0,1000000,10000,1000000] # Min/Max/SpinStep/Value
+                Amplitude: [0,1,0.1,0.5] # Min/Max/SpinStep/Value
+                Bias Voltage: [0,-1000,10,300] # Min/Max/SpinStep/Value
+                

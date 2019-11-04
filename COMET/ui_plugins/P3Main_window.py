@@ -33,6 +33,12 @@ class P3Main_window(Environement_widget, SettingsControl_widget, Controls_widget
         self.gui = self.variables.load_QtUi_file("P3Main.ui",  self.Widget)
         self.layout.addWidget(self.Widget)
 
+        # Define the layouts for the indicidual plugins
+        self.child_layouts = {"Environment": self.gui.environement_control_layout,
+                              "Table": self.gui.Table_Layout,
+                              "Start": self.gui.controls_layout,
+                              "Settings": self.gui.settings_layout}
+
         self.config_IV_plot()
         self.config_CV_plot()
 

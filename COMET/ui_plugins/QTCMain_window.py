@@ -58,8 +58,6 @@ class QTCMain_window(Environement_widget, Controls_widget, SettingsControl_widge
         self.iv_plot = iv_plot
         iv_plot.setTitle("IV curve (top) and CV curve (bottom)", **self.titleStyle)
         iv_plot.setLabel('left', "current", units='A', **self.labelStyle)
-        #iv_plot.setLabel('bottom', "voltage", units='V', **self.labelStyle)
-        #iv_plot.showAxis('top', show=True)
         iv_plot.showAxis('right', show=True)
         iv_plot.showAxis('bottom', show=False)
         iv_plot.getPlotItem().invertX(True)

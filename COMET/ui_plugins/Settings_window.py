@@ -1,19 +1,6 @@
-import ast
-import json
-import os
-import os.path as osp
-import sys, importlib, logging
-
-import numpy as np
-import pyqtgraph as pq
-from PyQt5.QtCore import Qt
-from PyQt5 import QtGui
-from PyQt5.QtGui import *
+import logging
 from PyQt5.QtWidgets import *
 from .settings_widget import settings_widget
-
-
-from ..utilities import raise_exception
 
 class Settings_window(settings_widget):
 
