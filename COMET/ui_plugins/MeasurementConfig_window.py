@@ -1,6 +1,6 @@
 import logging
 from PyQt5.QtWidgets import *
-from PyQt5 import QtGui
+from functools import partial
 
 
 class MeasurementConfig_window():
@@ -12,6 +12,7 @@ class MeasurementConfig_window():
         self.log = logging.getLogger(__name__)
         self.settings = self.variables.framework_variables['Configs']['config'].get('MeasurementSettings', {}).copy()
         self.ui_groups = {}
+        self.settings_boxes = {}
         self.columns = 4 # Number of columns per group
         if not self.settings:
             self.log.error("Measurement settings tab was loaded but no options have been given. Please add the settings to your project")
@@ -21,9 +22,27 @@ class MeasurementConfig_window():
         self.SettingsMainWidget = QWidget()
         self.SettingsGui = self.variables.load_QtUi_file("SettingsTab.ui",  self.SettingsMainWidget)
         self.layout.addWidget(self.SettingsMainWidget)
-        #self.SettingsMainWidget.scrollAreaWidgetContents.widgetResizable = True
-
         self.construct_ui()
+
+
+    def generate_job(self, group):
+        """Generates a Measurement job dict, out of the passed group. returns empty dict if meas is disabled"""
+        if not group in self.ui_groups:
+            self.log.error("No settings group {} is present.".format(group))
+            return
+
+        if self.ui_groups[group]["Group_Ui"].EnableGroup_pushButton.isEnabled():
+            job = {}
+            for meas in self.ui_groups[group].items():
+                if meas != "Group_Ui":
+                    ui = self.ui_groups[group][meas]
+                    if ui.enable_checkBox.isEnabled():
+                        pass
+
+
+
+        else:
+            return {}
 
 
     def construct_ui(self):
@@ -55,6 +74,7 @@ class MeasurementConfig_window():
 
 
         self.ui_groups[Name] = {"Group_Ui": ui}
+        self.settings_boxes[Name] = {}
 
         row = 0  # Current render row
         line = 0  # Current render line
@@ -86,9 +106,14 @@ class MeasurementConfig_window():
                     box.setValue(values[3])
                     options_col += 1
 
+                    self.settings_boxes[Name] = {}
+
                     # Add the button and enable
                     conf_ui.frame.setEnabled(measurements["Do"])
                     ui.EnableGroup_pushButton.clicked[bool].connect(conf_ui.frame.setEnabled)
+                    ui.EnableGroup_pushButton.clicked[bool].connect(partial(self.change_check, measurements))
+                    conf_ui.enable_checkBox.clicked[bool].connect(partial(self.change_check, measurements["Measurements"][measName]))
+                    box.valueChanged.connect(partial(self.change_value, box, measurements["Measurements"][measName], option))
 
             # Adjust grid position
             row += 1
@@ -96,3 +121,11 @@ class MeasurementConfig_window():
             if row >= self.columns:
                 row = 0
                 line += 1
+
+    def change_value(self, box, measurement_dict, entry):
+        """Changes the value in the dict of the settings"""
+        measurement_dict[entry][3] = box.value()
+
+    def change_check(self, measurement_dict, value):
+        """Changes the checkbox value"""
+        measurement_dict["Do"] = value
