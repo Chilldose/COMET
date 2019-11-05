@@ -341,10 +341,10 @@ As an example I show you a simple IV measurement plugin.
 
                if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary, by asking if somewhere the stop signal was send
                   self.change_value(self.bias_SMU, "set_voltage", str(voltage)) # Change the bias voltage and wait until stead state is reached
-                  if not self.steady_state_check(self.bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=compliance): # Is a dynamic waiting time for the measuremnts
+                  if not self.steady_state_check(self.bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, compliance=compliance): # Is a dynamic waiting time for the measuremnts
                      self.stop_everything() # If steady state could not be reached send stop signal to framework
 
-                     if self.check_complience(bias_SMU, float(compliance)): # Check if compliance is reached
+                     if self.check_compliance(bias_SMU, float(compliance)): # Check if compliance is reached
                         self.stop_everything() # stops the measurement if compliance is reached
 
                      # Make the measurement
@@ -450,10 +450,10 @@ writing to the log file and call another function:
 
                if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary, by asking if somewhere the stop signal was send
                   self.change_value(self.bias_SMU, "set_voltage", str(voltage)) # Change the bias voltage and wait until stead state is reached
-                  if not self.steady_state_check(self.bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=compliance): # Is a dynamic waiting time for the measuremnts
+                  if not self.steady_state_check(self.bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, compliance=compliance): # Is a dynamic waiting time for the measuremnts
                      self.stop_everything() # If steady state could not be reached send stop signal to framework
 
-                     if self.check_complience(bias_SMU, float(compliance)): # Check if compliance is reached
+                     if self.check_compliance(bias_SMU, float(compliance)): # Check if compliance is reached
                         self.stop_everything() # stops the measurement if compliance is reached
 
                      # Make the measurement

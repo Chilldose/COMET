@@ -34,7 +34,7 @@ class MeasurementConfig_window():
 
         job = {}
         for Name, value in self.settings[group]["Measurements"].items():
-            if self.settings[group]["Do"]:
+            if self.settings[group]["Do"] and value["Do"]:
                 job[Name] = {}
                 for set, val in value.items():
                     if set != "Do":

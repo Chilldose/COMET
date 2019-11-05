@@ -60,14 +60,14 @@ class Singlestrip_window:
         bias_voltage = self.variables.default_values_dict["settings"]["bias_voltage"]
         EndVolt = self.single_strip.max_voltage_strip.value()
         Steps = self.single_strip.voltage_steps_strip.value()
-        Complience = self.single_strip.complience_strip.value()
+        compliance = self.single_strip.compliance_strip.value()
 
         if not self.HV_on:
             ramp_voltage_job(self.variables.message_from_main, self.variables.devices_dict["IVSMU"], bias_voltage,
-                                EndVolt, Steps, 0.3, Complience)
+                                EndVolt, Steps, 0.3, compliance)
         else:
             ramp_voltage_job(self.variables.message_from_main, self.variables.devices_dict["IVSMU"], bias_voltage,
-                                0, Steps, 0.3, Complience)
+                                0, Steps, 0.3, compliance)
 
 
     def move_to_strip_action(self):
@@ -193,7 +193,7 @@ class Singlestrip_window:
                                            {        "StartVolt": 0,
                                                     "EndVolt": self.single_strip.max_voltage_strip.value(),
                                                     "Steps": self.single_strip.voltage_steps_strip.value(),
-                                                    "Complience": self.single_strip.complience_strip.value(),
+                                                    "compliance": self.single_strip.compliance_strip.value(),
                                                     "Save_data": True,
                                                     "Measurements": todo_dict,
                                                     "StartFreq": self.single_strip.minimum_freq.value(),
@@ -224,7 +224,7 @@ class Singlestrip_window:
                                                   "StartVolt": 0,
                                                   "EndVolt": self.single_strip.max_voltage_strip.value(),
                                                   "Steps": self.single_strip.voltage_steps_strip.value(),
-                                                  "Complience": self.single_strip.complience_strip.value(),
+                                                  "compliance": self.single_strip.compliance_strip.value(),
                                                   "Save_data": True,
                                                   "Measurements": todo_dict,
                                                   "Strip": self.single_strip.which_strip.value()

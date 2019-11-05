@@ -25,9 +25,9 @@
   last_plot_update: 0
   current_led_state: None
   new_data: True
-  IV_measure: [True, -10.0,-60.0, 12]  #do_it min voltage complience steps
-  CV_measure: [True, -10.0, -50.0, 10]  # do_itmin voltage complience steps
-  Stripscan_measure: [True, -10.0, -50.0, 10]  #do_itmin voltage complience steps
+  IV_measure: [True, -10.0,-60.0, 12]  #do_it min voltage compliance steps
+  CV_measure: [True, -10.0, -50.0, 10]  # do_itmin voltage compliance steps
+  Stripscan_measure: [True, -10.0, -50.0, 10]  #do_itmin voltage compliance steps
   Idiel_measure: [True, 1, 1, 200]  # do_it every start stop
   Rpoly_measure: [True, 1, 1, 200]  # do_it every start stop
   Cac_measure: [True, 1, 1, 200]  # do_it every start stop
@@ -36,7 +36,7 @@
   Cint_measure: [True, 1, 1, 200]  # do_it every start stop
   Cback_measure: [False, 1, 1, 200]  # do_it every start stop
   Istrip_measure: [True, 1, 1, 200]  # do_it every start stop
-  IV_longterm_measure: [False, -10, -60.0, 5]  # do_it min voltage complience steps
+  IV_longterm_measure: [False, -10, -60.0, 5]  # do_it min voltage compliance steps
   IVCV_refinement: [True, 0, -50, 2] # do_refinement, min, max, step
   CintAC_measure: [False, 1, 1, 200]
   Table_stay_down: False

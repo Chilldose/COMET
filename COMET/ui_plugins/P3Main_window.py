@@ -49,7 +49,7 @@ class P3Main_window(Environement_widget, SettingsControl_widget, Controls_widget
 
         # Upadte the settings when a change is made
         self.gui.max_voltage_2.valueChanged.connect(self.update_settings)
-        self.gui.complience_2.valueChanged.connect(self.update_settings)
+        self.gui.compliance_2.valueChanged.connect(self.update_settings)
         self.gui.voltage_steps_2.valueChanged.connect(self.update_settings)
         self.gui.min_refine_spin_2.valueChanged.connect(self.update_settings)
         self.gui.max_refine_spin_2.valueChanged.connect(self.update_settings)
@@ -69,12 +69,12 @@ class P3Main_window(Environement_widget, SettingsControl_widget, Controls_widget
         # IV
         self.load_new_values("IV_measure",
                                                                          self.gui.doIV_checkBox_2, self.gui.max_voltage_2,
-                                                                         self.gui.complience_2, self.gui.voltage_steps_2)
+                                                                         self.gui.compliance_2, self.gui.voltage_steps_2)
 
         # CV
         self.load_new_values("CV_measure", self.gui.doCV_checkBox_2,
                                                                          self.gui.max_voltage_CV,
-                                                                         self.gui.complience_2,
+                                                                         self.gui.compliance_2,
                                                                          self.gui.voltage_steps_2)
 
         # Refinement
@@ -208,11 +208,11 @@ class measurement_job_generation:
 
         if self.variables["IV_measure"][0]:
             values = self.variables["IV_measure"]
-            final_dict.update({"IV": {"StartVolt": 0, "EndVolt": values[1], "Complience": str(values[2])+ "e-6", "Steps": values[3]}})
+            final_dict.update({"IV": {"StartVolt": 0, "EndVolt": values[1], "compliance": str(values[2])+ "e-6", "Steps": values[3]}})
 
         if self.variables["CV_measure"][0]:
             values = self.variables["CV_measure"]
-            final_dict.update({"CV": {"StartVolt": 0, "EndVolt": values[1], "Complience": str(values[2])+ "e-6", "Steps": values[3]}})
+            final_dict.update({"CV": {"StartVolt": 0, "EndVolt": values[1], "compliance": str(values[2])+ "e-6", "Steps": values[3]}})
 
         if self.variables["IVCV_refinement"][0]:
             values = self.variables["IVCV_refinement"]

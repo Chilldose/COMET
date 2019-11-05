@@ -143,10 +143,10 @@ class dynamicwaiting_class(tools):
                 # Here the magic happens it changes all values and so on
                 self.xvalues[i], self.yvalues[i], time = self.do_dynamic_measurement("dynamicwaiting", self.biasSMU, voltage, self.buffer, self.interval, True)
 
-                if self.check_complience(self.biasSMU, float(self.compliance), command="get_read",):
+                if self.check_compliance(self.biasSMU, float(self.compliance), command="get_read",):
                     self.stop_everything()  # stops the measurement if compliance is reached
 
-                if not self.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=5, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
+                if not self.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=5, Rsq=0.5, compliance=self.compliance):  # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
 
                 sleep(1.)
@@ -202,7 +202,7 @@ class dynamicwaiting_class(tools):
         self.change_value(self.biasSMU, "set_voltage", "0.0")
         self.change_value(self.biasSMU, "set_output", self.SMUON)
 
-        if self.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=3, Rsq=0.5, complience=self.compliance):  # Is a dynamic waiting time for the measuremnts
+        if self.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=3, Rsq=0.5, compliance=self.compliance):  # Is a dynamic waiting time for the measuremnts
             self.current_voltage = self.framework["Configs"]["config"]["settings"]["bias_voltage"]
         else:
             self.stop_everything()

@@ -12,7 +12,7 @@
     set_filter: P
     set_triggerONOFF: R 
     set_terminator: Y  
-    set_complience: L 
+    set_compliance: L
     set_trigger: T 
     set_voltage: B 
     set_output_dataformat: G 
@@ -30,13 +30,13 @@
         - filter: 3 
         - voltage: 0,0,0
         - measure_mode: 0,0
-        - complience: 5E-6,0
+        - compliance: 5E-6,0
         
     # MISC
     CSV_voltage: voltage,range,delay
-    complience_range: 0 
+    compliance_range: 0
     reset_device: [J0] 
-    CSV_complience: complience,range 
+    CSV_compliance: compliance,range
     voltage_range: 0
     execution_terminator: X 
     voltage_delay: 0 

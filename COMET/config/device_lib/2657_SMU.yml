@@ -38,10 +38,10 @@
    set_measurement_delay_factor: smua.measure.delayfactor = {} # A factor by which the build in delay is in/decreased 1nA range has a standard delay of 1s!!!
    set_source_level_volts: smua.source.levelv = {}
    set_compliance_current: smua.source.limiti = {}
-   set_complience: smua.source.limiti = {}
-   set_complience_voltage: smua.source.limitv = {}
+   set_compliance: smua.source.limiti = {}
+   set_compliance_voltage: smua.source.limitv = {}
    set_offvoltage: smua.source.offfunc = {}
-   set_offcomplience: smua.source.offlimiti = {}
+   set_offcompliance: smua.source.offlimiti = {}
    set_current_range: smua.measure.rangei = {}
    set_measurement_delay: smua.measure.delay = {}
    set_output: smua.source.output = {}  
@@ -75,10 +75,10 @@
       - source_voltage_autorange: smua.AUTORANGE_ON
       - source_func: smua.OUTPUT_DCVOLTS
       - source_level_volts: 0
-      - complience_current: 50e-6
-      - complience_voltage: 1000
+      - compliance_current: 50e-6
+      - compliance_voltage: 1000
       - offvoltage: smua.OUTPUT_DCVOLTS
-      - offcomplience: 50e-6
+      - offcompliance: 50e-6
       - output: smua.OUTPUT_OFF
       - measurement_delay: smua.DELAY_AUTO
       - measurement_delay_factor: 1.0

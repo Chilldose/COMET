@@ -80,7 +80,7 @@
     # Measurement Configurations
     Measurement_configs:
         IVCV:
-            BiasSMU: 2410 Keithley SMU
+            BiasSMU: 2410SMU
 
     # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name
     Aliases:
@@ -114,8 +114,10 @@
 
        #BrandBox:
        #     Device_name: BrandBox
-       #     Connection_resource: RS232:15
-       #     Device_IDN: HV-Relay Controller V1.6/18.Apr.2019
+       #     Connection_resource: IP:TCPIP0::10.0.0.7::10001::SOCKET
+       #     Device_IDN: Brandbox Controller V1.0/04.Nov.2019
+       #     VISA_attributes:
+       #       read_termination: "\r"
 
        #Elektrometer:
        #     Device_name: 6517B Keithley Elektrometer
@@ -124,11 +126,11 @@
        #     VISA_attributes:
        #       read_termination: "\r"
 
-       Matrix:
-            Device_name: Keithley 708B Switching
-            Connection_resource: IP:TCPIP0::10.0.0.4::inst0::INSTR
-            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
-            Cards: 1 # Device specific variable used to determine how many cards are inserted
+       #Matrix:
+       #     Device_name: Keithley 708B Switching
+       #     Connection_resource: IP:TCPIP0::10.0.0.4::inst0::INSTR
+       #     Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
+       #     Cards: 1 # Device specific variable used to determine how many cards are inserted
 
        #LCRmeter:
        #     Device_name: Agilent E4980A

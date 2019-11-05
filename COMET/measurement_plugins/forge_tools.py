@@ -153,6 +153,7 @@ class tools(object):
         :return: List
         """
 
+        deltaI = abs(deltaI)
         #Find out if positive or negative ramp
         if max_value > min_value:
             positive = True
@@ -348,7 +349,7 @@ class tools(object):
             self.settings["settings"]["bias_voltage"] = str(value[1]).strip()  # changes the bias voltage
 
         if 0. < (abs(float(value[0])) - abs(float(compliance)*0.99)):
-            self.toolslog.error("Complience reached in instrument " + str(device["Device_name"]) + " at: "+ str(value[0]) + ". Complience at " + str(compliance))
+            self.toolslog.error("compliance reached in instrument " + str(device["Device_name"]) + " at: "+ str(value[0]) + ". compliance at " + str(compliance))
             #self.queue_to_main.put({"MeasError": "Compliance reached. Value. " + str(value[0]) + " A"})
             return True
         else:

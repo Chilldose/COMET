@@ -41,11 +41,11 @@ class Settings_window(settings_widget):
         # IV
         self.load_new_values("IV_measure",
                        self.settings.doIV_checkBox, self.settings.max_voltage,
-                       self.settings.complience, self.settings.voltage_steps)
+                       self.settings.compliance, self.settings.voltage_steps)
 
         # CV
         self.load_new_values("CV_measure", self.settings.doCV_checkBox,
-                       self.settings.max_voltage, self.settings.complience, self.settings.voltage_steps)
+                       self.settings.max_voltage, self.settings.compliance, self.settings.voltage_steps)
 
         # Refinement
         self.load_new_values("IVCV_refinement", self.settings.doRef_checkBox, self.settings.min_refine_spin,
@@ -54,7 +54,7 @@ class Settings_window(settings_widget):
         # stripscan
         self.load_new_values("Stripscan_measure",
                        self.settings.dostripscans_checkBox,
-                       self.settings.max_voltage_strip, self.settings.complience_strip,
+                       self.settings.max_voltage_strip, self.settings.compliance_strip,
                        self.settings.voltage_steps_strip)
 
         # istrip
@@ -105,11 +105,11 @@ class Settings_window(settings_widget):
         # IVCV generall settings
         self.configure(self.variables.default_values_dict["settings"]["IV_measure"],
                        self.settings.doIV_checkBox,  self.settings.max_voltage,
-                       self.settings.complience,  self.settings.voltage_steps)
+                       self.settings.compliance,  self.settings.voltage_steps)
 
         self.configure(self.variables.default_values_dict["settings"]["CV_measure"],
                        self.settings.doCV_checkBox, self.settings.max_voltage_CV,
-                       self.settings.complience, self.settings.voltage_steps)
+                       self.settings.compliance, self.settings.voltage_steps)
 
         self.configure(self.variables.default_values_dict["settings"]["IVCV_refinement"],
                        self.settings.doRef_checkBox, self.settings.min_refine_spin,
@@ -117,12 +117,12 @@ class Settings_window(settings_widget):
 
         # CV
         #self.configure(self.variables.default_values_dict["settings"]["CV_measure"], self.settings.doCV_checkBox,
-        #               self.settings.max_voltage_CV, self.settings.complience_CV, self.settings.voltage_steps_CV)
+        #               self.settings.max_voltage_CV, self.settings.compliance_CV, self.settings.voltage_steps_CV)
 
 
         # stripscan
         self.configure(self.variables.default_values_dict["settings"]["Stripscan_measure"], self.settings.dostripscans_checkBox,
-                       self.settings.max_voltage_strip, self.settings.complience_strip, self.settings.voltage_steps_strip)
+                       self.settings.max_voltage_strip, self.settings.compliance_strip, self.settings.voltage_steps_strip)
 
         # istrip
         self.configure(self.variables.default_values_dict["settings"]["Istrip_measure"], self.settings.doIstrip_checkBox,

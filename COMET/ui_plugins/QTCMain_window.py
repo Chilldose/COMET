@@ -190,11 +190,11 @@ class measurement_job_generation:
 
         if self.variables["IV_measure"][0]:
             values = self.variables["IV_measure"]
-            final_dict.update({"IV": {"StartVolt": 0, "EndVolt": values[1], "Complience": str(values[2])+ "e-6", "Steps": values[3]}})
+            final_dict.update({"IV": {"StartVolt": 0, "EndVolt": values[1], "compliance": str(values[2])+ "e-6", "Steps": values[3]}})
 
         if self.variables["CV_measure"][0]:
             values = self.variables["CV_measure"]
-            final_dict.update({"CV": {"StartVolt": 0, "EndVolt": values[1], "Complience": str(values[2])+ "e-6", "Steps": values[3]}})
+            final_dict.update({"CV": {"StartVolt": 0, "EndVolt": values[1], "compliance": str(values[2])+ "e-6", "Steps": values[3]}})
 
         if self.variables["IVCV_refinement"][0]:
             values = self.variables["IVCV_refinement"]
@@ -224,7 +224,7 @@ class measurement_job_generation:
 
         # First check if strip scan should be done or not
         if self.variables["Stripscan_measure"][0]:
-            final_dict.update({"StartVolt": 0, "EndVolt": self.variables["Stripscan_measure"][1], "Complience": str(self.variables["Stripscan_measure"][2])+ "e-6", "Steps": self.variables["Stripscan_measure"][3]})
+            final_dict.update({"StartVolt": 0, "EndVolt": self.variables["Stripscan_measure"][1], "compliance": str(self.variables["Stripscan_measure"][2])+ "e-6", "Steps": self.variables["Stripscan_measure"][3]})
 
             for elemets in all_measurements:
                 dict = generate_dict(self.variables[elemets + "_measure"])

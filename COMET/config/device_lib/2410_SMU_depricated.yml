@@ -8,7 +8,7 @@
         - voltage_mode: FIXED 
         - default_reading_count: 1 
         - measurement_speed: 1 
-        - complience: 100E-6 
+        - compliance: 100E-6
         - beep: OFF
         - voltage_range: 1000 
         - range: 10E-6 
@@ -25,7 +25,7 @@
     set_measure_voltage: "SENS:FUNC 'VOLT'" 
     set_measurement_speed: SENS:RES:NPLC  
     set_beep: SYST:BEEP:STAT 
-    set_complience: SENS:CURR:PROT  
+    set_compliance: SENS:CURR:PROT
     set_terminal: ROUT:TERM 
     set_voltage: SOUR:VOLT:LEV 
     set_current_range: SENS:CURR:RANG 

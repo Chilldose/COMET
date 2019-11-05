@@ -377,7 +377,7 @@ def read_from_file( filename="default.txt", filepath = "default_path"):
     # These functions are for reading and writing to files------------------------------------
     # -------------------------------------------------------------------------------------end
 
-def ramp_voltage_job( queue, resource, order, voltage_Start, voltage_End, step, wait_time = 0.2, complience=100e-6):
+def ramp_voltage_job( queue, resource, order, voltage_Start, voltage_End, step, wait_time = 0.2, compliance=100e-6):
         """
         Only use this function for simple ramping for the main, never inside a measurement!!!
         """
@@ -387,7 +387,7 @@ def ramp_voltage_job( queue, resource, order, voltage_Start, voltage_End, step, 
                                 "EndVolt": voltage_End,
                                 "Steps": step,
                                 "Wait": wait_time,
-                                "Complience": complience}}}
+                                "compliance": compliance}}}
         queue.put(job)
 
 def int2dt( ts, ts_mult = 1e3):

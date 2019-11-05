@@ -16,7 +16,8 @@
     set_voltage_mode: SOUR:VOLT:MODE {}
     set_reset_measure_voltage: ":SENS:FUNC:OFF: 'VOLT'"
     set_reset_measure_current: ":SENS:FUNC:OFF: 'CURR'"
-    set_complience: SENS:CURR:PROT {}
+    set_compliance: SENS:CURR:PROT {}
+    set_compliance_current: SENS:CURR:PROT {}
     set_terminal: ROUT:TERM {}
     set_voltage: SOUR:VOLT:LEV {}
 
@@ -34,7 +35,7 @@
         - voltage_range: 1000  
         - reading_mode: CURR 
         - measurement_speed: 1 
-        - complience: 100E-6 
+        - compliance: 100E-6
         - beep: "OFF" 
 
     # Misc parameters

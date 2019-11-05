@@ -62,7 +62,7 @@ A full demo dict can look like this
                         "dynamicwaiting": {"StartVolt": 0,
                                            "EndVolt": -1000,
                                            "Steps": 1,
-                                           "Complience": 0.0001,
+                                           "compliance": 0.0001,
                                            "num_of_points": 30
                                           }
                                    }
