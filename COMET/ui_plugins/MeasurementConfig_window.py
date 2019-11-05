@@ -10,7 +10,7 @@ class MeasurementConfig_window():
         self.variables = GUI
         self.layout = layout
         self.log = logging.getLogger(__name__)
-        self.settings = self.variables.framework_variables['Configs']['config'].get('MeasurementSettings', {}).copy()
+        self.settings = self.variables.framework_variables['Configs']['config'].get('MeasurementSettings', {})
         self.ui_groups = {}
         self.settings_boxes = {}
         self.columns = 4 # Number of columns per group
@@ -24,25 +24,29 @@ class MeasurementConfig_window():
         self.layout.addWidget(self.SettingsMainWidget)
         self.construct_ui()
 
+        self.SettingsGui.Unlock_pushButton.clicked[bool].connect(self.SettingsGui.scrollArea.setEnabled)
 
-    def generate_job(self, group):
+    def generate_job_for_group(self, group):
         """Generates a Measurement job dict, out of the passed group. returns empty dict if meas is disabled"""
-        if not group in self.ui_groups:
-            self.log.error("No settings group {} is present.".format(group))
-            return
-
-        if self.ui_groups[group]["Group_Ui"].EnableGroup_pushButton.isEnabled():
-            job = {}
-            for meas in self.ui_groups[group].items():
-                if meas != "Group_Ui":
-                    ui = self.ui_groups[group][meas]
-                    if ui.enable_checkBox.isEnabled():
-                        pass
-
-
-
-        else:
+        if not group in self.settings:
+            self.log.warning("No settings group {} is present.".format(group))
             return {}
+
+        job = {}
+        for Name, value in self.settings[group]["Measurements"].items():
+            if value["Do"]: # Gives the value and then deletes it, since we do not need it here anymore
+                job[Name] = {}
+                for set, val in value.items():
+                    if set != "Do":
+                        job[Name][set] = val[-1]# Only the last value from all is the current set value in the spin box
+
+        # Add the other settings
+        for ent, value in self.settings[group].items():
+            if ent not in ["Do", "Measurements"]:
+                job[ent] = value
+
+        return {group: job}
+
 
 
     def construct_ui(self):

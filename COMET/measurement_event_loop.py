@@ -127,7 +127,7 @@ class measurement_event_loop(Thread):
                 self.log.info("Sended new measurement job. Orders: " + str(self.measurements_to_conduct))
                 self.measurements_to_conduct.clear() # Clears the measurement dict
 
-        if self.measurements_to_conduct != {} and self.measurement_running:
+        elif self.measurements_to_conduct != {} and self.measurement_running:
             self.log.error("Tried making a new measurement. Measurement is running, no new job generation possible.")
             self.measurements_to_conduct.clear()
 
@@ -165,6 +165,7 @@ class measurement_event_loop(Thread):
 
             elif "ABORT_MEASUREMENT" in self.status_query: # Ask if Measurement should be aborted
                 self.stop_measurement = True  # Sets flag, but does not check
+                #self.message_to_main.put({"Critical": "Measurement thread terminated..."})
 
             else:
                 self.log.error("Status request not recognised " + str(self.status_query))

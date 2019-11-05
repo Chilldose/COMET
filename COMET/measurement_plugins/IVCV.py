@@ -8,8 +8,6 @@ sys.path.append('../COMET')
 from ..utilities import timeit
 from .forge_tools import tools
 
-
-
 class IVCV_class(tools):
 
     def __init__(self, main_class):
@@ -20,6 +18,8 @@ class IVCV_class(tools):
         self.justlength = 24
         self.vcw = self.main.framework["VCW"]
         self.user_configs = self.main.settings["settings"].get("Measurement_configs",{}).get("IVCV", {}) # Loads the configs for IVCV measurements
+
+        # These are generall parameters which can either be changed here or in the settings in the optional parameter seen above
         self.IVCV_configs = {
                 # Devices Configs
                 "BiasSMU": "BiasSMU",
@@ -89,16 +89,16 @@ class IVCV_class(tools):
 
         if "IV" in self.main.job_details["IVCV"]: # Creates the actual measurement plan
             job_list.append(self.do_IV)
-            voltage_End.append(self.main.job_details["IVCV"]["IV"].get("EndVolt", 0))
-            voltage_Start.append(self.main.job_details["IVCV"]["IV"].get("StartVolt", 0))
-            voltage_steps.append(self.main.job_details["IVCV"]["IV"].get("Steps", 0))
+            voltage_End.append(self.main.job_details["IVCV"]["IV"].get("End Voltage [V]", 0))
+            voltage_Start.append(self.main.job_details["IVCV"]["IV"].get("Start Voltage [V]", 0))
+            voltage_steps.append(self.main.job_details["IVCV"]["IV"].get("Voltage Step [V]", 0))
             #job_header += "voltage [V] \t current [A] \t"
 
         if "CV" in self.main.job_details["IVCV"]:
             job_list.append(self.do_CV)
-            voltage_End.append(self.main.job_details["IVCV"]["CV"].get("EndVolt", 0))
-            voltage_Start.append(self.main.job_details["IVCV"]["CV"].get("StartVolt", 0))
-            voltage_steps.append(self.main.job_details["IVCV"]["CV"].get("Steps", 0))
+            voltage_End.append(self.main.job_details["IVCV"]["CV"].get("End Voltage [V]", 0))
+            voltage_Start.append(self.main.job_details["IVCV"]["CV"].get("Start Voltage [V]", 0))
+            voltage_steps.append(self.main.job_details["IVCV"]["CV"].get("Voltage Step [V]", 0))
             #job_header += "voltage [V] \t capacity [F] \t"
 
         if self.main.save_data:
@@ -109,14 +109,14 @@ class IVCV_class(tools):
         voltage_steps = min(voltage_steps)
 
         voltage_step_list = self.ramp_value(voltage_Start, voltage_End, voltage_steps)
-        if self.main.job_details["IVCV"].get("IVCV_refinement", False):
+        if self.main.job_details["IVCV"].get("Voltage Steps Refinement", False):
             voltage_step_list = self.refine_ramp(voltage_step_list,
-                                                  self.main.job_details["IVCV"]["IVCV_refinement"]["Min"],
-                                                  self.main.job_details["IVCV"]["IVCV_refinement"]["Max"],
-                                                  self.main.job_details["IVCV"]["IVCV_refinement"]["Step"])
+                                                  self.main.job_details["IVCV"]["IVCV_refinement"]["Start Voltage[V]"],
+                                                  self.main.job_details["IVCV"]["IVCV_refinement"]["End Voltage[V]"],
+                                                  self.main.job_details["IVCV"]["IVCV_refinement"]["Voltage Step [V]"])
 
         # Config the setup for IV
-        compliance = str(self.main.job_details["IVCV"].get("IV",self.main.job_details["IVCV"].get("CV", None))["Complience"])
+        compliance = str(self.main.job_details["IVCV"].get("IV",self.main.job_details["IVCV"].get("CV", None))["Compliance [uA]"])+"e-6"
 
         self.config_setup(bias_SMU, self.IVCV_configs["BaseConfig"])
         self.change_value(bias_SMU, "set_compliance_current", compliance)
@@ -142,9 +142,9 @@ class IVCV_class(tools):
         self.change_value(bias_SMU, *self.IVCV_configs["OutputOFF"])
         sleep(2.)
         self.main.settings["settings"]["bias_voltage"] = 0
-        if self.check_complience(bias_SMU, 100e-6):
+        if self.check_compliance(bias_SMU, 100e-6):
             sleep(1.)
-            if self.check_complience(bias_SMU, 100e-6):
+            if self.check_compliance(bias_SMU, 100e-6):
                 self.log.error("Output voltage was set to 0 and still the device is in complience. Please check the setup."
                                "This should not happen!!!")
 
@@ -161,15 +161,15 @@ class IVCV_class(tools):
         for meas, device in zip(["IV", "CV"], [bias_SMU, LCR_meter]):
             if meas in self.main.job_details["IVCV"] and not self.main.event_loop.stop_all_measurements_query():
                 for i, voltage in enumerate(voltage_step_list):
-                    if abs(voltage) <= abs(self.main.job_details["IVCV"][meas].get("EndVolt", 0)):
+                    if abs(voltage) <= abs(self.main.job_details["IVCV"][meas].get("End Voltage [V]", 0)):
                         iter = i
                         if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary
                             self.change_value(bias_SMU, "set_voltage", str(voltage))
                             if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=compliance): # Is a dynamic waiting time for the measuremnts
                                 self.stop_everything()
 
-                            if self.check_complience(bias_SMU, float(compliance)):
-                                self.stop_everything() # stops the measurement if complience is reached
+                            if self.check_compliance(bias_SMU, float(compliance)):
+                                self.stop_everything() # stops the measurement if compliance is reached
 
                             getattr(self, "do_{}".format(meas))(voltage, device, samples=3)
 
@@ -178,7 +178,6 @@ class IVCV_class(tools):
 
             if not self.main.event_loop.stop_all_measurements_query():
                 self.do_ramp_value(bias_SMU, "set_voltage", voltage, 0, 10, 0.3, float(compliance))
-
 
         # Todo: write good readout to file
         #IV_zip = zip(self.main.measurement_data["IV"][0], self.main.measurement_data["IV"][1])
@@ -193,27 +192,26 @@ class IVCV_class(tools):
         for i, voltage in enumerate(voltage_step_list):
             if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary
                 self.change_value(bias_SMU, "set_voltage", str(voltage))
-                #self.main.settings["settings"]["bias_voltage"] = voltage
                 if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, complience=compliance): # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
 
-                if self.check_complience(bias_SMU, float(compliance)):
-                    self.stop_everything() # stops the measurement if complience is reached
+                if self.check_compliance(bias_SMU, float(compliance)):
+                    self.stop_everything() # stops the measurement if compliance is reached
 
                 string_to_write = ""
-                if "IV" in self.main.job_details["IVCV"] and abs(voltage) <= abs(self.main.job_details["IVCV"]["IV"].get("EndVolt", 0)):
+                if "IV" in self.main.job_details["IVCV"] and abs(voltage) <= abs(self.main.job_details["IVCV"]["IV"].get("End Voltage [V]", 0)):
                     self.do_IV(voltage, bias_SMU, samples = 3)
                     if self.main.save_data:
                         string_to_write += str(self.main.measurement_data["IV"][0][-1]).ljust(self.justlength) + str(self.main.measurement_data["IV"][1][-1]).ljust(self.justlength)
 
-                if "CV" in self.main.job_details["IVCV"] and abs(voltage) <= abs(self.main.job_details["IVCV"]["CV"].get("EndVolt", 0)):
+                if "CV" in self.main.job_details["IVCV"] and abs(voltage) <= abs(self.main.job_details["IVCV"]["CV"].get("End Voltage [V]", 0)):
                     self.do_CV(voltage, LCR_meter, samples = 3)
                     if self.main.save_data:
                         string_to_write += str(self.main.measurement_data["CV"][0][-1]).ljust(self.justlength) + str(self.main.measurement_data["CV"][1][-1]).ljust(self.justlength)
 
                 # environment values
                 if self.main.job_details.get("environment", False):
-                    if "CV" in self.main.job_details["IVCV"] and abs(voltage) > abs(self.main.job_details["IVCV"]["CV"].get("EndVolt", 0)):
+                    if "CV" in self.main.job_details["IVCV"] and abs(voltage) > abs(self.main.job_details["IVCV"]["CV"].get("End Voltage [V]", 0)):
                         string_to_write += "--".ljust(self.justlength)+"--".ljust(self.justlength) # Writes nothing if no value is aquired
                     if self.main.event_loop.temphum_plugin:
                         string_to_write += str(self.main.event_loop.temperatur_history[-1]).ljust(self.justlength) + str(self.main.event_loop.humidity_history[-1]).ljust(self.justlength)
@@ -243,8 +241,6 @@ class IVCV_class(tools):
                 return
             values = []
             for i in range(samples):
-                #command = self.main.build_command(device_dict, "get_read_iv") # returns 2 values!!!
-                #values.append(float(str(vcw.query(device_dict, command)).split(",")[0])) 237SMU
                 values.append(str(self.vcw.query(device_dict, device_dict[self.IVCV_configs["GetReadSMU"]])).split("\t")) # 2657SMU
 
             current = sum([float(x[0]) for x in values])/len(values) # Makes a mean out of it
@@ -259,8 +255,6 @@ class IVCV_class(tools):
             self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1],[float(current)])
             self.main.queue_to_main.put({"IV": [float(voltage), float(current)]})
 
-
-    #@timeit
     def do_CV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a capacity value (or more precicely the amplitude and the phase shift) and process the data'''
         if not self.main.event_loop.stop_all_measurements_query():

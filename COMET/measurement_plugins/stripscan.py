@@ -28,16 +28,61 @@ class stripscan_class(tools):
         self.vcw = self.main.framework["VCW"]
         self.switching = self.main.switching
 
-        # Devices
-        self.bias_SMU = self.main.devices["BiasSMU"]
-        self.LCR_meter = self.main.devices["Agilent E4980A"]
-        self.SMU2 = self.main.devices["2410 Keithley SMU"]
-        self.discharge_SMU = self.main.devices["2410 Keithley SMU"]
-        self.discharge_switching = self.main.devices["temphum_controller"]
-        self.elmeter = self.main.devices["6517B Keithley Elektrometer"]
+        self.user_configs = self.main.settings["settings"].get("Measurement_configs", {}).get("Stripscan",
+                                                                                              {})  # Loads the configs for IVCV measurements
+
+        # These are generall parameters which can either be changed here or in the settings in the optional parameter seen above
+        self.IVCV_configs = {
+            # Devices Configs
+            "BiasSMU": "BiasSMU",
+            "LCRMeter": "Agilent E4980A",
+            "DischargeSMU": "2410 Keithley SMU",
+            "Switching": "temphum_controller",
+            "Elmeter": "6517B Keithley Elektrometer",
+            "SMU2": "2410 Keithley SMU",
+
+            # Commands Configs
+            "Discharge": ("set_terminal", "FRONT"),
+            "OutputON": ("set_output", "1"),
+            "OutputOFF": ("set_output", "0"),
+            "GetReadSMU": "get_read",  # This read can be a single current read or current, voltage pair
+            "GetReadLCR": "get_read",
+            "GetReadSMU2": "get_read",
+            "GetReadElmeter": "get_read",
+
+            # General Configs for the measurement
+            "BaseConfig": [],
+            "IstripConfig": [],
+            "IdielConfig": [],
+            "IdarkConfig": [],
+            "RpolyConfig": [],
+            "RintConfig": [],
+            "CacConfig": [],
+            "CintConfig": [],
+
+        }
+
+        self.log.info("Acquiring devices for stripscan measurements...")
+        self.discharge_SMU = None
+        self.bias_SMU = None
+        self.LCR_meter = None
+        self.discharge_switching = None
+        self.elmeter = None
+        self.SMU2 = None
+        try:
+            self.bias_SMU = self.main.devices[self.IVCV_configs["BiasSMU"]]
+            self.LCR_meter = self.main.devices[self.IVCV_configs["LCRMeter"]]
+            self.discharge_SMU = self.main.devices[self.IVCV_configs["DischargeSMU"]]
+            self.discharge_switching = self.main.devices[self.IVCV_configs["Switching"]]
+            self.elmeter = self.main.devices[self.IVCV_configs["Elmeter"]]
+            self.SMU2 = self.main.devices[self.IVCV_configs["2410 Keithley SMU"]]
+        except KeyError as valErr:
+            self.log.critical(
+                "One or more devices could not be found for the IVCV measurements. Error: {}".format(valErr))
 
         # Measurements and corresponding units
         self.measurement_order = ["Istrip", "Rpoly", "Idark", "Cac", "Cint", "Cback", "Idiel", "Rint"]
+
         self.units = [("Istrip","current[A]"),
                       ("Rpoly", "res[Ohm]"),
                       ("Idiel","current[A]"),
@@ -59,9 +104,10 @@ class stripscan_class(tools):
         self.V0 = self.main.main.default_dict["V0"]
         self.justlength = 24
         self.rintslopes = [] # here all values from the rint is stored
-        self.project = self.main.settings["settings"]["Current_project"] # Warning these values are mutable while runtime!!!
-        self.sensor = self.main.settings["settings"]["Current_sensor"] # Use with care!!!
+        self.project = self.main.job_details["Project"]
+        self.sensor = self.main.job_details["Sensor"]
         self.current_voltage = self.main.settings["settings"]["bias_voltage"]
+
         if "Rint_MinMax" not in self.main.main.default_dict:
             self.main.main.default_dict["Rint_MinMax"] = [-1.,1.,0.1]
             self.log.warning("No Rint boundaries given, defaulting to [-1.,1.,0.1]. Consider adding it to your settings")
@@ -94,10 +140,10 @@ class stripscan_class(tools):
 
             # Some parameters which a specific for stripscan
             self.main.queue_to_main({"INFO": "Started Stripscan measurement routines..."})
-            self.voltage_End = self.main.job_details["stripscan"]["EndVolt"]
-            self.voltage_Start = self.main.job_details["stripscan"]["StartVolt"]
-            self.voltage_steps = self.main.job_details["stripscan"]["Steps"]
-            self.complience = self.main.job_details["stripscan"]["Complience"]
+            self.voltage_End = self.main.job_details["stripscan"]["General"]["Bias Voltage [V]"]
+            self.voltage_Start = 0
+            self.voltage_steps = self.main.job_details["stripscan"]["General"]["Voltage Step [V]"]
+            self.complience = self.main.job_details["stripscan"]["General"]["Compliance [uA]"]
 
             self.do_stripscan()
         else:
@@ -112,7 +158,7 @@ class stripscan_class(tools):
         self.main.change_value(self.bias_SMU,"set_voltage", "0")
         self.main.change_value(self.bias_SMU, "set_output", "0")
 
-        if not self.main.capacitor_discharge(self.discharge_SMU, self.discharge_switching, "set_terminal", "FRONT", do_anyway=True):
+        if not self.main.capacitor_discharge(self.discharge_SMU, self.discharge_switching, *self.IVCV_configs["Discharge"], do_anyway=True):
             self.stop_everything()
 
         #self.save_rint_slopes()
@@ -248,7 +294,7 @@ class stripscan_class(tools):
                 self.main.write(self.main.measurement_files["stripscan"], measurement_header + "\n" + unit_header + "\n")
 
             # Discharge the capacitors in the decouple box
-            if not self.main.capacitor_discharge(self.discharge_SMU, self.discharge_switching, "set_terminal", "FRONT", do_anyway=True):
+            if not self.main.capacitor_discharge(self.discharge_SMU, self.discharge_switching, *self.IVCV_configs["Discharge"], do_anyway=True):
                 self.stop_everything()
 
             #  Do the actual measurements, first move, then conduct

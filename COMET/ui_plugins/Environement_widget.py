@@ -59,7 +59,7 @@ class Environement_widget(object):
         self.Env_Widget.humidity_bar.setValue(self.Env_Widget.min_hum_spin.value())
 
         self.variables.default_values_dict["settings"]["control_environment"] = False
-        self.variables.default_values_dict["settings"]["log_environment"] = False
+        self.variables.default_values_dict["settings"]["Log_environment"] = False
         self.Env_Widget.env_control_check.setChecked(True)
         self.Env_Widget.log_env_check.setChecked(True)
 
@@ -186,7 +186,7 @@ class Environement_widget(object):
         self.update_bars_and_spinboxes()
 
         self.variables.default_values_dict["settings"]["control_environment"] = self.Env_Widget.env_control_check.isChecked()
-        self.variables.default_values_dict["settings"]["log_environment"] = self.Env_Widget.log_env_check.isChecked()
+        self.variables.default_values_dict["settings"]["Log_environment"] = self.Env_Widget.log_env_check.isChecked()
 
         max = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummax", self.Env_Widget.max_hum_spin.value()))
         min = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummin", self.Env_Widget.min_hum_spin.value()))

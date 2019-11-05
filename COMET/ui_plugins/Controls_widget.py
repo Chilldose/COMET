@@ -2,6 +2,7 @@
 import logging
 from PyQt5.QtWidgets import QMessageBox, QFileDialog, QWidget
 import os
+from time import asctime
 
 
 class Controls_widget(object):
@@ -77,10 +78,21 @@ class Controls_widget(object):
                                            "Filename": self.variables.default_values_dict["settings"]["Current_filename"],
                                            "Project": self.variables.default_values_dict["settings"]["Current_project"],
                                            "Sensor": self.variables.default_values_dict["settings"]["Current_sensor"],
-                                           "environment": self.Start_Stop_gui.log_env_check.isChecked(), # if enviroment surveillance should be done
+                                           "environment": self.variables.default_values_dict["settings"]["Log_environment"], # if enviroment surveillance should be done
                                            "skip_init": False} #warning this prevents the device init
 
-            self.job.generate_job(additional_settings)
+            header = "# Measurement file: \n " \
+                     "# Project: " + self.variables.default_values_dict["settings"]["Current_project"] + "\n " \
+                     "# Sensor Type: " + self.variables.default_values_dict["settings"]["Current_sensor"] + "\n " \
+                     "# ID: " + self.variables.default_values_dict["settings"]["Current_filename"] + "\n " \
+                     "# Operator: " + self.variables.default_values_dict["settings"]["Current_operator"] + "\n " \
+                     "# Date: " + str(asctime()) + "\n\n"
+
+            job = self.generate_job()
+            job.update(additional_settings)
+            job["Header"] = header
+
+            self.send_job(job)
 
         else:
             reply = QMessageBox.information(None, 'Warning', "Please enter a valid filepath and filename.", QMessageBox.Ok)
@@ -149,5 +161,14 @@ class Controls_widget(object):
             textbox_led.setStyleSheet("background : rgb(0,255,0); border-radius: 25px")
             textbox_led.setText("Ready to go")
             return
+
+    def send_job(self, job):
+        # Check if filepath is a valid path
+        if job["Filename"] and os.path.isdir(os.path.normpath(job["Filepath"])):
+            #self.final_job.update({"Header": header})
+            self.variables.message_from_main.put({"Measurement": job})
+            self.Conlog.info("Sendet job: " + str({"Measurement": job}))
+        else:
+            self.Conlog.error("Please enter a valid path and name for the measurement file.")
 
 

@@ -30,7 +30,7 @@
         - Rint_scan
         - dynamicwaiting
 
-    measurements_order: # aka. all measurement plugins
+    measurement_order: # aka. all measurement plugins
         - IVCV
         - stripscan
         - frequencyscan

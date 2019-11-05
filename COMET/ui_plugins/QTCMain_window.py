@@ -18,7 +18,7 @@ class QTCMain_window(Environement_widget, Controls_widget, SettingsControl_widge
 
 
         self.log = logging.getLogger(__name__)
-        self.job = measurement_job_generation(self.variables.default_values_dict, self.variables.message_from_main)
+        self.generate_job = self.get_measurement_job_generation_function # for the gui element with the start button
 
         #self.keyPressEvent = KeyPress(self.variables.framework_variables["App"], self.on_key_press, [QtCore.Qt.Key_Q])
 
@@ -49,8 +49,25 @@ class QTCMain_window(Environement_widget, Controls_widget, SettingsControl_widge
         self.variables.add_update_function(self.update_IVplot)
         self.variables.add_update_function(self.update_CVplot)
 
-    def on_key_press(self, key):
-        print("here")
+
+    def get_measurement_job_generation_function(self):
+        """Gets the measurement job generation function.
+
+        The MeasurementConfig UI has an function which returns a dict containing all information for IVCV and stripscan
+        measurements. This GUI has to be rendered, otherwise this will fail after some time"""
+
+        try:
+            final = {}
+            fun =  self.variables.ui_plugins["MeasurementConfig_window"].generate_job_for_group
+            IV = fun("IVCV")
+            Strip = fun("Stripscan")
+            IV.update(Strip)
+            return IV
+        except KeyError:
+            self.log.error("The GUI MesaurementConfig must be present and redered. Otherwise no job generation possible.")
+            return {}
+
+
 
     def config_IV_plot(self):
 
