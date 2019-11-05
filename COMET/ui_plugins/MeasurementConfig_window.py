@@ -34,18 +34,21 @@ class MeasurementConfig_window():
 
         job = {}
         for Name, value in self.settings[group]["Measurements"].items():
-            if value["Do"]: # Gives the value and then deletes it, since we do not need it here anymore
+            if self.settings[group]["Do"]:
                 job[Name] = {}
                 for set, val in value.items():
                     if set != "Do":
-                        job[Name][set] = val[-1]# Only the last value from all is the current set value in the spin box
+                        job[Name][set] = val[-1] # Only the last value from all is the current set value in the spin box
 
         # Add the other settings
-        for ent, value in self.settings[group].items():
-            if ent not in ["Do", "Measurements"]:
-                job[ent] = value
+        if job:
+            for ent, value in self.settings[group].items():
+                if ent not in ["Do", "Measurements"]:
+                    job[ent] = value
 
-        return {group: job}
+            return {group: job}
+        else:
+            return {}
 
 
 

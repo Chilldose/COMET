@@ -12,19 +12,19 @@
         Measurements:
             IV:
                 Do: True 
-                End Voltage [V]: [0,-1000,5,-1000] # Min/Max/SpinStep/Value
-                Voltage Step [V]: [0,-100,5,5] # Min/Max/SpinStep/Value
-                Compliance [uA]: [0,1000,10, 50] # Min/Max/SpinStep/Value
+                End Voltage [V]: [-1000,0,-5, -1000] # Min/Max/SpinStep/Value
+                Voltage Step [V]: [-100,-0,-5, -5] # Min/Max/SpinStep/Value
+                Compliance [uA]: [0, 1000, 10, 50] # Min/Max/SpinStep/Value
             CV:
                 Do: True
-                End Voltage [V]: [0, -1000, 10,-600] # Min/Max/SpinStep/Value
-                Voltage Step [V]: [0, -100, 10, 5] # Min/Max/SpinStep/Value
+                End Voltage [V]: [-1000, -0, -10,-600] # Min/Max/SpinStep/Value
+                Voltage Step [V]: [-100, 0, -10, -5] # Min/Max/SpinStep/Value
                 Compliance [uA]: [0, 1000, 10, 50] # Min/Max/SpinStep/Value
             Voltage Steps Refinement:
                 Do: True
-                Start Voltage[V]: [0, -1000, 0, 0] # Min/Max/SpinStep/Value
-                End Voltage[V]: [0,-1000,-1000, -100] # Min/Max/SpinStep/Value
-                Voltage Step [V]: [0,-100,1, 1] # Min/Max/SpinStep/Value
+                Start Voltage[V]: [-1000, 0, 0, 0] # Min/Max/SpinStep/Value
+                End Voltage[V]: [-1000, -0, -1000, -100] # Min/Max/SpinStep/Value
+                Voltage Step [V]: [-100, 0, -1, -1] # Min/Max/SpinStep/Value
     Stripscan:
         Do: True
         Units: 

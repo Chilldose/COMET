@@ -77,6 +77,10 @@
         - DataVisualization
         - Documentation
 
+    # Measurement Configurations
+    Measurement_configs:
+        IVCV:
+            BiasSMU: 2410 Keithley SMU
 
     # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name
     Aliases:
@@ -103,22 +107,22 @@
             VISA_attributes:
               read_termination: "\r"
 
-       25657SMU:
-            Device_name: 2657 Keithley SMU
-            Connection_resource: GPIB:26
-            Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.5
+       #25657SMU:
+       #     Device_name: 2657 Keithley SMU
+       #     Connection_resource: GPIB:26
+       #     Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.5
 
-       BrandBox:
-            Device_name: BrandBox
-            Connection_resource: RS232:15
-            Device_IDN: HV-Relay Controller V1.6/18.Apr.2019
+       #BrandBox:
+       #     Device_name: BrandBox
+       #     Connection_resource: RS232:15
+       #     Device_IDN: HV-Relay Controller V1.6/18.Apr.2019
 
-       Elektrometer:
-            Device_name: 6517B Keithley Elektrometer
-            Connection_resource: IP:TCPIP0::10.0.0.5::10002::SOCKET
-            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E
-            VISA_attributes:
-              read_termination: "\r"
+       #Elektrometer:
+       #     Device_name: 6517B Keithley Elektrometer
+       #     Connection_resource: IP:TCPIP0::10.0.0.5::10002::SOCKET
+       #     Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E
+       #     VISA_attributes:
+       #       read_termination: "\r"
 
        Matrix:
             Device_name: Keithley 708B Switching
@@ -126,7 +130,7 @@
             Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
             Cards: 1 # Device specific variable used to determine how many cards are inserted
 
-       LCRmeter:
-            Device_name: Agilent E4980A
-            Device_IDN: Agilent Technologies,E4980A,MY46208270,A.06.15
-            Connection_resource: IP:TCPIP0::10.0.0.6::inst0::INSTR
+       #LCRmeter:
+       #     Device_name: Agilent E4980A
+       #     Device_IDN: Agilent Technologies,E4980A,MY46208270,A.06.15
+       #     Connection_resource: IP:TCPIP0::10.0.0.6::inst0::INSTR
