@@ -39,3 +39,4 @@
             - Switching relay
             - Light controller
             - Environment controller
+    requires_read_on_set: True # If an acc is comming from the device after a set parameter

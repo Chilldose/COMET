@@ -23,7 +23,7 @@ class IVCV_class(tools):
         # These are generall parameters which can either be changed here or in the settings in the optional parameter seen above
         self.IVCV_configs = {
                 # Devices Configs
-                "BiasSMU": "BiasSMU",
+                "BiasSMU": "25657SMU",
                 "LCRMeter": "Agilent E4980A",
                 "DischargeSMU": "2410 Keithley SMU",
                 "Switching": "temphum_controller",

@@ -67,7 +67,7 @@ class tools(object):
 
             for i in range(samples):
                 self.toolslog.debug("Conducting steady state check...")
-                values.append(float(str(self.vcw.query(device, comm)).split(",")[0]))
+                values.append(float(str(self.vcw.query(device, comm).split()[0]).split(",")[0]))
                 sleep(wait)
             slope, intercept, r_value, p_value, std_err = stats.linregress([i for i in range(len(values))], values)
             if std_err <= 1e-6 and abs(slope) <= abs(max_slope):

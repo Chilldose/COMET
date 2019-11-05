@@ -78,9 +78,9 @@
         - Documentation
 
     # Measurement Configurations
-    Measurement_configs:
-        IVCV:
-            BiasSMU: 2410SMU
+    #Measurement_configs:
+    #    IVCV:
+    #        BiasSMU: 2410SMU
 
     # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name
     Aliases:
@@ -107,10 +107,10 @@
             VISA_attributes:
               read_termination: "\r"
 
-       #25657SMU:
-       #     Device_name: 2657 Keithley SMU
-       #     Connection_resource: GPIB:26
-       #     Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.5
+       25657SMU:
+            Device_name: 2657 Keithley SMU
+            Connection_resource: IP:TCPIP0::10.0.0.3::inst0::INSTR
+            Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.5
 
        #BrandBox:
        #     Device_name: BrandBox

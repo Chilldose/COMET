@@ -342,6 +342,11 @@ class VisaConnectWizard:
                 full_command = str(code)
                 resource.write(full_command)
                 self.log.info("Write command: " + str(full_command) + " to: " + str(resource))
+
+                # Check if a read is necessary for the device
+                if resource_dict.get("requires_read_on_set", False):
+                    answer = self.read(resource_dict)
+                    self.log.debug("Device {} with acc after write, answered with {}".format(resource, answer.strip()))
                 return True
         except:
             return False
