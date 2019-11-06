@@ -151,7 +151,7 @@ class IVCV_class(tools):
         else:
             self.log.error("Measurement order: {} was recognised, either sequential or interlaced are possible".format(self.IVCV_configs["Meas_order"]))
 
-        self.do_ramp_value(bias_SMU, "set_voltage", str(voltage_step_list[i-1]), 0, 20, 0.01)
+        self.do_ramp_value(bias_SMU, "set_voltage", self.main.settings["settings"]["bias_voltage"], 0, 20, 0.05, set_value=self.change_bias_voltage)
         sleep(2.)
         self.main.settings["settings"]["bias_voltage"] = 0
         if self.check_compliance(bias_SMU, 100e-6):
@@ -164,6 +164,10 @@ class IVCV_class(tools):
         if discharge_SMU:
             self.capacitor_discharge(discharge_SMU, discharge_switching, *self.IVCV_configs["Discharge"], do_anyway=True)
         return None
+
+    def change_bias_voltage(self, volt):
+        """Changes the bias voltage in the state machine"""
+        self.main.settings["settings"]["bias_voltage"] = volt
 
     def sequential_order(self, voltage_step_list, bias_SMU, LCR_meter, compliance):
         """Routine for the sequential IVCV measurement
@@ -193,7 +197,7 @@ class IVCV_class(tools):
                             break
 
             if not self.main.event_loop.stop_all_measurements_query():
-                self.do_ramp_value(bias_SMU, "set_voltage", voltage, 0, 10, 0.3, float(compliance))
+                self.do_ramp_value(bias_SMU, "set_voltage", self.main.settings["settings"]["bias_voltage"], 0, 20, 0.1, float(compliance), set_value=self.change_bias_voltage)
 
         # Save data to the file
         if self.main.save_data:
