@@ -77,17 +77,13 @@
         - DataVisualization
         - Documentation
 
-    # Measurement Configurations
-    #Measurement_configs:
-    #    IVCV:
-    #        BiasSMU: 2410SMU
-
     # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name
     Aliases:
         #temphum_controller: BrandBox
-        #HVSwitching: BrandBox
+        HVSwitching: BrandBox
         LVSwitching: Keithley 708B Switching
-        #BiasSMU: 2657 Keithley SMU
+        BiasSMU: 2657 Keithley SMU
+        LCRMEter: Agilent E4980A
         #BiasSMU: 2470 Keithley SMU
         Table_control: ITK Corvus
         #lights_controller: BrandBox
@@ -107,32 +103,32 @@
             VISA_attributes:
               read_termination: "\r"
 
-       25657SMU:
+       2657SMU:
             Device_name: 2657 Keithley SMU
             Connection_resource: IP:TCPIP0::10.0.0.3::inst0::INSTR
             Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.5
 
-       #BrandBox:
-       #     Device_name: BrandBox
-       #     Connection_resource: IP:TCPIP0::10.0.0.7::10001::SOCKET
-       #     Device_IDN: Brandbox Controller V1.0/04.Nov.2019
-       #     VISA_attributes:
-       #       read_termination: "\r"
+       BrandBox:
+            Device_name: BrandBox
+            Connection_resource: IP:TCPIP0::10.0.0.7::10001::SOCKET
+            Device_IDN: Brandbox Controller V1.0/04.Nov.2019
+            VISA_attributes:
+              read_termination: "\r"
 
-       #Elektrometer:
-       #     Device_name: 6517B Keithley Elektrometer
-       #     Connection_resource: IP:TCPIP0::10.0.0.5::10002::SOCKET
-       #     Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E
-       #     VISA_attributes:
-       #       read_termination: "\r"
+       Elektrometer:
+            Device_name: 6517B Keithley Elektrometer
+            Connection_resource: IP:TCPIP0::10.0.0.5::10002::SOCKET
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E
+            VISA_attributes:
+              read_termination: "\r"
 
-       #Matrix:
-       #     Device_name: Keithley 708B Switching
-       #     Connection_resource: IP:TCPIP0::10.0.0.4::inst0::INSTR
-       #     Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
-       #     Cards: 1 # Device specific variable used to determine how many cards are inserted
+       Matrix:
+            Device_name: Keithley 708B Switching
+            Connection_resource: IP:TCPIP0::10.0.0.4::inst0::INSTR
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
+            Cards: 1 # Device specific variable used to determine how many cards are inserted
 
-       #LCRmeter:
-       #     Device_name: Agilent E4980A
-       #     Device_IDN: Agilent Technologies,E4980A,MY46208270,A.06.15
-       #     Connection_resource: IP:TCPIP0::10.0.0.6::inst0::INSTR
+       LCRmeter:
+            Device_name: Agilent E4980A
+            Device_IDN: Agilent Technologies,E4980A,MY46208270,A.06.15
+            Connection_resource: IP:TCPIP0::10.0.0.6::inst0::INSTR
