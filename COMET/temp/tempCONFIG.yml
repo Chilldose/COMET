@@ -6,9 +6,12 @@ ASCII_file_specs:
 Analysis:
 - IVCV_QTC
 Files:
-- C:/Users/dbloech/Desktop/IVCV/VPX28441/Aldi_lastsensors/IVC_VPX28441_03_2S.txt
-- C:/Users/dbloech/Desktop/IVCV/VPX28441/Aldi_lastsensors/IVC_VPX28441_07_2S.txt
-- C:/Users/dbloech/Desktop/IVCV/VPX28441/Aldi_lastsensors/IVC_VPX28441_10_2S_breakdown.txt
+- C:/Users/silicon/Desktop/SQC Measurements/Cabel Tests/IVC_IFX_DIODE_14.txt
+- C:/Users/silicon/Desktop/SQC Measurements/Cabel Tests/IVC_IFX_DIODE_16.txt
+- C:/Users/silicon/Desktop/SQC Measurements/Cabel Tests/IVC_IFX_DIODE_18.txt
+- C:/Users/silicon/Desktop/SQC Measurements/Cabel Tests/IVC_IFX_DIODE_22.txt
+- C:/Users/silicon/Desktop/SQC Measurements/Cabel Tests/IVC_IFX_DIODE_34.txt
+- C:/Users/silicon/Desktop/SQC Measurements/Cabel Tests/IVC_IFX_DIODE_Blank.txt
 Filetype: ASCII
 IVCV_QTC:
   1C2:
@@ -56,8 +59,6 @@ IVCV_QTC:
     responsive: false
     shared_axes: false
     width: 1600
-  Layout:
-    cols: 1
   capacitance:
     PlotLabel: CV CURVES
     PlotOptions:
