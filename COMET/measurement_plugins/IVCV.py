@@ -197,32 +197,37 @@ class IVCV_class(tools):
 
         # Save data to the file
         if self.main.save_data:
-            diff = len(self.main.measurement_data["IV"][1]) - len(self.main.measurement_data["CV"][1])
-            if diff > 0:
-                self.main.measurement_data["CV"][0].append([np.nan for x in range(diff)])
-                self.main.measurement_data["CV"][1].append([np.nan for x in range(diff)])
-            else:
-                self.main.measurement_data["IV"][0].append([np.nan for x in range(abs(diff))])
-                self.main.measurement_data["IV"][1].append([np.nan for x in range(abs(diff))])
+            try:
+                diff = len(self.main.measurement_data["IV"][1]) - len(self.main.measurement_data["CV"][1])
+                if diff > 0:
+                    self.main.measurement_data["CV"][0].append([np.nan for x in range(diff)])
+                    self.main.measurement_data["CV"][1].append([np.nan for x in range(diff)])
+                else:
+                    self.main.measurement_data["IV"][0].append([np.nan for x in range(abs(diff))])
+                    self.main.measurement_data["IV"][1].append([np.nan for x in range(abs(diff))])
 
 
-            for entry in range(len(self.main.measurement_data["IV"][1])):
-                string_to_write = ""
+                for entry in range(len(self.main.measurement_data["IV"][1])):
+                    string_to_write = ""
 
-                # Add the voltage
-                if "IV" in self.main.job_details["IVCV"]:
-                    string_to_write += str(self.main.measurement_data["IV"][0][entry]).ljust(self.justlength)
-                elif "CV" in self.main.job_details["IVCV"]:
-                    string_to_write += str(self.main.measurement_data["CV"][0][entry]).ljust(self.justlength)
+                    # Add the voltage
+                    if "IV" in self.main.job_details["IVCV"]:
+                        string_to_write += str(self.main.measurement_data["IV"][0][entry]).ljust(self.justlength)
+                    elif "CV" in self.main.job_details["IVCV"]:
+                        string_to_write += str(self.main.measurement_data["CV"][0][entry]).ljust(self.justlength)
 
-                # Now add the actuall value
-                if "IV" in self.main.job_details["IVCV"]:
-                    string_to_write += str(self.main.measurement_data["IV"][1][entry]).ljust(self.justlength)
-                if "CV" in self.main.job_details["IVCV"]:
-                    string_to_write += str(self.main.measurement_data["CV"][1][entry]).ljust(self.justlength)
+                    # Now add the actuall value
+                    if "IV" in self.main.job_details["IVCV"]:
+                        string_to_write += str(self.main.measurement_data["IV"][1][entry]).ljust(self.justlength)
+                    if "CV" in self.main.job_details["IVCV"]:
+                        string_to_write += str(self.main.measurement_data["CV"][1][entry]).ljust(self.justlength)
 
-                # Write everything to the file
-                self.main.write(self.main.measurement_files["IVCV"], string_to_write + "\n")
+                    # Write everything to the file
+                    self.main.write(self.main.measurement_files["IVCV"], string_to_write + "\n")
+            except AttributeError as err:
+                self.log.critical("Attribute error happened during sequential data output to file. Err: {}".format(err))
+            except IndexError as err:
+                self.log.critical("Indexing error while writing to file. Error: {}".format(err))
 
 
         return iter

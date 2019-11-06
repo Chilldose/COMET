@@ -6,7 +6,7 @@ import logging
 
 class Ueye_main:
 
-    def __init__(self, layout_camera, roi_width=1280, roi_height=1024):
+    def __init__(self, layout_camera, roi_width=1920, roi_height=1080):
 
         self.log = logging.getLogger(__name__)
         self.log.info("Try to start Ueye camera interface...")
@@ -22,30 +22,33 @@ class Ueye_main:
             self.camera_View.addWidget(self.view)
             self.ueye = ueye
 
-
-
             # camera class to simplify uEye API access
             self.cam = Camera()
             self.cam.init()
+
+
             # Set framerate, WB, etc.
-            #fps = ueye.is_GetFramesPerSecond(ctypes.c_int(self.cam.h_cam), ctypes.c_double(30))
-            #ueye.is_SetFrameRate(ctypes.c_int(self.cam.h_cam), ctypes.c_double(fps), ctypes.c_double(30))
-            #self.SetAutoParameter(self.cam, "SET_AUTO_BRIGHT_AOI", pval1=1, pval2=0)
-            #self.SetAutoParameter(self.cam, "SET_AUTO_WB_AOI", pval1=1, pval2=0)
             self.SetAutoParameter(self.cam, "SET_ENABLE_AUTO_WHITEBALANCE", pval1=1, pval2=0)
-            #ueye.is_SetAutoParameter(ctypes.c_int(self.cam.h_cam),
+            self.SetAutoParameter(self.cam, "SET_AUTO_WB_AOI", pval1=1, pval2=0)
+            self.SetAutoParameter(self.cam, "SET_AUTO_BRIGHT_AOI", pval1=1, pval2=0)
+
+            # ueye.is_SetAutoParameter(ctypes.c_int(self.cam.h_cam),
             #                         ctypes.c_int(ueye.IS_SET_ENABLE_AUTO_WHITEBALANCE),
             #                         ctypes.c_double(1), ctypes.c_double(0))
+
             self.cam.set_colormode(ueye.IS_CM_BGR8_PACKED)
-            self.cam.set_aoi(int((2456-roi_width)/2),int((1842-roi_height)/2), roi_width, roi_height)
+            self.cam.set_aoi(int((2456 - roi_width) / 2), int((1842 - roi_height) / 2), roi_width, roi_height)
             self.cam.alloc()
+
+
 
             # a thread that waits for new images and processes all connected views
             self.continous_capture = FrameThread(self.cam, self.view)
             self.continous_capture.start()
 
-        except:
-            self.log.info("Ueye camera interface could not be started...")
+
+        except Exception as err:
+            self.log.error("Ueye camera interface could not be started... Error: {}".format(err))
 
 
     def start(self):

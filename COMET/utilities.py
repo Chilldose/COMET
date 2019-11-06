@@ -1060,6 +1060,9 @@ class table_control_class:
                 except:
                     self.log.error("Table status query failed to interpret: {} must be a float convertible".format(done))
                     done = -1
+            else:
+                sleep(0.1)
+                continue
 
             if maxcounter != -1:
                 counter += 1
@@ -1094,11 +1097,11 @@ class table_control_class:
                 self.log.error("The table control reported an unknown error, with errorcode: " + str(done) + ". Please see the manual.")
                 return False
 
-            elif done == 0.: # when corvus is read again
-                return True
-
             elif done == -1: # when corvus fucked up
                 return False
+
+            elif done == 0.: # when corvus is read again
+                return True
 
             QApplication.processEvents() # Updates the GUI, maybe after some iterations
             sleep(timeout)
@@ -1117,15 +1120,16 @@ class table_control_class:
                 self.vcw.write(self.device, order)
                 success = self.check_if_ready()
                 if success:
-                        pos = self.get_current_position()
-                        if commands[0] == order:
-                            self.device["table_xmin"] = float(pos[0])
-                            self.device["table_ymin"] = float(pos[1])
-                            self.device["table_zmin"] = float(pos[2])
-                        else:
-                            self.device["table_xmax"] = float(pos[0])
-                            self.device["table_ymax"] = float(pos[1])
-                            self.device["table_zmax"] = float(pos[2])
+                    pos = self.get_current_position()
+                    if commands[0] == order:
+                        self.device["table_xmin"] = float(pos[0])
+                        self.device["table_ymin"] = float(pos[1])
+                        self.device["table_zmin"] = float(pos[2])
+                    else:
+                        self.device["table_xmax"] = float(pos[0])
+                        self.device["table_ymax"] = float(pos[1])
+                        self.device["table_zmax"] = float(pos[2])
+
                 else:
                     self.variables["table_is_moving"] = False
                     return success

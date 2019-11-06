@@ -245,7 +245,7 @@ class Table_widget(object):
                 "background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
             self.variables.table.set_joystick(False)
             self.variables.table.set_axis([True, True, True])  # so all axis can be adressed
-            self.variables.table.move_table_to_edge("x", False, self.variables.default_values_dict["settings"]["height_movement"],
+            self.variables.table.move_table_to_edge("y", False, self.variables.default_values_dict["settings"]["height_movement"],
                                                     clearance = self.variables.default_values_dict["settings"]["height_movement"])
             self.variables.table.set_axis([True, True, False])  # so z axis is off again
             self.position_indicators_update()
