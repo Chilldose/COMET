@@ -302,6 +302,7 @@ class measurement_class(Thread):
         try:
             if data_to_dump:
                 if type.lower() == "json":
+                    return
                     save_dict_as_json(data_to_dump, filepath, details["Filename"])
 
                 elif type.lower() == "hdf5":
