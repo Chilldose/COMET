@@ -10,7 +10,7 @@ formatters:
 handlers:
   # Define a default handler, you can add more if you need them
   default:
-    level: DEBUG
+    level: WARNING
     class: logging.StreamHandler
     formatter: STDOut
     stream: ext://sys.stdout
