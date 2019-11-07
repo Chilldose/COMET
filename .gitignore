@@ -111,3 +111,5 @@ merge_strip_file.py
 *.iml
 COMET/misc_plugins/PlotScripts/html/temp_plot.html
 COMET/temp/tempCONFIG.yml
+COMET/misc_plugins/PlotScripts/html/temp_plot.html
+COMET/temp/tempCONFIG.yml
