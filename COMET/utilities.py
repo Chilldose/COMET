@@ -95,9 +95,16 @@ class QueueEmitHandler(logging.Handler):
         logging.Handler.__init__(self)
 
     def emit(self, record):
-        if record.levelno == self.level:
-            msg = {"Error": record.message}
-            self.queue.put(msg)
+        if record.levelno >= self.level:
+            msg = None
+            if record.levelno == self.log_LEVELS["ERROR"]:
+                msg = {"Error": record.message}
+            elif record.levelno == self.log_LEVELS["CRITICAL"]:
+                msg = {"CRITICAL": record.message}
+            elif record.levelno == self.log_LEVELS["WARNING"]:
+                msg = {"WARNING": record.message}
+            if msg:
+                self.queue.put(msg)
 
     def setLevel(self, level):
         """Warning this set level works different to the logging levels from the logging modules
@@ -1227,7 +1234,7 @@ class table_control_class:
         :param clearence: If move_down, instead of moving up the full lifting, the height movement ist lifting-clearance
         :return: None or errorcode
         """
-        self.log.info("Try moving table to {!s}".format(position))
+        self.log.debug("Try moving table to {!s}".format(position))
         if self.table_ready and not self.variables["table_is_moving"]:
             # get me the current position
             old_pos = self.get_current_position()
@@ -1273,11 +1280,11 @@ class table_control_class:
             if relative_move:
                 success = self.check_position([sum(x) for x in zip(old_pos, position)])
                 if success:
-                    self.log.info("Successfully moved table relative to {!s}".format(position))
+                    self.log.debug("Successfully moved table relative to {!s}".format(position))
             else:
                 success = self.check_position(position)
                 if success:
-                    self.log.info("Successfully moved table to {!s}".format(position))
+                    self.log.debug("Successfully moved table to {!s}".format(position))
             if not success:
                 return False
 
@@ -1299,7 +1306,7 @@ class table_control_class:
         :param lifting:  hight movement
         :return: none or errorcode
         '''
-        self.log.info("Moving table up by {!s} microns".format(lifting))
+        self.log.debug("Moving table up by {!s} microns".format(lifting))
         if not self.variables["Table_state"]:
             success = self.move_to([0,0,lifting], False, 0, True, **kwargs)
             if success:
@@ -1316,7 +1323,7 @@ class table_control_class:
         :param lifting:  hight movement
         :return: none or errorcode
         '''
-        self.log.info("Moving table down by {!s} microns".format(lifting))
+        self.log.debug("Moving table down by {!s} microns".format(lifting))
         if self.variables["Table_state"]:
             success = self.move_to([0,0,-lifting], False, 0, True, **kwargs)
             if success:
@@ -1458,7 +1465,7 @@ class switching_control:
         #Todo: Brandbox is sended twice due to double occurance (humidity controller), but maybe its for the best, since the thing isnt working properly
         #First find measurement
         switching_success = False
-        self.log.info("Switching to measurement: {!s}".format(str(measurement)))
+        self.log.debug("Switching to measurement: {!s}".format(str(measurement)))
         if measurement in self.settings["Switching"]["Switching_Schemes"]:
             # When measurement was found
             for name, switch_list in self.settings["Switching"]["Switching_Schemes"][measurement].items():

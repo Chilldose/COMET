@@ -115,7 +115,7 @@ class Table_widget(object):
 
     def init_table_action(self):
         """Does the init for the Table"""
-        self.Tablog.info("Pressed the table init button...")
+        self.Tablog.critical("Pressed the table init button...")
         reply = QMessageBox.question(None, 'Warning',
                                      "Are you sure to init the table?\n"
                                      "This action will cause the table to move to its most outer point in all directions.\n"

@@ -133,14 +133,14 @@ class measurement_class(Thread):
         all_measurement_functions = os.listdir(os.path.join(self.framework["rootdir"], "measurement_plugins"))
         all_measurement_functions = list(set([modules.split(".")[0] for modules in all_measurement_functions]))
 
-        self.log.info("All measurement functions found: " + str(all_measurement_functions) + ".")
+        self.log.debug("All measurement functions found: " + str(all_measurement_functions) + ".")
 
         # import all modules specified in the measurement order, so not all are loaded
         if "measurement_order" in self.settings["settings"]:
             for modules in self.settings["settings"]["measurement_order"]:
                 if modules in all_measurement_functions:
                     self.all_plugins.update({modules: importlib.import_module("COMET.measurement_plugins." + modules)})
-                    self.log.info("Imported module: {}".format(modules))
+                    self.log.debug("Imported module: {}".format(modules))
                 else:
                     if modules not in to_ignore:
                         self.log.error("Could not load module: {}. It was specified in the settings but"
@@ -151,7 +151,7 @@ class measurement_class(Thread):
 
 
     def create_data_file(self, header, filepath, filename="default"):
-        self.log.info("Creating new data file with name: {!s}".format(filename))
+        self.log.debug("Creating new data file with name: {!s}".format(filename))
         file = create_new_file(filename, filepath) # Creates the file at the destination
         flush_to_file(file, header) # Writes the header to the file
         return file # Finally returns the file object
@@ -172,7 +172,7 @@ class measurement_class(Thread):
                 counter = 0
                 lights_ON = True
                 self.queue_to_main.put({"Info":"There seems to be light in the Box."})
-                self.log.info("The box seems to be open or the lights are still on in the Box")
+                self.log.warning("The box seems to be open or the lights are still on in the Box")
                 while lights_ON:
                     sleep(5)
                     if self.settings["settings"]["internal_lights"]:
@@ -312,5 +312,5 @@ class measurement_class(Thread):
         except:
             self.log.error("Measurement output could not be saved as {}".format(type))
         else:
-            self.log.info("No data for saving found...")
+            self.log.warning("No data for saving found...")
 

@@ -42,13 +42,13 @@ def load_plugins(settings, rootdir):
 
     all_plugins = {}
 
-    l.info("All plugin scripts found: " + str(all_measurement_functions) + ".")
+    l.debug("All plugin scripts found: " + str(all_measurement_functions) + ".")
 
     # import all modules specified in the measurement order, so not all are loaded
     for modules in settings["Analysis"]:
         if modules in all_measurement_functions:
             all_plugins.update({modules: importlib.import_module("analysis_scripts." + modules)})
-            l.info("Imported module: {}".format(modules))
+            l.debug("Imported module: {}".format(modules))
         else:
             if modules not in to_ignore:
                 l.error("Could not load module: {}. It was specified in the settings but"
