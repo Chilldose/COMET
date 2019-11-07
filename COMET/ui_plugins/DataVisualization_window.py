@@ -246,21 +246,40 @@ class DataVisualization_window:
 
         for analy in plotting_output.plotObjects:
             Allplots = analy.get("All", {})
-            try:
-                for path in Allplots.keys():
-                    tree = QTreeWidgetItem(["_".join(path)])
-                    self.plot_path["_".join(path)] = path
-                    self.plot_analysis["_".join(path)] = analy.get("Name", "")
+
+            # Try to plot all together as well. but this my not work for all
+            #try:
+            #    tree = QTreeWidgetItem(["_".join(path)])
+            #    self.plot_path["_".join(path)] = path
+            #    self.plot_analysis["_".join(path)] = analy.get("Name", "")
+            #    self.widget.output_tree.addTopLevelItem(tree)
+
+            # Plot the inindividual plots/subplots
+            if isinstance(Allplots,hv.core.layout.Layout):
+                try:
+                    for path in Allplots.keys():
+                        tree = QTreeWidgetItem(["_".join(path)])
+                        self.plot_path["_".join(path)] = path
+                        self.plot_analysis["_".join(path)] = analy.get("Name", "")
+                        self.widget.output_tree.addTopLevelItem(tree)
+                except AttributeError as err:
+                    self.log.warning("Attribute error happened during plot object access. Error: {}. "
+                                     "Tyring to adapt...".format(err))
+                    tree = QTreeWidgetItem([Allplots._group_param_value])
                     self.widget.output_tree.addTopLevelItem(tree)
-            except AttributeError as err:
-                self.log.warning("Attribute error happened during plot object access. Error: {}. "
-                                 "Tyring to adapt...".format(err))
-                tree = QTreeWidgetItem([Allplots._group_param_value])
-                self.widget.output_tree.addTopLevelItem(tree)
-                self.plot_path[Allplots._group_param_value] = ()
-                self.plot_analysis[Allplots._group_param_value] = analy["Name"]
-            except Exception as err:
-                self.log.error("An error happened during plot object access. Error: {}".format(err))
+                    self.plot_path[Allplots._group_param_value] = ()
+                    self.plot_analysis[Allplots._group_param_value] = analy["Name"]
+                except Exception as err:
+                    self.log.error("An error happened during plot object access. Error: {}".format(err))
+            else:
+                try:
+                    tree = QTreeWidgetItem(["Plot"])
+                    self.plot_path["Plot"] = ()
+                    self.plot_analysis["Plot"] = analy.get("Name", "")
+                    self.widget.output_tree.addTopLevelItem(tree)
+                except Exception as err:
+                    self.log.error("An error happened during plot object access. Error: {}".format(err))
+
 
 
     def upload_to_DB(self):

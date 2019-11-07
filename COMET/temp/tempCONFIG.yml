@@ -59,8 +59,6 @@ IVCV_QTC:
     responsive: false
     shared_axes: false
     width: 1600
-  Layout:
-    cols: 1
   capacitance:
     PlotLabel: CV CURVES
     PlotOptions:

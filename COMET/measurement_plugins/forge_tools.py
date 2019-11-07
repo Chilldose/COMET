@@ -192,7 +192,7 @@ class tools(object):
 
         return ramp_list
 
-    def do_ramp_value(self, resource, order, voltage_Start, voltage_End, step, wait_time = 0.05, compliance=None):
+    def do_ramp_value(self, resource, order, voltage_Start, voltage_End, step, wait_time = 0.05, compliance=None, set_value=None):
         """
         This functions ramps a value from one point to another. It actually sends the commands to the device
 
@@ -203,6 +203,7 @@ class tools(object):
         :param step: Stepsize
         :param wait_time: Wait between values
         :param compliance: Compliance, if None the compliance check will be skipped
+        :param set_value: If you want to set a value each interation in the state machine (must be a callable function)
         :return: True
         """
         self.toolslog.info("Start ramping...")
@@ -223,6 +224,8 @@ class tools(object):
 
         for voltage in voltage_step_list:
             self.change_value(resource, order, voltage)
+            if set_value:
+                set_value(voltage)
             if voltage != 0 and compliance: # Otherwise measurement can take to long, which leads to a potential timeout error
                 if self.check_compliance(resource, compliance):
                     return False
