@@ -1,6 +1,8 @@
 import logging
 from PyQt5.QtWidgets import *
 from functools import partial
+import yaml
+import os
 
 
 class MeasurementConfig_window():
@@ -10,6 +12,7 @@ class MeasurementConfig_window():
         self.variables = GUI
         self.layout = layout
         self.log = logging.getLogger(__name__)
+        # Load settings if some are defined in the parent directory
         self.settings = self.variables.framework_variables['Configs']['config'].get('MeasurementSettings', {})
         self.ui_groups = {}
         self.settings_boxes = {}
@@ -22,9 +25,29 @@ class MeasurementConfig_window():
         self.SettingsMainWidget = QWidget()
         self.SettingsGui = self.variables.load_QtUi_file("SettingsTab.ui",  self.SettingsMainWidget)
         self.layout.addWidget(self.SettingsMainWidget)
+
+        if not self.settings:
+            self.log.warning("Not settings found to render, please select/load one...")
         self.construct_ui()
 
         self.SettingsGui.Unlock_pushButton.clicked[bool].connect(self.SettingsGui.scrollArea.setEnabled)
+
+    def load_settings_from_file(self, path):
+        """Loads settings from a yaml file and configs the GUI with it. This deletes an old GUI"""
+        if os.path.exists(os.path.normpath(path)):
+            try:
+                self.delete_old_settings_layout()
+                with open(os.path.normpath(path)) as fp:
+                    self.settings = yaml.safe_load(fp)
+                self.construct_ui()
+            except Exception as err:
+                self.log.error("An error happened while loading yaml settings with error: {}".format(err))
+                return
+
+    def delete_old_settings_layout(self):
+        """Deletes the layout childs of the main layout"""
+        for i in reversed(range(self.SettingsGui.MainSettings_Layout.count())):
+            self.SettingsGui.MainSettings_Layout.itemAt(i).widget().setParent(None)
 
     def generate_job_for_group(self, group):
         """Generates a Measurement job dict, out of the passed group. returns empty dict if meas is disabled"""
@@ -56,22 +79,23 @@ class MeasurementConfig_window():
         """Constructs the UI"""
 
         # Run through all options
-        for groupName, group in self.settings.items():
-            if isinstance(group, dict):
-                if "Measurements" in group:
-                    # Load a group widget
-                    SettingsWidget = QWidget()
-                    gui = self.variables.load_QtUi_file("SettingsFrame.ui", SettingsWidget)
-                    self.SettingsGui.MainSettings_Layout.addWidget(SettingsWidget)
+        if self.settings:
+            for groupName, group in self.settings.items():
+                if isinstance(group, dict):
+                    if "Measurements" in group:
+                        # Load a group widget
+                        SettingsWidget = QWidget()
+                        gui = self.variables.load_QtUi_file("SettingsFrame.ui", SettingsWidget)
+                        self.SettingsGui.MainSettings_Layout.addWidget(SettingsWidget)
 
-                    try:
-                        self.config_group(gui, groupName, group)
-                    except Exception as err:
-                        self.log.error("An error happend during settings ui construction, this usually happens if you "
-                                       "have passed wrong options for the measruements. Error: {}".format(err))
+                        try:
+                            self.config_group(gui, groupName, group)
+                        except Exception as err:
+                            self.log.error("An error happend during settings ui construction, this usually happens if you "
+                                           "have passed wrong options for the measruements. Error: {}".format(err))
 
-                else:
-                    self.log.error("Wrong typed settings options. Each group needs to have a 'Measurements' entry.")
+                    else:
+                        self.log.error("Wrong typed settings options. Each group needs to have a 'Measurements' entry.")
 
     def config_group(self, ui, Name, measurements):
         """Configs the group and loads the individual measurements"""
