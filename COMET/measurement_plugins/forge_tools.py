@@ -206,7 +206,7 @@ class tools(object):
         :param set_value: If you want to set a value each interation in the state machine (must be a callable function)
         :return: True
         """
-        self.toolslog.info("Start ramping...")
+        self.toolslog.debug("Start ramping...")
         voltage_End = float(voltage_End)
         voltage_Start = float(voltage_Start)
         step = float(step)

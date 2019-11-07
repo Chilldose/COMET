@@ -277,7 +277,7 @@ class IVCV_class(tools):
     def do_IV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a current value and process the data'''
         if not self.main.event_loop.stop_all_measurements_query():
-            self.log.debug("IV measurement started...")
+            self.log.info("Conduction IV measurement at {} V".format(voltage))
             if not self.switching.switch_to_measurement("IV"):
                 self.stop_everything()
                 return
@@ -308,7 +308,7 @@ class IVCV_class(tools):
     def do_CV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a capacity value (or more precicely the amplitude and the phase shift) and process the data'''
         if not self.main.event_loop.stop_all_measurements_query():
-            self.log.debug("CV measurement started...")
+            self.log.info("Conduction CV measurement at {} V".format(voltage))
             if not self.switching.switch_to_measurement("CV"):
                 self.stop_everything()
                 return

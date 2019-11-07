@@ -27,7 +27,7 @@ class MeasurementConfig_window():
         self.layout.addWidget(self.SettingsMainWidget)
 
         if not self.settings:
-            self.log.warning("Not settings found to render, please select/load one...")
+            self.log.warning("Could not load settings tab since no settings have been defined, please load one...")
         self.construct_ui()
 
         self.SettingsGui.Unlock_pushButton.clicked[bool].connect(self.SettingsGui.scrollArea.setEnabled)

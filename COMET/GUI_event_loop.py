@@ -32,7 +32,9 @@ class GUI_event_loop(QThread):
         self.close_program = False
         self.measurement_running = False
         self.measurement_loop_running = True
-        self.error_types = ["Critical", "Info","MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "Warning", "FatalError", "ThresholdError", "ERROR", "Error"]
+        self.error_types = ["Critical", "CRITICAL", "Info","MeasError", "DataError",
+                            "RequestError", "MEASUREMENT_FAILED", "Warning", "WARNING", "FatalError",
+                            "ThresholdError", "ERROR", "Error"]
         self.fatal_errors = ["MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "FatalError", "ThresholdError"]
         self.measurement_types = self.default_values_dict["settings"].get("measurement_types", [])
         self.event_types = ["MEASUREMENT_STATUS", "MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED"]
@@ -62,7 +64,7 @@ class GUI_event_loop(QThread):
         while not self.stop_GUI_loop:
             message = self.message_to_main.get()  # This function waits until a message is received from the measurement loop!
             if message and isinstance(message, dict):
-                self.log.info("Got message: " + str(message))
+                self.log.debug("Got message: " + str(message))
                 self.translate_message(message)  # This translates the message
                 self.process_message(message)  # Here the message will be processed
                 self.process_pending_events()  # Here all events during message work will be send or done
@@ -107,8 +109,7 @@ class GUI_event_loop(QThread):
                 # Emit the signal
                 self.Errsig.emit(str(message[str(error)]))
             elif "WARNING" in error.upper():
-                prepend = '<font color=\"orange\">'
-
+                prepend = '<font color=\"yellow\">'
             elif "CRITICAL" in error.upper():
                 prepend = '<font color=\"orange\">'
 
@@ -151,7 +152,7 @@ class GUI_event_loop(QThread):
                 self.measurement_running = message["MEASUREMENT_STATUS"]
 
             else:
-                self.log.info("Event: {} was not recognised. No action taken!".format(event))
+                self.log.warning("Event: {} was not recognised. No action taken!".format(event))
 
 
         # Handles all data for coming from the measurements

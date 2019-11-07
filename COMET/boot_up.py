@@ -65,7 +65,7 @@ class SetupLoader(object):
         self.configs = {"config": {}, "device_lib": {}, "additional_files": {}} # Dict for the final "folder" structure
         for data in config_files: # Data directories in parent dir
             name = os.path.basename(data).split(".")[0]
-            self.log.info("Try reading config file: {}".format(data))
+            self.log.debug("Try reading config file: {}".format(data))
             new_device_dict = self.create_dictionary(data) # Create a dict out of the config
             if "Settings_name" in new_device_dict: # Looks for the name of the config
                 self.configs["config"][new_device_dict["Settings_name"]] = new_device_dict # Updates the parent

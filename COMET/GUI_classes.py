@@ -122,7 +122,7 @@ class GUI_classes(QWidget):
     def construct_ui(self):
         '''This function generates all ui elements in form of tab widgets'''
         for module in self.all_plugin_modules:
-            self.log.info("Constructing UI module: {!s}".format(module))
+            self.log.debug("Constructing UI module: {!s}".format(module))
             # Create plugin widget
             widget = PluginWidget()
             layout = QGridLayout()  # Just a layout type
@@ -170,12 +170,12 @@ class GUI_classes(QWidget):
         self.ui_classes = locate_modules(os.path.join(package_dir, 'ui_plugins', '*.py'))
         self.qt_designer_ui = locate_modules(os.path.join(package_dir, QT_UI_DIR, '*.ui'))
 
-        self.log.info("Located %s Ui classes:", len(self.ui_classes))
+        self.log.debug("Located %s Ui classes:", len(self.ui_classes))
         for module in self.ui_classes:
-            self.log.info(module)
-        self.log.info("Located %s Qt Ui objects:", len(self.qt_designer_ui))
+            self.log.debug(module)
+        self.log.debug("Located %s Qt Ui objects:", len(self.qt_designer_ui))
         for module in self.qt_designer_ui:
-            self.log.info(module)
+            self.log.debug(module)
 
         if "GUI_render_order" in self.default_values_dict["settings"]:
             for modules in self.default_values_dict["settings"]["GUI_render_order"]:  # import all modules from all files in the plugins folder
@@ -198,7 +198,7 @@ class GUI_classes(QWidget):
             for elements in self.default_values_dict["settings"]["GUI_render_order"]:
                 for ui_obj in self.final_tabs: # Not very pretty
                     if elements in ui_obj:
-                        self.log.info("Adding UI module to widget: {!s}".format(elements))
+                        self.log.debug("Adding UI module to widget: {!s}".format(elements))
                         self.main_window.addTab(ui_obj[0], ui_obj[1])  # elements consits of a tupel object, first is the ui object the second the name of the tab
 
         else: # If no order is implied, also renders all plugins found
@@ -211,7 +211,7 @@ class GUI_classes(QWidget):
 
     def add_update_function(self, func): # This function adds function objects to a list which will later on be executed by updated periodically
         self.functions.append(func)
-        self.log.info("Added framework function: " + str(func))
+        self.log.debug("Added framework function: " + str(func))
 
     def give_framework_functions(self):
         return self.functions, self.update_interval

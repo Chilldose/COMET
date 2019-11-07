@@ -83,9 +83,9 @@
         #temphum_controller: BrandBox
         HVSwitching: BrandBox
         LVSwitching: Keithley 708B Switching
-        #BiasSMU: 2657 Keithley SMU
+        BiasSMU: 2657 Keithley SMU
         LCRMEter: Agilent E4980A
-        BiasSMU: 2410 Keithley SMU
+        #BiasSMU: 2410 Keithley SMU
         Table_control: ITK Corvus
         #lights_controller: BrandBox
 

@@ -202,7 +202,7 @@ class VisaConnectWizard:
                 device_idn_return = str(self.verify_ID(device_resource, command=device_IDN_query)).strip()
                 if IDN == device_idn_return:
                     self.myInstruments_dict.update({IDN: device_resource})  # Adds the device ID for each instrument into the dict
-                    self.log.info("Successfully connected to device {}".format(device_resource))
+                    self.log.debug("Successfully connected to device {}".format(device_resource))
                     return device_resource # this means success
 
                 elif device_idn_return == "False":
@@ -286,7 +286,7 @@ class VisaConnectWizard:
 
         try:
             query = str(resource.query(str(code))) # try to query
-            self.log.info("Query of: {} to device: {} was answered with: {}".format(code, resource_dict["Device_name"], query.strip()))
+            self.log.debug("Query of: {} to device: {} was answered with: {}".format(code, resource_dict["Device_name"], query.strip()))
             return query
 
         except Exception as err:
@@ -341,7 +341,7 @@ class VisaConnectWizard:
             else:
                 full_command = str(code)
                 resource.write(full_command)
-                self.log.info("Write command: " + str(full_command) + " to: " + str(resource))
+                self.log.debug("Write command: " + str(full_command) + " to: " + str(resource))
 
                 # Check if a read is necessary for the device
                 if resource_dict.get("requires_read_on_set", False):
