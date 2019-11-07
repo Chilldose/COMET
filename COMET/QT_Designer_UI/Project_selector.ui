@@ -88,7 +88,7 @@
      <item row="7" column="3">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Select Settings</string>
+        <string>Select Settings:</string>
        </property>
       </widget>
      </item>
