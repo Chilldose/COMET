@@ -18,8 +18,8 @@ class MeasurementConfig_window():
         self.settings_boxes = {}
         self.columns = 4 # Number of columns per group
         if not self.settings:
-            self.log.error("Measurement settings tab was loaded but no options have been given. Please add the settings to your project")
-
+            self.log.info("Measurement settings tab was loaded but no options have been given. Please add the settings to your project or load one")
+            self.variables.framework_variables['Configs']['config']['MeasurementSettings'] = {}
 
         # Settings Main tab
         self.SettingsMainWidget = QWidget()
@@ -43,6 +43,17 @@ class MeasurementConfig_window():
             except Exception as err:
                 self.log.error("An error happened while loading yaml settings with error: {}".format(err))
                 return
+        else:
+            try:
+                self.delete_old_settings_layout()
+                # If the data is already a str
+                self.settings = yaml.safe_load(path)
+                self.construct_ui()
+            except Exception as err:
+                self.log.error("An error happened while loading yaml settings with error: {}".format(err))
+                return
+        self.variables.framework_variables['Configs']['config']['MeasurementSettings'] = self.settings
+
 
     def delete_old_settings_layout(self):
         """Deletes the layout childs of the main layout"""

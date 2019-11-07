@@ -38,19 +38,10 @@
      <item row="1" column="7">
       <widget class="QComboBox" name="operator_comboBox"/>
      </item>
-     <item row="1" column="5">
-      <widget class="QLineEdit" name="filename"/>
-     </item>
-     <item row="1" column="1">
-      <widget class="QComboBox" name="proj_comboBox"/>
-     </item>
-     <item row="1" column="3">
-      <widget class="QComboBox" name="sensor_comboBox"/>
-     </item>
-     <item row="1" column="4">
-      <widget class="QLabel" name="filename_label">
+     <item row="2" column="0">
+      <widget class="QPushButton" name="save_to_button">
        <property name="text">
-        <string>Output filename</string>
+        <string>Output directory</string>
        </property>
       </widget>
      </item>
@@ -61,6 +52,29 @@
        </property>
       </widget>
      </item>
+     <item row="1" column="1">
+      <widget class="QComboBox" name="proj_comboBox"/>
+     </item>
+     <item row="1" column="5">
+      <widget class="QLineEdit" name="filename"/>
+     </item>
+     <item row="1" column="3">
+      <widget class="QComboBox" name="sensor_comboBox">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="4">
+      <widget class="QLabel" name="filename_label">
+       <property name="text">
+        <string>Output filename</string>
+       </property>
+      </widget>
+     </item>
      <item row="1" column="2">
       <widget class="QLabel" name="sensor_label">
        <property name="text">
@@ -68,37 +82,30 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="0">
-      <widget class="QPushButton" name="save_to_button">
-       <property name="text">
-        <string>Output directory</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="0">
-      <widget class="QPushButton" name="save_settings_button">
-       <property name="text">
-        <string>Save settings</string>
-       </property>
-      </widget>
-     </item>
-     <item row="7" column="1">
-      <widget class="QPushButton" name="load_settings_button">
-       <property name="text">
-        <string>Load settings</string>
-       </property>
-      </widget>
-     </item>
      <item row="2" column="1" colspan="7">
       <widget class="QLineEdit" name="output_dir_edit"/>
      </item>
      <item row="7" column="3">
-      <widget class="QComboBox" name="select_settings_comboBox"/>
-     </item>
-     <item row="7" column="2">
       <widget class="QLabel" name="label">
        <property name="text">
         <string>Select Settings</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="4" colspan="3">
+      <widget class="QComboBox" name="select_settings_comboBox"/>
+     </item>
+     <item row="7" column="7">
+      <widget class="QPushButton" name="load_settings_button">
+       <property name="text">
+        <string>Load all settings</string>
+       </property>
+      </widget>
+     </item>
+     <item row="7" column="0" colspan="2">
+      <widget class="QPushButton" name="save_settings_button">
+       <property name="text">
+        <string>Save current settings as:</string>
        </property>
       </widget>
      </item>

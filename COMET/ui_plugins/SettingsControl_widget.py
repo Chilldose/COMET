@@ -1,6 +1,7 @@
 
 import logging
 from PyQt5.QtWidgets import QFileDialog, QWidget
+from PyQt5 import QtCore
 import yaml
 import os, sys
 from ..utilities import write_init_file
@@ -78,13 +79,17 @@ class SettingsControl_widget(object):
                 {"Current_directory": str(os.path.join(os.path.dirname(sys.modules[__name__].__file__)))})
             self.Settings_gui.output_dir_edit.setText(str(os.path.join(os.path.dirname(sys.modules[__name__].__file__))))
 
-        self.Settings_gui.load_settings_button.clicked.connect(self.load_measurement_settings_file)
+        # Load settings presets
+        self.load_setting_presets()
+
+        self.Settings_gui.load_settings_button.clicked.connect(self.load_setting_presets)
         self.Settings_gui.save_settings_button.clicked.connect(self.save_measurement_settings_file)
         self.Settings_gui.save_to_button.clicked.connect(self.dir_selector_action)
         self.Settings_gui.operator_comboBox.activated[str].connect(self.operator_selector_action)
         self.Settings_gui.sensor_comboBox.activated[str].connect(self.sensor_selector_action)
         self.Settings_gui.proj_comboBox.activated[str].connect(self.project_selector_action)
         self.Settings_gui.filename.textChanged[str].connect(self.change_name)
+        self.Settings_gui.select_settings_comboBox.currentTextChanged.connect(self.settings_select_change_action)
 
     # Order functions
     def change_name(self, filename):
@@ -107,7 +112,8 @@ class SettingsControl_widget(object):
         self.variables.default_values_dict["settings"]["Current_directory"] = str(directory)
 
     def load_measurement_settings_file(self):
-        ''' This function loads a mesuerment settings file'''
+        ''' This function loads a measurement settings file
+        DEPRICATED: YOU CAN ONLY LOAD FROM THE DEDICATED FOLDER'''
 
         # First update the settings that the state machine is up to date
         self.variables.ui_plugins["Settings_window"].load_new_settings()
@@ -125,17 +131,24 @@ class SettingsControl_widget(object):
 
     def save_measurement_settings_file(self):
         ''' This function saves a mesuerment settings file'''
-
-        #First update the settings that the state machine is up to date
-        self.variables.ui_plugins["Settings_window"].load_new_settings()
-
         fileDialog = QFileDialog()
         file = fileDialog.getSaveFileName()
 
         if file[0]:
-            # gets me all settings which are to be saved
-            write_init_file(file[0], self.variables.ui_plugins["Settings_window"].get_all_settings())
-            self.Setlog.info("Settings file successfully written to: {}".format(file))
+            with open(os.path.normpath(file[0].split(".")[0])+".yml", "w+") as fp:
+                self.variables.framework_variables['Configs']['config']['MeasurementSettings']["Settings_name"] = os.path.basename(file[0])
+                yaml.safe_dump(self.variables.framework_variables['Configs']['config']['MeasurementSettings'], fp)
+
+            self.variables.framework_variables['Configs']["additional_files"]["Measurement_Settings"][os.path.basename(file[0])] = self.variables.framework_variables['Configs']['config']['MeasurementSettings']
+            self.variables.framework_variables['Configs']["additional_files"]["Measurement_Settings"][os.path.basename(file[0])]["raw"] = yaml.dump(self.variables.framework_variables['Configs']['config']['MeasurementSettings'])
+            self.Settings_gui.select_settings_comboBox.addItem(os.path.basename(file[0]))
+
+            index = self.Settings_gui.select_settings_comboBox.findText(os.path.basename(file[0]), QtCore.Qt.MatchFixedString)
+            if index >= 0:
+                self.Settings_gui.select_settings_comboBox.setCurrentIndex(index)
+
+            self.Setlog.info("Settings file successfully written to: {}".format(file[0]))
+
 
     def load_valid_sensors_for_project(self, project_name):
         '''This function loads the valid sensors for each project'''
@@ -150,4 +163,29 @@ class SettingsControl_widget(object):
         except:
             self.log.error("No sensors defined for project: " + str(project_name))
             self.variables.default_values_dict["settings"]["Current_sensor"] = "None"
+
+    def load_setting_presets(self):
+        """Loads the file pathes for the predefined measurement settings in the folder"""
+        self.Settings_gui.select_settings_comboBox.clear()
+        settings = self.variables.framework_variables['Configs']["additional_files"]["Measurement_Settings"]
+        self.Settings_gui.select_settings_comboBox.addItems(settings.keys())
+        # Load settings
+        selected = self.Settings_gui.select_settings_comboBox.currentText()
+        try:
+            self.variables.ui_plugins["MeasurementConfig_window"].load_settings_from_file(settings[selected]["raw"])
+        except:
+            # Sometimes the settings are not loaded yet
+            self.Settings_gui.select_settings_comboBox.clear()
+            self.Setlog.warning("Could not set settings, since settingsTab was not ready on runtime. Please reload...")
+
+    def settings_select_change_action(self):
+        """Changes the settings after selection"""
+        # Load settings
+        settings = self.variables.framework_variables['Configs']["additional_files"]["Measurement_Settings"]
+        selected = self.Settings_gui.select_settings_comboBox.currentText()
+        if selected:
+            self.variables.ui_plugins["MeasurementConfig_window"].load_settings_from_file(settings[selected]["raw"])
+
+
+
 

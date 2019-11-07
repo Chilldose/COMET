@@ -1,7 +1,7 @@
 --- # Block of dict entries
 
     # Critical parameters
-    Settings_name: MeasurementSettings # The name of the settings which will be shown in the framework and will be the addressing name (settings here is important)
+    Settings_name: IVCVfreqStripSettings # The name of the settings which will be shown in the framework and will be the addressing name (settings here is important)
     
     IVCV:
         Do: True
