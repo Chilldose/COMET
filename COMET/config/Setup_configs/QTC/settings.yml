@@ -73,7 +73,7 @@
         - DataBrowser
         - Resources
         - Alignment
-        - Singlestrip
+        - MeasurementDetails
         - DynamicWaiting
         - DataVisualization
         - Documentation
