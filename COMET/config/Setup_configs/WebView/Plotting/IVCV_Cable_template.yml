@@ -17,19 +17,19 @@
 
 # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files
-    header_lines: 3
-    measurement_description: 3
-    units_line: 3
-    data_start: 4
+    header_lines: 8
+    measurement_description: 9
+    units_line: 9
+    data_start: 10
 
   # Options for the different Analyses scripts
   # These options are entirely up to you and what you need in your analysis
   IVCV_QTC:
       General: # Options common to all plots
           fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
-          #responsive: False
-          width: 1200
-          height: 700
+          responsive: False
+          width: 1600
+          height: 1000
           shared_axes: False
       #Layout:
       #    cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
@@ -40,8 +40,8 @@
       BoxWhiskerOptions:
           shared_axes: False
           box_alpha: 0.3
-          width: 1200
-          height: 900
+          width: 2600
+          height: 1500
 
       temperature:
           PlotLabel: Temperature
@@ -61,17 +61,17 @@
               #xlabel: Pad [#]
               #ylabel: Humidity [rel%]
 
-      Current:
+      current:
           PlotLabel: IV CURVES
           UnitConversion: nano
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               logy: True
               logx: False
               invert_xaxis: False
-              invert_yaxis: False
+              invert_yaxis: false
               #ylim: !!python/tuple [0, 10e-6]
               #xlim: !!python/tuple [0, 1000]
-              #legend_position: "bottom_right"
+              legend_position: "bottom_right"
               #aspect: equal
               padding: !!python/tuple [0, 0.1]
               show_grid: True
@@ -91,9 +91,33 @@
               yaxisENG: True # If you want to plot the y axis in engineering representation
 
 
-      Capacity:
+      capacitance:
           PlotLabel: CV CURVES
           UnitConversion: nano
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              logy: False
+              logx: False
+              invert_xaxis: False
+              invert_yaxis: False
+              #ylim: !!python/tuple [0, 10e-6]
+              #xlim: !!python/tuple [0, 1000]
+              legend_position: "bottom_right"
+              #aspect: equal
+              padding: !!python/tuple [0, 0.1]
+              show_grid: True
+              gridstyle:
+                  grid_line_color: black
+                  grid_line_width: 1.5
+                  minor_xgrid_line_color: lightgray
+                  minor_ygrid_line_color: lightgray
+                  xgrid_line_dash: [4, 4]
+                  ygrid_line_dash: [10, 4]
+              #xlabel: voltage [V]
+              #ylabel: capacitance [F]
+              shared_axes: False
+
+      1C2:
+          PlotLabel: CV CURVES - Full depletion
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               logy: False
               logx: False
@@ -113,33 +137,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               #xlabel: voltage [V]
-              #ylabel: capacitance [F]
+              ylabel: 1/c^2 [arb. units]
               shared_axes: False
-
-      1C2:
-          PlotLabel: CV CURVES - Full depletion
-          #PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              #logy: False
-              #logx: False
-              #invert_xaxis: False
-              #invert_yaxis: False
-              #ylim: !!python/tuple [0, 10e-6]
-              #xlim: !!python/tuple [0, 1000]
-              #legend_position: "bottom_right"
-              #aspect: equal
-              #padding: !!python/tuple [0, 0.1]
-              #show_grid: True
-              #gridstyle:
-              #    grid_line_color: black
-              #    grid_line_width: 1.5
-              #    minor_xgrid_line_color: lightgray
-              #    minor_ygrid_line_color: lightgray
-              #    xgrid_line_dash: [4, 4]
-              #    ygrid_line_dash: [10, 4]
-              #xlabel: voltage [V]
-              #ylabel: 1/c^2 [arb. units]
-              #shared_axes: False
-              #ylim: !!python/tuple [0, 0.08]
+              ylim: !!python/tuple [0, 0.08]
               #xlim: !!python/tuple [0, 500]
-
-

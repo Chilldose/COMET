@@ -1,0 +1,34 @@
+--- # Dummy config file for testing
+
+  Filetype: ASCII # Other options are json
+
+  Analysis:
+    - relaxation_time # The type of analysis, which will be performed
+
+
+# Optional Parameters
+  ASCII_file_specs: # The specifications for the ascii file type measurements files
+    header_lines: 9
+    measurement_description: 10
+    units_line: 10
+    data_start: 11
+
+  relaxation_time:
+      General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 1200
+          height: 700
+          shared_axes: False
+          show_legend: False
+          
+      Layout:
+          cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
+          
+      Relax: 
+        UnitConversion: micro
+        PlotLabel: Relaxation Time analysis
+        PlotOptions:
+          show_grid: True
+          #xlabel: time[s]
+          #ylabel: current 
