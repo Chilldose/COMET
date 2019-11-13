@@ -905,6 +905,37 @@ class transformation:
         v = np.array(v)
         return np.add(v[0:2].dot(T),V0)
 
+def connection_test(schemes, switching, vcw, device, target_resistance=1, abs_err=0.1, set_command="set_meas_resistance"):
+    """
+    Switches to the passed switching schemes and conducts and measures the resistance. Is it not close to the passed
+     one an error will be generated in the logs and a tuple with the scheme names and the resistance will be returned.
+    :param schemes: A list/tuple of switching names
+    :param switching: The switching class which takes str input for switching
+    :param vcw: VCW instance to be used
+    :param device: VCW device object
+    :param target_resistance: The resistance it should have
+    :param abs_err: the error it can have
+    :param set_command: The command to set the device to, usually its set_meas_resistance
+    :return: True if all is fine, a tuple of the schemes names which failed the connection test
+    """
+    command = build_command(device, set_command)
+    read = build_command(device, "get_read")
+    vcw.write(device, command)
+    res = []
+    for name in schemes:
+        switching.switch_to_measurement(name)
+        res.append(vcw.query(device, read))
+    closeness = np.isclose([target_resistance for x in res], res, rtol=0, atol=abs_err)
+    if np.all(closeness):
+        return True
+    else:
+        return np.array(schemes)[~closeness]
+
+
+
+
+
+
 class table_control_class:
     '''This class handles all interactions with the table. Movement, status etc.
     This class is designed to be running in different instances.
@@ -1705,24 +1736,6 @@ def reset_devices(devices_dict, vcw):
                     ["*rst", "*cls", "TRAC:CLE"],
                     devices_dict[device].get("execution_terminator", "")
                 )
-
-class KeyPress():
-    #keyPressed = QtCore.pyqtSignal(QtCore.QEvent)
-
-    def __init__(self, app, to_call, keys_objects):
-        """Define which key should be possible to press and what to do with it
-        QtCore.Qt.Key_Enter
-        QtCore.Qt.Key_Q etc."""
-        #super(KeyPress, self).__init__()
-        #self.keyPressed.connect(self.on_key)
-        self.keys = keys_objects
-        self.call = to_call
-        self.app = app
-        self.app.installEventFilter(self)
-
-    def eventFilter(self, object, event):
-        if event.key() in self.keys:
-            self.call(event)
 
 def parse_args():
 
