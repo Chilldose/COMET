@@ -300,11 +300,22 @@ class stripscan_class(tools):
             #  Do the actual measurements, first move, then conduct
             #Todo: make it possible to measure from up to down
             #results = []
+            move = True
             for current_strip in range(1, int(self.strips+1)): # Loop over all strips
-                self.do_one_strip(current_strip)
+                if move:
+                    self.do_one_strip(current_strip, move)
+                    move = False
+                else:
+                    self.do_one_strip(current_strip, move)
+                    move = True
 
-    def do_one_strip(self, strip):
-        """Does all measurements which are to be done on one strip"""
+    def do_one_strip(self, strip, move):
+        """
+        Does all measurements which are to be done on one strip
+        :param strip: The strip to measure
+        :param move: Move the table (True) or switch to other needles (False)
+        :return:
+        """
         if not self.main.event_loop.stop_all_measurements_query():  # Prevents that empty entries will be written to file after aborting the measurement
             self.current_strip = strip
             # results.append({}) # Adds an empty dict to the results for the bad strip detection
@@ -319,15 +330,18 @@ class stripscan_class(tools):
                     # Now conduct the measurement
                     # But first check if this strip should be measured with this specific measurement
                     if strip in self.main.job_details["stripscan"][measurement]["strip_list"]:
-                        # Move to the strip
-                        self.main.table.move_to_strip(self.sensor_pad_data, str(self.current_strip), self.trans, self.T,
-                                                      self.V0, self.height)
+                        # Move to the strip if specified
+                        if move:
+                            self.main.table.move_to_strip(self.sensor_pad_data, str(self.current_strip), self.trans, self.T,
+                                                        self.V0, self.height)
+                        else:
+                            self.log.debug("Did not move to strip {}, switching is done insted".format(strip))
                         if not self.main.event_loop.stop_all_measurements_query() and not self.main.check_compliance(self.bias_SMU,
                                                                                                   self.compliance):
                             value = 0
                             try:
                                 self.log.info("Conducting measurement: {!s}".format(measurement))
-                                value = getattr(self, "do_" + measurement)(strip, self.samples)
+                                value = getattr(self, "do_" + measurement)(strip, self.samples, not move)
                                 if not value:
                                     self.log.error(
                                         "An Error happened during strip measurement {!s}, please check logs!".format(
@@ -422,11 +436,11 @@ class stripscan_class(tools):
 
         return values
 
-    def do_Rpoly(self,  xvalue = -1, samples = 5, write_to_main = True):
+    def do_Rpoly(self,  xvalue = -1, samples = 5, write_to_main = True, alternative_switching = False):
         '''Does the rpoly measurement'''
         device_dict = self.SMU2
         if not self.main.event_loop.stop_all_measurements_query():
-            if not self.switching.switch_to_measurement("Rpoly"):
+            if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Rpoly", alternative_switching)):
                 self.stop_everything()
                 return
             voltage = -1.
@@ -457,7 +471,7 @@ class stripscan_class(tools):
 
             return rpoly
 
-    def do_Rint(self, xvalue = -1, samples = 5, write_to_main = True):
+    def do_Rint(self, xvalue = -1, samples = 5, write_to_main = True, alternative_switching = False):
         '''Does the Rint measurement'''
         device_dict = self.elmeter
         voltage_device = self.SMU2
@@ -465,7 +479,7 @@ class stripscan_class(tools):
         rint = 0
         config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_zero_check", "OFF")]
         if not self.main.event_loop.stop_all_measurements_query():
-            if not self.switching.switch_to_measurement("Rint"):
+            if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Rint", alternative_switching)):
                 self.stop_everything()
                 return
             self.main.config_setup(voltage_device, [("set_voltage", 0), ("set_compliance", 50E-6)])  # config the 2410
@@ -512,14 +526,14 @@ class stripscan_class(tools):
 
         return rint
 
-    def do_Idiel(self, xvalue = -1, samples = 5, write_to_main = True):
+    def do_Idiel(self, xvalue = -1, samples = 5, write_to_main = True, alternative_switching = False):
         '''Does the idiel measurement'''
         device_dict = self.SMU2
         #config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_zero_check", "OFF")]
         config_commands = [("set_source_voltage", ""), ("set_measure_current", ""), ("set_current_range", 2.0E-6), ("set_compliance", 1.0E-6), ("set_voltage", "5.0"), ("set_output", "ON")]
 
         if not self.main.event_loop.stop_all_measurements_query():
-            if not self.switching.switch_to_measurement("Idiel"):
+            if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Idiel", alternative_switching)):
                 self.stop_everything()
                 return
             self.main.config_setup(device_dict, config_commands) # config the elmeter
@@ -532,12 +546,12 @@ class stripscan_class(tools):
             self.main.config_setup(device_dict, [("set_voltage", "0"), ("set_output", "OFF"), ("set_current_range", device_dict.get("default_current_range",10E6))])  # unconfig elmeter
             return value
 
-    def do_Istrip(self, xvalue = -1, samples = 5, write_to_main = True):
+    def do_Istrip(self, xvalue = -1, samples = 5, write_to_main = True, alternative_switching = False):
         '''Does the istrip measurement'''
         device_dict = self.elmeter
         d=device_dict # alias for faster writing
         if not self.main.event_loop.stop_all_measurements_query():
-            if not self.switching.switch_to_measurement("Istrip"):
+            if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Istrip", alternative_switching)):
                 self.stop_everything()
                 return
             config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_zero_check", "OFF")]
@@ -550,11 +564,11 @@ class stripscan_class(tools):
             self.last_istrip_pad = xvalue
             return value
 
-    def do_Idark(self, xvalue = -1, samples = 5, write_to_main = True):
+    def do_Idark(self, xvalue = -1, samples = 5, write_to_main = True, alternative_switching = False):
         '''Does the idark measurement'''
         device_dict = self.bias_SMU
         if not self.main.event_loop.stop_all_measurements_query():
-            if not self.switching.switch_to_measurement("Idark"):
+            if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Idark", alternative_switching)):
                 self.stop_everything()
                 return
             if self.main.steady_state_check(device_dict, command="get_read_current", max_slope=1e-6, wait=0, samples=2, Rsq=0.5):  # Is a dynamic waiting time for the measuremnt
@@ -565,13 +579,13 @@ class stripscan_class(tools):
         else:
             return None
 
-    def do_Cint(self, xvalue = -1, samples = 5,  freqscan = False, write_to_main = True):
+    def do_Cint(self, xvalue = -1, samples = 5,  freqscan = False, write_to_main = True, alternative_switching = False):
         '''Does the cint measurement'''
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 MHz
         self.main.change_value(device_dict, "set_frequency", 1000000)
         if not self.main.event_loop.stop_all_measurements_query():
-            if not self.switching.switch_to_measurement("Cint"):
+            if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Cint", alternative_switching)):
                 self.stop_everything()
                 return
             sleep(0.2)  # Is need due to some stray capacitances which corrupt the measurement
@@ -581,13 +595,13 @@ class stripscan_class(tools):
                 return False
             return value
 
-    def do_CintAC(self, xvalue= -1, samples=5, freqscan=False, write_to_main=True):
+    def do_CintAC(self, xvalue= -1, samples=5, freqscan=False, write_to_main=True, alternative_switching = False):
         '''Does the cint measurement on the AC strips'''
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 MHz
         self.main.change_value(device_dict, "set_frequency", 1000000)
         if not self.main.event_loop.stop_all_measurements_query():
-            if not self.switching.switch_to_measurement("CintAC"):
+            if not self.switching.switch_to_measurement(self.get_switching_for_measurement("CintAC", alternative_switching)):
                 self.stop_everything()
                 return
             sleep(0.2) #Because fuck you thats why. (Brandbox to LCR meter)
@@ -598,13 +612,13 @@ class stripscan_class(tools):
                 return False
             return value
 
-    def do_Cac(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True):
+    def do_Cac(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True, alternative_switching = False):
         '''Does the cac measurement'''
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 kHz
         self.main.change_value(device_dict, "set_frequency", 1000)
         if not self.main.event_loop.stop_all_measurements_query():
-            if not self.switching.switch_to_measurement("Cac"):
+            if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Cac", alternative_switching)):
                 self.stop_everything()
                 return
             sleep(0.2) # Is need due to some stray capacitances which corrupt the measurement
@@ -613,13 +627,13 @@ class stripscan_class(tools):
             else: return False
             return value
 
-    def do_Cback(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True):
+    def do_Cback(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True, alternative_switching = False):
         '''Does a capacitance measurement from one strip to the backside'''
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 MHz
         self.main.change_value(device_dict, "set_frequency", 1000)
         if not self.main.event_loop.stop_all_measurements_query():
-            if not self.switching.switch_to_measurement("Cback"):
+            if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Cback", alternative_switching)):
                 self.stop_everything()
                 return
             sleep(0.2)  # Is need due to some stray capacitances which corrupt the measurement
@@ -627,3 +641,10 @@ class stripscan_class(tools):
                 value = self.__do_simple_measurement("Cback", device_dict, xvalue, samples, write_to_main=not freqscan)
             else: return 0
             return value
+
+    def get_switching_for_measurement(self, meas, alt):
+        """Gehts the name for the measuremnt, either normal or alternate switching"""
+        if alt:
+            return "beta{}".format(meas)
+        else:
+            return meas
