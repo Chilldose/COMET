@@ -230,7 +230,8 @@ class DataVisualization_window:
                                     # If this entry is missing generate an empty dict so options can be added later on
                                     self.selected_plot_option = (ana, plot_name, "{}".format(plotLabel[0].strip()))
                                     plt_opt["{}".format(plotLabel[0].strip())] = {}
-                        except:
+                                    return
+                        except Exception as err:
                             self.selected_plot_option = ()
             except:
                 self.selected_plot_option = ()

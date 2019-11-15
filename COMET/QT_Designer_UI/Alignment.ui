@@ -527,7 +527,7 @@
          <string notr="true">background-color: rgb(255, 67, 34);</string>
         </property>
         <property name="text">
-         <string>NO NEEDLE CONNECTION</string>
+         <string>NEEDLE CONTACT UNCLEAR</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
