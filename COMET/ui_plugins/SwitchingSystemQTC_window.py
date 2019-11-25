@@ -73,7 +73,7 @@ class SwitchingSystemQTC_window:
         switching = self.switching_control.check_switching_action()
         self.reset_selected_GUI_checkboxes()
         for name, scheme in switching.items(): # loop over all switching systems
-            if name == "Brand Box":
+            if name == "BrandBox":
                 # Now set all which need to be set
                 for item in scheme:
                     if item:
