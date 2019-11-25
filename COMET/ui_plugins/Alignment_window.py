@@ -101,9 +101,9 @@ class Alignment_window(Table_widget):
         """Test the needle contact"""
         if self.variables.switching and self.connection_test_device:
             res = connection_test(self.connection_test_switchings, self.variables.switching,
-                                  self.connection_test_device, self.variables.vcw,
+                                  self.variables.vcw, self.connection_test_device,
                                   target_resistance=1., abs_err=1.)
-            if res:
+            if isinstance(res, bool):
                 self.set_needle_contact_lamp("contact")
             else:
                 self.log.critical("Needles {} have no contact!".format(res))
@@ -260,9 +260,9 @@ class Alignment_window(Table_widget):
                 # self.adjust_alignment_points(2) should be here but the spin boxes get asignal and then they would change again- > therefore only spin boxes change this value
                 self.number_of_pads = len(self.sensor_pad_file["data"])
                 self.update_static()
-            except :
-                self.log.error("An error while accessing the pad files with error.")
-                self.error_action("An error while accessing the pad files with error.")
+            except Exception as err:
+                self.log.error("An error while accessing the pad files with error: {}".format(err))
+                self.error_action("An error while accessing the pad files with error: {}".format(err))
 
 
         if step == 1:
