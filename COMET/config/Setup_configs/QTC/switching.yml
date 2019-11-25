@@ -2,6 +2,20 @@
     Settings_name: Switching
     Device_type: "Switching relay"
     Switching_Schemes:
+
+      DC1Test:
+        LVSwitching:
+          1A01
+      DC2Test:
+        LVSwitching:
+          1A01
+      AC1Test:
+        LVSwitching:
+          1A01
+      AC2Test:
+        LVSwitching:
+          1A01
+
       IV:
         HVSwitching:
           - A1

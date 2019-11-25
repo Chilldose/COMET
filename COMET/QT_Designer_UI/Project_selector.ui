@@ -88,7 +88,7 @@
      <item row="7" column="3">
       <widget class="QLabel" name="label">
        <property name="text">
-        <string>Select Settings</string>
+        <string>Select Settings:</string>
        </property>
       </widget>
      </item>
@@ -105,7 +105,7 @@
      <item row="7" column="0" colspan="2">
       <widget class="QPushButton" name="save_settings_button">
        <property name="text">
-        <string>Save current settings as:</string>
+        <string>Save current settings</string>
        </property>
       </widget>
      </item>

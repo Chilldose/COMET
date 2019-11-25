@@ -61,7 +61,7 @@ If you just want the latest version of COMET, download it from my GitHub reposit
 
 ## How to Use
 
-There is a documentation and a section called "Tutorial", this will guide you through the process of how to use this software and it will give you even more additional information about the software. You can access the documentation via this [Link](https://chilldose.github.io/COMET/) or if you look into the folder ~/docs/index.html.
+There is a documentation and a section called "Tutorial", this will guide you through the process of how to use this software and it will give you even more additional information about the software. You can access the [Documentation](https://chilldose.github.io/COMET/) or if you look into the folder ~/docs/index.html.
 
 ## Built With
 

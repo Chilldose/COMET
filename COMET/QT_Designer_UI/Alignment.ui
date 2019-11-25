@@ -334,6 +334,61 @@
         </item>
        </layout>
       </item>
+      <item row="13" column="2" colspan="2">
+       <layout class="QVBoxLayout" name="Table_Layout">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+       </layout>
+      </item>
+      <item row="7" column="0" rowspan="7" colspan="2">
+       <widget class="QLabel" name="what_to_do_text">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>250</height>
+         </size>
+        </property>
+        <property name="font">
+         <font>
+          <pointsize>11</pointsize>
+         </font>
+        </property>
+        <property name="text">
+         <string>Press the start button to start the alignment process.</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::PlainText</enum>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+        <property name="margin">
+         <number>11</number>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="2" rowspan="12" colspan="2">
+       <layout class="QGridLayout" name="camera_layout">
+        <item row="2" column="0">
+         <widget class="QPushButton" name="camera_off_Button">
+          <property name="text">
+           <string>Camera off</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QPushButton" name="camera_on_Button">
+          <property name="text">
+           <string>Camera on</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="0">
+         <layout class="QGridLayout" name="layout_camera"/>
+        </item>
+       </layout>
+      </item>
       <item row="1" column="1">
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="1">
@@ -404,75 +459,6 @@
         </item>
        </layout>
       </item>
-      <item row="5" column="0">
-       <widget class="QPushButton" name="abort_btn">
-        <property name="text">
-         <string>Abort procedure</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0" rowspan="7" colspan="2">
-       <widget class="QLabel" name="what_to_do_text">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>250</height>
-         </size>
-        </property>
-        <property name="font">
-         <font>
-          <pointsize>11</pointsize>
-         </font>
-        </property>
-        <property name="text">
-         <string>Press the start button to start the alignment process.</string>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::PlainText</enum>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-        <property name="margin">
-         <number>11</number>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0">
-       <widget class="QPushButton" name="StartAlignment_btn">
-        <property name="text">
-         <string>Start Alignment</string>
-        </property>
-       </widget>
-      </item>
-      <item row="4" column="0">
-       <widget class="QPushButton" name="nextstep_btn">
-        <property name="text">
-         <string>Next step</string>
-        </property>
-       </widget>
-      </item>
-      <item row="1" column="2" rowspan="11" colspan="2">
-       <layout class="QGridLayout" name="camera_layout">
-        <item row="2" column="0">
-         <widget class="QPushButton" name="camera_off_Button">
-          <property name="text">
-           <string>Camera off</string>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QPushButton" name="camera_on_Button">
-          <property name="text">
-           <string>Camera on</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <layout class="QGridLayout" name="layout_camera"/>
-        </item>
-       </layout>
-      </item>
       <item row="0" column="0" colspan="4">
        <widget class="QLabel" name="label_2">
         <property name="minimumSize">
@@ -499,12 +485,54 @@
         </property>
        </widget>
       </item>
-      <item row="12" column="2" colspan="2">
-       <layout class="QVBoxLayout" name="Table_Layout">
-        <property name="spacing">
-         <number>0</number>
+      <item row="3" column="0">
+       <widget class="QPushButton" name="StartAlignment_btn">
+        <property name="text">
+         <string>Start Alignment</string>
         </property>
-       </layout>
+       </widget>
+      </item>
+      <item row="4" column="0">
+       <widget class="QPushButton" name="nextstep_btn">
+        <property name="text">
+         <string>Next step</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0">
+       <widget class="QPushButton" name="abort_btn">
+        <property name="text">
+         <string>Abort procedure</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0">
+       <widget class="QPushButton" name="test_needle_conn_pushButton">
+        <property name="text">
+         <string>Test Needle Connection</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="1">
+       <widget class="QLabel" name="Needle_connection_label">
+        <property name="font">
+         <font>
+          <family>MS Gothic</family>
+          <pointsize>10</pointsize>
+          <weight>75</weight>
+          <bold>true</bold>
+         </font>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">background-color: rgb(255, 67, 34);</string>
+        </property>
+        <property name="text">
+         <string>NEEDLE CONTACT UNCLEAR</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
       </item>
      </layout>
     </widget>

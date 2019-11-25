@@ -462,6 +462,9 @@
        <string>Additional Files</string>
       </attribute>
       <layout class="QGridLayout" name="gridLayout_8">
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMinimumSize</enum>
+       </property>
        <item row="0" column="1">
         <widget class="QTreeWidget" name="Padfile_selector_3">
          <property name="maximumSize">
@@ -501,6 +504,9 @@
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_9">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetMinimumSize</enum>
+           </property>
            <property name="leftMargin">
             <number>0</number>
            </property>

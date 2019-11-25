@@ -40,8 +40,8 @@
       BoxWhiskerOptions:
           shared_axes: False
           box_alpha: 0.3
-          width: 1200
-          height: 900
+          width: 2600
+          height: 1500
 
       temperature:
           PlotLabel: Temperature
@@ -71,7 +71,7 @@
               invert_yaxis: false
               #ylim: !!python/tuple [0, 10e-6]
               #xlim: !!python/tuple [0, 1000]
-              #legend_position: "bottom_right"
+              legend_position: "bottom_right"
               #aspect: equal
               padding: !!python/tuple [0, 0.1]
               show_grid: True
@@ -101,7 +101,7 @@
               invert_yaxis: False
               #ylim: !!python/tuple [0, 10e-6]
               #xlim: !!python/tuple [0, 1000]
-              #legend_position: "bottom_right"
+              legend_position: "bottom_right"
               #aspect: equal
               padding: !!python/tuple [0, 0.1]
               show_grid: True
@@ -141,5 +141,3 @@
               shared_axes: False
               ylim: !!python/tuple [0, 0.08]
               #xlim: !!python/tuple [0, 500]
-
-

@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import *
 from random import randint
 from time import sleep
 import re
-from ..utilities import transformation
+from ..utilities import transformation, connection_test
 from .Table_widget import Table_widget
 
 
@@ -37,8 +37,13 @@ class Alignment_window(Table_widget):
         self.alignment_pads_changed = True
         self.reference_pads_positions = []
         self.sensor_pad_file = None
+        self.connection_test_switchings = ["DC1Test", "DC2Test", "AC1Test", "AC2Test"]
+
 
         self.variables = GUI
+        self.connection_test_device = self.variables.devices_dict.get("2410SMU", None)
+        if not self.connection_test_device:
+            self.log.warning("No connection test SMU could be loaded!!!")
         self.transformation_matrix = self.variables.default_values_dict["settings"].get("trans_matrix", None)
         self.V0 = self.variables.default_values_dict["settings"].get("V0", None)
         self.layout = layout
@@ -74,10 +79,7 @@ class Alignment_window(Table_widget):
         self.alignment.move_to_strip_button.clicked.connect(self.move_to_strip_action)
         self.alignment.camera_on_Button.clicked.connect(self.camera.start)
         self.alignment.camera_off_Button.clicked.connect(self.camera.stop)
-
-        #self.variables.add_update_function(self.current_strip_lcd)
-
-
+        self.alignment.test_needle_conn_pushButton.clicked.connect(self.test_needle_contact_action)
 
         # Find pad data in the additional files and parse them
         self.pad_files = self.variables.framework_variables["Configs"]["additional_files"].get("Pad_files",{})
@@ -87,6 +89,26 @@ class Alignment_window(Table_widget):
             self.log.error("No pad files found! Please check if they are correctly defined in the configs!")
 
         self.what_to_do_text(-1) # Initializes the text
+
+    def set_needle_contact_lamp(self, state):
+        states = {"contact unclear": "QFrame { background :rgb(36, 216, 93) }",
+                  "contact": "QFrame { background :rgb(255, 215, 0) }",
+                 "no contact": "QFrame { background :rgb(214, 40, 49) }"}
+        self.alignment.Needle_connection_label.setStyleSheet(states.get(states[state.lower()]))
+        self.alignment.Needle_connection_label.setText(state.upper())
+
+    def test_needle_contact_action(self):
+        """Test the needle contact"""
+        if self.variables.switching and self.connection_test_device:
+            res = connection_test(self.connection_test_switchings, self.variables.switching,
+                                  self.connection_test_device, self.variables.vcw,
+                                  target_resistance=1., abs_err=1.)
+            if res:
+                self.set_needle_contact_lamp("contact")
+            else:
+                self.log.critical("Needles {} have no contact!".format(res))
+                self.set_needle_contact_lamp("no contact")
+
 
     def parse_pad_files(self, parent_dict):
         """
@@ -154,6 +176,8 @@ class Alignment_window(Table_widget):
     def start_alignment_action(self):
         '''This function starts the whole alignement proceedure'''
 
+        self.set_needle_contact_lamp("contact unclear")
+
         #First ask if you want to start the alignment
         if self.alignment_started:
             msg = QMessageBox()
@@ -184,6 +208,7 @@ class Alignment_window(Table_widget):
         '''This updates all gui elements for the next step'''
 
         maximum_step = 5
+        self.set_needle_contact_lamp("contact unclear")
 
         if step == None:
             self.alignment_step += 1 # so the next step is executed
@@ -320,6 +345,7 @@ class Alignment_window(Table_widget):
 
     def abort_action(self):
         '''Aborts the alignement proceedure'''
+
         if self.alignment_started:
             reply = QMessageBox.question(None, 'Warning',
                                          "Are you sure to stop the alignment proceedure? Any progress will be deleted.",
@@ -329,6 +355,7 @@ class Alignment_window(Table_widget):
                 self.alignment_started = False
                 self.next_step_action(-1)
                 self.do_alignment(-1)
+                self.set_needle_contact_lamp("contact unclear")
             else:
                 pass
         else:

@@ -1,0 +1,15 @@
+--- # Dummy config file for testing
+
+  Filetype: ASCII # Other options are json
+
+  Analysis:
+    - IVCV_QTC # The type of analysis, which will be performed
+
+  #Poolsize: 4 # Maximum pool size of simultaneous analysis scripts
+
+# Optional Parameters
+  ASCII_file_specs: # The specifications for the ascii file type measurements files
+    header_lines: 8
+    measurement_description: 9
+    units_line: 9
+    data_start: 10

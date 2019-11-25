@@ -56,8 +56,8 @@ class GUI_classes(QWidget):
         self.functions = [] # Function for the framework to update
 
         if "GUI_update_interval" not in self.default_values_dict["settings"]:
-            self.variables.default_values_dict["settings"]["GUI_update_interval"] = 200
-            self.envlog.warning("No time_format defined, defaulting to 200")
+            self.default_values_dict["settings"]["GUI_update_interval"] = 200
+            self.log.warning("No time_format defined, defaulting to 200")
         self.update_interval = float(self.default_values_dict["settings"]["GUI_update_interval"])  # msec
 
         self.meas_data = {}
