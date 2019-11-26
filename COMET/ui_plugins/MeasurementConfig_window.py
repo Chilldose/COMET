@@ -63,7 +63,7 @@ class MeasurementConfig_window():
     def generate_job_for_group(self, group):
         """Generates a Measurement job dict, out of the passed group. returns empty dict if meas is disabled"""
         if not group in self.settings:
-            self.log.warning("No settings group {} is present.".format(group))
+            self.log.debug("No settings group {} is present.".format(group))
             return {}
 
         job = {}
@@ -80,7 +80,7 @@ class MeasurementConfig_window():
                 if ent not in ["Do", "Measurements"]:
                     job[ent] = value
 
-            return {group: job}
+            return {group.lower(): job}
         else:
             return {}
 

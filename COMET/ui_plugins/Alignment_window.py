@@ -102,7 +102,7 @@ class Alignment_window(Table_widget):
         if self.variables.switching and self.connection_test_device:
             res = connection_test(self.connection_test_switchings, self.variables.switching,
                                   self.variables.vcw, self.connection_test_device,
-                                  target_resistance=1., abs_err=1.)
+                                  target_resistance=2.5, abs_err=5.)
             if isinstance(res, bool):
                 self.set_needle_contact_lamp("contact")
             else:
@@ -282,7 +282,9 @@ class Alignment_window(Table_widget):
             relative_movepos = [x1 - x2 for (x1, x2) in zip(sensor_second_pos, sensor_first_pos)]
             #No add the strip length to the y axis for aliognement reasons
             #relative_movepos[1] = relative_movepos[1] + self.sensor_pad_file["strip_length"]
-            success = self.variables.table.relative_move_to(relative_movepos, True, self.variables.default_values_dict["settings"]["height_movement"])
+            success = self.variables.table.relative_move_to(relative_movepos, True,
+                                                            self.variables.default_values_dict["settings"]["height_movement"],
+                                                            clearance=self.variables.default_values_dict["settings"]["clearance"])
             if not success:
                 self.error_action(success)
                 return
@@ -299,7 +301,9 @@ class Alignment_window(Table_widget):
             sensor_first_pos = self.reference_pads_positions[1]  # this gives me absolute positions
             sensor_second_pos = self.reference_pads_positions[2]  # this gives me absolute positions
             relative_movepos = [x1 - x2 for (x1, x2) in zip(sensor_second_pos, sensor_first_pos)]
-            success = self.variables.table.relative_move_to(relative_movepos, True,self.variables.default_values_dict["settings"]["height_movement"])
+            success = self.variables.table.relative_move_to(relative_movepos, True,
+                                                            self.variables.default_values_dict["settings"]["height_movement"],
+                                                            clearance=self.variables.default_values_dict["settings"]["clearance"])
             if not success:
                 self.error_action(success)
                 return

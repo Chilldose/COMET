@@ -111,7 +111,7 @@ class measurement_event_loop(Thread):
         # All things which has something to do with the measurements----------------------------------------------------
         #---------------------------------------------------------------------------------------------------------------
         if self.measurements_to_conduct != {} and not self.measurement_running: # If the dict is not empty and no measurement is running
-            if any(x in self.default_dict.get("measurement_order", []) for x in list(self.measurements_to_conduct.keys())):
+            if any(x.lower() in self.default_dict.get("measurement_order", []) for x in list(self.measurements_to_conduct.keys())):
                 self.measurement_running = True # Prevents new that new measurement jobs are generated
                 self.default_dict["Measurement_running"] = True
                 self.stop_measurement = False
