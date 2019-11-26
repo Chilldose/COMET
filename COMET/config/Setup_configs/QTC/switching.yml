@@ -5,16 +5,20 @@
 
       DC1Test:
         LVSwitching:
-          1A01
+          1C05
+          1D06
       DC2Test:
         LVSwitching:
-          1A01
+          1C01
+          1D02
       AC1Test:
         LVSwitching:
-          1A01
+          1C07
+          1D08
       AC2Test:
         LVSwitching:
-          1A01
+          1C03
+          1D04
 
       IV:
         HVSwitching:
