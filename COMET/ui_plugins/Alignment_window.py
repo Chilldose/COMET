@@ -94,7 +94,7 @@ class Alignment_window(Table_widget):
         states = {"contact unclear": "QFrame { background :rgb(36, 216, 93) }",
                   "contact": "QFrame { background :rgb(255, 215, 0) }",
                  "no contact": "QFrame { background :rgb(214, 40, 49) }"}
-        self.alignment.Needle_connection_label.setStyleSheet(states.get(states[state.lower()]))
+        self.alignment.Needle_connection_label.setStyleSheet(states.get(state.lower()))
         self.alignment.Needle_connection_label.setText(state.upper())
 
     def test_needle_contact_action(self):
