@@ -18,6 +18,8 @@ class IVCV_class(tools):
         self.justlength = 24
         self.samples = 5
         self.vcw = self.main.framework["VCW"]
+        if "bias_voltage" not in self.main.settings["settings"]:
+            self.main.settings["settings"]["bias_voltage"] = 0.0
         self.user_configs = self.main.settings["settings"].get("Measurement_configs",{}).get("IVCV", {}) # Loads the configs for IVCV measurements
 
         # These are generall parameters which can either be changed here or in the settings in the optional parameter seen above
@@ -82,8 +84,8 @@ class IVCV_class(tools):
             self.log.critical("One or more devices could not be found for the IVCV measurements. Error: {}".format(valErr))
 
         # First perform a discharge of the decouple box capacitor and stop if there is a problem
-        if discharge_SMU:
-            if not self.main.capacitor_discharge(discharge_SMU, discharge_switching, *self.IVCV_configs["Discharge"]):
+        if discharge_SMU and discharge_switching:
+            if not self.capacitor_discharge(discharge_SMU, discharge_switching, *self.IVCV_configs["Discharge"]):
                 return # Exits the Measurement if need be
         else:
             self.log.critical("No discharge SMU specified. Therefore, no discharge of capacitors done!")
@@ -161,7 +163,7 @@ class IVCV_class(tools):
                                "This should not happen!!!")
 
         self.change_value(bias_SMU, *self.IVCV_configs["OutputOFF"])
-        if discharge_SMU:
+        if discharge_SMU and discharge_switching:
             self.capacitor_discharge(discharge_SMU, discharge_switching, *self.IVCV_configs["Discharge"], do_anyway=True)
         return None
 

@@ -922,9 +922,22 @@ def connection_test(schemes, switching, vcw, device, target_resistance=1, abs_er
     read = build_command(device, "get_read")
     vcw.write(device, command)
     res = []
+    # Switch on the output of the device and do some other configs
+    outputON = build_command(device, ("set_output", "1"))
+    outputOFF = build_command(device, ("set_output", "0"))
+    mode = build_command(device, ("set_resistance_mode", "AUTO"))
+    wire2 = build_command(device, ("set_resitane_state", "OFF"))
+    readingMode = build_command(device, ("set_reading_mode", "RES"))
+    readingModeOLD = build_command(device, ("set_reading_mode", "CURR"))
+    vcw.write(device, mode)
+    vcw.write(device, wire2)
+    vcw.write(device, readingMode)
+    vcw.write(device,  outputON)
     for name in schemes:
         switching.switch_to_measurement(name)
-        res.append(vcw.query(device, read))
+        res.append(float(vcw.query(device, read)))
+    vcw.write(device, outputOFF)
+    vcw.write(device, readingModeOLD)
     closeness = np.isclose([target_resistance for x in res], res, rtol=0, atol=abs_err)
     if np.all(closeness):
         return True
