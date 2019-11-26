@@ -27,6 +27,7 @@ class stripscan_class(tools):
         self.trans = transformation()
         self.vcw = self.main.framework["VCW"]
         self.switching = self.main.switching
+        self.wedge_card_size = 2 # Number of strips, which can be contacted with one touchdown
 
         self.user_configs = self.main.settings["settings"].get("Measurement_configs", {}).get("Stripscan",
                                                                                               {})  # Loads the configs for IVCV measurements
@@ -297,19 +298,47 @@ class stripscan_class(tools):
             if not self.main.capacitor_discharge(self.discharge_SMU, self.discharge_switching, *self.IVCV_configs["Discharge"], do_anyway=True):
                 self.stop_everything()
 
-            #  Do the actual measurements, first move, then conduct
-            #Todo: make it possible to measure from up to down
-            #results = []
-            move = True
-            for current_strip in range(1, int(self.strips+1)): # Loop over all strips
-                if move:
-                    self.do_one_strip(current_strip, move)
-                    move = False
-                else:
-                    self.do_one_strip(current_strip, move)
-                    move = True
+            #  Do the actual measurements
+            ###############################################################################
+            # Find last strip or last strip of first half
+            if "second_side_start" in self.sensor_pad_data:
+                partials = (
+                            (1, int(self.sensor_pad_data["second_side_start"])),
+                            (int(self.sensor_pad_data["second_side_start"]), int(self.strips+1))
+                            )
+            else:
+                partials = ((1, int(self.strips+1)))
 
-    def do_one_strip(self, strip, move):
+
+
+            for reverse_needles, part in enumerate(partials):
+                # Move the table to the first point
+                self.log.debug("Moving table to first pad position, to init strip scan on half {}...".format(reverse_needles))
+                if self.main.table.move_to_strip(self.sensor_pad_data, part[0]+reverse_needles, self.trans, self.T, self.V0,
+                                                 self.height):
+                    self.last_move = part[0]  # Last strip the table moved to
+
+                for current_strip in range(*part): # Loop over all strips
+                    # Move if the last move was outside the size of the wedge card size
+                    if divmod((part[1]-current_strip), self.wedge_card_size)[1]:
+                            move = False # If the second strip was not yet measured, but is contacted
+
+                    # If the last strip was reached which could be measured without moving the wedge card, move
+                    else:
+                        # if a rest is present that is inside the probe card size, move
+                        if (part[1]-current_strip) > self.wedge_card_size:
+                            move = True
+                        else:
+                            # If you cannot move due to edge error
+                            if self.main.table.move_to_strip(self.sensor_pad_data, part[1]-self.wedge_card_size, self.trans, self.T, self.V0,self.height):
+                                self.last_move = part[1]-self.wedge_card_size  # Last strip the table moved to
+                            move = False
+
+                    # Do the strip measurement
+                    self.do_one_strip(current_strip, move, reverse_needles)
+
+
+    def do_one_strip(self, strip, move, reverse_needles):
         """
         Does all measurements which are to be done on one strip
         :param strip: The strip to measure
@@ -332,16 +361,16 @@ class stripscan_class(tools):
                     if strip in self.main.job_details["stripscan"][measurement]["strip_list"]:
                         # Move to the strip if specified
                         if move:
-                            self.main.table.move_to_strip(self.sensor_pad_data, str(self.current_strip), self.trans, self.T,
-                                                        self.V0, self.height)
+                            if self.main.table.move_to_strip(self.sensor_pad_data, self.current_strip+reverse_needles, self.trans, self.T, self.V0, self.height):
+                                self.last_move = self.current_strip
                         else:
-                            self.log.debug("Did not move to strip {}, switching is done insted".format(strip))
+                            self.log.debug("Did not move to strip {}, switching is done instead".format(strip))
                         if not self.main.event_loop.stop_all_measurements_query() and not self.main.check_compliance(self.bias_SMU,
                                                                                                   self.compliance):
                             value = 0
                             try:
                                 self.log.info("Conducting measurement: {!s}".format(measurement))
-                                value = getattr(self, "do_" + measurement)(strip, self.samples, not move)
+                                value = getattr(self, "do_" + measurement)(strip, self.samples, move if reverse_needles else not move)
                                 if not value:
                                     self.log.error(
                                         "An Error happened during strip measurement {!s}, please check logs!".format(
