@@ -3,9 +3,11 @@
 Campaign: Hamamatsu 6inch 2S					
 Creator: Dominic Bloech 03.12.2018
 				
-reference pad: 2			
+reference pad: 1			
 reference pad: 1017					
 reference pad: 1016
+
+second_side_start: 1017
 
 # Additional parameters
 implant_length: 0

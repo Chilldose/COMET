@@ -3,6 +3,7 @@ import logging
 from PyQt5.QtWidgets import QMessageBox, QWidget
 from PyQt5.QtCore import pyqtSignal
 from PyQt5 import QtCore
+from time import time
 
 class Table_widget(object):
 
@@ -10,6 +11,7 @@ class Table_widget(object):
         """Configures the table widget"""
 
         self.Tablog = logging.getLogger(__name__)
+        self.last_update = 0.
 
         # Table widget
         if not "Table" in gui.child_layouts:
@@ -65,9 +67,17 @@ class Table_widget(object):
         self.Table_gui.YPos.returnPressed.connect(self.move_to_user_defined_pos)
         self.Table_gui.ZPos.returnPressed.connect(self.move_to_user_defined_pos)
 
+        self.variables.add_update_function(self.update_tableIndi_periodically)
+
         # Set key press events
 
         setattr(Table_Qwidget, "keyPressEvent", self.keyPressEvent)
+
+    def update_tableIndi_periodically(self):
+        """Updates the table in dicator every now an than"""
+        if abs(self.last_update-time())>0.5:
+            self.table_move_indi()
+            self.last_update = time()
 
     def keyPressEvent(self, event):
         if self.Table_gui.Arro_control_frame.isEnabled():

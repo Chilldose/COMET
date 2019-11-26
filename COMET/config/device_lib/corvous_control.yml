@@ -1,7 +1,7 @@
 --- # Commands for venus-2 will work mostly with venus-1 as well but not 100%
 
     Device_name: ITK Corvus
-    Device_type: Motor control 
+    Device_type: Motor control
 
     set_umotgrad: "{} setumotgrad"
     set_acceleration: "{} setaccel"
@@ -21,35 +21,35 @@
     set_polepairs: "{} setpolepairs"
     set_dimension: "{} setdim"
 
-    get_error: geterror 
-    get_pos_from_init: devpos 
-    get_speed: getvel 
+    get_error: geterror
+    get_pos_from_init: devpos
+    get_speed: getvel
     get_acceleration: getaccel
-    get_all_done: status 
-    get_axis: getaxis 
-    get_position: pos  
+    get_all_done: status
+    get_axis: getaxis
+    get_position: pos
 
-    table_zmin: 0.0 
-    table_zmax: 20000.
+    table_zmin: 0.0
+    table_zmax: 27542.
     table_xmin: 0.0 
-    table_xmax: 193260.
-    table_ymin: 0.0 
-    table_ymax: 97551.
+    table_xmax: 97599.
+    table_ymin: 0.0
+    table_ymax: 193309.
     abort_movement: Ctrl C
-    calibrate_motor: 
-        - calibrate 
-        - rm  
-    command_order: -1 
-    current_speed: 10000.0 
-    device_IDN_query: identify 
-    selftest: selftest 
+    calibrate_motor:
+        - calibrate
+        - rm
+    command_order: -1
+    current_speed: 10000.0
+    device_IDN_query: identify
+    selftest: selftest
     separator: " "
     reset_device: [restore, ico, clear]
     default_speed: 10000.0
     default_joy_speed: 10000.0
 
     reset: # Warning list values will be send seriel with the command!!! List of list will respect format string of command!!
-        
+
         - units: [1 1, 1 2, 1 3, 1 0]
         - umotmin: [1850 1, 1850 2, 1850 3]
         - joy_speed: 10000.0
@@ -66,7 +66,3 @@
         - umotgrad: [55 1, 55 2, 55 3]
         - axis: [1 1, 1 2, 1 3]
         - speed: 10000.0
-
-
-
-
