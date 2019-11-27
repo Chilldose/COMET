@@ -56,7 +56,8 @@
    get_annuciators: print(display.getannuciators())
    get_error_count: print(errorqueue.count)
    get_next_error: errorcode, message, severity = errorqueue.next() \n print(errorcode, message, severity)
-  
+   get_error: "errorcode, message = errorqueue.next() \n print(errorcode, message)"
+
 
   # All reset device parameters
    reset:
@@ -100,7 +101,7 @@
    initialize_lan: lan.applysettings()
    reset_lan_interface: lan.reset()
    device_IDN_query: "*IDN?"
-   reset_device: ["*rst", "*cls"]
+   reset_device: ["*RST", "*CLS"]
    abort: smua.abort()
    store_calibration: sma.cal.save()
    calibrate_highsense: smuX.contact.calibratehi()

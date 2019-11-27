@@ -30,6 +30,7 @@
     get_read_resitance: MEAS:RES?
     get_trigger_reading: INIT
     get_read_charge: MEAS:CHAR?
+    get_error: STAT:QUE:NEXT?
 
     reset:
       - auto_current_range: "ON"

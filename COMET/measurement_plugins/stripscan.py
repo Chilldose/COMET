@@ -268,6 +268,7 @@ class Stripscan_class(tools):
                     self.log.error("LCR meter did not answer after 10 times during open correction calibration.")
                     self.stop_everything()
                 counter += 1
+        self.switching.switch_to_measurement("IV")
         self.main.queue_to_main.put({"INFO": "LCR open calibration on {} path finished.".format(measurement)})
 
     @timeit
@@ -276,7 +277,6 @@ class Stripscan_class(tools):
         Its ment to be used only once during the initiatior of the class'''
 
         self.do_preparations_for_stripscan()
-
         if not self.main.event_loop.stop_all_measurements_query():
             # generate the list of strips per measurement which should be conducted and the units and so on for the
             measurement_header = "Pad".ljust(self.justlength) # indicates the measuremnt
@@ -316,8 +316,7 @@ class Stripscan_class(tools):
                             (int(self.sensor_pad_data["second_side_start"]), int(self.strips+1))
                             )
             else:
-                partials = ((1, int(self.strips+1)))
-
+                partials = ((1, int(self.strips+1)),)
 
 
             for reverse_needles, part in enumerate(partials):
@@ -374,7 +373,7 @@ class Stripscan_class(tools):
                                 self.last_move = self.current_strip
                         else:
                             self.log.debug("Did not move to strip {}, switching is done instead".format(strip))
-                        if not self.main.event_loop.stop_all_measurements_query() and not self.main.check_compliance(self.bias_SMU,
+                        if not self.main.event_loop.stop_all_measurements_query() and not self.check_compliance(self.bias_SMU,
                                                                                                   self.compliance):
                             value = 0
                             try:
@@ -420,8 +419,7 @@ class Stripscan_class(tools):
             if not self.main.event_loop.stop_all_measurements_query():
                 # After all measurements are conducted write the environment variables to the file
                 string_to_write = ""
-                if self.main.job_details.get("environment", False):
-                    string_to_write = str(self.main.measurement_data["temperature"][1][-1]).ljust(self.justlength) + str(
+                if self.main.job_details.get("environment", False):                    string_to_write = str(self.main.measurement_data["temperature"][1][-1]).ljust(self.justlength) + str(
                         self.main.measurement_data["humidity"][-1]).ljust(self.justlength)
                 self.main.write(self.main.measurement_files["Stripscan"], string_to_write)
 
@@ -451,15 +449,17 @@ class Stripscan_class(tools):
         '''
         # Do some averaging over values
         values = []
-        command = self.build_command(device, query)
+        command = self.main.build_command(device, query)
         for i in range(samples): # takes samples
             values.append(self.vcw.query(device, command))
-        values = np.array(map(lambda x: x.split(device.get("separator", ",")), values), dtype=float)
-        values = np.mean(values, axis=1)
+        values = np.array((lambda x: x.split(device.get("separator", ",")), values)[1], dtype=float)
+        values = np.mean(values, axis=0)
 
         if apply_to:
             # Only a single float or int are allowed as returns
             value = apply_to(values)
+        elif len(values.shape) == 1:
+            value = values
         else:
             value = values[0]
 

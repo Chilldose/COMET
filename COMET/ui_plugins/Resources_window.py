@@ -197,7 +197,7 @@ class Resources_window:
             if "reset_device" in device_dict:
                 self.variables.vcw.write(device_dict, list(device_dict["reset_device"]))
             else:
-                self.variables.vcw.list_write(device_dict, ["*rst", "*cls"], delay=0.1)
+                self.variables.vcw.list_write(device_dict, ["*RST", "*CLS"], delay=0.1)
 
             device_dict["State"] = "UNCONFIGURED"
 
@@ -212,7 +212,7 @@ class Resources_window:
                 if "reset_device" in device_dict:
                     self.variables.vcw.write(device_dict, list(device_dict["reset_device"]))
                 else:
-                    self.variables.vcw.list_write(device_dict, ["*rst", "*cls"], delay=0.1)
+                    self.variables.vcw.list_write(device_dict, ["*RST", "*CLS"], delay=0.1)
 
                 device_dict["State"] = "UNCONFIGURED"
                 self.update_device_states() # Just for the optics

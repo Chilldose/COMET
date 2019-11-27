@@ -81,6 +81,8 @@ class Alignment_window(Table_widget):
         self.alignment.camera_off_Button.clicked.connect(self.camera.stop)
         self.alignment.test_needle_conn_pushButton.clicked.connect(self.test_needle_contact_action)
 
+        self.variables.add_update_function(self.current_strip_lcd)
+
         # Find pad data in the additional files and parse them
         self.pad_files = self.variables.framework_variables["Configs"]["additional_files"].get("Pad_files",{})
         if self.pad_files:

@@ -19,8 +19,8 @@ class Device(object):
 
     default_config = {
         'get_idn': '*IDN?',
-        'set_reset': '*rst',
-        'set_clear': '*cls',
+        'set_reset': '*RST',
+        'set_clear': '*CLS',
     }
     """Default VISA resource configuration, can be overwritten by user configuration."""
 

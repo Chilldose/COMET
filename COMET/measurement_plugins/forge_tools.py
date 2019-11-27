@@ -394,6 +394,11 @@ class tools(object):
 
         #Todo: this function needs clean up and generalization
         self.toolslog.info("Discharging capacitors...")
+
+        if not device_dict or not relay_dict:
+            self.toolslog.info("No discharge device/switching specified, skipping discharge and returning True...")
+            return True
+
         # First switch the smu terminals front/rear
         if Setterminal:
             self.change_value(device_dict, Setterminal, terminal)

@@ -1,6 +1,7 @@
 ---
     Settings_name: Switching
     Device_type: "Switching relay"
+    Switching_devices: [LVSwitching, HVSwitching]
     Switching_Schemes:
 
       DC1Test:
@@ -165,3 +166,15 @@
           - 1A08
           - 1C03
           - 1C04
+          -
+      Idark:
+        HVSwitching:
+          - A1
+          - B1
+          - C2
+
+      Idarkbeta:
+        HVSwitching:
+          - A1
+          - B1
+          - C2

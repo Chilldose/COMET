@@ -28,7 +28,8 @@
 
     
     get_all_done: "*OPC?" 
-    get_read: :FETC? 
+    get_read: :FETC?
+    get_error: SYST:ERR:NEXT?
 
 
 

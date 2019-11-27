@@ -365,7 +365,7 @@ interfere with another name in the same directory.</p>
 <span class="n">clear_errors</span><span class="p">:</span> <span class="n">errorqueue</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
 <span class="n">exit_script</span><span class="p">:</span> <span class="n">exit</span><span class="p">()</span>
 <span class="n">device_IDN_query</span><span class="p">:</span> <span class="s2">&quot;*IDN?&quot;</span>
-<span class="n">reset_device</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;*rst&quot;</span><span class="p">,</span> <span class="s2">&quot;*cls&quot;</span><span class="p">]</span>
+<span class="n">reset_device</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;*RST&quot;</span><span class="p">,</span> <span class="s2">&quot;*CLS&quot;</span><span class="p">]</span>
 <span class="n">separator</span><span class="p">:</span> <span class="s2">&quot;,&quot;</span> <span class="c1"># The separator if queued commands are allowed</span>
 </pre></div>
 </div>
@@ -414,7 +414,7 @@ command sent to the device: <code class="docutils literal notranslate"><span cla
 I personally use these parametes for nice to know/have commands.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">The only &quot;important&quot; parameter in the Misc. section is the <code class="docutils literal notranslate"><span class="pre">reset_device:</span> <span class="pre">[&quot;*rst&quot;,</span> <span class="pre">&quot;*cls&quot;]</span></code> if you have this key in your config file, the software uses the list passed to soft-reset the device. But be aware, the software does not check any of these commands, it just sends them. Its up to you they are correct soft-reset commands!</p>
+<p class="last">The only &quot;important&quot; parameter in the Misc. section is the <code class="docutils literal notranslate"><span class="pre">reset_device:</span> <span class="pre">[&quot;*RST&quot;,</span> <span class="pre">&quot;*CLS&quot;]</span></code> if you have this key in your config file, the software uses the list passed to soft-reset the device. But be aware, the software does not check any of these commands, it just sends them. Its up to you they are correct soft-reset commands!</p>
 </div>
 <div class="section" id="device-command-structure">
 <h3>Device Command Structure<a class="headerlink" href="#device-command-structure" title="Permalink to this headline">¶</a></h3>

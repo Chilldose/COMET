@@ -177,7 +177,7 @@ Inside such a device file you can set a multitude of parameters. Such a exemplar
    clear_errors: errorqueue.clear()
    exit_script: exit()
    device_IDN_query: "*IDN?"
-   reset_device: ["*rst", "*cls"]
+   reset_device: ["*RST", "*CLS"]
    separator: "," # The separator if queued commands are allowed
 
 In principal you have four different sections in a device file:
@@ -231,7 +231,7 @@ command sent to the device: ``sma.output(smua.ON)``. Which in this case switches
 These parameters are completely optional, you can give them names as you like, you do not have to set any prefixes or whatsoever.
 I personally use these parametes for nice to know/have commands.
 
-.. note:: The only "important" parameter in the Misc. section is the ``reset_device: ["*rst", "*cls"]`` if you have this key in your config file, the software uses the list passed to soft-reset the device. But be aware, the software does not check any of these commands, it just sends them. Its up to you they are correct soft-reset commands!
+.. note:: The only "important" parameter in the Misc. section is the ``reset_device: ["*RST", "*CLS"]`` if you have this key in your config file, the software uses the list passed to soft-reset the device. But be aware, the software does not check any of these commands, it just sends them. Its up to you they are correct soft-reset commands!
 
 
 Device Command Structure

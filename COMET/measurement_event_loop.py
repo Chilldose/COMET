@@ -188,7 +188,7 @@ class measurement_event_loop(Thread):
                 if "reset_device" in device_obj:
                     self.vcw.write(device_obj, list(self.devices[device]["reset_device"]))
                 else:
-                    self.vcw.list_write(device, ["*rst", "*cls"], delay=0.1)
+                    self.vcw.list_write(device_obj, ["*RST", "*CLS"], delay=0.1)
 
                 self.devices[device]["State"] = "UNCONFIGURED"
 
@@ -198,6 +198,11 @@ class measurement_event_loop(Thread):
                         command, values = list(comm.items())[0]
                         command_list = self.build_init_command(device_obj, command, values)
                         self.vcw.list_write(device_obj, command_list, delay=0.05)
+                        # Read the error queue if this raised an error
+                        if "get_error" in device_obj:
+                            error = self.vcw.query(device_obj, device_obj["get_error"])
+                            if error:
+                                self.log.debug("Setting init commands {} for device {}, yielded error code: {}".format(command_list, device_obj["Device_name"], error.strip()))
 
                     # Only if reset commands are prevalent, otherwise its not configured
                     self.devices[device]["State"] = "CONFIGURED"

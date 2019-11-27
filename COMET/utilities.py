@@ -926,7 +926,7 @@ def connection_test(schemes, switching, vcw, device, target_resistance=1, abs_er
     outputON = build_command(device, ("set_output", "1"))
     outputOFF = build_command(device, ("set_output", "0"))
     mode = build_command(device, ("set_resistance_mode", "AUTO"))
-    wire2 = build_command(device, ("set_resitane_state", "OFF"))
+    wire2 = build_command(device, ("set_resitance_state", "OFF"))
     readingMode = build_command(device, ("set_reading_mode", "RES"))
     readingModeOLD = build_command(device, ("set_reading_mode", "CURR"))
     vcw.write(device, mode)
@@ -1241,7 +1241,7 @@ class table_control_class:
 
         if transformation != []:
             if not self.__already_there(pad_file, strip, transfomation_class, T, V0):
-                pad_pos = pad_file["data"][strip]
+                pad_pos = pad_file["data"][str(strip)]
                 self.log.info("Moving to strip: {} at position {},{},{}.".format(strip, pad_pos[0], pad_pos[1], pad_pos[2]))
                 table_abs_pos = list(transfomation_class.vector_trans(pad_pos, T, V0))
                 success = self.move_to(table_abs_pos, move_down=True, lifting = height_movement, **kwargs)
@@ -1513,16 +1513,28 @@ class switching_control:
         self.log.debug("Switching to measurement: {!s}".format(str(measurement)))
         if measurement in self.settings["Switching"]["Switching_Schemes"]:
             # When measurement was found
-            for name, switch_list in self.settings["Switching"]["Switching_Schemes"][measurement].items():
-                if name in self.devices:
-                    if not switch_list:
-                        switch_list = []
-                    if not self.change_switching(self.devices[name], switch_list):
-                        self.log.error("Switching to {} was not possible".format(switch_list))
+            for device in self.settings["Switching"]["Switching_devices"]:
+                if device in self.settings["Switching"]["Switching_Schemes"][measurement]:
+                    if device in self.devices:
+                        switch_list = self.settings["Switching"]["Switching_Schemes"][measurement][device]
+                        if not switch_list:
+                            switch_list = []
+                        if not self.change_switching(self.devices[device], switch_list):
+                            self.log.error("Switching to {} was not possible".format(switch_list))
+                            return False
+                    else:
+                        self.log.error("Switching device: {} was not found in active resources. No switching done!".format(device))
                         return False
                 else:
-                    self.log.error("Switching device: {} was not found in active resources. No switching done!".format(name))
-                    return False
+                    if device in self.devices:
+                        switch_list = []
+                        if not self.change_switching(self.devices[device], switch_list):
+                            self.log.error("Switching to {} was not possible".format(switch_list))
+                            return False
+                    else:
+                        self.log.error(
+                            "Switching device: {} was not found in active resources. No switching done!".format(device))
+                        return False
             return True
         else:
             self.log.error("Measurement {} switching could not be found in defined switching schemes.".format(measurement))
@@ -1535,6 +1547,10 @@ class switching_control:
                 command = self.build_command(device, (order, list_of_commands))
                 if command: #If something dont work with the building of the command, no None will be send
                     self.vcw.write(device, command)  # Write new switching
+        else:
+            command = self.build_command(device, (order, ""))
+            if command:  # If something dont work with the building of the command, no None will be send
+                self.vcw.write(device, command)  # Write new switching
 
     def pick_switch_response(self, device, current_switching):
         '''
@@ -1747,7 +1763,7 @@ def reset_devices(devices_dict, vcw):
             else:
                 vcw.initiate_instrument(
                     devices_dict[device]["Visa_Resource"],
-                    ["*rst", "*cls", "TRAC:CLE"],
+                    ["*RST", "*CLS", "TRAC:CLE"],
                     devices_dict[device].get("execution_terminator", "")
                 )
 

@@ -46,6 +46,7 @@
    get_read:  print(smu.measure.read())
    get_read_current:  print(smu.measure.read())
    get_current_read:  print(smu.measure.read())
+   get_error: errorcode, message, severity = errorqueue.next() \n print(errorcode, message, severity)
 
 
   # All reset device parameters
@@ -73,7 +74,7 @@
    clear_errors: errorqueue.clear()
    exit_script: exit()
    device_IDN_query: "*IDN?"
-   reset_device: ["*rst", "*cls"]
+   reset_device: ["*RST", "*CLS"]
    abort: trigger.model.abort()
    separator: ","
 

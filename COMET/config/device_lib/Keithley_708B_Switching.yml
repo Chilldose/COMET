@@ -24,7 +24,8 @@
     get_delay: print(channel.getdelay({}))
     get_channel_state: print(channel.getstate("allslots"))
     get_errorqueue_count: print(errorqueue.count)
-    get_error: print(errorqueue.next())
+    get_error: "errorcode, message = errorqueue.next() \n print(errorcode, message)"
+    #get_error: errorcode, message, severity = errorqueue.next() \n print(errorcode, message, severity)
     get_operation_complete:
             command: opc() waitcomplete() print("1")
             success: 1

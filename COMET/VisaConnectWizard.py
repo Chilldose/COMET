@@ -375,7 +375,7 @@ class VisaConnectWizard:
 
         if inst == -1:
             for instrument in self.myInstruments_dict.keys():
-                #self.initiate_instrument(self.myInstruments_dict[instrument], ["*rst"])
+                #self.initiate_instrument(self.myInstruments_dict[instrument], ["*RST"])
                 self.log.info("Closed connection to device " + str(self.myInstruments_dict[instrument]) + ".")
                 self.myInstruments_dict[instrument].clear()
                 self.myInstruments_dict[instrument].close()

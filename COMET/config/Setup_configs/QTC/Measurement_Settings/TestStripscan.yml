@@ -1,4 +1,4 @@
-Settings_name: TestStripscan
+Settings_name: TestStripscan.yml
 Stripscan:
   Do: true
   Measurements:
@@ -59,7 +59,7 @@ Stripscan:
       - 0
       - 2032
       - 1
-      - 2032
+      - 140
       Measure Every:
       - 0
       - 2032
@@ -69,7 +69,7 @@ Stripscan:
       - 0
       - 2032
       - 1
-      - 0
+      - 120
     Idiel:
       Do: false
       End Strip:
