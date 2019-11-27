@@ -1,0 +1,13 @@
+# Measurement file: 
+ # Project: IFX 8 inch
+ # Sensor Type: SensorCenterBiasContact
+ # ID: enter_filename_here
+ # Operator: Dominic
+ # Date: Wed Nov 27 11:26:16 2019
+
+
+# Campaign: Infineon 8-inch 2S
+# Creator: Dominic Bloech 11.1.2018
+# reference pad: 128
+
+

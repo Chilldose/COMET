@@ -91,8 +91,8 @@ class Alignment_window(Table_widget):
         self.what_to_do_text(-1) # Initializes the text
 
     def set_needle_contact_lamp(self, state):
-        states = {"contact unclear": "QFrame { background :rgb(36, 216, 93) }",
-                  "contact": "QFrame { background :rgb(255, 215, 0) }",
+        states = {"contact unclear": "QFrame { background :rgb(255, 215, 0) }",
+                  "contact": "QFrame { background :rgb(36, 216, 93) }",
                  "no contact": "QFrame { background :rgb(214, 40, 49) }"}
         self.alignment.Needle_connection_label.setStyleSheet(states.get(state.lower()))
         self.alignment.Needle_connection_label.setText(state.upper())

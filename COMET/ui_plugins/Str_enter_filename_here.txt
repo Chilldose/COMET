@@ -1,0 +1,8 @@
+# Measurement file: 
+ # Project: IFX 8 inch
+ # Sensor Type: SensorCenterBiasContact
+ # ID: enter_filename_here
+ # Operator: Dominic
+ # Date: Wed Nov 27 11:08:08 2019
+
+

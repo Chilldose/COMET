@@ -986,6 +986,7 @@ class table_control_class:
         # Some variables which are needed
         self.variables["Alignment"] = False
         self.variables["trans_matrix"] = None
+        self.variables["V0"] = None
         self.variables["Table_state"] = True # Means he is up
         self.variables["Table_stay_down"] = True # Means he is up
         self.variables["joystick"] = False

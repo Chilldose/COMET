@@ -32,7 +32,7 @@ class GUI_event_loop(QThread):
         self.close_program = False
         self.measurement_running = False
         self.measurement_loop_running = True
-        self.error_types = ["Critical", "CRITICAL", "Info","MeasError", "DataError",
+        self.error_types = ["Critical", "CRITICAL", "Info", "INFO", "MeasError", "DataError",
                             "RequestError", "MEASUREMENT_FAILED", "Warning", "WARNING", "FatalError",
                             "ThresholdError", "ERROR", "Error"]
         self.fatal_errors = ["MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "FatalError", "ThresholdError"]

@@ -33,7 +33,7 @@
 
     measurement_order: # aka. all measurement plugins
         - IVCV
-        - stripscan
+        - Stripscan
         - frequencyscan
         - dynamicwaiting
 

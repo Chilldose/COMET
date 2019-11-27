@@ -80,7 +80,7 @@ class MeasurementConfig_window():
                 if ent not in ["Do", "Measurements"]:
                     job[ent] = value
 
-            return {group.lower(): job}
+            return {group: job}
         else:
             return {}
 
