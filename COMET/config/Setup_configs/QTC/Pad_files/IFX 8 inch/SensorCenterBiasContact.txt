@@ -2,6 +2,7 @@
 
 Campaign: Infineon 8-inch 2S					
 Creator: Dominic Bloech 11.1.2018
+second_side_start: 128
 				
 reference pad: 1			
 reference pad: 127				

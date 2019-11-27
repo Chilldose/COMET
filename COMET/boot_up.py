@@ -121,7 +121,7 @@ class SetupLoader(object):
                     data = read_data[i+1:]
                     break
 
-            # Find the reference pads in the header and strip length
+            # Find the reference pads etc in the header and strip length
             reference_pad_list = []
             new_param = {}
             for i, lines in enumerate(header):

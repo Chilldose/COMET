@@ -310,13 +310,13 @@ class Stripscan_class(tools):
             #  Do the actual measurements
             ###############################################################################
             # Find last strip or last strip of first half
-            if "second_side_start" in self.sensor_pad_data:
+            if "second_side_start" in self.sensor_pad_data["additional_params"]:
                 partials = (
-                            (1, int(self.sensor_pad_data["second_side_start"])),
-                            (int(self.sensor_pad_data["second_side_start"]), int(self.strips+1))
+                            (1, int(self.sensor_pad_data["additional_params"]["second_side_start"])),
+                            (int(self.sensor_pad_data["additional_params"]["second_side_start"]), int(self.strips)+1)
                             )
             else:
-                partials = ((1, int(self.strips+1)),)
+                partials = ((1, int(self.strips)+1),)
 
 
             for reverse_needles, part in enumerate(partials):
@@ -329,6 +329,15 @@ class Stripscan_class(tools):
                 for current_strip in range(*part): # Loop over all strips
                     # Move if the last move was outside the size of the wedge card size
                     if divmod((part[1]-current_strip), self.wedge_card_size)[1]:
+                        if abs(self.last_move-current_strip) >= self.wedge_card_size:
+                            move = True
+                        elif abs(part[1]-current_strip) == 1: # if only the last strip is to be measured
+                            # If you cannot move due to edge error
+                            if self.main.table.move_to_strip(self.sensor_pad_data, part[1] - self.wedge_card_size,
+                                                             self.trans, self.T, self.V0, self.height):
+                                self.last_move = part[1] - self.wedge_card_size  # Last strip the table moved to
+                            move = False
+                        else:
                             move = False # If the second strip was not yet measured, but is contacted
 
                     # If the last strip was reached which could be measured without moving the wedge card, move
@@ -338,7 +347,7 @@ class Stripscan_class(tools):
                             move = True
                         else:
                             # If you cannot move due to edge error
-                            if self.main.table.move_to_strip(self.sensor_pad_data, part[1]-self.wedge_card_size, self.trans, self.T, self.V0,self.height):
+                            if self.main.table.move_to_strip(self.sensor_pad_data, part[1]-self.wedge_card_size-1, self.trans, self.T, self.V0,self.height):
                                 self.last_move = part[1]-self.wedge_card_size  # Last strip the table moved to
                             move = False
 
@@ -391,6 +400,8 @@ class Stripscan_class(tools):
 
                             # Write this to the file
                             if value and self.main.save_data:
+                                if isinstance(value, float):
+                                    value = [value]
                                 self.main.write(self.main.measurement_files["Stripscan"],
                                                 "".join([format(el, '<{}'.format(self.justlength)) for el in value]))
                     else:
@@ -458,7 +469,7 @@ class Stripscan_class(tools):
         if apply_to:
             # Only a single float or int are allowed as returns
             value = apply_to(values)
-        elif len(values.shape) == 1:
+        elif len(values.shape) == 1 or isinstance(values, float):
             value = values
         else:
             value = values[0]
