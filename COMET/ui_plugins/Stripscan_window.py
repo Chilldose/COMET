@@ -63,6 +63,7 @@ class Stripscan_window:
         # Adds the function to the framework function, so that they called everytime the framework is updated
         self.variables.add_update_function(self.update_strip_stat)
         self.variables.add_update_function(self.update_plots)
+        self.variables.add_update_function(self.update_text)
 
     def config_plot(self, Title, xAxis, yAxis, logscale, inverty = False):
         '''configs the plot for the different plots'''
@@ -157,6 +158,7 @@ class Stripscan_window:
         self.stripscan.currentstrip_lcd.display(int(current_strip)) # sets the display to the desired value
         self.stripscan.stripscan_progressBar.setValue((float(current_strip)+1.)/self.number_of_strips*100)
 
+
     def update_bad_strip(self):
         '''Updates the bad strip number'''
         self.stripscan.badstrip_lcd.display(self.variables.default_values_dict["settings"]["Bad_strips"])  # sets the display to the desired value
@@ -167,7 +169,6 @@ class Stripscan_window:
         self.stripscan.end_time.setText(self.variables.default_values_dict["settings"]["End_time"])  # sets the display to the desired value
         self.stripscan.strip_time.setText(str(self.variables.default_values_dict["settings"]["strip_scan_time"]))  # sets the display to the desired value
 
-    @raise_exception
     def reset_stat(self, kwargs=None):
         '''Resets the statistics panel'''
         if self.new_meas and self.variables.default_values_dict["settings"]["Measurement_running"] or True:

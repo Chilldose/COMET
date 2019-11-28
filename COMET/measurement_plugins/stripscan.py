@@ -118,6 +118,8 @@ class Stripscan_class(tools):
         self.log = logging.getLogger(__name__)
         self.main.queue_to_main.put({"INFO": "Initialization of stripscan finished."})
 
+
+
     def run(self):
         # Check if alignment is present or not, if not stop measurement
         if not self.main.framework['Configs']['config']['settings']["Alignment"]:
@@ -345,6 +347,9 @@ class Stripscan_class(tools):
 
                     # Do the strip measurement
                     self.do_one_strip(current_strip, move, reverse_needles)
+
+                    # Change the progress
+                    self.main.settings["settings"]["progress"] = self.strips/current_strip
 
 
     def do_one_strip(self, strip, move, reverse_needles):

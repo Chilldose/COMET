@@ -378,7 +378,7 @@
         <item row="2" column="2">
          <widget class="QLabel" name="Idiel_value">
           <property name="text">
-           <string>TextLabel</string>
+           <string>NaN</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -408,7 +408,7 @@
         <item row="1" column="2">
          <widget class="QLabel" name="Istrip_value">
           <property name="text">
-           <string>TextLabel</string>
+           <string>NaN</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -428,7 +428,7 @@
         <item row="3" column="2">
          <widget class="QLabel" name="Idark_value">
           <property name="text">
-           <string>TextLabel</string>
+           <string>NaN</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -438,7 +438,7 @@
         <item row="4" column="2">
          <widget class="QLabel" name="Rpoly_value">
           <property name="text">
-           <string>TextLabel</string>
+           <string>NaN</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -448,7 +448,7 @@
         <item row="5" column="2">
          <widget class="QLabel" name="Rint_value">
           <property name="text">
-           <string>TextLabel</string>
+           <string>NaN</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -458,7 +458,7 @@
         <item row="6" column="2">
          <widget class="QLabel" name="Cac_value">
           <property name="text">
-           <string>TextLabel</string>
+           <string>NaN</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
@@ -468,7 +468,7 @@
         <item row="7" column="2">
          <widget class="QLabel" name="Cint_value">
           <property name="text">
-           <string>TextLabel</string>
+           <string>NaN</string>
           </property>
           <property name="alignment">
            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>

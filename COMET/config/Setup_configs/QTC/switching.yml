@@ -131,6 +131,18 @@
           - 1H05
           - 1H06
 
+      Cint_beta:
+        HVSwitching:
+          - A1
+          - B1
+          - C2
+
+        LVSwitching:
+          - 1G01
+          - 1G02
+          - 1H05
+          - 1H06
+
       CintAC:
         HVSwitching:
           - A1
@@ -144,6 +156,18 @@
           - 1H08
 
       Rint:
+        HVSwitching:
+          - A1
+          - B1
+          - C1
+
+        LVSwitching:
+          - 1A05
+          - 1A06
+          - 1C01
+          - 1C02
+
+      Rint_beta:
         HVSwitching:
           - A1
           - B1
@@ -172,13 +196,10 @@
           - A1
           - B1
           - C2
-        LVSwitching:
-          - 1F01
 
       Idark_beta:
         HVSwitching:
           - A1
           - B1
           - C2
-        LVSwitching:
-          - 1F02
+

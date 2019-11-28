@@ -152,6 +152,7 @@ class Table_widget(object):
         '''This function adjusts the speed of the table'''
         speed = int(float(self.variables.devices_dict["Table_control"]["default_joy_speed"])/100. * float(self.Table_gui.Table_speed.value()))
         self.variables.table.set_joystick_speed(float(speed))
+        self.Table_gui.Table_speed_indicator.display(speed)
 
 
     def adjust_x_pos(self):
@@ -324,12 +325,17 @@ class Table_widget(object):
             self.Table_gui.z_move.setMinimum(float(self.variables.devices_dict["Table_control"]["table_zmin"]))
             self.Table_gui.z_move.setMaximum(float(self.variables.devices_dict["Table_control"]["table_zmax"]))
 
+            self.Table_gui.Table_speed.setMinimum(0)
+            self.Table_gui.Table_speed.setMaximum(100)
+
             if "current_speed" in self.variables.devices_dict["Table_control"]:
                 speed = int(float(self.variables.devices_dict["Table_control"]["current_speed"]) / float(self.variables.devices_dict["Table_control"]["default_speed"])* 100)
                 self.Table_gui.Table_speed.setValue(speed)
+                self.Table_gui.Table_speed_indicator.display(speed)
             else:
                 self.Table_gui.Table_speed.setValue(100)
                 self.variables.devices_dict["Table_control"].update({"current_speed" : float(self.variables.devices_dict["Table_control"]["default_speed"])})
+                self.Table_gui.Table_speed_indicator.display(100)
 
         except Exception as err:
             self.Tablog.error("Table position indicator config error. Error: {}".format(err))

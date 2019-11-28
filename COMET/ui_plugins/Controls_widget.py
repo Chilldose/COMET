@@ -24,13 +24,13 @@ class Controls_widget(object):
         super(Controls_widget, self).__init__(gui)
         self.Start_Stop_gui = self.controls_widget
 
-
         self.Start_Stop_gui.quit_button.clicked.connect(self.exit_order)
         self.Start_Stop_gui.start_button.clicked.connect(self.Start_order)
         self.Start_Stop_gui.stop_button.clicked.connect(self.Stop_order)
 
         self.Start_Stop_gui.progressBar.setRange(0,100)
-        self.Start_Stop_gui.progressBar.setValue(0)
+        self.Start_Stop_gui.progressBar.setValue(0.)
+        self.variables.default_values_dict["settings"]["progress"] = 0.0
 
         # Adding update functions
         self.variables.add_update_function(self.error_update)
@@ -40,7 +40,9 @@ class Controls_widget(object):
 
     def update_progress_bar(self):
         """Updates the progress bar"""
-        pass
+        self.Start_Stop_gui.progressBar.setValue(self.variables.default_values_dict["settings"].get("progress", 0.0)*100)
+
+
 
     def update_current_state(self):
         """Updates the label of the state of the program. Either IDLE or Measurement running"""
