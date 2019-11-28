@@ -5,7 +5,6 @@ import sys
 import numpy as np
 from scipy import stats
 sys.path.append('../COMET')
-import datetime
 from time import time, sleep
 from ..utilities import timeit, transformation
 from .forge_tools import tools
@@ -408,9 +407,7 @@ class Stripscan_class(tools):
 
             # In the end do a quick bad strip detection
             try:
-                # Todo. This does not work now
-                # badstrip = self.main.framework['Configs']['config']['settings']analysis.do_contact_check(self.main.measurement_data)
-                badstrip = False
+                badstrip = self.analysis.do_contact_check(self.main.measurement_data)
                 if badstrip:
                     self.log.error("Bad contact of needles detected!: " + str(strip))
                     # Add the bad strip to the list of bad strips
@@ -422,7 +419,6 @@ class Stripscan_class(tools):
             except Exception as e:
                 self.log.error("An error happend while performing the bad contact determination with error: "
                                "{}".format(e))
-                badstrip = False
 
             if not self.main.event_loop.stop_all_measurements_query():
                 # After all measurements are conducted write the environment variables to the file
