@@ -36,15 +36,21 @@ class Controls_widget(object):
         self.variables.add_update_function(self.error_update)
         self.variables.add_update_function(self.update_statistics)
         self.variables.add_update_function(self.update_current_state)
-        #self.variables.add_update_function(self.led_update) # Todo: currently no led
+        self.variables.add_update_function(self.update_progress_bar)
+
+    def update_progress_bar(self):
+        """Updates the progress bar"""
+        pass
 
     def update_current_state(self):
         """Updates the label of the state of the program. Either IDLE or Measurement running"""
 
         if self.variables.default_values_dict["settings"]["Measurement_running"] and not self.Start_Stop_gui.state_indi.text() == "Measurement running":
             self.Start_Stop_gui.state_indi.setText("Measurement running")
+            self.Start_Stop_gui.state_indi.setStyleSheet("background : rgb(50,20,200); border-radius: 5px")
         elif not self.variables.default_values_dict["settings"]["Measurement_running"] and not self.Start_Stop_gui.state_indi.text() == "IDLE":
             self.Start_Stop_gui.state_indi.setText("IDLE")
+            self.Start_Stop_gui.state_indi.setStyleSheet("background : rgb(50,100,100); border-radius: 5px")
 
 
     # Orders
@@ -130,6 +136,7 @@ class Controls_widget(object):
             self.Start_Stop_gui.event_log.setText(error_text)
 
     def led_update(self):
+        """Debricated"""
 
         current_state = self.variables.default_values_dict["settings"]["current_led_state"]
         alignment = self.variables.default_values_dict["settings"]["Alignment"]
@@ -138,28 +145,28 @@ class Controls_widget(object):
 
         if current_state != "running" and running:
             self.variables.default_values_dict["settings"]["current_led_state"] = "running"
-            textbox_led.setStyleSheet("background : rgb(0,0,255); border-radius: 25px")
-            textbox_led.setText("Measurement running")
+            self.Start_Stop_gui.textbox_led.setStyleSheet("background : rgb(0,0,255); border-radius: 25px")
+            self.Start_Stop_gui.textbox_led.setText("Measurement running")
             return
 
 
         elif current_state != "Alignment" and not alignment and not running:
             self.variables.default_values_dict["settings"]["current_led_state"] = "Alignment"
-            textbox_led.setStyleSheet("background : rgb(255,0,0); border-radius: 25px")
-            textbox_led.setText("Alignement missing")
+            self.Start_Stop_gui.textbox_led.setStyleSheet("background : rgb(255,0,0); border-radius: 25px")
+            self.Start_Stop_gui.textbox_led.setText("Alignement missing")
             return
 
 
         elif current_state != "environment" and not enviroment and alignment and not running:
             self.variables.default_values_dict["settings"]["current_led_state"] = "environment"
-            textbox_led.setStyleSheet("background : rgb(255,153,51); border-radius: 25px")
-            textbox_led.setText("Environment status not ok")
+            self.Start_Stop_gui.textbox_led.setStyleSheet("background : rgb(255,153,51); border-radius: 25px")
+            self.Start_Stop_gui.textbox_led.setText("Environment status not ok")
             return
 
         if current_state != "ready" and alignment and not running and enviroment:
             self.variables.default_values_dict["settings"]["current_led_state"] = "ready"
-            textbox_led.setStyleSheet("background : rgb(0,255,0); border-radius: 25px")
-            textbox_led.setText("Ready to go")
+            self.Start_Stop_gui.textbox_led.setStyleSheet("background : rgb(0,255,0); border-radius: 25px")
+            self.Start_Stop_gui.textbox_led.setText("Ready to go")
             return
 
     def send_job(self, job):

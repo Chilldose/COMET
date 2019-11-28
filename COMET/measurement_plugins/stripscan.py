@@ -159,11 +159,11 @@ class Stripscan_class(tools):
 
         self.do_ramp_value(self.bias_SMU, "set_voltage", self.current_voltage, 0, self.voltage_steps, wait_time=0.3, compliance=0.001)
         self.change_value(self.bias_SMU,"set_voltage", "0")
+        self.main.framework['Configs']['config']['settings']["bias_voltage"] = 0.
         self.change_value(self.bias_SMU, "set_output", "0")
 
         if not self.capacitor_discharge(self.discharge_SMU, self.discharge_switching, *self.IVCV_configs["Discharge"], do_anyway=True):
             self.stop_everything()
-
         #self.save_rint_slopes()
 
     def stop_everything(self):
@@ -320,36 +320,28 @@ class Stripscan_class(tools):
 
 
             for reverse_needles, part in enumerate(partials):
-                # Move the table to the first point
-                self.log.debug("Moving table to first pad position, to init strip scan on half {}...".format(reverse_needles))
-                if self.main.table.move_to_strip(self.sensor_pad_data, part[0]+reverse_needles, self.trans, self.T, self.V0,
-                                                 self.height):
-                    self.last_move = part[0]  # Last strip the table moved to
+                self.last_move = 9999999 # Ensuring that the table moves to the first point
 
                 for current_strip in range(*part): # Loop over all strips
-                    # Move if the last move was outside the size of the wedge card size
-                    if divmod((part[1]-current_strip), self.wedge_card_size)[1]:
-                        if abs(self.last_move-current_strip) >= self.wedge_card_size:
+                    # Switch to normal IV mode
+                    self.switching.switch_to_measurement("IV")
+                    # If the table needs to be moved
+                    # If the difference between last move and strip to measure is bigger than the probecard size
+                    if abs(current_strip-self.last_move)>=self.wedge_card_size:
+                        # Now check if we are not near the edge
+                        if abs(part[1]-current_strip)>=self.wedge_card_size:
                             move = True
-                        elif abs(part[1]-current_strip) == 1: # if only the last strip is to be measured
-                            # If you cannot move due to edge error
-                            if self.main.table.move_to_strip(self.sensor_pad_data, part[1] - self.wedge_card_size,
+                        # If we are near the edge, move card to fit the edge and say we donnot need to move
+                        else:
+                            if self.main.table.move_to_strip(self.sensor_pad_data,
+                                                             part[1] - self.wedge_card_size + reverse_needles,
                                                              self.trans, self.T, self.V0, self.height):
                                 self.last_move = part[1] - self.wedge_card_size  # Last strip the table moved to
                             move = False
-                        else:
-                            move = False # If the second strip was not yet measured, but is contacted
 
-                    # If the last strip was reached which could be measured without moving the wedge card, move
+                    # If the next strip is contacted and we can accesss it with alternate switching
                     else:
-                        # if a rest is present that is inside the probe card size, move
-                        if (part[1]-current_strip) > self.wedge_card_size:
-                            move = True
-                        else:
-                            # If you cannot move due to edge error
-                            if self.main.table.move_to_strip(self.sensor_pad_data, part[1]-self.wedge_card_size-1, self.trans, self.T, self.V0,self.height):
-                                self.last_move = part[1]-self.wedge_card_size  # Last strip the table moved to
-                            move = False
+                        move = False
 
                     # Do the strip measurement
                     self.do_one_strip(current_strip, move, reverse_needles)
@@ -381,13 +373,13 @@ class Stripscan_class(tools):
                             if self.main.table.move_to_strip(self.sensor_pad_data, self.current_strip+reverse_needles, self.trans, self.T, self.V0, self.height):
                                 self.last_move = self.current_strip
                         else:
-                            self.log.debug("Did not move to strip {}, switching is done instead".format(strip))
+                            self.log.info("Did not move to strip {}, switching is done instead".format(strip))
                         if not self.main.event_loop.stop_all_measurements_query() and not self.check_compliance(self.bias_SMU,
                                                                                                   self.compliance):
                             value = 0
                             try:
                                 self.log.info("Conducting measurement: {!s}".format(measurement))
-                                value = getattr(self, "do_" + measurement)(strip, self.samples, move if reverse_needles else not move)
+                                value = getattr(self, "do_" + measurement)(strip, self.samples, alternative_switching = move if reverse_needles else not move)
                                 if not value:
                                     self.log.error(
                                         "An Error happened during strip measurement {!s}, please check logs!".format(
@@ -694,6 +686,6 @@ class Stripscan_class(tools):
     def get_switching_for_measurement(self, meas, alt):
         """Gehts the name for the measuremnt, either normal or alternate switching"""
         if alt:
-            return "beta{}".format(meas)
+            return "{}_beta".format(meas)
         else:
             return meas

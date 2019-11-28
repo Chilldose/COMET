@@ -166,15 +166,19 @@
           - 1A08
           - 1C03
           - 1C04
-          -
+
       Idark:
         HVSwitching:
           - A1
           - B1
           - C2
+        LVSwitching:
+          - 1F01
 
-      Idarkbeta:
+      Idark_beta:
         HVSwitching:
           - A1
           - B1
           - C2
+        LVSwitching:
+          - 1F02
