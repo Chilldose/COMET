@@ -18,6 +18,7 @@ class IVCV_class(tools):
         self.justlength = 24
         self.samples = 5
         self.vcw = self.main.framework["VCW"]
+        self.do_cal = True
         if "bias_voltage" not in self.main.settings["settings"]:
             self.main.settings["settings"]["bias_voltage"] = 0.0
         self.user_configs = self.main.settings["settings"].get("Measurement_configs",{}).get("IVCV", {}) # Loads the configs for IVCV measurements
@@ -53,6 +54,14 @@ class IVCV_class(tools):
 
     def run(self):
         """Runs the IVCV measurement"""
+        # Perform the open correction
+        try:
+            if self.do_cal:
+                self.main.queue_to_main.put({"INFO": "Performing open correction on LCR Meter..."})
+                self.perform_open_correction(self.main.devices[self.IVCV_configs["LCRMeter"]], "None")
+                self.main.queue_to_main.put({"INFO": "Open correction done..."})
+        except KeyError:
+            self.log.error("Could not perform open correction for IVCV measuremnt routine, due to missing LCR meter device.")
         time = self.do_IVCV()
         self.main.settings["settings"]["IVCV_time"] = str(time[1])
         return None
@@ -329,3 +338,28 @@ class IVCV_class(tools):
             self.main.measurement_data["CV"][0] = np.append(self.main.measurement_data["CV"][0], [float(voltage)])
             self.main.measurement_data["CV"][1] = np.append(self.main.measurement_data["CV"][1], [float(value)])
             self.main.queue_to_main.put({"CV": [float(voltage), float(value)]})
+
+
+    def perform_open_correction(self, LCR, measurement = "None"):
+        # Warning: table has to be down for that
+        self.main.queue_to_main.put({"INFO": "LCR open calibration on {} path...".format(measurement)})
+        if not self.switching.switch_to_measurement(measurement):
+            self.stop_everything()
+            return
+        sleep(0.2)
+        self.change_value(LCR, "set_perform_open_correction", "")
+        # Alot of time can be wasted by the timeout of the visa
+        ready_command = self.main.build_command(LCR, "get_all_done")
+        counter = 0  # counter how often the read attempt will be carried out
+        self.vcw.write(LCR, ready_command)
+        while True:
+            done = self.vcw.read(LCR)
+            if done:
+                break
+            else:
+                if counter > 10:
+                    self.log.error("LCR meter did not answer after 10 times during open correction calibration.")
+                    self.stop_everything()
+                counter += 1
+        self.switching.switch_to_measurement("IV")
+        self.main.queue_to_main.put({"INFO": "LCR open calibration on {} path finished.".format(measurement)})
