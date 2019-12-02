@@ -4,7 +4,7 @@ import logging
 import sys
 import numpy as np
 sys.path.append('../COMET')
-from .stripscan import Stripscan_class
+from .Stripscan import Stripscan_class
 
 
 class frequencyscan_class(Stripscan_class):

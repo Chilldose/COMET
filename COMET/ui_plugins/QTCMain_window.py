@@ -84,6 +84,15 @@ class QTCMain_window(Environement_widget, Controls_widget, SettingsControl_widge
         change_axis_ticks(iv_plot, self.ticksStyle)
         iv_plot.plot(pen="#cddb32")
 
+    def adjust_xrange(self):
+        """Adjusts x range of the plots so that they are in sync"""
+        # Todo: sync x range of both plots
+        iv = self.iv_plot.getAxis('bottom')
+        cv = self.cv_plot.getAxis('bottom')
+
+        if iv[1]>cv[1]:
+            pass
+
     def update_IVplot(self):
         # This clear here erases all data from the viewbox each time this function is called and draws all points again!
         # Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage

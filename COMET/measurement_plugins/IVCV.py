@@ -162,8 +162,7 @@ class IVCV_class(tools):
         else:
             self.log.error("Measurement order: {} was recognised, either sequential or interlaced are possible".format(self.IVCV_configs["Meas_order"]))
 
-        self.do_ramp_value(bias_SMU, "set_voltage", self.main.settings["settings"]["bias_voltage"], 0, 20, 0.05, set_value=self.change_bias_voltage)
-        sleep(2.)
+        self.do_ramp_value(bias_SMU, "set_voltage", self.main.settings["settings"]["bias_voltage"], 0, 20, 1., set_value=self.change_bias_voltage)
         self.main.settings["settings"]["bias_voltage"] = 0
         if self.check_compliance(bias_SMU, 100e-6):
             sleep(1.)
@@ -196,7 +195,7 @@ class IVCV_class(tools):
                         iter = i
                         if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary
                             self.change_value(bias_SMU, "set_voltage", str(voltage))
-                            if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, compliance=compliance): # Is a dynamic waiting time for the measurements
+                            if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-8, wait = 0.1, samples = 10, Rsq = 0.8, compliance=compliance): # Is a dynamic waiting time for the measurements
                                 self.stop_everything()
 
                             if self.check_compliance(bias_SMU, float(compliance)):
@@ -253,7 +252,7 @@ class IVCV_class(tools):
         for i, voltage in enumerate(voltage_step_list):
             if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary
                 self.change_value(bias_SMU, "set_voltage", str(voltage))
-                if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, compliance=compliance): # Is a dynamic waiting time for the measuremnts
+                if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-8, wait = 0.05, samples = 5, Rsq = 0.8, compliance=compliance): # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
 
                 if self.check_compliance(bias_SMU, float(compliance)):
@@ -296,7 +295,7 @@ class IVCV_class(tools):
             # Reconfig setup if need be for the IV measurement
             self.config_setup(device_dict, self.IVCV_configs["IVConfig"])
 
-            if not self.steady_state_check(device_dict, self.IVCV_configs["GetReadSMU"], max_slope=1e-6, wait=0, samples=4,Rsq=0.5, compliance=self.main.job_details["IVCV"]["IV"]["Compliance [uA]"]):  # Is a dynamic waiting time for the measuremnt
+            if float(voltage) != 0.0 and not self.steady_state_check(device_dict, self.IVCV_configs["GetReadSMU"], max_slope=1e-9, wait=0.05, samples=7, Rsq=0.8, compliance=self.main.job_details["IVCV"]["IV"]["Compliance [uA]"]):  # Is a dynamic waiting time for the measuremnt
                 self.stop_everything()
                 self.log.warning("Steady state could not be reached, shutdown of measurement")
                 return
@@ -327,10 +326,18 @@ class IVCV_class(tools):
             # Reconfig setup if need be for the CV measurement
             self.config_setup(device_dict, self.IVCV_configs["CVConfig"])
 
-            if not self.steady_state_check(device_dict, self.IVCV_configs["GetReadLCR"], max_slope=1e-6, wait=0.05, samples=3, Rsq=0.5, compliance=None):  # Is a dynamic waiting time for the measuremnts
+            # Check if LCRMeter is in steady state
+            if float(voltage) != 0.0 and not self.steady_state_check(device_dict, self.IVCV_configs["GetReadLCR"], max_slope=1e-9, wait=0.05, samples=5, Rsq=0.8, compliance=None):  # Is a dynamic waiting time for the measuremnts
                 self.stop_everything()
-                self.log.warning("Steady state could not be reached, shutdown of measurement")
+                self.log.warning("Steady state could not be reached in LCR Meter, shutdown of measurement")
                 return
+
+            # Check if SMU is in steady state
+            if float(voltage) != 0.0 and not self.steady_state_check(self.main.devices[self.IVCV_configs["BiasSMU"]], self.IVCV_configs["GetReadSMU"], max_slope=1e-9, wait=0.05, samples=5, Rsq=0.8, compliance=None):  # Is a dynamic waiting time for the measuremnts
+                self.stop_everything()
+                self.log.warning("Steady state could not be reached in Bias SMU, shutdown of measurement")
+                return
+
             values = []
             for i in range(samples):
                 values.append(float(str(self.vcw.query(device_dict, device_dict[self.IVCV_configs["GetReadLCR"]])).split(",")[0]))
