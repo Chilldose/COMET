@@ -76,7 +76,7 @@ class QTCMain_window(Environement_widget, Controls_widget, SettingsControl_widge
         iv_plot.setTitle("IV curve (top) and CV curve (bottom)", **self.titleStyle)
         iv_plot.setLabel('left', "current", units='A', **self.labelStyle)
         iv_plot.showAxis('right', show=True)
-        iv_plot.showAxis('bottom', show=False)
+        #iv_plot.showAxis('bottom', show=False)
         iv_plot.getPlotItem().invertX(True)
         iv_plot.getPlotItem().invertY(True)
         iv_plot.showGrid(x=True, y=True)

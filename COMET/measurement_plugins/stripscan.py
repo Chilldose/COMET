@@ -417,7 +417,7 @@ class Stripscan_class(tools):
                         self.main.badstrip_dict[str(strip)] = badstrip
                         self.main.framework['Configs']['config']['settings']["Bad_strips"] += 1  # increment the counter
             except Exception as e:
-                self.log.error("An error happend while performing the bad contact determination with error: "
+                self.log.error("An error happened while performing the bad contact determination with error: "
                                "{}".format(e))
 
             if not self.main.event_loop.stop_all_measurements_query():
