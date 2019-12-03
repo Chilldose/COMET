@@ -288,29 +288,47 @@ class measurement_class(Thread):
 
         # Generate dict
         # Todo: deepcopy may be better here
-        data_to_dump = self.measurement_data.copy()
-        data_to_dump.update(details)
+        data_to_dump = self.measurement_data
         filepath = os.path.normpath(details["Filepath"])
+        final_dict = {"data": {}, "units": [], "measurements": []}
+        final_dict.update(details)
+        xaxis = []
 
-        for key, data in data_to_dump.copy().items():
+        # Sanitize data (exclude x data from every dataset and store the xaxis seperately)
+        for key, data in data_to_dump.items():
             try:
-                if not len(data): # looks if the array has any data in it
-                    data_to_dump.pop(key)
-            except: # f some other error happens
-                data_to_dump.pop(key)
+                if np.array(data).any(): # looks if the array has any data in it
+                    xaxis = data[0]
+                    final_dict["data"][key] = data[1] # only ydata here
+                    final_dict["measurements"].append(key)
+            except: # if some other error happens
+                self.log.warning("Could not save data with key {}".format(key))
+
+        # add the units
+        for item in final_dict.values():
+            if isinstance(item, dict):
+                if "Units" in item:
+                    for meas in final_dict["measurements"]:
+                        final_dict["units"].append(item["Units"][meas][1])
+                    # Add x axis
+                    if "X-Axis" in item["Units"]:
+                        final_dict["measurements"].append(item["Units"]["X-Axis"][0])
+                        final_dict["units"].append(item["Units"]["X-Axis"][1])
+                        final_dict["data"][item["Units"]["X-Axis"][0]] = xaxis
+
 
         try:
-            if data_to_dump:
+            if final_dict:
                 if type.lower() == "json":
+                    save_dict_as_json(final_dict, filepath, details["Filename"])
                     return
-                    save_dict_as_json(data_to_dump, filepath, details["Filename"])
+
 
                 elif type.lower() == "hdf5":
-                    self.log.error("HDF5 saving must be tested, this will crash")
+                    save_dict_as_hdf5(final_dict, filepath, details["Filename"])
                     return
-                    save_dict_as_hdf5(data_to_dump, filepath, details["Filename"])
-        except:
-            self.log.error("Measurement output could not be saved as {}".format(type))
+        except Exception as err:
+            self.log.error("Measurement output could not be saved as {}, due to error {}".format(type, err))
         else:
             self.log.warning("No data for saving found...")
 

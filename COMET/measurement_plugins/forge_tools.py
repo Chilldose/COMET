@@ -2,7 +2,7 @@
 Measurement plugins"""
 
 import numpy as np
-from time import sleep
+from time import sleep, time
 from scipy import stats
 try:
     from ..utilities import build_command
@@ -34,7 +34,7 @@ class tools(object):
 
         :param device: The device object which should be queried
         :param command: The command which should be queried
-        :param max_slope: The maximum slope
+        :param max_slope: The maximum slope, x-axis is measured in seconds, so a slope of 1e-9 is a change of 1n per second
         :param wait: How long to wait between attempts
         :param samples: How many samples should be used
         :param Rsq: Minimum R^2 value
@@ -43,21 +43,24 @@ class tools(object):
         :param check_compliance: If the program should check the compliance value
         :return: Bool - True means steady state reached
         """
-        # TODO: I have the feeling that this function is not exactly dooing what she is supposed to do, check!
+        # TODO: I have the feeling that this function is not exactly doing what she is supposed to do, check!
         steady_state = False
-        #stop = self.event_loop.stop_measurement
+        bad_fit = False
+        high_error = False
+        max_iterations = 7
         if do_anyway:
             self.toolslog.warning("Overwriting steady_state_check is not advised. Use with caution")
             stop = False
         counter = 0
         # Todo: the stop signal does not work correctly here.
         while not steady_state:
-            if counter > 5:
+            if counter > max_iterations:
                 # If too many attempts where made
-                self.toolslog.error("Attempt to reach steady state was not successfully after 5 times")
+                self.toolslog.error("Attempt to reach steady state was not successfully after {} times for device {}".format(max_iterations, device["Device_name"]))
                 return False
             counter += 1
-            values = []
+            values = np.zeros(samples)
+            times = np.zeros(samples)
 
             comm = build_command(device, command)
             if compliance and check_compliance:
@@ -65,13 +68,34 @@ class tools(object):
                     self.stop_measurement()
                     return False
 
+            self.toolslog.debug("Conducting steady state check. Iteration={}...".format(counter))
             for i in range(samples):
-                self.toolslog.debug("Conducting steady state check...")
-                values.append(float(str(self.vcw.query(device, comm).split()[0]).split(",")[0]))
-                sleep(wait)
-            slope, intercept, r_value, p_value, std_err = stats.linregress([i for i in range(len(values))], values)
-            if std_err <= 1e-6 and abs(slope) <= abs(max_slope):
+                start = time()
+                values[i] = float(str(self.vcw.query(device, comm).split()[0]).split(",")[0])
+                times[i] = time()
+                if (time()-start) <= wait:
+                    sleep(abs(time()-start - wait))
+            slope, intercept, r_value, p_value, std_err = stats.linregress(np.append([0], np.diff(times)), values)
+            self.toolslog.debug("Slope parameters: slope={}, intercept={}, r^2={}, err={}".format(slope, intercept, r_value*r_value, std_err))
+            bad_fit = True if r_value*r_value < Rsq else False
+            high_error = True if std_err*2.5 > abs(slope) else False
+
+            if std_err <= 1e-8 and abs(slope) <= abs(max_slope):
+                self.toolslog.debug(
+                    "Steady state in device {} was reached with slope={} at  Iteration={}".format(device["Device_name"], slope, counter))
+                if bad_fit:
+                    self.toolslog.debug(
+                    "Steady state check on device {} yielded bad fit conditions. Results may be compromised! R^2={} at iteration={}".format(
+                        device["Device_name"], round(r_value * r_value, 2), counter))
+                high_error_slope = abs(slope)+2.5*std_err > abs(max_slope)
+                # If fit errors are high, the 2.5x the error is bigger as the slope and 0.5% of the maximum_error_slope is bigger as the actuall value
+                if high_error and high_error_slope and abs(slope)+2.5*std_err > abs(intercept):
+                 self.toolslog.warning(
+                    "Steady state check on device {} yielded high fit error conditions. Results may be compromised! std={} at iteration={}".format(
+                        device["Device_name"], std_err, counter))
                 return True
+            else:
+                self.toolslog.debug("Steady state was not reached due to high error and steep slope. Iteration={}".format(counter))
         return False
 
     def ramp_value_log10(self, min_value, max_value, deltasteps):

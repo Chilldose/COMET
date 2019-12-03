@@ -331,9 +331,9 @@ def read_in_JSON_measurement_files(filepathes):
 
     try:
         for files in filepathes:
-            filename = os.path.basename(str(files)).split(".")[0][4:]
+            filename = os.path.basename(str(files)).split(".")[0]
             log.info("Try reading JSON file: {}".format(filename))
-            current_file = files
+
             data = load_yaml(os.path.normpath(files))
             # Add filename and rest of the dict important values
             data.update({"analysed": False, "plots": False})

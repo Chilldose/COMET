@@ -147,6 +147,7 @@ class Alignment_window(Table_widget):
 
     def move_to_strip_action(self):
         '''This is the action when the move to strip button is pressed'''
+        self.set_needle_contact_lamp("contact unclear")
         if not self.variables.default_values_dict["settings"]["table_is_moving"]:
             strip_to_move = str(self.alignment.move_to_strip_spin.value())
 

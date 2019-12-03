@@ -18,6 +18,7 @@ class IVCV_class(tools):
         self.justlength = 24
         self.samples = 5
         self.vcw = self.main.framework["VCW"]
+        self.do_cal = True
         if "bias_voltage" not in self.main.settings["settings"]:
             self.main.settings["settings"]["bias_voltage"] = 0.0
         self.user_configs = self.main.settings["settings"].get("Measurement_configs",{}).get("IVCV", {}) # Loads the configs for IVCV measurements
@@ -53,6 +54,14 @@ class IVCV_class(tools):
 
     def run(self):
         """Runs the IVCV measurement"""
+        # Perform the open correction
+        try:
+            if self.do_cal:
+                self.main.queue_to_main.put({"INFO": "Performing open correction on LCR Meter..."})
+                self.perform_open_correction(self.main.devices[self.IVCV_configs["LCRMeter"]], "None")
+                self.main.queue_to_main.put({"INFO": "Open correction done..."})
+        except KeyError:
+            self.log.error("Could not perform open correction for IVCV measuremnt routine, due to missing LCR meter device.")
         time = self.do_IVCV()
         self.main.settings["settings"]["IVCV_time"] = str(time[1])
         return None
@@ -153,8 +162,7 @@ class IVCV_class(tools):
         else:
             self.log.error("Measurement order: {} was recognised, either sequential or interlaced are possible".format(self.IVCV_configs["Meas_order"]))
 
-        self.do_ramp_value(bias_SMU, "set_voltage", self.main.settings["settings"]["bias_voltage"], 0, 20, 0.05, set_value=self.change_bias_voltage)
-        sleep(2.)
+        self.do_ramp_value(bias_SMU, "set_voltage", self.main.settings["settings"]["bias_voltage"], 0, 20, 1., set_value=self.change_bias_voltage)
         self.main.settings["settings"]["bias_voltage"] = 0
         if self.check_compliance(bias_SMU, 100e-6):
             sleep(1.)
@@ -179,6 +187,8 @@ class IVCV_class(tools):
         for meas, device in zip(["IV", "CV"], [bias_SMU, LCR_meter]):
             if meas in self.main.job_details["IVCV"] and not self.main.event_loop.stop_all_measurements_query():
                 for i, voltage in enumerate(voltage_step_list):
+                    # Change the progress
+                    self.main.settings["settings"]["progress"] = (i+1)/len(voltage_step_list)
                     env_array = [] # Warning: if you do IV and CV only the IV data will be stored finally
                     if self.main.job_details["environment"]:
                         env_array.append(str(self.main.event_loop.temperatur_history[-1]).ljust(
@@ -187,7 +197,7 @@ class IVCV_class(tools):
                         iter = i
                         if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary
                             self.change_value(bias_SMU, "set_voltage", str(voltage))
-                            if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, compliance=compliance): # Is a dynamic waiting time for the measurements
+                            if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-8, wait = 0.1, samples = 10, Rsq = 0.8, compliance=compliance): # Is a dynamic waiting time for the measurements
                                 self.stop_everything()
 
                             if self.check_compliance(bias_SMU, float(compliance)):
@@ -205,12 +215,19 @@ class IVCV_class(tools):
         if self.main.save_data:
             try:
                 diff = len(self.main.measurement_data["IV"][1]) - len(self.main.measurement_data["CV"][1])
-                if diff > 0:
-                    self.main.measurement_data["CV"][0].append([np.nan for x in range(diff)])
-                    self.main.measurement_data["CV"][1].append([np.nan for x in range(diff)])
-                else:
-                    self.main.measurement_data["IV"][0].append([np.nan for x in range(abs(diff))])
-                    self.main.measurement_data["IV"][1].append([np.nan for x in range(abs(diff))])
+                if diff > 0 and len(self.main.measurement_data["CV"][1]):
+                    self.main.measurement_data["CV"][0] = np.append(self.main.measurement_data["CV"][0], self.main.measurement_data["IV"][0][len(self.main.measurement_data["CV"][0]):])
+                    self.main.measurement_data["CV"][1] = np.append(self.main.measurement_data["CV"][1], [np.nan for x in range(diff)])
+
+                    self.main.measurement_data["CVQValue"][0] = np.append(self.main.measurement_data["CVQValue"][0],
+                                                                    self.main.measurement_data["IV"][0][
+                                                                    len(self.main.measurement_data["CVQValue"][0]):])
+                    self.main.measurement_data["CVQValue"][1] = np.append(self.main.measurement_data["CVQValue"][1],
+                                                                    [np.nan for x in range(diff)])
+
+                elif diff < 0 and len(self.main.measurement_data["IV"][1]):
+                    self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], self.main.measurement_data["CV"][0][len(self.main.measurement_data["IV"][0]):])
+                    self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1], [np.nan for x in range(diff)])
 
 
                 for entry in range(len(self.main.measurement_data["IV"][1])):
@@ -242,9 +259,11 @@ class IVCV_class(tools):
         """Routine for the interlace IVCV measurement
         The function returns the iterator, where it was with the voltage!"""
         for i, voltage in enumerate(voltage_step_list):
+            # Change the progress
+            self.main.settings["settings"]["progress"] = (i+1.)/len(voltage_step_list)
             if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary
                 self.change_value(bias_SMU, "set_voltage", str(voltage))
-                if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-6, wait = 0, samples = 5, Rsq = 0.5, compliance=compliance): # Is a dynamic waiting time for the measuremnts
+                if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-8, wait = 0.05, samples = 5, Rsq = 0.8, compliance=compliance): # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
 
                 if self.check_compliance(bias_SMU, float(compliance)):
@@ -287,7 +306,7 @@ class IVCV_class(tools):
             # Reconfig setup if need be for the IV measurement
             self.config_setup(device_dict, self.IVCV_configs["IVConfig"])
 
-            if not self.steady_state_check(device_dict, self.IVCV_configs["GetReadSMU"], max_slope=1e-6, wait=0, samples=4,Rsq=0.5, compliance=self.main.job_details["IVCV"]["IV"]["Compliance [uA]"]):  # Is a dynamic waiting time for the measuremnt
+            if float(voltage) != 0.0 and not self.steady_state_check(device_dict, self.IVCV_configs["GetReadSMU"], max_slope=1e-9, wait=0.05, samples=7, Rsq=0.8, compliance=self.main.job_details["IVCV"]["IV"]["Compliance [uA]"]):  # Is a dynamic waiting time for the measuremnt
                 self.stop_everything()
                 self.log.warning("Steady state could not be reached, shutdown of measurement")
                 return
@@ -295,17 +314,14 @@ class IVCV_class(tools):
             for i in range(samples):
                 values.append(str(self.vcw.query(device_dict, device_dict[self.IVCV_configs["GetReadSMU"]])).split("\t")) # 2657SMU
 
-            current = sum([float(x[0]) for x in values])/len(values) # Makes a mean out of it
-            if len(values[0]) >1:
-                voltage = sum([float(x[1]) for x in values]) / len(values)  # Makes a mean out of it
-            else:
-                voltage = voltage
-
+            values = np.array(values, dtype=float)
+            values = np.mean(values, axis=0)
+            voltage = values[1] if len(values) > 1 else voltage
             self.main.settings["settings"]["bias_voltage"] = voltage  # changes the bias voltage
 
             self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], [float(voltage)])
-            self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1],[float(current)])
-            self.main.queue_to_main.put({"IV": [float(voltage), float(current)]})
+            self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1],[float(values[0])])
+            self.main.queue_to_main.put({"IV": [float(voltage), float(values[0])]})
 
     def do_CV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a capacity value (or more precicely the amplitude and the phase shift) and process the data'''
@@ -318,14 +334,55 @@ class IVCV_class(tools):
             # Reconfig setup if need be for the CV measurement
             self.config_setup(device_dict, self.IVCV_configs["CVConfig"])
 
-            if not self.steady_state_check(device_dict, self.IVCV_configs["GetReadLCR"], max_slope=1e-6, wait=0.05, samples=3, Rsq=0.5, compliance=None):  # Is a dynamic waiting time for the measuremnts
+            # Check if LCRMeter is in steady state
+            if float(voltage) != 0.0 and not self.steady_state_check(device_dict, self.IVCV_configs["GetReadLCR"], max_slope=1e-9, wait=0.05, samples=5, Rsq=0.8, compliance=None):  # Is a dynamic waiting time for the measuremnts
                 self.stop_everything()
-                self.log.warning("Steady state could not be reached, shutdown of measurement")
+                self.log.warning("Steady state could not be reached in LCR Meter, shutdown of measurement")
                 return
+
+            # Check if SMU is in steady state
+            if float(voltage) != 0.0 and not self.steady_state_check(self.main.devices[self.IVCV_configs["BiasSMU"]], self.IVCV_configs["GetReadSMU"], max_slope=1e-9, wait=0.05, samples=5, Rsq=0.8, compliance=None):  # Is a dynamic waiting time for the measuremnts
+                self.stop_everything()
+                self.log.warning("Steady state could not be reached in Bias SMU, shutdown of measurement")
+                return
+
+            # Gather all values for one data point
             values = []
             for i in range(samples):
-                values.append(float(str(self.vcw.query(device_dict, device_dict[self.IVCV_configs["GetReadLCR"]])).split(",")[0]))
-            value = sum(values) / len(values)
-            self.main.measurement_data["CV"][0] = np.append(self.main.measurement_data["CV"][0], [float(voltage)])
-            self.main.measurement_data["CV"][1] = np.append(self.main.measurement_data["CV"][1], [float(value)])
-            self.main.queue_to_main.put({"CV": [float(voltage), float(value)]})
+                values.append(str(self.vcw.query(device_dict, device_dict[self.IVCV_configs["GetReadLCR"]])).split(","))
+            values = np.array(values, dtype=float)
+            values = np.mean(values, axis=0)
+
+            # Save the actuall capacitance value
+            self.main.measurement_data["CV"][0] = np.append(self.main.measurement_data["CV"][0], float(voltage))
+            self.main.measurement_data["CV"][1] = np.append(self.main.measurement_data["CV"][1], values[0])
+            # Save the QValue/second value as well
+            self.main.measurement_data["CVQValue"][0] = np.append(self.main.measurement_data["CVQValue"][0], float(voltage))
+            self.main.measurement_data["CVQValue"][1] = np.append(self.main.measurement_data["CVQValue"][1], values[1])
+            # Send the Cap value to the main
+            self.main.queue_to_main.put({"CV": [float(voltage), values[1]]})
+
+
+    def perform_open_correction(self, LCR, measurement = "None"):
+        # Warning: table has to be down for that
+        self.main.queue_to_main.put({"INFO": "LCR open calibration on {} path...".format(measurement)})
+        if not self.switching.switch_to_measurement(measurement):
+            self.stop_everything()
+            return
+        sleep(0.2)
+        self.change_value(LCR, "set_perform_open_correction", "")
+        # Alot of time can be wasted by the timeout of the visa
+        ready_command = self.main.build_command(LCR, "get_all_done")
+        counter = 0  # counter how often the read attempt will be carried out
+        self.vcw.write(LCR, ready_command)
+        while True:
+            done = self.vcw.read(LCR)
+            if done:
+                break
+            else:
+                if counter > 10:
+                    self.log.error("LCR meter did not answer after 10 times during open correction calibration.")
+                    self.stop_everything()
+                counter += 1
+        self.switching.switch_to_measurement("IV")
+        self.main.queue_to_main.put({"INFO": "LCR open calibration on {} path finished.".format(measurement)})

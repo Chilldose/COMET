@@ -1813,23 +1813,36 @@ class NumpyEncoder(json.JSONEncoder):
         return json.JSONEncoder.default(self, obj)
 
 def save_dict_as_json(data, dirr, base_name):
+
+    # Create a json dump
     json_dump = json.dumps(data, cls=NumpyEncoder)
-    with open(os.path.join(dirr, base_name+".json"), 'w') as outfile:
+    # Write the data to file, the whole dic
+    with open(os.path.join(dirr, "{}.json".format(base_name)), 'w') as outfile:
         json.dump(json_dump, outfile)
 
-    for key in data:
-        with open(os.path.join(dirr, "{}.json".format(key)), 'w') as outfile:
-            json_dump = json.dumps(data[key], cls=NumpyEncoder)
-            json.dump(json_dump, outfile)
+    # Save the individual data files/measurements
+    if "data" in data:
+        pass
+        # If only one data set is present save each indvidual mesaurement array
+        # I dont like that therefor I excluded it, so far no one has complained
+        #for key in data["data"]:
+        #    with open(os.path.join(dirr, base_name, "data", "{}.json".format(key)), 'w') as outfile:
+        #        json_dump = json.dumps(data["data"][key], cls=NumpyEncoder)
+        #        json.dump(json_dump, outfile)
+    else:
+        #os.mkdir(os.path.join(dirr, base_name)) if not os.path.exists(os.path.join(dirr, base_name)) else True
+        os.mkdir(os.path.join(dirr, "singledata")) if not os.path.exists(
+            os.path.join(dirr, "singledata")) else True
+        # If the data contains several measurement json files eg from the plotter
+        for name, file in data.items():
+             with open(os.path.join(dirr, "singledata", "{}.json".format(name)), 'w') as outfile:
+                    json_dump = json.dumps(file, cls=NumpyEncoder)
+                    json.dump(json_dump, outfile)
 
 def save_dict_as_hdf5(data, dirr, base_name):
     df = convert_to_df(data)
     df["All"].to_hdf(os.path.join(dirr, base_name+".hdf5"), key='df', mode='w')
+    os.mkdir(os.path.join(dirr, "singledata")) if not os.path.exists(
+        os.path.join(dirr, "singledata")) else True
     for key in df.get("keys", []):
-        data[key]["data"].to_hdf(os.path.join(dirr, "{}.hdf5".format(key)), key='df', mode='w')
-
-
-
-if __name__ == "__main__":
-
-    pass
+        data[key]["data"].to_hdf(os.path.join(dirr, "singledata", "{}.hdf5".format(key)), key='df', mode='w')

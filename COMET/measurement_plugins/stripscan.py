@@ -236,7 +236,6 @@ class Stripscan_class(tools):
                 self.stop_everything()
 
         # Perform the open correction
-
         if do_cal:
             self.main.queue_to_main.put({"INFO": "Performing open correction on LCR Meter..."})
             self.perform_open_correction(self.LCR_meter, "Cac")

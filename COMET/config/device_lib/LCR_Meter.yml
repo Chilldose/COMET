@@ -3,8 +3,8 @@
     Device_type: LCRmeter 
 
     reset:
-        - integration_time: LONG 
-        - voltage: 0.5 
+        - integration_time: LONG
+        - voltage: 1.0
         - correction_state: "OFF"
         - frequency: 1000 
         - output_format: ASC 

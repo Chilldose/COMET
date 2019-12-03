@@ -25,6 +25,7 @@ class Stripscan:
         padidx = self.measurements.index("Pad")
         del self.measurements[padidx]
         self.PlotDict = {"Name": "Stripscan"}
+        self.donts = ("Pad", "current", "voltage", "capacitance", "1C2", "temperature", "humidity")
 
         #hv.renderer('bokeh').theme = "dark_minimal"
 
@@ -39,7 +40,7 @@ class Stripscan:
         """Runs the script"""
 
         # Plot all Measurements
-        self.basePlots = plot_all_measurements(self.data, self.config, "Pad", "Stripscan", do_not_plot=("Pad"))
+        self.basePlots = plot_all_measurements(self.data, self.config, "Pad", "Stripscan", do_not_plot=self.donts)
         #self.finalPlot.Overlay.Humidity = addHistogram(self.finalPlot.Overlay.Humidity, dimensions="Humidity")
         self.PlotDict["BasePlots"] = self.basePlots
         self.PlotDict["All"] = self.basePlots

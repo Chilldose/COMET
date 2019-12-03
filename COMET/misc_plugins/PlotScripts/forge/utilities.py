@@ -4,6 +4,7 @@
 import os, sys, os.path
 from time import time
 import time
+import ast
 import yaml, json
 from copy import deepcopy
 import logging.config
@@ -326,11 +327,14 @@ def read_from_file(filename="default.txt", filepath="default_path"):
 # These functions are for reading and writing to files------------------------------------
 # -------------------------------------------------------------------------------------end
 
-def load_yaml(path="file.yaml"):
+def load_yaml(path):
     """Loads a yaml file and returns the dict representation of it"""
     with open(os.path.normpath(path), 'r') as stream:
         try:
-            return yaml.load(stream)
+            data = yaml.load(stream, Loader=yaml.FullLoader)
+            if isinstance(data, str):
+                data = json.loads(data)
+            return data
         except yaml.YAMLError as exc:
             l.error("While loading the yml file {} the error: {} happend.".format(path, exc))
 
