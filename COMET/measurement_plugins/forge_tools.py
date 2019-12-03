@@ -74,7 +74,7 @@ class tools(object):
                 values[i] = float(str(self.vcw.query(device, comm).split()[0]).split(",")[0])
                 times[i] = time()
                 if (time()-start) <= wait:
-                    sleep(time()-start - wait)
+                    sleep(abs(time()-start - wait))
             slope, intercept, r_value, p_value, std_err = stats.linregress(np.append([0], np.diff(times)), values)
             self.toolslog.debug("Slope parameters: slope={}, intercept={}, r^2={}, err={}".format(slope, intercept, r_value*r_value, std_err))
             bad_fit = True if r_value*r_value < Rsq else False

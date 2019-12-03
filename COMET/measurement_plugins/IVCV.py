@@ -187,6 +187,8 @@ class IVCV_class(tools):
         for meas, device in zip(["IV", "CV"], [bias_SMU, LCR_meter]):
             if meas in self.main.job_details["IVCV"] and not self.main.event_loop.stop_all_measurements_query():
                 for i, voltage in enumerate(voltage_step_list):
+                    # Change the progress
+                    self.main.settings["settings"]["progress"] = (i+1)/len(voltage_step_list)
                     env_array = [] # Warning: if you do IV and CV only the IV data will be stored finally
                     if self.main.job_details["environment"]:
                         env_array.append(str(self.main.event_loop.temperatur_history[-1]).ljust(
@@ -213,12 +215,19 @@ class IVCV_class(tools):
         if self.main.save_data:
             try:
                 diff = len(self.main.measurement_data["IV"][1]) - len(self.main.measurement_data["CV"][1])
-                if diff > 0:
-                    self.main.measurement_data["CV"][0].append([np.nan for x in range(diff)])
-                    self.main.measurement_data["CV"][1].append([np.nan for x in range(diff)])
-                else:
-                    self.main.measurement_data["IV"][0].append([np.nan for x in range(abs(diff))])
-                    self.main.measurement_data["IV"][1].append([np.nan for x in range(abs(diff))])
+                if diff > 0 and len(self.main.measurement_data["CV"][1]):
+                    self.main.measurement_data["CV"][0] = np.append(self.main.measurement_data["CV"][0], self.main.measurement_data["IV"][0][len(self.main.measurement_data["CV"][0]):])
+                    self.main.measurement_data["CV"][1] = np.append(self.main.measurement_data["CV"][1], [np.nan for x in range(diff)])
+
+                    self.main.measurement_data["CVQValue"][0] = np.append(self.main.measurement_data["CVQValue"][0],
+                                                                    self.main.measurement_data["IV"][0][
+                                                                    len(self.main.measurement_data["CVQValue"][0]):])
+                    self.main.measurement_data["CVQValue"][1] = np.append(self.main.measurement_data["CVQValue"][1],
+                                                                    [np.nan for x in range(diff)])
+
+                elif diff < 0 and len(self.main.measurement_data["IV"][1]):
+                    self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], self.main.measurement_data["CV"][0][len(self.main.measurement_data["IV"][0]):])
+                    self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1], [np.nan for x in range(diff)])
 
 
                 for entry in range(len(self.main.measurement_data["IV"][1])):
@@ -250,6 +259,8 @@ class IVCV_class(tools):
         """Routine for the interlace IVCV measurement
         The function returns the iterator, where it was with the voltage!"""
         for i, voltage in enumerate(voltage_step_list):
+            # Change the progress
+            self.main.settings["settings"]["progress"] = (i+1.)/len(voltage_step_list)
             if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary
                 self.change_value(bias_SMU, "set_voltage", str(voltage))
                 if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-8, wait = 0.05, samples = 5, Rsq = 0.8, compliance=compliance): # Is a dynamic waiting time for the measuremnts
@@ -303,17 +314,14 @@ class IVCV_class(tools):
             for i in range(samples):
                 values.append(str(self.vcw.query(device_dict, device_dict[self.IVCV_configs["GetReadSMU"]])).split("\t")) # 2657SMU
 
-            current = sum([float(x[0]) for x in values])/len(values) # Makes a mean out of it
-            if len(values[0]) >1:
-                voltage = sum([float(x[1]) for x in values]) / len(values)  # Makes a mean out of it
-            else:
-                voltage = voltage
-
+            values = np.array(values, dtype=float)
+            values = np.mean(values, axis=0)
+            voltage = values[1] if len(values) > 1 else voltage
             self.main.settings["settings"]["bias_voltage"] = voltage  # changes the bias voltage
 
             self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], [float(voltage)])
-            self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1],[float(current)])
-            self.main.queue_to_main.put({"IV": [float(voltage), float(current)]})
+            self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1],[float(values[0])])
+            self.main.queue_to_main.put({"IV": [float(voltage), float(values[0])]})
 
     def do_CV(self, voltage, device_dict, samples = 5):
         '''This function simply sends a request for reading a capacity value (or more precicely the amplitude and the phase shift) and process the data'''
@@ -338,13 +346,21 @@ class IVCV_class(tools):
                 self.log.warning("Steady state could not be reached in Bias SMU, shutdown of measurement")
                 return
 
+            # Gather all values for one data point
             values = []
             for i in range(samples):
-                values.append(float(str(self.vcw.query(device_dict, device_dict[self.IVCV_configs["GetReadLCR"]])).split(",")[0]))
-            value = sum(values) / len(values)
-            self.main.measurement_data["CV"][0] = np.append(self.main.measurement_data["CV"][0], [float(voltage)])
-            self.main.measurement_data["CV"][1] = np.append(self.main.measurement_data["CV"][1], [float(value)])
-            self.main.queue_to_main.put({"CV": [float(voltage), float(value)]})
+                values.append(str(self.vcw.query(device_dict, device_dict[self.IVCV_configs["GetReadLCR"]])).split(","))
+            values = np.array(values, dtype=float)
+            values = np.mean(values, axis=0)
+
+            # Save the actuall capacitance value
+            self.main.measurement_data["CV"][0] = np.append(self.main.measurement_data["CV"][0], float(voltage))
+            self.main.measurement_data["CV"][1] = np.append(self.main.measurement_data["CV"][1], values[0])
+            # Save the QValue/second value as well
+            self.main.measurement_data["CVQValue"][0] = np.append(self.main.measurement_data["CVQValue"][0], float(voltage))
+            self.main.measurement_data["CVQValue"][1] = np.append(self.main.measurement_data["CVQValue"][1], values[1])
+            # Send the Cap value to the main
+            self.main.queue_to_main.put({"CV": [float(voltage), values[1]]})
 
 
     def perform_open_correction(self, LCR, measurement = "None"):

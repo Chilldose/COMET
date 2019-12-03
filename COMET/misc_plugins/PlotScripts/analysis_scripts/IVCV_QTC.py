@@ -31,11 +31,14 @@ class IVCV_QTC:
         self.basePlots = None
         self.PlotDict = {"Name": "IVCV"}
         self.capincluded = False
-        if "capacitance" in self.data[self.data["keys"][0]]["data"]:
+        if "capacitance" in self.data[self.data["keys"][0]]["data"] or "CV" in self.data[self.data["keys"][0]]["data"]:
             self.data["columns"].insert(3,"1C2") # because we are adding it later on
             self.capincluded = True
         self.measurements = self.data["columns"]
         self.xaxis = self.measurements[0]
+
+        # The do not plot list, you can extend this list as you like
+        self.donts = ("voltage", "voltage_1", "Idark", "Idiel", "Rpoly", "Cac", "Cint", "Rint", "Pad", "Istrip", "Temperature", "Humidity")
 
         if "voltage" in self.measurements:
             self.xaxis = "voltage"
@@ -63,7 +66,7 @@ class IVCV_QTC:
         # Add the measurement to the list
 
         # Plot all Measurements
-        self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, "IVCV_QTC", do_not_plot=("voltage", "voltage_1"))
+        self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, "IVCV_QTC", do_not_plot = self.donts)
         self.PlotDict["BasePlots"] = self.basePlots
         self.PlotDict["All"] = self.basePlots
 

@@ -93,6 +93,9 @@ IVCV:
     CV:
     - capacitance
     - F
+    CVQValue:
+    - Q value
+    - arb. units
     IV:
     - current
     - A

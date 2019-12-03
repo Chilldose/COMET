@@ -101,42 +101,49 @@ class DataVisualization_window:
         """Stats the plotting scripts"""
         # Sets the cursor to wait
         self.variables.app.setOverrideCursor(Qt.WaitCursor)
+        os.mkdir(os.path.join(os.getcwd(), "COMET", "temp")) if not os.path.exists(os.path.join(os.getcwd(), "COMET", "temp")) else True
 
+
+
+
+
+
+        # Find template and load the yaml file
+        plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
+        template = plotConfigs[(self.widget.templates_comboBox.currentText()+"_template")]["raw"]
+        template = self.parse_yaml_string(template)
+
+        # Add the parameters
+        template["Files"] = [self.widget.files_comboBox.itemText(i) for i in range(self.widget.files_comboBox.count())]
+        template["Output"] = self.widget.save_lineEdit.text()
+
+        # Dump the yaml file in the output directory
+        filepath = os.path.normpath(os.path.join(os.getcwd(), "COMET", "temp", "{}.yml".format("tempCONFIG")))
+        with open(filepath, 'w') as outfile:
+            yaml.dump(template, outfile, default_flow_style=False)
+
+        args = ["--config", "{}".format(filepath), "--show"]
+        plotting = PlottingMain(configs=args)
         try:
-            try:
-                os.mkdir(os.path.join(os.getcwd(), "COMET", "temp"))
-            except:
-                pass
-
-            # Find template and load the yaml file
-            plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
-            template = plotConfigs[(self.widget.templates_comboBox.currentText()+"_template")]["raw"]
-            template = self.parse_yaml_string(template)
-
-            # Add the parameters
-            template["Files"] = [self.widget.files_comboBox.itemText(i) for i in range(self.widget.files_comboBox.count())]
-            template["Output"] = self.widget.save_lineEdit.text()
-
-            # Dump the yaml file in the output directory
-            filepath = os.path.normpath(os.path.join(os.getcwd(), "COMET", "temp", "{}.yml".format("tempCONFIG")))
-            with open(filepath, 'w') as outfile:
-                yaml.dump(template, outfile, default_flow_style=False)
-
-            args = ["--config", "{}".format(filepath), "--show"]
-            plotting = PlottingMain(configs=args)
             plotting.run()
-
             self.update_plt_tree(plotting)
-
             # Store current session
             self.plotting_Object = plotting
-
-            # Restore Cursor
-            self.variables.app.restoreOverrideCursor()
-        except:
+        except Exception as err:
+            self.log.error("An error happened during plotting with error {}".format(err))
+            # Try to extract data until crash (this is just wishfull thinking, in most cases this will fail)
+            try:
+                self.update_plt_tree(plotting)
+                # Store current session
+                self.plotting_Object = plotting
+            except:
+                pass
             # Restore Cursor
             self.variables.app.restoreOverrideCursor()
             raise
+        # Restore Cursor
+        self.variables.app.restoreOverrideCursor()
+
 
     def tree_option_select_action(self, item):
         """Action what happens when an option is selected"""

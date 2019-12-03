@@ -12,6 +12,7 @@
     measurement_types: # Different measurement types which can be conducted
         - IV
         - CV
+        - CVQValue
         - Stripscan
         - IV_longterm
         - temperature
@@ -45,7 +46,7 @@
     time_format: "%H:%M:%S" # Time format of the humidity control
     Test_mode: false # You dont want this
     GUI_update_interval: 200.0 # How often should the GUI be updated in ms
-    store_data_as: json # Additional parameter, usually data will be stored as ascii during measurement,
+    store_data_as: json # Additional parameter, usually data will be stored as ascii during measurement, but for the database it is easier to store data as json
     # but if you need the data in another format you can specify it here
     Django_server:
         Start_Server: False
