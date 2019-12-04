@@ -108,6 +108,7 @@ class Stripscan_class(tools):
         self.project = self.main.job_details["Project"]
         self.sensor = self.main.job_details["Sensor"]
         self.current_voltage = self.main.framework['Configs']['config']['settings'].get("bias_voltage", 0)
+        self.cal_to = "Cac"
 
         if "Rint_MinMax" not in self.main.framework['Configs']['config']['settings']:
             self.main.framework['Configs']['config']['settings']["Rint_MinMax"] = [-1.,1.,0.1]
@@ -198,7 +199,7 @@ class Stripscan_class(tools):
         """This function prepares the setup, like ramping the voltage and steady state check
         """
         self.main.queue_to_main.put({"INFO": "Preparing everything for stripscans..."})
-        if self.main.save_data and "frequencyscan" not in self.main.job_details["Stripscan"]:
+        if self.main.save_data and "Frequency Scan" not in self.main.job_details["Stripscan"]:
             self.main.write(self.main.measurement_files["Stripscan"], self.main.job_details["Stripscan"].get("Additional Header", ""))  # TODO: pretty useless, an additional header to the file if necessary
 
             # Add the additional params to the header
@@ -238,7 +239,7 @@ class Stripscan_class(tools):
         # Perform the open correction
         if do_cal:
             self.main.queue_to_main.put({"INFO": "Performing open correction on LCR Meter..."})
-            self.perform_open_correction(self.LCR_meter, "Cac")
+            self.perform_open_correction(self.LCR_meter, self.cal_to)
             self.main.queue_to_main.put({"INFO": "Open correction done..."})
 
         # Move the table up again

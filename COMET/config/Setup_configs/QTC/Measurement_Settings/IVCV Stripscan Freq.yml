@@ -85,19 +85,22 @@
                 Do: True
                 Start Freq [Hz]: [100, 2000000, 10000, 100]
                 End Freq [Hz]: [0,2000000,10000,2000000] # Min/Max/SpinStep/Value
-                Amplitude [mV]: [0,1000,1000,100] # Min/Max/SpinStep/Value
+                Amplitude [mV]: [0,1000,100,100] # Min/Max/SpinStep/Value
+                Steps per decade: [0,1000,10,10]
                 Strip [#]: [1, 2032, 1, 1]
             Cint:
                 Do: True
                 Start Freq [Hz]: [100, 2000000, 10000, 100]
                 End Freq [Hz]: [0,2000000,10000,2000000] # Min/Max/SpinStep/Value
-                Amplitude [mV]: [0,1000,1000,100] # Min/Max/SpinStep/Value
+                Amplitude [mV]: [0,1000,100,100] # Min/Max/SpinStep/Value
+                Steps per decade: [0,1000,10,10]
                 Strip [#]: [1, 2032, 1, 1]
             CV:
                 Do: True
                 Start Freq [Hz]: [100, 2000000, 10000, 100]
                 End Freq [Hz]: [0,2000000,10000,2000000] # Min/Max/SpinStep/Value
-                Amplitude [mV]: [0,1000,1000,100] # Min/Max/SpinStep/Value
+                Amplitude [mV]: [0,1000,100,100] # Min/Max/SpinStep/Value
+                Steps per decade: [0,1000,10,10]
 
             General:
                 Do: True
