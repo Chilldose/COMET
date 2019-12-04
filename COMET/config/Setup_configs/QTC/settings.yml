@@ -12,22 +12,24 @@
     measurement_types: # Different measurement types which can be conducted
         - IV
         - CV
+        - CV_freq
         - CVQValue
         - Stripscan
         - IV_longterm
         - temperature
         - humidity
         - Cback
+        - Cback_freq
         - Cint
+        - Cint_freq
         - CintAC
+        - CintAC_freq
         - Rint
         - Rpoly
         - Istrip
         - Idiel
         - Cac
-        - Cback_scan
-        - Cint_scan
-        - Cac_scan
+        - Cac_freq
         - Idark
         - Rint_scan
         - dynamicwaiting
@@ -35,7 +37,7 @@
     measurement_order: # aka. all measurement plugins
         - IVCV
         - Stripscan
-        - Frequencyscan
+        - Frequency Scan
         - Dynamicwaiting
 
 
@@ -74,7 +76,7 @@
         - DataBrowser
         - Resources
         - Alignment
-        - MeasurementDetails
+        - FrequencyScan
         - DynamicWaiting
         - DataVisualization
         - Documentation

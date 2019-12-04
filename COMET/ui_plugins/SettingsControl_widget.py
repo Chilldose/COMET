@@ -21,7 +21,11 @@ class SettingsControl_widget(object):
         self.settings_layout = gui.child_layouts["Settings"]
         self.settings_widget = self.variables.load_QtUi_file("Project_selector.ui", settings_Qwidget)
         self.settings_layout.addWidget(settings_Qwidget)
-        super(SettingsControl_widget, self).__init__(gui)
+
+        try:
+            super(SettingsControl_widget, self).__init__(gui)
+        except:
+            super(SettingsControl_widget, self).__init__()
 
         self.Settings_gui = self.settings_widget
 

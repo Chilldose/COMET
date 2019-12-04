@@ -97,10 +97,10 @@ class Controls_widget(object):
                      "# Date: " + str(asctime()) + "\n\n"
 
             job = self.generate_job()
-            job.update(additional_settings)
-            job["Header"] = header
-
-            self.send_job(job)
+            if job:
+                job.update(additional_settings)
+                job["Header"] = header
+                self.send_job(job)
 
         else:
             reply = QMessageBox.information(None, 'Warning', "Please enter a valid filepath and filename.", QMessageBox.Ok)

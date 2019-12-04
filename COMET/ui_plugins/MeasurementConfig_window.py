@@ -59,11 +59,13 @@ class MeasurementConfig_window():
         """Deletes the layout childs of the main layout"""
         for i in reversed(range(self.SettingsGui.MainSettings_Layout.count())):
             self.SettingsGui.MainSettings_Layout.itemAt(i).widget().setParent(None)
+        self.ui_groups = {}
+        self.settings_boxes = {}
 
     def generate_job_for_group(self, group):
         """Generates a Measurement job dict, out of the passed group. returns empty dict if meas is disabled"""
         if not group in self.settings:
-            self.log.debug("No settings group {} is present.".format(group))
+            self.log.critical("No settings group {} is present.".format(group))
             return {}
 
         job = {}

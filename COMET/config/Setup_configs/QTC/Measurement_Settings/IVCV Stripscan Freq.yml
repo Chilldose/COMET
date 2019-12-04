@@ -83,11 +83,27 @@
         Measurements:
             Cac:
                 Do: True
-                EndFreq: [0,1000000,10000,1000000] # Min/Max/SpinStep/Value
-                Amplitude: [0,1,0.1,0.5] # Min/Max/SpinStep/Value
-                Bias Voltage: [0,-1000,10,300] # Min/Max/SpinStep/Value
+                Start Freq [Hz]: [100, 2000000, 10000, 100]
+                End Freq [Hz]: [0,2000000,10000,2000000] # Min/Max/SpinStep/Value
+                Amplitude [mV]: [0,1000,1000,100] # Min/Max/SpinStep/Value
+                Strip [#]: [1, 2032, 1, 1]
             Cint:
                 Do: True
-                EndFreq: [0,1000000,10000,1000000] # Min/Max/SpinStep/Value
-                Amplitude: [0,1,0.1,0.5] # Min/Max/SpinStep/Value
-                Bias Voltage: [0,-1000,10,300] # Min/Max/SpinStep/Value
+                Start Freq [Hz]: [100, 2000000, 10000, 100]
+                End Freq [Hz]: [0,2000000,10000,2000000] # Min/Max/SpinStep/Value
+                Amplitude [mV]: [0,1000,1000,100] # Min/Max/SpinStep/Value
+                Strip [#]: [1, 2032, 1, 1]
+            CV:
+                Do: True
+                Start Freq [Hz]: [100, 2000000, 10000, 100]
+                End Freq [Hz]: [0,2000000,10000,2000000] # Min/Max/SpinStep/Value
+                Amplitude [mV]: [0,1000,1000,100] # Min/Max/SpinStep/Value
+
+            General:
+                Do: True
+                Start Voltage [V]: [-1000, 0, -10,-350]
+                End Voltage [V]: [-1000, 0, -10,-350]
+                Voltage Step [V]: [-100, 0, -1, -10]
+                Compliance [uA]: [0,1000,10, 100] # Min/Max/SpinStep/Value
+
+
