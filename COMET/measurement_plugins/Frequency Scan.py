@@ -7,7 +7,7 @@ sys.path.append('../COMET')
 from .Stripscan import Stripscan_class
 
 
-class frequencyscan_class(Stripscan_class):
+class FrequencyScan_class(Stripscan_class):
 
     def __init__(self, main_class):
         """
@@ -16,7 +16,7 @@ class frequencyscan_class(Stripscan_class):
 
         :param main_class:
         """
-        super(frequencyscan_class, self).__init__(main_class)
+        super(FrequencyScan_class, self).__init__(main_class)
         self.log = logging.getLogger(__name__)
         self.start_freq = self.job["startfreq"]
         self.end_freq = self.job["endfreq"]

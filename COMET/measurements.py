@@ -246,7 +246,7 @@ class measurement_class(Thread):
                     self.log.info("Trying to start measurement " + str(measurement))
                     starttime = time()
                     try:
-                        meas_object = getattr(self.all_plugins[measurement], str(measurement)+"_class")(self)
+                        meas_object = getattr(self.all_plugins[measurement], str(measurement).replace(" ","")+"_class")(self)
                         meas_object_return = meas_object.run()
                         if meas_object_return:
                             self.log.critical("The measurement {} returned: {}".format(measurement, meas_object_return) )
