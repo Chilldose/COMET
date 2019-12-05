@@ -4,6 +4,8 @@ from .SettingsControl_widget import SettingsControl_widget
 from .Controls_widget import Controls_widget
 from ..utilities import change_axis_ticks
 from time import sleep
+import pyqtgraph as pq
+import numpy as np
 
 
 class FrequencyScan_window(Controls_widget,SettingsControl_widget):
@@ -13,6 +15,10 @@ class FrequencyScan_window(Controls_widget,SettingsControl_widget):
         self.variables = GUI
         self.layout = layout
         self.log = logging.getLogger(__name__)
+        self.setpg = pq
+        # Generate Colormap for plots
+        self.cmap = self.setpg.ColorMap([1.0, 2.0, 3.0], [[0, 0, 255, 255], [0, 255, 0, 255], [255, 0, 0, 255]])
+        self.cmapLookup = self.cmap.getLookupTable(0.0,1.0,1)
 
         # Style for the pyqtgraph plots
         self.ticksStyle = {"pixelsize": 10}
@@ -33,19 +39,37 @@ class FrequencyScan_window(Controls_widget,SettingsControl_widget):
 
         self.settings_widget.select_settings_comboBox.currentTextChanged.connect(self.check_configs)
         self.settings_widget.select_settings_comboBox.currentTextChanged.connect(self.config_plot)
+        #self.settings_widget.select_settings_comboBox.currentTextChanged.connect(self.update_plot)
         self.SettingsGui.Plot_comboBox.currentTextChanged.connect(self.config_plot)
         self.config_plot()
 
-    def update_plot(self):
+        # Add the plot function to the framework
+        self.variables.add_update_function(self.update_plot)
+
+    def update_plot(self, force=False):
         # This clear here erases all data from the viewbox each time this function is called and draws all points again!
         # Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage
         # With the clear statement medium cpu und low memory usage
-        if self.variables.default_values_dict["settings"]["new_data"]:
+        if self.variables.default_values_dict["settings"]["new_data"] or force:
             plottitle = self.SettingsGui.Plot_comboBox.currentText()
-            if len(self.variables.meas_data["{}_freq".format(plottitle)][0]) == len(
-                    self.variables.meas_data["{}_freq".format(plottitle)][1]):  # sometimes it happens that the values are not yet ready
-                self.iv_plot.plot(self.variables.meas_data["IV"][0], self.variables.meas_data["IV"][1], pen="y",
-                                clear=True)
+            datalabel = "{}_freq".format(plottitle)
+            try:
+                if datalabel in self.variables.meas_data:
+                    self.SettingsGui.freqPlot_graphicsView.clear()
+                    if self.variables.meas_data[datalabel][0].any():
+                        for i, vstepdata in enumerate(self.variables.meas_data[datalabel][0]):
+                            if isinstance(vstepdata, np.ndarray):
+                                if vstepdata.any():  # To exclude exception spawning when measurement is not conducted
+                                    self.SettingsGui.freqPlot_graphicsView.plot(vstepdata, self.variables.meas_data[datalabel][1][i],
+                                                                   pen=self.setpg.mkPen(tuple(self.cmapLookup[i])))
+                            else:
+                                self.SettingsGui.freqPlot_graphicsView.plot(self.variables.meas_data[datalabel][0],
+                                                                                self.variables.meas_data[datalabel][1],
+                                                                                pen=self.setpg.mkPen(tuple(self.cmapLookup[i])))
+                                break
+
+            except Exception as e:
+                self.log.error("An exception in the frequency scan plot occured, with error {error!s}".format(error=e))
 
     def check_configs(self):
         """Looks for a MeasurementConfig tab and renders the Frequencyscan group,
@@ -91,4 +115,6 @@ class FrequencyScan_window(Controls_widget,SettingsControl_widget):
 
         change_axis_ticks(plot, self.ticksStyle)
         plot.plot(pen="#cddb32")
+
+        self.update_plot(force=True)
 

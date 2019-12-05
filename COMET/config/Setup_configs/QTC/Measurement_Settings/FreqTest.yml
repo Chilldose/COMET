@@ -7,7 +7,7 @@ Frequency Scan:
       - 1000
       - 100
       - 100
-      Do: true
+      Do: false
       End Freq [Hz]:
       - 0
       - 2000000
@@ -18,7 +18,7 @@ Frequency Scan:
       - 2000000
       - 10000
       - 100
-      Steps per decade:
+      Steps:
       - 0
       - 1000
       - 10
@@ -40,7 +40,7 @@ Frequency Scan:
       - 2000000
       - 10000
       - 100
-      Steps per decade:
+      Steps:
       - 0
       - 1000
       - 10
@@ -67,7 +67,7 @@ Frequency Scan:
       - 2000000
       - 10000
       - 100
-      Steps per decade:
+      Steps:
       - 0
       - 1000
       - 10
@@ -88,12 +88,12 @@ Frequency Scan:
       - -1000
       - 0
       - -10
-      - -350
+      - -20
       Start Voltage [V]:
       - -1000
       - 0
       - -10
-      - -340
+      - -10
       Voltage Step [V]:
       - -100
       - 0
@@ -163,7 +163,7 @@ IVCV:
     X-Axis:
     - voltage
     - V
-Settings_name: FreqTest
+Settings_name: FreqTest.yml
 Stripscan:
   Do: true
   Measurements:

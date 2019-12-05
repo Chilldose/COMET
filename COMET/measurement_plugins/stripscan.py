@@ -154,6 +154,10 @@ class Stripscan_class(tools):
             self.log.error("Howdy partner, seems like you started the stripscan but no data for a stripscan is set.")
             return
 
+        self.clean_up()
+
+
+    def clean_up(self):
         # Ramp down the voltage after stripscan
         # Discharge the capacitors in the decouple box
         # Switch to IV for correct biasing for ramp
@@ -195,19 +199,19 @@ class Stripscan_class(tools):
             header += "\n"
             file = self.main.create_data_file(header, filepath, filename)
 
-    def do_preparations_for_stripscan(self, do_cal = True):
+    def do_preparations_for_stripscan(self, do_cal = True, measurement="Stripscan"):
         """This function prepares the setup, like ramping the voltage and steady state check
         """
-        self.main.queue_to_main.put({"INFO": "Preparing everything for stripscans..."})
-        if self.main.save_data and "Frequency Scan" not in self.main.job_details["Stripscan"]:
-            self.main.write(self.main.measurement_files["Stripscan"], self.main.job_details["Stripscan"].get("Additional Header", ""))  # TODO: pretty useless, an additional header to the file if necessary
+        self.main.queue_to_main.put({"INFO": "Preparing setup for {}...".format(measurement)})
+        if self.main.save_data and "Frequency Scan" not in self.main.job_details[measurement]:
+            self.main.write(self.main.measurement_files[measurement], self.main.job_details[measurement].get("Additional Header", ""))  # TODO: pretty useless, an additional header to the file if necessary
 
             # Add the additional params to the header
             params_string = ""
             for key, value in self.sensor_pad_data.get("additional_params", {}).items():
                 params_string += "# " + str(key) + ": " + str(value) + "\n"
             params_string += "\n\n"
-            self.main.write(self.main.measurement_files["Stripscan"], params_string)
+            self.main.write(self.main.measurement_files[measurement], params_string)
         # extend for additional files
 
         # Switch to IV for correct biasing for ramp
@@ -246,7 +250,7 @@ class Stripscan_class(tools):
         self.main.queue_to_main.put({"INFO": "Lowering the probe card to sensor..."})
         self.main.table.move_up(self.height)
 
-        self.main.queue_to_main.put({"INFO": "Stripscan preparation done..."})
+        self.main.queue_to_main.put({"INFO": "{} preparation done...".format(measurement)})
 
     def perform_open_correction(self, LCR, measurement = "Cac"):
         # Warning: table has to be down for that
@@ -456,27 +460,28 @@ class Stripscan_class(tools):
         command = self.main.build_command(device, query)
         for i in range(samples): # takes samples
             values.append(self.vcw.query(device, command))
-        values = np.array((lambda x: x.split(device.get("separator", ",")), values)[1], dtype=float)
+        values = np.array(list(map(lambda x: x.split(device.get("separator", ",")), values)), dtype=float)
         values = np.mean(values, axis=0)
 
         if apply_to:
             # Only a single float or int are allowed as returns
             value = apply_to(values)
-        elif len(values.shape) == 1 or isinstance(values, float):
+        elif values.shape == (1,) or isinstance(values, float):
             value = values
         else:
             value = values[0]
 
-        # Currently only x and y data are allowed for the gui to plot and to store the data temporarily.
-        # If the device returns more then one value only the first value will be stored here
-        # This changes nothing for the read out, all values will be stored!!!
-        self.main.measurement_data[str(str_name)][0] = np.append(self.main.measurement_data[str(str_name)][0],[float(xvalue)])
-        self.main.measurement_data[str(str_name)][1] = np.append(self.main.measurement_data[str(str_name)][1],[float(value)])
-
         if write_to_main: # Writes data to the main, or not
+            # Currently only x and y data are allowed for the gui to plot and to store the data temporarily.
+            # If the device returns more then one value only the first value will be stored here
+            # This changes nothing for the read out, all values will be stored!!!
+            self.main.measurement_data[str(str_name)][0] = np.append(self.main.measurement_data[str(str_name)][0],
+                                                                     [float(xvalue)])
+            self.main.measurement_data[str(str_name)][1] = np.append(self.main.measurement_data[str(str_name)][1],
+                                                                     [float(value)])
             self.main.queue_to_main.put({str(str_name): [float(xvalue), float(value)]})
 
-        return values
+        return value
 
     def do_Rpoly(self,  xvalue = -1, samples = 5, write_to_main = True, alternative_switching = False):
         '''Does the rpoly measurement'''
@@ -621,11 +626,11 @@ class Stripscan_class(tools):
         else:
             return None
 
-    def do_Cint(self, xvalue = -1, samples = 5,  freqscan = False, write_to_main = True, alternative_switching = False):
+    def do_Cint(self, xvalue = -1, samples = 5,  freqscan = False, write_to_main = True, alternative_switching = False, frequency=1000000):
         '''Does the cint measurement'''
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 MHz
-        self.change_value(device_dict, "set_frequency", 1000000)
+        self.change_value(device_dict, "set_frequency", frequency)
         if not self.main.event_loop.stop_all_measurements_query():
             if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Cint", alternative_switching)):
                 self.stop_everything()
@@ -637,11 +642,11 @@ class Stripscan_class(tools):
                 return False
             return value
 
-    def do_CintAC(self, xvalue= -1, samples=5, freqscan=False, write_to_main=True, alternative_switching = False):
+    def do_CintAC(self, xvalue= -1, samples=5, freqscan=False, write_to_main=True, alternative_switching = False, frequency=1000000):
         '''Does the cint measurement on the AC strips'''
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 MHz
-        self.change_value(device_dict, "set_frequency", 1000000)
+        self.change_value(device_dict, "set_frequency", frequency)
         if not self.main.event_loop.stop_all_measurements_query():
             if not self.switching.switch_to_measurement(self.get_switching_for_measurement("CintAC", alternative_switching)):
                 self.stop_everything()
@@ -654,11 +659,11 @@ class Stripscan_class(tools):
                 return False
             return value
 
-    def do_Cac(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True, alternative_switching = False):
+    def do_Cac(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True, alternative_switching = False, frequency=1000):
         '''Does the cac measurement'''
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 kHz
-        self.change_value(device_dict, "set_frequency", 1000)
+        self.change_value(device_dict, "set_frequency", frequency)
         if not self.main.event_loop.stop_all_measurements_query():
             if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Cac", alternative_switching)):
                 self.stop_everything()
@@ -669,11 +674,11 @@ class Stripscan_class(tools):
             else: return False
             return value
 
-    def do_Cback(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True, alternative_switching = False):
+    def do_Cback(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True, alternative_switching = False, frequency=1000):
         '''Does a capacitance measurement from one strip to the backside'''
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 MHz
-        self.change_value(device_dict, "set_frequency", 1000)
+        self.change_value(device_dict, "set_frequency", frequency)
         if not self.main.event_loop.stop_all_measurements_query():
             if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Cback", alternative_switching)):
                 self.stop_everything()

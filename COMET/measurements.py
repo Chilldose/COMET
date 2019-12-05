@@ -254,9 +254,18 @@ class measurement_class(Thread):
                         deltaT = abs(starttime-endtime)
                         self.log.info("The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds.")
                     except Exception as err:
-                        self.log.error("An error happend while conducting"
+                        self.log.error("An error happened while conducting"
                                        " the measurement: {} with error: {} \n"
                                        "Traceback: {}".format(measurement, err, traceback.format_exc()))
+
+                        # Shut down the SMU gracely
+                        try:
+                            if "BiasSMU" in self.devices:
+                                self.emergency_shutdown()
+                            else:
+                                self.log.error("Could not determine bias SMU -> no shutdown!!!")
+                        except:
+                            self.log.error("Emergency shutdown failed!")
                 # Here the actual measurement starts -------------------------------------------------------------------
 
             try:
@@ -264,6 +273,32 @@ class measurement_class(Thread):
                     self.save_data_as(self.settings["settings"]["store_data_as"], self.job_details)
             except Exception as err:
                 self.log.critical("Saving data was not possible due to an error: {}".format(err))
+
+    def emergency_shutdown(self):
+        self.log.critical("Emergency shutdown of SMU initiated...")
+        from .measurement_plugins.forge_tools import tools
+        tool = tools(self.framework, self.queue_to_main)
+        if "BiasSMU" in self.devices:
+            SMU = self.devices["BiasSMU"]
+        else:
+            self.log.error("Could not determine bias SMU -> no shutdown!!!")
+            return
+        # Ramp down the voltage
+
+        # Switch to IV for correct biasing for ramp
+        self.switching.switch_to_measurement("IV")  # correct bias is applied
+
+        # Get the current voltage from the SMU
+        command = self.build_command(SMU, "get_read")
+        voltage = round(float(self.vcw.query(SMU, command).split(SMU.get("\t"))[1]))
+
+        # Ramp down to zero and close output
+        tool.do_ramp_value(resource=SMU, order="set_voltage", voltage_Start=voltage, voltage_End=0,
+                           step=20, wait_time=0.3, compliance=0.001)
+
+        tool.change_value(SMU, "set_voltage", "0")
+        self.framework['Configs']['config']['settings']["bias_voltage"] = 0.
+        tool.change_value(SMU, "set_output", "0")
 
 
     def stop_measurement(self):

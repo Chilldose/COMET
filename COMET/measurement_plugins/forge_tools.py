@@ -16,7 +16,7 @@ class tools(object):
     Some tools for forging your own measurement plugins. It needs the framework and the event_loop object
     """
 
-    def __init__(self, framework, event_loop):
+    def __init__(self, framework=None, event_loop=None):
         self.framework = framework
         self.event_loop = event_loop
         self.vcw = framework["VCW"]
