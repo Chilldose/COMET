@@ -80,7 +80,7 @@ class tools(object):
             bad_fit = True if r_value*r_value < Rsq else False
             high_error = True if std_err*2.5 > abs(slope) else False
 
-            if std_err <= 1e-8 and abs(slope) <= abs(max_slope):
+            if std_err <= 1e-6 and abs(slope) <= abs(max_slope):
                 self.toolslog.debug(
                     "Steady state in device {} was reached with slope={} at  Iteration={}".format(device["Device_name"], slope, counter))
                 if bad_fit:

@@ -158,9 +158,6 @@ class GUI_event_loop(QThread):
         # Handles all data for coming from the measurements
         for measurement in self.measurement_list:
 
-            self.default_values_dict["settings"]["new_data"] = True  # Initiates the update of the plots
-            self.default_values_dict["settings"]["last_plot_update"] = self.default_values_dict["settings"]["update_counter"]
-
             # Correctly write the data to the arrays for plotting
             if measurement in self.default_values_dict["settings"]["measurement_types"]:
                 if isinstance(message[measurement][0], float) or isinstance(message[measurement][0], int):
@@ -169,8 +166,8 @@ class GUI_event_loop(QThread):
                 elif isinstance(message[measurement][0], np.ndarray):
                     try:
                         if len(self.meas_data[measurement][0]):
-                            self.meas_data[measurement][0] = np.vstack(self.meas_data[measurement][0], np.array(message[measurement][0]))
-                            self.meas_data[measurement][1] = np.vstack(self.meas_data[measurement][1], np.array(message[measurement][1]))
+                            self.meas_data[measurement][0] = np.vstack([self.meas_data[measurement][0], np.array(message[measurement][0])])
+                            self.meas_data[measurement][1] = np.vstack([self.meas_data[measurement][1], np.array(message[measurement][1])])
                         else:
                             self.meas_data[measurement][0] = np.array(message[measurement][0])
                             self.meas_data[measurement][1] = np.array(message[measurement][1])
@@ -180,8 +177,12 @@ class GUI_event_loop(QThread):
                                   "WARNING: This error can happen ones in the beginning, when the datatype changes or a np array is not yet initialized".format(error=e))
                         self.meas_data[measurement][0] = np.append([], np.array(message[measurement][0]))
                         self.meas_data[measurement][1] = np.append([], np.array(message[measurement][1]))
+                self.default_values_dict["settings"]["new_data"] = True  # Initiates the update of the plots
+                self.default_values_dict["settings"]["last_plot_update"] = self.default_values_dict["settings"][
+                    "update_counter"]
             else:
                 self.log.error("Measurement " + str(measurement) + " could not be found in active data arrays. Data discarded.")
+
 
 
 

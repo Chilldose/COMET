@@ -317,13 +317,15 @@ class measurement_class(Thread):
             command = build_command(device_dict, (order, value))
             self.vcw.write(device_dict, command)  # writes the new order to the device
 
-    def save_data_as(self, type="json", details={}):
+    def save_data_as(self, type="json", details={}, data=None, xunits=None, yunits=None):
         """Saves data in a specific data format after completion of measurement.
         This is for databank compatibility """
 
         # Generate dict
-        # Todo: deepcopy may be better here
-        data_to_dump = self.measurement_data
+        if not data:
+            data_to_dump = self.measurement_data
+        else:
+            data_to_dump = data
         filepath = os.path.normpath(details["Filepath"])
         final_dict = {"data": {}, "units": [], "measurements": []}
         final_dict.update(details)
@@ -350,6 +352,18 @@ class measurement_class(Thread):
                         final_dict["measurements"].append(item["Units"]["X-Axis"][0])
                         final_dict["units"].append(item["Units"]["X-Axis"][1])
                         final_dict["data"][item["Units"]["X-Axis"][0]] = xaxis
+                else:
+                    if xunits and yunits:
+                        for meas in final_dict["measurements"]:
+                            final_dict["units"].append(yunits[1])
+                        # Add x axis
+                        final_dict["measurements"].append(xunits[0])
+                        final_dict["units"].append(xunits[1])
+                        final_dict["data"][xunits[0]] = xaxis
+                        break
+                    else:
+                        self.log.info("Could not save data, due to missing units specifier. This can be normal!")
+                        return
 
 
         try:

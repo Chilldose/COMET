@@ -17,8 +17,12 @@ class FrequencyScan_window(Controls_widget,SettingsControl_widget):
         self.log = logging.getLogger(__name__)
         self.setpg = pq
         # Generate Colormap for plots
+        self.color_steps = 5
         self.cmap = self.setpg.ColorMap([1.0, 2.0, 3.0], [[0, 0, 255, 255], [0, 255, 0, 255], [255, 0, 0, 255]])
         self.cmapLookup = self.cmap.getLookupTable(0.0,1.0,1)
+        self.cmapLookup = self.cmap.getLookupTable(1.0, 3.0, 15)
+
+
 
         # Style for the pyqtgraph plots
         self.ticksStyle = {"pixelsize": 10}
@@ -51,17 +55,22 @@ class FrequencyScan_window(Controls_widget,SettingsControl_widget):
         # Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage
         # With the clear statement medium cpu und low memory usage
         if self.variables.default_values_dict["settings"]["new_data"] or force:
+            self.SettingsGui.freqPlot_graphicsView.clear()
             plottitle = self.SettingsGui.Plot_comboBox.currentText()
             datalabel = "{}_freq".format(plottitle)
             try:
                 if datalabel in self.variables.meas_data:
-                    self.SettingsGui.freqPlot_graphicsView.clear()
                     if self.variables.meas_data[datalabel][0].any():
+                        step = 0
                         for i, vstepdata in enumerate(self.variables.meas_data[datalabel][0]):
                             if isinstance(vstepdata, np.ndarray):
                                 if vstepdata.any():  # To exclude exception spawning when measurement is not conducted
+                                    if i > self.color_steps:
+                                        step = 0
+                                    else:
+                                        step += 1
                                     self.SettingsGui.freqPlot_graphicsView.plot(vstepdata, self.variables.meas_data[datalabel][1][i],
-                                                                   pen=self.setpg.mkPen(tuple(self.cmapLookup[i])))
+                                                                   pen=self.setpg.mkPen(tuple(self.cmapLookup[step])))
                             else:
                                 self.SettingsGui.freqPlot_graphicsView.plot(self.variables.meas_data[datalabel][0],
                                                                                 self.variables.meas_data[datalabel][1],

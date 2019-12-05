@@ -198,7 +198,7 @@ class IVCV_class(tools):
                         if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary
                             self.change_value(bias_SMU, "set_voltage", str(voltage))
                             if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-8, wait = 0.1, samples = 10, Rsq = 0.8, compliance=compliance): # Is a dynamic waiting time for the measurements
-                                self.stop_everything()
+                                pass
 
                             if self.check_compliance(bias_SMU, float(compliance)):
                                 self.stop_everything() # stops the measurement if compliance is reached
@@ -264,7 +264,7 @@ class IVCV_class(tools):
             if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary
                 self.change_value(bias_SMU, "set_voltage", str(voltage))
                 if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-8, wait = 0.05, samples = 5, Rsq = 0.8, compliance=compliance): # Is a dynamic waiting time for the measuremnts
-                    self.stop_everything()
+                    pass
 
                 if self.check_compliance(bias_SMU, float(compliance)):
                     self.stop_everything() # stops the measurement if compliance is reached
@@ -306,7 +306,7 @@ class IVCV_class(tools):
             # Reconfig setup if need be for the IV measurement
             self.config_setup(device_dict, self.IVCV_configs["IVConfig"])
 
-            if float(voltage) != 0.0 and not self.steady_state_check(device_dict, self.IVCV_configs["GetReadSMU"], max_slope=1e-9, wait=0.05, samples=7, Rsq=0.8, compliance=self.main.job_details["IVCV"]["IV"]["Compliance [uA]"]):  # Is a dynamic waiting time for the measuremnt
+            if float(voltage) != 0.0 and not self.steady_state_check(device_dict, self.IVCV_configs["GetReadSMU"], max_slope=1e-8, wait=0.05, samples=7, Rsq=0.8, compliance=self.main.job_details["IVCV"]["IV"]["Compliance [uA]"]):  # Is a dynamic waiting time for the measuremnt
                 self.stop_everything()
                 self.log.warning("Steady state could not be reached, shutdown of measurement")
                 return
@@ -335,13 +335,13 @@ class IVCV_class(tools):
             self.config_setup(device_dict, self.IVCV_configs["CVConfig"])
 
             # Check if LCRMeter is in steady state
-            if float(voltage) != 0.0 and not self.steady_state_check(device_dict, self.IVCV_configs["GetReadLCR"], max_slope=1e-9, wait=0.05, samples=5, Rsq=0.8, compliance=None):  # Is a dynamic waiting time for the measuremnts
+            if float(voltage) != 0.0 and not self.steady_state_check(device_dict, self.IVCV_configs["GetReadLCR"], max_slope=1e-6, wait=0.05, samples=5, Rsq=0.8, compliance=None):  # Is a dynamic waiting time for the measuremnts
                 self.stop_everything()
                 self.log.warning("Steady state could not be reached in LCR Meter, shutdown of measurement")
                 return
 
             # Check if SMU is in steady state
-            if float(voltage) != 0.0 and not self.steady_state_check(self.main.devices[self.IVCV_configs["BiasSMU"]], self.IVCV_configs["GetReadSMU"], max_slope=1e-9, wait=0.05, samples=5, Rsq=0.8, compliance=None):  # Is a dynamic waiting time for the measuremnts
+            if float(voltage) != 0.0 and not self.steady_state_check(self.main.devices[self.IVCV_configs["BiasSMU"]], self.IVCV_configs["GetReadSMU"], max_slope=1e-7, wait=0.05, samples=5, Rsq=0.8, compliance=None):  # Is a dynamic waiting time for the measuremnts
                 self.stop_everything()
                 self.log.warning("Steady state could not be reached in Bias SMU, shutdown of measurement")
                 return
@@ -360,7 +360,7 @@ class IVCV_class(tools):
             self.main.measurement_data["CVQValue"][0] = np.append(self.main.measurement_data["CVQValue"][0], float(voltage))
             self.main.measurement_data["CVQValue"][1] = np.append(self.main.measurement_data["CVQValue"][1], values[1])
             # Send the Cap value to the main
-            self.main.queue_to_main.put({"CV": [float(voltage), values[1]]})
+            self.main.queue_to_main.put({"CV": [float(voltage), values[0]]})
 
 
     def perform_open_correction(self, LCR, measurement = "None"):
