@@ -455,8 +455,8 @@ class Alignment_window(Table_widget):
         '''If the alignment point are changed'''
         if self.alignment_started:
             ref = int(self.alignment.ref_3.value())
-            self.update_reference_pad_positions()
             self.reference_pads[2] = int(ref)
+            self.update_reference_pad_positions()
         self.update_static()
 
     def update_reference_pad_positions(self):
