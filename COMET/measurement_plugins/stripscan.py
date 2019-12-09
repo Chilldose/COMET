@@ -108,7 +108,8 @@ class Stripscan_class(tools):
         self.project = self.main.job_details["Project"]
         self.sensor = self.main.job_details["Sensor"]
         self.current_voltage = self.main.framework['Configs']['config']['settings'].get("bias_voltage", 0)
-        self.cal_to = "Cac"
+        self.cal_to = {"Cac": 1000, "Cac_beta": 1000, "Cint": 1000000, "Cint_beta": 1000000}
+        self.open_corrections = {}
 
         if "Rint_MinMax" not in self.main.framework['Configs']['config']['settings']:
             self.main.framework['Configs']['config']['settings']["Rint_MinMax"] = [-1.,1.,0.1]
@@ -252,29 +253,21 @@ class Stripscan_class(tools):
 
         self.main.queue_to_main.put({"INFO": "{} preparation done...".format(measurement)})
 
-    def perform_open_correction(self, LCR, measurement = "Cac"):
-        # Warning: table has to be down for that
-        self.main.queue_to_main.put({"INFO": "LCR open calibration on {} path...".format(measurement)})
-        if not self.switching.switch_to_measurement(measurement):
-            self.stop_everything()
-            return
-        sleep(0.2)
-        self.change_value(LCR, "set_perform_open_correction", "")
-        # Alot of time can be wasted by the timeout of the visa
-        ready_command = self.main.build_command(LCR, "get_all_done")
-        counter = 0  # counter how often the read attempt will be carried out
-        self.vcw.write(LCR, ready_command)
-        while True:
-            done = self.vcw.read(LCR)
-            if done:
-                break
-            else:
-                if counter > 10:
-                    self.log.error("LCR meter did not answer after 10 times during open correction calibration.")
-                    self.stop_everything()
-                counter += 1
+    def perform_open_correction(self, LCR, measurements, count=15):
+        read_command = self.main.build_command(LCR, "get_read")
+        for meas, freq in measurements.items():
+            data = []
+            self.main.queue_to_main.put({"INFO": "LCR open calibration on {} path...".format(meas)})
+            if not self.switching.switch_to_measurement(meas):
+                self.stop_everything()
+                return
+            self.change_value(LCR, "set_frequency", freq)
+            sleep(0.2)
+            for i in range(count):
+                data.append(self.vcw.query(LCR, read_command).split(LCR.get("separator", ","))[0])
+            self.open_corrections[meas] = np.mean(data)
         self.switching.switch_to_measurement("IV")
-        self.main.queue_to_main.put({"INFO": "LCR open calibration on {} path finished.".format(measurement)})
+        self.main.queue_to_main.put({"INFO": "LCR open calibration finished!"})
 
     @timeit
     def do_stripscan(self):
