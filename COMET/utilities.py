@@ -936,9 +936,11 @@ def connection_test(schemes, switching, vcw, device, target_resistance=1, abs_er
     for name in schemes:
         switching.switch_to_measurement(name)
         res.append(float(vcw.query(device, read)))
+        l.debug("Resistances of Needle {}: {} Ohms".format(name, res[-1]))
     vcw.write(device, readingModeOLD)
     vcw.write(device, outputOFF)
     closeness = np.isclose([target_resistance for x in res], res, rtol=0, atol=abs_err)
+
     if np.all(closeness):
         return True
     else:
