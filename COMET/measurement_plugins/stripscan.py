@@ -633,7 +633,9 @@ class Stripscan_class(tools):
                 value = self.__do_simple_measurement("Cint", device_dict, xvalue, samples, write_to_main=not freqscan)
             else:
                 return False
-            return value
+            # Apply the correction fort this measurement
+            corr = self.open_corrections.get("Cint_beta" if alternative_switching else "Cint", 0.0)
+            return value - corr
 
     def do_CintAC(self, xvalue= -1, samples=5, freqscan=False, write_to_main=True, alternative_switching = False, frequency=1000000):
         '''Does the cint measurement on the AC strips'''
@@ -650,7 +652,9 @@ class Stripscan_class(tools):
                 value = self.__do_simple_measurement("CintAC", device_dict, xvalue, samples, write_to_main=not freqscan)
             else:
                 return False
-            return value
+            # Apply the correction fort this measurement
+            corr = self.open_corrections.get("CintAC_beta" if alternative_switching else "CintAC", 0.0)
+            return value - corr
 
     def do_Cac(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True, alternative_switching = False, frequency=1000):
         '''Does the cac measurement'''
@@ -665,7 +669,10 @@ class Stripscan_class(tools):
             if self.steady_state_check(device_dict, command="get_read", max_slope=1e-6, wait=0, samples=5,Rsq=0.5, check_compliance=False):  # Is a dynamic waiting time for the measuremnt
                 value = self.__do_simple_measurement("Cac", device_dict, xvalue, samples, write_to_main=not freqscan)
             else: return False
-            return value
+
+            # Apply the correction fort this measurement
+            corr = self.open_corrections.get("Cac_beta" if alternative_switching else "Cac" , 0.0)
+            return value-corr
 
     def do_Cback(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True, alternative_switching = False, frequency=1000):
         '''Does a capacitance measurement from one strip to the backside'''
@@ -680,7 +687,9 @@ class Stripscan_class(tools):
             if self.steady_state_check(device_dict, command="get_read", max_slope=1e-6, wait=0, samples=5, Rsq=0.5, check_compliance=False):  # Is a dynamic waiting time for the measuremnt
                 value = self.__do_simple_measurement("Cback", device_dict, xvalue, samples, write_to_main=not freqscan)
             else: return 0
-            return value
+            # Apply the correction fort this measurement
+            corr = self.open_corrections.get("Cback_beta" if alternative_switching else "Cback", 0.0)
+            return value - corr
 
     def get_switching_for_measurement(self, meas, alt):
         """Gehts the name for the measuremnt, either normal or alternate switching"""
