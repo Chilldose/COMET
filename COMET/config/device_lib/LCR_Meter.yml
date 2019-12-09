@@ -6,6 +6,9 @@
         - integration_time: LONG
         - voltage: 1.0
         - correction_state: "OFF"
+        - apply_open_correction: "OFF"
+        - apply_short_correction: "OFF"
+        - apply_load_correction: "OFF"
         - frequency: 1000 
         - output_format: ASC 
         - correction_type: :CPRP 
@@ -14,7 +17,7 @@
 
     set_cable_length: :CORR:LENG {}
     set_measurement_type: :FUNC:IMP {}
-    set_correction_state: :CORR:LOAD:STAT {}
+    set_apply_load_correction: :CORR:LOAD:STAT {}
     set_perform_open_correction: :CORR:OPEN
     set_apply_open_correction: :CORR:OPEN:STAT
     set_apply_short_correction: :CORR:SHORT:STAT
