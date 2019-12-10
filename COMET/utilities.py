@@ -929,6 +929,9 @@ def connection_test(schemes, switching, vcw, device, target_resistance=1, abs_er
     wire2 = build_command(device, ("set_resitance_state", "OFF"))
     readingMode = build_command(device, ("set_reading_mode", "RES"))
     readingModeOLD = build_command(device, ("set_reading_mode", "CURR"))
+    setrear = build_command(device, ("set_terminal", "REAR"))
+    setfront = build_command(device, ("set_terminal", "FRONT"))
+    vcw.write(device, setrear)
     vcw.write(device, mode)
     vcw.write(device, wire2)
     vcw.write(device, readingMode)
@@ -939,6 +942,7 @@ def connection_test(schemes, switching, vcw, device, target_resistance=1, abs_er
         l.debug("Resistances of Needle {}: {} Ohms".format(name, res[-1]))
     vcw.write(device, readingModeOLD)
     vcw.write(device, outputOFF)
+    vcw.write(device, setfront)
     closeness = np.isclose([target_resistance for x in res], res, rtol=0, atol=abs_err)
 
     if np.all(closeness):
