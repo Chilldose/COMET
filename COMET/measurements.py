@@ -342,9 +342,11 @@ class measurement_class(Thread):
                 self.log.warning("Could not save data with key {}".format(key))
 
         # add the units
+        units_found = False
         for item in final_dict.values():
             if isinstance(item, dict):
                 if "Units" in item:
+                    units_found = True
                     for meas in final_dict["measurements"]:
                         final_dict["units"].append(item["Units"][meas][1])
                     # Add x axis
@@ -352,19 +354,19 @@ class measurement_class(Thread):
                         final_dict["measurements"].append(item["Units"]["X-Axis"][0])
                         final_dict["units"].append(item["Units"]["X-Axis"][1])
                         final_dict["data"][item["Units"]["X-Axis"][0]] = xaxis
-                else:
-                    if xunits and yunits:
-                        for meas in final_dict["measurements"]:
-                            final_dict["units"].append(yunits[1])
-                        # Add x axis
-                        final_dict["measurements"].append(xunits[0])
-                        final_dict["units"].append(xunits[1])
-                        final_dict["data"][xunits[0]] = xaxis
-                        break
-                    else:
-                        self.log.info("Could not save data, due to missing units specifier. This can be normal!")
-                        return
 
+        if xunits and yunits and not units_found:
+            for meas in final_dict["measurements"]:
+                final_dict["units"].append(yunits[1])
+            # Add x axis
+            final_dict["measurements"].append(xunits[0])
+            final_dict["units"].append(xunits[1])
+            final_dict["data"][xunits[0]] = xaxis
+
+
+        if not units_found:
+            self.log.warning("Could not save data, due to missing units specifier. This can be normal!")
+            return
 
         try:
             if final_dict:

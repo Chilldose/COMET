@@ -33,9 +33,12 @@
             Idiel: [current, A]
             Idark: [current, A]
             Cac: [capacitance, F]
+            Cac_Rp: [resistance, Ohm]
             Cint: [capacitance, F]
+            Cint_Rp: [resitance, Ohm]
             Rpoly: [resistance, Ohm]
             Rint: [resistance, Ohm]
+            Rint_scan: [current, A]
         Measurements:
             General:
                 Do: True

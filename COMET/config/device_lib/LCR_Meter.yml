@@ -5,10 +5,9 @@
     reset:
         - integration_time: LONG
         - voltage: 1.0
-        - correction_state: "OFF"
+        - apply_load_correction: "OFF"
         - apply_open_correction: "OFF"
         - apply_short_correction: "OFF"
-        - apply_load_correction: "OFF"
         - frequency: 1000 
         - output_format: ASC 
         - correction_type: :CPRP 

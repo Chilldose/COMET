@@ -852,6 +852,7 @@ class Framework:
                 function()
             except Exception as err:
                 self.log.critical("While updating the framework an error happend in function {} with error: {}".format(function, err))
+                raise
 
 class transformation:
     """Class which handles afine transformations in 3 dimensions for handling sensor to jig coordinate systems"""
