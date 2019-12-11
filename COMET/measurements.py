@@ -29,6 +29,7 @@ class measurement_class(Thread):
         self.vcw = framework["VCW"]
         self.measured_data = {}
         self.settings = framework["Configs"]["config"]
+        self.default_values_dict = self.settings["settings"]
         self.table = framework["Table"]
         self.switching = framework["Switching"]
         self.devices = framework["Devices"]

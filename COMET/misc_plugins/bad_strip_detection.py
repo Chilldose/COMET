@@ -269,15 +269,18 @@ class stripanalysis:
 
     def do_contact_check(self, measurement):
         """Quickly checks if AC and DC needle have contact or not"""
-        # Todo: only report back faulty strips which have not jetzt been reported
-        if len(measurement["Istrip"][1] > 10):
-            DCerror = self.find_bad_DC_contact(measurement["Istrip"][1], measurement["Rpoly"][1])
-            ACerror = self.find_bad_AC_contact(measurement["Cac"][1], measurement["Rpoly"][1], [])
+        data = {}
+        for meas, dat in measurement.items():
+            data[meas] = dat[1]
 
-            if len(DCerror) or len(ACerror):
-                return True
-            else:
-                return False
+        DCerror, ACerror = [], []
+        data, shift = self.remove_nan(data)
+        pinholes = self.find_pinhole(data["Idiel"], shift)
+        if len(data["Istrip"] > 10):
+            DCerror, ind_bad_Cint, ind_bad_Cap = self.find_bad_DC_contact(data["Istrip"], data["Rpoly"], data["Cint"], data["Cac"], shift=shift)
+            ACerror = self.find_bad_AC_contact(data["Cac"], data["Rpoly"], pinholes, shift = shift)
+
+        return DCerror, ACerror
 
 
     def find_bad_DC_contact(self, Istrip, Rpoly, Cint, Cap, shift=None):

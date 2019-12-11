@@ -8,6 +8,8 @@ sys.path.append('../COMET')
 from time import time, sleep
 from ..utilities import timeit, transformation
 from .forge_tools import tools
+from ..misc_plugins.bad_strip_detection import stripanalysis
+from threading import Thread
 
 class Stripscan_class(tools):
 
@@ -28,6 +30,7 @@ class Stripscan_class(tools):
         self.vcw = self.main.framework["VCW"]
         self.switching = self.main.switching
         self.wedge_card_size = 2 # Number of strips, which can be contacted with one touchdown
+        self.analysis = stripanalysis(main_class)
 
         self.user_configs = self.main.settings["settings"].get("Measurement_configs", {}).get("Stripscan",
                                                                                               {})  # Loads the configs for IVCV measurements
@@ -155,8 +158,15 @@ class Stripscan_class(tools):
             self.log.error("Howdy partner, seems like you started the stripscan but no data for a stripscan is set.")
             return
 
+        # Remeasure the bad strips here
+        if "badstrips" in self.main.framework['Configs']['config']['settings']:
+            self.remeasure_bad_strips(self.main.framework['Configs']['config']['settings']["badstrips"])
+
+        # Clean up like: ramping down etc
         self.clean_up()
 
+    def remeasure_bad_strips(self, strips):
+        self.log.warning("Remeasure not yet implemented")
 
     def clean_up(self):
         # Ramp down the voltage after stripscan
@@ -421,21 +431,9 @@ class Stripscan_class(tools):
                         self.main.measurement_data[measurement][0] = np.append(self.main.measurement_data[measurement][0],[np.nan])
                         self.main.measurement_data[measurement][1] = np.append(self.main.measurement_data[measurement][1],[np.nan])
 
-            # In the end do a quick bad strip detection
-            try:
-                #badstrip = self.analysis.do_contact_check(self.main.measurement_data)
-                badstrip = False
-                if badstrip:
-                    self.log.error("Bad contact of needles detected!: " + str(strip))
-                    # Add the bad strip to the list of bad strips
-                    if str(strip) in self.main.badstrip_dict:
-                        self.main.badstrip_dict[str(strip)].update(badstrip)
-                    else:
-                        self.main.badstrip_dict[str(strip)] = badstrip
-                        self.main.framework['Configs']['config']['settings']["Bad_strips"] += 1  # increment the counter
-            except Exception as e:
-                self.log.error("An error happened while performing the bad contact determination with error: "
-                               "{}".format(e))
+            # Find bad contact
+            badthread = Thread(target=self.find_bad_contact)
+            badthread.start()
 
             if not self.main.event_loop.stop_all_measurements_query():
                 # After all measurements are conducted write the environment variables to the file
@@ -452,6 +450,21 @@ class Stripscan_class(tools):
                 delta = float(self.main.framework['Configs']['config']['settings']["strip_scan_time"]) + abs(start - time())
                 self.main.framework['Configs']['config']['settings']["strip_scan_time"] = str(
                     delta / 2.)  # updates the time for strip measurement
+
+    def find_bad_contact(self):
+        # In the end do a quick bad strip detection
+        try:
+            baddc, badac = self.analysis.do_contact_check(self.main.measurement_data)
+            if baddc or badac:
+                self.log.debug("Bad contact of needles detected at DC: {}, AC: {}".format(baddc, badac))
+                # Add the bad strip to the list of bad strips
+
+                self.main.framework['Configs']['config']['settings']["badstrips"] = baddc.append(badac)
+                self.main.framework['Configs']['config']['settings']["Bad_strips"] += 1  # increment the counter
+
+        except Exception as e:
+            self.log.error("An error happened while performing the bad contact determination with error: "
+                           "{}".format(e))
 
     def __do_simple_measurement(self, name, device, xvalue = -1,
                                 samples = 5, write_to_main = True,
