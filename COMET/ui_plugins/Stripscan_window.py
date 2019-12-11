@@ -46,7 +46,7 @@ class Stripscan_window:
         self.variables.default_values_dict["settings"]["End_time"] = None
         self.variables.default_values_dict["settings"]["strip_scan_time"] = 0
         self.new_meas = True
-        self.number_of_strips = 0
+        self.number_of_strips = 1
 
 
 
@@ -82,34 +82,44 @@ class Stripscan_window:
 
     def update_text(self):
         """This function updates the stext for the measurements"""
-        if self.variables.default_values_dict["settings"]["new_data"]:  # New data available ?
-            self.stripscan.Idark_value.setText(str(
-                en.EngNumber(self.variables.meas_data["Idark"][1][-1]) if len(
-                    self.variables.meas_data["Idark"][1]) > 0 else "NaN"))
+        if self.variables.default_values_dict["settings"]["new_data"]: # New data available ?
+            try:
+                self.stripscan.Idark_value.setText("{} +- {}".format(
+                    en.EngNumber(np.mean(self.variables.meas_data["Idark"][1])),
+                    en.EngNumber(np.std(self.variables.meas_data["Idark"][1])) if len(
+                        self.variables.meas_data["Idark"][1]) > 0 else "NaN"))
 
-            self.stripscan.Idiel_value.setText(str(
-                en.EngNumber(self.variables.meas_data["Idiel"][1][-1]) if len(
-                    self.variables.meas_data["Idiel"][1]) > 0 else "NaN"))
+                self.stripscan.Idiel_value.setText("{} +- {}".format(
+                    en.EngNumber(np.mean(self.variables.meas_data["Idiel"][1])),
+                    en.EngNumber(np.std(self.variables.meas_data["Idiel"][1])) if len(
+                        self.variables.meas_data["Idiel"][1]) > 0 else "NaN"))
 
-            self.stripscan.Istrip_value.setText(str(
-                en.EngNumber(self.variables.meas_data["Istrip"][1][-1]) if len(
-                    self.variables.meas_data["Istrip"][1]) > 0 else "NaN"))
+                self.stripscan.Istrip_value.setText("{} +- {}".format(
+                        en.EngNumber(np.mean(self.variables.meas_data["Istrip"][1])),
+                        en.EngNumber(np.std(self.variables.meas_data["Istrip"][1])) if len(
+                        self.variables.meas_data["Istrip"][1]) > 0 else "NaN"))
 
-            self.stripscan.Cac_value.setText(str(
-                en.EngNumber(self.variables.meas_data["Cac"][1][-1]) if len(
-                    self.variables.meas_data["Cac"][1]) > 0 else "NaN"))
+                self.stripscan.Cac_value.setText("{} +- {}".format(
+                    en.EngNumber(np.mean(self.variables.meas_data["Cac"][1])),
+                    en.EngNumber(np.std(self.variables.meas_data["Cac"][1])) if len(
+                        self.variables.meas_data["Cac"][1]) > 0 else "NaN"))
 
-            self.stripscan.Rpoly_value.setText(str(
-                en.EngNumber(self.variables.meas_data["Rpoly"][1][-1]) if len(
-                    self.variables.meas_data["Rpoly"][1]) > 0 else "NaN"))
+                self.stripscan.Rpoly_value.setText("{} +- {}".format(
+                    en.EngNumber(np.mean(self.variables.meas_data["Rpoly"][1])),
+                    en.EngNumber(np.std(self.variables.meas_data["Rpoly"][1])) if len(
+                        self.variables.meas_data["Rpoly"][1]) > 0 else "NaN"))
 
-            self.stripscan.Cint_value.setText(str(
-                en.EngNumber(self.variables.meas_data["Cint"][1][-1]) if len(
-                    self.variables.meas_data["Cint"][1]) > 0 else "NaN"))
+                self.stripscan.Cint_value.setText("{} +- {}".format(
+                    en.EngNumber(np.mean(self.variables.meas_data["Cint"][1])),
+                    en.EngNumber(np.std(self.variables.meas_data["Cint"][1])) if len(
+                        self.variables.meas_data["Cint"][1]) > 0 else "NaN"))
 
-            self.stripscan.Rint_value.setText(str(
-                en.EngNumber(self.variables.meas_data["Rint"][1][-1]) if len(
-                    self.variables.meas_data["Rint"][1]) > 0 else "NaN"))
+                self.stripscan.Rint_value.setText("{} +- {}".format(
+                    en.EngNumber(np.median(self.variables.meas_data["Rint"][1])),
+                    en.EngNumber(np.std(self.variables.meas_data["Rint"][1])) if len(
+                        self.variables.meas_data["Rint"][1]) > 0 else "NaN"))
+            except:
+                pass
 
     def update_plots(self):
         '''This function updates all strip data plots'''
@@ -156,7 +166,7 @@ class Stripscan_window:
         # Loop over all possible measurement and find the highest strip number, which defines the current strip
         current_strip = int(self.variables.default_values_dict["settings"]["current_strip"])
         self.stripscan.currentstrip_lcd.display(int(current_strip)) # sets the display to the desired value
-        self.stripscan.stripscan_progressBar.setValue((float(current_strip)+1.)/self.number_of_strips*100)
+        self.stripscan.stripscan_progressBar.setValue(((float(current_strip)+1.)/self.number_of_strips)*100)
 
 
     def update_bad_strip(self):
@@ -177,8 +187,11 @@ class Stripscan_window:
             sensor = self.variables.default_values_dict["settings"].get("Current_sensor", "None")
             project = self.variables.default_values_dict["settings"]["Current_project"]
             try:
-                self.number_of_strips = len(self.variables.pad_files_dict[project][sensor]["data"]) # Acesses the last value of the pad file -> last strip number
+                self.number_of_strips = len(self.variables.additional_files['Pad_files'][project][sensor]["data"]) # Acesses the last value of the pad file -> last strip number
             except:
+                self.number_of_strips = 1
+
+            if not self.number_of_strips:
                 self.number_of_strips = 1
 
         if not self.new_meas and not self.variables.default_values_dict["settings"]["Measurement_running"]:

@@ -265,7 +265,7 @@ class Stripscan_class(tools):
             sleep(0.2)
             for i in range(count):
                 data.append(self.vcw.query(LCR, read_command).split(LCR.get("separator", ","))[0])
-            self.open_corrections[meas] = np.mean(data)
+            self.open_corrections[meas] = np.mean(np.array(data, dtype=float), dtype=float)
         self.switching.switch_to_measurement("IV")
         self.main.queue_to_main.put({"INFO": "LCR open calibration finished!"})
 
@@ -274,11 +274,13 @@ class Stripscan_class(tools):
         '''This function manages all stripscan measurements, also the frequency scan things
         Its ment to be used only once during the initiatior of the class'''
 
+        self.unit_header = ""
+        self.measurement_header = ""
         self.do_preparations_for_stripscan()
         if not self.main.event_loop.stop_all_measurements_query():
             # generate the list of strips per measurement which should be conducted and the units and so on for the
-            measurement_header = "Pad".ljust(self.justlength) # indicates the measurement
-            unit_header = "#".ljust(self.justlength) # indicates the units for the measurement
+            self.measurement_header = "Pad".ljust(self.justlength) # indicates the measuremnt
+            self.unit_header = "#".ljust(self.justlength) # indicates the units for the measurement
             for measurement in self.measurement_order:
                 if measurement in self.main.job_details["Stripscan"]:  # looks if measurement should be done
                     # Now generate a list of strips from the settings of the measurement
@@ -288,18 +290,23 @@ class Stripscan_class(tools):
                     strip_list = self.ramp_value(min, max, delta)
                     self.main.job_details["Stripscan"][measurement].update({"strip_list": strip_list})
                     unit_index = [x[0] for x in self.units].index(measurement) # gets me the index for the units
-                    #unit_header += str(self.units[unit_index][1]).ljust(self.justlength)
-                    unit_header += "".join([format(el, '<{}'.format(self.justlength)) for el in self.units[unit_index][1:]])
-                    measurement_header += str(measurement).ljust(self.justlength)
+                    self.unit_header += "".join([format(el, '<{}'.format(self.justlength)) for el in self.units[unit_index][1:]])
+                    self.measurement_header += str(measurement).ljust(self.justlength)
+
+                    # Add additional space if more then one value gets stored by a measurement
+                    if len(self.units[unit_index][1:]) > 1:
+                        for value in self.units[unit_index][2:]:
+                            meas = value.split("[")[0].strip()
+                            self.measurement_header += str(measurement + "_" + meas).ljust(self.justlength)
 
             # Now add humidity and temperature header
             if self.main.job_details.get("environemnt", True):
-                measurement_header += "Temperature".ljust(self.justlength)+"Humidity".ljust(self.justlength)
-                unit_header += "degree[C]".ljust(self.justlength)+"rel. percent[rel%]".ljust(self.justlength)
+                self.measurement_header += "Temperature".ljust(self.justlength)+"Humidity".ljust(self.justlength)
+                self.unit_header += "degree[C]".ljust(self.justlength)+"rel. percent[rel%]".ljust(self.justlength)
 
             # Now add the new header to the file
             if self.main.save_data:
-                self.main.write(self.main.measurement_files["Stripscan"], measurement_header + "\n" + unit_header + "\n")
+                self.main.write(self.main.measurement_files["Stripscan"], self.measurement_header + "\n" + self.unit_header + "\n")
 
             # Discharge the capacitors in the decouple box
             if not self.capacitor_discharge(self.discharge_SMU, self.discharge_switching, *self.IVCV_configs["Discharge"], do_anyway=True):
@@ -364,7 +371,7 @@ class Stripscan_class(tools):
             start = time()  # start timer for a strip measurement
             if self.main.save_data:
                 self.main.write(self.main.measurement_files["Stripscan"],
-                                str(self.sensor_pad_data["data"][str(strip)][0]).ljust(
+                                str(strip).ljust(
                                     self.justlength))  # writes the strip to the file
             for measurement in self.measurement_order:
                 if measurement in self.main.job_details[
@@ -380,14 +387,15 @@ class Stripscan_class(tools):
                             self.log.info("Did not move to strip {}, switching is done instead".format(strip))
                         if not self.main.event_loop.stop_all_measurements_query() and not self.check_compliance(self.bias_SMU,
                                                                                                   self.compliance):
-                            value = 0
+                            value_found = False
                             try:
                                 self.log.info("Conducting measurement: {!s}".format(measurement))
                                 value = getattr(self, "do_" + measurement)(strip, self.samples, alternative_switching = move if reverse_needles else not move)
-                                if not value:
-                                    self.log.error(
-                                        "An Error happened during strip measurement {!s}, please check logs!".format(
-                                            measurement))
+                                if isinstance(value, np.ndarray):
+                                    value_found = True
+                                elif isinstance(value, float) or isinstance(value, int):
+                                    value_found = True
+                                    value = np.array([value])
                             except Exception as err:
                                 self.log.error(
                                     "During strip measurement {!s} a fatal error occured: {!s}".format(measurement,
@@ -395,11 +403,9 @@ class Stripscan_class(tools):
                                     exc_info=True)  # log exception info at FATAL log level
 
                             # Write this to the file
-                            if value and self.main.save_data:
-                                if isinstance(value, float):
-                                    value = [value]
-                                self.main.write(self.main.measurement_files["Stripscan"],
-                                                "".join([format(el, '<{}'.format(self.justlength)) for el in value]))
+                            if self.main.save_data and value_found:
+                                unit_index = [x[0] for x in self.units].index(measurement)  # gets me the index for the units
+                                self.main.write(self.main.measurement_files["Stripscan"], "".join([format(value[i], '<{}'.format(self.justlength)) for i, el in enumerate(self.units[unit_index][1:])]))
                     else:
                         if self.main.save_data:
                             self.main.write(self.main.measurement_files["Stripscan"], "--".ljust(
@@ -407,7 +413,8 @@ class Stripscan_class(tools):
 
             # In the end do a quick bad strip detection
             try:
-                badstrip = self.analysis.do_contact_check(self.main.measurement_data)
+                #badstrip = self.analysis.do_contact_check(self.main.measurement_data)
+                badstrip = False
                 if badstrip:
                     self.log.error("Bad contact of needles detected!: " + str(strip))
                     # Add the bad strip to the list of bad strips
@@ -423,8 +430,8 @@ class Stripscan_class(tools):
             if not self.main.event_loop.stop_all_measurements_query():
                 # After all measurements are conducted write the environment variables to the file
                 string_to_write = ""
-                if self.main.job_details.get("environment", False):                    string_to_write = str(self.main.measurement_data["temperature"][1][-1]).ljust(self.justlength) + str(
-                        self.main.measurement_data["humidity"][-1]).ljust(self.justlength)
+                if self.main.job_details.get("environment", False):
+                    string_to_write = str(self.main.measurement_data["temperature"][1][-1]).ljust(self.justlength) + str(self.main.measurement_data["humidity"][-1]).ljust(self.justlength)
                 self.main.write(self.main.measurement_files["Stripscan"], string_to_write)
 
                 # Write new line
@@ -436,13 +443,13 @@ class Stripscan_class(tools):
                 self.main.framework['Configs']['config']['settings']["strip_scan_time"] = str(
                     delta / 2.)  # updates the time for strip measurement
 
-    def __do_simple_measurement(self, str_name, device, xvalue = -1,
+    def __do_simple_measurement(self, name, device, xvalue = -1,
                                 samples = 5, write_to_main = True,
                                 query="get_read", apply_to=None):
         '''
          Does a simple measurement - really simple. Only acquire some values and build the mean of it
 
-        :param str_name: What measurement is conducted
+        :param name: What measurement is to be conducetd, if you pass a list, values returned, must be the same shape, other wise error will occure
         :param device: Which device schould be used
         :param xvalue: Which strip we are on, -1 means arbitrary
         :param samples: How many samples should be taken
@@ -468,16 +475,20 @@ class Stripscan_class(tools):
             value = values[0]
 
         if write_to_main: # Writes data to the main, or not
-            # Currently only x and y data are allowed for the gui to plot and to store the data temporarily.
-            # If the device returns more then one value only the first value will be stored here
-            # This changes nothing for the read out, all values will be stored!!!
-            self.main.measurement_data[str(str_name)][0] = np.append(self.main.measurement_data[str(str_name)][0],
-                                                                     [float(xvalue)])
-            self.main.measurement_data[str(str_name)][1] = np.append(self.main.measurement_data[str(str_name)][1],
-                                                                     [float(value)])
-            self.main.queue_to_main.put({str(str_name): [float(xvalue), float(value)]})
+            if isinstance(name, str):
+                self.main.measurement_data[str(name)][0] = np.append(self.main.measurement_data[str(name)][0],[float(xvalue)])
+                self.main.measurement_data[str(name)][1] = np.append(self.main.measurement_data[str(name)][1], [float(value)])
+                self.main.queue_to_main.put({str(name): [float(xvalue), float(value)]})
+            elif isinstance(name, list) or isinstance(name, tuple):
+                try:
+                    for i, sub in enumerate(name):
+                        self.main.measurement_data[str(sub)][0] = np.append(self.main.measurement_data[str(sub)][0],[float(xvalue)])
+                        self.main.measurement_data[str(sub)][1] = np.append(self.main.measurement_data[str(sub)][1], [float(values[i])])
+                        self.main.queue_to_main.put({str(sub): [float(xvalue), float(values[i])]})
+                except IndexError as err:
+                    self.log.error("An error happened during values indexing in multi value return with error: {}".format(err))
 
-        return value
+        return values
 
     def do_Rpoly(self,  xvalue = -1, samples = 5, write_to_main = True, alternative_switching = False):
         '''Does the rpoly measurement'''
@@ -545,9 +556,16 @@ class Stripscan_class(tools):
                     if not self.main.event_loop.stop_all_measurements_query():
                         self.change_value(voltage_device, "set_voltage", voltage)
                         value = self.__do_simple_measurement("Rint_scan", device_dict, xvalue, samples, write_to_main=False)
-                        values_list.append(float(value))
+                        values_list.append(float(value[0]))
                         past_volts.append(float(voltage))
+
                         self.main.queue_to_main.put({"Rint_scan": [past_volts, values_list]})
+                if len(self.main.measurement_data["Rint_scan"][0]) > 1:
+                    self.main.measurement_data["Rint_scan"][0] = np.vstack([self.main.measurement_data["Rint_scan"][0], np.array(past_volts)])
+                    self.main.measurement_data["Rint_scan"][1] = np.vstack([self.main.measurement_data["Rint_scan"][1], np.array(values_list)])
+                else:
+                    self.main.measurement_data["Rint_scan"][0] = np.array(past_volts)
+                    self.main.measurement_data["Rint_scan"][1] = np.array(values_list)
 
                 if not self.main.event_loop.stop_all_measurements_query():
                     # Now make the linear fit for the ramp
@@ -637,7 +655,8 @@ class Stripscan_class(tools):
                 return False
             # Apply the correction fort this measurement
             corr = self.open_corrections.get("Cint_beta" if alternative_switching else "Cint", 0.0)
-            return value - corr
+            value[0] += corr
+            return value
 
     def do_CintAC(self, xvalue= -1, samples=5, freqscan=False, write_to_main=True, alternative_switching = False, frequency=1000000):
         '''Does the cint measurement on the AC strips'''
@@ -656,7 +675,8 @@ class Stripscan_class(tools):
                 return False
             # Apply the correction fort this measurement
             corr = self.open_corrections.get("CintAC_beta" if alternative_switching else "CintAC", 0.0)
-            return value - corr
+            value[0] += corr
+            return value
 
     def do_Cac(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True, alternative_switching = False, frequency=1000):
         '''Does the cac measurement'''
@@ -674,7 +694,8 @@ class Stripscan_class(tools):
 
             # Apply the correction fort this measurement
             corr = self.open_corrections.get("Cac_beta" if alternative_switching else "Cac" , 0.0)
-            return value-corr
+            value[0] += corr
+            return value
 
     def do_Cback(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True, alternative_switching = False, frequency=1000):
         '''Does a capacitance measurement from one strip to the backside'''
@@ -691,7 +712,8 @@ class Stripscan_class(tools):
             else: return 0
             # Apply the correction fort this measurement
             corr = self.open_corrections.get("Cback_beta" if alternative_switching else "Cback", 0.0)
-            return value - corr
+            value[0] += corr
+            return value
 
     def get_switching_for_measurement(self, meas, alt):
         """Gehts the name for the measuremnt, either normal or alternate switching"""
