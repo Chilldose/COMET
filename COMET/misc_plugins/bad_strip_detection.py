@@ -4,7 +4,7 @@
 __version__ = "0.1.1"
 __date__ = "11.Sept.2019"
 
-import yaml
+import yaml, json
 import logging
 import os, io
 import numpy as np
@@ -88,16 +88,25 @@ class stripanalysis:
                 # json file type
                 if fileext in ["json"]:
                     self.log.debug("JSON file found {}".format(files))
-                    with open(files, "r") as fp:
-                        data = yaml.load(fp)
+                    with open(files, "r") as stream:
+                        try:
+                            data = yaml.load(stream, Loader=yaml.FullLoader)
+                            if isinstance(data, str):
+                                data = json.loads(data)
+                        except yaml.YAMLError as exc:
+                            self.log.error("While loading the yml file {} the error: {} happend.".format(files, exc))
+
+                # Convert all lists to np.ndarrays
+                for key, dat in data["data"].items():
+                    data["data"][key] = np.array(dat)
 
                 # Add filename and rest of the dict important values
-                filename = os.path.basename(str(files)).split(".")[0][4:]
+                filename = os.path.basename(str(files)).split(".")[0]
                 data.update({"analysed": False, "plots": False})
                 self.all_data.update({filename: data}) # So nothing get deleted if additional files are loaded
 
         except Exception as e:
-            self.log.error("Something went wrong while importing the file " + str(current_file) + " with error: " + str(e))
+            self.log.error("Something went wrong while importing the file " + str(files) + " with error: " + str(e))
 
     def parse_file_data(self, filecontent):
         """This function parses the file content to the needed data type"""
@@ -166,7 +175,7 @@ class stripanalysis:
         """
 
         results = []
-        padarray = data["Pad"][tokeep[data_label]]
+        padarray = data["Strip"][tokeep[data_label]]
         start = np.arange(0, len(padarray) - piecesize, piecesize)
         end = np.arange(piecesize, len(padarray), piecesize)
         if len(end):
@@ -241,7 +250,7 @@ class stripanalysis:
         single_lms = lms_fit[measurement]
         single_cutted = cutted[measurement]
 
-        xvalues = data["Pad"]
+        xvalues = data["Strip"]
         xvalues = xvalues[single_cutted]
 
         start, stop = self.create_piecewise_arrays(xvalues, piecesize)
@@ -381,7 +390,7 @@ class stripanalysis:
         Secondcut = cutted[compare[1]]
         Secondlms = lms_data[compare[1]]
 
-        xvalues = data["Pad"]
+        xvalues = data["Strip"]
         Fxval = xvalues[Firstcut]
         Sxval = xvalues[Secondcut]
 

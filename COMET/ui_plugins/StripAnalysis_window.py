@@ -24,16 +24,16 @@ class StripAnalysis_window:
         self.layout = layout
         self.analysis = stripanalysis(GUI)
                                 # Label: X-Axis, Y-Axis, Logx, Logy, InvertY
-        self.measurement_dict = {"Idark": (["Pad", "#"], ["Current", "A"], [False, False], True),
-                                 "Idiel": (["Pad", "#"], ["Current", "A"], [False, False], True),
-                                 "Istrip": (["Pad", "#"], ["Current", "A"], [False, False], True),
-                                 "Rpoly": (["Pad", "#"], ["Resistance", "Ohm"], [False, False], False),
-                                 "Rint": (["Pad", "#"], ["Resistance", "Ohm"], [False, False], False),
-                                 "Cac": (["Pad", "#"], ["Capacitance", "F"], [False, False], False),
-                                 "Cint": (["Pad", "#"], ["Capacitance", "F"], [False, False], False),
-                                 "Cback": (["Pad", "#"], ["Capacitance", "F"], [False, False], False),
-                                 "Humidity": (["Pad", "#"], ["Humidity", "relH"], [False, False], False),
-                                 "Temperature": (["Pad", "#"], ["Termperature", "C"], [False, False], False)
+        self.measurement_dict = {"Idark": (["Strip", "#"], ["Current", "A"], [False, False], True),
+                                 "Idiel": (["Strip", "#"], ["Current", "A"], [False, False], True),
+                                 "Istrip": (["Strip", "#"], ["Current", "A"], [False, False], True),
+                                 "Rpoly": (["Strip", "#"], ["Resistance", "Ohm"], [False, False], False),
+                                 "Rint": (["Strip", "#"], ["Resistance", "Ohm"], [False, False], False),
+                                 "Cac": (["Strip", "#"], ["Capacitance", "F"], [False, False], False),
+                                 "Cint": (["Strip", "#"], ["Capacitance", "F"], [False, False], False),
+                                 "Cback": (["Strip", "#"], ["Capacitance", "F"], [False, False], False),
+                                 "Humidity": (["Strip", "#"], ["Humidity", "relH"], [False, False], False),
+                                 "Temperature": (["Strip", "#"], ["Termperature", "C"], [False, False], False)
                                  }
 
         #self.plot_data = {"QTC":{"data": {"ab": 2}},
@@ -235,7 +235,7 @@ class StripAnalysis_window:
         '''Reconfigs the plot for the different plots
         :param - Title must be string, containing the name of the plot (title)
         :param - plot_settings must be a tuple consisting elements like it is in the config defined
-                        "Idark": (["Pad", "#"], ["Current", "A"], [False, False], True)
+                        "Idark": (["Strip", "#"], ["Current", "A"], [False, False], True)
         '''
         self.badstrip.strip_plot.setTitle("Strip results on: " + str(Title), **self.titleStyle)
         self.badstrip.strip_plot.setLabel('bottom', str(plot_settings[0][0]), units=str(plot_settings[0][1]), **self.labelStyle)
@@ -258,8 +258,8 @@ class StripAnalysis_window:
         measurement = self.badstrip.which_plot.currentText()
         if measurement:
             ydata = self.plot_data[measurement]["data"][measurement_name]
-            xdata = np.arange(len(self.plot_data[measurement]["data"]["Pad"]))
-            self.reconfig_plot(measurement_name, self.measurement_dict[measurement_name])
+            xdata = np.arange(len(self.plot_data[measurement]["data"]["Strip"]))
+            self.reconfig_plot(measurement_name, self.measurement_dict.get(measurement_name, (["X-Axis", "arb. units"], ["Y-Axis", "arb. units"], [False, False], False),))
             if ydata.any(): # Checks if data is available or if all is empty
                 if len(xdata) == len(ydata):  # sometimes it happens that the values are not yet ready (fucking multithreading)
 
@@ -272,7 +272,10 @@ class StripAnalysis_window:
                     x, y = self.analysis.do_histogram(yout, self.bins)
                     self.badstrip.strip_plot_histogram.plot(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80), clear=True, connect="finite")
 
-                    self.update_specs_bars(measurement_name, ydata)
+                    try:
+                        self.update_specs_bars(measurement_name, ydata)
+                    except KeyError:
+                        pass # Error if no errorbars are specified for this particular measurement
 
                     if self.plot_data[measurement]["analysed"] and False:
                         # Todo: plot the lms piecewise here as well
@@ -331,7 +334,7 @@ class StripAnalysis_window:
         old_measurement = self.badstrip.which_measurement.currentText()
         old_plot = self.badstrip.which_plot.currentText()
         for meas in self.plot_data[old_plot]["data"].keys(): # Loop over all possible plots
-            if meas != "Pad":
+            if meas != "Strip":
                 plot, hist = self.update_plot(meas)
                 win = pg.GraphicsLayoutWidget()
                 for i, pl in enumerate([plot, hist]):

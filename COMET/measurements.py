@@ -332,11 +332,11 @@ class measurement_class(Thread):
         xaxis = []
 
         # Sanitize data (exclude x data from every dataset and store the xaxis seperately)
-        xaxis = False
+
         for key, data in data_to_dump.items():
             try:
                 if np.array(data).any(): # looks if the array has any data in it
-                    xaxis = data[0] if xaxis else False
+                    xaxis = data[0]
                     final_dict["data"][key] = data[1] # only ydata here
                     final_dict["measurements"].append(key)
             except: # if some other error happens
@@ -355,10 +355,13 @@ class measurement_class(Thread):
                             self.log.warning("No units found for measurement {}, please add them!".format(meas))
                             final_dict["units"].append("arb. units")
                     # Add x axis
-                    if "X-Axis" in item["Units"]:
-                        final_dict["measurements"].append(item["Units"]["X-Axis"][0])
-                        final_dict["units"].append(item["Units"]["X-Axis"][1])
-                        final_dict["data"][item["Units"]["X-Axis"][0]] = xaxis
+                    #if "X-Axis" in item["Units"]:
+                    #    final_dict["measurements"].append(item["Units"]["X-Axis"][0])
+                    #    final_dict["units"].append(item["Units"]["X-Axis"][1])
+                    #    try:
+                    #        final_dict["data"][item["Units"]["X-Axis"][0]] = data_to_dump[item["Units"]["X-Axis"][0]][1]
+                    #    except KeyError:
+                    #        self.log.error("Could not find data for xaxis specifier {}, no data saved!".format(item["Units"]["X-Axis"][0]))
 
         if xunits and yunits and not units_found:
             for meas in final_dict["measurements"]:

@@ -183,10 +183,13 @@ class IVCV_class(tools):
         """Routine for the sequential IVCV measurement
            The function returns the iterator, where it was with the voltage!"""
         iter = 0
-        voltage = 0
+        # Add the strip to measurement
+        self.main.measurement_data["Voltage"][0] = np.array(voltage_step_list)
+        self.main.measurement_data["Voltage"][1] = np.array(voltage_step_list)
         for meas, device in zip(["IV", "CV"], [bias_SMU, LCR_meter]):
             if meas in self.main.job_details["IVCV"] and not self.main.event_loop.stop_all_measurements_query():
                 for i, voltage in enumerate(voltage_step_list):
+
                     # Change the progress
                     self.main.settings["settings"]["progress"] = (i+1)/len(voltage_step_list)
                     env_array = [] # Warning: if you do IV and CV only the IV data will be stored finally
@@ -258,7 +261,12 @@ class IVCV_class(tools):
     def interlaced_order(self, voltage_step_list, bias_SMU, LCR_meter, compliance):
         """Routine for the interlace IVCV measurement
         The function returns the iterator, where it was with the voltage!"""
+        # Todo: interlaced order arrays of IV and CV will not be the same, plotting will fail at this issue
+        # Add the strip to measurement
+        self.main.measurement_data["Voltage"][0] = np.array(voltage_step_list)
+        self.main.measurement_data["Voltage"][1] = np.array(voltage_step_list)
         for i, voltage in enumerate(voltage_step_list):
+
             # Change the progress
             self.main.settings["settings"]["progress"] = (i+1.)/len(voltage_step_list)
             if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary

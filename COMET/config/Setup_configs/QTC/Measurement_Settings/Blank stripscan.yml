@@ -99,8 +99,11 @@ IVCV:
     IV:
     - current
     - A
+    Voltage:
+    - Voltage
+    - V
     X-Axis:
-    - voltage
+    - Voltage
     - V
 Settings_name: Blank stripscan
 Stripscan:
@@ -267,6 +270,9 @@ Stripscan:
     Rpoly:
     - resistance
     - Ohm
+    Strip:
+    - Stripposition
+    - '#'
     X-Axis:
     - Strip
     - '#'

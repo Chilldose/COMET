@@ -368,7 +368,11 @@ class Stripscan_class(tools):
         """
         if not self.main.event_loop.stop_all_measurements_query():  # Prevents that empty entries will be written to file after aborting the measurement
             self.current_strip = strip
-            # results.append({}) # Adds an empty dict to the results for the bad strip detection
+            # Add the strip to measurement
+            self.main.measurement_data["Strip"][0] = np.append(
+                self.main.measurement_data["Strip"][0], [strip])
+            self.main.measurement_data["Strip"][1] = np.append(
+                self.main.measurement_data["Strip"][1], [strip])
             start = time()  # start timer for a strip measurement
             if self.main.save_data:
                 self.main.write(self.main.measurement_files["Stripscan"],
@@ -381,6 +385,7 @@ class Stripscan_class(tools):
                     # But first check if this strip should be measured with this specific measurement
                     if strip in self.main.job_details["Stripscan"][measurement]["strip_list"]:
                         # Move to the strip if specified
+
                         if move:
                             if self.main.table.move_to_strip(self.sensor_pad_data, strip+reverse_needles, self.trans, self.T, self.V0, self.height):
                                 self.last_move = strip

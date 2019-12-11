@@ -336,14 +336,31 @@ def read_in_JSON_measurement_files(filepathes):
 
             data = load_yaml(os.path.normpath(files))
             # Add filename and rest of the dict important values
-            data.update({"analysed": False, "plots": False})
-            all_data[filename] = data
-            load_order.append(filename)
+
+            if "data" in data:
+                data.update({"analysed": False, "plots": False})
+                # Convert all lists to np.ndarrays
+                for key, dat in data["data"].items():
+                    data["data"][key] = np.array(dat)
+                all_data[filename] = data
+                load_order.append(filename)
+
+            else: # This is true for DataVIS outputs wiht several files in one json file
+                for filename, item in data.items():
+                    item.update({"analysed": False, "plots": False})
+                    # Convert all lists to np.ndarrays
+                    for key, dat in item["data"].items():
+                        item["data"][key] = np.array(dat)
+                    all_data[filename] = item
+                    load_order.append(filename)
+
 
         return all_data, load_order
 
     except Exception as e:
-        log.error("Something went wrong while importing the file " + str(current_file) + " with error: " + str(e))
+        log.warning("Something went wrong while importing the file " + str(files) + " with error: " + str(e))
+
+
 
 def read_in_ASCII_measurement_files(filepathes, settings):
     """This function reads in a QTC measurement file and return a dictionary with the data in the file"""

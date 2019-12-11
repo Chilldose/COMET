@@ -33,6 +33,8 @@
         - Idark
         - Rint_scan
         - dynamicwaiting
+        - Strip
+        - Voltage # so basically the xaxis
 
     measurement_order: # aka. all measurement plugins
         - IVCV
