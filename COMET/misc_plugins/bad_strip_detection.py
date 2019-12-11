@@ -73,10 +73,24 @@ class stripanalysis:
         """This function reads in a QTC measurement file and return a dictionary with the data in the file"""
         try:
             for files in filepathes:
-                current_file = files
-                with open(str(files)) as f:
-                    data = f.read()
-                data = self.parse_file_data(data)
+
+                # Find file extension
+                fileext = files.split(".")[-1]
+
+                if fileext in ["txt", "dat"]:
+                    # Ascii file type
+                    self.log.debug("Ascii file found {}".format(files))
+                    current_file = files
+                    with open(str(files)) as f:
+                        data = f.read()
+                    data = self.parse_file_data(data)
+
+                # json file type
+                if fileext in ["json"]:
+                    self.log.debug("JSON file found {}".format(files))
+                    with open(files, "r") as fp:
+                        data = yaml.load(fp)
+
                 # Add filename and rest of the dict important values
                 filename = os.path.basename(str(files)).split(".")[0][4:]
                 data.update({"analysed": False, "plots": False})

@@ -277,7 +277,7 @@ class Stripscan_class(tools):
         self.do_preparations_for_stripscan()
         if not self.main.event_loop.stop_all_measurements_query():
             # generate the list of strips per measurement which should be conducted and the units and so on for the
-            measurement_header = "Pad".ljust(self.justlength) # indicates the measuremnt
+            measurement_header = "Pad".ljust(self.justlength) # indicates the measurement
             unit_header = "#".ljust(self.justlength) # indicates the units for the measurement
             for measurement in self.measurement_order:
                 if measurement in self.main.job_details["Stripscan"]:  # looks if measurement should be done
