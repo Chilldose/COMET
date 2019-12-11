@@ -261,6 +261,9 @@ Stripscan:
     Rint:
     - resistance
     - Ohm
+    Rint_scan:
+      - current
+      - A
     Rpoly:
     - resistance
     - Ohm

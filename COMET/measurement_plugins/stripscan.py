@@ -299,6 +299,7 @@ class Stripscan_class(tools):
                             meas = value.split("[")[0].strip()
                             self.measurement_header += str(measurement + "_" + meas).ljust(self.justlength)
 
+
             # Now add humidity and temperature header
             if self.main.job_details.get("environemnt", True):
                 self.measurement_header += "Temperature".ljust(self.justlength)+"Humidity".ljust(self.justlength)
@@ -410,6 +411,10 @@ class Stripscan_class(tools):
                         if self.main.save_data:
                             self.main.write(self.main.measurement_files["Stripscan"], "--".ljust(
                                 self.justlength))  # Writes nothing if no value is aquired
+
+                        # If measurement should not be done insert np.nan
+                        self.main.measurement_data[measurement][0] = np.append(self.main.measurement_data[measurement][0],[np.nan])
+                        self.main.measurement_data[measurement][1] = np.append(self.main.measurement_data[measurement][1],[np.nan])
 
             # In the end do a quick bad strip detection
             try:

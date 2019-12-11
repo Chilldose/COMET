@@ -332,10 +332,11 @@ class measurement_class(Thread):
         xaxis = []
 
         # Sanitize data (exclude x data from every dataset and store the xaxis seperately)
+        xaxis = False
         for key, data in data_to_dump.items():
             try:
                 if np.array(data).any(): # looks if the array has any data in it
-                    xaxis = data[0]
+                    xaxis = data[0] if xaxis else False
                     final_dict["data"][key] = data[1] # only ydata here
                     final_dict["measurements"].append(key)
             except: # if some other error happens
@@ -348,7 +349,11 @@ class measurement_class(Thread):
                 if "Units" in item:
                     units_found = True
                     for meas in final_dict["measurements"]:
-                        final_dict["units"].append(item["Units"][meas][1])
+                        if meas in item["Units"]:
+                            final_dict["units"].append(item["Units"][meas][1])
+                        else:
+                            self.log.warning("No units found for measurement {}, please add them!".format(meas))
+                            final_dict["units"].append("arb. units")
                     # Add x axis
                     if "X-Axis" in item["Units"]:
                         final_dict["measurements"].append(item["Units"]["X-Axis"][0])
