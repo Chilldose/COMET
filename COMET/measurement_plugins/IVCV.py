@@ -218,19 +218,19 @@ class IVCV_class(tools):
         if self.main.save_data:
             try:
                 diff = len(self.main.measurement_data["IV"][1]) - len(self.main.measurement_data["CV"][1])
-                if diff > 0 and len(self.main.measurement_data["CV"][1]):
+                if diff > 0 and len(self.main.measurement_data["CV"][1])>1:
                     self.main.measurement_data["CV"][0] = np.append(self.main.measurement_data["CV"][0], self.main.measurement_data["IV"][0][len(self.main.measurement_data["CV"][0]):])
-                    self.main.measurement_data["CV"][1] = np.append(self.main.measurement_data["CV"][1], [np.nan for x in range(diff)])
+                    self.main.measurement_data["CV"][1] = np.append(self.main.measurement_data["CV"][1], [np.nan for x in range(diff+1)])
 
                     self.main.measurement_data["CVQValue"][0] = np.append(self.main.measurement_data["CVQValue"][0],
                                                                     self.main.measurement_data["IV"][0][
                                                                     len(self.main.measurement_data["CVQValue"][0]):])
                     self.main.measurement_data["CVQValue"][1] = np.append(self.main.measurement_data["CVQValue"][1],
-                                                                    [np.nan for x in range(diff)])
+                                                                    [np.nan for x in range(diff+1)])
 
-                elif diff < 0 and len(self.main.measurement_data["IV"][1]):
+                elif diff < 0 and len(self.main.measurement_data["IV"][1])>1:
                     self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], self.main.measurement_data["CV"][0][len(self.main.measurement_data["IV"][0]):])
-                    self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1], [np.nan for x in range(diff)])
+                    self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1], [np.nan for x in range(diff+1)])
 
 
                 for entry in range(len(self.main.measurement_data["IV"][1])):

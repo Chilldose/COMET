@@ -17,7 +17,7 @@ class Stripscan:
     def __init__(self, data, configs):
 
         self.log = logging.getLogger(__name__)
-        self.data = convert_to_df(data, abs=False)
+        self.data = convert_to_df(data, abs=False, keys=["Idark", "Idiel", "Istrip", "Cac", "Cint", "Rpoly", "Rint", "Strip"])
         self.config = configs
         self.finalPlot = None
         self.df = []

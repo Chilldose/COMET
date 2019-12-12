@@ -333,36 +333,31 @@ class measurement_class(Thread):
         xaxis = []
 
         # Sanitize data (exclude x data from every dataset and store the xaxis seperately)
-
+        units_found = False
         for key, data in data_to_dump.items():
             try:
-                if np.array(data).any(): # looks if the array has any data in it
+                if np.array(data).any() and np.sum(np.isnan(data[1])) < len(data[1]): # looks if the array has any data in it
                     xaxis = data[0]
                     final_dict["data"][key] = data[1] # only ydata here
                     final_dict["measurements"].append(key)
+                    # Find the units
+                    units_found = False
+                    for item in final_dict.values():
+                        if isinstance(item, dict):
+                            if "Units" in item:
+                                if key in item["Units"]:
+                                    units_found = True
+                                    final_dict["units"].append(item["Units"][key][1])
+                    if not units_found:
+                        self.log.warning("No units found for measurement {}. Please add one in the config".format(key))
+                        final_dict["units"].append("arb. units")
+
             except: # if some other error happens
                 self.log.warning("Could not save data with key {}".format(key))
 
         # add the units
-        units_found = False
-        for item in final_dict.values():
-            if isinstance(item, dict):
-                if "Units" in item:
-                    units_found = True
-                    for meas in final_dict["measurements"]:
-                        if meas in item["Units"]:
-                            final_dict["units"].append(item["Units"][meas][1])
-                        else:
-                            self.log.warning("No units found for measurement {}, please add them!".format(meas))
-                            final_dict["units"].append("arb. units")
-                    # Add x axis
-                    #if "X-Axis" in item["Units"]:
-                    #    final_dict["measurements"].append(item["Units"]["X-Axis"][0])
-                    #    final_dict["units"].append(item["Units"]["X-Axis"][1])
-                    #    try:
-                    #        final_dict["data"][item["Units"]["X-Axis"][0]] = data_to_dump[item["Units"]["X-Axis"][0]][1]
-                    #    except KeyError:
-                    #        self.log.error("Could not find data for xaxis specifier {}, no data saved!".format(item["Units"]["X-Axis"][0]))
+
+
 
         if xunits and yunits and not units_found:
             for meas in final_dict["measurements"]:

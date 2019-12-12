@@ -58,7 +58,7 @@
 
       IV:
           PlotLabel: IV CURVES
-          UnitConversion: nano
+          UnitConversion: pico
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               logy: True
               logx: False
@@ -78,7 +78,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               #xlabel: voltage [V]
-              ylabel: current [nA]
+              #ylabel: current [nA]
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
@@ -108,7 +108,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               #xlabel: voltage [V]
-              ylabel: capacitance [nF]
+              #ylabel: capacitance [nF]
               shared_axes: False
 
       1C2:

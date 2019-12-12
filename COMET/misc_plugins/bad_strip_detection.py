@@ -219,14 +219,15 @@ class stripanalysis:
             abs(totalStripCurrent * (self.stripNum / measStripNum))/abs(Idark)
             ))
 
-    def find_pinhole(self, Idiel, shift = None):
+    def find_pinhole(self, Idiel, shift = None, suppress_warning = False):
         """Looks if high Idiel is prevalent and determines if pinhole is prevalent"""
         highIdiel = np.nonzero(np.abs(Idiel) > self.settings["IdielThresholdCurrent"])[0]
 
         if len(highIdiel):
             if shift:
                 highIdiel = self.shift_strip_numbering("Idiel", highIdiel, shift)
-            self.log.warning("Possible pinholes found on strips: {}".format(highIdiel))
+            if not suppress_warning:
+                self.log.warning("Possible pinholes found on strips: {}".format(highIdiel))
         else:
             self.log.info("No pinholes found.")
 
@@ -273,12 +274,13 @@ class stripanalysis:
         for meas, dat in measurement.items():
             data[meas] = dat[1]
 
-        DCerror, ACerror = [], []
-        data, shift = self.remove_nan(data)
-        pinholes = self.find_pinhole(data["Idiel"], shift)
-        if len(data["Istrip"] > 10):
+        if len(data["Idark"] > 10):
+            data, shift = self.remove_nan(data)
+            pinholes = self.find_pinhole(data["Idiel"], shift, suppress_warning=True)
             DCerror, ind_bad_Cint, ind_bad_Cap = self.find_bad_DC_contact(data["Istrip"], data["Rpoly"], data["Cint"], data["Cac"], shift=shift)
             ACerror = self.find_bad_AC_contact(data["Cac"], data["Rpoly"], pinholes, shift = shift)
+        else:
+            DCerror, ACerror = [], []
 
         return DCerror, ACerror
 
@@ -471,8 +473,12 @@ class stripanalysis:
         for subdata in data:
             # Todo: Shift in data due to this here if some nans are in between
             tokeep = ~np.isnan(data[subdata])
-            working_data[subdata] = data[subdata][tokeep]
-            cutted_array[subdata] = tokeep
+            if tokeep.any():
+                working_data[subdata] = data[subdata][tokeep]
+                cutted_array[subdata] = tokeep
+            else:
+                working_data[subdata] = data[subdata]
+                cutted_array[subdata] = tokeep
         return working_data, cutted_array
 
     #@hf.raise_exception
