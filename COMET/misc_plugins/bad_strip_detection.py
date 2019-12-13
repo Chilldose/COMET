@@ -333,7 +333,7 @@ class stripanalysis:
         return shifted_array
 
 
-    def find_bad_AC_contact(self, Cap, Rpar, pinholes, shift = None):
+    def find_bad_AC_contact(self, Cap, Rpar, pinholes, shift = None, suppress_warning = False):
         """Finds out if a bad AC contact is prevalent"""
         #nCap = np.delete(Cap, pinholes) # Exclude pinholes in this calculations
         #nRpoly = np.delete(Rpoly, pinholes) # Exclude pinholes in this calculations
@@ -354,7 +354,8 @@ class stripanalysis:
         if len(intersect):
             if shift:
                 intersect = self.shift_strip_numbering("Cac", intersect, shift)
-            self.log.warning("Possible bad AC needle contact found on strips: {}".format(intersect))
+            if not suppress_warning:
+                self.log.warning("Possible bad AC needle contact found on strips: {}".format(intersect))
         else:
             self.log.info("AC needle contact seems to be fine")
         return intersect

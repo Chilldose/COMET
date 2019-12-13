@@ -311,7 +311,36 @@ class Stripscan_class(tools):
 
         self.main.queue_to_main.put({"INFO": "{} preparation done...".format(measurement)})
 
+    def scan_perform_open_correction(self, LCR, measurement = "None"):
+        # Warning: table has to be down for that
+        self.main.queue_to_main.put({"INFO": "LCR ranged open calibration on {} path...".format(measurement)})
+        if not self.switching.switch_to_measurement(measurement):
+            self.stop_everything()
+            return
+        sleep(0.2)
+        self.change_value(LCR, "set_perform_open_correction", "")
+        # Alot of time can be wasted by the timeout of the visa
+        ready_command = self.main.build_command(LCR, "get_all_done")
+        counter = 0  # counter how often the read attempt will be carried out
+        self.vcw.write(LCR, ready_command)
+        while True:
+            done = self.vcw.read(LCR)
+            if done:
+                break
+            else:
+                if counter > 10:
+                    self.log.error("LCR meter did not answer after 10 times during open correction calibration.")
+                    self.stop_everything()
+                counter += 1
+        self.switching.switch_to_measurement("IV")
+        self.main.queue_to_main.put({"INFO": "LCR ranged open calibration on {} path finished.".format(measurement)})
+
+
     def perform_open_correction(self, LCR, measurements, count=15):
+
+        # Make a normal open correction
+        self.scan_perform_open_correction(LCR, measurement="Cac")
+
         read_command = self.main.build_command(LCR, "get_read")
         for meas, freq in measurements.items():
             data = []
@@ -418,8 +447,8 @@ class Stripscan_class(tools):
                         self.main.settings["settings"]["progress"] = self.strips/current_strip
 
             # Now do the remasuring of the bad strips
-            if not self.main.event_loop.stop_all_measurements_query():
-                self.remeasure_bad_strips()
+            #if not self.main.event_loop.stop_all_measurements_query():
+            #    self.remeasure_bad_strips()
 
 
     def do_one_strip(self, strip, move, reverse_needles):
@@ -512,7 +541,7 @@ class Stripscan_class(tools):
                 # Add the bad strip to the list of bad strips
                 list(baddc).append(list(badac))
                 self.main.framework['Configs']['config']['settings']["badstrips"] = baddc
-                self.badstrips = baddc.append(badac)
+                self.badstrips = np.append(badac, baddc)
                 self.main.framework['Configs']['config']['settings']["Bad_strips"] = len(baddc)  # increment the counter
 
         except Exception as e:
@@ -521,7 +550,7 @@ class Stripscan_class(tools):
 
     def __do_simple_measurement(self, name, device, xvalue = -1,
                                 samples = 5, write_to_main = True,
-                                query="get_read", apply_to=None):
+                                query="get_read", apply_to=None, correction = None):
         '''
          Does a simple measurement - really simple. Only acquire some values and build the mean of it
 
@@ -532,6 +561,7 @@ class Stripscan_class(tools):
         :param write_to_main: Writes the value back to the main loop
         :param query: what query should be used
         :param apply_to: data array will be given to a function for further calculations
+        :param correction: single value or list of values subtracted to the resulting solution
         :return: Returns the mean of all aquired values
         '''
         # Do some averaging over values
@@ -541,6 +571,13 @@ class Stripscan_class(tools):
             values.append(self.vcw.query(device, command))
         values = np.array(list(map(lambda x: x.split(device.get("separator", ",")), values)), dtype=float)
         values = np.mean(values, axis=0)
+
+        # Apply correction values
+        if isinstance(correction, list) or isinstance(correction, tuple):
+            for i, val in enumerate(correction):
+                values[i] -= val
+        elif isinstance(correction, float) or isinstance(correction, int):
+            values[0] -= correction
 
         if apply_to:
             # Only a single float or int are allowed as returns
@@ -725,13 +762,12 @@ class Stripscan_class(tools):
                 self.stop_everything()
                 return
             sleep(0.2)  # Is need due to some stray capacitances which corrupt the measurement
-            if self.steady_state_check(device_dict,  command="get_read", max_slope=1e-6, wait=0.0, samples=2, Rsq=0.3, check_compliance=False):  # Is a dynamic waiting time for the measuremnt
-                value = self.__do_simple_measurement("Cint", device_dict, xvalue, samples, write_to_main=not freqscan)
-            else:
-                return False
             # Apply the correction fort this measurement
             corr = self.open_corrections.get("Cint_beta" if alternative_switching else "Cint", 0.0)
-            value[0] += corr
+            if self.steady_state_check(device_dict,  command="get_read", max_slope=1e-6, wait=0.0, samples=2, Rsq=0.3, check_compliance=False):  # Is a dynamic waiting time for the measuremnt
+                value = self.__do_simple_measurement("Cint", device_dict, xvalue, samples, write_to_main=not freqscan, correction=corr)
+            else:
+                return False
             return value
 
     def do_CintAC(self, xvalue= -1, samples=5, freqscan=False, write_to_main=True, alternative_switching = False, frequency=1000000):
@@ -744,14 +780,13 @@ class Stripscan_class(tools):
                 self.stop_everything()
                 return
             sleep(0.2) #Because fuck you thats why. (Brandbox to LCR meter)
-            if self.steady_state_check(device_dict, command="get_read", max_slope=1e-6, wait=0.0, samples=2, Rsq=0.5,
-                                         check_compliance=False):  # Is a dynamic waiting time for the measuremnt
-                value = self.__do_simple_measurement("CintAC", device_dict, xvalue, samples, write_to_main=not freqscan)
-            else:
-                return False
             # Apply the correction fort this measurement
             corr = self.open_corrections.get("CintAC_beta" if alternative_switching else "CintAC", 0.0)
-            value[0] += corr
+            if self.steady_state_check(device_dict, command="get_read", max_slope=1e-6, wait=0.0, samples=2, Rsq=0.5,
+                                         check_compliance=False):  # Is a dynamic waiting time for the measuremnt
+                value = self.__do_simple_measurement("CintAC", device_dict, xvalue, samples, write_to_main=not freqscan, correction=corr)
+            else:
+                return False
             return value
 
     def do_Cac(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True, alternative_switching = False, frequency=1000):
@@ -763,14 +798,13 @@ class Stripscan_class(tools):
             if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Cac", alternative_switching)):
                 self.stop_everything()
                 return
-            sleep(0.2) # Is need due to some stray capacitances which corrupt the measurement
+            sleep(0.1) # Is need due to some stray capacitances which corrupt the measurement
+            # Apply the correction fort this measurement
+            corr = self.open_corrections.get("Cac_beta" if alternative_switching else "Cac", 0.0)
             if self.steady_state_check(device_dict, command="get_read", max_slope=1e-6, wait=0.0, samples=2,Rsq=0.5, check_compliance=False):  # Is a dynamic waiting time for the measuremnt
-                value = self.__do_simple_measurement("Cac", device_dict, xvalue, samples, write_to_main=not freqscan)
+                value = self.__do_simple_measurement("Cac", device_dict, xvalue, samples, write_to_main=not freqscan, correction=corr)
             else: return False
 
-            # Apply the correction fort this measurement
-            corr = self.open_corrections.get("Cac_beta" if alternative_switching else "Cac" , 0.0)
-            value[0] += corr
             return value
 
     def do_Cback(self, xvalue = -1, samples = 5, freqscan = False, write_to_main = True, alternative_switching = False, frequency=1000):
@@ -783,12 +817,11 @@ class Stripscan_class(tools):
                 self.stop_everything()
                 return
             sleep(0.2)  # Is need due to some stray capacitances which corrupt the measurement
-            if self.steady_state_check(device_dict, command="get_read", max_slope=1e-6, wait=0.0, samples=2, Rsq=0.5, check_compliance=False):  # Is a dynamic waiting time for the measuremnt
-                value = self.__do_simple_measurement("Cback", device_dict, xvalue, samples, write_to_main=not freqscan)
-            else: return 0
             # Apply the correction fort this measurement
             corr = self.open_corrections.get("Cback_beta" if alternative_switching else "Cback", 0.0)
-            value[0] += corr
+            if self.steady_state_check(device_dict, command="get_read", max_slope=1e-6, wait=0.0, samples=2, Rsq=0.5, check_compliance=False):  # Is a dynamic waiting time for the measuremnt
+                value = self.__do_simple_measurement("Cback", device_dict, xvalue, samples, write_to_main=not freqscan, correction=corr)
+            else: return 0
             return value
 
     def get_switching_for_measurement(self, meas, alt):
