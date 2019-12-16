@@ -399,6 +399,12 @@ class stripanalysis:
         Secondcut = cutted[compare[1]]
         Secondlms = lms_data[compare[1]]
 
+        if np.sum(Firstcut) != np.sum(Secondcut):
+            both_cuts = np.logical_and(Firstcut, Secondcut)
+            Firstcut, Secondcut = both_cuts, both_cuts
+            self.log.warning("Cannot compare array of different sizes. Taking logical and and try with this data. Data sets: {}".format(compare))
+
+
         xvalues = data["Strip"]
         Fxval = xvalues[Firstcut]
         Sxval = xvalues[Secondcut]
@@ -537,11 +543,12 @@ class stripanalysis:
                 # Piecewise LMS fit and relative Threshold calculation for all datasets
                 piecewiselms = {}
                 for sdata in working_data:
-                    piecewiselms[sdata] = self.do_piecewise_lms_fit(sdata,
-                                                                    working_data,
-                                                                    cutted_array,
-                                                                    self.settings["LMSsize"],
-                                                                    )
+                    if sdata in ["Istrip", "Idark", "Rpoly", "Rint", "Cint", "Idiel", "Cac", "QValue"]:
+                        piecewiselms[sdata] = self.do_piecewise_lms_fit(sdata,
+                                                                        working_data,
+                                                                        cutted_array,
+                                                                        self.settings["LMSsize"],
+                                                                        )
 
                 # 2x Istrip, 0.5x Rpoly, implant short
                 implant = self.find_implant_short(working_data,

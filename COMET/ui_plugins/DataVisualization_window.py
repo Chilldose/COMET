@@ -110,7 +110,7 @@ class DataVisualization_window:
 
         # Find template and load the yaml file
         plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
-        template = plotConfigs[(self.widget.templates_comboBox.currentText()+"_template")]["raw"]
+        template = plotConfigs[(self.widget.templates_comboBox.currentText())]["raw"]
         template = self.parse_yaml_string(template)
 
         # Add the parameters
@@ -196,7 +196,12 @@ class DataVisualization_window:
         configs = self.plotting_Object.config
         self.selected_plot_option = ()
         try:
-            plotLabel = plot._label
+            try:
+                plotLabel = plot.label
+            except:
+                plotLabel = plot._label # This changed somehow
+            if not plotLabel:
+                raise ValueError # If none of the above exists
             for ana in configs["Analysis"]:
                 for plot_name, plt_opt in configs[ana].items():
                     try:
@@ -211,7 +216,6 @@ class DataVisualization_window:
                             break
                     except:
                         pass
-                        #self.selected_plot_option = ()
         except:
             self.log.debug("Plot object has no label, trying with group parameter...")
 
@@ -303,8 +307,7 @@ class DataVisualization_window:
         """Configs the combo box for selectable analysis templates"""
         plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
         for key in plotConfigs.keys():
-            if "_template" in key:
-                self.widget.templates_comboBox.addItem(key.split("_template")[0])
+            self.widget.templates_comboBox.addItem(key)
 
     def save_data(self, type, dirr, base_name="data"):
         """Saves the data in the specified type"""

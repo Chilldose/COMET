@@ -93,7 +93,7 @@ def BoxWhisker(dfs, measurement, configs, analysisType, **addConfigs):
 
 
     except Exception as err:
-        log.error("Unexpected error happend during BoxWhisker plot generation {}. Error: {}".format(measurement, err))
+        log.error("Unexpected error happened during BoxWhisker plot generation {}. Error: {}".format(measurement, err))
         return None
 
     return plot
@@ -110,7 +110,7 @@ def Violin(dfs, measurement, configs, analysisType, **addConfigs):
             ylabel = "{} [{}]".format(measurement,
                                   dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
         except Exception as err:
-            log.error("Label could not be genereated for concatonated Histogram {}. Error: {}".format(measurement, err))
+            log.error("Label could not be generated for violin plot {}. Error: {}".format(measurement, err))
             ylabel = "Y-Axis"
         plot.opts(box_alpha=0.3, xrotation= 80,
                   box_color='blue', height=500,
@@ -124,7 +124,7 @@ def Violin(dfs, measurement, configs, analysisType, **addConfigs):
         newConfigs.update(data_options)
         plot = customize_plot(plot, "", configs[analysisType], **newConfigs)
     except Exception as err:
-        log.error("Unexpected error happend during violin plot generation {}. Error: {}".format(measurement, err))
+        log.error("Unexpected error happened during violin plot generation {}. Error: {}".format(measurement, err))
         return None
 
     return plot

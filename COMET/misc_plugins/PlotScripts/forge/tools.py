@@ -270,6 +270,7 @@ def convert_to_df(convert, abs = False, keys = None):
                         sub_set[ind] = data["data"][ind]
                     except:
                         log.warning("Key {} was not present, no data conversion".format(ind))
+                sub_set["Name"] = [key for i in range(len(sub_set[list(sub_set.keys())[0]]))]
                 df = pd.DataFrame(data=sub_set)
         except KeyError as err:
             log.error("In order to convert the data to panda dataframe, the data structure needs to have a key:'data'")
@@ -308,8 +309,8 @@ def holoplot(plotType, df_list, configs, xdata, ydata, **addConfigs):
                     ylabel = "{} [{}]".format(ydata, df_list[key]["units"][df_list[key]["measurements"].index(ydata)])
                     xlabel = "{} [{}]".format(xdata, df_list[key]["units"][df_list[key]["measurements"].index(xdata)])
                     if plot:
-                        plot *= getattr(hv, type)(df_list[key]["data"], xdata, ydata, label=key)
-                    else: plot = getattr(hv, type)(df_list[key]["data"], xdata, ydata, label=key)
+                        plot *= getattr(hv, type)(df_list[key]["data"], xdata, ydata, label=plotType)
+                    else: plot = getattr(hv, type)(df_list[key]["data"], xdata, ydata, label=plotType)
                     plot.opts(xlabel=xlabel, ylabel=ylabel)
                 else:
                     log.warning("The data key: {} is not present in dataset {}. Skipping this particular plot.".format(ydata, key))
