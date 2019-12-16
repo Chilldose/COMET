@@ -336,7 +336,7 @@ class measurement_class(Thread):
         units_found = False
         for key, data in data_to_dump.items():
             try:
-                if np.array(data).any() and np.sum(np.isnan(data[1])) < len(data[1]): # looks if the array has any data in it
+                if np.array(data[1]).any() and np.sum(np.isnan(data[1])) < len(data[1]): # looks if the array has any data in it
                     xaxis = data[0]
                     final_dict["data"][key] = data[1] # only ydata here
                     final_dict["measurements"].append(key)
@@ -352,8 +352,8 @@ class measurement_class(Thread):
                         self.log.warning("No units found for measurement {}. Please add one in the config".format(key))
                         final_dict["units"].append("arb. units")
 
-            except: # if some other error happens
-                self.log.warning("Could not save data with key {}".format(key))
+            except Exception as err: # if some other error happens
+                self.log.warning("Could not save data with key {}. Error. {}".format(key, err))
 
         # add the units
 

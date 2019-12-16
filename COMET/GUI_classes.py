@@ -223,7 +223,7 @@ class GUI_classes(QWidget):
             # called by e.g. the start button
             self.meas_data[data][0] = np.array([])
             self.meas_data[data][1] = np.array([])
-
+        sleep(0.05)
         self.default_values_dict["settings"]["new_data"] = True
 
 

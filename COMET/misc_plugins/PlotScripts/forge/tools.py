@@ -233,6 +233,8 @@ def config_layout(PlotItem, **kwargs):
 def convert_to_df(convert, abs = False, keys = None):
     """
     Converts a dict to panda dataframes for easy manipulation etc.
+    Warning: All data arrays ust have the same length otherwise conversion not possible!
+
     :param data: Dictionary with data
     :param abs: if the data returned will be the absolute value of the data
     :param keys: use only this list of keys to generate df, use this key settings to convert only the needed fraction of data to dfs. Handy if you have data with different sizes which cannot be converted to a common df

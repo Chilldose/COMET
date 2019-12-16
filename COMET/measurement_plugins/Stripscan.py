@@ -32,6 +32,7 @@ class Stripscan_class(tools):
         self.wedge_card_size = 2 # Number of strips, which can be contacted with one touchdown
         self.analysis = stripanalysis(settings=self.main.framework['Configs']['config']['Badstrip'])
         self.badstrips = []
+        self.main.framework['Configs']['config']['settings']["Bad_strips"] = 0
 
         self.user_configs = self.main.settings["settings"].get("Measurement_configs", {}).get("Stripscan",
                                                                                               {})  # Loads the configs for IVCV measurements
@@ -174,22 +175,20 @@ class Stripscan_class(tools):
                 (int(self.sensor_pad_data["additional_params"]["second_side_start"]), int(self.strips) + 1)
             )
             for bad in self.badstrips:
-                if bad in partials_all[0]:
+                if bad in list(range(*partials_all[0])):
                     partials[0].append(bad)
-                if bad in partials_all[1]:
+                if bad in list(range(*partials_all[1])):
                     partials[1].append(bad)
         else:
             partials = [[]]
             partials_all = ((1, int(self.strips) + 1),)
             for bad in self.badstrips:
-                if bad in partials_all[0]:
+                if bad in list(range(*partials_all[0])):
                     partials[0].append(bad)
-
-
 
         for reverse_needles, part in enumerate(partials):
             if not self.main.event_loop.stop_all_measurements_query():
-                self.log.critical("Bad contact at strips: {}. These strips are now being remeasured".format(part))
+                self.log.critical("Bad contact at strips: {} on side: {}. These strips are now being remeasured".format(part, reverse_needles))
                 self.last_move = 9999999  # Ensuring that the table moves to the first point
 
                 for current_strip in part:  # Loop over all strips
@@ -201,15 +200,15 @@ class Stripscan_class(tools):
                         # If the difference between last move and strip to measure is bigger than the probecard size
                         if abs(current_strip - self.last_move) >= self.wedge_card_size:
                             # Now check if we are not near the edge
-                            if abs(part[1] - current_strip) >= self.wedge_card_size:
+                            if abs(partials_all[reverse_needles][1] - current_strip) >= self.wedge_card_size:
                                 move = True
                                 self.last_move = current_strip
                             # If we are near the edge, move card to fit the edge and say we donnot need to move
                             else:
                                 if self.main.table.move_to_strip(self.sensor_pad_data,
-                                                                 part[1] - self.wedge_card_size + reverse_needles,
+                                                                 partials_all[reverse_needles][1] - self.wedge_card_size + reverse_needles,
                                                                  self.trans, self.T, self.V0, self.height):
-                                    self.last_move = part[1] - self.wedge_card_size  # Last strip the table moved to
+                                    self.last_move = partials_all[reverse_needles][1] - self.wedge_card_size  # Last strip the table moved to
                                 move = False
 
                         # If the next strip is contacted and we can accesss it with alternate switching
@@ -447,8 +446,8 @@ class Stripscan_class(tools):
                         self.main.settings["settings"]["progress"] = self.strips/current_strip
 
             # Now do the remasuring of the bad strips
-            #if not self.main.event_loop.stop_all_measurements_query():
-            #    self.remeasure_bad_strips()
+            if not self.main.event_loop.stop_all_measurements_query():
+                self.remeasure_bad_strips()
 
 
     def do_one_strip(self, strip, move, reverse_needles):
@@ -535,14 +534,14 @@ class Stripscan_class(tools):
     def find_bad_contact(self):
         # In the end do a quick bad strip detection
         try:
-            baddc, badac = self.analysis.do_contact_check(self.main.measurement_data)
-            if baddc or badac:
-                self.log.debug("Bad contact of needles detected at DC: {}, AC: {}".format(baddc, badac))
-                # Add the bad strip to the list of bad strips
-                list(baddc).append(list(badac))
-                self.main.framework['Configs']['config']['settings']["badstrips"] = baddc
-                self.badstrips = np.append(badac, baddc)
-                self.main.framework['Configs']['config']['settings']["Bad_strips"] = len(baddc)  # increment the counter
+            if self.last_move > 15:
+                baddc, badac = self.analysis.do_contact_check(self.main.measurement_data)
+                if baddc or badac:
+                    self.log.debug("Bad contact of needles detected at DC: {}, AC: {}".format(baddc, badac))
+                    # Add the bad strip to the list of bad strips
+                    badstrips = set(list(np.append(baddc, badac)))
+                    self.main.framework['Configs']['config']['settings']["badstrips"] = list(badstrips)
+                    self.main.framework['Configs']['config']['settings']["Bad_strips"] = len(badstrips)  # increment the counter
 
         except Exception as e:
             self.log.error("An error happened while performing the bad contact determination with error: "

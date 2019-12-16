@@ -277,15 +277,15 @@ class stripanalysis:
         if len(data["Idark"] > 10):
             data, shift = self.remove_nan(data)
             pinholes = self.find_pinhole(data["Idiel"], shift, suppress_warning=True)
-            DCerror, ind_bad_Cint, ind_bad_Cap = self.find_bad_DC_contact(data["Istrip"], data["Rpoly"], data["Cint"], data["Cac"], shift=shift)
-            ACerror = self.find_bad_AC_contact(data["Cac"], data["Rpoly"], pinholes, shift = shift)
+            DCerror, ind_bad_Cint, ind_bad_Cap = self.find_bad_DC_contact(data["Istrip"], data["Rpoly"], data["Cint"], data["Cac"], shift=shift, suppress_warning=True)
+            ACerror = self.find_bad_AC_contact(data["Cac"], data["Rpoly"], pinholes, shift = shift, suppress_warning=True)
         else:
             DCerror, ACerror = [], []
 
         return DCerror, ACerror
 
 
-    def find_bad_DC_contact(self, Istrip, Rpoly, Cint, Cap, shift=None):
+    def find_bad_DC_contact(self, Istrip, Rpoly, Cint, Cap, shift=None, suppress_warning=False):
         """Looks for low Istrip and High Rpoly and determines bac DC needle contacts
         Furthermore calculates some statistics which can be accounted for bad DC needle contact"""
 
@@ -308,15 +308,18 @@ class stripanalysis:
 
         # Todo: further actions needed? Outliner enough? Could add some clustering as well. Could look if clusters intersect for Cint and Cap and print that out?
         if len(ind_bad_Cap) > self.settings["maximumCapOutliner"]:
-            self.log.warning("The number of outliner in the capacitance measurement indicates a non optimal DC1 needle contact.")
+            if not suppress_warning:
+                self.log.warning("The number of outliner in the capacitance measurement indicates a non optimal DC1 needle contact.")
         if len(ind_bad_Cint) > self.settings["maximumCapOutliner"]:
-            self.log.warning("The number of outliner in the interstrip capacitance measurement indicates a non optimal DC2 needle contact.")
+            if not suppress_warning:
+                self.log.warning("The number of outliner in the interstrip capacitance measurement indicates a non optimal DC2 needle contact.")
 
 
         if len(intersectDC1):
             if shift:
                 intersectDC1 = self.shift_strip_numbering("Istrip", intersectDC1, shift)
-            self.log.warning("Possible bad DC1 needle contact on strips: {}".format(intersectDC1)) # +1 because index starts at 0
+            if not suppress_warning:
+                self.log.warning("Possible bad DC1 needle contact on strips: {}".format(intersectDC1)) # +1 because index starts at 0
         else:
             self.log.info("DC needle contact seem to be alright.")
 
