@@ -25,7 +25,7 @@ class IVCV_QTC:
     def __init__(self, data, configs):
 
         self.log = logging.getLogger(__name__)
-        self.data = convert_to_df(data, abs=True)
+        self.data = convert_to_df(data, abs=True, keys=["IV", "CV", "CVQValue", "Voltage"])
         self.config = configs
         self.df = []
         self.basePlots = None
@@ -40,9 +40,9 @@ class IVCV_QTC:
         # The do not plot list, you can extend this list as you like
         self.donts = ("voltage", "voltage_1", "Idark", "Idiel", "Rpoly", "Cac", "Cint", "Rint", "Pad", "Istrip", "Temperature", "Humidity")
 
-        if "voltage" in self.measurements:
-            self.xaxis = "voltage"
-            padidx = self.measurements.index("voltage")
+        if "Voltage" in self.measurements:
+            self.xaxis = "Voltage"
+            padidx = self.measurements.index("Voltage")
             del self.measurements[padidx]
 
         # Convert the units to the desired ones
@@ -58,8 +58,8 @@ class IVCV_QTC:
 
         # Add the 1/c^2 data to the dataframes
         for df in self.data["keys"]:
-            if "capacitance" in self.data[df]["data"]:
-                self.data[df]["data"].insert(3, "1C2", 1 / self.data[df]["data"]["capacitance"].pow(2))
+            if "CV" in self.data[df]["data"]:
+                self.data[df]["data"].insert(3, "1C2", 1 / self.data[df]["data"]["CV"].pow(2))
                 self.data[df]["units"].append("arb. units")
                 self.data[df]["measurements"].append("1C2")
 

@@ -123,10 +123,13 @@ def plot_all_measurements(data, config, xaxis_measurement, analysis_name, do_not
     finalPlot = None
     for measurement in data["columns"]:
         if measurement not in do_not_plot:
-            if finalPlot:
-                finalPlot += SimplePlot(data, config, measurement, xaxis_measurement, analysis_name)
-            else:
-                finalPlot = SimplePlot(data, config, measurement, xaxis_measurement, analysis_name)
+            try:
+                if finalPlot:
+                    finalPlot += SimplePlot(data, config, measurement, xaxis_measurement, analysis_name)
+                else:
+                    finalPlot = SimplePlot(data, config, measurement, xaxis_measurement, analysis_name)
+            except:
+                pass
 
 
     return config_layout(finalPlot, **config.get(analysis_name, {}).get("Layout", {}))
@@ -211,7 +214,11 @@ def reject_outliers(sr, iq_range=0.5):
 def config_layout(PlotItem, **kwargs):
     """Configs the layout of the output"""
     for key, value in kwargs.items():
-        getattr(PlotItem, key)(value)
+        try:
+            getattr(PlotItem, key)(value)
+        except AttributeError as err:
+            log.warning("Option '{}' for plot not possible with error: {}".format(key, err))
+
 
     PlotItem.opts(
         opts.Curve(tools=['hover']),
@@ -223,28 +230,51 @@ def config_layout(PlotItem, **kwargs):
     )
     return PlotItem
 
-def convert_to_df(to_convert, abs = False):
+def convert_to_df(convert, abs = False, keys = None):
     """
     Converts a dict to panda dataframes for easy manipulation etc.
+    Warning: All data arrays ust have the same length otherwise conversion not possible!
+
     :param data: Dictionary with data
     :param abs: if the data returned will be the absolute value of the data
+    :param keys: use only this list of keys to generate df, use this key settings to convert only the needed fraction of data to dfs. Handy if you have data with different sizes which cannot be converted to a common df
     :return: pandas data frame object
     """
+    to_convert = deepcopy(convert)
     # Convert all data to panda data frames
     index = list(to_convert.keys())
-    columns = list(to_convert[index[0]]["data"].keys())
+    precol = list(to_convert[index[0]]["data"].keys())
+    columns = []
+
+    if keys:
+        for key in keys:
+            if key in precol:
+                columns.append(key)
+
     return_dict = {"All": pd.DataFrame(columns=columns), "keys": index, "columns":columns}
     for key, data in to_convert.items():
         return_dict[key] = data
         try:
             if abs:
                 for meas, arr in data["data"].items():
-                    data["data"][meas] = np.abs(arr)
+                    if meas in columns:
+                        data["data"][meas] = np.abs(arr)
+            # Adding label of data
             data["data"]["Name"] = [key for i in range(len(data["data"][list(data["data"].keys())[0]]))]
-            df = pd.DataFrame(data=data["data"])
+            if not keys:
+                df = pd.DataFrame(data=data["data"])
+            else:
+                sub_set = {}
+                for ind in keys:
+                    try:
+                        sub_set[ind] = data["data"][ind]
+                    except:
+                        log.warning("Key {} was not present, no data conversion".format(ind))
+                df = pd.DataFrame(data=sub_set)
         except KeyError as err:
             log.error("In order to convert the data to panda dataframe, the data structure needs to have a key:'data'")
             raise err
+
         return_dict[key]["data"] = df
         return_dict["All"] = pd.concat([return_dict["All"],df], sort=True)
 
@@ -321,7 +351,10 @@ def customize_plot(plot, plotName, configs, **addConfigs):
     options.update(gen_opts)
     options.update(specific_opts)
     options.update(addConfigs)
-    plot = plot.relabel(configs.get(plotName, {}).get("PlotLabel", "")).opts(**options)
+    try:
+        plot = plot.relabel(configs.get(plotName, {}).get("PlotLabel", "")).opts(**options)
+    except AttributeError as err:
+        log.warning("Relable of plot {} was not possible!".format(configs.get(plotName, {}).get("PlotLabel", "")))
     return plot
 
 def read_in_JSON_measurement_files(filepathes):

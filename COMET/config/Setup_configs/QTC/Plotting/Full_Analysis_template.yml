@@ -13,7 +13,7 @@
   Analysis:
     - IVCV_QTC # The type of analysis, which will be performed
     - Stripscan
-    - bad_strip_detection
+    #- bad_strip_detection
 
   #Poolsize: 4 # Maximum pool size of simultaneous analysis scripts
 

@@ -17,15 +17,19 @@ class Stripscan:
     def __init__(self, data, configs):
 
         self.log = logging.getLogger(__name__)
-        self.data = convert_to_df(data, abs=False)
+        self.data = convert_to_df(data, abs=False, keys=["Idark", "Idiel", "Istrip", "Cac", "Cint", "Rpoly", "Rint", "Strip"])
         self.config = configs
         self.finalPlot = None
         self.df = []
         self.measurements = self.data["columns"]
-        padidx = self.measurements.index("Strip")
-        del self.measurements[padidx]
-        self.PlotDict = {"Name": "Stripscan"}
-        self.donts = ("Strip", "current", "voltage", "capacitance", "1C2", "temperature", "humidity")
+        self.donts = ()
+        try:
+            padidx = self.measurements.index("Strip")
+            del self.measurements[padidx]
+            self.PlotDict = {"Name": "Stripscan"}
+            self.donts = ("Strip", "current", "voltage", "capacitance", "1C2", "temperature", "humidity")
+        except:
+            self.log.error("Stripscan plotting anlysis will fail, due to missing 'Strip' data row! Please add them to do an analysis!")
 
         #hv.renderer('bokeh').theme = "dark_minimal"
 

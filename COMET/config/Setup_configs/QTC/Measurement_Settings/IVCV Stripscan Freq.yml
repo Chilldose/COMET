@@ -6,9 +6,21 @@
     IVCV:
         Do: True
         Units:
-            X-Axis: [voltage, V]
-            IV: [current, A]
-            CV: [capacitance, F]
+            CV:
+            - capacitance
+            - F
+            CVQValue:
+            - Q value
+            - arb. units
+            IV:
+            - current
+            - A
+            Voltage:
+            - Voltage
+            - V
+            X-Axis:
+            - Voltage
+            - V
         Measurements:
             IV:
                 Do: True
@@ -28,17 +40,36 @@
     Stripscan:
         Do: True
         Units:
-            X-Axis: [Strip, "#"]
-            Istrip: [current, A]
-            Idiel: [current, A]
-            Idark: [current, A]
-            Cac: [capacitance, F]
-            Cac_Rp: [resistance, Ohm]
-            Cint: [capacitance, F]
-            Cint_Rp: [resitance, Ohm]
-            Rpoly: [resistance, Ohm]
-            Rint: [resistance, Ohm]
-            Rint_scan: [current, A]
+            Cac:
+            - capacitance
+            - F
+            Cint:
+            - capacitance
+            - F
+            Idark:
+            - current
+            - A
+            Idiel:
+            - current
+            - A
+            Istrip:
+            - current
+            - A
+            Rint:
+            - resistance
+            - Ohm
+            Rint_scan:
+            - current
+            - A
+            Rpoly:
+            - resistance
+            - Ohm
+            Strip:
+            - Stripposition
+            - '#'
+            X-Axis:
+            - Strip
+            - '#'
         Measurements:
             General:
                 Do: True
@@ -111,5 +142,3 @@
                 End Voltage [V]: [-1000, 0, -10,-350]
                 Voltage Step [V]: [-100, 0, -1, -10]
                 Compliance [uA]: [0,1000,10, 100] # Min/Max/SpinStep/Value
-
-

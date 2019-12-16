@@ -6,7 +6,7 @@
         - integration_time: LONG
         - voltage: 1.0
         - apply_load_correction: "OFF"
-        - apply_open_correction: "OFF"
+        - apply_open_correction: "ON"
         - apply_short_correction: "OFF"
         - frequency: 1000 
         - output_format: ASC 
@@ -18,8 +18,8 @@
     set_measurement_type: :FUNC:IMP {}
     set_apply_load_correction: :CORR:LOAD:STAT {}
     set_perform_open_correction: :CORR:OPEN
-    set_apply_open_correction: :CORR:OPEN:STAT
-    set_apply_short_correction: :CORR:SHORT:STAT
+    set_apply_open_correction: :CORR:OPEN:STAT {}
+    set_apply_short_correction: :CORR:SHORT:STAT {}
     set_correction_type: :CORR:LOAD:TYPE {}
     set_voltage: :VOLT {}
     set_output_format: :FORM:DATA {} 

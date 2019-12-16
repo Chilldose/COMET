@@ -68,21 +68,33 @@ def BoxWhisker(dfs, measurement, configs, analysisType, **addConfigs):
     """Plots a measurement from all df as boxwisker"""
     newConfigs = addConfigs
     log.info("Generating BoxWhisker Plot for {}".format(measurement))
-    plot = hv.BoxWhisker(dfs["All"], kdims="Name", vdims=measurement, group="BoxWhisker: {}".format(measurement))
-    # get labels from the configs
-    ylabel = "{} [{}]".format(measurement, dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
-    plot.opts(box_alpha=0.3, xrotation= 80,
-              box_color='blue', height=500,
-              show_legend=False,
-              width=600, whisker_color='blue', ylabel=ylabel
-              )
+    try:
+        plot = hv.BoxWhisker(dfs["All"], kdims="Name", vdims=measurement, group="BoxWhisker: {}".format(measurement))
+        # get labels from the configs
+        #ylabel = "{} [{}]".format(measurement, dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
+        try:
+            ylabel = "{} [{}]".format(measurement,
+                                  dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
+        except Exception as err:
+            log.error("Label could not be genereated for concatonated Histogram {}. Error: {}".format(measurement, err))
+            ylabel = "X-Axis"
+        plot.opts(box_alpha=0.3, xrotation= 80,
+                  box_color='blue', height=500,
+                  show_legend=False,
+                  width=600, whisker_color='blue', ylabel=ylabel
+                  )
 
 
-    # Update the plot specific options if need be
-    data_options = configs[analysisType].get(measurement, {}).get("BoxWhisker", {}).get("PlotOptions",{})
-    newConfigs.update(configs[analysisType].get("{}Options".format("BoxWhisker"), {}))
-    newConfigs.update(data_options)
-    plot = customize_plot(plot, "", configs[analysisType], **newConfigs)
+        # Update the plot specific options if need be
+        data_options = configs[analysisType].get(measurement, {}).get("BoxWhisker", {}).get("PlotOptions",{})
+        newConfigs.update(configs[analysisType].get("{}Options".format("BoxWhisker"), {}))
+        newConfigs.update(data_options)
+        plot = customize_plot(plot, "", configs[analysisType], **newConfigs)
+
+
+    except Exception as err:
+        log.error("Unexpected error happend during BoxWhisker plot generation {}. Error: {}".format(measurement, err))
+        return None
 
     return plot
 
@@ -90,20 +102,30 @@ def Violin(dfs, measurement, configs, analysisType, **addConfigs):
     """Plots a measurement from all df as boxwisker"""
     newConfigs = addConfigs
     log.info("Generating Violin Plot for {}".format(measurement))
-    plot = hv.Violin(dfs["All"], kdims="Name", vdims=measurement, group="Violin: {}".format(measurement))
-    # get labels from the configs
-    ylabel = "{} [{}]".format(measurement, dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
-    plot.opts(box_alpha=0.3, xrotation= 80,
-              box_color='blue', height=500,
-              show_legend=False,
-              width=600, ylabel=ylabel # inner='quartiles'
-              )
+    try:
+        plot = hv.Violin(dfs["All"], kdims="Name", vdims=measurement, group="Violin: {}".format(measurement))
+        # get labels from the configs
+        #ylabel = "{} [{}]".format(measurement, dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
+        try:
+            ylabel = "{} [{}]".format(measurement,
+                                  dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
+        except Exception as err:
+            log.error("Label could not be genereated for concatonated Histogram {}. Error: {}".format(measurement, err))
+            ylabel = "Y-Axis"
+        plot.opts(box_alpha=0.3, xrotation= 80,
+                  box_color='blue', height=500,
+                  show_legend=False,
+                  width=600, ylabel=ylabel # inner='quartiles'
+                  )
 
-    # Update the plot specific options if need be
-    data_options = configs[analysisType].get(measurement, {}).get("Violin", {}).get("PlotOptions", {})
-    newConfigs.update(configs[analysisType].get("{}Options".format("Violin"), {}))
-    newConfigs.update(data_options)
-    plot = customize_plot(plot, "", configs[analysisType], **newConfigs)
+        # Update the plot specific options if need be
+        data_options = configs[analysisType].get(measurement, {}).get("Violin", {}).get("PlotOptions", {})
+        newConfigs.update(configs[analysisType].get("{}Options".format("Violin"), {}))
+        newConfigs.update(data_options)
+        plot = customize_plot(plot, "", configs[analysisType], **newConfigs)
+    except Exception as err:
+        log.error("Unexpected error happend during violin plot generation {}. Error: {}".format(measurement, err))
+        return None
 
     return plot
 
@@ -112,25 +134,34 @@ def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=0.5, 
     """Concatenates dataframes and generates a Histogram for all passed columns"""
     newConfigs = addConfigs
     log.info("Generating concat histograms for measurements {}...".format(measurement))
-    df = dfs["All"]
+    try:
+        df = dfs["All"]
 
-    # Sanatize data
-    data = df[measurement].dropna() # Drop all nan
-    data = reject_outliers(data, iqr)
-    data = np.histogram(data, bins=bins)
+        # Sanatize data
+        data = df[measurement].dropna() # Drop all nan
+        data = reject_outliers(data, iqr)
+        data = np.histogram(data, bins=bins)
 
-    plt = hv.Histogram(data, group="Concatenated Histogram: {}".format(measurement))
-    #plt = hv.Histogram(data, vdims=to_plot, group="Concatenated Histogram: {}".format(to_plot))
+        plt = hv.Histogram(data, group="Concatenated Histogram: {}".format(measurement))
+        #plt = hv.Histogram(data, vdims=to_plot, group="Concatenated Histogram: {}".format(to_plot))
 
-    xlabel = "{} [{}]".format(measurement,
-                              dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
-    plt.opts(xlabel=xlabel)
-    # Update the plot specific options if need be
-    data_options = configs[analysisType].get(measurement, {}).get("Concatenated Histogram", {}).get("PlotOptions", {})
-    newConfigs.update(configs[analysisType].get("{}Options".format("Histogram"), {}))
-    newConfigs.update(data_options)
-    #addConfigs.update({"xlabel": measurement})
-    plots = customize_plot(plt, "", configs[analysisType], **newConfigs)
+        try:
+            xlabel = "{} [{}]".format(measurement,
+                                  dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
+        except Exception as err:
+            log.error("Label could not be genereated for concatonated Histogram {}. Error: {}".format(measurement, err))
+            xlabel = "X-Axis"
+
+        plt.opts(xlabel=xlabel)
+        # Update the plot specific options if need be
+        data_options = configs[analysisType].get(measurement, {}).get("Concatenated Histogram", {}).get("PlotOptions", {})
+        newConfigs.update(configs[analysisType].get("{}Options".format("Histogram"), {}))
+        newConfigs.update(data_options)
+        #addConfigs.update({"xlabel": measurement})
+        plots = customize_plot(plt, "", configs[analysisType], **newConfigs)
+    except Exception as err:
+        log.error("Unexpected error happend during concatHist plot generation {}. Error: {}".format(measurement, err))
+        return None
 
     return plots
 

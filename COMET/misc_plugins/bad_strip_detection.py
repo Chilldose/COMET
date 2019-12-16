@@ -219,14 +219,15 @@ class stripanalysis:
             abs(totalStripCurrent * (self.stripNum / measStripNum))/abs(Idark)
             ))
 
-    def find_pinhole(self, Idiel, shift = None):
+    def find_pinhole(self, Idiel, shift = None, suppress_warning = False):
         """Looks if high Idiel is prevalent and determines if pinhole is prevalent"""
         highIdiel = np.nonzero(np.abs(Idiel) > self.settings["IdielThresholdCurrent"])[0]
 
         if len(highIdiel):
             if shift:
                 highIdiel = self.shift_strip_numbering("Idiel", highIdiel, shift)
-            self.log.warning("Possible pinholes found on strips: {}".format(highIdiel))
+            if not suppress_warning:
+                self.log.warning("Possible pinholes found on strips: {}".format(highIdiel))
         else:
             self.log.info("No pinholes found.")
 
@@ -273,17 +274,18 @@ class stripanalysis:
         for meas, dat in measurement.items():
             data[meas] = dat[1]
 
-        DCerror, ACerror = [], []
-        data, shift = self.remove_nan(data)
-        pinholes = self.find_pinhole(data["Idiel"], shift)
-        if len(data["Istrip"] > 10):
-            DCerror, ind_bad_Cint, ind_bad_Cap = self.find_bad_DC_contact(data["Istrip"], data["Rpoly"], data["Cint"], data["Cac"], shift=shift)
-            ACerror = self.find_bad_AC_contact(data["Cac"], data["Rpoly"], pinholes, shift = shift)
+        if len(data["Idark"] > 10):
+            data, shift = self.remove_nan(data)
+            pinholes = self.find_pinhole(data["Idiel"], shift, suppress_warning=True)
+            DCerror, ind_bad_Cint, ind_bad_Cap = self.find_bad_DC_contact(data["Istrip"], data["Rpoly"], data["Cint"], data["Cac"], shift=shift, suppress_warning=True)
+            ACerror = self.find_bad_AC_contact(data["Cac"], data["Rpoly"], pinholes, shift = shift, suppress_warning=True)
+        else:
+            DCerror, ACerror = [], []
 
         return DCerror, ACerror
 
 
-    def find_bad_DC_contact(self, Istrip, Rpoly, Cint, Cap, shift=None):
+    def find_bad_DC_contact(self, Istrip, Rpoly, Cint, Cap, shift=None, suppress_warning=False):
         """Looks for low Istrip and High Rpoly and determines bac DC needle contacts
         Furthermore calculates some statistics which can be accounted for bad DC needle contact"""
 
@@ -306,15 +308,18 @@ class stripanalysis:
 
         # Todo: further actions needed? Outliner enough? Could add some clustering as well. Could look if clusters intersect for Cint and Cap and print that out?
         if len(ind_bad_Cap) > self.settings["maximumCapOutliner"]:
-            self.log.warning("The number of outliner in the capacitance measurement indicates a non optimal DC1 needle contact.")
+            if not suppress_warning:
+                self.log.warning("The number of outliner in the capacitance measurement indicates a non optimal DC1 needle contact.")
         if len(ind_bad_Cint) > self.settings["maximumCapOutliner"]:
-            self.log.warning("The number of outliner in the interstrip capacitance measurement indicates a non optimal DC2 needle contact.")
+            if not suppress_warning:
+                self.log.warning("The number of outliner in the interstrip capacitance measurement indicates a non optimal DC2 needle contact.")
 
 
         if len(intersectDC1):
             if shift:
                 intersectDC1 = self.shift_strip_numbering("Istrip", intersectDC1, shift)
-            self.log.warning("Possible bad DC1 needle contact on strips: {}".format(intersectDC1)) # +1 because index starts at 0
+            if not suppress_warning:
+                self.log.warning("Possible bad DC1 needle contact on strips: {}".format(intersectDC1)) # +1 because index starts at 0
         else:
             self.log.info("DC needle contact seem to be alright.")
 
@@ -331,7 +336,7 @@ class stripanalysis:
         return shifted_array
 
 
-    def find_bad_AC_contact(self, Cap, Rpar, pinholes, shift = None):
+    def find_bad_AC_contact(self, Cap, Rpar, pinholes, shift = None, suppress_warning = False):
         """Finds out if a bad AC contact is prevalent"""
         #nCap = np.delete(Cap, pinholes) # Exclude pinholes in this calculations
         #nRpoly = np.delete(Rpoly, pinholes) # Exclude pinholes in this calculations
@@ -352,7 +357,8 @@ class stripanalysis:
         if len(intersect):
             if shift:
                 intersect = self.shift_strip_numbering("Cac", intersect, shift)
-            self.log.warning("Possible bad AC needle contact found on strips: {}".format(intersect))
+            if not suppress_warning:
+                self.log.warning("Possible bad AC needle contact found on strips: {}".format(intersect))
         else:
             self.log.info("AC needle contact seems to be fine")
         return intersect
@@ -471,8 +477,12 @@ class stripanalysis:
         for subdata in data:
             # Todo: Shift in data due to this here if some nans are in between
             tokeep = ~np.isnan(data[subdata])
-            working_data[subdata] = data[subdata][tokeep]
-            cutted_array[subdata] = tokeep
+            if tokeep.any():
+                working_data[subdata] = data[subdata][tokeep]
+                cutted_array[subdata] = tokeep
+            else:
+                working_data[subdata] = data[subdata]
+                cutted_array[subdata] = tokeep
         return working_data, cutted_array
 
     #@hf.raise_exception
