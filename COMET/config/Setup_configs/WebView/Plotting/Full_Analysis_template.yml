@@ -327,8 +327,8 @@
       General: # Options common to all plots
           fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
           responsive: False
-          width: 1600
-          height: 1000
+          width: 1200
+          height: 800
           shared_axes: False
       Layout:
           cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter

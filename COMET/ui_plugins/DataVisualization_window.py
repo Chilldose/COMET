@@ -42,6 +42,7 @@ class DataVisualization_window:
 
         # Connect buttons
         self.widget.files_toolButton.clicked.connect(self.select_files_action)
+        self.widget.select_template_toolButton.clicked.connect(self.select_analysis_template)
         self.widget.upload_pushButton.clicked.connect(self.upload_to_DB)
         self.widget.save_toolButton.clicked.connect(self.select_save_to_action)
         self.widget.render_pushButton.clicked.connect(self.render_action)
@@ -72,6 +73,22 @@ class DataVisualization_window:
         """Replots a plot and displays it"""
         filepath = self.plotting_Object.temp_html_output(plot)
         self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
+
+    def select_analysis_template(self):
+        """Opens file select for template selection"""
+        fileDialog = QFileDialog()
+        files = fileDialog.getOpenFileNames()
+        if files:
+            for file in files[0]:
+                try:
+                    json_dump = load_yaml(file)
+                    basename = os.path.basename(file).split(".")[0]
+                    self.variables.framework_variables['Configs']['additional_files']['Plotting'][basename] = json_dump
+                except Exception as err:
+                    self.log.error("Could not load file {}, exception raised: {}".format(file, err))
+        self.config_selectable_templates()
+        self.config_selectable_templates()
+
 
     def select_files_action(self):
         """Opens a file selection window and writes it to the data files drop down menu"""
@@ -305,9 +322,9 @@ class DataVisualization_window:
 
     def config_selectable_templates(self):
         """Configs the combo box for selectable analysis templates"""
+        self.widget.templates_comboBox.clear()
         plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
-        for key in plotConfigs.keys():
-            self.widget.templates_comboBox.addItem(key)
+        self.widget.templates_comboBox.addItems(plotConfigs.keys())
 
     def save_data(self, type, dirr, base_name="data"):
         """Saves the data in the specified type"""
