@@ -83,10 +83,9 @@ class DataVisualization_window:
                 try:
                     json_dump = load_yaml(file)
                     basename = os.path.basename(file).split(".")[0]
-                    self.variables.framework_variables['Configs']['additional_files']['Plotting'][basename] = json_dump
+                    self.variables.framework_variables['Configs']['additional_files']['Plotting'][basename] = {"data": json_dump}
                 except Exception as err:
                     self.log.error("Could not load file {}, exception raised: {}".format(file, err))
-        self.config_selectable_templates()
         self.config_selectable_templates()
 
 
@@ -120,15 +119,14 @@ class DataVisualization_window:
         self.variables.app.setOverrideCursor(Qt.WaitCursor)
         os.mkdir(os.path.join(os.getcwd(), "COMET", "temp")) if not os.path.exists(os.path.join(os.getcwd(), "COMET", "temp")) else True
 
-
-
-
-
-
         # Find template and load the yaml file
         plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
-        template = plotConfigs[(self.widget.templates_comboBox.currentText())]["raw"]
-        template = self.parse_yaml_string(template)
+        if not "data" in plotConfigs[(self.widget.templates_comboBox.currentText())]:
+            template = plotConfigs[(self.widget.templates_comboBox.currentText())]["raw"]
+            template = self.parse_yaml_string(template)
+            plotConfigs[(self.widget.templates_comboBox.currentText())]["data"] = template
+        else:
+            template = plotConfigs[(self.widget.templates_comboBox.currentText())]["data"]
 
         # Add the parameters
         template["Files"] = [self.widget.files_comboBox.itemText(i) for i in range(self.widget.files_comboBox.count())]

@@ -17,17 +17,31 @@ class Stripscan:
     def __init__(self, data, configs):
 
         self.log = logging.getLogger(__name__)
-        self.data = convert_to_df(data, abs=False, keys=["Idark", "Idiel", "Istrip", "Cac", "Cint", "Rpoly", "Rint", "Strip"])
+        self.data = convert_to_df(data, abs=False, keys=["Idark", "Idiel", "Istrip", "Cac", "Cint", "Rpoly", "Rint", "Strip",
+                                                         "Humidity", "Temperature"])
         self.config = configs
         self.finalPlot = None
         self.df = []
         self.measurements = self.data["columns"]
         self.donts = ()
         try:
-            padidx = self.measurements.index("Strip")
+            if "Strip" not in self.measurements:
+                self.data = convert_to_df(data, abs=False,
+                                          keys=["Idark", "Idiel", "Istrip", "Cac", "Cint", "Rpoly", "Rint", "Pad"])
+                self.measurements = self.data["columns"]
+                padidx = self.measurements.index("Pad")
+                self.xrow = "Pad"
+
+            elif "Strip" in self.measurements:
+                padidx = self.measurements.index("Strip")
+                self.xrow = "Strip"
+
+            else:
+                self.log.critical("Neither the row 'Strip' nor 'Pad' could be found in the data! Analysis will fail!")
+
             del self.measurements[padidx]
             self.PlotDict = {"Name": "Stripscan"}
-            self.donts = ("Strip", "current", "voltage", "capacitance", "1C2", "temperature", "humidity")
+            self.donts = ("Pad", "Strip", "current", "voltage", "capacitance", "1C2", "temperature", "humidity")
         except:
             self.log.error("Stripscan plotting anlysis will fail, due to missing 'Strip' data row! Please add them to do an analysis!")
 
@@ -44,7 +58,7 @@ class Stripscan:
         """Runs the script"""
 
         # Plot all Measurements
-        self.basePlots = plot_all_measurements(self.data, self.config, "Strip", "Stripscan", do_not_plot=self.donts)
+        self.basePlots = plot_all_measurements(self.data, self.config, self.xrow, "Stripscan", do_not_plot=self.donts)
         #self.finalPlot.Overlay.Humidity = addHistogram(self.finalPlot.Overlay.Humidity, dimensions="Humidity")
         self.PlotDict["BasePlots"] = self.basePlots
         self.PlotDict["All"] = self.basePlots
