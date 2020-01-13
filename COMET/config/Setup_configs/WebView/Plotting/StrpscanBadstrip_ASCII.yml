@@ -1,19 +1,18 @@
 --- # Dummy config file for testing
 
-  Filetype: json # Other options are json
+  Filetype: ASCII # Other options are json, ACII
 
-  #Output: C:\Users\dbloech\Desktop\QTC_Plots\VPX28442\IVCV #Output basename of the plots
-
-  #Save_as: # Possible options: html, (svg), png, pdf -> Only works if wkhtmltopdf is installed and html plot is generated,
-    #- html
-    #- png
-    #- svg
-    #- pdf # does not work correctly
+# Optional Parameters
+  ASCII_file_specs: # The specifications for the ascii file type measurements files
+    header_lines: 19
+    measurement_description: 20
+    units_line: 21
+    data_start: 22
 
   Analysis:
-    - IVCV_QTC # The type of analysis, which will be performed
+    #- IVCV_QTC # The type of analysis, which will be performed
     - Stripscan
-    - bad_strip_detection
+    #- bad_strip_detection
 
   #Poolsize: 4 # Maximum pool size of simultaneous analysis scripts
 
@@ -327,8 +326,8 @@
       General: # Options common to all plots
           fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
           responsive: False
-          width: 1600
-          height: 1000
+          width: 1200
+          height: 800
           shared_axes: False
       Layout:
           cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter

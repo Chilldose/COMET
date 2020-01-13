@@ -25,7 +25,7 @@ class IVCV_QTC:
     def __init__(self, data, configs):
 
         self.log = logging.getLogger(__name__)
-        self.data = convert_to_df(data, abs=True, keys=["IV", "CV", "CVQValue", "Voltage"])
+        self.data = convert_to_df(data, abs=True, keys=["voltage", "current", "capacitance", "IV", "CV", "CVQValue", "humidity", "temperature"])
         self.config = configs
         self.df = []
         self.basePlots = None
@@ -60,6 +60,10 @@ class IVCV_QTC:
         for df in self.data["keys"]:
             if "CV" in self.data[df]["data"]:
                 self.data[df]["data"].insert(3, "1C2", 1 / self.data[df]["data"]["CV"].pow(2))
+                self.data[df]["units"].append("arb. units")
+                self.data[df]["measurements"].append("1C2")
+            elif "capacitance" in self.data[df]["data"]:
+                self.data[df]["data"].insert(3, "1C2", 1 / self.data[df]["data"]["capacitance"].pow(2))
                 self.data[df]["units"].append("arb. units")
                 self.data[df]["measurements"].append("1C2")
 
