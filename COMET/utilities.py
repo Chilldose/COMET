@@ -272,7 +272,6 @@ def create_new_file( filename="default.txt", filepath = "default_path", os_file=
         """
 
         counter = 0
-
         if filepath == "default_path":
             filepath = ""
         elif filepath == "":
@@ -287,7 +286,12 @@ def create_new_file( filename="default.txt", filepath = "default_path", os_file=
             l.warning("Warning filename " + str(filename) + " already exists!")
             filename = filename[:-4] + "_" + str(counter) + ".txt" # Adds sufix to filename
             while os.path.isfile(os.path.abspath(filepath+filename)):  # checks if file exists
-                filename = filename[:-5] + str(counter)  + ".txt"  # if exists than change the last number in filename string
+                try:
+                    count = int(filename.split("_")[-1].split(".")[0])
+                    count += 1
+                    filename = filename.split("_")[0] + str(count) + ".txt"
+                except:
+                    filename = filename[:-5] + str(counter)  + ".txt"  # if exists than change the last number in filename string
                 counter += 1
             l.info("Filename changed to " + filename + ".")
 
