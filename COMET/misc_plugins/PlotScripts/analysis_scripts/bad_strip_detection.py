@@ -146,6 +146,7 @@ class stripanalysis:
         measurements = filecontent[self.settings["measurement_description"]-1:self.settings["measurement_description"]]
         units = filecontent[self.settings["units_line"]-1:self.settings["units_line"]]
         data = filecontent[self.settings["data_start"]-1:]
+        separator = self.settings.get("data_separator", None)
 
         # First parse the units and measurement types
         parsed_obj = []
@@ -161,7 +162,7 @@ class stripanalysis:
         parsed_data = []
         data_dict = {}
         for dat in data:
-            dat = dat.split()
+            dat = dat.split(separator)
             for j, singleentry in enumerate(dat):
                 try: # try to convert to number
                     dat[j] = float(singleentry.strip())

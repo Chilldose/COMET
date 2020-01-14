@@ -8,6 +8,7 @@
     measurement_description: 9
     units_line: 9
     data_start: 10
+    data_separator: ","
 
   Analysis:
     - IVCV_QTC # The type of analysis, which will be performed

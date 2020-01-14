@@ -431,6 +431,7 @@ def parse_file_data(filecontent, settings):
     measurements = filecontent[settings["measurement_description"] - 1:settings["measurement_description"]]
     units = filecontent[settings["units_line"] - 1:settings["units_line"]]
     data = filecontent[settings["data_start"] - 1:]
+    separator = settings.get("data_separator", None)
 
     units_exp = re.compile(r"#?\w*\s?\W?(\w*)\W?\s*")
     data_exp = re.compile(r"(#|\w+)\s?\W?\w*\W?", re.MULTILINE)
@@ -440,10 +441,11 @@ def parse_file_data(filecontent, settings):
     # First parse the units and measurement types
     parsed_obj = []
     for k, data_to_split in enumerate((measurements, units)):
-        for i, meas in enumerate(data_to_split):  # This is just for safety ther is usually one line here
+        for i, meas in enumerate(data_to_split):  # This is just for safety there is usually one line here
             meas = re.findall(regex[k], meas)  # usually all spaces should be excluded but not sure if tab is removed as well
             for j, singlemeas in enumerate(meas):
-                meas[j] = singlemeas.strip()
+                if singlemeas.strip():
+                    meas[j] = singlemeas.strip()
             parsed_obj.append(meas)
 
     # Now parse the actual data and build the tree dict structure needed
@@ -451,7 +453,7 @@ def parse_file_data(filecontent, settings):
     parsed_data = []
     data_dict = {}
     for dat in data:
-        dat = dat.split()
+        dat = dat.split(separator)
         for j, singleentry in enumerate(dat):
             try:  # try to convert to number
                 dat[j] = float(singleentry.strip())
