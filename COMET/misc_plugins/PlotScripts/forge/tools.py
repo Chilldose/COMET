@@ -219,15 +219,17 @@ def config_layout(PlotItem, **kwargs):
         except AttributeError as err:
             log.warning("Option '{}' for plot not possible with error: {}".format(key, err))
 
-
-    PlotItem.opts(
-        opts.Curve(tools=['hover']),
-        opts.Scatter(tools=['hover']),
-        opts.Histogram(tools=['hover']),
-        opts.Points(tools=['hover']),
-        opts.BoxWhisker(tools=['hover']),
-        opts.Violin(tools=['hover'])
-    )
+    try:
+        PlotItem.opts(
+            opts.Curve(tools=['hover']),
+            opts.Scatter(tools=['hover']),
+            opts.Histogram(tools=['hover']),
+            opts.Points(tools=['hover']),
+            opts.BoxWhisker(tools=['hover']),
+            opts.Violin(tools=['hover'])
+        )
+    except AttributeError as err:
+        log.error("Nonetype object encountered while configuring final plots layout. This should not happen! Error: {}".format(err))
     return PlotItem
 
 def convert_to_df(convert, abs = False, keys = None):

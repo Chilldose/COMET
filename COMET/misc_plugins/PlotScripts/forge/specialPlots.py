@@ -86,6 +86,8 @@ def BoxWhisker(dfs, measurement, configs, analysisType, **addConfigs):
 
 
         # Update the plot specific options if need be
+        generalOptions = configs[analysisType].get("General", {})
+        newConfigs.update(generalOptions.copy())
         data_options = configs[analysisType].get(measurement, {}).get("BoxWhisker", {}).get("PlotOptions",{})
         newConfigs.update(configs[analysisType].get("{}Options".format("BoxWhisker"), {}))
         newConfigs.update(data_options)
@@ -119,6 +121,8 @@ def Violin(dfs, measurement, configs, analysisType, **addConfigs):
                   )
 
         # Update the plot specific options if need be
+        generalOptions = configs[analysisType].get("General", {})
+        newConfigs.update(generalOptions.copy())
         data_options = configs[analysisType].get(measurement, {}).get("Violin", {}).get("PlotOptions", {})
         newConfigs.update(configs[analysisType].get("{}Options".format("Violin"), {}))
         newConfigs.update(data_options)
@@ -154,6 +158,8 @@ def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=0.5, 
 
         plt.opts(xlabel=xlabel)
         # Update the plot specific options if need be
+        generalOptions = configs[analysisType].get("General", {})
+        newConfigs.update(generalOptions.copy())
         data_options = configs[analysisType].get(measurement, {}).get("Concatenated Histogram", {}).get("PlotOptions", {})
         newConfigs.update(configs[analysisType].get("{}Options".format("Histogram"), {}))
         newConfigs.update(data_options)

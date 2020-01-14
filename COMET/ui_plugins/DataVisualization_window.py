@@ -225,7 +225,7 @@ class DataVisualization_window:
                             self.selected_plot_option = (ana, plot_name)
 
                             # Add the key to the tree
-                            plotconf = configs[ana].get("General", {})
+                            plotconf = configs[ana].get("General", {}).copy()
                             plotconf.update(plt_opt.get("PlotOptions", {}))
                             for opt, value in plotconf.items():
                                 tree = QTreeWidgetItem({str(opt): "Option", str(value): "Value"})
@@ -250,7 +250,10 @@ class DataVisualization_window:
                                     self.selected_plot_option = (ana, plot_name, "{}".format(plotLabel[0].strip()))
 
                                     # Add the key to the tree
-                                    for opt, value in plt_opt["{}".format(plotLabel[0].strip())].get("PlotOptions", {}).items():
+                                    plotconf = configs[ana].get("General", {}).copy()
+                                    plotconf.update(configs[ana].get("{}".format(plotLabel[0].strip()) + "Options", {}))
+                                    plotconf.update(plt_opt["{}".format(plotLabel[0].strip())].get("PlotOptions", {}))
+                                    for opt, value in plotconf.items():
                                         tree = QTreeWidgetItem({str(opt): "Option", str(value): "Value"})
                                         self.widget.plot_options_treeWidget.addTopLevelItem(tree)
                                     return
