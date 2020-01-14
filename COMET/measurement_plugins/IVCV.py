@@ -18,6 +18,7 @@ class IVCV_class(tools):
         self.justlength = 24
         self.samples = 5
         self.vcw = self.main.framework["VCW"]
+        self.biascurrent = 0.0
         self.do_cal = True
         if "bias_voltage" not in self.main.settings["settings"]:
             self.main.settings["settings"]["bias_voltage"] = 0.0
@@ -200,7 +201,9 @@ class IVCV_class(tools):
                         iter = i
                         if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary
                             self.change_value(bias_SMU, "set_voltage", str(voltage))
-                            if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-8, wait = 0.1, samples = 10, Rsq = 0.8, compliance=compliance): # Is a dynamic waiting time for the measurements
+                            # Calculate the maximum slope for the steady state check
+                            maxslope = self.biascurrent * 0.01 if self.biascurrent else 1e-8
+                            if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = maxslope, wait = 0.1, samples = 10, Rsq = 0.8, compliance=compliance): # Is a dynamic waiting time for the measurements
                                 pass
 
                             if self.check_compliance(bias_SMU, float(compliance)):
@@ -271,7 +274,9 @@ class IVCV_class(tools):
             self.main.settings["settings"]["progress"] = (i+1.)/len(voltage_step_list)
             if not self.main.event_loop.stop_all_measurements_query(): # To shut down if necessary
                 self.change_value(bias_SMU, "set_voltage", str(voltage))
-                if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = 1e-8, wait = 0.05, samples = 5, Rsq = 0.8, compliance=compliance): # Is a dynamic waiting time for the measuremnts
+                # Calculate the maximum slope for the steady state check
+                maxslope = self.biascurrent * 0.01 if self.biascurrent else 1e-8
+                if not self.steady_state_check(bias_SMU, self.IVCV_configs["GetReadSMU"], max_slope = maxslope, wait = 0.05, samples = 5, Rsq = 0.8, compliance=compliance): # Is a dynamic waiting time for the measuremnts
                     pass
 
                 if self.check_compliance(bias_SMU, float(compliance)):
@@ -314,10 +319,13 @@ class IVCV_class(tools):
             # Reconfig setup if need be for the IV measurement
             self.config_setup(device_dict, self.IVCV_configs["IVConfig"])
 
-            if float(voltage) != 0.0 and not self.steady_state_check(device_dict, self.IVCV_configs["GetReadSMU"], max_slope=1e-8, wait=0.05, samples=7, Rsq=0.8, compliance=self.main.job_details["IVCV"]["IV"]["Compliance [uA]"]):  # Is a dynamic waiting time for the measuremnt
-                self.stop_everything()
-                self.log.warning("Steady state could not be reached, shutdown of measurement")
-                return
+            # Calculate the maximum slope for the steady state check
+            maxslope = self.biascurrent*0.01 if self.biascurrent else 1e-8
+            if float(voltage) != 0.0 and not self.steady_state_check(device_dict, self.IVCV_configs["GetReadSMU"], max_slope=maxslope, wait=0.05, samples=7, Rsq=0.8, compliance=self.main.job_details["IVCV"]["IV"]["Compliance [uA]"], iteration=5):  # Is a dynamic waiting time for the measuremnt
+                #self.stop_everything()
+                self.log.warning("Steady state could not be reached in LCR Meter, measurement may be compromised at voltage step = {}".format(voltage))
+                #return
+
             values = []
             for i in range(samples):
                 values.append(str(self.vcw.query(device_dict, device_dict[self.IVCV_configs["GetReadSMU"]])).split("\t")) # 2657SMU
@@ -326,6 +334,7 @@ class IVCV_class(tools):
             values = np.mean(values, axis=0)
             voltage = values[1] if len(values) > 1 else voltage
             self.main.settings["settings"]["bias_voltage"] = voltage  # changes the bias voltage
+            self.biascurrent = float(values[0])
 
             self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], [float(voltage)])
             self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1],[float(values[0])])
@@ -344,15 +353,17 @@ class IVCV_class(tools):
 
             # Check if LCRMeter is in steady state
             if float(voltage) != 0.0 and not self.steady_state_check(device_dict, self.IVCV_configs["GetReadLCR"], max_slope=1e-6, wait=0.05, samples=5, Rsq=0.8, compliance=None):  # Is a dynamic waiting time for the measuremnts
-                self.stop_everything()
-                self.log.warning("Steady state could not be reached in LCR Meter, shutdown of measurement")
-                return
+                #self.stop_everything()
+                self.log.warning("Steady state could not be reached in LCR Meter, measurement may be compromised at voltage step = {}".format(voltage))
+                #return
 
             # Check if SMU is in steady state
-            if float(voltage) != 0.0 and not self.steady_state_check(self.main.devices[self.IVCV_configs["BiasSMU"]], self.IVCV_configs["GetReadSMU"], max_slope=1e-7, wait=0.05, samples=5, Rsq=0.8, compliance=None):  # Is a dynamic waiting time for the measuremnts
-                self.stop_everything()
-                self.log.warning("Steady state could not be reached in Bias SMU, shutdown of measurement")
-                return
+                # Calculate the maximum slope for the steady state check
+                maxslope = self.biascurrent * 0.1 if self.biascurrent else 1e-7
+            if float(voltage) != 0.0 and not self.steady_state_check(self.main.devices[self.IVCV_configs["BiasSMU"]], self.IVCV_configs["GetReadSMU"], max_slope=maxslope, wait=0.05, samples=5, Rsq=0.8, compliance=None):  # Is a dynamic waiting time for the measuremnts
+                #self.stop_everything()
+                self.log.warning("Steady state could not be reached in LCR Meter, measurement may be compromised at voltage step = {}".format(voltage))
+                #return
 
             # Gather all values for one data point
             values = []

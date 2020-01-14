@@ -26,7 +26,7 @@ class tools(object):
 
     def steady_state_check(self, device, command="get_read", max_slope = 0.001,
                            wait = 0.2, samples = 4, Rsq = 0.95, compliance = 50e-6, do_anyway = False,
-                           check_compliance=True):
+                           check_compliance=True, iteration = 7):
         """
         This function reads values from a device and fits a linear fit to it. If the fit exceeds a maximum slope it waits a
         specified time and does ot again. If the slope condition is not reached after a few attempts the function returns False.
@@ -47,7 +47,7 @@ class tools(object):
         steady_state = False
         bad_fit = False
         high_error = False
-        max_iterations = 7
+        max_iterations = iteration
         if do_anyway:
             self.toolslog.warning("Overwriting steady_state_check is not advised. Use with caution")
             stop = False
