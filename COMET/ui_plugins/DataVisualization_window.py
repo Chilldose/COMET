@@ -183,6 +183,8 @@ class DataVisualization_window:
             # Find index of first colon
             line = self.widget.options_lineEdit.text()
             ind =  line.find(":")
+            if ind == -1:
+                ind = line.find("=")
             #Try  to evaluate
             try:
                 value = ast.literal_eval(line[ind + 1:].strip())
