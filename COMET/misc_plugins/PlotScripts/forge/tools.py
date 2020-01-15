@@ -454,12 +454,21 @@ def parse_file_data(filecontent, settings):
     data_dict = {}
     for dat in data:
         dat = dat.split(separator)
-        for j, singleentry in enumerate(dat):
-            try:  # try to convert to number
-                dat[j] = float(singleentry.strip())
-            except:
-                dat[j] = np.nan  # singleentry.strip()
-        if dat:
+        dat = [ind.strip() for ind in dat]
+        if len(dat):
+            for j, singleentry in enumerate(dat):
+                try:  # try to convert to number
+                    dat[j] = float(singleentry)
+                except:
+                    dat[j] = np.nan  # singleentry.strip()
+
+        if parsed_data: #This prevents zero len error
+            if dat:
+                if len(dat) == len(parsed_data[-1]): # This prevents empty line or malformed data entry line error
+                    parsed_data.append(dat)
+            else:
+                log.error("Data shape is not consistent. Droping data: {}".format(dat))
+        else:
             parsed_data.append(dat)
 
     for i, meas in enumerate(parsed_obj[0][:len(parsed_data[0])]): # Prevents wolfgangs header error
