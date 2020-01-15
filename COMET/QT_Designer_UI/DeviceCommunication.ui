@@ -7,20 +7,17 @@
     <x>0</x>
     <y>0</y>
     <width>1130</width>
-    <height>596</height>
+    <height>659</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_3">
-   <property name="sizeConstraint">
-    <enum>QLayout::SetMinimumSize</enum>
-   </property>
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
     <layout class="QGridLayout" name="gridLayout">
      <property name="sizeConstraint">
-      <enum>QLayout::SetMinimumSize</enum>
+      <enum>QLayout::SetDefaultConstraint</enum>
      </property>
      <item row="3" column="1" colspan="4">
       <widget class="QLineEdit" name="message_lineEdit">
@@ -175,31 +172,40 @@
       </widget>
      </item>
      <item row="6" column="0" colspan="5">
-      <widget class="QScrollArea" name="scrollArea">
-       <property name="verticalScrollBarPolicy">
-        <enum>Qt::ScrollBarAsNeeded</enum>
+      <widget class="QScrollArea" name="scrollArea_2">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>300</height>
+        </size>
        </property>
-       <property name="horizontalScrollBarPolicy">
-        <enum>Qt::ScrollBarAlwaysOn</enum>
+       <property name="maximumSize">
+        <size>
+         <width>16777215</width>
+         <height>16777215</height>
+        </size>
        </property>
        <property name="sizeAdjustPolicy">
         <enum>QAbstractScrollArea::AdjustToContents</enum>
        </property>
        <property name="widgetResizable">
-        <bool>false</bool>
+        <bool>true</bool>
        </property>
-       <widget class="QWidget" name="scrollAreaWidgetContents">
+       <property name="alignment">
+        <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents_2">
         <property name="geometry">
          <rect>
           <x>0</x>
           <y>0</y>
           <width>1104</width>
-          <height>307</height>
+          <height>370</height>
          </rect>
         </property>
-        <layout class="QGridLayout" name="gridLayout_4">
-         <property name="sizeConstraint">
-          <enum>QLayout::SetMinimumSize</enum>
+        <layout class="QVBoxLayout" name="verticalLayout_2">
+         <property name="spacing">
+          <number>0</number>
          </property>
          <property name="leftMargin">
           <number>0</number>
@@ -213,56 +219,33 @@
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <item row="0" column="0">
+         <item>
           <widget class="QLabel" name="response_label">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
            <property name="minimumSize">
             <size>
              <width>0</width>
-             <height>150</height>
+             <height>0</height>
             </size>
            </property>
-           <property name="autoFillBackground">
-            <bool>true</bool>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="font">
+            <font>
+             <pointsize>8</pointsize>
+            </font>
            </property>
            <property name="text">
-            <string>dvdsdf
-dfg
-sdfg
-sdfg
-dfg
-dfg
-dfg
-dfg
-df
-gdf
-gdf
-gd
-gdfgdsfg
-df
-dsg
-sdg
-dsg
-ds
-gds
-g
-sdfg
-sdfg
-df
-gsdf
-gfd
-</string>
+            <string/>
+           </property>
+           <property name="alignment">
+            <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
            </property>
            <property name="wordWrap">
-            <bool>false</bool>
-           </property>
-           <property name="textInteractionFlags">
-            <set>Qt::LinksAccessibleByMouse|Qt::TextEditable|Qt::TextEditorInteraction|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+            <bool>true</bool>
            </property>
           </widget>
          </item>
