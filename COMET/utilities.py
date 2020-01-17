@@ -1857,3 +1857,29 @@ def save_dict_as_hdf5(data, dirr, base_name):
         os.path.join(dirr, "singledata")) else True
     for key in df.get("keys", []):
         data[key]["data"].to_hdf(os.path.join(dirr, "singledata", "{}.hdf5".format(key)), key='df', mode='w')
+
+def save_dict_as_xml(data_dict, filepath, name):
+    from json import loads
+    from dicttoxml import dicttoxml
+    from xml.dom.minidom import parseString
+    """
+    Writes out the data as xml file, for the CMS DB
+
+    :param filepath: Filepath where to store the xml
+    :param name: name of the file 
+    :param data_dict: The data to store in this file. It has to be the dict representation of the xml file
+    :return:
+    """
+    file = os.path.join(os.path.normpath(filepath), name.split(".")[0]+".xml")
+    if isinstance(data_dict, dict):
+        xml = dicttoxml(data_dict, attr_type=False)
+        dom = parseString(xml) # Pretty print style
+        with open(file, "w+") as fp:
+            fp.write(dom.toprettyxml())
+    elif isinstance(data_dict, str):
+        xml = dicttoxml(loads(data_dict), attr_type=False)
+        dom = parseString(xml)  # Pretty print style
+        with open(file, "wb") as fp:
+            fp.write(dom.toprettyxml())
+    else:
+        l.error("Could not save data as xml, the data type is not correct. Must be dict or json")

@@ -7,7 +7,8 @@ from PyQt5 import QtCore
 import numpy as np
 import copy
 import ast
-from ..utilities import save_dict_as_hdf5, save_dict_as_json
+import re
+from ..utilities import save_dict_as_hdf5, save_dict_as_json, save_dict_as_xml
 
 import yaml, json
 try:
@@ -116,6 +117,7 @@ class DataVisualization_window:
     def render_action(self):
         """Stats the plotting scripts"""
         # Sets the cursor to wait
+        self.variables.app.restoreOverrideCursor()
         self.variables.app.setOverrideCursor(Qt.WaitCursor)
         os.mkdir(os.path.join(os.getcwd(), "COMET", "temp")) if not os.path.exists(os.path.join(os.getcwd(), "COMET", "temp")) else True
 
@@ -323,7 +325,7 @@ class DataVisualization_window:
 
     def config_save_options(self):
         """Configs the save options like json,hdf5,etc"""
-        options = ["html/png/json/hdf5", "html", "html/png", "html/json", "html/png/json", "png", "html/hdf5", "hdf5/json", "svg"]
+        options = ["html/png/xml", "html/png/json/hdf5", "html", "html/png", "html/json", "html/png/json", "png", "html/hdf5", "hdf5/json", "svg", "xml"]
         self.widget.save_as_comboBox.addItems(options)
 
     def config_selectable_templates(self):
@@ -346,6 +348,51 @@ class DataVisualization_window:
         if type == "hdf5":
             self.log.info("Saving HDF5 file...")
             save_dict_as_hdf5(deepcopy(self.plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
+        if type == "xml":
+            self.log.info("Saving xml file...")
+
+            # Convert to CMS database xml
+            data = self.plotting_Object.data
+            for key, dat in data.items():
+                xml_dict = self.convert_data_to_xml_conform_dict(dat, self.variables.framework_variables["Configs"]["config"]["CMSxmlTemplate"],
+                                                      dat["header"])
+                save_dict_as_xml(xml_dict, os.path.join(os.path.normpath(dirr), "data"), "{}_".format(key)+base_name)
+
+    def convert_data_to_xml_conform_dict(self, data, config, header):
+        """
+        Converts data to a specific form, as a dict stated in the config parameter.
+        The config file must have a key named 'template' in it must be the dict representation of the xml file.
+        Subkeys with a value enclosed by <..> are keywords. The header of the file will be searched for such key words.
+        If it finds the regular expression r'<EXPR>\W\s?(.*)'
+        :param data: data structure
+        :param config: the configs on how to convert data to xml
+        :return: None
+        """
+        template = deepcopy(config["Template"])
+        keyword_re = re.compile(r"<(.*)>")
+
+
+        def dict_iter(diction):
+            for key, item in diction.items():
+                if isinstance(item, dict):
+                    dict_iter(item)
+                else:
+                    keyword = keyword_re.match(str(item))
+                    if keyword:
+                        for line in header:
+                            newvalue = re.match(r"{}\W\s?(.*)".format(keyword[1]), line)
+                            if newvalue:
+                                item = newvalue[1]
+                            else:
+                                item = None
+                    else:
+                        item = None
+
+        # go through the whole template
+        dict_iter(template)
+
+        return template
+
 
     def config_files_combo_box(self, items):
         """Set dragable combobox"""
@@ -376,7 +423,7 @@ class DataVisualization_window:
             options = self.widget.save_as_comboBox.currentText().split("/")
 
             plotters = ["html", "png", "svg"]
-            data = ["json", "hdf5"]
+            data = ["json", "hdf5", "xml"]
 
             # Start data saver
             for ty in data:

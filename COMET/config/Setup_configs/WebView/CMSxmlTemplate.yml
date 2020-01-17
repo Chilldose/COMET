@@ -1,0 +1,26 @@
+---
+  Settings_name: CMSxmlTemplate
+
+  Template:
+    HEADER:
+      TYPE:
+        EXTENSION_TABLE_NAME: <EXTENSION_TABLE_NAME>
+        NAME: <NAME>
+      RUN:
+        RUN_TYPE: <Project>
+        RUN_NUMBER: <RUN_NUMBER>
+        LOCATION: <LOCATION>
+        INITIATED_BY_USER: <Operator>
+        RUN_BEGIN_TIMESTAMP: <DATE>
+        RUN_END_TIMESTAMP: <ENDTIME>
+        COMMENT_DESCRIPTION: <RUN_COMMENT>
+    DATA_SET:
+      COMMENT_DESCRIPTION: <DATA_COMMENT>
+      VERSION: <VERSION>
+      PART:
+        KIND_OF_PART: <Sensor Type>
+        SERIAL_NUMBER: <ID>
+      DATA: DATA_DUMP_template
+
+  DATA_DUMP_template:
+    STRIP: <STRIP_NUMBER>

@@ -232,7 +232,7 @@ def config_layout(PlotItem, **kwargs):
         log.error("Nonetype object encountered while configuring final plots layout. This should not happen! Error: {}".format(err))
     return PlotItem
 
-def convert_to_df(convert, abs = False, keys = None):
+def convert_to_df(convert, abs = False, keys = "all"):
     """
     Converts a dict to panda dataframes for easy manipulation etc.
     Warning: All data arrays ust have the same length otherwise conversion not possible!
@@ -240,6 +240,7 @@ def convert_to_df(convert, abs = False, keys = None):
     :param data: Dictionary with data
     :param abs: if the data returned will be the absolute value of the data
     :param keys: use only this list of keys to generate df, use this key settings to convert only the needed fraction of data to dfs. Handy if you have data with different sizes which cannot be converted to a common df
+                 fill in "all" to convert all keys to a dataframe
     :return: pandas data frame object
     """
     to_convert = deepcopy(convert)
@@ -248,10 +249,12 @@ def convert_to_df(convert, abs = False, keys = None):
     precol = list(to_convert[index[0]]["data"].keys())
     columns = []
 
-    if keys:
+    if isinstance(keys, list) or isinstance(keys, tuple):
         for key in keys:
             if key in precol:
                 columns.append(key)
+    elif keys == "all":
+        columns = precol
 
     return_dict = {"All": pd.DataFrame(columns=columns), "keys": index, "columns":columns}
     for key, data in to_convert.items():
@@ -263,23 +266,21 @@ def convert_to_df(convert, abs = False, keys = None):
                         data["data"][meas] = np.abs(arr)
             # Adding label of data
             data["data"]["Name"] = [key for i in range(len(data["data"][list(data["data"].keys())[0]]))]
-            if not keys:
-                df = pd.DataFrame(data=data["data"])
-            else:
-                sub_set = {}
-                for ind in keys:
-                    try:
-                        sub_set[ind] = data["data"][ind]
-                    except:
-                        log.warning("Key {} was not present, no data conversion".format(ind))
-                sub_set["Name"] = [key for i in range(len(sub_set[list(sub_set.keys())[0]]))]
-                df = pd.DataFrame(data=sub_set)
+
+            sub_set = {}
+            for ind in columns:
+                try:
+                    sub_set[ind] = data["data"][ind]
+                except:
+                    log.warning("Key {} was not present, no data conversion".format(ind))
+            sub_set["Name"] = [key for i in range(len(sub_set[list(sub_set.keys())[0]]))]
+            df = pd.DataFrame(data=sub_set)
         except KeyError as err:
             log.error("In order to convert the data to panda dataframe, the data structure needs to have a key:'data'")
             raise err
 
-        return_dict[key]["data"] = df
-        return_dict["All"] = pd.concat([return_dict["All"],df], sort=True)
+        return_dict[key]["data"] = df # DF for every single file
+        return_dict["All"] = pd.concat([return_dict["All"],df], sort=True) # all files together
 
     return return_dict
 
@@ -422,7 +423,6 @@ def read_in_ASCII_measurement_files(filepathes, settings):
     except Exception as e:
         log.error("Something went wrong while importing the file " + str(current_file) + " with error: " + str(e))
 
-
 def parse_file_data(filecontent, settings):
     """This function parses the ADCII file content to the needed data types"""
     filecontent = filecontent.split("\n")
@@ -433,7 +433,7 @@ def parse_file_data(filecontent, settings):
     data = filecontent[settings["data_start"] - 1:]
     separator = settings.get("data_separator", None)
 
-    units_exp = re.compile(r"#?\w*\s?\W?(\w*)\W?\s*")
+    units_exp = re.compile(r"#?\w*\s?\W?(\w*)\W*\s*")
     data_exp = re.compile(r"(#|\w+)\s?\W?\w*\W?", re.MULTILINE)
 
     regex = [data_exp, units_exp]
@@ -512,6 +512,33 @@ def save_dict_as_hdf5(data, dirr, base_name):
     for key in df.get("keys", []):
         data[key]["data"].to_hdf(os.path.join(dirr, "{}.hdf5".format(key)), key='df', mode='w')
 
+
+def save_dict_as_xml(data_dict, filepath, name):
+    from json import loads
+    from dicttoxml import dicttoxml
+    from xml.dom.minidom import parseString
+    """
+    Writes out the data as xml file, for the CMS DB
+
+    :param filepath: Filepath where to store the xml
+    :param name: name of the file 
+    :param data_dict: The data to store in this file. It has to be the dict representation of the xml file
+    :return:
+    """
+    file = os.path.join(os.path.normpath(filepath), name.split(".")[0]+".xml")
+    if isinstance(data_dict, dict):
+        xml = dicttoxml(data_dict, attr_type=False)
+        dom = parseString(xml) # Pretty print style
+        with open(file, "w+") as fp:
+            fp.write(dom.toprettyxml())
+    elif isinstance(data_dict, str):
+        xml = dicttoxml(loads(data_dict), attr_type=False)
+        dom = parseString(xml)  # Pretty print style
+        with open(file, "wb") as fp:
+            fp.write(dom.toprettyxml())
+    else:
+        log.error("Could not save data as xml, the data type is not correct. Must be dict or json")
+
 def save_data(self, type, dirr, base_name="data"):
         """Saves the data in the specified type"""
         try:
@@ -526,3 +553,9 @@ def save_data(self, type, dirr, base_name="data"):
         if type == "hdf5":
             self.log.info("Saving HDF5 file...")
             save_dict_as_hdf5(deepcopy(self.plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
+        if type == "xml":
+            self.log.info("Saving xml file...")
+            xml_dict = deepcopy(self.plotting_Object.data.get("xml_dict", self.plotting_Object.data)) # Either take the special xml representation or if not present take the normal dict representation
+            save_dict_as_xml(xml_dict, os.path.join(os.path.normpath(dirr), "data"), base_name)
+
+

@@ -134,7 +134,7 @@ def Violin(dfs, measurement, configs, analysisType, **addConfigs):
     return plot
 
 
-def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=0.5, **addConfigs):
+def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None, **addConfigs):
     """Concatenates dataframes and generates a Histogram for all passed columns"""
     newConfigs = addConfigs
     log.info("Generating concat histograms for measurements {}...".format(measurement))
@@ -143,7 +143,8 @@ def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=0.5, 
 
         # Sanatize data
         data = df[measurement].dropna() # Drop all nan
-        data = reject_outliers(data, iqr)
+        if iqr:
+            data = reject_outliers(data, iqr)
         data = np.histogram(data, bins=bins)
 
         plt = hv.Histogram(data, group="Concatenated Histogram: {}".format(measurement))
