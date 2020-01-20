@@ -271,7 +271,7 @@ def create_new_file( filename="default.txt", filepath = "default_path", os_file=
         :return:
         """
 
-        counter = 0
+        counter = 1
         if filepath == "default_path":
             filepath = ""
         elif filepath == "":
@@ -279,22 +279,24 @@ def create_new_file( filename="default.txt", filepath = "default_path", os_file=
         else:
             filepath += "/"
 
-        filename += str(suffix)
+        filename = filename.split(".")[0]
 
-        #First check if Filename already exists, when so, add a counter to the file.
-        if os.path.isfile(os.path.abspath(filepath+filename)):
+        #First check if Filename already exists, if so, add a counter to the file.
+        if os.path.isfile(os.path.abspath(filepath+filename+suffix)):
             l.warning("Warning filename " + str(filename) + " already exists!")
-            filename = filename[:-4] + "_" + str(counter) + ".txt" # Adds sufix to filename
-            while os.path.isfile(os.path.abspath(filepath+filename)):  # checks if file exists
+            filename = filename + "_" + str(counter) # Adds suffix to filename
+            while os.path.isfile(os.path.abspath(filepath+filename+suffix)):  # checks if file exists
                 try:
-                    count = int(filename.split("_")[-1].split(".")[0])
-                    count += 1
-                    filename = filename.split("_")[0] + str(count) + ".txt"
+                    count = filename.split("_")[-1]
+                    countlen = len(count)
+                    count = int(count)+1
+                    filename = filename[:-countlen] + str(count)
                 except:
-                    filename = filename[:-5] + str(counter)  + ".txt"  # if exists than change the last number in filename string
+                    filename = filename[:-5] + str(counter)  # if exists than change the last number in filename string
                 counter += 1
             l.info("Filename changed to " + filename + ".")
 
+        filename += str(suffix)
         if os_file:
             fp = os.open(os.path.abspath(filepath+filename), os.O_WRONLY | os.O_CREAT) # Creates the file
         else:

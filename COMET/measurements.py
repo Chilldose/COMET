@@ -2,7 +2,7 @@
 import logging
 import numpy as np
 import os
-from time import sleep, time
+from time import sleep, time, asctime
 import datetime
 import importlib
 from threading import Thread
@@ -329,6 +329,9 @@ class measurement_class(Thread):
             data_to_dump = data
         filepath = os.path.normpath(details["Filepath"])
         final_dict = {"data": {}, "units": [], "measurements": []}
+        # Add the endtime in the header as additional header entry
+        if "Header" in details:
+            details["Header"] += "Endtime: {}".format(asctime())
         final_dict.update(details)
         xaxis = []
 

@@ -380,13 +380,14 @@ class DataVisualization_window:
                     keyword = keyword_re.match(str(item))
                     if keyword:
                         for line in header:
-                            newvalue = re.match(r"{}\W\s?(.*)".format(keyword[1]), line)
+                            newvalue = re.search(r"{}\W\s?(.*)".format(keyword[1]), line)
                             if newvalue:
-                                item = newvalue[1]
+                                diction[key] = str(newvalue[1]).strip()
+                                break
                             else:
-                                item = None
+                                diction[key] = str(None)
                     else:
-                        item = None
+                        diction[key] = str(None)
 
         # go through the whole template
         dict_iter(template)
