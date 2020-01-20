@@ -175,7 +175,7 @@ def write_init_file( name, data, path = ""):
         if os.path.isfile(os.path.abspath(str(path) + str(name.split(".")[0]) + ".yaml")):
 
             os.remove(os.path.abspath(path + str(name.split(".")[0]) + ".yaml"))
-            filename = create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
+            filename, version = create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
             yaml.dump(data, filename, indent=4)
             close_file(filename)
 
@@ -183,7 +183,7 @@ def write_init_file( name, data, path = ""):
 
             #directory = path[:len(path) - len(path.split("/")[-1])]
 
-            filename = create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
+            filename, version = create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
 
             yaml.dump(data, filename, indent=4)
 
@@ -268,10 +268,10 @@ def create_new_file( filename="default.txt", filepath = "default_path", os_file=
         :param filepath:
         :param os_file:
         :param suffix:
-        :return:
+        :return: filepointer, fileversion
         """
 
-        counter = 1
+        count = 1
         if filepath == "default_path":
             filepath = ""
         elif filepath == "":
@@ -284,16 +284,11 @@ def create_new_file( filename="default.txt", filepath = "default_path", os_file=
         #First check if Filename already exists, if so, add a counter to the file.
         if os.path.isfile(os.path.abspath(filepath+filename+suffix)):
             l.warning("Warning filename " + str(filename) + " already exists!")
-            filename = filename + "_" + str(counter) # Adds suffix to filename
+            filename = filename + "_" + str(count) # Adds suffix to filename
             while os.path.isfile(os.path.abspath(filepath+filename+suffix)):  # checks if file exists
-                try:
-                    count = filename.split("_")[-1]
-                    countlen = len(count)
-                    count = int(count)+1
-                    filename = filename[:-countlen] + str(count)
-                except:
-                    filename = filename[:-5] + str(counter)  # if exists than change the last number in filename string
-                counter += 1
+                count += 1
+                countlen = len(str(count))
+                filename = filename[:-countlen] + str(count)
             l.info("Filename changed to " + filename + ".")
 
         filename += str(suffix)
@@ -304,7 +299,7 @@ def create_new_file( filename="default.txt", filepath = "default_path", os_file=
 
         l.info("Generated file: " + str(filename))
 
-        return fp
+        return fp, count
 
     # Opens a file for reading and writing
 
