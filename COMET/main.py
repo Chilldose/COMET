@@ -166,6 +166,7 @@ def main():
 
     # Starts a new Thread for the measurement event loop
     MEL = measurement_event_loop(aux)
+    aux["MEL"] = MEL
     MEL.start()
 
     # Starting Django Server if need be
@@ -177,7 +178,7 @@ def main():
                 config = aux["Configs"]["config"]["settings"]["Django_server"]
                 import subprocess
                 # Import Server and Client class for communication with the Django server
-                from .misc_plugins.ServerClientApp.socket_connections import Client_, Server_
+
                 path = os.path.normpath(config["Path"])#
                 Django = subprocess.Popen(["python", path, "runserver", str(config["IP"])+":"+str(config["Port"])], shell=True)
                 aux["Django"] = Django
@@ -186,6 +187,7 @@ def main():
                 log.error("Django server could not be started. Error: {}".format(err))
 
     if "Socket_connection" in aux["Configs"]["config"]["settings"]:
+        from .misc_plugins.ServerClientApp.socket_connections import Client_, Server_
         try:
             config_socket = aux["Configs"]["config"]["settings"]["Socket_connection"]
             Server = Server_(HOST=config_socket["Host"]["IP"], PORT=config_socket["Host"]["Port"])
@@ -193,13 +195,15 @@ def main():
             Client = Client_(HOST=config_socket["Client"]["IP"], PORT=config_socket["Client"]["Port"])
             aux["Server"] = Server
             aux["Client"] = Client
-        except:
+        except Exception as err:
             log.error("TCP socket connection could not be started. Error: {}".format(err))
 
     log.critical("Starting GUI ...")
     gui = GUI_classes(aux)
+    aux["GUI"] = gui
     # Init the framework for update plots etc.
     frame = utilities.Framework(gui.give_framework_functions)
+    aux["framework_functions"] = frame
     # Starts the timer
     frame.start_timer()
 

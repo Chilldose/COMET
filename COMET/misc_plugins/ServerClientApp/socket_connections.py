@@ -68,7 +68,6 @@ class Client_(socket_connections):
         #request = self.create_request(action, value)
         if self.request:
             self.start_connection(self.HOST, self.PORT, self.request)
-
             try:
                 while True:
                     events = self.sel.select(timeout=1)  # Select the socket
@@ -85,7 +84,7 @@ class Client_(socket_connections):
             except KeyboardInterrupt:
                 self.log.critical("caught keyboard interrupt, exiting")
             finally:
-                self.sel.close()
+                #self.sel.close()
                 self.request = None
                 try:
                     return message.response
