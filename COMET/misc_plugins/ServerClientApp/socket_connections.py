@@ -99,6 +99,8 @@ class Server_(socket_connections):
     """Handles a Server connection"""
 
     def __init__(self, responder_funct=None, HOST='127.0.0.1', PORT=65432):
+        """This class has a responder member, define a function which should be called if a connection is established
+        with the server. This function must return a valid python object. Which is then send to the Client"""
         super().__init__(HOST, PORT)
         self.keep_running = False
         self.responder = responder_funct

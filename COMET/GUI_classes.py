@@ -16,6 +16,7 @@ from .gui.MainWindow import MainWindow
 from .gui.PluginWidget import PluginWidget
 from .GUI_event_loop import *
 import os
+from .misc_plugins.TelegramBotResponder import TelegramBotResponder
 
 
 QT_UI_DIR = 'QT_Designer_UI'
@@ -52,9 +53,12 @@ class GUI_classes(QWidget):
         # Config response function for the server
         if self.server:
             self.server.responder = self.process_messages_from_server
+            self.telBot = TelegramBotResponder(self)
+            self.add_TCP_message_action_function(self.telBot.run)
 
         # Some Variables
         self.functions = [] # Function for the framework to update
+
 
         if "GUI_update_interval" not in self.default_values_dict["settings"]:
             self.default_values_dict["settings"]["GUI_update_interval"] = 200
@@ -254,7 +258,9 @@ class GUI_classes(QWidget):
         if self.TCP_message_function:
             for obj in self.TCP_message_function:
                 try:
-                    obj(action, value)
+                   answer = obj(action, value)
+                   if answer:
+                       return answer
                 except Exception as err:
                     self.log.error("An error happened while processing TCP message function {} with error: {}".format(str(obj), err))
         else:
