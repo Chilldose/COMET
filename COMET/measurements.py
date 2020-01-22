@@ -154,6 +154,7 @@ class measurement_class(Thread):
     def create_data_file(self, header, filepath, filename="default"):
         self.log.debug("Creating new data file with name: {!s}".format(filename))
         file, version = create_new_file(filename, filepath) # Creates the file at the destination
+        self.default_values_dict["file_version"] = float(version)
         flush_to_file(file, header) # Writes the header to the file
         return file # Finally returns the file object
 
