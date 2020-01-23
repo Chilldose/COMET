@@ -1,5 +1,9 @@
 """This class responds to Telegram messages. Send by a Client"""
 import re
+import pyqtgraph as pg
+import pyqtgraph.exporters
+import os
+from .PyqtgraphExporter import PQG_ImageExporter
 
 class TelegramBotResponder:
 
@@ -23,6 +27,10 @@ class TelegramBotResponder:
                 self.respond_to_PING(value)
                 self.QTC_Status(value)
                 self.give_help(value)
+                self.which_plots(value)
+
+                # These function alter the data type of answer!!
+                self.send_plot(value)
 
                 if not self.answer:
                     self.answer = "The QTC does not support your command, please give a valid command. Type 'QTC Help' for all commands."
@@ -33,18 +41,61 @@ class TelegramBotResponder:
         else:
             return None
 
+    def which_plots(self, value):
+        """Returns a list of possible plots"""
+        for val in value.values():
+            if re.findall(r"Plots\b\?", val):
+                self.answer += "The possible plots to show are: \n\n"
+                self.answer += "\n".join(self.main.plot_objs.keys())
+                self.answer += "\n\nYou can access them by typing 'Plot <xyz>'"
+
+    def send_plot(self, value):
+        """Saves a plot as png and returns the path to this plot to the bot"""
+        # create an exporter instance, as an argument give it
+        # the item you wish to export
+        for val in value.values():
+            plot = re.findall(r"Plot\b\s*(\w*)", val)
+            if plot:
+                if plot[0] in self.main.plot_objs.keys():
+                    plt = self.main.plot_objs[plot[0]]
+                    try:
+                        plt = plt.plotItem
+                    except:
+                        pass
+                    try:
+                        #exporter = pg.exporters.ImageExporter(plt) # Original exporter but he has a bug. --> Selfwritten one from stackoverflow
+                        exporter = PQG_ImageExporter(plt)
+                        # set export parameters if needed
+                        exporter.parameters()['width'] = 1920  # (note this also affects height parameter)
+                        #exporter.parameters()['height'] = 1080  # (note this also affects height parameter)
+                        # save to file
+                        filepath = os.path.join(os.path.dirname(__file__), "__temp__")
+                        if os.mkdir(filepath) if not os.path.isdir(filepath) else True:
+                            for file in  os.listdir(filepath):
+                                os.remove(os.path.join(filepath, file))
+                            exporter.export(os.path.join(filepath, '{}_plot.jpg'.format(plot[0])))
+
+                            self.answer = {"PLOT": str(os.path.join(filepath, '{}_plot.jpg'.format(plot[0])))}
+
+                    except Exception as err:
+                        self.main.log.error("Export of png for plot {} did not work. Error: {}".format(plot[0], err))
+                else:
+                    self.answer += "The plot {} is not a possible plot. Type: 'Plots?' to see valid plots."
+
     def give_help(self,value):
         """Returns all commands"""
         for val in value.values():
-            if re.findall(r"QTC\s*Help", val) or re.findall(r"\?", val):
-                self.answer += "QTC Status - Gives information about the QTC status\n" \
-                               "QTC Help - Gives you a list of all commands \n" \
+            if re.findall(r"Help\b", val) or re.findall(r"help", val):
+                self.answer += "Status - Gives information about the QTC status\n" \
+                               "Help - Gives you a list of all commands \n" \
+                               "Plots? - Gives you a list of all possible plots \n" \
+                               "Plot <xyz> - Plots you a certain plot \n" \
                                "ping - Just returns success \n"
 
     def QTC_Status(self, value):
         """Gives back the QTC Status"""
         for val in value.values():
-            if re.findall(r"QTC\s*Status", val):
+            if re.findall(r"Status\b", val):
                 text = "Current QTC status: \n\n"
                 text += "Measurement running: {} \n".format(self.main.default_values_dict["settings"]["Measurement_running"])
                 text += "Measurement progress: {} % \n".format(self.main.default_values_dict["settings"]["progress"])

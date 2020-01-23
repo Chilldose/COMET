@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1530</width>
-    <height>724</height>
+    <width>1974</width>
+    <height>925</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -250,19 +250,53 @@
       </widget>
      </item>
      <item row="5" column="0">
-      <widget class="PlotWidget" name="rint_plot"/>
+      <widget class="PlotWidget" name="rint_plot">
+       <property name="minimumSize">
+        <size>
+         <width>650</width>
+         <height>300</height>
+        </size>
+       </property>
+      </widget>
      </item>
      <item row="4" column="0">
-      <widget class="PlotWidget" name="rpoly_plot"/>
+      <widget class="PlotWidget" name="rpoly_plot">
+       <property name="minimumSize">
+        <size>
+         <width>650</width>
+         <height>300</height>
+        </size>
+       </property>
+      </widget>
      </item>
      <item row="1" column="2">
-      <widget class="PlotWidget" name="istrip_plot"/>
+      <widget class="PlotWidget" name="istrip_plot">
+       <property name="minimumSize">
+        <size>
+         <width>650</width>
+         <height>300</height>
+        </size>
+       </property>
+      </widget>
      </item>
      <item row="4" column="2">
-      <widget class="PlotWidget" name="idiel_plot"/>
+      <widget class="PlotWidget" name="idiel_plot">
+       <property name="minimumSize">
+        <size>
+         <width>650</width>
+         <height>300</height>
+        </size>
+       </property>
+      </widget>
      </item>
      <item row="4" column="1">
       <widget class="PlotWidget" name="cac_plot">
+       <property name="minimumSize">
+        <size>
+         <width>650</width>
+         <height>300</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>16777215</width>
@@ -273,6 +307,12 @@
      </item>
      <item row="5" column="1">
       <widget class="PlotWidget" name="cint_plot">
+       <property name="minimumSize">
+        <size>
+         <width>650</width>
+         <height>300</height>
+        </size>
+       </property>
        <property name="maximumSize">
         <size>
          <width>16777215</width>
@@ -282,7 +322,14 @@
       </widget>
      </item>
      <item row="5" column="2">
-      <widget class="PlotWidget" name="idark_plot"/>
+      <widget class="PlotWidget" name="idark_plot">
+       <property name="minimumSize">
+        <size>
+         <width>650</width>
+         <height>300</height>
+        </size>
+       </property>
+      </widget>
      </item>
      <item row="1" column="1" rowspan="2">
       <widget class="QFrame" name="Singe_value_frame">

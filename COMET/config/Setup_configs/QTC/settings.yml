@@ -8,6 +8,9 @@
       - Thomas
       - Marko
       - Margit
+      
+    TelegramBot: # The ids to telegram users, so that they can be informed if when a measurement is finished
+        Dominic: 260848510
 
     measurement_types: # Different measurement types which can be conducted
         - IV

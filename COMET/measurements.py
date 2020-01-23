@@ -9,6 +9,7 @@ from threading import Thread
 import traceback
 
 from .utilities import build_command, flush_to_file, create_new_file, save_dict_as_hdf5, save_dict_as_json
+from .utilities import send_TCP_message
 
 class measurement_class(Thread):
     #meas_loop, main_defaults, pad_data, devices, queue_to_main, queue_to_event_loop, job_details, queue_to_GUI, table, switching, stop_measurement)

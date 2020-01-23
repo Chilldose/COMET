@@ -18,6 +18,7 @@ import logging
 from .engineering_notation import EngUnit
 import json
 import pandas as pd
+from threading import Thread
 import queue
 from .globals import message_to_main, message_from_main, queue_to_GUI
 #from __future__ import print_function # Needed for the rtd functions that its written in 3
@@ -1880,3 +1881,26 @@ def save_dict_as_xml(data_dict, filepath, name):
             fp.write(dom.toprettyxml())
     else:
         l.error("Could not save data as xml, the data type is not correct. Must be dict or json")
+
+def send_TCP_message(client, action, message):
+    """
+    This function sends a message to a IP address. This function will run in a new thread. This way the framework
+    will not be halted should the connection fail, or wait for a timeout
+    :param client: The client instance from server_connections.py
+    :param action: An action flag, can be used as identifier
+    :param message: The Message to be sent to the server
+    :return: bool, if successful or not
+    """
+
+    def func(client, action, message):
+        try:
+            response = client.send_request(str(action), str(message))
+        except Exception as err:
+            l.info("Server Error {}".format(err))
+            return False
+        l.info("Server responded with {}".format(response))
+        if response:
+            return True
+
+    x = Thread(target=func, args=(client, action, message))
+    x.run()
