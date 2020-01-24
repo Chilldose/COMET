@@ -22,7 +22,7 @@ import os
 
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
-from PyQt5.QtWebEngineWidgets import QWebEngineView
+#from PyQt5.QtWebEngineWidgets import QWebEngineView
 
 #sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
