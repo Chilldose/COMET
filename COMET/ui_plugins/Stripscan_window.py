@@ -68,6 +68,7 @@ class Stripscan_window:
     def config_plot(self, Title, xAxis, yAxis, logscale, inverty = False):
         '''configs the plot for the different plots'''
         object = getattr(self.stripscan, Title.lower()+"_plot")
+
         object.setTitle(str(Title), **self.titleStyle)
         object.setLabel('bottom', str(xAxis[0]), units=str(xAxis[1]), **self.labelStyle)
         object.setLabel('left', str(yAxis[0]), units=str(yAxis[1]), **self.labelStyle)
@@ -77,6 +78,7 @@ class Stripscan_window:
         object.setLogMode(x=logscale[0], y=logscale[1])
         object.setContentsMargins(0., 0., 0., 0.)
         object.getPlotItem().invertY(inverty)
+        self.variables.plot_objs[Title] = object
 
         change_axis_ticks(object, self.ticksStyle)
 

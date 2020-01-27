@@ -28,6 +28,11 @@
           #legend_position: "bottom_left"
       Layout:
           cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
+          
+      AuxOptions:
+        concatHistogram:
+            bins: 50
+            iqr: 0.1
 
       DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measuremnt has this special plot stated
           - concatHistogram

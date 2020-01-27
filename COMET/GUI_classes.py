@@ -16,6 +16,7 @@ from .gui.MainWindow import MainWindow
 from .gui.PluginWidget import PluginWidget
 from .GUI_event_loop import *
 import os
+from .misc_plugins.TelegramBotResponder import TelegramBotResponder
 
 
 QT_UI_DIR = 'QT_Designer_UI'
@@ -47,13 +48,17 @@ class GUI_classes(QWidget):
         self.framework_variables = framework_variables
         self.default_values_dict["settings"]["new_data"] = False
         self.default_values_dict["settings"]["Measurement_running"] = False
+        self.TCP_message_function = []
 
         # Config response function for the server
         if self.server:
-            self.server.responder = self.process_messages_from_Django_server
+            self.server.responder = self.process_messages_from_server
+            self.telBot = TelegramBotResponder(self)
+            self.add_TCP_message_action_function(self.telBot.run)
 
         # Some Variables
         self.functions = [] # Function for the framework to update
+
 
         if "GUI_update_interval" not in self.default_values_dict["settings"]:
             self.default_values_dict["settings"]["GUI_update_interval"] = 200
@@ -66,6 +71,7 @@ class GUI_classes(QWidget):
         self.ui_widgets = {}
         self.final_tabs = []
         self.ui_plugins = {}
+        self.plot_objs = {} # pyqtgraph plot objects
 
         # Load ui plugins
         self.load_GUI_plugins()
@@ -228,30 +234,37 @@ class GUI_classes(QWidget):
 
 
     # Todo: Not sure if this is the correct place ot place the server_client_thing
-    def send_plot_data(self, measurement="all"):
-        """This function sends the data for a specified measurement over a socket connection
-        If 'all' is stated then all data will be send."""
-        if measurement != "all":
-            if measurement in self.meas_data:
-                return {measurement: [x.tolist() for x in self.meas_data[measurement]]}
-            else:
-                return "Measurement {} was not recognised".format(measurement)
-        if measurement == "all":
-            return self.meas_data
+    #def send_plot_data(self, measurement="all"):
+     #   """This function sends the data for a specified measurement over a socket connection
+    #    If 'all' is stated then all data will be send."""
+    #    if measurement != "all":
+    #        if measurement in self.meas_data:
+    #            return {measurement: [x.tolist() for x in self.meas_data[measurement]]}
+    #        else:
+    #            return "Measurement {} was not recognised".format(measurement)
+    #    if measurement == "all":
+    #        return self.meas_data
+    #
+    #    else:
+    #        return "Measurement {} was not recognised".format(measurement)
 
+    def add_TCP_message_action_function(self, function_obj):
+        """This adds a function which will be called if a TCP connection was send to this program"""
+        self.TCP_message_function.append(function_obj)
+
+    def process_messages_from_server(self, action, value):
+        """Processes the message recieved by a server over a TCP connection. Message which cannot be interpreted will be protocoled
+        The system needs a function to be called which processes the message if not a simple read back will be done"""
+
+        if self.TCP_message_function:
+            for obj in self.TCP_message_function:
+                try:
+                   answer = obj(action, value)
+                   if answer:
+                       return answer
+                except Exception as err:
+                    self.log.error("An error happened while processing TCP message function {} with error: {}".format(str(obj), err))
         else:
-            return "Measurement {} was not recognised".format(measurement)
-
-    def process_messages_from_Django_server(self, action, value):
-        """Processes the message recieved by a Django server. Message which cannot be interpreted will be protocoled"""
-
-        if action == "plot_data":
-            # If plot data should be send
-            return self.send_plot_data(value["Plot"])
-
-        if action == "get_plot_types":
-            return self.meas_data.keys()
-
-        else:
-            return "Action {} was not recognised.".format(action)
+            self.log.info("Got a message via TCP, with Action: {} and Value: {}. No actions are made on this message, since" \
+                   "no function has been given to process".format(action, value))
 

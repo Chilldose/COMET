@@ -2,13 +2,14 @@
 import logging
 import numpy as np
 import os
-from time import sleep, time
+from time import sleep, time, asctime
 import datetime
 import importlib
 from threading import Thread
 import traceback
 
 from .utilities import build_command, flush_to_file, create_new_file, save_dict_as_hdf5, save_dict_as_json
+from .utilities import send_telegram_message
 
 class measurement_class(Thread):
     #meas_loop, main_defaults, pad_data, devices, queue_to_main, queue_to_event_loop, job_details, queue_to_GUI, table, switching, stop_measurement)
@@ -33,6 +34,7 @@ class measurement_class(Thread):
         self.table = framework["Table"]
         self.switching = framework["Switching"]
         self.devices = framework["Devices"]
+        self.client = framework["Client"]
         self.time_const = 1 # sec
         self.all_plugins = {}
         self.measurement_files = {}
@@ -64,6 +66,7 @@ class measurement_class(Thread):
         # Perform the setup check and start the measurement
         # -------------------------------------------------------------------------------
         if self.setup_ready(): # Checks if measurements can be conducted or not if True: an critical error occured
+
             # Start the light that the measurement is running
             if "lights_controller" in self.devices:
                 self.external_light(self.devices["lights_controller"], True)
@@ -92,6 +95,10 @@ class measurement_class(Thread):
         else:
             self.log.error("Measurement could not be conducted. Setup failed the readiness check. "
                            "Please check the logs for more information what happened")
+            operator = self.default_values_dict.get("Current_operator", "None")
+            send_telegram_message(operator, "Measurement was not conducted, since the setup failed the readiness check. "
+                                            "Check the Log files to see what exactly failed.",
+                                  self.default_values_dict, self.client)
 
         # Perfom the setup check and start the measurement
         # -------------------------------------------------------------------------------
@@ -153,7 +160,8 @@ class measurement_class(Thread):
 
     def create_data_file(self, header, filepath, filename="default"):
         self.log.debug("Creating new data file with name: {!s}".format(filename))
-        file = create_new_file(filename, filepath) # Creates the file at the destination
+        file, version = create_new_file(filename, filepath) # Creates the file at the destination
+        self.default_values_dict["file_version"] = float(version)
         flush_to_file(file, header) # Writes the header to the file
         return file # Finally returns the file object
 
@@ -245,6 +253,9 @@ class measurement_class(Thread):
                 # Here the actual measurement starts -------------------------------------------------------------------
                 if not abort:
                     self.log.info("Trying to start measurement " + str(measurement))
+                    operator = self.default_values_dict.get("Current_operator", "None")
+                    send_telegram_message(operator, "Starting measurement: {}".format(measurement),
+                                          self.default_values_dict, self.client)
                     starttime = time()
                     try:
                         meas_object = getattr(self.all_plugins[measurement], str(measurement).replace(" ","")+"_class")(self)
@@ -254,19 +265,45 @@ class measurement_class(Thread):
                         endtime = time()
                         deltaT = abs(starttime-endtime)
                         self.log.info("The " + str(measurement) + " took " + str(round(deltaT,0)) + " seconds.")
+
+                        # Inform the user about the outcome
+                        operator = self.default_values_dict.get("Current_operator", "None")
+                        if self.event_loop.stop_all_measurements_query():
+                            send_telegram_message(operator, "Hi {}, \n I want to inform you that your measurement has FINISHED! \n\n"
+                                                        "The measurement took {} h".format(operator, round(deltaT/3600, 2)),
+                                                        self.default_values_dict, self.client)
+                        else:
+                            send_telegram_message(operator,
+                                                  "Hi {}, \n I want to inform you that your measurement has been ABORTED! \n"
+                                                  "The system shutdown was successfull. Please see the LogFile to see what happened. \n\n"
+                                                  "The measurement took {} h \n\n".format(operator,
+                                                                                          round(deltaT/3600, 2) ),
+                                                  self.default_values_dict, self.client)
                     except Exception as err:
-                        self.log.error("An error happened while conducting"
-                                       " the measurement: {} with error: {} \n"
-                                       "Traceback: {}".format(measurement, err, traceback.format_exc()))
+                        errormsg = "An error happened while conducting" \
+                                    " the measurement: {} with error: {} \n"\
+                                    "Traceback: {}".format(measurement, err, traceback.format_exc())
+                        self.log.error(errormsg)
+                        send_telegram_message(operator, errormsg,
+                                              self.default_values_dict, self.client)
 
                         # Shut down the SMU gracely
                         try:
                             if "BiasSMU" in self.devices:
+                                send_telegram_message(operator, "Emergency SMU shutdown initiated!",
+                                                      self.default_values_dict, self.client)
                                 self.emergency_shutdown()
+                                send_telegram_message(operator, "Emergency SMU shutdown successful!",
+                                                      self.default_values_dict, self.client)
                             else:
                                 self.log.error("Could not determine bias SMU -> no shutdown!!!")
+                                send_telegram_message(operator, "Could not determine bias SMU -> no shutdown!!!"
+                                                                "The setup may by under high voltage!!!",
+                                                      self.default_values_dict, self.client)
                         except:
                             self.log.error("Emergency shutdown failed!")
+                            send_telegram_message(operator, "Emergency shutdown failed! The setup may by under high voltage!!!",
+                                                  self.default_values_dict, self.client)
                 # Here the actual measurement starts -------------------------------------------------------------------
 
             try:
@@ -329,6 +366,9 @@ class measurement_class(Thread):
             data_to_dump = data
         filepath = os.path.normpath(details["Filepath"])
         final_dict = {"data": {}, "units": [], "measurements": []}
+        # Add the endtime in the header as additional header entry
+        if "Header" in details:
+            details["Header"] += "Endtime: {}".format(asctime())
         final_dict.update(details)
         xaxis = []
 

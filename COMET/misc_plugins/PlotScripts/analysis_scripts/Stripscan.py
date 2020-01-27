@@ -66,7 +66,8 @@ class Stripscan:
 
         # Plot all special Plots:
         # Histogram Plot
-        self.Histogram = dospecialPlots(self.data, self.config, "Stripscan", "concatHistogram", self.measurements, iqr=0.7)
+        self.Histogram = dospecialPlots(self.data, self.config, "Stripscan", "concatHistogram", self.measurements,
+                                        **self.config["Stripscan"].get("AuxOptions", {}).get("concatHistogram", {}))
         if self.Histogram:
             self.PlotDict["Histogram"] = self.Histogram
             self.PlotDict["All"] = self.PlotDict["All"] + self.Histogram

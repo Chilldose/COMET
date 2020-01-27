@@ -66,6 +66,7 @@ class Environement_widget(object):
         # Create plot and config it
         self.hum_plot_obj = pyqtgraph.ViewBox()  # generate new plot item
         self.temphum_plot = self.Env_Widget.pyqtPlotItem
+        self.variables.plot_objs["Env"] = self.temphum_plot
         self.config_plot(self.temphum_plot, self.hum_plot_obj)  # config the plot items
 
         # Go through all to set the value a the device as well
@@ -103,6 +104,8 @@ class Environement_widget(object):
         plot.getAxis('right').linkToView(plot2)  # links the second y axis to the second plot
         plot2.setXLink(plot)  # sync the x axis of both plots
         # plot2.setRange(yRange=[0, 50])
+
+
 
     def __cut_arrays(self, data_array, maximum_time, arrays_to_cut):
         '''This function cuts an array to a maximum time difference

@@ -73,6 +73,7 @@ class QTCMain_window(Environement_widget, Controls_widget, SettingsControl_widge
 
         iv_plot = self.gui.IV_plot
         self.iv_plot = iv_plot
+
         iv_plot.setTitle("IV curve (top) and CV curve (bottom)", **self.titleStyle)
         iv_plot.setLabel('left', "current", units='A', **self.labelStyle)
         iv_plot.showAxis('right', show=True)
@@ -80,6 +81,7 @@ class QTCMain_window(Environement_widget, Controls_widget, SettingsControl_widge
         iv_plot.getPlotItem().invertX(True)
         iv_plot.getPlotItem().invertY(True)
         iv_plot.showGrid(x=True, y=True)
+        self.variables.plot_objs["IV"] = self.gui.IV_plot
 
         change_axis_ticks(iv_plot, self.ticksStyle)
         iv_plot.plot(pen="#cddb32")
@@ -113,6 +115,7 @@ class QTCMain_window(Environement_widget, Controls_widget, SettingsControl_widge
         cv_plot.showAxis('right', show=True)
         cv_plot.getPlotItem().invertX(True)
         cv_plot.showGrid(True, True)
+        self.variables.plot_objs["CV"] = self.gui.CV_plot
 
         #cv_plot.setMinimumHeight(350)
         #cv_plot.setMaximumHeight(350)
@@ -162,7 +165,11 @@ class measurement_job_generation:
                       "# Sensor Type: " + self.variables["Current_sensor"]  + "\n " \
                       "# ID: " + self.variables["Current_filename"] + "\n " \
                       "# Operator: " + self.variables["Current_operator"] + "\n " \
-                      "# Date: " + str(asctime()) + "\n\n"
+                      "# Date: " + str(asctime()) + \
+                      "# Version:" + self.variables.get["file_version", str(1.0)] + \
+                      "# Location:" + self.variables.get["location", "HEPHY"] + \
+                      "\n\n"
+
 
         IVCV_dict = self.generate_IVCV("") # here additional header can be added
         strip_dict = self.generate_strip("")

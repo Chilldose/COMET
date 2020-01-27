@@ -18,6 +18,7 @@ import logging
 from .engineering_notation import EngUnit
 import json
 import pandas as pd
+from threading import Thread
 import queue
 from .globals import message_to_main, message_from_main, queue_to_GUI
 #from __future__ import print_function # Needed for the rtd functions that its written in 3
@@ -175,7 +176,7 @@ def write_init_file( name, data, path = ""):
         if os.path.isfile(os.path.abspath(str(path) + str(name.split(".")[0]) + ".yaml")):
 
             os.remove(os.path.abspath(path + str(name.split(".")[0]) + ".yaml"))
-            filename = create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
+            filename, version = create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
             yaml.dump(data, filename, indent=4)
             close_file(filename)
 
@@ -183,7 +184,7 @@ def write_init_file( name, data, path = ""):
 
             #directory = path[:len(path) - len(path.split("/")[-1])]
 
-            filename = create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
+            filename, version = create_new_file(str(name.split(".")[0]), path, os_file=False, suffix=".yaml")
 
             yaml.dump(data, filename, indent=4)
 
@@ -268,10 +269,10 @@ def create_new_file( filename="default.txt", filepath = "default_path", os_file=
         :param filepath:
         :param os_file:
         :param suffix:
-        :return:
+        :return: filepointer, fileversion
         """
 
-        counter = 0
+        count = 1
         if filepath == "default_path":
             filepath = ""
         elif filepath == "":
@@ -279,22 +280,19 @@ def create_new_file( filename="default.txt", filepath = "default_path", os_file=
         else:
             filepath += "/"
 
-        filename += str(suffix)
+        filename = filename.split(".")[0]
 
-        #First check if Filename already exists, when so, add a counter to the file.
-        if os.path.isfile(os.path.abspath(filepath+filename)):
+        #First check if Filename already exists, if so, add a counter to the file.
+        if os.path.isfile(os.path.abspath(filepath+filename+suffix)):
             l.warning("Warning filename " + str(filename) + " already exists!")
-            filename = filename[:-4] + "_" + str(counter) + ".txt" # Adds sufix to filename
-            while os.path.isfile(os.path.abspath(filepath+filename)):  # checks if file exists
-                try:
-                    count = int(filename.split("_")[-1].split(".")[0])
-                    count += 1
-                    filename = filename.split("_")[0] + str(count) + ".txt"
-                except:
-                    filename = filename[:-5] + str(counter)  + ".txt"  # if exists than change the last number in filename string
-                counter += 1
+            filename = filename + "_" + str(count) # Adds suffix to filename
+            while os.path.isfile(os.path.abspath(filepath+filename+suffix)):  # checks if file exists
+                count += 1
+                countlen = len(str(count))
+                filename = filename[:-countlen] + str(count)
             l.info("Filename changed to " + filename + ".")
 
+        filename += str(suffix)
         if os_file:
             fp = os.open(os.path.abspath(filepath+filename), os.O_WRONLY | os.O_CREAT) # Creates the file
         else:
@@ -302,7 +300,7 @@ def create_new_file( filename="default.txt", filepath = "default_path", os_file=
 
         l.info("Generated file: " + str(filename))
 
-        return fp
+        return fp, count
 
     # Opens a file for reading and writing
 
@@ -1857,3 +1855,81 @@ def save_dict_as_hdf5(data, dirr, base_name):
         os.path.join(dirr, "singledata")) else True
     for key in df.get("keys", []):
         data[key]["data"].to_hdf(os.path.join(dirr, "singledata", "{}.hdf5".format(key)), key='df', mode='w')
+
+def save_dict_as_xml(data_dict, filepath, name):
+    from json import loads
+    from dicttoxml import dicttoxml
+    from xml.dom.minidom import parseString
+    """
+    Writes out the data as xml file, for the CMS DB
+
+    :param filepath: Filepath where to store the xml
+    :param name: name of the file 
+    :param data_dict: The data to store in this file. It has to be the dict representation of the xml file
+    :return:
+    """
+    file = os.path.join(os.path.normpath(filepath), name.split(".")[0]+".xml")
+    if isinstance(data_dict, dict):
+        xml = dicttoxml(data_dict, attr_type=False)
+        dom = parseString(xml) # Pretty print style
+        with open(file, "w+") as fp:
+            fp.write(dom.toprettyxml())
+    elif isinstance(data_dict, str):
+        xml = dicttoxml(loads(data_dict), attr_type=False)
+        dom = parseString(xml)  # Pretty print style
+        with open(file, "wb") as fp:
+            fp.write(dom.toprettyxml())
+    else:
+        l.error("Could not save data as xml, the data type is not correct. Must be dict or json")
+
+def send_TCP_message(client, action, message):
+    """
+    This function sends a message to a IP address. This function will run in a new thread. This way the framework
+    will not be halted should the connection fail, or wait for a timeout
+    :param client: The client instance from server_connections.py
+    :param action: An action flag, can be used as identifier
+    :param message: The Message to be sent to the server
+    :return: bool, if successful or not
+    """
+
+    def func(client, action, message):
+        try:
+            l.info("Sending server request with action: {} and message: {}".format(action, message))
+            response = client.send_request(str(action), message)
+        except Exception as err:
+            l.info("Server Error {}".format(err))
+            return False
+        l.info("Server responded with {}".format(response))
+        if response:
+            return True
+        else:
+            l.info("Server seems to be offline.".format(response))
+            return False
+
+    if client:
+        x = Thread(target=func, args=(client, action, message))
+        x.run()
+    else:
+        l.warning("No client defined for sending TCP packages. No message dispatched!")
+
+def send_telegram_message(person, message, configs, client):
+    """
+    Searches for a TelegramBot entry in the configs and then searches for the person and sends a TCP packages
+    to the telegram bot. Warning: This does not guarantee a successfull message dispatch!
+    :param person: The person the message should be sent to
+    :param message: The actuall message - the function handles the the parsing. All python data types are valid
+    :param configs: The config dict
+    :param client: The TCP client over which the message must be send
+    :return: bool
+    """
+    # Telegram bot - Find user and its ID
+    if "TelegramBot" in configs:
+        if person in configs["TelegramBot"]:
+            l.debug("Operator found to send telegram message to. Operator: {}".format(person))
+            send_TCP_message(client, "TelegramBot", {str(configs["TelegramBot"][person]): message})
+        else:
+            l.debug("No telegram ID defined for Operator: {}. No message send. Message: {}".format(person, message))
+            return False
+    else:
+        l.debug("Not TelegramBot entry in the configs, no message dispatch: Message: {}".format(message))
+        return False
