@@ -20,7 +20,6 @@ class OneWireEnv(Thread):
         self.main = main
         self.framework = framework
         self.stop_measurement_loop = self.main.stop_measurement_loop
-        self.resource = framework["Devices"]["temphum_controller"]
         self.update_intervall = float(update_intervall)
         self.queue_to_main = framework["Message_to_main"]
         self.settings = framework["Configs"]["config"]["settings"]
