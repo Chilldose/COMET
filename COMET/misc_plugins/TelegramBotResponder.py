@@ -28,6 +28,7 @@ class TelegramBotResponder:
                 self.QTC_Status(value)
                 self.give_help(value)
                 self.which_plots(value)
+                self.error_log(value)
 
                 # These function alter the data type of answer!!
                 self.send_plot(value)
@@ -85,12 +86,27 @@ class TelegramBotResponder:
     def give_help(self,value):
         """Returns all commands"""
         for val in value.values():
-            if re.findall(r"Help\b", val) or re.findall(r"help", val):
+            if re.findall(r"Help\b", val) or re.findall(r"help\b", val):
                 self.answer += "Status - Gives information about the QTC status\n" \
                                "Help - Gives you a list of all commands \n" \
                                "Plots? - Gives you a list of all possible plots \n" \
                                "Plot <xyz> - Plots you a certain plot \n" \
+                               "Error # - Gives you the last # entries in the event log \n" \
                                "ping - Just returns success \n"
+
+    def error_log(self, value):
+        """This function returns the error log. """
+        for val in value.values():
+            if re.findall(r"Error\b", val) or re.findall(r"errors\b", val):
+                errors = self.main.event_loop_thread.error_log
+                num = val.split()
+                for error in errors[-int(num[-1]):]:
+                    self.answer += ":\n ".join(error) + "\n\n"
+            else:
+                self.answer += "The event log printer must be called with a number! Like 'Error 5'. This will give " \
+                                   "you the last 5 entries in the event log."
+
+
 
     def QTC_Status(self, value):
         """Gives back the QTC Status"""
@@ -99,7 +115,9 @@ class TelegramBotResponder:
                 text = "Current QTC status: \n\n"
                 text += "Measurement running: {} \n".format(self.main.default_values_dict["settings"]["Measurement_running"])
                 text += "Measurement progress: {} % \n".format(self.main.default_values_dict["settings"]["progress"])
+                text += "Current Bias voltage: {} % \n".format(self.main.default_values_dict["settings"]["bias_voltage"])
                 text += "Start time: {} \n".format(self.main.default_values_dict["settings"]["Start_time"])
+                text += "Est. end time: {} \n".format(self.main.default_values_dict["settings"]["End_time"])
                 text += "Single Strip scan time: {} s\n".format(self.main.default_values_dict["settings"]["strip_scan_time"])
                 text += "Bad Strips: {} \n".format(self.main.default_values_dict["settings"]["Bad_strips"])
                 text += "Current filename: {} \n".format(self.main.default_values_dict["settings"]["Current_filename"])

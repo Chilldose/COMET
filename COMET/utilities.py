@@ -1894,13 +1894,42 @@ def send_TCP_message(client, action, message):
 
     def func(client, action, message):
         try:
-            response = client.send_request(str(action), str(message))
+            l.info("Sending server request with action: {} and message: {}".format(action, message))
+            response = client.send_request(str(action), message)
         except Exception as err:
             l.info("Server Error {}".format(err))
             return False
         l.info("Server responded with {}".format(response))
         if response:
             return True
+        else:
+            l.info("Server seems to be offline.".format(response))
+            return False
 
-    x = Thread(target=func, args=(client, action, message))
-    x.run()
+    if client:
+        x = Thread(target=func, args=(client, action, message))
+        x.run()
+    else:
+        l.warning("No client defined for sending TCP packages. No message dispatched!")
+
+def send_telegram_message(person, message, configs, client):
+    """
+    Searches for a TelegramBot entry in the configs and then searches for the person and sends a TCP packages
+    to the telegram bot. Warning: This does not guarantee a successfull message dispatch!
+    :param person: The person the message should be sent to
+    :param message: The actuall message - the function handles the the parsing. All python data types are valid
+    :param configs: The config dict
+    :param client: The TCP client over which the message must be send
+    :return: bool
+    """
+    # Telegram bot - Find user and its ID
+    if "TelegramBot" in configs:
+        if person in configs["TelegramBot"]:
+            l.debug("Operator found to send telegram message to. Operator: {}".format(person))
+            send_TCP_message(client, "TelegramBot", {str(configs["TelegramBot"][person]): message})
+        else:
+            l.debug("No telegram ID defined for Operator: {}. No message send. Message: {}".format(person, message))
+            return False
+    else:
+        l.debug("Not TelegramBot entry in the configs, no message dispatch: Message: {}".format(message))
+        return False

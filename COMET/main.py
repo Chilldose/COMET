@@ -22,7 +22,10 @@ import os
 
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
-#from PyQt5.QtWebEngineWidgets import QWebEngineView
+try: # QtWebEngineWidgets must be imported before a QCoreApplication instance is created, but not all systems have it installed
+    from PyQt5.QtWebEngineWidgets import QWebEngineView
+except:
+    pass
 
 #sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
 
