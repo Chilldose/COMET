@@ -76,21 +76,29 @@ class DeviceCommunication_window:
 
     def query_action(self):
         """What to do when the query button is pressed"""
-        self.gui.response_label.setText("")
+        #self.gui.response_label.setText("")
         message = self.get_message()
+        count = int(self.gui.spinBox.value())
+        total_message = ""
+        if not count:
+            count = 1
         try:
-            resp = self.variables.vcw.query(self.currentDevice, message, reconnect=False)
-            self.gui.response_label.setText(resp)
-            return resp
+            for i in range(count):
+                resp = self.variables.vcw.query(self.currentDevice, message, reconnect=False)
+                currenttext = self.gui.response_label.text()
+                self.gui.response_label.setText(currenttext + resp)
+                total_message += "\n" + resp
+            return total_message
         except:
             return None
 
     def read_action(self):
         """What to do when the read button is pressed"""
-        self.gui.response_label.setText("")
+        #self.gui.response_label.setText("")
         try:
             resp = self.variables.vcw.read(self.currentDevice)
-            self.gui.response_label.setText(resp)
+            currenttext = self.gui.response_label.text()
+            self.gui.response_label.setText(currenttext + "\n" + resp)
             return resp
         except:
             return None

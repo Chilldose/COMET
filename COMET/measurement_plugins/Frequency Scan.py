@@ -61,13 +61,16 @@ class FrequencyScan_class(Stripscan_class):
                 self.stop_everything()
             self.do_frequencyscan(iter+1, volt)
 
-        for i, func_name in enumerate(self.measurements.keys()):
-            self.write_to_file(self.main.measurement_files["Frequency Scan"], self.voltage_ramp, self.main.measurement_data[func_name + "_freq"][0],
-                           self.main.measurement_data[func_name + "_freq"][1])
-            if i > 0:
-                self.log.critical("ASCII output cannot cope with multiple data structures, output may be compromised.")
+        try:
+            for i, func_name in enumerate(self.measurements.keys()):
+                self.write_to_file(self.main.measurement_files["Frequency Scan"], self.voltage_ramp, self.main.measurement_data[func_name + "_freq"][0],
+                               self.main.measurement_data[func_name + "_freq"][1])
+                if i > 0:
+                    self.log.critical("ASCII output cannot cope with multiple data structures, output may be compromised.")
+        except Exception as err:
+            self.log.error("Writting to ASCII file failed due to an error: {}".format(err))
 
-        self.write_to_json()
+        #self.write_to_json()
 
         self.clean_up()
 
@@ -122,7 +125,7 @@ class FrequencyScan_class(Stripscan_class):
                         self.main.framework['Configs']['config']['settings']['progress'] = (i+1)/len(freq_list)
                         yvalue = getattr(self, "do_" + func_name)(strip, samples=self.samples,
                                                          freqscan=True, frequency=freq, write_to_main=False)  # calls the measurement
-                        self.yvalues[i] = yvalue
+                        self.yvalues[i] = yvalue[0] if isinstance(yvalue, np.ndarray) else yvalue
                         self.xvalues[i] = float(freq)
 
                 # Append the data to the data array and sends it to the main as frequency scan measurement
@@ -151,11 +154,16 @@ class FrequencyScan_class(Stripscan_class):
             self.main.write(file, ''.join([format("frequency[Hz]{}capacitance[F]".format(" " * (self.justlength - 7)),
                                                   '<{}'.format(self.justlength * 2)) for x in
                                            range(len(voltages))]) + "\n")
-
-            for i in range(len(data[0, 0, :])):
-                freq = [format(time, '<{}'.format(self.justlength)) for time in data[:, :, i][0]]
-                cap = [format(curr, '<{}'.format(self.justlength)) for curr in data[:, :, i][1]]
-                final = "".join([t + c for t, c in zip(freq, cap)])
+            try:
+                for i in range(len(data[0, 0, :])): # For multidimensional data
+                    freq = [format(time, '<{}'.format(self.justlength)) for time in data[:, :, i][0]]
+                    cap = [format(curr, '<{}'.format(self.justlength)) for curr in data[:, :, i][1]]
+                    final = "".join([t + c for t, c in zip(freq, cap)])
+                    self.main.write(file, final + "\n")
+            except:
+                freq = [format(time, '<{}'.format(self.justlength)) for time in data[0]]
+                cap = [format(curr, '<{}'.format(self.justlength)) for curr in data[1]]
+                final = "".join([t + c + "\n" for t, c in zip(freq, cap)])
                 self.main.write(file, final + "\n")
         else:
             self.log.error("Length of results array are non matching, abort storing data to file")
