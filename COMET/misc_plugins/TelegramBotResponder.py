@@ -34,7 +34,7 @@ class TelegramBotResponder:
                 self.send_plot(value)
 
                 if not self.answer:
-                    self.answer = "The QTC does not support your command, please give a valid command. Type 'QTC Help' for all commands."
+                    self.answer = "Command not supported by COMET, please give a valid command. Type 'Help' for all commands."
             except Exception as err:
                 self.main.log.critical("Could not understand query {} from TCP Client. Errorcode: {}".format(value, err))
                 return "Could not understand query {} from TCP Client. Errorcode: {}".format(value, err)

@@ -34,6 +34,7 @@ class GUI_classes(QWidget):
         self.log = logging.getLogger(__name__)
 
         # Framework variables
+        self.framework = framework_variables
         self.vcw = framework_variables["VCW"]
         self.client = framework_variables["Client"]
         self.server = framework_variables["Server"]
@@ -120,10 +121,16 @@ class GUI_classes(QWidget):
 
 
     def add_rendering_function(self, widget, name):
-        '''This function adds a widget for rendering'''
+        '''This function adds a widget for rendering in the main tab widget. Widgets must be added before begin rendering!'''
         self.log.debug("Adding rendering function: %s", name)
         self.final_tabs.append((widget, name))
 
+    def get_tabWidget(self):
+        """Gives you a widget (PluginWidget) and layout (Gridlayout) object compatible for the tab widget"""
+        widget = PluginWidget()
+        layout = QGridLayout()  # Just a layout type
+        widget.setLayout(layout)
+        return widget, layout
 
     def construct_ui(self):
         '''This function generates all ui elements in form of tab widgets'''

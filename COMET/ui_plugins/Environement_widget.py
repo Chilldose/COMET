@@ -181,7 +181,7 @@ class Environement_widget(object):
                     del plot_item
                     self.hum_plot_obj.setGeometry(p1.vb.sceneBoundingRect())  # resize the second plot!
             except Exception as err:
-                self.envlog.error("An error happend while updating the environement with error: {}".format(err))
+                self.envlog.error("An error happened while updating the environement with error: {}".format(err))
 
     def valuechange(self):
         '''This is the function which is called, when a value is changed in the spin boxes'''

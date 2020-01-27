@@ -165,7 +165,7 @@ def main():
            "rootdir": rootdir, "App": app,
            "Message_from_main": message_from_main, "Message_to_main": message_to_main,
            "Queue_to_GUI": queue_to_GUI, "Configs": setup_loader.configs, "Django": None, "Server": None,
-           "Client": None}
+           "Client": None, "background_Env_task": None}
 
     # Starts a new Thread for the measurement event loop
     MEL = measurement_event_loop(aux)
