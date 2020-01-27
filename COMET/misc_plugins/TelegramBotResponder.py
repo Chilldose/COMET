@@ -100,10 +100,11 @@ class TelegramBotResponder:
             if re.findall(r"Error\b", val) or re.findall(r"errors\b", val):
                 errors = self.main.event_loop_thread.error_log
                 num = val.split()
-                for error in errors[-int(num[-1]):]:
-                    self.answer += ":\n ".join(error) + "\n\n"
-            else:
-                self.answer += "The event log printer must be called with a number! Like 'Error 5'. This will give " \
+                if len(num)>1:
+                    for error in errors[-int(num[-1]):]:
+                        self.answer += ":\n ".join(error) + "\n\n"
+                else:
+                    self.answer += "The event log printer must be called with a number! Like 'Error 5'. This will give " \
                                    "you the last 5 entries in the event log."
 
 
