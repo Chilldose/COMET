@@ -88,7 +88,7 @@ class GUI_classes(QWidget):
 
 
         # This is the main Tab Widget in which all other tabs are implemented
-        self.main_window = MainWindow(self.message_to_main)
+        self.main_window = MainWindow(self.message_to_main, toolbar=self.default_values_dict["settings"].get("show_toolbar", True))
         if "Measurement_running" not in self.default_values_dict["settings"]:
             self.variables.default_values_dict["settings"]["Measurement_running"] = False
         self.add_update_function(self.update_progress_bar)

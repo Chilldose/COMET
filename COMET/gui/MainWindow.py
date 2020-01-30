@@ -17,7 +17,7 @@ ResourcePath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images'
 class MainWindow(QtWidgets.QMainWindow):
     """Main window containing plugin tabs as central widget."""
 
-    def __init__(self, message_to_main, parent=None):
+    def __init__(self, message_to_main, parent=None, toolbar = True):
         super(MainWindow, self).__init__(parent)
         self.message_to_main = message_to_main
         self.setWindowTitle(self.tr("COMET"))
@@ -28,9 +28,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.resize(1600, 1000)
         # Create actions and toolbars.
         self.createActions()
-        self.createMenus()
-        self.createToolbar()
-        self.createStatusBar()
+        if toolbar:
+            self.createMenus()
+            self.createToolbar()
+            self.createStatusBar()
         # Create central widget
         centralWidget = CentralWidget(self)
         centralWidget.setMinimumSize(640, 490)

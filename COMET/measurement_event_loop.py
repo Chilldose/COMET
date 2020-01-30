@@ -33,8 +33,8 @@ class measurement_event_loop(Thread):
         self.devices = framework_modules["Devices"]
 
 
-        self.humidity_history = []
-        self.temperatur_history = []
+        self.humidity_history = np.array([], dtype=np.float)
+        self.temperatur_history = np.array([], dtype=np.float)
         self.dry_air_on = "unknown"
         self.measurement_running = False
         self.stop_measurement = False

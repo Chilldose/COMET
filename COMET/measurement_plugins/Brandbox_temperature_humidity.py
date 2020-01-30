@@ -2,6 +2,7 @@ from threading import Thread, Timer
 from time import time
 import logging
 import random
+import numpy as np
 
 
 class Brandbox_temperature_humidity(Thread):
@@ -49,15 +50,22 @@ class Brandbox_temperature_humidity(Thread):
 
         if not self.stop_measurement_loop and self.success:
             try:
+                # Query the environemnt etc from Brandbox
                 values = self.vcw.query(self.resource, self.query)
                 values = values.split(",")
-                self.main.humidity_history.append(float(values[1]))  # todo: memory leak since no values will be deleted
-                self.main.temperatur_history.append(float(values[0]))
+
+                # Here a list
+                self.main.humidity_history = np.append(self.main.humidity_history, float(values[1])) # todo: memory leak since no values will be deleted
+                self.main.temperatur_history= np.append(self.main.humidity_history, float(values[3]))
+
                 # Write the pt100 and light status and environement in the box to the global variables
                 self.framework["Configs"]["config"]["settings"]["chuck_temperature"] = float(values[3])
                 self.framework["Configs"]["config"]["settings"]["internal_lights"] = True if int(values[2]) == 1 else False
+                self.framework["Configs"]["config"]["settings"]["air_temperature"] = float(values[0])
+
+                # Send data to main
                 self.queue_to_main.put({"temperature": [float(time()), float(values[0])],
-                                   "humidity": [float(time()), float(values[1])]})
+                                        "humidity": [float(time()), float(values[1])]})
             except Exception as err:
                 self.log.error(
                     "The temperature and humidity controller seems not to be responding. Error: {!s}".format(err))
