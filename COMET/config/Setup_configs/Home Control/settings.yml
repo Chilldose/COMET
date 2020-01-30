@@ -3,6 +3,15 @@
     # Critical parameters
     Settings_name: settings # The name of the settings which will be shown in the framework and will be the addressing name (settings here is important)
 
+    433MHz_Transiever:
+        path: "~/git_repos/433Utils/RPi_utils"
+        Codes:
+          Light1:
+            - 001100 3
+          Light2:
+            - 001100 2
+            - 001100 3
+
     measurement_types: # Different measurement types which can be conducted
         - Temp_Room1
         - Hum_Room1

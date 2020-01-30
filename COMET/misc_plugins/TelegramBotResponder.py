@@ -14,6 +14,13 @@ class TelegramBotResponder:
 
         self.main = parent_class
         self.answer = ""
+        self.RPI_modules = False
+
+        # Load Raspberry modules
+        try:
+            self.RPI_modules = True
+        except:
+            self.RPI_modules = False
 
     def run(self, action, value):
         """
@@ -49,6 +56,42 @@ class TelegramBotResponder:
                 self.answer += "The possible plots to show are: \n\n"
                 self.answer += "\n".join(self.main.plot_objs.keys())
                 self.answer += "\n\nYou can access them by typing 'Plot <xyz>'"
+
+    def get_light_config(self, value):
+        """Gives you all light configurations"""
+        for val in value.values():
+            if re.findall(r"Light?\b", val):
+                if "433MHz_Transiever" in self.main.default_values_dict["settings"]:
+                    self.answer += "All possible light configurations: \n\n"
+                    for light in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"]:
+                        self.answer += '{}\n'.format(light)
+                    else:
+                        self.answer += "This light configuration is not defined."
+                else:
+                    self.answer += "No transiever defined. Cannot do what you asked."
+
+            
+    def send_RF_code(self, value):
+        """This function is only possible if the system is a raspberry pi. It sends a 433MHz code.
+        It uses the 433MHz libs from github for transmitting"""
+
+        for val in value.values():
+            light = re.findall(r"Light\b\s*(\w*)", val)
+            if "433MHz_Transiever" in self.main.default_values_dict["settings"]:
+                if light in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"]:
+                    for switch in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][light]:
+                        path = os.path.normpath(self.main.default_values_dict["settings"]["433MHz_Transiever"]["path"])
+                        code = switch
+                        onoff = value.split()[-1]
+                        cmd = './{} {} {}'.format(path, code, 1 if onoff.upper()=="ON" else 0)
+                        os.system(cmd)
+                else:
+                    self.answer += "This light configuration is not defined."
+            else:
+                self.answer += "No transiever defined. Cannot do what you asked."
+
+
+
 
     def send_plot(self, value):
         """Saves a plot as png and returns the path to this plot to the bot"""
@@ -92,7 +135,10 @@ class TelegramBotResponder:
                                "Plots? - Gives you a list of all possible plots \n" \
                                "Plot <xyz> - Plots you a certain plot \n" \
                                "Error # - Gives you the last # entries in the event log \n" \
-                               "ping - Just returns success \n"
+                               "ping - Just returns success \n" \
+                               "All possible commands for RPI:" \
+                               "Light? - Gives you the possible light configurations" \
+                               "Light ConfigName <ON/OFF> - Turns light ON or OFF "
 
     def error_log(self, value):
         """This function returns the error log. """
@@ -116,7 +162,7 @@ class TelegramBotResponder:
                 text = "Current QTC status: \n\n"
                 text += "Measurement running: {} \n".format(self.main.default_values_dict["settings"]["Measurement_running"])
                 text += "Measurement progress: {} % \n".format(self.main.default_values_dict["settings"]["progress"])
-                text += "Current Bias voltage: {} % \n".format(self.main.default_values_dict["settings"]["bias_voltage"])
+                text += "Current Bias voltage: {} \n".format(self.main.default_values_dict["settings"].get("bias_voltage", 0))
                 text += "Start time: {} \n".format(self.main.default_values_dict["settings"]["Start_time"])
                 text += "Est. end time: {} \n".format(self.main.default_values_dict["settings"]["End_time"])
                 text += "Single Strip scan time: {} s\n".format(self.main.default_values_dict["settings"]["strip_scan_time"])
