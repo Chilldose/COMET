@@ -1,7 +1,6 @@
 from threading import Thread, Timer
 from time import time
 import logging
-import random
 try:
     import Adafruit_DHT
 except:

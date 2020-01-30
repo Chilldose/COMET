@@ -89,6 +89,11 @@ class GUI_classes(QWidget):
 
         # This is the main Tab Widget in which all other tabs are implemented
         self.main_window = MainWindow(self.message_to_main)
+        if "Measurement_running" not in self.default_values_dict["settings"]:
+            self.variables.default_values_dict["settings"]["Measurement_running"] = False
+        self.add_update_function(self.update_progress_bar)
+        self.add_update_function(self.update_current_state)
+
 
         # Base config for all qtgraph plots
         plot_style = QtCore.QSettings().value("plot_style")
@@ -146,8 +151,18 @@ class GUI_classes(QWidget):
                 plugin = getattr(self.all_plugin_modules[module], module)(self, layout)
                 self.ui_plugins.update({module: plugin})
 
+                # Add onStart and onStop if the plugin supports that
+                if hasattr(plugin, "onStart"):
+                    widget.onStart = plugin.onStart
+                else:
+                    widget.onStart = self.default_onStart
+
+                if hasattr(plugin, "onStop"):
+                    widget.onStop = plugin.onStop
+
                 # Add the ui to the renderer
                 self.add_rendering_function(widget, module.split("_")[0])
+
             except AttributeError as err:
                 self.log.error("The Module {} for the GUI app generation could not be found. Error: {}".format(module, err))
 
@@ -274,4 +289,31 @@ class GUI_classes(QWidget):
         else:
             self.log.info("Got a message via TCP, with Action: {} and Value: {}. No actions are made on this message, since" \
                    "no function has been given to process".format(action, value))
+
+    def update_progress_bar(self):
+        """Updates the progress bar in the main window"""
+        self.main_window.progressBar.setValue(self.default_values_dict["settings"].get("progress", 0.0)*100)
+
+
+    def update_current_state(self):
+        """Updates the label of the state of the program. Either IDLE or Measurement running"""
+        if self.default_values_dict["settings"]["Measurement_running"] and not self.main_window.StatusLabel.text() == "Measurement running":
+            self.main_window.StatusLabel.setText("Measurement running")
+            self.main_window.StatusLabel.setStyleSheet("background : rgb(50,20,200); border-radius: 5px")
+
+        elif not self.default_values_dict["settings"]["Measurement_running"] and not self.main_window.StatusLabel.text() == "IDLE":
+            self.main_window.StatusLabel.setText("IDLE")
+            self.main_window.StatusLabel.setStyleSheet("background : rgb(50,100,100); border-radius: 5px")
+
+        if self.default_values_dict["settings"]["Measurement_running"] and self.main_window.startAct.isEnabled():
+            self.main_window.startAct.setEnabled(False)
+            self.main_window.stopAct.setEnabled(True)
+        elif not self.default_values_dict["settings"]["Measurement_running"] and self.main_window.stopAct.isEnabled():
+            self.main_window.startAct.setEnabled(True)
+            self.main_window.stopAct.setEnabled(False)
+
+    def default_onStart(self):
+        """What should be done on default, if tab has no onStart function defined"""
+        self.log.error("The current selected tab does not support external start signal.")
+
 

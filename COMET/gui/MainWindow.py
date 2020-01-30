@@ -20,7 +20,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, message_to_main, parent=None):
         super(MainWindow, self).__init__(parent)
         self.message_to_main = message_to_main
-        self.setWindowTitle(self.tr("Comet"))
+        self.setWindowTitle(self.tr("COMET"))
         icon_filename = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images', 'logo.png')
         self.setWindowIcon(QtGui.QIcon(icon_filename))
         # Only minimize and maximize button are active
@@ -42,11 +42,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.preferencesDialog.hide()
 
     def createActions(self):
-        """Create actions."""
+        """Create actions, for the toolbar etc"""
         # Action for quitting the program.
         self.quitAct = QtWidgets.QAction(self.tr("&Quit"), self)
         self.quitAct.setShortcut(QtGui.QKeySequence.Quit)
-        self.quitAct.setStatusTip(self.tr("Quit the programm"))
+        self.quitAct.setStatusTip(self.tr("Quit the program"))
         self.quitAct.triggered.connect(self.close)
         # Preferences.
         self.preferencesAct = QtWidgets.QAction(self.tr("&Preferences"), self)
@@ -76,6 +76,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.contentsAct.setShortcut(QtGui.QKeySequence(Qt.Key_F1))
         self.contentsAct.setStatusTip(self.tr("Visit manual on github pages"))
         self.contentsAct.triggered.connect(self.onShowContents)
+        # Create progressBar
+        self.progressBar = QtWidgets.QProgressBar()
+        self.progressBar.setRange(0,100)
+        self.progressBar.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        self.progressBar.setFixedWidth(400)
+        self.progressBar.setValue(0)
+        # Create State indicator
+        self.StatusLabel = QtWidgets.QLabel()
+        self.StatusLabel.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        self.StatusLabel.setFixedWidth(150)
+        self.StatusLabel.setAlignment(Qt.AlignCenter)
+        self.StatusLabel.setText("Start up")
 
     def createMenus(self):
         """Create menus."""
@@ -98,6 +110,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolbar.setMovable(False)
         self.toolbar.setFloatable(False)
         self.toolbar.addActions(self.measureActGroup.actions())
+        # Add the progress bar and Status indicator to the Toolbar
+        self.toolbar.addWidget(self.StatusLabel)
+        self.toolbar.addWidget(self.progressBar)
+
+        # Add a spacer
+        #self.verticalSpacer = QtWidgets.QWidget()
+        #self.verticalSpacer.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
+        #self.toolbar.addWidget(self.verticalSpacer)
+
+
 
     def createStatusBar(self):
         """Create status bar."""
