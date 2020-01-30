@@ -71,7 +71,7 @@ class TelegramBotResponder:
                 else:
                     self.answer += "No transiever defined. Cannot do what you asked."
 
-            
+
     def send_RF_code(self, value):
         """This function is only possible if the system is a raspberry pi. It sends a 433MHz code.
         It uses the 433MHz libs from github for transmitting"""
