@@ -63,14 +63,14 @@ class TelegramBotResponder:
             if re.findall(r"Light?\b", val):
                 if "433MHz_Transiever" in self.main.default_values_dict["settings"]:
                     self.answer += "All possible light configurations: \n\n"
-                    for light in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"]:
+                    for light in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"].keys():
                         self.answer += '{}\n'.format(light)
                     else:
                         self.answer += "This light configuration is not defined."
                 else:
                     self.answer += "No transiever defined. Cannot do what you asked."
 
-            
+
     def send_RF_code(self, value):
         """This function is only possible if the system is a raspberry pi. It sends a 433MHz code.
         It uses the 433MHz libs from github for transmitting"""
