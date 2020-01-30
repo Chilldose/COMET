@@ -85,7 +85,7 @@ class TelegramBotResponder:
                         path = os.path.normpath(self.main.default_values_dict["settings"]["433MHz_Transiever"]["path"])
                         for switch in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][light[0]]:
                             code = switch
-                            cmd = './{} {} {}'.format(path, code, onoff)
+                            cmd = '{} {} {}'.format(path, code, onoff)
                             os.system(cmd)
                         if onoff:
                             old_light = self.current_light
@@ -101,7 +101,7 @@ class TelegramBotResponder:
                             for switch in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][old_light]:
                                 if switch not in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][self.current_light]:
                                     code = switch
-                                    cmd = './{} {} {}'.format(path, code, onoff)
+                                    cmd = '{} {} {}'.format(path, code, onoff)
                                     os.system(cmd)
 
                         self.answer += "Done and enjoy."
