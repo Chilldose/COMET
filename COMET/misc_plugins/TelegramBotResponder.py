@@ -63,13 +63,11 @@ class TelegramBotResponder:
     def get_light_config(self, value):
         """Gives you all light configurations"""
         for val in value.values():
-            if re.findall(r"Light\?\b", val):
+            if val.strip() == "Light?":
                 if "433MHz_Transiever" in self.main.default_values_dict["settings"]:
                     self.answer += "All possible light configurations: \n\n"
-                    for light in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"]:
+                    for light in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"].keys():
                         self.answer += '{}\n'.format(light)
-                    else:
-                        self.answer += "This light configuration is not defined."
                 else:
                     self.answer += "No transiever defined. Cannot do what you asked."
 
@@ -79,35 +77,38 @@ class TelegramBotResponder:
         It uses the 433MHz libs from github for transmitting"""
 
         for val in value.values():
-            light = re.findall(r"Light\b\s*(\w*)", val)
-            if "433MHz_Transiever" in self.main.default_values_dict["settings"] and light:
-                if light in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"]:
-                    onoff = 1 if value.split()[-1].upper() == "ON" else 0
-                    path = os.path.normpath(self.main.default_values_dict["settings"]["433MHz_Transiever"]["path"])
-                    for switch in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][light]:
-                        code = switch
-                        cmd = './{} {} {}'.format(path, code, onoff)
-                        os.system(cmd)
-                    if onoff:
-                        old_light = self.current_light
-                        self.current_light = light
-                    else:
-                        old_light = None # Because everything is off
-                        self.current_light = None
-
-                    # Switch the old one off, which are not included in the new one
-                    if old_light:
+            light = re.findall(r"Switch\b\s*(\w*)", val)
+            if light:
+                if "433MHz_Transiever" in self.main.default_values_dict["settings"]:
+                    if light[0] in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"].keys():
+                        onoff = 1 if val.split()[-1].upper() == "ON" else 0
                         path = os.path.normpath(self.main.default_values_dict["settings"]["433MHz_Transiever"]["path"])
-                        onoff = 0
-                        for switch in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][old_light]:
-                            if switch not in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][self.current_light]:
-                                code = switch
-                                cmd = './{} {} {}'.format(path, code, onoff)
-                                os.system(cmd)
+                        for switch in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][light[0]]:
+                            code = switch
+                            cmd = './{} {} {}'.format(path, code, onoff)
+                            os.system(cmd)
+                        if onoff:
+                            old_light = self.current_light
+                            self.current_light = light[0]
+                        else:
+                            old_light = None # Because everything is off
+                            self.current_light = None
+
+                        # Switch the old one off, which are not included in the new one
+                        if old_light:
+                            path = os.path.normpath(self.main.default_values_dict["settings"]["433MHz_Transiever"]["path"])
+                            onoff = 0
+                            for switch in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][old_light]:
+                                if switch not in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][self.current_light]:
+                                    code = switch
+                                    cmd = './{} {} {}'.format(path, code, onoff)
+                                    os.system(cmd)
+
+                        self.answer += "Done and enjoy."
+                    else:
+                        self.answer += "This light configuration is not defined."
                 else:
-                    self.answer += "This light configuration is not defined."
-            else:
-                self.answer += "No transiever defined. Cannot do what you asked."
+                    self.answer += "No transiever defined. Cannot do what you asked."
 
 
 
@@ -156,8 +157,8 @@ class TelegramBotResponder:
                                "Error # - Gives you the last # entries in the event log \n" \
                                "ping - Just returns success \n" \
                                "All possible commands for RPI:" \
-                               "Light? - Gives you the possible light configurations" \
-                               "Light ConfigName <ON/OFF> - Turns light ON or OFF "
+                               "Light? - Gives you the possible light configurations \n" \
+                               "Switch ConfigName <ON/OFF> - Turns light ON or OFF "
 
     def error_log(self, value):
         """This function returns the error log. """
