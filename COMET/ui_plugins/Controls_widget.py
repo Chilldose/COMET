@@ -11,6 +11,7 @@ class Controls_widget(object):
         """Configures the cotrols widget"""
 
         self.Conlog = logging.getLogger(__name__)
+        self.gui = gui
 
         # Controls widget
         if not "Start" in gui.child_layouts:
@@ -68,6 +69,15 @@ class Controls_widget(object):
             # msg.setDetailedText("The details are as follows:")
             msg.exec_()
 
+    def onStart(self):
+        """The QWidget onStart construct. This is used for the ToolBar start stop etc."""
+        self.Conlog.critical("Start order send by non Tab intern signal.")
+        self.Start_order()
+
+    def onStop(self):
+        """The QWidget onStart construct. This is used for the ToolBar start stop etc."""
+        self.Conlog.critical("Stop order send by non Tab intern signal.")
+        self.Stop_order()
 
     def Start_order(self):
         if self.variables.default_values_dict["settings"]["Current_filename"] and os.path.isdir(self.variables.default_values_dict["settings"]["Current_directory"]):

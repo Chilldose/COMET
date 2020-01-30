@@ -212,6 +212,8 @@ def main():
 
 
     log.critical("Start rendering GUI...")
+    if args.fullscreen: # Shows the app in fullscreen mode
+        gui.main_window.showFullScreen()
     gui.app.exec_() # Starts the actual event loop for the GUI
     end_time = time.time()
 
