@@ -496,7 +496,7 @@ a setup etc. To tell COMET which script it should call you have to add the follo
 in you project: ::
 
     temp_history: 3600 # How much should be shown in the humidity history in seconds
-    temphum_update_intervall: 5000 # Update interval of the humidity control in ms
+    temphum_update_interval: 5000 # Update interval of the humidity control in ms
     temphum_plugin: <plugin_name>
     time_format: "%H:%M:%S" # Time format of the humidity control
 
@@ -524,7 +524,7 @@ Change the behaviour of the framework and misc.
 In this chapter we discuss several features of COMET which cannot justify a own chapter but are somewhat crucial.
 All these features can be accessed by a parameter in the ``settings.yml`` file of your project.
 
-**GUI_update_intervall: <time_in_ms>**
+**GUI_update_interval: <time_in_ms>**
 
 This parameter handles the update interval -in ms- of the GUI, this includes the framework functions which you specified as well.
 

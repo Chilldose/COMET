@@ -40,7 +40,7 @@ class EnvironmentMonitor_window:
 
         # Config all settings
         self.SettingsGui.env_updateInterval_slider.setRange(0, 500)
-        self.SettingsGui.env_updateInterval_slider.setValue(self.settings["temphum_update_intervall"] / 1000.)
+        self.SettingsGui.env_updateInterval_slider.setValue(self.settings["temphum_update_interval"] / 1000.)
         self.SettingsGui.env_history_slider.setRange(0, 200)
         self.SettingsGui.env_history_slider.setValue(self.settings.get("temp_history",3600) / 3600.)
         self.update_env_control()
@@ -83,7 +83,7 @@ class EnvironmentMonitor_window:
     def update_env_control(self):
         """Updates the env control"""
         if self.env_task:
-            self.env_task.update_intervall = float(self.SettingsGui.env_updateInterval_slider.value()*1000)
+            self.env_task.update_interval = float(self.SettingsGui.env_updateInterval_slider.value()*1000)
             self.history = float(self.SettingsGui.env_history_slider.value()*3600)
         else:
             self.log.error("No environment task found! Value change has no effect.")

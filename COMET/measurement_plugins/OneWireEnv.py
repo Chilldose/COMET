@@ -12,14 +12,14 @@ except:
 class OneWireEnv(Thread):
     """This class is for reading out one wire sensors with the rpi"""
 
-    def __init__(self, main, framework, update_intervall=5000):
+    def __init__(self, main, framework, update_interval=5000):
         '''This starts the background and continuous tasks like humidity and temperature control'''
 
         Thread.__init__(self)
         self.main = main
         self.framework = framework
         self.stop_measurement_loop = self.main.stop_measurement_loop
-        self.update_intervall = float(update_intervall)
+        self.update_interval = float(update_interval)
         self.queue_to_main = framework["Message_to_main"]
         self.settings = framework["Configs"]["config"]["settings"]
         self.sensors = self.settings["Sensors"]
@@ -68,7 +68,7 @@ class OneWireEnv(Thread):
 
 
     def start_timer(self, object):
-        Timer(self.update_intervall / 1000.,object).start()  # This ensures the function will be called again
+        Timer(self.update_interval / 1000.,object).start()  # This ensures the function will be called again
 
 
 

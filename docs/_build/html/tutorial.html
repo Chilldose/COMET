@@ -727,7 +727,7 @@ The <code class="docutils literal notranslate"><span class="pre">self.main.measu
 a setup etc. To tell COMET which script it should call you have to add the following lines to the <code class="docutils literal notranslate"><span class="pre">settings.yml</span></code> file
 in you project:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">temp_history</span><span class="p">:</span> <span class="mi">3600</span> <span class="c1"># How much should be shown in the humidity history in seconds</span>
-<span class="n">temphum_update_intervall</span><span class="p">:</span> <span class="mi">5000</span> <span class="c1"># Update interval of the humidity control in ms</span>
+<span class="n">temphum_update_interval</span><span class="p">:</span> <span class="mi">5000</span> <span class="c1"># Update interval of the humidity control in ms</span>
 <span class="n">temphum_plugin</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">plugin_name</span><span class="o">&gt;</span>
 <span class="n">time_format</span><span class="p">:</span> <span class="s2">&quot;%H:%M:%S&quot;</span> <span class="c1"># Time format of the humidity control</span>
 </pre></div>
@@ -754,7 +754,7 @@ If you want to pass your data to the GUI use the dedicated queue objects for dat
 <h2>Change the behaviour of the framework and misc.<a class="headerlink" href="#change-the-behaviour-of-the-framework-and-misc" title="Permalink to this headline">¶</a></h2>
 <p>In this chapter we discuss several features of COMET which cannot justify a own chapter but are somewhat crucial.
 All these features can be accessed by a parameter in the <code class="docutils literal notranslate"><span class="pre">settings.yml</span></code> file of your project.</p>
-<p><strong>GUI_update_intervall: &lt;time_in_ms&gt;</strong></p>
+<p><strong>GUI_update_interval: &lt;time_in_ms&gt;</strong></p>
 <p>This parameter handles the update interval -in ms- of the GUI, this includes the framework functions which you specified as well.</p>
 <div class="admonition caution">
 <p class="first admonition-title">Caution</p>
