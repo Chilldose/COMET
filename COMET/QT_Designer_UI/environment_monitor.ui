@@ -68,7 +68,7 @@
         <widget class="QPushButton" name="reset_button">
          <property name="minimumSize">
           <size>
-           <width>150</width>
+           <width>250</width>
            <height>0</height>
           </size>
          </property>
