@@ -61,10 +61,6 @@ class EnvironmentMonitor_window:
         self.SettingsGui.fade_green_slider.valueChanged.connect(self.update_lcd_displays)
         self.SettingsGui.fade_speed_slider.valueChanged.connect(self.update_lcd_displays)
 
-        # Buttons
-        self.SettingsGui.reset_button.clicked.connect(self.reset_data)
-        self.SettingsGui.autofit_button.clicked.connect(self.refit_data_to_screen)
-
 
         # Add the update function and run some inits
         self.variables.add_update_function(self.update_temphum_plots)
@@ -103,6 +99,9 @@ class EnvironmentMonitor_window:
                                                      self.settings["Ranges"][room]["temp_max"])
         self.roomsGui[room][0].humidity_bar.setRange(self.settings["Ranges"][room]["hum_min"],
                                                   self.settings["Ranges"][room]["hum_max"])
+        # Buttons
+        self.roomsGui[room][0].reset_button.clicked.connect(self.reset_data)
+        self.roomsGui[room][0].autofit_button.clicked.connect(self.refit_data_to_screen)
 
 
     def config_plot(self, plot, plot2):

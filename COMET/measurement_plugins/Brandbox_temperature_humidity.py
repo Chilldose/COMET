@@ -9,7 +9,7 @@ class Brandbox_temperature_humidity(Thread):
     """This class is reads out continiously the temperature and humidity from the Brandbox
     This class inherits all function from the threading class an therefore can be startet as thread."""
 
-    def __init__(self, main, framework, update_intervall=5000):
+    def __init__(self, main, framework, update_interval=5000):
         '''This starts the background and continuous tasks like humidity and temperature control'''
 
         Thread.__init__(self)
@@ -18,7 +18,7 @@ class Brandbox_temperature_humidity(Thread):
         self.stop_measurement_loop = self.main.stop_measurement_loop
         self.resource = framework["Devices"]["temphum_controller"]
         self.query = self.resource["get_environment"]
-        self.update_intervall = float(update_intervall)
+        self.update_interval = float(update_interval)
         self.queue_to_main = framework["Message_to_main"]
         self.vcw = framework["VCW"]
         self.log = logging.getLogger(__name__)
@@ -82,7 +82,7 @@ class Brandbox_temperature_humidity(Thread):
 
 
     def start_timer(self, object):
-        Timer(self.update_intervall / 1000.,object).start()  # This ensures the function will be called again
+        Timer(self.update_interval / 1000.,object).start()  # This ensures the function will be called again
 
 
 

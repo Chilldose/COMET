@@ -139,7 +139,7 @@ A good starting point would be a file with at least these ::
 
     # Optional parameters
     temp_history: 3600 # How much should be shown in the humidity history in seconds
-    temphum_update_intervall: 5000 # Update intervall of the humidity controll in ms
+    temphum_update_interval: 5000 # Update intervall of the humidity controll in ms
     temphum_plugin: Brandbox_temperature_humidity
     time_format: "%H:%M:%S" # Time format of the humidity control
     GUI_update_interval: 200.0 # How often should the GUI be updated in ms
