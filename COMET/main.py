@@ -48,9 +48,11 @@ def main():
 
     # Create timestamp
     start_time = time.time()
+    rootdir = os.path.dirname(os.path.abspath(__file__))
 
     # Load Style sheet
-    StyleSheet = utilities.load_QtCSS_StyleSheet("Qt_Style.css")
+    config = os.path.join(rootdir, "Qt_Style.css")
+    StyleSheet = utilities.load_QtCSS_StyleSheet(config)
 
     # Create app
     app = QtWidgets.QApplication(sys.argv)
@@ -76,7 +78,6 @@ def main():
     sys.excepthook = utilities.exception_handler
 
     # Initialize logger using configuration
-    rootdir = os.path.dirname(os.path.abspath(__file__))
     config = os.path.join(rootdir, "loggerConfig.yml")
     utilities.LogFile(config)
 
