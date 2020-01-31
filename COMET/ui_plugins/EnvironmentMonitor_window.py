@@ -224,8 +224,8 @@ class EnvironmentMonitor_window:
         """Resets data of plots"""
         for room in self.rooms:
             # Change the LCD display objects as well
-            self.variables.meas_data["Temp_" + room] = np.array([])
-            self.variables.meas_data["Hum_" + room] = np.array([])
+            self.variables.meas_data["Temp_" + room] = [np.array([]), np.array([])]
+            self.variables.meas_data["Hum_" + room] = [np.array([]), np.array([])]
             self.variables.default_values_dict["settings"]["new_data"] = True
 
 
