@@ -2,6 +2,7 @@ import logging
 from PyQt5.QtWidgets import *
 import pyqtgraph
 from .. utilities import get_thicks_for_timestamp_plot
+import numpy as np
 
 class EnvironmentMonitor_window:
 
@@ -59,6 +60,10 @@ class EnvironmentMonitor_window:
         self.SettingsGui.fade_blue_slider.valueChanged.connect(self.update_lcd_displays)
         self.SettingsGui.fade_green_slider.valueChanged.connect(self.update_lcd_displays)
         self.SettingsGui.fade_speed_slider.valueChanged.connect(self.update_lcd_displays)
+
+        # Buttons
+        self.SettingsGui.reset_button.clicked.connect(self.reset_data)
+        self.SettingsGui.autofit_button.clicked.connect(self.refit_data_to_screen)
 
 
         # Add the update function and run some inits
@@ -207,5 +212,18 @@ class EnvironmentMonitor_window:
         """This function simply updates the spin bixes and bars to min max values etc."""
         self.roomsGui[room][0].temperature_bar.setValue(25)
         self.roomsGui[room][0].humidity_bar.setValue(25)
+
+    def refit_data_to_screen(self):
+        """Refits the data to screen"""
+        for room in self.rooms:
+            self.temphum_plot[room].plotItem.autoRange()
+
+    def reset_data(self):
+        """Resets data of plots"""
+        for room in self.rooms:
+            # Change the LCD display objects as well
+            self.variables.meas_data["Temp_" + room] = np.array([])
+            self.variables.meas_data["Hum_" + room] = np.array([])
+
 
 
