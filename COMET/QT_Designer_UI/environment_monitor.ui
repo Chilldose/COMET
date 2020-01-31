@@ -40,6 +40,12 @@
       <layout class="QGridLayout" name="gridLayout">
        <item row="1" column="0">
         <widget class="QPushButton" name="autofit_button">
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string>Auto fit</string>
          </property>
@@ -60,6 +66,12 @@
        </item>
        <item row="0" column="0">
         <widget class="QPushButton" name="reset_button">
+         <property name="minimumSize">
+          <size>
+           <width>150</width>
+           <height>0</height>
+          </size>
+         </property>
          <property name="text">
           <string>Reset Plot Data</string>
          </property>
