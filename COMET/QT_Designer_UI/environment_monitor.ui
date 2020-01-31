@@ -23,7 +23,7 @@
       <widget class="QLabel" name="room_label">
        <property name="minimumSize">
         <size>
-         <width>250</width>
+         <width>0</width>
          <height>0</height>
         </size>
        </property>
@@ -79,7 +79,7 @@
           </size>
          </property>
          <property name="text">
-          <string>Reset Plot Data</string>
+          <string>Reset</string>
          </property>
         </widget>
        </item>
