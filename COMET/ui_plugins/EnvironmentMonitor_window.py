@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import *
 import pyqtgraph
 from .. utilities import get_thicks_for_timestamp_plot
 import numpy as np
+from time import sleep
 
 class EnvironmentMonitor_window:
 
@@ -43,7 +44,7 @@ class EnvironmentMonitor_window:
         self.SettingsGui.env_updateInterval_slider.setValue(self.settings["temphum_update_interval"] / 1000.)
         self.SettingsGui.env_history_slider.setRange(0, 200)
         self.SettingsGui.env_history_slider.setValue(self.settings.get("temp_history",3600) / 3600.)
-        self.update_env_control()
+
 
         # Connect the slider to the update function
         self.SettingsGui.env_history_slider.sliderReleased.connect(self.valuechange)
@@ -65,6 +66,8 @@ class EnvironmentMonitor_window:
         # Add the update function and run some inits
         self.variables.add_update_function(self.update_temphum_plots)
         self.valuechange()
+
+        #self.update_env_control()
 
     def update_lcd_displays(self):
         """Updates the displays"""
@@ -223,6 +226,7 @@ class EnvironmentMonitor_window:
             # Change the LCD display objects as well
             self.variables.meas_data["Temp_" + room] = np.array([])
             self.variables.meas_data["Hum_" + room] = np.array([])
+            self.variables.default_values_dict["settings"]["new_data"] = True
 
 
 

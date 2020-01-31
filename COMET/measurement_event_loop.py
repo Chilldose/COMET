@@ -61,9 +61,10 @@ class measurement_event_loop(Thread):
                                             ["config"]["settings"].get("temphum_plugin", "NoPlugin"))\
                                             (self, self.framework, self.framework["Configs"]
                                         ["config"]["settings"].get("temphum_update_interval", 5000))
-                self.framework["background_Env_task"] = self.temphumhread
+
                 self.temphumhread.setDaemon(True)
                 self.temphumhread.start() # Starts the thread
+                self.framework["background_Env_task"] = self.temphumhread
             except Exception as err:
                 self.log.error("An error happened while starting the temphum control thread: {}".format(err))
 
