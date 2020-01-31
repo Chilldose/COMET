@@ -60,7 +60,7 @@ class measurement_event_loop(Thread):
                 self.temphumhread = getattr(self.temphum_plugin, self.framework["Configs"]
                                             ["config"]["settings"].get("temphum_plugin", "NoPlugin"))\
                                             (self, self.framework, self.framework["Configs"]
-                                        ["config"]["settings"].get("temphum_update_intervall:", 5000))
+                                        ["config"]["settings"].get("temphum_update_interval", 5000))
                 self.framework["background_Env_task"] = self.temphumhread
                 self.temphumhread.setDaemon(True)
                 self.temphumhread.start() # Starts the thread
