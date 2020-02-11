@@ -92,7 +92,7 @@
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
               #ylabel: current [A]
-              ylim: !!python/tuple [0, -800]
+              #ylim: !!python/tuple [0, -800]
 
       Idiel:
           PlotLabel: Current through dielectric
@@ -159,7 +159,7 @@
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
               #ylabel: resistance [Ohm]
-              ylim: !!python/tuple [0, 2.5]
+              #ylim: !!python/tuple [0, 2.5]
       Rint:
           PlotLabel: Interstrip Resistance
           UnitConversion: giga
@@ -202,7 +202,7 @@
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
               #ylabel: capacitance [F]
-              ylim: !!python/tuple [120, 160]
+              #ylim: !!python/tuple [120, 160]
 
       Cint:
           PlotLabel: Interstrip Capacitance
@@ -518,5 +518,5 @@
               #xlabel: voltage [V]
               ylabel: 1/c^2 [arb. units]
               shared_axes: False
-              ylim: !!python/tuple [0, 0.08]
+              #ylim: !!python/tuple [0, 0.08]
               #xlim: !!python/tuple [0, 500]

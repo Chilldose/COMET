@@ -61,7 +61,7 @@
               logy: True
               logx: False
               invert_xaxis: False
-              invert_yaxis: false
+              invert_yaxis: False
               #ylim: !!python/tuple [0, 10e-6]
               #xlim: !!python/tuple [0, 1000]
               #legend_position: "bottom_right"
@@ -153,5 +153,5 @@
               #xlabel: voltage [V]
               ylabel: 1/c^2 [arb. units]
               shared_axes: False
-              ylim: !!python/tuple [0, 0.08]
+              #ylim: !!python/tuple [0, 0.08]
               #xlim: !!python/tuple [0, 500]

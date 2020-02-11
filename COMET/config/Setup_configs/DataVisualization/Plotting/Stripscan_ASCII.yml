@@ -93,7 +93,7 @@
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
               #ylabel: current [A]
-              ylim: !!python/tuple [0, -800]
+              #ylim: !!python/tuple [0, -800]
 
       Idiel:
           PlotLabel: Current through dielectric
@@ -160,7 +160,7 @@
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
               #ylabel: resistance [Ohm]
-              ylim: !!python/tuple [0, 2.5]
+              #ylim: !!python/tuple [0, 2.5]
       Rint:
           PlotLabel: Interstrip Resistance
           UnitConversion: giga
@@ -203,7 +203,7 @@
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
               #ylabel: capacitance [F]
-              ylim: !!python/tuple [120, 160]
+              #ylim: !!python/tuple [120, 160]
 
       Cint:
           PlotLabel: Interstrip Capacitance
@@ -216,7 +216,7 @@
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               padding: !!python/tuple [0.1, 0.1]
               show_grid: True
-              ylim: !!python/tuple [0, 5]
+              #ylim: !!python/tuple [0, 5]
               gridstyle:
                   grid_line_color: black
                   grid_line_width: 1.5

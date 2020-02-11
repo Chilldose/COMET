@@ -184,8 +184,11 @@ class measurement_event_loop(Thread):
         '''This function makes the necessary configuration for all devices before any measurement can be conducted'''
         # Not very pretty
         self.message_to_main.put({"Info": "Initializing of instruments..."})
+        self.message_to_main.put({"STATE": "Instrument initialization..."})
 
-        for device, device_obj in self.devices.items(): # Loop over all devices
+        all = len(self.devices)
+        for i, device, device_obj in enumerate(self.devices.items()): # Loop over all devices
+            self.message_to_main.put({"PROGRESS": i/all})
             if self.devices[device].get("Visa_Resource", None): # Looks if a Visa resource is assigned to the device.
                 self.log.info("Configuring instrument: {!s}".format(self.devices[device].get("Device_name", "NoName")))
 
@@ -213,6 +216,8 @@ class measurement_event_loop(Thread):
                     self.devices[device]["State"] = "CONFIGURED"
 
         self.message_to_main.put({"Info": "Initializing DONE!"})
+        self.message_to_main.put({"STATE": "IDLE"})
+        self.message_to_main.put({"PROGRESS": 0})
 
 
     def build_init_command(self, device_obj, order, values):

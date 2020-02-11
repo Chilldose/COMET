@@ -297,12 +297,20 @@ class GUI_classes(QWidget):
 
     def update_current_state(self):
         """Updates the label of the state of the program. Either IDLE or Measurement running"""
-        if self.default_values_dict["settings"]["Measurement_running"] and not self.main_window.StatusLabel.text() == "Measurement running":
-            self.main_window.StatusLabel.setText("Measurement running")
+        if self.default_values_dict["settings"]["Measurement_running"]\
+                and not self.main_window.StatusLabel.text() == "Measurement running"\
+                and self.default_values_dict["settings"]["State"] == "Measurement running":
+            self.main_window.StatusLabel.setText(self.default_values_dict["settings"]["State"])
             self.main_window.StatusLabel.setStyleSheet("background : rgb(50,20,200); border-radius: 5px")
 
-        elif not self.default_values_dict["settings"]["Measurement_running"] and not self.main_window.StatusLabel.text() == "IDLE":
-            self.main_window.StatusLabel.setText("IDLE")
+        elif not self.default_values_dict["settings"]["Measurement_running"]\
+            and not self.main_window.StatusLabel.text() == "IDLE"\
+            and self.default_values_dict["settings"]["State"] == "IDLE":
+            self.main_window.StatusLabel.setText(self.default_values_dict["settings"]["State"])
+            self.main_window.StatusLabel.setStyleSheet("background : rgb(50,100,100); border-radius: 5px")
+
+        elif self.main_window.StatusLabel.text() != self.default_values_dict["settings"]["State"]:
+            self.main_window.StatusLabel.setText(self.default_values_dict["settings"]["State"])
             self.main_window.StatusLabel.setStyleSheet("background : rgb(50,100,100); border-radius: 5px")
 
         if self.default_values_dict["settings"]["Measurement_running"] and self.main_window.startAct.isEnabled():

@@ -28,6 +28,7 @@ class GUI_event_loop(QThread):
         self.vcw = framework_variables["VCW"]
         self.device_dict = framework_variables["Devices"]
         self.default_values_dict = framework_variables["Configs"]["config"]
+        self.default_values_dict["settings"]["State"] = "IDLE"
         self.stop_GUI_loop = False
         self.close_program = False
         self.measurement_running = False
@@ -37,7 +38,7 @@ class GUI_event_loop(QThread):
                             "ThresholdError", "ERROR", "Error"]
         self.fatal_errors = ["MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "FatalError", "ThresholdError"]
         self.measurement_types = self.default_values_dict["settings"].get("measurement_types", [])
-        self.event_types = ["MEASUREMENT_STATUS", "MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED"]
+        self.event_types = ["MEASUREMENT_STATUS", "MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED", "PROGRESS", "STATE"]
         self.error_list = []
         self.measurement_list = []
         self.event_list = [] # Messages send to the loop
@@ -150,6 +151,14 @@ class GUI_event_loop(QThread):
 
             elif event == "MEASUREMENT_STATUS":
                 self.measurement_running = message["MEASUREMENT_STATUS"]
+
+            elif event.upper() == "PROGRESS":
+                # Updates the progress
+                self.default_values_dict["settings"]["progress"] = float(message[event])
+
+            elif event.upper() == "STATE":
+                # Updates the State of the program
+                self.default_values_dict["settings"]["State"] = str(message[event])
 
             else:
                 self.log.warning("Event: {} was not recognised. No action taken!".format(event))

@@ -1,16 +1,14 @@
-import logging
+
 from PyQt5.QtWidgets import QWidget, QFileDialog, QTreeWidgetItem
-from PyQt5.QtWebEngineWidgets import QWebEngineView
 from PyQt5.QtCore import QUrl, Qt
 from PyQt5 import QtGui
 from PyQt5 import QtCore
-import numpy as np
-import copy
+import threading
 import ast
 import re
 from ..utilities import save_dict_as_hdf5, save_dict_as_json, save_dict_as_xml
 
-import yaml, json
+import yaml
 try:
     from StringIO import StringIO
 except ImportError:
@@ -31,6 +29,8 @@ class DataVisualization_window:
         self.plot_analysis = {} # The analysis each individual plot comes from
         self.selected_plot_option = ()
         self.current_plot_object = None
+        self.not_saving = False
+        self.plotting_thread = None
 
         # Device communication widget
         self.VisWidget = QWidget()
@@ -412,35 +412,51 @@ class DataVisualization_window:
         # Sets the cursor to wait
         self.variables.app.setOverrideCursor(Qt.WaitCursor)
 
-        # Check if valid dir was given
-        directory = self.widget.save_lineEdit.text()
-        if os.path.exists(directory) and self.plotting_Object:
+        if self.not_saving:
+            # Check if valid dir was given
+            directory = self.widget.save_lineEdit.text()
+            if os.path.exists(directory) and self.plotting_Object:
 
-            # Save the config.yml file
-            self.log.info("Saving config file...")
-            self.save_config_yaml(self.plotting_Object.config, os.path.join(os.path.normpath(directory), "CONFIG.yml"))
+                # Save the config.yml file
+                self.log.info("Saving config file...")
+                self.save_config_yaml(self.plotting_Object.config, os.path.join(os.path.normpath(directory), "CONFIG.yml"))
 
-            # Get save option
-            options = self.widget.save_as_comboBox.currentText().split("/")
+                # Get save option
+                options = self.widget.save_as_comboBox.currentText().split("/")
 
-            plotters = ["html", "png", "svg"]
-            data = ["json", "hdf5", "xml"]
+                plotters = ["html", "png", "svg"]
+                data = ["json", "hdf5", "xml"]
 
-            # Start data saver
-            for ty in data:
-                if ty in options:
-                    self.save_data(ty, directory, os.path.basename(directory))
+                # Start data saver
+                for ty in data:
+                    if ty in options:
+                        self.save_data(ty, directory, os.path.basename(directory))
 
-            # Start renderer
-            if self.plotting_Object.config:
-                self.plotting_Object.config["Save_as"] = []
-                self.plotting_Object.config["Output"] = directory
-                for plot in plotters:
-                    if plot in options:
-                        self.plotting_Object.config["Save_as"].append(plot)
-                self.plotting_Object.save_to() # Starts the routine
-        else:
-            self.log.error("Either the path {} does not exist, or you must first render a few plots".format(directory))
+                # Start renderer
+                if self.plotting_Object.config:
+                    self.plotting_Object.config["Save_as"] = []
+                    self.plotting_Object.config["Output"] = directory
+                    for plot in plotters:
+                        if plot in options:
+                            self.plotting_Object.config["Save_as"].append(plot)
+                    if not self.plotting_thread:
+                        self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
+                            self.variables.framework_variables["Message_to_main"],))
+                        self.not_saving = True
+                    else:
+                        if self.plotting_thread.isAlive():
+                            self.not_saving = False
+                        else:
+                            self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
+                            self.variables.framework_variables["Message_to_main"],))
+                            self.not_saving = True
+                    #self.plotting_Object.save_to(progress_queue=self.variables.framework_variables["Queue_to_GUI"]) # Starts the routine
+                    if self.not_saving:
+                        self.plotting_thread.start()
+                    else:
+                        self.log.error("Saving of plots is currently ongoing, please wait until saving is complete!")
+            else:
+                self.log.error("Either the path {} does not exist, or you must first render a few plots".format(directory))
 
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()
