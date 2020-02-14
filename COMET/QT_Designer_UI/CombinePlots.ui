@@ -38,56 +38,11 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0" colspan="4">
-    <widget class="QLabel" name="label">
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="font">
-      <font>
-       <pointsize>17</pointsize>
-       <weight>75</weight>
-       <bold>true</bold>
-      </font>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);</string>
-     </property>
-     <property name="text">
-      <string>Combining Plots</string>
-     </property>
-    </widget>
-   </item>
    <item row="5" column="0" colspan="2">
     <widget class="QPushButton" name="save_as_pushButton">
      <property name="text">
       <string>Save as:</string>
      </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="4">
-    <widget class="Line" name="line">
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="7" column="2" colspan="2">
-    <widget class="QTreeWidget" name="plot_options_treeWidget">
-     <column>
-      <property name="text">
-       <string>To Combine</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item row="8" column="0" colspan="2">
@@ -97,7 +52,7 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="4" rowspan="9">
+   <item row="0" column="5" rowspan="9">
     <widget class="QWebEngineView" name="webEngineView">
      <property name="url">
       <url>
@@ -133,27 +88,79 @@
      </column>
     </widget>
    </item>
-   <item row="1" column="3">
+   <item row="2" column="4">
+    <widget class="QToolButton" name="save_toolButton">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3" colspan="2">
     <widget class="QPushButton" name="refresh_pushButton">
      <property name="text">
       <string>Refresh</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="2" colspan="2">
+   <item row="5" column="2" colspan="3">
     <widget class="QComboBox" name="save_as_comboBox"/>
    </item>
-   <item row="8" column="2" colspan="2">
+   <item row="0" column="0" colspan="5">
+    <widget class="QLabel" name="label">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>17</pointsize>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">background-color: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 #ffa02f, stop: 1 #d7801a);</string>
+     </property>
+     <property name="text">
+      <string>Combining Plots</string>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0" colspan="5">
+    <widget class="QPushButton" name="render_pushButton">
+     <property name="text">
+      <string>Render</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="2" colspan="3">
+    <widget class="QTreeWidget" name="plot_options_treeWidget">
+     <column>
+      <property name="text">
+       <string>To Combine</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item row="8" column="2" colspan="3">
     <widget class="QPushButton" name="add_plot_pushButton">
      <property name="text">
       <string>Add</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="4">
-    <widget class="QPushButton" name="render_pushButton">
-     <property name="text">
-      <string>Render</string>
+   <item row="3" column="0" colspan="5">
+    <widget class="Line" name="line">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
      </property>
     </widget>
    </item>

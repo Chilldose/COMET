@@ -23,6 +23,7 @@ class CombiningPlots_window:
         self.variables = GUI
         self.layout = layout
         self.log = logging.getLogger(__name__)
+        self.plotting_sessions = None
         self.allFiles = []
         self.plot_path = {} # The plot hierachy inside the "all" entry of the plotObject
         self.plot_analysis = {} # The analysis each individual plot comes from
@@ -36,14 +37,13 @@ class CombiningPlots_window:
         self.layout.addWidget(self.VisWidget)
 
         # Config
-        #self.config_selectable_templates()
-        #self.config_save_options()
+        self.config_save_options()
 
         # Connect buttons
         #self.widget.files_toolButton.clicked.connect(self.select_files_action)
         #self.widget.select_template_toolButton.clicked.connect(self.select_analysis_template)
         #self.widget.upload_pushButton.clicked.connect(self.upload_to_DB)
-        #self.widget.save_toolButton.clicked.connect(self.select_save_to_action)
+        self.widget.save_toolButton.clicked.connect(self.select_save_to_action)
         #self.widget.render_pushButton.clicked.connect(self.render_action)
         #self.widget.output_tree.itemClicked.connect(self.load_html_to_screen)
         #self.widget.plot_options_treeWidget.itemClicked.connect(self.tree_option_select_action)
@@ -73,44 +73,12 @@ class CombiningPlots_window:
         filepath = self.plotting_Object.temp_html_output(plot)
         self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
 
-    def select_analysis_template(self):
-        """Opens file select for template selection"""
-        fileDialog = QFileDialog()
-        files = fileDialog.getOpenFileNames()
-        if files:
-            for file in files[0]:
-                try:
-                    json_dump = load_yaml(file)
-                    basename = os.path.basename(file).split(".")[0]
-                    self.variables.framework_variables['Configs']['additional_files']['Plotting'][basename] = {"data": json_dump}
-                except Exception as err:
-                    self.log.error("Could not load file {}, exception raised: {}".format(file, err))
-        self.config_selectable_templates()
-
-
-    def select_files_action(self):
-        """Opens a file selection window and writes it to the data files drop down menu"""
-        self.widget.files_comboBox.clear()
-        fileDialog = QFileDialog()
-        files = fileDialog.getOpenFileNames()
-        self.config_files_combo_box(files[0])
-        self.allFiles = files[0]
-
     def select_save_to_action(self):
         """Lets you select the output folder"""
         fileDialog = QFileDialog()
         dirr = fileDialog.getExistingDirectory()
         self.widget.save_lineEdit.setText(dirr)
 
-    def parse_yaml_string(self, ys):
-        fd = StringIO(ys)
-        dct = yaml.load(fd)
-        return dct
-
-    def save_config_yaml(self, config, dirr):
-        """Simply saves the dict as yaml"""
-        with open(dirr, 'w') as outfile:
-            yaml.dump(config, outfile, default_flow_style=False)
 
     def render_action(self):
         """Stats the plotting scripts"""
@@ -166,110 +134,6 @@ class CombiningPlots_window:
         value = item.text(1)
         self.widget.options_lineEdit.setText("{}: {}".format(key, value))
 
-    def apply_option_button(self):
-        """Applies the option made to the plot and repolts the current plot"""
-
-        # get the correct options
-        configs = self.plotting_Object.config
-
-        if self.selected_plot_option:
-            for path in self.selected_plot_option:
-                configs = configs[path]
-
-            # Find the plot options otherwise generate
-            if not "PlotOptions" in configs:
-                configs["PlotOptions"] = {}
-
-            # Find index of first colon
-            line = self.widget.options_lineEdit.text()
-            ind =  line.find(":")
-            if ind == -1:
-                ind = line.find("=")
-            #Try  to evaluate
-            try:
-                value = ast.literal_eval(line[ind + 1:].strip())
-            except:
-                value = line[ind + 1:].strip()
-            newItem = {line[:ind].strip(): value}
-            try:
-                self.apply_options_to_plot(self.current_plot_object, **newItem)
-                self.replot_and_reload_html(self.current_plot_object)
-                configs["PlotOptions"].update(newItem)
-                self.update_plot_options_tree(self.current_plot_object)
-            except Exception as err:
-                self.log.error("An error happened with the newly passed option with error: {} Option will be removed! "
-                               "Warning: Depending on the error, you may have compromised the plot object and a re-render "
-                               "may be needed!".format(err))
-
-    def apply_options_to_plot(self, plot, **opts):
-        """Applies the opts to the plot"""
-        plot.opts(**opts)
-
-
-    def update_plot_options_tree(self, plot):
-        """Updates the plot options tree for the plot"""
-        self.widget.plot_options_treeWidget.clear()
-        self.widget.options_lineEdit.setText("")
-        configs = self.plotting_Object.config
-        self.selected_plot_option = ()
-        try:
-            try:
-                plotLabel = plot.label
-            except:
-                plotLabel = plot._label # This changed somehow
-            if not plotLabel:
-                raise ValueError # If none of the above exists
-            for ana in configs["Analysis"]:
-                for plot_name, plt_opt in configs[ana].items():
-                    try:
-                        if plotLabel == plt_opt.get("PlotLabel", ""):
-                            # Save current options tree
-                            self.selected_plot_option = (ana, plot_name)
-
-                            # Add the key to the tree
-                            plotconf = configs[ana].get("General", {}).copy()
-                            plotconf.update(plt_opt.get("PlotOptions", {}))
-                            for opt, value in plotconf.items():
-                                tree = QTreeWidgetItem({str(opt): "Option", str(value): "Value"})
-                                self.widget.plot_options_treeWidget.addTopLevelItem(tree)
-                            break
-                    except:
-                        pass
-        except:
-            self.log.debug("Plot object has no label, trying with group parameter...")
-
-            # In case of special plots other access needed
-            try:
-                plotLabel = plot._group_param_value
-                plotLabel = plotLabel.split(":")
-
-                for ana in configs["Analysis"]:
-                    for plot_name, plt_opt in configs[ana].items():
-                        try:
-                            if plotLabel[1].strip() == plt_opt.get("PlotLabel", "") or plotLabel[1].strip() == plot_name:
-                                if "{}".format(plotLabel[0].strip()) in plt_opt:
-                                    # Save current options tree
-                                    self.selected_plot_option = (ana, plot_name, "{}".format(plotLabel[0].strip()))
-
-                                    # Add the key to the tree
-                                    plotconf = configs[ana].get("General", {}).copy()
-                                    plotconf.update(configs[ana].get("{}".format(plotLabel[0].strip()) + "Options", {}))
-                                    plotconf.update(plt_opt["{}".format(plotLabel[0].strip())].get("PlotOptions", {}))
-                                    for opt, value in plotconf.items():
-                                        tree = QTreeWidgetItem({str(opt): "Option", str(value): "Value"})
-                                        self.widget.plot_options_treeWidget.addTopLevelItem(tree)
-                                    return
-                                else:
-                                    # If this entry is missing generate an empty dict so options can be added later on
-                                    self.selected_plot_option = (ana, plot_name, "{}".format(plotLabel[0].strip()))
-                                    plt_opt["{}".format(plotLabel[0].strip())] = {}
-                                    self.update_plot_options_tree(plot)
-                                    return
-                        except Exception as err:
-                            self.selected_plot_option = ()
-            except:
-                self.selected_plot_option = ()
-
     def update_plt_tree(self, plotting_output):
         """Updates the plot tree"""
         # Delete all values from the combo box
@@ -281,13 +145,6 @@ class CombiningPlots_window:
 
         for analy in plotting_output.plotObjects:
             Allplots = analy.get("All", {})
-
-            # Try to plot all together as well. but this my not work for all
-            #try:
-            #    tree = QTreeWidgetItem(["_".join(path)])
-            #    self.plot_path["_".join(path)] = path
-            #    self.plot_analysis["_".join(path)] = analy.get("Name", "")
-            #    self.widget.output_tree.addTopLevelItem(tree)
 
             # Plot the inindividual plots/subplots
             if isinstance(Allplots,hv.core.layout.Layout):
@@ -315,15 +172,9 @@ class CombiningPlots_window:
                 except Exception as err:
                     self.log.error("An error happened during plot object access. Error: {}".format(err))
 
-
-
-    def upload_to_DB(self):
-        """lets you upload the data to the DB"""
-        self.log.error("Saving to the Data Base is not yet implemented.")
-
     def config_save_options(self):
         """Configs the save options like json,hdf5,etc"""
-        options = ["html/png/xml", "html/png/json/hdf5", "html", "html/png", "html/json", "html/png/json", "png", "html/hdf5", "hdf5/json", "svg", "xml"]
+        options = ["html/png", "html", "png"]
         self.widget.save_as_comboBox.addItems(options)
 
     def config_selectable_templates(self):
@@ -331,78 +182,6 @@ class CombiningPlots_window:
         self.widget.templates_comboBox.clear()
         plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
         self.widget.templates_comboBox.addItems(plotConfigs.keys())
-
-    def save_data(self, type, dirr, base_name="data"):
-        """Saves the data in the specified type"""
-        try:
-            os.mkdir(os.path.join(os.path.normpath(dirr), "data"))
-        except:
-            pass
-
-        if type == "json":
-            # JSON serialize
-            self.log.info("Saving JSON file...")
-            save_dict_as_json(deepcopy(self.plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
-        if type == "hdf5":
-            self.log.info("Saving HDF5 file...")
-            save_dict_as_hdf5(deepcopy(self.plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
-        if type == "xml":
-            self.log.info("Saving xml file...")
-
-            # Convert to CMS database xml
-            data = self.plotting_Object.data
-            for key, dat in data.items():
-                xml_dict = self.convert_data_to_xml_conform_dict(dat, self.variables.framework_variables["Configs"]["config"]["CMSxmlTemplate"],
-                                                      dat["header"])
-                save_dict_as_xml(xml_dict, os.path.join(os.path.normpath(dirr), "data"), "{}_".format(key)+base_name)
-
-    def convert_data_to_xml_conform_dict(self, data, config, header):
-        """
-        Converts data to a specific form, as a dict stated in the config parameter.
-        The config file must have a key named 'template' in it must be the dict representation of the xml file.
-        Subkeys with a value enclosed by <..> are keywords. The header of the file will be searched for such key words.
-        If it finds the regular expression r'<EXPR>\W\s?(.*)'
-        :param data: data structure
-        :param config: the configs on how to convert data to xml
-        :return: None
-        """
-        template = deepcopy(config["Template"])
-        keyword_re = re.compile(r"<(.*)>")
-
-
-        def dict_iter(diction):
-            for key, item in diction.items():
-                if isinstance(item, dict):
-                    dict_iter(item)
-                else:
-                    keyword = keyword_re.match(str(item))
-                    if keyword:
-                        for line in header:
-                            newvalue = re.search(r"{}\W\s?(.*)".format(keyword[1]), line)
-                            if newvalue:
-                                diction[key] = str(newvalue[1]).strip()
-                                break
-                            else:
-                                diction[key] = str(None)
-                    else:
-                        diction[key] = str(None)
-
-        # go through the whole template
-        dict_iter(template)
-
-        return template
-
-
-    def config_files_combo_box(self, items):
-        """Set dragable combobox"""
-        model = QtGui.QStandardItemModel()
-        for text in items:
-            item = QtGui.QStandardItem(text)
-            item.setFlags(item.flags() & ~QtCore.Qt.ItemIsDropEnabled)
-            model.appendRow(item)
-
-        self.widget.files_comboBox.setModel(model)
-        self.widget.files_comboBox.view().setDragDropMode(QtGui.QAbstractItemView.InternalMove)
 
     def save_as_action(self):
         """Saves the plots etc to the defined directory"""

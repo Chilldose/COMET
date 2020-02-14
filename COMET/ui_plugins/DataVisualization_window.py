@@ -6,6 +6,7 @@ from PyQt5 import QtCore
 import threading
 import ast
 import re
+from time import asctime
 from ..utilities import save_dict_as_hdf5, save_dict_as_json, save_dict_as_xml
 
 import yaml
@@ -25,6 +26,7 @@ class DataVisualization_window:
         self.log = logging.getLogger(__name__)
         self.allFiles = []
         self.plotting_Object = None
+        self.plot_sessions = {}
         self.plot_path = {} # The plot hierachy inside the "all" entry of the plotObject
         self.plot_analysis = {} # The analysis each individual plot comes from
         self.selected_plot_option = ()
@@ -144,6 +146,11 @@ class DataVisualization_window:
         try:
             plotting.run()
             self.update_plt_tree(plotting)
+
+            # Store old session as deepcopy for later reuse in eg combinig plots
+            if self.plotting_Object:
+                self.plot_sessions["{}".format(asctime())] = deepcopy(self.plotting_Object) # Since no run has a dedicated name use timestamp
+
             # Store current session
             self.plotting_Object = plotting
         except Exception as err:
