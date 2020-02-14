@@ -44,11 +44,21 @@ class CombiningPlots_window:
         #self.widget.select_template_toolButton.clicked.connect(self.select_analysis_template)
         #self.widget.upload_pushButton.clicked.connect(self.upload_to_DB)
         self.widget.save_toolButton.clicked.connect(self.select_save_to_action)
+        self.widget.refresh_pushButton.clicked.connect(self.refresh_action)
         #self.widget.render_pushButton.clicked.connect(self.render_action)
         #self.widget.output_tree.itemClicked.connect(self.load_html_to_screen)
         #self.widget.plot_options_treeWidget.itemClicked.connect(self.tree_option_select_action)
         #self.widget.save_as_pushButton.clicked.connect(self.save_as_action)
         #self.widget.apply_option_pushButton.clicked.connect(self.apply_option_button)
+
+    def refresh_action(self):
+        """Refreshes the possible runs with plots"""
+        try:
+            self.plotting_sessions = self.variables.all_plugin_modules["DataVisualization_window"].plotting_sessions
+            self.widget.files_comboBox.addItems(self.plotting_sessions.keys())
+            self.update_plt_tree(self.plotting_sessions(self.widget.files_comboBox.currentText()))
+        except Exception as err:
+            self.log.error("Could not load any plot sessions. It seems the plotting Tab is not rendered, or the plotting output is corrupted. Error: {}".format(err))
 
     def load_html_to_screen(self, item):
         """Loads a html file plot to the screen"""
