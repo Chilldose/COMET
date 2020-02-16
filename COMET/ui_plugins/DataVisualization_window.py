@@ -147,12 +147,22 @@ class DataVisualization_window:
             plotting.run()
             self.update_plt_tree(plotting)
 
-            # Store old session as deepcopy for later reuse in eg combinig plots
-            if self.plotting_Object:
-                self.plot_sessions["{}".format(asctime())] = deepcopy(self.plotting_Object) # Since no run has a dedicated name use timestamp
+            # Name the session with a ascii time stamp
+            session_name = self.widget.session_name_lineEdit.text()
+            if not session_name:
+                self.log.critical("You did not define a name for the current plotting session, taking timestamp instead! Please always define a session name!")
+                self.widget.session_name_lineEdit.setText("{}".format(asctime()))
+            elif session_name in self.plot_sessions.keys():
+                self.log.critical(
+                    "The session name {} already exists, taking timestamp instead! Please always define a unique session name!".format(session_name))
+                self.widget.session_name_lineEdit.setText("{}".format(asctime()))
 
             # Store current session
             self.plotting_Object = plotting
+
+            # Save session
+            self.save_session(self.widget.session_name_lineEdit.text(), plotting)
+
         except Exception as err:
             self.log.error("An error happened during plotting with error {}".format(err))
             # Try to extract data until crash (this is just wishfull thinking, in most cases this will fail)
@@ -165,9 +175,14 @@ class DataVisualization_window:
             # Restore Cursor
             self.variables.app.restoreOverrideCursor()
             raise
+
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()
 
+    def save_session(self, name, session):
+        """Saves the current session in a deepcopy environement"""
+        # Store old session as deepcopy for later reuse in eg combinig plots
+        self.plot_sessions[name] = session  # Since no run has a dedicated name use timestamp
 
     def tree_option_select_action(self, item):
         """Action what happens when an option is selected"""
@@ -205,6 +220,7 @@ class DataVisualization_window:
                 self.replot_and_reload_html(self.current_plot_object)
                 configs["PlotOptions"].update(newItem)
                 self.update_plot_options_tree(self.current_plot_object)
+                #self.save_session() # Saves the changes in the session
             except Exception as err:
                 self.log.error("An error happened with the newly passed option with error: {} Option will be removed! "
                                "Warning: Depending on the error, you may have compromised the plot object and a re-render "

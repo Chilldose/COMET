@@ -1,0 +1,30 @@
+--- # Block of dict entries
+
+    # Critical parameters
+    Settings_name: settings # The name of the settings which will be shown in the framework and will be the addressing name (settings here is important)
+
+    measurement_types: # Different measurement types which can be conducted
+        - humLiving
+        - tempLiving
+
+
+    # Optional parameters
+    temp_history: 3600 # How much should be shown in the humidity history in seconds
+    temphum_update_intervall: 5000 # Update intervall of the humidity controll in ms
+    temphum_plugin: Brandbox_temperature_humidity
+    time_format: "%H:%M:%S" # Time format of the humidity control
+    Test_mode: false # You dont want this
+    GUI_update_interval: 200.0 # How often should the GUI be updated in ms
+    store_data_as: json # Additional parameter, usually data will be stored as ascii during measurement, but for the database it is easier to store data as json
+
+    Socket_connection: # Config for the socket connection, for data transfer between processes
+        Host:
+          IP: 127.0.0.2
+          Port: 65432
+
+        Client:
+          IP: 127.0.0.3
+          Port: 65432
+
+    GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
+        - DataBrowser

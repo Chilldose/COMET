@@ -10,10 +10,47 @@
     <height>745</height>
    </rect>
   </property>
+  <property name="font">
+   <font>
+    <pointsize>10</pointsize>
+   </font>
+  </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_2">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Data Files:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="3">
+    <widget class="QToolButton" name="files_toolButton">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="4">
+    <widget class="Line" name="line">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>16777215</height>
+      </size>
+     </property>
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0" colspan="4">
     <widget class="QLabel" name="label">
      <property name="maximumSize">
@@ -37,7 +74,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
+   <item row="4" column="0">
     <widget class="QLabel" name="label_4">
      <property name="font">
       <font>
@@ -49,105 +86,34 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Data Files:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="2">
-    <widget class="QComboBox" name="save_as_comboBox"/>
-   </item>
-   <item row="3" column="3" colspan="2">
+   <item row="4" column="3" colspan="2">
     <widget class="QToolButton" name="save_toolButton">
      <property name="text">
       <string>...</string>
      </property>
     </widget>
    </item>
-   <item row="5" column="2">
-    <widget class="QPushButton" name="upload_pushButton">
-     <property name="text">
-      <string>Upload to DB</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1" colspan="2">
-    <widget class="QComboBox" name="templates_comboBox"/>
-   </item>
    <item row="1" column="1" colspan="2">
     <widget class="QComboBox" name="files_comboBox"/>
    </item>
-   <item row="1" column="3">
-    <widget class="QToolButton" name="files_toolButton">
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
+   <item row="3" column="1" colspan="2">
+    <widget class="QComboBox" name="templates_comboBox"/>
    </item>
-   <item row="5" column="0" colspan="2">
+   <item row="7" column="0" colspan="2">
     <widget class="QPushButton" name="render_pushButton">
      <property name="text">
       <string>Render</string>
      </property>
     </widget>
    </item>
-   <item row="6" column="0" colspan="2">
+   <item row="8" column="0" colspan="2">
     <widget class="QPushButton" name="save_as_pushButton">
      <property name="text">
       <string>Save as:</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="4">
-    <widget class="Line" name="line">
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1" colspan="2">
-    <widget class="QLineEdit" name="save_lineEdit"/>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Analysis Template:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="8" column="2" colspan="2">
-    <widget class="QTreeWidget" name="plot_options_treeWidget">
-     <column>
-      <property name="text">
-       <string>Option</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Value</string>
-      </property>
-     </column>
-    </widget>
-   </item>
-   <item row="8" column="0" colspan="2">
+   <item row="10" column="0" colspan="2">
     <widget class="QTreeWidget" name="output_tree">
      <property name="maximumSize">
       <size>
@@ -168,7 +134,43 @@
      </column>
     </widget>
    </item>
-   <item row="0" column="5" rowspan="10">
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Analysis Template:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="2">
+    <widget class="QLineEdit" name="save_lineEdit"/>
+   </item>
+   <item row="10" column="2" colspan="2">
+    <widget class="QTreeWidget" name="plot_options_treeWidget">
+     <column>
+      <property name="text">
+       <string>Option</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Value</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item row="7" column="2" colspan="2">
+    <widget class="QPushButton" name="upload_pushButton">
+     <property name="text">
+      <string>Upload to DB</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="5" rowspan="12">
     <widget class="QWebEngineView" name="webEngineView">
      <property name="url">
       <url>
@@ -177,22 +179,35 @@
      </property>
     </widget>
    </item>
-   <item row="9" column="2" colspan="2">
+   <item row="11" column="0" colspan="2">
+    <widget class="QLineEdit" name="options_lineEdit"/>
+   </item>
+   <item row="3" column="3">
+    <widget class="QToolButton" name="select_template_toolButton">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="2" colspan="2">
     <widget class="QPushButton" name="apply_option_pushButton">
      <property name="text">
       <string>Apply</string>
      </property>
     </widget>
    </item>
-   <item row="9" column="0" colspan="2">
-    <widget class="QLineEdit" name="options_lineEdit"/>
+   <item row="8" column="2" colspan="2">
+    <widget class="QComboBox" name="save_as_comboBox"/>
    </item>
-   <item row="2" column="3">
-    <widget class="QToolButton" name="select_template_toolButton">
+   <item row="2" column="0">
+    <widget class="QLabel" name="label_5">
      <property name="text">
-      <string>...</string>
+      <string>Name of Session:</string>
      </property>
     </widget>
+   </item>
+   <item row="2" column="1" colspan="3">
+    <widget class="QLineEdit" name="session_name_lineEdit"/>
    </item>
   </layout>
  </widget>

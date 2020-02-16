@@ -1,12 +1,8 @@
 
 from PyQt5.QtWidgets import QWidget, QFileDialog, QTreeWidgetItem
 from PyQt5.QtCore import QUrl, Qt
-from PyQt5 import QtGui
-from PyQt5 import QtCore
 import threading
-import ast
-import re
-from ..utilities import save_dict_as_hdf5, save_dict_as_json, save_dict_as_xml
+from ..misc_plugins.PlotScripts.forge.tools import save_plot
 
 import yaml
 try:
@@ -24,12 +20,14 @@ class CombiningPlots_window:
         self.layout = layout
         self.log = logging.getLogger(__name__)
         self.plotting_sessions = None
+        self.current_session = None
         self.allFiles = []
         self.plot_path = {} # The plot hierachy inside the "all" entry of the plotObject
         self.plot_analysis = {} # The analysis each individual plot comes from
         self.selected_plot_option = ()
-        self.current_plot_object = None
+        self.current_plot_object = None # This is a list of tuples (plot_obj, session, path_in_session)
         self.plotting_thread = None
+        self.to_combine_plots = [] # This is a list of tuples (plot_obj, session, path_in_session)
 
         # Device communication widget
         self.VisWidget = QWidget()
@@ -40,43 +38,84 @@ class CombiningPlots_window:
         self.config_save_options()
 
         # Connect buttons
-        #self.widget.files_toolButton.clicked.connect(self.select_files_action)
-        #self.widget.select_template_toolButton.clicked.connect(self.select_analysis_template)
-        #self.widget.upload_pushButton.clicked.connect(self.upload_to_DB)
         self.widget.save_toolButton.clicked.connect(self.select_save_to_action)
         self.widget.refresh_pushButton.clicked.connect(self.refresh_action)
-        #self.widget.render_pushButton.clicked.connect(self.render_action)
-        #self.widget.output_tree.itemClicked.connect(self.load_html_to_screen)
-        #self.widget.plot_options_treeWidget.itemClicked.connect(self.tree_option_select_action)
-        #self.widget.save_as_pushButton.clicked.connect(self.save_as_action)
-        #self.widget.apply_option_pushButton.clicked.connect(self.apply_option_button)
+        self.widget.output_tree.itemClicked.connect(self.get_current_selected_plot_object)
+        self.widget.add_plot_pushButton.clicked.connect(self.add_action)
+        self.widget.session_comboBox.currentIndexChanged.connect(self.session_change_action)
+        self.widget.remove_plot_pushButton.clicked.connect(self.clear_action)
+        self.widget.render_pushButton.clicked.connect(self.combine_and_show_action)
 
-    def refresh_action(self):
-        """Refreshes the possible runs with plots"""
-        try:
-            self.plotting_sessions = self.variables.all_plugin_modules["DataVisualization_window"].plotting_sessions
-            self.widget.files_comboBox.addItems(self.plotting_sessions.keys())
-            self.update_plt_tree(self.plotting_sessions(self.widget.files_comboBox.currentText()))
-        except Exception as err:
-            self.log.error("Could not load any plot sessions. It seems the plotting Tab is not rendered, or the plotting output is corrupted. Error: {}".format(err))
-
-    def load_html_to_screen(self, item):
-        """Loads a html file plot to the screen"""
+    def combine_and_show_action(self):
+        """Combines the plots and displays it"""
         self.variables.app.setOverrideCursor(Qt.WaitCursor)
+        path = os.path.join(os.getcwd(), "__temp__")
+        if not os.path.exists(path):
+            os.mkdir(path)
+        finalPlot = None
+        for item in self.to_combine_plots:
+            try:
+                if finalPlot:
+                    finalPlot *= item[0]
+                else:
+                    finalPlot = item[0]
+            except:
+                pass
+        finalPlot.opts(legend_position="top_left")
+        save_plot("temp_combine_plot", finalPlot, path, save_as = "html")
+        self.widget.webEngineView.load(QUrl.fromLocalFile(os.path.join(path, "temp_combine_plot.html")))
+        self.current_plot_object = None
+        self.variables.app.restoreOverrideCursor()
+
+    def clear_action(self):
+        """Clears the to combine data"""
+        self.to_combine_plots = []
+        self.widget.combine_treeWidget.clear()
+
+    def add_action(self):
+        """Actions to be made if you hit the add button"""
+        if self.current_plot_object: # Only do something if a plot is selected
+            tree = "_".join(self.current_plot_object[2])
+            tree = "{} -> {}".format(self.current_plot_object[1], tree)
+            tree = QTreeWidgetItem([tree])
+            self.widget.combine_treeWidget.addTopLevelItem(tree)
+            self.to_combine_plots.append(self.current_plot_object)
+
+    def get_current_selected_plot_object(self, item):
+        """Loads a html file plot to the screen and stores the current value"""
+        self.variables.app.setOverrideCursor(Qt.WaitCursor)
+        plotting_Object = self.plotting_sessions[self.current_session]
         try:
-            for analy in self.plotting_Object.plotObjects:
+            for analy in plotting_Object.plotObjects:
                 if self.plot_analysis[item.text(0)] == analy["Name"]:
                     plot = analy["All"]
                     for path_part in self.plot_path[item.text(0)]:
                         plot = getattr(plot, path_part)
-                    filepath = self.plotting_Object.temp_html_output(plot)
+                    filepath = plotting_Object.temp_html_output(plot)
                     self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
-                    self.current_plot_object = plot
-                    self.update_plot_options_tree(plot)
+                    self.current_plot_object = (plot, self.current_session, self.plot_path[item.text(0)])
                     break
+
         except Exception as err:
             self.log.error("Plot could not be loaded. If this issue is not resolvable, re-render the plots! Error: {}".format(err))
         self.variables.app.restoreOverrideCursor()
+
+    def session_change_action(self, text=None):
+        """What to do if the session changes"""
+        if self.widget.session_comboBox.currentText():
+            self.current_session = self.widget.session_comboBox.currentText()
+            self.update_plt_tree(self.plotting_sessions[self.widget.session_comboBox.currentText()])
+
+    def refresh_action(self):
+        """Refreshes the possible runs with plots"""
+        try:
+            self.widget.session_comboBox.clear()
+            self.plotting_sessions = self.variables.ui_plugins["DataVisualization_window"].plot_sessions
+            self.widget.session_comboBox.addItems(self.plotting_sessions.keys())
+            self.session_change_action()
+
+        except Exception as err:
+            self.log.error("Could not load any plot sessions. It seems the plotting Tab is not rendered, or the plotting output is corrupted. Error: {}".format(err))
 
     def replot_and_reload_html(self, plot):
         """Replots a plot and displays it"""
@@ -107,7 +146,7 @@ class CombiningPlots_window:
             template = plotConfigs[(self.widget.templates_comboBox.currentText())]["data"]
 
         # Add the parameters
-        template["Files"] = [self.widget.files_comboBox.itemText(i) for i in range(self.widget.files_comboBox.count())]
+        template["Files"] = [self.widget.session_comboBox.itemText(i) for i in range(self.widget.session_comboBox.count())]
         template["Output"] = self.widget.save_lineEdit.text()
 
         # Dump the yaml file in the output directory
@@ -137,19 +176,10 @@ class CombiningPlots_window:
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()
 
-
-    def tree_option_select_action(self, item):
-        """Action what happens when an option is selected"""
-        key = item.text(0)
-        value = item.text(1)
-        self.widget.options_lineEdit.setText("{}: {}".format(key, value))
-
     def update_plt_tree(self, plotting_output):
         """Updates the plot tree"""
         # Delete all values from the combo box
         self.widget.output_tree.clear()
-        self.widget.plot_options_treeWidget.clear()
-        self.widget.options_lineEdit.setText("")
         self.selected_plot_option = ()
         self.current_plot_object = None
 
@@ -186,12 +216,6 @@ class CombiningPlots_window:
         """Configs the save options like json,hdf5,etc"""
         options = ["html/png", "html", "png"]
         self.widget.save_as_comboBox.addItems(options)
-
-    def config_selectable_templates(self):
-        """Configs the combo box for selectable analysis templates"""
-        self.widget.templates_comboBox.clear()
-        plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
-        self.widget.templates_comboBox.addItems(plotConfigs.keys())
 
     def save_as_action(self):
         """Saves the plots etc to the defined directory"""
@@ -237,7 +261,6 @@ class CombiningPlots_window:
                             self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
                             self.variables.framework_variables["Message_to_main"],))
                             self.not_saving = True
-                    #self.plotting_Object.save_to(progress_queue=self.variables.framework_variables["Queue_to_GUI"]) # Starts the routine
                     if self.not_saving:
                         self.plotting_thread.start()
                     else:
