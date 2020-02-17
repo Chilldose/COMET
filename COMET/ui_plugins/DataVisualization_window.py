@@ -32,6 +32,7 @@ class DataVisualization_window:
         self.plot_analysis = {} # The analysis each individual plot comes from
         self.selected_plot_option = ()
         self.current_plot_object = None
+        self.current_plot_name = ""
         self.not_saving = True
         self.plotting_thread = None
 
@@ -55,14 +56,17 @@ class DataVisualization_window:
         self.widget.save_as_pushButton.clicked.connect(self.save_as_action)
         self.widget.apply_option_pushButton.clicked.connect(self.apply_option_button)
 
-    def get_current_plot_obj(self):
-        """Returns the current plot object"""
+    def set_current_plot_object(self):
+        """Saves the current plot object in the global data construct. Otherwise changes are not saved"""
         for analy in self.plotting_Object.plotObjects:
-            if self.plot_analysis[self.current_plot_object_path] == analy["Name"]:
+            if self.plot_analysis[self.current_plot_name] == analy["Name"]:
                 plot = analy["All"]
-                for path_part in self.plot_path[self.current_plot_object_path]:
-                    plot = getattr(plot, path_part)
-        return plot
+                if len(self.plot_path[self.current_plot_name]):
+                    for path_part in self.plot_path[self.current_plot_name][:-1]:
+                        plot = getattr(plot, path_part)
+                    setattr(plot, self.plot_path[self.current_plot_name][-1], self.current_plot_object)
+                else:
+                    analy["All"] = self.current_plot_object
 
     def load_html_to_screen(self, item):
         """Loads a html file plot to the screen"""
@@ -75,9 +79,11 @@ class DataVisualization_window:
                         plot = getattr(plot, path_part)
                     filepath = self.plotting_Object.temp_html_output(plot)
                     self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
-                    self.current_plot_object_path = self.plot_path[item.text(0)]
+                    self.current_plot_object = plot
+                    self.current_plot_name = item.text(0)
                     self.update_plot_options_tree(plot)
                     break
+
         except Exception as err:
             self.log.error("Plot could not be loaded. If this issue is not resolvable, re-render the plots! Error: {}".format(err))
         self.variables.app.restoreOverrideCursor()
@@ -242,7 +248,7 @@ class DataVisualization_window:
                 self.replot_and_reload_html(self.current_plot_object)
                 configs["PlotOptions"].update(newItem)
                 self.update_plot_options_tree(self.current_plot_object)
-
+                self.set_current_plot_object()
                 self.save_session(self.widget.session_name_lineEdit.text(), self.plotting_Object) # Saves the changes in the session
             except Exception as err:
                 self.log.error("An error happened with the newly passed option with error: {} Option will be removed! "
