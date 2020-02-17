@@ -2,7 +2,7 @@
 from PyQt5.QtWidgets import QWidget, QFileDialog, QTreeWidgetItem
 from PyQt5.QtCore import QUrl, Qt
 import threading
-from ..misc_plugins.PlotScripts.forge.tools import save_plot
+from ..misc_plugins.PlotScripts.forge.tools import customize_plot
 
 import yaml
 try:
@@ -36,6 +36,7 @@ class CombiningPlots_window:
 
         # Config
         self.config_save_options()
+        self.config_selectable_templates()
 
         # Connect buttons
         self.widget.save_toolButton.clicked.connect(self.select_save_to_action)
@@ -45,6 +46,26 @@ class CombiningPlots_window:
         self.widget.session_comboBox.currentIndexChanged.connect(self.session_change_action)
         self.widget.remove_plot_pushButton.clicked.connect(self.clear_action)
         self.widget.render_pushButton.clicked.connect(self.combine_and_show_action)
+
+    def config_selectable_templates(self):
+        """Configs the combo box for selectable analysis templates"""
+        self.widget.templates_comboBox.clear()
+        plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
+        self.widget.templates_comboBox.addItems(plotConfigs.keys())
+
+    def select_analysis_template(self):
+        """Opens file select for template selection"""
+        fileDialog = QFileDialog()
+        files = fileDialog.getOpenFileNames()
+        if files:
+            for file in files[0]:
+                try:
+                    json_dump = load_yaml(file)
+                    basename = os.path.basename(file).split(".")[0]
+                    self.variables.framework_variables['Configs']['additional_files']['Plotting'][basename] = {"data": json_dump}
+                except Exception as err:
+                    self.log.error("Could not load file {}, exception raised: {}".format(file, err))
+        self.config_selectable_templates()
 
     def combine_and_show_action(self):
         """Combines the plots and displays it"""
@@ -61,11 +82,29 @@ class CombiningPlots_window:
                     finalPlot = item[0]
             except:
                 pass
-        finalPlot.opts(legend_position="top_left")
+        # Crude reconfig of the plots with the plot parameters from a simple plot file
+        finalPlot = customize_plot(finalPlot, self.widget.templates_comboBox.currentText(),
+                                   self.convert_config_to_dict(self.widget.templates_comboBox.currentText()))
         save_plot("temp_combine_plot", finalPlot, path, save_as = "html")
-        self.widget.webEngineView.load(QUrl.fromLocalFile(os.path.join(path, "temp_combine_plot.html")))
+        self.widget.webEngineView.load(QUrl.fromLocalFile(os.path.join(path, "html", "temp_combine_plot.html")))
         self.current_plot_object = None
         self.variables.app.restoreOverrideCursor()
+
+    def parse_yaml_string(self, ys):
+        fd = StringIO(ys)
+        dct = yaml.load(fd)
+        return dct
+
+    def convert_config_to_dict(self, config_name):
+        """Converts the config to a Dict if necessary"""
+        plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
+        if not "data" in plotConfigs[(config_name)]:
+            template = plotConfigs[(config_name)]["raw"]
+            template = self.parse_yaml_string(template)
+            plotConfigs[(config_name)]["data"] = template
+        else:
+            template = plotConfigs[(config_name)]["data"]
+        return template
 
     def clear_action(self):
         """Clears the to combine data"""

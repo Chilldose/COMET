@@ -45,7 +45,7 @@ class TCAD:
         #self.PlotDict["All"] = self.basePlots
 
         self.PlotDict["All"] = SimplePlot(self.data, self.config, "IV_1", "IV", self.analysisname)
-        ["All"]["IV_1"] * 50259.5 * 677.3
+        #["All"]["IV_1"] * 50259.5 * 677.3
 
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config.get(self.analysisname, {}).get("Layout", {}))

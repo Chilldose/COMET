@@ -16,6 +16,7 @@ except ImportError:
     from io import StringIO
 
 from ..misc_plugins.PlotScripts.myplot import *
+from ..misc_plugins.PlotScripts.forge.tools import relabelPlot
 
 class DataVisualization_window:
 
@@ -31,7 +32,7 @@ class DataVisualization_window:
         self.plot_analysis = {} # The analysis each individual plot comes from
         self.selected_plot_option = ()
         self.current_plot_object = None
-        self.not_saving = False
+        self.not_saving = True
         self.plotting_thread = None
 
         # Device communication widget
@@ -54,6 +55,15 @@ class DataVisualization_window:
         self.widget.save_as_pushButton.clicked.connect(self.save_as_action)
         self.widget.apply_option_pushButton.clicked.connect(self.apply_option_button)
 
+    def get_current_plot_obj(self):
+        """Returns the current plot object"""
+        for analy in self.plotting_Object.plotObjects:
+            if self.plot_analysis[self.current_plot_object_path] == analy["Name"]:
+                plot = analy["All"]
+                for path_part in self.plot_path[self.current_plot_object_path]:
+                    plot = getattr(plot, path_part)
+        return plot
+
     def load_html_to_screen(self, item):
         """Loads a html file plot to the screen"""
         self.variables.app.setOverrideCursor(Qt.WaitCursor)
@@ -65,12 +75,16 @@ class DataVisualization_window:
                         plot = getattr(plot, path_part)
                     filepath = self.plotting_Object.temp_html_output(plot)
                     self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
-                    self.current_plot_object = plot
+                    self.current_plot_object_path = self.plot_path[item.text(0)]
                     self.update_plot_options_tree(plot)
                     break
         except Exception as err:
             self.log.error("Plot could not be loaded. If this issue is not resolvable, re-render the plots! Error: {}".format(err))
         self.variables.app.restoreOverrideCursor()
+
+    def change_plot_label_edit(self, Label):
+        """Changes the plot label edit"""
+        self.widget.plot_label_lineEdit.setText(Label)
 
     def replot_and_reload_html(self, plot):
         """Replots a plot and displays it"""
@@ -161,7 +175,7 @@ class DataVisualization_window:
             self.plotting_Object = plotting
 
             # Save session
-            self.save_session(self.widget.session_name_lineEdit.text(), plotting)
+            self.save_session(self.widget.session_name_lineEdit.text(), self.plotting_Object)
 
         except Exception as err:
             self.log.error("An error happened during plotting with error {}".format(err))
@@ -181,8 +195,9 @@ class DataVisualization_window:
 
     def save_session(self, name, session):
         """Saves the current session in a deepcopy environement"""
-        # Store old session as deepcopy for later reuse in eg combinig plots
-        self.plot_sessions[name] = session  # Since no run has a dedicated name use timestamp
+        if name in self.plot_sessions:
+            self.plot_sessions[name] = None
+        self.plot_sessions[name] = session
 
     def tree_option_select_action(self, item):
         """Action what happens when an option is selected"""
@@ -200,27 +215,35 @@ class DataVisualization_window:
             for path in self.selected_plot_option:
                 configs = configs[path]
 
+            # Change the plot label from the line edit
+            configs["PlotLabel"] = self.widget.plot_label_lineEdit.text()
+            self.current_plot_object = relabelPlot(self.current_plot_object, configs["PlotLabel"])
+
             # Find the plot options otherwise generate
             if not "PlotOptions" in configs:
                 configs["PlotOptions"] = {}
 
             # Find index of first colon
             line = self.widget.options_lineEdit.text()
-            ind =  line.find(":")
-            if ind == -1:
-                ind = line.find("=")
-            #Try  to evaluate
-            try:
-                value = ast.literal_eval(line[ind + 1:].strip())
-            except:
-                value = line[ind + 1:].strip()
-            newItem = {line[:ind].strip(): value}
+            if line:
+                ind =  line.find(":")
+                if ind == -1:
+                    ind = line.find("=")
+                #Try  to evaluate
+                try:
+                    value = ast.literal_eval(line[ind + 1:].strip())
+                except:
+                    value = line[ind + 1:].strip()
+                newItem = {line[:ind].strip(): value}
+            else:
+                newItem = {} # If no options are passed, generate an empty one
             try:
                 self.apply_options_to_plot(self.current_plot_object, **newItem)
                 self.replot_and_reload_html(self.current_plot_object)
                 configs["PlotOptions"].update(newItem)
                 self.update_plot_options_tree(self.current_plot_object)
-                #self.save_session() # Saves the changes in the session
+
+                self.save_session(self.widget.session_name_lineEdit.text(), self.plotting_Object) # Saves the changes in the session
             except Exception as err:
                 self.log.error("An error happened with the newly passed option with error: {} Option will be removed! "
                                "Warning: Depending on the error, you may have compromised the plot object and a re-render "
@@ -248,6 +271,7 @@ class DataVisualization_window:
                 for plot_name, plt_opt in configs[ana].items():
                     try:
                         if plotLabel == plt_opt.get("PlotLabel", ""):
+                            self.change_plot_label_edit(plotLabel)
                             # Save current options tree
                             self.selected_plot_option = (ana, plot_name)
 
