@@ -16,10 +16,13 @@
 
 # Optional Parameters
   AreaFactors: # Area factor of a measurement
-    IV: 3.388254207*10^8
+    IV: 3.404075935e7
+    CV: 3.367163085e7
   
   ScalingFactors: # Final scaling factor in the plot
-    IV: 1.0
+    IV: 0.001
+    CV: 1.0
+    1c2: 1e-31
 
   # Options for the different Analyses scripts
   # These options are entirely up to you and what you need in your analysis
@@ -40,7 +43,7 @@
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               logy: False
               logx: False
-              invert_xaxis: True
+              invert_xaxis: False
               invert_yaxis: False
               padding: !!python/tuple [0, 0.1]
               show_grid: True
@@ -56,3 +59,51 @@
               yformatter: "%.0f"
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               yaxisENG: True # If you want to plot the y axis in engineering representation
+              
+      CV_1:
+          PlotLabel: CV CURVE TCAD
+          UnitConversion: nano # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
+         
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              logy: False
+              logx: False
+              invert_xaxis: False
+              invert_yaxis: False
+              padding: !!python/tuple [0, 0.1]
+              show_grid: True
+              gridstyle:
+                  grid_line_color: black
+                  grid_line_width: 1.5
+                  minor_xgrid_line_color: lightgray
+                  minor_ygrid_line_color: lightgray
+                  xgrid_line_dash: [4, 4]
+                  ygrid_line_dash: [10, 4]
+              shared_axes: False # If the axes should be shared with other plots, usually it is False
+              xformatter: "%.0f"
+              yformatter: "%.0f"
+          ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+              yaxisENG: True # If you want to plot the y axis in engineering representation
+              
+      1c2_1:
+          PlotLabel: 1c2 CURVE TCAD
+          #UnitConversion: nano # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
+         
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              logy: False
+              logx: False
+              invert_xaxis: False
+              invert_yaxis: False
+              padding: !!python/tuple [0, 0.1]
+              show_grid: True
+              gridstyle:
+                  grid_line_color: black
+                  grid_line_width: 1.5
+                  minor_xgrid_line_color: lightgray
+                  minor_ygrid_line_color: lightgray
+                  xgrid_line_dash: [4, 4]
+                  ygrid_line_dash: [10, 4]
+              shared_axes: False # If the axes should be shared with other plots, usually it is False
+              xformatter: "%.0f"
+              yformatter: "%.0f"
+          #ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+          #    yaxisENG: True # If you want to plot the y axis in engineering representation

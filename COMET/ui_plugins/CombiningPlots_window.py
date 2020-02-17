@@ -2,7 +2,7 @@
 from PyQt5.QtWidgets import QWidget, QFileDialog, QTreeWidgetItem
 from PyQt5.QtCore import QUrl, Qt
 import threading
-from ..misc_plugins.PlotScripts.forge.tools import customize_plot
+from ..misc_plugins.PlotScripts.forge.tools import customize_plot, save_plot
 
 import yaml
 try:
@@ -28,6 +28,8 @@ class CombiningPlots_window:
         self.current_plot_object = None # This is a list of tuples (plot_obj, session, path_in_session)
         self.plotting_thread = None
         self.to_combine_plots = [] # This is a list of tuples (plot_obj, session, path_in_session)
+        self.not_saving = True
+        self.combined_plot = None
 
         # Device communication widget
         self.VisWidget = QWidget()
@@ -46,6 +48,35 @@ class CombiningPlots_window:
         self.widget.session_comboBox.currentIndexChanged.connect(self.session_change_action)
         self.widget.remove_plot_pushButton.clicked.connect(self.clear_action)
         self.widget.render_pushButton.clicked.connect(self.combine_and_show_action)
+        self.widget.select_template_toolButton.clicked.connect(self.select_analysis_template)
+        self.widget.save_as_pushButton.clicked.connect(self.save_as_action)
+
+    def save_as_action(self):
+        """Saves the plots etc to the defined directory"""
+
+        # Sets the cursor to wait
+        self.variables.app.setOverrideCursor(Qt.WaitCursor)
+
+        if self.not_saving:
+            # Check if valid dir was given
+            directory = self.widget.save_lineEdit.text()
+            if os.path.exists(directory) and self.combined_plot:
+
+                # Get save option
+                options = self.widget.save_as_comboBox.currentText().split("/")
+
+                plotters = ["html", "png", "svg"]
+
+                # Start renderer
+                for plot in plotters:
+                    if plot in options:
+                        save_plot("Combined Plot", self.combined_plot, directory, save_as = plot)
+            else:
+                self.log.error("Either the path {} does not exist, or you must first render a few plots".format(directory))
+
+        # Restore Cursor
+        self.variables.app.restoreOverrideCursor()
+
 
     def config_selectable_templates(self):
         """Configs the combo box for selectable analysis templates"""
@@ -88,6 +119,7 @@ class CombiningPlots_window:
         save_plot("temp_combine_plot", finalPlot, path, save_as = "html")
         self.widget.webEngineView.load(QUrl.fromLocalFile(os.path.join(path, "html", "temp_combine_plot.html")))
         self.current_plot_object = None
+        self.combined_plot = finalPlot
         self.variables.app.restoreOverrideCursor()
 
     def parse_yaml_string(self, ys):
@@ -255,57 +287,3 @@ class CombiningPlots_window:
         """Configs the save options like json,hdf5,etc"""
         options = ["html/png", "html", "png"]
         self.widget.save_as_comboBox.addItems(options)
-
-    def save_as_action(self):
-        """Saves the plots etc to the defined directory"""
-
-        # Sets the cursor to wait
-        self.variables.app.setOverrideCursor(Qt.WaitCursor)
-
-        if self.not_saving:
-            # Check if valid dir was given
-            directory = self.widget.save_lineEdit.text()
-            if os.path.exists(directory) and self.plotting_Object:
-
-                # Save the config.yml file
-                self.log.info("Saving config file...")
-                self.save_config_yaml(self.plotting_Object.config, os.path.join(os.path.normpath(directory), "CONFIG.yml"))
-
-                # Get save option
-                options = self.widget.save_as_comboBox.currentText().split("/")
-
-                plotters = ["html", "png", "svg"]
-                data = ["json", "hdf5", "xml"]
-
-                # Start data saver
-                for ty in data:
-                    if ty in options:
-                        self.save_data(ty, directory, os.path.basename(directory))
-
-                # Start renderer
-                if self.plotting_Object.config:
-                    self.plotting_Object.config["Save_as"] = []
-                    self.plotting_Object.config["Output"] = directory
-                    for plot in plotters:
-                        if plot in options:
-                            self.plotting_Object.config["Save_as"].append(plot)
-                    if not self.plotting_thread:
-                        self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
-                            self.variables.framework_variables["Message_to_main"],))
-                        self.not_saving = True
-                    else:
-                        if self.plotting_thread.isAlive():
-                            self.not_saving = False
-                        else:
-                            self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
-                            self.variables.framework_variables["Message_to_main"],))
-                            self.not_saving = True
-                    if self.not_saving:
-                        self.plotting_thread.start()
-                    else:
-                        self.log.error("Saving of plots is currently ongoing, please wait until saving is complete!")
-            else:
-                self.log.error("Either the path {} does not exist, or you must first render a few plots".format(directory))
-
-        # Restore Cursor
-        self.variables.app.restoreOverrideCursor()
