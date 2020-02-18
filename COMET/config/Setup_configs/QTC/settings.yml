@@ -8,7 +8,7 @@
       - Thomas
       - Marko
       - Margit
-      
+
     TelegramBot: # The ids to telegram users, so that they can be informed if when a measurement is finished
         Dominic: 260848510
 
@@ -97,48 +97,48 @@
         Table_control: ITK Corvus
         #lights_controller: BrandBox
 
-#    Devices:
-#       2410SMU:
-#            Device_name: 2410 Keithley SMU                                                                  # The actual device name from which it should get all commands
-#            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H
-#            Connection_resource: IP:TCPIP0::10.0.0.5::10001::SOCKET
-#            VISA_attributes:
-#              read_termination: "\r"
-#
-#       Corvus:
-#            Device_name: ITK Corvus
-#            Device_IDN: Corvus 1 462 1 0
-#            Connection_resource: IP:TCPIP0::10.0.0.5::10003::SOCKET
-#            VISA_attributes:
-#              read_termination: "\r"
-#
-#       2657SMU:
-#            Device_name: 2657 Keithley SMU
-#            Connection_resource: IP:TCPIP0::10.0.0.3::inst0::INSTR
-#            Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.5
-#
-#       BrandBox:
-#            Device_name: BrandBox
-#            Connection_resource: IP:TCPIP0::10.0.0.7::10001::SOCKET
-#            Device_IDN: Brandbox Controller V1.0/04.Nov.2019
-#            VISA_attributes:
-#              read_termination: "\r"
-#
-#       Elektrometer:
-#            Device_name: 6517B Keithley Elektrometer
-#            Connection_resource: IP:TCPIP0::10.0.0.5::10002::SOCKET
-#            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E
-#            VISA_attributes:
-#              read_termination: "\r"
-#              timeout: 5000
-#
-#       Matrix:
-#            Device_name: Keithley 708B Switching
-#            Connection_resource: IP:TCPIP0::10.0.0.4::inst0::INSTR
-#            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
-#            Cards: 1 # Device specific variable used to determine how many cards are inserted
-#
-#       LCRmeter:
-#            Device_name: Agilent E4980A
-#            Device_IDN: Agilent Technologies,E4980A,MY46208270,A.06.15
-#            Connection_resource: IP:TCPIP0::10.0.0.6::inst0::INSTR
+    Devices:
+       2410SMU:
+            Device_name: 2410 Keithley SMU                                                                  # The actual device name from which it should get all commands
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H
+            Connection_resource: IP:TCPIP0::10.0.0.5::10001::SOCKET
+            VISA_attributes:
+              read_termination: "\r"
+
+       Corvus:
+            Device_name: ITK Corvus
+            Device_IDN: Corvus 1 462 1 0
+            Connection_resource: IP:TCPIP0::10.0.0.5::10003::SOCKET
+            VISA_attributes:
+              read_termination: "\r"
+
+       2657SMU:
+            Device_name: 2657 Keithley SMU
+            Connection_resource: IP:TCPIP0::10.0.0.3::inst0::INSTR
+            Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.8
+
+       BrandBox:
+            Device_name: BrandBox
+            Connection_resource: IP:TCPIP0::10.0.0.7::10001::SOCKET
+            Device_IDN: Brandbox Controller V1.0/04.Nov.2019
+            VISA_attributes:
+              read_termination: "\r"
+
+       Elektrometer:
+            Device_name: 6517B Keithley Elektrometer
+            Connection_resource: IP:TCPIP0::10.0.0.5::10002::SOCKET
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E
+            VISA_attributes:
+              read_termination: "\r"
+              timeout: 5000
+
+       Matrix:
+            Device_name: Keithley 708B Switching
+            Connection_resource: IP:TCPIP0::10.0.0.4::inst0::INSTR
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
+            Cards: 1 # Device specific variable used to determine how many cards are inserted
+
+       LCRmeter:
+            Device_name: Agilent E4980A
+            Device_IDN: Agilent Technologies,E4980A,MY46415053,A.06.15
+            Connection_resource: IP:TCPIP0::10.0.0.6::inst0::INSTR
