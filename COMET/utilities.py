@@ -1253,7 +1253,7 @@ class table_control_class:
         '''
 
         if transformation != []:
-            if not self.__already_there(pad_file, strip, transfomation_class, T, V0, skip=True):
+            if not self.__already_there(pad_file, strip, transfomation_class, T, V0, skip=True): # This skip must alwasy be false, only set it to true if you know what you doin
                 pad_pos = pad_file["data"][str(strip)]
                 self.log.info("Moving to strip: {} at position {},{},{}.".format(strip, pad_pos[0], pad_pos[1], pad_pos[2]))
                 table_abs_pos = list(transfomation_class.vector_trans(pad_pos, T, V0))
