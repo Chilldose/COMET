@@ -41,7 +41,7 @@
 
       HistogramOptions:
           shared_axes: False
-          alpha: 0.6
+          #alpha: 0.6
 
       BoxWhiskerOptions:
           shared_axes: False

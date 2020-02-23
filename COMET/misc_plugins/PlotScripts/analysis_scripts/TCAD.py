@@ -20,7 +20,7 @@ class TCAD:
     def __init__(self, data, configs):
 
         self.log = logging.getLogger(__name__)
-        self.data = convert_to_df(data, abs=False)
+        self.data = convert_to_df(data, abs=True)
         self.config = configs
         self.df = []
         self.basePlots = None
@@ -29,7 +29,13 @@ class TCAD:
         self.measurements = self.data["columns"]
         hv.renderer('bokeh')
 
-        self.PlotLabels = [("IV_1", "IV", )]
+        self.areafactors = self.config["AreaFactors"]
+        self.scalefactors = self.config["ScalingFactors"]
+
+        self.to_plot = [("IV", "IV_1", self.areafactors.get("IV", 1), self.scalefactors.get("IV", 1)),
+                        ("CV", "CV_1", self.areafactors.get("CV", 1), self.scalefactors.get("CV", 1)),
+                        ("1c2", "1c2_1", self.areafactors.get("1c2", 1), self.scalefactors.get("1c2", 1))
+                        ]
 
     def run(self):
         """Runs the script"""
@@ -40,12 +46,19 @@ class TCAD:
             if unit:
                 self.data = convert_to_EngUnits(self.data, meas, unit)
 
-        # Plot all Measurements
-        #self.basePlots = plot_all_measurements(self.data, self.config, self.measurements[0], self.analysisname, do_not_plot=[self.measurements[0]])
-        #self.PlotDict["All"] = self.basePlots
+        # Scale data first
+        for plots_data in self.to_plot:
+            self.data["All"][plots_data[1]] = self.data["All"][plots_data[1]] * float(plots_data[2]) * float(plots_data[3])  # Take the y axis and multipy area and scaling
+            for meas in self.data['keys']:
+                self.data[meas]["data"][plots_data[1]] = self.data[meas]["data"][plots_data[1]] * float(plots_data[2]) * float( plots_data[3])  # Take the y axis and multipy area and scaling
 
-        self.PlotDict["All"] = SimplePlot(self.data, self.config, "IV_1", "IV", self.analysisname)
-        ["All"]["IV_1"] * 50259.5 * 677.3
+        # Plot all Measurements
+        self.PlotDict["All"] = None
+        for plots_data in self.to_plot:
+            if self.PlotDict["All"]:
+                self.PlotDict["All"] += SimplePlot(self.data, self.config, plots_data[1], plots_data[0], self.analysisname)
+            else:
+                self.PlotDict["All"] = SimplePlot(self.data, self.config, plots_data[1], plots_data[0], self.analysisname)
 
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config.get(self.analysisname, {}).get("Layout", {}))

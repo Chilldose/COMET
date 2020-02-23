@@ -6,21 +6,5 @@ if __name__ == "__main__":
     from socket_connections import Client_
     client = Client_("127.0.0.2", "65432")
     response = client.send_request("plot_data", {"Plot":"IV"})
-    print(response)
-    sleep(3)
-    response = client.send_request("plot_data", {"Plot": "IV"})
-    print(response)
-    sleep(4)
-    response = client.send_request("plot_data", {"Plot": "IV"})
-    print(response)
-    sleep(3)
-    response = client.send_request("plot_data", {"Plot": "IV"})
-    print(response)
-    sleep(4)
-    response = client.send_request("plot_data", {"Plot": "IV"})
-    print(response)
-    sleep(3)
-    response = client.send_request("plot_data", {"Plot": "IV"})
-    print(response)
-    sleep(4)
+
 
