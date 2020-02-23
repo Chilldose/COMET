@@ -116,14 +116,15 @@ class TelegramBotResponder:
                                             "keyboard": {"ON": "Switch {} ON".format(light[0]), "OFF": "Switch {} OFF".format(light[0])},
                                             "arrangement": ["ON", "OFF"]}}
             elif light and len(parts) == 1: # If just the switch command was send
-                keyboard = {}
-                arrangement = []
-                for light in ["Chill", "SuperChill", "All"]:
-                    keyboard[light] = 'Switch {}'.format(light)
-                    arrangement.append([light])
-                self.answer = {"CALLBACK": {"info": "Possible light configurations:",
-                                            "keyboard": keyboard,
-                                            "arrangement": arrangement}}
+                if "433MHz_Transiever" in self.main.default_values_dict["settings"]:
+                    keyboard = {}
+                    arrangement = []
+                    for light in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"]:
+                        keyboard[light] = 'Switch {}'.format(light)
+                        arrangement.append([light])
+                    self.answer = {"CALLBACK": {"info": "Possible light configurations:",
+                                                "keyboard": keyboard,
+                                                "arrangement": arrangement}}
 
 
 
