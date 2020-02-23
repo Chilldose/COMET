@@ -112,7 +112,7 @@ class TelegramBotResponder:
                     self.answer += "No transiever defined. Cannot do what you asked."
 
             elif light and len(parts) == 2: # if no on or off is defined
-                self.answer = {"CALLBACK": {"info": "Would you like to turn {} ON or OFF".format(light),
+                self.answer = {"CALLBACK": {"info": "Would you like to turn {} ON or OFF".format(light[0]),
                                             "keyboard": {"ON": "Switch {} ON".format(light[0]), "OFF": "Switch {} OFF".format(light[0])},
                                             "arrangement": ["ON", "OFF"]}}
             elif light and len(parts) == 1: # If just the switch command was send
