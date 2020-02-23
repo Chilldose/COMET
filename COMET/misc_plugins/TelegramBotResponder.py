@@ -78,10 +78,11 @@ class TelegramBotResponder:
 
         for val in value.values():
             light = re.findall(r"Switch\b\s*(\w*)", val)
-            if light:
+            parts = val.split()
+            if light and len(parts)>2: # Turn on or off if the command is correct
                 if "433MHz_Transiever" in self.main.default_values_dict["settings"]:
                     if light[0] in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"].keys():
-                        onoff = 1 if val.split()[-1].upper() == "ON" else 0
+                        onoff = 1 if parts[-1].upper() == "ON" else 0
                         path = os.path.normpath(self.main.default_values_dict["settings"]["433MHz_Transiever"]["path"])
                         for switch in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][light[0]]:
                             code = switch
@@ -110,6 +111,19 @@ class TelegramBotResponder:
                 else:
                     self.answer += "No transiever defined. Cannot do what you asked."
 
+            elif light and len(parts) == 2: # if no on or off is defined
+                self.answer = {"CALLBACK": {"info": "Would you like to turn {} ON or OFF".format(light),
+                                            "keyboard": {"ON": "Switch {} ON".format(light[0]), "OFF": "Switch {} OFF".format(light[0])},
+                                            "arrangement": ["ON", "OFF"]}}
+            elif light and len(parts) == 1: # If just the switch command was send
+                keyboard = {}
+                arrangement = []
+                for light in ["Chill", "SuperChill", "All"]:
+                    keyboard[light] = 'Switch {}'.format(light)
+                    arrangement.append([light])
+                self.answer = {"CALLBACK": {"info": "Possible light configurations:",
+                                            "keyboard": keyboard,
+                                            "arrangement": arrangement}}
 
 
 
