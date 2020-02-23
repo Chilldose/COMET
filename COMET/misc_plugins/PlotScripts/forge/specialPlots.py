@@ -143,6 +143,9 @@ def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None,
 
         # Sanatize data
         data = df[measurement].dropna() # Drop all nan
+        mean = np.mean(data)
+        rms = np.sqrt(np.mean(data ** 2))
+        median = np.median(data)
         if iqr:
             data = reject_outliers(data, iqr)
         data = np.histogram(data, bins=bins)
@@ -166,6 +169,16 @@ def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None,
         newConfigs.update(data_options)
         #addConfigs.update({"xlabel": measurement})
         plots = customize_plot(plt, "", configs[analysisType], **newConfigs)
+
+        # Add text
+        text = 'Mean: {mean} \n' \
+               'Median: {median} \n' \
+               'RMS: {rms}'.format(mean=mean,
+                                median=median,
+                                rms=rms)
+        log.info(text)
+        #text = hv.Text(700, 0.055, text).opts(fontsize=30)
+
     except Exception as err:
         log.error("Unexpected error happend during concatHist plot generation {}. Error: {}".format(measurement, err))
         return None

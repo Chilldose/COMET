@@ -1,0 +1,50 @@
+--- # Dummy config file for testing
+
+  Filetype: ASCII # Other options are json
+
+  #Output: ??? #Output basename of the plots
+
+  #Save_as: # Possible options: html, (svg), png, pdf -> Only works if wkhtmltopdf is installed and html plot is generated,
+    #- html
+    #- png
+    #- svg
+    #- pdf # does not work correctly
+
+  Analysis:
+    - Curve_plots # The type of analysis, which will be performed
+
+# Optional Parameters
+  ASCII_file_specs: # The specifications for the ascii file type measurements files
+    header_lines: 13
+    measurement_description: 14
+    units_line: 14
+    data_start: 15
+    #data_separator: ";"
+
+  # Options for the different Analyses scripts
+  # These options are entirely up to you and what you need in your analysis
+  Curve_plots:
+      General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 1200
+          height: 700
+          shared_axes: False
+      Layout:
+          cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
+      DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measuremnt has this special plot stated
+          - concatHistogram
+          - BoxWhisker
+          
+      capacitance:
+          PlotLabel: Capacitor C2 frequency dependency
+          UnitConversion: pico # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              padding: !!python/tuple [0, 0.1]
+              xformatter: "%.0f"
+              yformatter: "%.2f"
+              logx: True
+              ylim: !!python/tuple [0, 100]
+          ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+              yaxisENG: True # If you want to plot the y axis in engineering representation
+ 
