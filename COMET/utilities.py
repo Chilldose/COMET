@@ -1782,8 +1782,12 @@ def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--reinit", help="Calls the init window to initialize the setups",
                         action="store_true")
+    parser.add_argument("--noGUI", help="If the GUI should be displayed or not",
+                        action="store_true")
     parser.add_argument("--fullscreen", help="Shows the app in fullscreen mode",
                         action="store_true")
+    parser.add_argument("--loadGUI", help="Load a specific GUI",
+                        type=str)
 
     args = parser.parse_args()
 
