@@ -54,7 +54,7 @@
 
       current:
           PlotLabel: IV CURVES
-          UnitConversion: nano # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
+          UnitConversion: pico # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
           AdditionalPlots:
               - BoxWhisker
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported

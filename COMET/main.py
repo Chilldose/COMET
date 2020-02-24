@@ -90,6 +90,9 @@ def main():
     args = utilities.parse_args()
 
     # Loading all config files
+    if args.loadGUI:
+        QtCore.QSettings().setValue('active_setup', args.loadGUI)
+
     active_setup = QtCore.QSettings().value('active_setup', None)
     # The reinit is a overwrite, so the window can be called after e.g. failure with a gui.
     if active_setup is None or args.reinit:
@@ -215,7 +218,11 @@ def main():
     log.critical("Start rendering GUI...")
     if args.fullscreen: # Shows the app in fullscreen mode
         gui.main_window.showFullScreen()
-    gui.app.exec_() # Starts the actual event loop for the GUI
+        log.critical("App started in fullscreen mode...")
+    if not args.noGUI:
+        gui.app.exec_() # Starts the actual event loop for the GUI
+    else:
+        log.critical("No GUI will be shown...")
     end_time = time.time()
 
     log.critical("Run time: %s seconds.", round(end_time-start_time, 2))
