@@ -416,6 +416,7 @@ class Stripscan_class(tools):
                     self.last_move = 9999999 # Ensuring that the table moves to the first point
 
                     for current_strip in range(*part): # Loop over all strips
+                        self.main.settings["settings"]["progress"] = current_strip / self.strips
                         self.strip_iter = int(current_strip)-1 # The iterator for the files
                         if not self.main.event_loop.stop_all_measurements_query():
                             # Switch to normal IV mode
@@ -622,9 +623,9 @@ class Stripscan_class(tools):
                 Istrip = self.main.measurement_data["Istrip"][1][last_value]
             else:# If no Istrip then aquire a value
                 self.log.info("No Istrip value for Rpoly calculation could be found, Istrip measurement will be conducted on strip {}".format(int(xvalue)))
-                Istrip = self.do_Istrip(xvalue, samples, False)
+                Istrip = self.do_Istrip(xvalue, samples, False)[0]
                 # Iges = Ipoly+Istrip
-            value = float(value)-float(Istrip) # corrected current value
+            value = float(value)-float(Istrip) # corrected current value # TODO comment this in!!!!!!!!!!!!!!
 
             rpoly = voltage/float(value)
 
@@ -703,7 +704,7 @@ class Stripscan_class(tools):
         '''Does the idiel measurement'''
         device_dict = self.SMU2
         #config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_zero_check", "OFF")]
-        config_commands = [("set_source_voltage", ""), ("set_measure_current", ""), ("set_current_range", 2.0E-6), ("set_compliance", 1.0E-6), ("set_voltage", "5.0"), ("set_output", "ON")]
+        config_commands = [("set_source_voltage", ""), ("set_measure_current", ""), ("set_current_range", "1e-6"), ("set_compliance", 1.0E-8), ("set_voltage", "5.0"), ("set_output", "ON")]
 
         if not self.main.event_loop.stop_all_measurements_query():
             if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Idiel", alternative_switching)):

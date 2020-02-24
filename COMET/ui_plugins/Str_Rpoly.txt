@@ -1,0 +1,29 @@
+# Measurement file: 
+ # Project: KIT Test Card
+ # Sensor Type: KIT Test Card
+ # ID: Rpoly
+ # Operator: Dominic
+ # Date: Tue Feb 18 18:04:45 2020
+
+
+# Campaign: KIT test
+# Creator: Dominic Bloech 18.02.2018
+# reference pad: 3
+# implant_length: 0
+# metal_width: 0
+# implant_width: 0
+# metal_length: 0
+# pitch: 0
+# thickness: 0
+# type: p-type
+
+
+Pad                     Rpoly                   Temperature             Humidity                
+#                       res[Ohm]                degree[C]               rel. percent[rel%]      
+1                       2043929.6345883037      
+2                       1724219.7819275786      
+3                       1929070.2723647887      
+4                       1795138.5493916217      
+5                       1998229.169310157       
+6                       1806663.6258510437      
+7                       

@@ -119,6 +119,7 @@ class measurement_event_loop(Thread):
             if any(x in self.default_dict.get("measurement_order", []) for x in list(self.measurements_to_conduct.keys())):
                 self.measurement_running = True # Prevents new that new measurement jobs are generated
                 self.default_dict["Measurement_running"] = True
+                self.message_to_main.put({"STATE": "Measurement_running"})
                 self.stop_measurement = False
                 self.skip_init = self.measurements_to_conduct.get("skip_init", False)
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})  # That the GUI knows that a Measuremnt is running
@@ -151,6 +152,7 @@ class measurement_event_loop(Thread):
                 self.stop_measurement_loop = True # Bug: measurement_loop closes while the measurement thread proceed till it has finished it current task and then shuts down
                 if self.measurement_running:
                     self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
+                    self.message_to_main.put({"STATE": "Stopping Measurement"})
                     self.stop_measurement_loop = False
                 else:
                     self.events.update({"Shutdown": True})
@@ -162,6 +164,7 @@ class measurement_event_loop(Thread):
                 self.measurement_running = False  # Now new measurements can be conducted
                 self.stop_measurement = False
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
+                self.message_to_main.put({"STATE": "IDLE"})
                 self.default_dict["Measurement_running"] = False
                 self.message_to_main.put({"Critical": "Measurement thread terminated..."})
 
