@@ -795,11 +795,15 @@ class LogFile:
         if os.path.exists(os.path.normpath(path)):
             with open(path, 'rt') as f:
                 config = yaml.safe_load(f.read())
+                to_log = ""
                 # If directory is non existent create it
                 # Todo: Here a dir will be made after installation, so if this prohibited go to the other dir
-                pathtologfile = config["handlers"]["file"]["filename"].split("/")
-                if not os.path.isdir(os.path.join(os.getcwd(),*pathtologfile[:-1])):
-                    os.mkdir(os.path.join(os.getcwd(),*pathtologfile[:-1]))
+                if "file" in config["handlers"]:
+                    pathtologfile = config["handlers"]["file"]["filename"].split("/")
+                    if not os.path.isdir(os.path.join(os.getcwd(),*pathtologfile[:-1])):
+                        os.mkdir(os.path.join(os.getcwd(),*pathtologfile[:-1]))
+                else:
+                    to_log = "Logging to file failed, since no file handler was defined!"
             logging.config.dictConfig(config)
         else:
             logging.basicConfig(level=default_level)
@@ -817,6 +821,8 @@ class LogFile:
         self.LOG = logging.getLogger("Logfile")
         # Print welcome message
         self.LOG.info(self.welcome_string)
+        if to_log:
+            self.LOG.info(to_log)
 
 class Framework:
     """
