@@ -1796,8 +1796,8 @@ def parse_args():
                         type=str)
     parser.add_argument("--minimal", help="Loads only the bare minimum for headless applications.",
                         action="store_true")
-
-    args = parser.parse_args()
+    # If you dont want the gui to show you have to pass the argument "-platform offscreen"
+    args, unknown = parser.parse_known_args()
 
     return args
 
