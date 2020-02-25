@@ -1,30 +1,30 @@
 #This class provides usefull functions for gernerall purposes
 
 import os, sys, os.path, re
-#sys.path.append(os.path.join( os.path.dirname(__file__), '..',))
 from time import sleep, time
+import argparse
 import time
 import threading
 import traceback
-import yaml
 import logging.config
-from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtWidgets import QApplication, QDialog, QPushButton
-import numpy as np
-from numpy.linalg import inv
 import datetime
-import pyqtgraph as pg
 import logging
 from .engineering_notation import EngUnit
 import json
-import pandas as pd
+import yaml
 from threading import Thread
-import queue
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QApplication
+import pyqtgraph as pg
 from .globals import message_to_main, message_from_main, queue_to_GUI
-#from __future__ import print_function # Needed for the rtd functions that its written in 3
 
 l = logging.getLogger("utilities")
 lock = threading.Lock()
+try:
+    import numpy as np
+    from numpy.linalg import inv
+except:
+    l.critical("Could not load some modules... ")
 
 def raise_exception(method):
     """
@@ -54,6 +54,7 @@ class ErrorMessageBoxHandler:
         message spamming use the function new_message within the instance
         :param message:
         """
+        from PyQt5 import QtCore, QtWidgets
         self.last_message_time = time.time()
         self.message_buffer = ""
         self.timeout = 0.1 # seconds
@@ -119,6 +120,7 @@ def exception_handler(exctype, value, tb):
     >>> import sys
     >>> sys.excepthook = exception_handler
     """
+    from PyQt5 import QtCore, QtWidgets
     if exctype is not KeyboardInterrupt:
         tr = QtCore.QCoreApplication.translate
         # Prepare pretty stacktrace
@@ -445,6 +447,7 @@ class CAxisTime(pg.AxisItem):
 
 def change_axis_ticks( plot, stylesheet=None):
         """Changes the pen and style of plot axis and labels"""
+        from PyQt5 import QtGui
         font = QtGui.QFont()
         font.setPointSize(stylesheet["pixelsize"])
         plot.getAxis("bottom").tickFont = font
@@ -785,7 +788,6 @@ class LogFile:
         :param logging_level: None, debug, info, warning, error critical
         :param env_key: env_key
         """
-
 
         value = os.getenv(env_key, None)
         if value:
@@ -1778,7 +1780,7 @@ def reset_devices(devices_dict, vcw):
 
 def parse_args():
 
-    import argparse
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--reinit", help="Calls the init window to initialize the setups",
                         action="store_true")
@@ -1788,6 +1790,8 @@ def parse_args():
                         action="store_true")
     parser.add_argument("--loadGUI", help="Load a specific GUI",
                         type=str)
+    parser.add_argument("--minimal", help="Loads only the bare minimum for headless applications.",
+                        action="store_true")
 
     args = parser.parse_args()
 
@@ -1800,6 +1804,7 @@ def convert_to_df(to_convert, abs = False):
     :param abs: if the data returned will be the absolute value of the data
     :return: pandas data frame object
     """
+    import pandas as pd
     # Convert all data to panda data frames
     index = list(to_convert.keys())
     columns = list(to_convert[index[0]]["data"].keys())

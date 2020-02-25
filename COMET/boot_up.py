@@ -4,11 +4,9 @@
 # -Connects to all system relevant instruments
 # -Initialize statistics and state control
 
-import importlib, os, threading, yaml
+import  os, yaml
 import logging
-import numpy as np
 import glob
-import sys
 
 from .core.config import Setup
 from .core.config import DeviceLib
