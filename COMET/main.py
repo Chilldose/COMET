@@ -76,10 +76,6 @@ def main():
     # Terminate application on SIG_INT signal.
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    # Create a custom exception handler
-    if not args.minimal:
-        sys.excepthook = utilities.exception_handler
-
     # Initialize logger using configuration
     config = os.path.join(rootdir, "loggerConfig.yml")
     utilities.LogFile(config)
@@ -89,6 +85,12 @@ def main():
     log.info("Logfile initiated...")
     log.critical("Initializing programm:")
 
+    # Create a custom exception handler
+    if not args.minimal:
+        try:
+            sys.excepthook = utilities.exception_handler
+        except Exception as err:
+            log.critical("Except hook handler could not be loaded! Error: {}".format(err))
 
     # Loading all config files
     if args.loadGUI:
