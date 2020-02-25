@@ -1,7 +1,7 @@
 """This class responds to Telegram messages. Send by a Client"""
 import re
 import pyqtgraph as pg
-import pyqtgraph.exporters
+#import pyqtgraph.exporters
 import os
 from .PyqtgraphExporter import PQG_ImageExporter
 
