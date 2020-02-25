@@ -220,8 +220,12 @@ class IVCV_class(tools):
         # Save data to the file
         if self.main.save_data:
             try:
-                diff = len(self.main.measurement_data["IV"][1]) - len(self.main.measurement_data["CV"][1])
-                if diff > 0 and len(self.main.measurement_data["CV"][1])>1:
+                if not self.main.measurement_data["IV"][1][0].any() or not self.main.measurement_data["CV"][1][0].any(): # if the array was not yet populated add one otherwise diff is one short (empty array has len 1!)
+                    shift = 1
+                else:
+                    shift = 0
+                diff = len(self.main.measurement_data["IV"][1]) - len(self.main.measurement_data["CV"][1]) + shift
+                if diff > 0 and len(self.main.measurement_data["CV"][1])>0:
                     self.main.measurement_data["CV"][0] = np.append(self.main.measurement_data["CV"][0], self.main.measurement_data["IV"][0][len(self.main.measurement_data["CV"][0]):])
                     self.main.measurement_data["CV"][1] = np.append(self.main.measurement_data["CV"][1], [np.nan for x in range(diff)])
 
@@ -231,7 +235,7 @@ class IVCV_class(tools):
                     self.main.measurement_data["CVQValue"][1] = np.append(self.main.measurement_data["CVQValue"][1],
                                                                     [np.nan for x in range(diff)])
 
-                elif diff < 0 and len(self.main.measurement_data["IV"][1])>1:
+                elif diff < 0 and len(self.main.measurement_data["IV"][1])>0:
                     self.main.measurement_data["IV"][0] = np.append(self.main.measurement_data["IV"][0], self.main.measurement_data["CV"][0][len(self.main.measurement_data["IV"][0]):])
                     self.main.measurement_data["IV"][1] = np.append(self.main.measurement_data["IV"][1], [np.nan for x in range(diff)])
 
@@ -246,9 +250,9 @@ class IVCV_class(tools):
                         string_to_write += str(self.main.measurement_data["CV"][0][entry]).ljust(self.justlength)
 
                     # Now add the actuall value
-                    if "IV" in self.main.job_details["IVCV"]:
+                    if "IV" in self.main.job_details["IVCV"] and self.main.measurement_data["IV"]:
                         string_to_write += str(self.main.measurement_data["IV"][1][entry]).ljust(self.justlength)
-                    if "CV" in self.main.job_details["IVCV"]:
+                    if "CV" in self.main.job_details["IVCV"] and self.main.measurement_data["CV"]:
                         string_to_write += str(self.main.measurement_data["CV"][1][entry]).ljust(self.justlength)
 
                     # Write everything to the file
@@ -358,8 +362,8 @@ class IVCV_class(tools):
                 #return
 
             # Check if SMU is in steady state
-                # Calculate the maximum slope for the steady state check
-                maxslope = self.biascurrent * 0.1 if self.biascurrent else 1e-7
+            # Calculate the maximum slope for the steady state check
+            maxslope = self.biascurrent * 0.1 if self.biascurrent else 1e-7
             if float(voltage) != 0.0 and not self.steady_state_check(self.main.devices[self.IVCV_configs["BiasSMU"]], self.IVCV_configs["GetReadSMU"], max_slope=maxslope, wait=0.05, samples=5, Rsq=0.8, compliance=None):  # Is a dynamic waiting time for the measuremnts
                 #self.stop_everything()
                 self.log.warning("Steady state could not be reached in LCR Meter, measurement may be compromised at voltage step = {}".format(voltage))
