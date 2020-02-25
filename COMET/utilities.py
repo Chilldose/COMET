@@ -1219,7 +1219,7 @@ class table_control_class:
                 return False
         return True
 
-    def __already_there(self, pad_file, strip, transfomation_class, T, V0):
+    def __already_there(self, pad_file, strip, transfomation_class, T, V0, skip=False):
         '''
         Checks if we are already at the strip we want to move to
 
@@ -1230,6 +1230,10 @@ class table_control_class:
         :param V0:
         :return: True if at strip
         '''
+
+        if skip:
+            return False # If you want to skip this check and force the table to move
+
         pos = self.get_current_position()  # table position
         pad_pos = [float(x) for x in pad_file["data"][str(strip)]]  # where it should be in sensor system
         table_pos = transfomation_class.vector_trans(pad_pos, T, V0)  # Transforms the vektor to the right basis
@@ -1251,7 +1255,7 @@ class table_control_class:
         '''
 
         if transformation != []:
-            if not self.__already_there(pad_file, strip, transfomation_class, T, V0):
+            if not self.__already_there(pad_file, strip, transfomation_class, T, V0, skip=True): # This skip must alwasy be false, only set it to true if you know what you doin
                 pad_pos = pad_file["data"][str(strip)]
                 self.log.info("Moving to strip: {} at position {},{},{}.".format(strip, pad_pos[0], pad_pos[1], pad_pos[2]))
                 table_abs_pos = list(transfomation_class.vector_trans(pad_pos, T, V0))
