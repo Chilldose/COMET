@@ -1,9 +1,12 @@
 """This class responds to Telegram messages. Send by a Client"""
 import re
 import pyqtgraph as pg
-#import pyqtgraph.exporters
+#import pyqtgraph.exporters #This does not work currently
 import os
-from .PyqtgraphExporter import PQG_ImageExporter
+try:
+    from .PyqtgraphExporter import PQG_ImageExporter
+except:
+    pass
 
 class TelegramBotResponder:
 
@@ -143,10 +146,9 @@ class TelegramBotResponder:
                         pass
                     try:
                         #exporter = pg.exporters.ImageExporter(plt) # Original exporter but he has a bug. --> Selfwritten one from stackoverflow
-                        exporter = PQG_ImageExporter(plt)
+                        exporter = PQG_ImageExporter(plt) # This may fail
                         # set export parameters if needed
                         exporter.parameters()['width'] = 1920  # (note this also affects height parameter)
-                        #exporter.parameters()['height'] = 1080  # (note this also affects height parameter)
                         # save to file
                         filepath = os.path.join(os.path.dirname(__file__), "__temp__")
                         if os.mkdir(filepath) if not os.path.isdir(filepath) else True:
