@@ -77,7 +77,8 @@ def main():
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
     # Create a custom exception handler
-    sys.excepthook = utilities.exception_handler
+    if not args.minimal:
+        sys.excepthook = utilities.exception_handler
 
     # Initialize logger using configuration
     config = os.path.join(rootdir, "loggerConfig.yml")
