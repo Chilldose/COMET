@@ -126,10 +126,10 @@ class GUI_classes(QWidget):
         self.event_loop_thread.start()
 
         self.log.info("Starting GUI ... ")
-        operator = self.default_values_dict.get("Current_operator", "None")
+        operator = self.default_values_dict["settings"].get("Current_operator", "None")
         send_telegram_message(operator,
                               "COMET has started and is ready!",
-                              self.default_values_dict, self.client)
+                              self.default_values_dict["settings"], self.client)
 
 
     def add_rendering_function(self, widget, name):
