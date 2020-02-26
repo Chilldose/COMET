@@ -332,6 +332,7 @@ def load_yaml(path):
     """Loads a yaml file and returns the dict representation of it"""
     with open(os.path.normpath(path), 'r') as stream:
         try:
+            yaml.add_constructor('!regexp', lambda l, n: re.compile(l.construct_scalar(n))) # For regex
             data = yaml.load(stream, Loader=yaml.FullLoader)
             if isinstance(data, str):
                 data = json.loads(data)

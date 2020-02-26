@@ -33,7 +33,7 @@ class Curve_plots:
 
         # Convert the units to the desired ones
         for meas in self.measurements:
-            unit = self.config["Curve_plots"].get(meas, {}).get("UnitConversion", None)
+            unit = self.config.get("Curve_plots", {}).get(meas, {}).get("UnitConversion", None)
             if unit:
                 self.data = convert_to_EngUnits(self.data, meas, unit)
 
@@ -43,24 +43,24 @@ class Curve_plots:
 
         # Plot all special Plots:
         # Histogram Plot
-        self.Histogram = dospecialPlots(self.data, self.config, "Curve_plots",
-                                        "concatHistogram", self.measurements,
-                                        **self.config["Curve_plots"].get("AuxOptions", {}).get("concatHistogram", {}))
-        if self.Histogram:
-            self.PlotDict["Histogram"] = self.Histogram
-            self.PlotDict["All"] = self.PlotDict["All"] + self.Histogram
+        #self.Histogram = dospecialPlots(self.data, self.config, "Curve_plots",
+        #                                "concatHistogram", self.measurements,
+        #                                **self.config.get("Curve_plots", {}).get("AuxOptions", {}).get("concatHistogram", {}))
+        #if self.Histogram:
+        #    self.PlotDict["Histogram"] = self.Histogram
+        #    self.PlotDict["All"] = self.PlotDict["All"] + self.Histogram
 
         # Whiskers Plot
-        self.WhiskerPlots = dospecialPlots(self.data, self.config, "Curve_plots", "BoxWhisker", self.measurements)
-        if self.WhiskerPlots:
-            self.PlotDict["Whiskers"] = self.WhiskerPlots
-            self.PlotDict["All"] = self.PlotDict["All"] + self.WhiskerPlots
+        #self.WhiskerPlots = dospecialPlots(self.data, self.config, "Curve_plots", "BoxWhisker", self.measurements)
+        #if self.WhiskerPlots:
+        #    self.PlotDict["Whiskers"] = self.WhiskerPlots
+        #   self.PlotDict["All"] = self.PlotDict["All"] + self.WhiskerPlots
 
         # Violin Plot
-        self.Violin = dospecialPlots(self.data, self.config, "Curve_plots", "Violin", self.measurements)
-        if self.Violin:
-            self.PlotDict["Violin"] = self.Violin
-            self.PlotDict["All"] = self.PlotDict["All"] + self.Violin
+        #self.Violin = dospecialPlots(self.data, self.config, "Curve_plots", "Violin", self.measurements)
+        #if self.Violin:
+        #    self.PlotDict["Violin"] = self.Violin
+         #   self.PlotDict["All"] = self.PlotDict["All"] + self.Violin
 
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config.get("Curve_plots", {}).get("Layout", {}))
