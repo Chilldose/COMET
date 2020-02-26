@@ -433,10 +433,10 @@ def parse_file_data(filecontent, settings):
     data = filecontent[settings["data_start"] - 1:]
     separator = settings.get("data_separator", None)
 
-    units_exp = re.compile(r"#?\w*\s?\W?(\w*)\W*\s*")
-    data_exp = re.compile(r"(#|\w+)\s?\W?\w*\W?", re.MULTILINE)
+    units_exp = r"{}".format(settings.get("units_regex", r"#?\w*\s?\W?(\w*)\W*\s*"))
+    data_exp = r"{}".format(settings.get("measurement_regex", r"(#|\w+)\s?\W?\w*\W?"))
 
-    regex = [data_exp, units_exp]
+    regex = [re.compile(data_exp, re.MULTILINE), re.compile(units_exp)]
 
     # First parse the units and measurement types
     parsed_obj = []
@@ -446,6 +446,8 @@ def parse_file_data(filecontent, settings):
             for j, singlemeas in enumerate(meas):
                 if singlemeas.strip():
                     meas[j] = singlemeas.strip()
+                else:
+                    meas.pop(j)
             parsed_obj.append(meas)
 
     # Now parse the actual data and build the tree dict structure needed
@@ -475,14 +477,14 @@ def parse_file_data(filecontent, settings):
         data_lists.append([parsed_data[x][i] for x in range(len(parsed_data))])
         # Construct dict
         if meas not in data_dict:
-            data_dict.update({str(meas): np.array(data_lists[i], dtype=np.float32)})
+            data_dict.update({str(meas): np.array(data_lists[i], dtype=np.float64)})
         else:
             filenum = 1
             while meas+"_{}".format(filenum) in data_dict:
                 filenum += 1
             new_name = meas+"_{}".format(filenum)
             log.critical("Name {} already exists. Data array will be renamed to {}".format(meas, new_name))
-            data_dict.update({new_name: np.array(data_lists[i], dtype=np.float32)})
+            data_dict.update({new_name: np.array(data_lists[i], dtype=np.float64)})
             # Adapt the measurements name as well
             parsed_obj[0][i] = new_name
 

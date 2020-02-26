@@ -50,6 +50,7 @@ class PlottingMain:
 
         # Load the config to a dictionary
         self.config = load_yaml(self.args.file)
+
         self.log.critical("Loaded config file: {}".format(self.args.file))
 
         # Initialize process pool

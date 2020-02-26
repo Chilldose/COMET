@@ -268,7 +268,7 @@ class measurement_class(Thread):
 
                         # Inform the user about the outcome
                         operator = self.default_values_dict.get("Current_operator", "None")
-                        if self.event_loop.stop_all_measurements_query():
+                        if not self.event_loop.stop_all_measurements_query():
                             send_telegram_message(operator, "Hi {}, \n I want to inform you that your measurement has FINISHED! \n\n"
                                                         "The measurement took {} h".format(operator, round(deltaT/3600, 2)),
                                                         self.default_values_dict, self.client)
