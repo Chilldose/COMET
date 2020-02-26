@@ -10,7 +10,7 @@ import importlib
 import glob
 from time import sleep
 import pyqtgraph as pq
-from PyQt5 import uic
+from PyQt5 import uic, QtCore
 from PyQt5.QtWidgets import *
 from .gui.MainWindow import MainWindow
 from .gui.PluginWidget import PluginWidget
@@ -35,6 +35,7 @@ class GUI_classes(QWidget):
 
         # Framework variables
         self.framework = framework_variables
+        self.args = framework_variables["args"]
         self.vcw = framework_variables["VCW"]
         self.client = framework_variables["Client"]
         self.server = framework_variables["Server"]
@@ -119,7 +120,8 @@ class GUI_classes(QWidget):
 
         # Initialise and start the GUI_event_loop
         self.event_loop_thread = GUI_event_loop(self, self.framework_variables, self.meas_data)
-        self.event_loop_thread.Errsig.connect(self.main_window.errMsg.new_message)
+        if not self.args.minimal: # Only do this in the non minimal version since this costs a lot of computing power
+            self.event_loop_thread.Errsig.connect(self.main_window.errMsg.new_message)
         self.event_loop_thread.start()
 
         self.log.info("Starting GUI ... ")
@@ -299,13 +301,13 @@ class GUI_classes(QWidget):
         """Updates the label of the state of the program. Either IDLE or Measurement running"""
         if self.default_values_dict["settings"]["Measurement_running"]\
                 and not self.main_window.StatusLabel.text() == "Measurement running"\
-                and self.default_values_dict["settings"]["State"] == "Measurement running":
+                and not self.default_values_dict["settings"]["State"] == "Measurement running":
             self.main_window.StatusLabel.setText(self.default_values_dict["settings"]["State"])
             self.main_window.StatusLabel.setStyleSheet("background : rgb(50,20,200); border-radius: 5px")
 
         elif not self.default_values_dict["settings"]["Measurement_running"]\
             and not self.main_window.StatusLabel.text() == "IDLE"\
-            and self.default_values_dict["settings"]["State"] == "IDLE":
+            and not self.default_values_dict["settings"]["State"] == "IDLE":
             self.main_window.StatusLabel.setText(self.default_values_dict["settings"]["State"])
             self.main_window.StatusLabel.setStyleSheet("background : rgb(50,100,100); border-radius: 5px")
 

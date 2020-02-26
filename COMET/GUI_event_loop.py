@@ -1,14 +1,9 @@
 # This starts the event loop for the GUI
 #from GUI_classes import *
 from PyQt5.QtCore import QCoreApplication, QThread, pyqtSignal
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMessageBox
 import numpy as np
 import logging
 from datetime import datetime
-from .globals import message_to_main, message_from_main, queue_to_GUI
-from .utilities import ErrorMessageBoxHandler
-from threading import Timer
 
 class GUI_event_loop(QThread):
     ''' This class is for starting and managing the event loop for the GUI. It starts the syncronised connection betweent ifself and the

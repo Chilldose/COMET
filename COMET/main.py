@@ -19,32 +19,34 @@ import signal
 import time
 import sys
 import os
-
-from PyQt5 import QtCore
-from PyQt5 import QtWidgets
-try: # QtWebEngineWidgets must be imported before a QCoreApplication instance is created, but not all systems have it installed
-    from PyQt5.QtWebEngineWidgets import QWebEngineView
-except:
-    pass
-
-#sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
-
 from . import utilities
 from . import boot_up
 from .core.config import DeviceLib
 from .core.config import Setup
+from .measurement_event_loop import (
+            measurement_event_loop,
+            message_to_main,
+            message_from_main,
+            queue_to_GUI
+        )
+
 from .gui.PreferencesDialog import PreferencesDialog
 from .GUI_classes import GUI_classes
-from .VisaConnectWizard import VisaConnectWizard
-from .measurement_event_loop import (
-    measurement_event_loop,
-    message_to_main,
-    message_from_main,
-    queue_to_GUI
-)
+
+from PyQt5 import QtCore
+from PyQt5 import QtWidgets
+
+try:  # QtWebEngineWidgets must be imported before a QCoreApplication instance is created, but not all systems have it installed
+    from .VisaConnectWizard import VisaConnectWizard
+    from PyQt5.QtWebEngineWidgets import QWebEngineView
+except:
+    pass
 
 def main():
     """Main application entry point."""
+
+    # Parse Arguments
+    args = utilities.parse_args()
 
     # Create timestamp
     start_time = time.time()
@@ -74,9 +76,6 @@ def main():
     # Terminate application on SIG_INT signal.
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 
-    # Create a custom exception handler
-    sys.excepthook = utilities.exception_handler
-
     # Initialize logger using configuration
     config = os.path.join(rootdir, "loggerConfig.yml")
     utilities.LogFile(config)
@@ -86,10 +85,17 @@ def main():
     log.info("Logfile initiated...")
     log.critical("Initializing programm:")
 
-    # Parse Arguments
-    args = utilities.parse_args()
+    # Create a custom exception handler
+    if not args.minimal:
+        try:
+            sys.excepthook = utilities.exception_handler
+        except Exception as err:
+            log.critical("Except hook handler could not be loaded! Error: {}".format(err))
 
     # Loading all config files
+    if args.loadGUI:
+        QtCore.QSettings().setValue('active_setup', args.loadGUI)
+
     active_setup = QtCore.QSettings().value('active_setup', None)
     # The reinit is a overwrite, so the window can be called after e.g. failure with a gui.
     if active_setup is None or args.reinit:
@@ -118,8 +124,12 @@ def main():
     try:
         vcw = VisaConnectWizard()
     except:
-        log.critical("NI-VISA backend could not be loaded, trying with pure python backend for VISA!")
-        vcw = VisaConnectWizard("@py")
+        try:
+            log.critical("NI-VISA backend could not be loaded, trying with pure python backend for VISA!")
+            vcw = VisaConnectWizard("@py")
+        except:
+            log.critical("Pure python backend for VISA backend could not be loaded either. No ConnectWizard initiated...")
+            vcw = None
 
 
     # Tries to connect to all available devices in the network, it returns a dict of
@@ -166,7 +176,7 @@ def main():
            "rootdir": rootdir, "App": app,
            "Message_from_main": message_from_main, "Message_to_main": message_to_main,
            "Queue_to_GUI": queue_to_GUI, "Configs": setup_loader.configs, "Django": None, "Server": None,
-           "Client": None, "background_Env_task": None}
+           "Client": None, "background_Env_task": None, "args": args}
 
     # Starts a new Thread for the measurement event loop
     MEL = measurement_event_loop(aux)
@@ -215,6 +225,7 @@ def main():
     log.critical("Start rendering GUI...")
     if args.fullscreen: # Shows the app in fullscreen mode
         gui.main_window.showFullScreen()
+        log.critical("App started in fullscreen mode...")
     gui.app.exec_() # Starts the actual event loop for the GUI
     end_time = time.time()
 

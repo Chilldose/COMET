@@ -119,6 +119,7 @@ class measurement_event_loop(Thread):
             if any(x in self.default_dict.get("measurement_order", []) for x in list(self.measurements_to_conduct.keys())):
                 self.measurement_running = True # Prevents new that new measurement jobs are generated
                 self.default_dict["Measurement_running"] = True
+                self.message_to_main.put({"STATE": "Measurement_running"})
                 self.stop_measurement = False
                 self.skip_init = self.measurements_to_conduct.get("skip_init", False)
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})  # That the GUI knows that a Measuremnt is running
@@ -151,6 +152,7 @@ class measurement_event_loop(Thread):
                 self.stop_measurement_loop = True # Bug: measurement_loop closes while the measurement thread proceed till it has finished it current task and then shuts down
                 if self.measurement_running:
                     self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
+                    self.message_to_main.put({"STATE": "Stopping Measurement"})
                     self.stop_measurement_loop = False
                 else:
                     self.events.update({"Shutdown": True})
@@ -162,6 +164,7 @@ class measurement_event_loop(Thread):
                 self.measurement_running = False  # Now new measurements can be conducted
                 self.stop_measurement = False
                 self.events.update({"MEASUREMENT_STATUS": self.measurement_running})
+                self.message_to_main.put({"STATE": "IDLE"})
                 self.default_dict["Measurement_running"] = False
                 self.message_to_main.put({"Critical": "Measurement thread terminated..."})
 
@@ -183,11 +186,11 @@ class measurement_event_loop(Thread):
     def init_devices(self):
         '''This function makes the necessary configuration for all devices before any measurement can be conducted'''
         # Not very pretty
-        self.message_to_main.put({"Info": "Initializing of instruments..."})
-        self.message_to_main.put({"STATE": "Instrument initialization..."})
+        self.message_to_main.put({"Info": "Initializing of instruments...", "STATE": "Instrument initialization..."})
 
         all = len(self.devices)
-        for i, device, device_obj in enumerate(self.devices.items()): # Loop over all devices
+        for i, data in enumerate(self.devices.items()): # Loop over all devices
+            device, device_obj = data
             self.message_to_main.put({"PROGRESS": i/all})
             if self.devices[device].get("Visa_Resource", None): # Looks if a Visa resource is assigned to the device.
                 self.log.info("Configuring instrument: {!s}".format(self.devices[device].get("Device_name", "NoName")))

@@ -39,6 +39,10 @@ class Controls_widget(object):
         self.variables.add_update_function(self.update_current_state)
         self.variables.add_update_function(self.update_progress_bar)
 
+        self.states = {"Measurement running": "background : rgb(50,20,200); border-radius: 5px",
+                       "IDLE": "background : rgb(50,100,100); border-radius: 5px",
+                       "DEFAULT": "background : rgb(50,10,200); border-radius: 5px"}
+
     def update_progress_bar(self):
         """Updates the progress bar"""
         self.Start_Stop_gui.progressBar.setValue(self.variables.default_values_dict["settings"].get("progress", 0.0)*100)
@@ -50,14 +54,16 @@ class Controls_widget(object):
 
         if self.variables.default_values_dict["settings"]["Measurement_running"]\
                 and not self.Start_Stop_gui.state_indi.text() == "Measurement running"\
-                and self.variables.default_values_dict["settings"]["State"] == "Measurement running":
+                and not self.variables.default_values_dict["settings"]["State"] == "Measurement running":
             self.Start_Stop_gui.state_indi.setText("Measurement running")
+            #self.variables.default_values_dict["settings"]["State"] = "Measurement running"
             self.Start_Stop_gui.state_indi.setStyleSheet("background : rgb(50,20,200); border-radius: 5px")
 
         elif not self.variables.default_values_dict["settings"]["Measurement_running"]\
                 and not self.Start_Stop_gui.state_indi.text() == "IDLE"\
-                and self.variables.default_values_dict["settings"]["State"] == "IDLE":
+                and not self.variables.default_values_dict["settings"]["State"] == "IDLE":
             self.Start_Stop_gui.state_indi.setText("IDLE")
+            #self.variables.default_values_dict["settings"]["State"] = "IDLE"
             self.Start_Stop_gui.state_indi.setStyleSheet("background : rgb(50,100,100); border-radius: 5px")
 
         elif self.Start_Stop_gui.state_indi.text() != self.variables.default_values_dict["settings"]["State"]:

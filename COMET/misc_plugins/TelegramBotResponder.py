@@ -1,9 +1,12 @@
 """This class responds to Telegram messages. Send by a Client"""
 import re
 import pyqtgraph as pg
-import pyqtgraph.exporters
+#import pyqtgraph.exporters #This does not work currently
 import os
-from .PyqtgraphExporter import PQG_ImageExporter
+try:
+    from .PyqtgraphExporter import PQG_ImageExporter
+except:
+    pass
 
 class TelegramBotResponder:
 
@@ -78,10 +81,11 @@ class TelegramBotResponder:
 
         for val in value.values():
             light = re.findall(r"Switch\b\s*(\w*)", val)
-            if light:
+            parts = val.split()
+            if light and len(parts)>2: # Turn on or off if the command is correct
                 if "433MHz_Transiever" in self.main.default_values_dict["settings"]:
                     if light[0] in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"].keys():
-                        onoff = 1 if val.split()[-1].upper() == "ON" else 0
+                        onoff = 1 if parts[-1].upper() == "ON" else 0
                         path = os.path.normpath(self.main.default_values_dict["settings"]["433MHz_Transiever"]["path"])
                         for switch in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][light[0]]:
                             code = switch
@@ -110,6 +114,20 @@ class TelegramBotResponder:
                 else:
                     self.answer += "No transiever defined. Cannot do what you asked."
 
+            elif light and len(parts) == 2: # if no on or off is defined
+                self.answer = {"CALLBACK": {"info": "Would you like to turn {} ON or OFF".format(light[0]),
+                                            "keyboard": {"ON": "Switch {} ON".format(light[0]), "OFF": "Switch {} OFF".format(light[0])},
+                                            "arrangement": ["ON", "OFF"]}}
+            elif light and len(parts) == 1: # If just the switch command was send
+                if "433MHz_Transiever" in self.main.default_values_dict["settings"]:
+                    keyboard = {}
+                    arrangement = []
+                    for light in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"]:
+                        keyboard[light] = 'Switch {}'.format(light)
+                        arrangement.append([light])
+                    self.answer = {"CALLBACK": {"info": "Possible light configurations:",
+                                                "keyboard": keyboard,
+                                                "arrangement": arrangement}}
 
 
 
@@ -128,10 +146,9 @@ class TelegramBotResponder:
                         pass
                     try:
                         #exporter = pg.exporters.ImageExporter(plt) # Original exporter but he has a bug. --> Selfwritten one from stackoverflow
-                        exporter = PQG_ImageExporter(plt)
+                        exporter = PQG_ImageExporter(plt) # This may fail
                         # set export parameters if needed
                         exporter.parameters()['width'] = 1920  # (note this also affects height parameter)
-                        #exporter.parameters()['height'] = 1080  # (note this also affects height parameter)
                         # save to file
                         filepath = os.path.join(os.path.dirname(__file__), "__temp__")
                         if os.mkdir(filepath) if not os.path.isdir(filepath) else True:

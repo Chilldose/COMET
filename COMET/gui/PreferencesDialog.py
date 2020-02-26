@@ -1,15 +1,7 @@
 import logging
-import sys, os
-
-from PyQt5 import QtCore
-from PyQt5 import QtGui
 from PyQt5 import QtWidgets
-import sys, os
-from PyQt5.QtWidgets import QMainWindow, QWidget
-from PyQt5 import QtCore, QtGui
-import glob
-import yaml
-from functools import partial
+import os
+from PyQt5 import QtCore
 from PyQt5 import uic
 
 
