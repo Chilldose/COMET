@@ -1,8 +1,8 @@
 """This class responds to Telegram messages. Send by a Client"""
 import re
-import pyqtgraph as pg
 #import pyqtgraph.exporters #This does not work currently
 import os
+import importlib
 try:
     from .PyqtgraphExporter import PQG_ImageExporter
 except:
@@ -19,12 +19,9 @@ class TelegramBotResponder:
         self.answer = ""
         self.RPI_modules = False
         self.current_light = None # The current light config
+        self.function_helps = {} # The help text of all available functions
+        self.load_plugins()
 
-        # Load Raspberry modules
-        try:
-            self.RPI_modules = True
-        except:
-            self.RPI_modules = False
 
     def run(self, action, value):
         """
@@ -35,17 +32,8 @@ class TelegramBotResponder:
         if action == "TelegramBot":
             self.answer = "" # The final answer
             try:
-                self.respond_to_PING(value)
-                self.QTC_Status(value)
-                self.give_help(value)
-                self.which_plots(value)
-                self.error_log(value)
-                self.get_light_config(value)
-                self.send_RF_code(value)
-
-                # These function alter the data type of answer!!
-                self.send_plot(value)
-
+                for func in self.function_helps:
+                    getattr(self, func)(value, self)
                 if not self.answer:
                     self.answer = "Command not supported by COMET, please give a valid command. Type 'Help' for all commands."
             except Exception as err:
@@ -55,84 +43,40 @@ class TelegramBotResponder:
         else:
             return None
 
-    def which_plots(self, value):
-        """Returns a list of possible plots"""
+    def load_plugins(self):
+        """Loads the list of plugins via import loaded and makes them members of the telegramResponder"""
+
+        # Add the generall functions from this script
+        members = dir(self)
+        for mem in members:
+            if "do_" in mem:
+                try:
+                    self.function_helps[mem] = getattr(self, mem).__doc__
+                except:
+                    pass
+
+        # Load the other plugins make them a member and add the doc string
+        if "TelegramResponderPlugins" in self.main.framework_variables["Configs"]["config"]["settings"]:
+            for plugin in self.main.framework_variables["Configs"]["config"]["settings"]["TelegramResponderPlugins"]:
+                try:
+                    module = importlib.import_module("COMET.misc_plugins.TelegramResponderPlugins.{}".format(plugin))
+                    for members in dir(module):
+                        if "do_" in members:
+                            setattr(self, members, getattr(module, members))
+                            self.function_helps[members] = getattr(self, members).__doc__
+                except:
+                    pass
+
+    def do_which_plots(self, value, *args):
+        """Plots? - Gives you a list of all possible plots """
         for val in value.values():
             if re.findall(r"Plots\b\?", val):
                 self.answer += "The possible plots to show are: \n\n"
                 self.answer += "\n".join(self.main.plot_objs.keys())
                 self.answer += "\n\nYou can access them by typing 'Plot <xyz>'"
 
-    def get_light_config(self, value):
-        """Gives you all light configurations"""
-        for val in value.values():
-            if val.strip() == "Light?":
-                if "433MHz_Transiever" in self.main.default_values_dict["settings"]:
-                    self.answer += "All possible light configurations: \n\n"
-                    for light in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"].keys():
-                        self.answer += '{}\n'.format(light)
-                else:
-                    self.answer += "No transiever defined. Cannot do what you asked."
-
-
-    def send_RF_code(self, value):
-        """This function is only possible if the system is a raspberry pi. It sends a 433MHz code.
-        It uses the 433MHz libs from github for transmitting"""
-
-        for val in value.values():
-            light = re.findall(r"Switch\b\s*(\w*)", val)
-            parts = val.split()
-            if light and len(parts)>2: # Turn on or off if the command is correct
-                if "433MHz_Transiever" in self.main.default_values_dict["settings"]:
-                    if light[0] in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"].keys():
-                        onoff = 1 if parts[-1].upper() == "ON" else 0
-                        path = os.path.normpath(self.main.default_values_dict["settings"]["433MHz_Transiever"]["path"])
-                        for switch in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][light[0]]:
-                            code = switch
-                            cmd = '{} {} {}'.format(path, code, onoff)
-                            os.system(cmd)
-                        if onoff:
-                            old_light = self.current_light
-                            self.current_light = light[0]
-                        else:
-                            old_light = None # Because everything is off
-                            self.current_light = None
-
-                        # Switch the old one off, which are not included in the new one
-                        if old_light:
-                            path = os.path.normpath(self.main.default_values_dict["settings"]["433MHz_Transiever"]["path"])
-                            onoff = 0
-                            for switch in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][old_light]:
-                                if switch not in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][self.current_light]:
-                                    code = switch
-                                    cmd = '{} {} {}'.format(path, code, onoff)
-                                    os.system(cmd)
-
-                        self.answer += "Done and enjoy."
-                    else:
-                        self.answer += "This light configuration is not defined."
-                else:
-                    self.answer += "No transiever defined. Cannot do what you asked."
-
-            elif light and len(parts) == 2: # if no on or off is defined
-                self.answer = {"CALLBACK": {"info": "Would you like to turn {} ON or OFF".format(light[0]),
-                                            "keyboard": {"ON": "Switch {} ON".format(light[0]), "OFF": "Switch {} OFF".format(light[0])},
-                                            "arrangement": ["ON", "OFF"]}}
-            elif light and len(parts) == 1: # If just the switch command was send
-                if "433MHz_Transiever" in self.main.default_values_dict["settings"]:
-                    keyboard = {}
-                    arrangement = []
-                    for light in self.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"]:
-                        keyboard[light] = 'Switch {}'.format(light)
-                        arrangement.append([light])
-                    self.answer = {"CALLBACK": {"info": "Possible light configurations:",
-                                                "keyboard": keyboard,
-                                                "arrangement": arrangement}}
-
-
-
-    def send_plot(self, value):
-        """Saves a plot as png and returns the path to this plot to the bot"""
+    def do_send_plot(self, value, *args):
+        """Plot <xyz> - Plots you a certain plot"""
         # create an exporter instance, as an argument give it
         # the item you wish to export
         for val in value.values():
@@ -155,30 +99,22 @@ class TelegramBotResponder:
                             for file in  os.listdir(filepath):
                                 os.remove(os.path.join(filepath, file))
                             exporter.export(os.path.join(filepath, '{}_plot.jpg'.format(plot[0])))
-
                             self.answer = {"PLOT": str(os.path.join(filepath, '{}_plot.jpg'.format(plot[0])))}
 
                     except Exception as err:
                         self.main.log.error("Export of png for plot {} did not work. Error: {}".format(plot[0], err))
                 else:
-                    self.answer += "The plot {} is not a possible plot. Type: 'Plots?' to see valid plots."
+                    self.answer += "The plot '{}' is not a possible plot. Type: 'Plots?' to see valid plots.".format(val)
 
-    def give_help(self,value):
-        """Returns all commands"""
+    def do_give_help(self,value, *args):
+        """Help - Gives you a list of all commands"""
         for val in value.values():
             if re.findall(r"Help\b", val) or re.findall(r"help\b", val):
-                self.answer += "Status - Gives information about the QTC status\n" \
-                               "Help - Gives you a list of all commands \n" \
-                               "Plots? - Gives you a list of all possible plots \n" \
-                               "Plot <xyz> - Plots you a certain plot \n" \
-                               "Error # - Gives you the last # entries in the event log \n" \
-                               "ping - Just returns success \n" \
-                               "All possible commands for RPI:" \
-                               "Light? - Gives you the possible light configurations \n" \
-                               "Switch ConfigName <ON/OFF> - Turns light ON or OFF "
+                for help in self.function_helps.values():
+                    self.answer += "{}\n".format(help)
 
-    def error_log(self, value):
-        """This function returns the error log. """
+    def do_error_log(self, value, *args):
+        """Error # - Gives you the last # entries in the event log"""
         for val in value.values():
             if re.findall(r"Error\b", val) or re.findall(r"errors\b", val):
                 errors = self.main.event_loop_thread.error_log
@@ -190,30 +126,8 @@ class TelegramBotResponder:
                     self.answer += "The event log printer must be called with a number! Like 'Error 5'. This will give " \
                                    "you the last 5 entries in the event log."
 
-
-
-    def QTC_Status(self, value):
-        """Gives back the QTC Status"""
-        for val in value.values():
-            if re.findall(r"Status\b", val):
-                text = "Current QTC status: \n\n"
-                text += "Measurement running: {} \n".format(self.main.default_values_dict["settings"]["Measurement_running"])
-                text += "Measurement progress: {} % \n".format(self.main.default_values_dict["settings"]["progress"])
-                text += "Current Bias voltage: {} \n".format(self.main.default_values_dict["settings"].get("bias_voltage", 0))
-                text += "Start time: {} \n".format(self.main.default_values_dict["settings"]["Start_time"])
-                text += "Est. end time: {} \n".format(self.main.default_values_dict["settings"]["End_time"])
-                text += "Single Strip scan time: {} s\n".format(self.main.default_values_dict["settings"]["strip_scan_time"])
-                text += "Bad Strips: {} \n".format(self.main.default_values_dict["settings"]["Bad_strips"])
-                text += "Current filename: {} \n".format(self.main.default_values_dict["settings"]["Current_filename"])
-                text += "Current operator: {} \n".format(self.main.default_values_dict["settings"]["Current_operator"])
-                text += "Sensor type: {} \n".format(self.main.default_values_dict["settings"]["Current_sensor"])
-                text += "Project: {} \n".format(self.main.default_values_dict["settings"]["Current_project"])
-                text += "Table moving: {} \n".format(self.main.default_values_dict["settings"]["table_is_moving"])
-                text += "Current Switching: {} \n".format(self.main.default_values_dict["settings"]["current_switching"])
-                self.answer += text
-
-
-    def respond_to_PING(self, value):
+    def do_respond_to_PING(self, value, *args):
+        """ping - Just returns success"""
         for val in value.values():
             if str(val).strip().lower() == "ping":
                 self.answer = "Success \n\n"

@@ -153,15 +153,16 @@ def main():
         log.warning("No devices specified in the settings...")
 
     log.critical("Starting the event loops ... ")
-    table = utilities.table_control_class(
-        setup_loader.configs["config"],
-        devices_dict,
-        message_to_main,
-        vcw
-    )
 
-    if "Table_control" not in devices_dict:
+    if "Table_control" not in devices_dict or args.minimal:
         table = None
+    else:
+        table = utilities.table_control_class(
+            setup_loader.configs["config"],
+            devices_dict,
+            message_to_main,
+            vcw
+        )
 
     switching = utilities.switching_control(
         setup_loader.configs["config"],
