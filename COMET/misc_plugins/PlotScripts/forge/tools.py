@@ -284,6 +284,31 @@ def convert_to_df(convert, abs = False, keys = "all"):
 
     return return_dict
 
+def plainPlot(plotType, xdata, ydata, label="NOName", plotName=None, configs={}, **addConfigs):
+    """
+
+    :param plotType: The type of plot you want (bars, Curve etc.)
+    :param xdata: The xdata
+    :param ydata: The ydata
+    :param label: The Plot Label
+    :param plotName: The Name of the pot config name
+    :param Config: The Configs dict (PlotName must be a valid key!)
+    :param Configs: The configs the plot should have, additionally
+    :return: the plotObject
+    """
+
+    if hasattr(hv, plotType):
+        log.debug("Generating plain plot {} of type {}".format(label, plotType))
+        plot = getattr(hv, plotType)(list(zip(xdata, ydata)), label=label)
+
+        # Update the plot specific options if need be
+        plot = customize_plot(plot, plotName, configs, **addConfigs)
+        plot = plot.relabel(label)
+        return plot
+
+    else:
+        log.error("Holovies has no attribute with name: {}".format(plotType))
+
 def holoplot(plotType, df_list, configs, xdata, ydata, **addConfigs):
     """
     Simply plots an configs a plot

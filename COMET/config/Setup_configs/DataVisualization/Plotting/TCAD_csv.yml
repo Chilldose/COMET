@@ -36,6 +36,65 @@
       Layout:
           cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
 
+      CCE:
+          PlotLabel: IonSource - Charge Collection Efficiency 
+          PlotStyles: 
+            - Bars
+         
+          FileXPositions: [0,10,20,30,40,50,60,70,80,90] # The position markers for the files (xlabeling)
+          BulkThickness: 290 #um
+          yAxisUnits: Pico Coulombs
+         
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              logy: False
+              logx: False
+              invert_xaxis: False
+              invert_yaxis: False
+              padding: !!python/tuple [0, 0.1]
+              show_grid: True
+              xlabel: Beam Position [um]
+              ylabel: Collected Charge [pC]
+              gridstyle:
+                  grid_line_color: black
+                  grid_line_width: 1.5
+                  minor_xgrid_line_color: lightgray
+                  minor_ygrid_line_color: lightgray
+                  xgrid_line_dash: [4, 4]
+                  ygrid_line_dash: [10, 4]
+              shared_axes: False # If the axes should be shared with other plots, usually it is False
+              xformatter: "%.0f"
+              yformatter: "%.0f"
+    
+            
+      IonSource:
+          PlotLabel: IonSource
+          PlotStyles: 
+            - Curve
+          UnitConversion: pico # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
+         
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              logy: False
+              logx: False
+              invert_xaxis: False
+              invert_yaxis: False
+              padding: !!python/tuple [0, 0.1]
+              show_grid: True
+              ylabel: Current [A]
+              xlabel: time [s]
+              gridstyle:
+                  grid_line_color: black
+                  grid_line_width: 1.5
+                  minor_xgrid_line_color: lightgray
+                  minor_ygrid_line_color: lightgray
+                  xgrid_line_dash: [4, 4]
+                  ygrid_line_dash: [10, 4]
+              shared_axes: False # If the axes should be shared with other plots, usually it is False
+              #xformatter: "%.0f"
+              #yformatter: "%.0f"
+          #ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+          #    yaxisENG: True # If you want to plot the y axis in engineering representation
+
+
       IV_1:
           PlotLabel: IV CURVE TCAD
           UnitConversion: nano # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)

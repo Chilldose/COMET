@@ -1,0 +1,27 @@
+--- # Dummy config file for testing
+      Layout:
+          cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
+
+      NoOptions_combine:
+          PlotLabel: Combination of two plots
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+                  logy: False
+                  logx: False
+                  invert_xaxis: False
+                  invert_yaxis: False
+                  show_grid: True
+                  gridstyle:
+                      grid_line_color: black
+                      grid_line_width: 1.5
+                      minor_xgrid_line_color: lightgray
+                      minor_ygrid_line_color: lightgray
+                      xgrid_line_dash: [4, 4]
+                      ygrid_line_dash: [10, 4]
+                  shared_axes: False # If the axes should be shared with other plots, usually it is False
+                  fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+                  responsive: False
+                  width: 1200
+                  height: 800
+                  xlabel: x-Axis
+                  ylabel: y-Axis
+                  legend_position: top_right
