@@ -26,19 +26,20 @@ class OneWireEnv(Thread):
         self.log = logging.getLogger(__name__)
         self.running = False
 
-        # First try if visa_resource is valid
-        self.success = False
+        # First try if DHT resource is valid and accessible
+        self.success_DHT = False
         try:
             import Adafruit_DHT
             for name, sensor in self.sensors.items():
                 sensortype = getattr(Adafruit_DHT, sensor["type"])
-                humidity, temperature = Adafruit_DHT.read_retry(sensortype, sensor["pin"])
+                humidity, temperature = Adafruit_DHT.read(sensortype, sensor["pin"])
                 if not humidity and not temperature:
                     self.log.critical("Sensor {} at pin {} for room {} did not answer.".format(sensortype, sensor["pin"], name))
-            self.success = True
-
+            self.success_DHT = True
         except Exception as e:
             self.log.error("The temperature and humidity controller seems not to be responding. Error:" + str(e))
+
+        # Try to query the 
 
     def run(self):
         '''This is the update function for temp hum query'''

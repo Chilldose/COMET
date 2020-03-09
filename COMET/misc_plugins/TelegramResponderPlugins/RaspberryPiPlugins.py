@@ -1,5 +1,9 @@
 import re, os
 
+
+
+
+
 def do_get_light_config(value, TelegramResponder):
     """Light? - Gives you the possible light configurations"""
     for val in value.values():
