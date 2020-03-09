@@ -11,6 +11,7 @@ import numpy as np
 hv.extension('bokeh')
 import pandas as pd
 from bokeh.models import LinearAxis, Range1d
+from bokeh.plotting import ColumnDataSource
 from bokeh.io import export_svgs, export_png
 from bokeh.io import save
 import json, yaml
@@ -222,6 +223,7 @@ def config_layout(PlotItem, **kwargs):
 
     try:
         TOOLTIPS =  [
+            ("File", "@Name"),
             ("index", "$index"),
             ("(x,y)", "($x, $y)")
             ]
@@ -344,8 +346,8 @@ def holoplot(plotType, df_list, configs, xdata, ydata, **addConfigs):
                     ylabel = "{} ({})".format(ydata, df_list[key]["units"][df_list[key]["measurements"].index(ydata)])
                     xlabel = "{} ({})".format(xdata, df_list[key]["units"][df_list[key]["measurements"].index(xdata)])
                     if plot:
-                        plot *= getattr(hv, type)(df_list[key]["data"], xdata, ydata, label=key)
-                    else: plot = getattr(hv, type)(df_list[key]["data"], xdata, ydata, label=key)
+                        plot *= getattr(hv, type)(df_list[key]["data"], kdims=[xdata, ydata], vdims=['Name'], label=key)
+                    else: plot = getattr(hv, type)(df_list[key]["data"], kdims=[xdata, ydata], vdims=['Name'], label=key)
                     plot.opts(xlabel=xlabel, ylabel=ylabel)
                 else:
                     log.warning("The data key: {} is not present in dataset {}. Skipping this particular plot.".format(ydata, key))
