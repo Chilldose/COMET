@@ -41,8 +41,8 @@ instructions on **Setting Up The Environment**. When this is done open the Anaco
 the new environment which should have been set-up for you while installation. After that import the PyVisa module and
 try to start a resource manager ::
 
-    (base) activate COMETenv
-    (COMETenv) python
+    (base) activate COMET
+    (COMET) python
     Python 3.7 |Anaconda, Inc.| (default, May  1 2018, 18:37:09) [MSC v.1500 64 bit (AMD64)] on win32
     Type "help", "copyright", "credits" or "license" for more information.
     >>> import visa
