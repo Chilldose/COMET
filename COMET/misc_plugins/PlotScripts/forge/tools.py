@@ -274,7 +274,7 @@ def convert_to_df(convert, abs = False, keys = "all"):
                     if meas in columns:
                         data["data"][meas] = np.abs(arr)
             # Adding label of data
-            data["data"]["Name"] = [key for i in range(len(data["data"][list(data["data"].keys())[0]]))]
+            #data["data"]["Name"] = [key for i in range(len(data["data"][list(data["data"].keys())[0]]))]
 
             sub_set = {}
             for ind in columns:
@@ -338,21 +338,21 @@ def holoplot(plotType, df_list, configs, xdata, ydata, **addConfigs):
         plot = None
         # Loop over all data
         log.info("Generating plot {} in Style {}".format(plotType, type))
-        for key in df_list["keys"]:
-            if hasattr(hv,type):
+        if hasattr(hv, type):
+            for key in df_list["keys"]: # Loop over all files
                 if ydata in df_list[key]["data"]:
                     log.debug("Generating plot {} for {}".format(key, plotType))
                     # get labels from the configs
                     ylabel = "{} ({})".format(ydata, df_list[key]["units"][df_list[key]["measurements"].index(ydata)])
                     xlabel = "{} ({})".format(xdata, df_list[key]["units"][df_list[key]["measurements"].index(xdata)])
                     if plot:
-                        plot *= getattr(hv, type)(df_list[key]["data"], kdims=[xdata, ydata], vdims=['Name'], label=key)
-                    else: plot = getattr(hv, type)(df_list[key]["data"], kdims=[xdata, ydata], vdims=['Name'], label=key)
+                        plot *= getattr(hv, type)(df_list[key]["data"], kdims=[xdata, ydata], vdims=['Name'], label=key, group=type)
+                    else: plot = getattr(hv, type)(df_list[key]["data"], kdims=[xdata, ydata], vdims=['Name'], label=key, group=type)
                     plot.opts(xlabel=xlabel, ylabel=ylabel)
                 else:
                     log.warning("The data key: {} is not present in dataset {}. Skipping this particular plot.".format(ydata, key))
-            else:
-                log.error("The plot type {} is not part of Holoviews.".format(type))
+        else:
+            log.error("The plot type {} is not part of Holoviews.".format(type))
         log.debug("Generated plot: {} of type {}".format(plot, type))
 
         # Configure the plot
@@ -502,10 +502,11 @@ def parse_file_data(filecontent, settings):
             if dat:
                 if len(dat) == len(parsed_data[-1]): # This prevents empty line or malformed data entry line error
                     parsed_data.append(dat)
+                else:
+                    dat.extend([np.nan for i in range(len(parsed_data[-1])-len(dat))])
             else:
-                log.warning("Data shape is not consistent. Droping data: {}".format(dat))
-        else:
-            parsed_data.append(dat)
+                log.debug("Data shape is not consistent. Droping data: {}".format(dat))
+        parsed_data.append(dat)
 
     for i, meas in enumerate(parsed_obj[0][:len(parsed_data[0])]): # Prevents wolfgangs header error
         data_lists.append([parsed_data[x][i] for x in range(len(parsed_data))])

@@ -37,6 +37,7 @@ class OneWireEnv(Thread):
                     self.log.critical("Sensor {} at pin {} for room {} did not answer.".format(sensortype, sensor["pin"], name))
             self.success_DHT = True
         except Exception as e:
+
             self.log.error("The temperature and humidity controller seems not to be responding. Error:" + str(e))
 
         # Try to query the 
@@ -44,7 +45,7 @@ class OneWireEnv(Thread):
     def run(self):
         '''This is the update function for temp hum query'''
 
-        if self.success and not self.running:
+        if self.success_DHT and not self.running:
             self.log.info("Humidity and temp control started...")
             self.running = True
         elif not self.running:
