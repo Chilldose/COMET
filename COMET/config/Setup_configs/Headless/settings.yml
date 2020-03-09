@@ -4,7 +4,7 @@
     Settings_name: settings # The name of the settings which will be shown in the framework and will be the addressing name (settings here is important)
 
     TelegramBot:
-            Dominic: 260848510
+        Dominic: 260848510
     Current_operator: Dominic
 
     433MHz_Transiever:
@@ -16,47 +16,6 @@
             - 001100 2
             - 001100 3
 
-    measurement_types: # Different measurement types which can be conducted
-        - Temp_Room1
-        - Hum_Room1
-        - Temp_Room2
-        - Hum_Room2
-        - Temp_Room3
-        - Hum_Room4
-
-    Rooms:
-        - Room1
-        - Room2
-        - Room3
-
-    Sensors:
-        Room1:
-                pin: 1
-                type: DHT22
-        Room2:
-                pin: 2
-                type: DHT22
-        Room3:
-                pin: 3
-                type: DHT22
-
-    Ranges:
-        Room1:
-                temp_min: 20
-                temp_max: 30
-                hum_min: 20
-                hum_max: 30
-        Room2:
-                temp_min: 20
-                temp_max: 30
-                hum_min: 20
-                hum_max: 30
-        Room3:
-                temp_min: 20
-                temp_max: 30
-                hum_min: 20
-                hum_max: 30
-
     # Optional parameters
     temp_history: 3600 # How much should be shown in the humidity history in seconds
     temphum_update_interval: 10000 # Update intervall of the humidity controll in ms
@@ -64,9 +23,6 @@
     time_format: "%H:%M:%S" # Time format of the humidity control
     GUI_update_interval: 200.0 # How often should the GUI be updated in ms
     show_toolbar: False
-
-    GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
-        - EnvironmentMonitor
 
     Socket_connection: # Config for the socket connection, for data transfer between processes
         Host:

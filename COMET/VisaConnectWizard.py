@@ -65,7 +65,7 @@ class VisaConnectWizard:
             self.GPIB_interface = self.rm.open_resource('GPIB::INTFC')
             self.reset_GBIP_interface()
         except:
-            self.log.warning("No GPIB interface could be found...")
+            self.log.debug("No GPIB interface could be found...")
 
         #Connects to an instrument given in arg (this function will be obsolete if no argument is given)
         try:

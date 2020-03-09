@@ -10,12 +10,13 @@ import importlib
 import glob
 from time import sleep
 import pyqtgraph as pq
-from PyQt5 import uic
+from PyQt5 import uic, QtCore
 from PyQt5.QtWidgets import *
 from .gui.MainWindow import MainWindow
 from .gui.PluginWidget import PluginWidget
 from .GUI_event_loop import *
 import os
+from .utilities import send_telegram_message
 from .misc_plugins.TelegramBotResponder import TelegramBotResponder
 
 
@@ -35,6 +36,7 @@ class GUI_classes(QWidget):
 
         # Framework variables
         self.framework = framework_variables
+        self.args = framework_variables["args"]
         self.vcw = framework_variables["VCW"]
         self.client = framework_variables["Client"]
         self.server = framework_variables["Server"]
@@ -123,10 +125,15 @@ class GUI_classes(QWidget):
 
         # Initialise and start the GUI_event_loop
         self.event_loop_thread = GUI_event_loop(self, self.framework_variables, self.meas_data)
-        self.event_loop_thread.Errsig.connect(self.main_window.errMsg.new_message)
+        if not self.args.minimal: # Only do this in the non minimal version since this costs a lot of computing power
+            self.event_loop_thread.Errsig.connect(self.main_window.errMsg.new_message)
         self.event_loop_thread.start()
 
         self.log.info("Starting GUI ... ")
+        operator = self.default_values_dict["settings"].get("Current_operator", "None")
+        send_telegram_message(operator,
+                              "COMET has started and is ready!",
+                              self.default_values_dict["settings"], self.client)
 
 
     def add_rendering_function(self, widget, name):

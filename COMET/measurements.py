@@ -430,4 +430,3 @@ class measurement_class(Thread):
             self.log.error("Measurement output could not be saved as {}, due to error {}".format(type, err))
         else:
             self.log.warning("No data for saving found...")
-

@@ -156,6 +156,10 @@ class Server_(socket_connections):
                         except Exception:
                             self.log.error("main: error: exception for {}:\n{}".format(message.addr,traceback.format_exc()))
                             message.close()
+                    # Check for a socket being monitored to continue.
+                    #if not self.sel.get_map():
+                    #    break
+
         except KeyboardInterrupt:
             self.log.critical("caught keyboard interrupt, exiting")
         finally:
@@ -219,9 +223,8 @@ class BaseMessage:
             else:
                 self._send_buffer = self._send_buffer[sent:]
                 # Close when the buffer is drained. The response has been sent.
-                # Todo: This needs to be done on server side when the response was sent to avoid to many open connections
-                #if sent and not self._send_buffer:
-                #    self.close()
+                if sent and not self._send_buffer:
+                    self.close()
 
     def _json_encode(self, obj, encoding):
         """Simply encodes a python dictionary to a json encoded message to be send over a socket connection"""
