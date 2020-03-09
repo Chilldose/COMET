@@ -55,6 +55,7 @@ class measurement_class(Thread):
 
     def run(self):
         self.log.info("Starting measurement thread...")
+        self.queue_to_main.put({"STATE": "Preparing Setup..."})
         self.settings["settings"]["Start_time"] = str(datetime.datetime.now())
         self.load_plugins()
         self.write_data()
@@ -103,6 +104,7 @@ class measurement_class(Thread):
         # Perfom the setup check and start the measurement
         # -------------------------------------------------------------------------------
         self.queue_to_event_loop.put({"Status":{"MEASUREMENT_FINISHED": True}}) # States that the measurement is finished
+        self.queue_to_main.put({"STATE": "Measurement finished"})
 
     def close_measurement_files(self):
         """
@@ -252,6 +254,7 @@ class measurement_class(Thread):
 
                 # Here the actual measurement starts -------------------------------------------------------------------
                 if not abort:
+                    self.queue_to_main.put({"STATE": "Measurement running"})
                     self.log.info("Trying to start measurement " + str(measurement))
                     operator = self.default_values_dict.get("Current_operator", "None")
                     send_telegram_message(operator, "Starting measurement: {}".format(measurement),
@@ -269,15 +272,16 @@ class measurement_class(Thread):
                         # Inform the user about the outcome
                         operator = self.default_values_dict.get("Current_operator", "None")
                         if self.event_loop.stop_all_measurements_query():
-                            send_telegram_message(operator, "Hi {}, \n I want to inform you that your measurement has FINISHED! \n\n"
-                                                        "The measurement took {} h".format(operator, round(deltaT/3600, 2)),
-                                                        self.default_values_dict, self.client)
-                        else:
                             send_telegram_message(operator,
-                                                  "Hi {}, \n I want to inform you that your measurement has been ABORTED! \n"
+                                                  "Hi {}, \nI want to inform you that your measurement has been ABORTED! \n"
                                                   "The system shutdown was successfull. Please see the LogFile to see what happened. \n\n"
                                                   "The measurement took {} h \n\n".format(operator,
-                                                                                          round(deltaT/3600, 2) ),
+                                                                                          round(deltaT / 3600, 2)),
+                                                  self.default_values_dict, self.client)
+                        else:
+                            send_telegram_message(operator,
+                                                  "Hi {}, \n I want to inform you that your measurement has FINISHED! \n\n"
+                                                  "The measurement took {} h".format(operator, round(deltaT / 3600, 2)),
                                                   self.default_values_dict, self.client)
                     except Exception as err:
                         errormsg = "An error happened while conducting" \

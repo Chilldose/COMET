@@ -129,6 +129,7 @@ class measurement_event_loop(Thread):
                 # Starts a thread for measuring
                 self.message_to_main.put({"Critical": "Measurement thread starts..."})
                 self.measthread = measurement_class(self, self.framework, self.measurements_to_conduct.copy())
+                self.message_to_main.put({"STATE": "Starting measurement..."})
                 self.measthread.start()
                 self.log.info("Sended new measurement job. Orders: " + str(self.measurements_to_conduct))
                 self.measurements_to_conduct.clear() # Clears the measurement dict
@@ -219,7 +220,7 @@ class measurement_event_loop(Thread):
                     self.devices[device]["State"] = "CONFIGURED"
 
         self.message_to_main.put({"Info": "Initializing DONE!"})
-        self.message_to_main.put({"STATE": "IDLE"})
+        self.message_to_main.put({"STATE": "Instruments initialized!"})
         self.message_to_main.put({"PROGRESS": 0})
 
 

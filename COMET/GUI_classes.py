@@ -51,6 +51,10 @@ class GUI_classes(QWidget):
         self.default_values_dict["settings"]["Measurement_running"] = False
         self.TCP_message_function = []
 
+        self.states = {"Measurement running": "background : rgb(50,20,200); border-radius: 5px",
+                       "IDLE": "background : rgb(50,100,100); border-radius: 5px",
+                       "DEFAULT": "background : rgb(50,200,200); border-radius: 5px"}
+
         # Config response function for the server
         if self.server:
             self.server.responder = self.process_messages_from_server
@@ -297,21 +301,10 @@ class GUI_classes(QWidget):
 
     def update_current_state(self):
         """Updates the label of the state of the program. Either IDLE or Measurement running"""
-        if self.default_values_dict["settings"]["Measurement_running"]\
-                and not self.main_window.StatusLabel.text() == "Measurement running"\
-                and not self.default_values_dict["settings"]["State"] == "Measurement running":
-            self.main_window.StatusLabel.setText(self.default_values_dict["settings"]["State"])
-            self.main_window.StatusLabel.setStyleSheet("background : rgb(50,20,200); border-radius: 5px")
 
-        elif not self.default_values_dict["settings"]["Measurement_running"]\
-            and not self.main_window.StatusLabel.text() == "IDLE"\
-            and not self.default_values_dict["settings"]["State"] == "IDLE":
+        if self.main_window.StatusLabel.text() != self.default_values_dict["settings"]["State"]:
             self.main_window.StatusLabel.setText(self.default_values_dict["settings"]["State"])
-            self.main_window.StatusLabel.setStyleSheet("background : rgb(50,100,100); border-radius: 5px")
-
-        elif self.main_window.StatusLabel.text() != self.default_values_dict["settings"]["State"]:
-            self.main_window.StatusLabel.setText(self.default_values_dict["settings"]["State"])
-            self.main_window.StatusLabel.setStyleSheet("background : rgb(50,100,100); border-radius: 5px")
+            self.main_window.StatusLabel.setStyleSheet(self.states.get(self.default_values_dict["settings"]["State"], "DEFAULT"))
 
         if self.default_values_dict["settings"]["Measurement_running"] and self.main_window.startAct.isEnabled():
             self.main_window.startAct.setEnabled(False)

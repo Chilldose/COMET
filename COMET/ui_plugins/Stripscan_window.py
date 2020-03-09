@@ -3,7 +3,7 @@ import logging
 import numpy as np
 import pyqtgraph as pq
 
-from time import sleep
+from time import sleep, time
 from PyQt5.QtWidgets import *
 from .. import engineering_notation as en
 from .Pause_stripscan_widget import pause_stripscan_widget
@@ -44,6 +44,7 @@ class Stripscan_window:
         self.variables.default_values_dict["settings"]["Bad_strips"] = 0
         self.variables.default_values_dict["settings"]["Start_time"] = None
         self.variables.default_values_dict["settings"]["End_time"] = None
+        self.strip_times = []
         self.variables.default_values_dict["settings"]["strip_scan_time"] = 0
         self.new_meas = True
         self.number_of_strips = 1
@@ -177,9 +178,18 @@ class Stripscan_window:
 
     def update_text_stat(self):
         '''Updates the statistic text'''
+
+        try:
+            self.strip_times.append(self.variables.default_values_dict["settings"]["strip_scan_time"])
+            elapsedtime = time() - self.variables.default_values_dict["settings"]["Start_time"]
+            percper = elapsedtime/(self.variables.default_values_dict["settings"]["progress"])
+            self.variables.default_values_dict["settings"]["End_time"] = (1 - self.variables.default_values_dict["settings"]["progress"])*percper
+        except:
+            pass
+
         self.stripscan.start_time.setText(self.variables.default_values_dict["settings"]["Start_time"])  # sets the display to the desired value
         self.stripscan.end_time.setText(self.variables.default_values_dict["settings"]["End_time"])  # sets the display to the desired value
-        self.stripscan.strip_time.setText(str(self.variables.default_values_dict["settings"]["strip_scan_time"]))  # sets the display to the desired value
+        self.stripscan.strip_time.setText(str(round(self.variables.default_values_dict["settings"]["strip_scan_time"],2)))  # sets the display to the desired value
 
     def reset_stat(self, kwargs=None):
         '''Resets the statistics panel'''
