@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1063</width>
-    <height>745</height>
+    <width>1181</width>
+    <height>788</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,14 +21,19 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="3" colspan="2">
-    <widget class="QPushButton" name="refresh_pushButton">
-     <property name="text">
-      <string>Refresh</string>
+   <item row="10" column="2" rowspan="2" colspan="2">
+    <widget class="QTreeWidget" name="combine_treeWidget">
+     <property name="horizontalScrollBarPolicy">
+      <enum>Qt::ScrollBarAlwaysOn</enum>
      </property>
+     <column>
+      <property name="text">
+       <string>To Combine</string>
+      </property>
+     </column>
     </widget>
    </item>
-   <item row="8" column="0" colspan="2">
+   <item row="10" column="0" rowspan="2" colspan="2">
     <widget class="QTreeWidget" name="output_tree">
      <property name="maximumSize">
       <size>
@@ -49,54 +54,45 @@
      </column>
     </widget>
    </item>
-   <item row="9" column="2" colspan="3">
-    <widget class="QPushButton" name="add_plot_pushButton">
+   <item row="9" column="0" colspan="4">
+    <widget class="QLineEdit" name="options_lineEdit"/>
+   </item>
+   <item row="1" column="1" colspan="3">
+    <widget class="QComboBox" name="session_comboBox"/>
+   </item>
+   <item row="9" column="4" colspan="2">
+    <widget class="QPushButton" name="apply_option_pushButton">
      <property name="text">
-      <string>Add</string>
+      <string>Apply</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="5">
-    <widget class="Line" name="line">
-     <property name="maximumSize">
-      <size>
-       <width>16777215</width>
-       <height>16777215</height>
-      </size>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
+   <item row="6" column="2" colspan="4">
+    <widget class="QComboBox" name="save_as_comboBox"/>
+   </item>
+   <item row="4" column="5">
+    <widget class="QToolButton" name="save_toolButton">
+     <property name="text">
+      <string>...</string>
      </property>
     </widget>
    </item>
-   <item row="8" column="2" colspan="3">
-    <widget class="QTreeWidget" name="combine_treeWidget">
-     <property name="horizontalScrollBarPolicy">
-      <enum>Qt::ScrollBarAlwaysOn</enum>
+   <item row="3" column="1" colspan="4">
+    <widget class="QComboBox" name="templates_comboBox"/>
+   </item>
+   <item row="1" column="4" colspan="2">
+    <widget class="QPushButton" name="refresh_pushButton">
+     <property name="text">
+      <string>Refresh</string>
      </property>
-     <column>
-      <property name="text">
-       <string>To Combine</string>
-      </property>
-     </column>
     </widget>
    </item>
-   <item row="0" column="5" rowspan="10">
+   <item row="0" column="6" rowspan="14">
     <widget class="QWebEngineView" name="webEngineView">
      <property name="url">
       <url>
        <string>about:blank</string>
       </url>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="1" colspan="3">
-    <widget class="QLineEdit" name="save_lineEdit"/>
-   </item>
-   <item row="7" column="0" colspan="5">
-    <widget class="QPushButton" name="render_pushButton">
-     <property name="text">
-      <string>Combine and Show</string>
      </property>
     </widget>
    </item>
@@ -112,7 +108,76 @@
      </property>
     </widget>
    </item>
-   <item row="0" column="0" colspan="5">
+   <item row="13" column="0" colspan="2">
+    <widget class="QPushButton" name="remove_plot_pushButton">
+     <property name="text">
+      <string>Clear</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QLabel" name="label_3">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Plotting Template:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="0">
+    <widget class="QLabel" name="label_4">
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
+     <property name="text">
+      <string>Save to:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="4" column="1" colspan="4">
+    <widget class="QLineEdit" name="save_lineEdit"/>
+   </item>
+   <item row="13" column="2" colspan="4">
+    <widget class="QPushButton" name="add_plot_pushButton">
+     <property name="text">
+      <string>Add</string>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="6">
+    <widget class="QPushButton" name="render_pushButton">
+     <property name="text">
+      <string>Combine and Show</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="5">
+    <widget class="QToolButton" name="select_template_toolButton">
+     <property name="text">
+      <string>...</string>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="4" colspan="2">
+    <widget class="QTreeWidget" name="plot_options_treeWidget">
+     <column>
+      <property name="text">
+       <string>Option</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Value</string>
+      </property>
+     </column>
+    </widget>
+   </item>
+   <item row="0" column="0" colspan="6">
     <widget class="QLabel" name="label">
      <property name="maximumSize">
       <size>
@@ -135,59 +200,21 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="4">
-    <widget class="QToolButton" name="save_toolButton">
+   <item row="8" column="0">
+    <widget class="QLabel" name="label_6">
      <property name="text">
-      <string>...</string>
+      <string>Plot Label: </string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0">
-    <widget class="QLabel" name="label_4">
+   <item row="8" column="1" colspan="5">
+    <widget class="QLineEdit" name="plot_label_lineEdit">
      <property name="font">
       <font>
        <pointsize>10</pointsize>
       </font>
      </property>
-     <property name="text">
-      <string>Save to:</string>
-     </property>
     </widget>
-   </item>
-   <item row="9" column="0" colspan="2">
-    <widget class="QPushButton" name="remove_plot_pushButton">
-     <property name="text">
-      <string>Clear</string>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="2" colspan="3">
-    <widget class="QComboBox" name="save_as_comboBox"/>
-   </item>
-   <item row="1" column="1" colspan="2">
-    <widget class="QComboBox" name="session_comboBox"/>
-   </item>
-   <item row="2" column="4">
-    <widget class="QToolButton" name="select_template_toolButton">
-     <property name="text">
-      <string>...</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
-     <property name="text">
-      <string>Plotting Template:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="1" colspan="3">
-    <widget class="QComboBox" name="templates_comboBox"/>
    </item>
   </layout>
  </widget>

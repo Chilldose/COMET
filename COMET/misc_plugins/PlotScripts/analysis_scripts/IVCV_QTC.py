@@ -25,7 +25,7 @@ class IVCV_QTC:
     def __init__(self, data, configs):
 
         self.log = logging.getLogger(__name__)
-        self.data = convert_to_df(data, abs=True, keys=["voltage", "current", "capacitance", "IV", "CV", "CVQValue", "humidity", "temperature"])
+        self.data = convert_to_df(data, abs=True, keys=["Voltage", "voltage", "current", "Current", "capacitance", "IV", "CV", "CVQValue", "humidity", "temperature"])
         self.config = configs
         self.df = []
         self.basePlots = None
@@ -43,6 +43,10 @@ class IVCV_QTC:
         if "Voltage" in self.measurements:
             self.xaxis = "Voltage"
             padidx = self.measurements.index("Voltage")
+            del self.measurements[padidx]
+        elif "voltage" in self.measurements:
+            self.xaxis = "voltage"
+            padidx = self.measurements.index("voltage")
             del self.measurements[padidx]
 
         # Convert the units to the desired ones
@@ -75,11 +79,12 @@ class IVCV_QTC:
         self.PlotDict["All"] = self.basePlots
 
         # Add full depletion point to 1/c^2 curve
-        try:
-            c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion
-            self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion = self.find_full_depletion(c2plot, self.data, self.config)
-        except Exception as err:
-            self.log.warning("No full depletion calculation possible... Error: {}".format(err))
+        if self.config["IVCV_QTC"].get("1C2", {}).get("DoFullDepletionCalculation", False):
+            try:
+                c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion
+                self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion = self.find_full_depletion(c2plot, self.data, self.config)
+            except Exception as err:
+                self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
         # Whiskers Plot
         self.WhiskerPlots = dospecialPlots(self.data, self.config, "IVCV_QTC", "BoxWhisker", self.measurements)
@@ -90,12 +95,6 @@ class IVCV_QTC:
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config["IVCV_QTC"].get("Layout", {}))
 
-        # Add the download button for all data
-        #button = Button(label="Download", button_type="success")
-        #button.callback = CustomJS(args=dict(source=self.data),
-        #                           code=open(os.path.join(os.path.dirname(__file__), "download.js")).read())
-        #self.PlotDict["All"] += button
-        #self.PlotDict["download"] = button
         return self.PlotDict
 
 
@@ -195,6 +194,7 @@ class IVCV_QTC:
 
         # Update the plot specific options if need be
         returnPlot = plot * vline * right_line * left_line * text
+        #returnPlot = relabelPlot(returnPlot, "CV CURVES - Full depletion calculation")
         returnPlot = customize_plot(returnPlot, "1C2", configs["IVCV_QTC"], **addConfigs)
 
         return returnPlot

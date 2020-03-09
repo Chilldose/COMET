@@ -15,6 +15,7 @@ from bokeh.io import export_svgs, export_png
 from bokeh.io import save
 import json, yaml
 from copy import deepcopy
+from bokeh.models import HoverTool
 try:
     import pdfkit
 except:
@@ -220,13 +221,19 @@ def config_layout(PlotItem, **kwargs):
             log.warning("Option '{}' for plot not possible with error: {}".format(key, err))
 
     try:
+        TOOLTIPS =  [
+            ("index", "$index"),
+            ("(x,y)", "($x, $y)")
+            ]
+        hover = HoverTool(tooltips=TOOLTIPS)
         PlotItem.opts(
-            opts.Curve(tools=['hover']),
-            opts.Scatter(tools=['hover']),
-            opts.Histogram(tools=['hover']),
-            opts.Points(tools=['hover']),
-            opts.BoxWhisker(tools=['hover']),
-            opts.Violin(tools=['hover'])
+            opts.Curve(tools=[hover]),
+            opts.Scatter(tools=[hover]),
+            opts.Histogram(tools=[hover]),
+            opts.Points(tools=[hover]),
+            opts.BoxWhisker(tools=[hover]),
+            opts.Bars(tools=[hover]),
+            opts.Violin(tools=[hover])
         )
     except AttributeError as err:
         log.error("Nonetype object encountered while configuring final plots layout. This should not happen! Error: {}".format(err))
@@ -334,8 +341,8 @@ def holoplot(plotType, df_list, configs, xdata, ydata, **addConfigs):
                 if ydata in df_list[key]["data"]:
                     log.debug("Generating plot {} for {}".format(key, plotType))
                     # get labels from the configs
-                    ylabel = "{} [{}]".format(ydata, df_list[key]["units"][df_list[key]["measurements"].index(ydata)])
-                    xlabel = "{} [{}]".format(xdata, df_list[key]["units"][df_list[key]["measurements"].index(xdata)])
+                    ylabel = "{} ({})".format(ydata, df_list[key]["units"][df_list[key]["measurements"].index(ydata)])
+                    xlabel = "{} ({})".format(xdata, df_list[key]["units"][df_list[key]["measurements"].index(xdata)])
                     if plot:
                         plot *= getattr(hv, type)(df_list[key]["data"], xdata, ydata, label=key)
                     else: plot = getattr(hv, type)(df_list[key]["data"], xdata, ydata, label=key)
@@ -494,7 +501,7 @@ def parse_file_data(filecontent, settings):
                 if len(dat) == len(parsed_data[-1]): # This prevents empty line or malformed data entry line error
                     parsed_data.append(dat)
             else:
-                log.error("Data shape is not consistent. Droping data: {}".format(dat))
+                log.warning("Data shape is not consistent. Droping data: {}".format(dat))
         else:
             parsed_data.append(dat)
 

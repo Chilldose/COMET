@@ -36,6 +36,8 @@ class TCAD:
                         ("CV", "CV_1", self.areafactors.get("CV", 1), self.scalefactors.get("CV", 1)),
                         ("1c2", "1c2_1", self.areafactors.get("1c2", 1), self.scalefactors.get("1c2", 1)),
                         ("oxide_charges", "interstrip_resistance", self.areafactors.get("interstrip_resistance", 1),
+                         self.scalefactors.get("interstrip_resistance", 1)),
+                        ("pstop_depth", "interstrip_resistance", self.areafactors.get("interstrip_resistance", 1),
                          self.scalefactors.get("interstrip_resistance", 1))
                         ]
 
@@ -97,7 +99,7 @@ class TCAD:
         for pltType in self.config["TCAD"].get("CCE",{}).get("PlotStyles", ["Bars"]):
             plot = plainPlot(pltType,
                       self.config["TCAD"].get("CCE", {})["FileXPositions"],
-                      units[self.config["TCAD"].get("CCE",{}).get("yAxisUnits", picoCoulombs)],
+                      units[self.config["TCAD"].get("CCE",{}).get("yAxisUnits", "Pico Coulombs")],
                       self.config["TCAD"].get("CCE",{}).get("PlotLabel", "NOName"),
                       "CCE",
                       self.config["TCAD"]

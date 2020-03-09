@@ -1,8 +1,8 @@
 
 from PyQt5.QtWidgets import QWidget, QFileDialog, QTreeWidgetItem
 from PyQt5.QtCore import QUrl, Qt
-import threading
-from ..misc_plugins.PlotScripts.forge.tools import customize_plot, save_plot
+from ..misc_plugins.PlotScripts.forge.tools import customize_plot, relabelPlot
+import ast
 
 import yaml
 try:
@@ -44,12 +44,15 @@ class CombiningPlots_window:
         self.widget.save_toolButton.clicked.connect(self.select_save_to_action)
         self.widget.refresh_pushButton.clicked.connect(self.refresh_action)
         self.widget.output_tree.itemClicked.connect(self.get_current_selected_plot_object)
+        self.widget.combine_treeWidget.itemClicked.connect(self.get_current_selected_to_combine_plot_object)
         self.widget.add_plot_pushButton.clicked.connect(self.add_action)
         self.widget.session_comboBox.currentIndexChanged.connect(self.session_change_action)
         self.widget.remove_plot_pushButton.clicked.connect(self.clear_action)
         self.widget.render_pushButton.clicked.connect(self.combine_and_show_action)
         self.widget.select_template_toolButton.clicked.connect(self.select_analysis_template)
         self.widget.save_as_pushButton.clicked.connect(self.save_as_action)
+        self.widget.plot_options_treeWidget.itemClicked.connect(self.tree_option_select_action)
+        self.widget.apply_option_pushButton.clicked.connect(self.apply_option_button)
 
     def save_as_action(self):
         """Saves the plots etc to the defined directory"""
@@ -114,12 +117,15 @@ class CombiningPlots_window:
             except:
                 pass
         # Crude reconfig of the plots with the plot parameters from a simple plot file
+        self.combinedPlotOptions = self.convert_config_to_dict(self.widget.templates_comboBox.currentText())
+        self.combinedPlotTemplate = self.widget.templates_comboBox.currentText()
         finalPlot = customize_plot(finalPlot, self.widget.templates_comboBox.currentText(),
-                                   self.convert_config_to_dict(self.widget.templates_comboBox.currentText()))
+                                   self.combinedPlotOptions)
         save_plot("temp_combine_plot", finalPlot, path, save_as = "html")
         self.widget.webEngineView.load(QUrl.fromLocalFile(os.path.join(path, "html", "temp_combine_plot.html")))
         self.current_plot_object = None
         self.combined_plot = finalPlot
+        self.update_plot_options_tree(self.combined_plot)
         self.variables.app.restoreOverrideCursor()
 
     def parse_yaml_string(self, ys):
@@ -151,6 +157,19 @@ class CombiningPlots_window:
             tree = QTreeWidgetItem([tree])
             self.widget.combine_treeWidget.addTopLevelItem(tree)
             self.to_combine_plots.append(self.current_plot_object)
+
+    def get_current_selected_to_combine_plot_object(self, item):
+        """Loads a html file plot to the screen and stores the current value"""
+        self.variables.app.setOverrideCursor(Qt.WaitCursor)
+        path = os.path.join(os.getcwd(), "__temp__")
+        if not os.path.exists(path):
+            os.mkdir(path)
+        ind = self.widget.combine_treeWidget.currentIndex().row()
+        plot = self.to_combine_plots[ind][0]
+        save_plot("temp_combine_plot", plot, path, save_as="html")
+        self.widget.webEngineView.load(QUrl.fromLocalFile(os.path.join(path, "html", "temp_combine_plot.html")))
+
+        self.variables.app.restoreOverrideCursor()
 
     def get_current_selected_plot_object(self, item):
         """Loads a html file plot to the screen and stores the current value"""
@@ -190,8 +209,14 @@ class CombiningPlots_window:
 
     def replot_and_reload_html(self, plot):
         """Replots a plot and displays it"""
-        filepath = self.plotting_Object.temp_html_output(plot)
-        self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
+        path = os.path.join(os.getcwd(), "__temp__")
+        if not os.path.exists(path):
+            os.mkdir(path)
+        save_plot("temp_combine_plot", plot, path, save_as="html")
+        self.widget.webEngineView.load(QUrl.fromLocalFile(os.path.join(path, "html", "temp_combine_plot.html")))
+        self.current_plot_object = None
+        self.combined_plot = plot
+        self.update_plot_options_tree(self.combined_plot)
 
     def select_save_to_action(self):
         """Lets you select the output folder"""
@@ -287,3 +312,76 @@ class CombiningPlots_window:
         """Configs the save options like json,hdf5,etc"""
         options = ["html/png", "html", "png"]
         self.widget.save_as_comboBox.addItems(options)
+    ########################
+
+    def tree_option_select_action(self, item):
+        """Action what happens when an option is selected"""
+        key = item.text(0)
+        value = item.text(1)
+        self.widget.options_lineEdit.setText("{}: {}".format(key, value))
+
+    def apply_option_button(self):
+        """Applies the option made to the plot and repolts the current plot"""
+
+        # Change the plot label from the line edit
+        self.combined_plot = relabelPlot(self.combined_plot, self.widget.plot_label_lineEdit.text())
+
+        line = self.widget.options_lineEdit.text()
+        if line:
+            ind = line.find(":")
+            if ind == -1:
+                ind = line.find("=")
+            # Try  to evaluate
+            try:
+                value = ast.literal_eval(line[ind + 1:].strip())
+            except:
+                value = line[ind + 1:].strip()
+            newItem = {line[:ind].strip(): value}
+        else:
+            newItem = {}  # If no options are passed, generate an empty one
+
+        try:
+            self.apply_options_to_plot(self.combined_plot, **newItem)
+            self.replot_and_reload_html(self.combined_plot)
+            if "PlotOptions" in self.combinedPlotOptions[self.combinedPlotTemplate]:
+                self.combinedPlotOptions[self.combinedPlotTemplate]["PlotOptions"].update(newItem) # Kinda redundant
+            else:
+                self.combinedPlotOptions[self.combinedPlotTemplate]["PlotOptions"] = newItem
+
+            self.update_plot_options_tree(self.combined_plot)
+        except Exception as err:
+            self.log.error("An error happened with the newly passed option with error: {} Option will be removed! "
+                               "Warning: Depending on the error, you may have compromised the plot object and a re-render "
+                               "may be needed!".format(err))
+
+    def apply_options_to_plot(self, plot, **opts):
+        """Applies the opts to the plot"""
+        plot.opts(**opts)
+
+
+    def update_plot_options_tree(self, plot):
+        """Updates the plot options tree for the plot"""
+        self.widget.plot_options_treeWidget.clear()
+        self.widget.options_lineEdit.setText("")
+        try:
+            try:
+                plotLabel = plot.label
+            except:
+                plotLabel = plot._label # This changed somehow
+            if not plotLabel:
+                raise ValueError # If none of the above exists
+
+        except:
+            self.log.debug("Plot object has no label, trying with group parameter...")
+            # In case of special plots other access needed
+            try:
+                plotLabel = plot._group_param_value
+                plotLabel = plotLabel.split(":")
+
+            except:
+                plotLabel = "None"
+        self.widget.plot_label_lineEdit.setText(plotLabel)
+        configs = self.combinedPlotOptions
+        for opt, value in configs[self.combinedPlotTemplate].get("PlotOptions", {}).items():
+            tree = QTreeWidgetItem({str(opt): "Option", str(value): "Value"})
+            self.widget.plot_options_treeWidget.addTopLevelItem(tree)
