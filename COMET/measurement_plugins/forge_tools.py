@@ -56,7 +56,7 @@ class tools(object):
         while not steady_state:
             if counter > max_iterations:
                 # If too many attempts where made
-                self.toolslog.error("Attempt to reach steady state was not successfully after {} times for device {}".format(max_iterations, device["Device_name"]))
+                self.toolslog.critical("Attempt to reach steady state was not successfully after {} times for device {}".format(max_iterations, device["Device_name"]))
                 return False
             counter += 1
             values = np.zeros(samples)

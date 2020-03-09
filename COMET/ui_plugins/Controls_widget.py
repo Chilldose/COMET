@@ -52,23 +52,9 @@ class Controls_widget(object):
     def update_current_state(self):
         """Updates the label of the state of the program. Either IDLE or Measurement running"""
 
-        if self.variables.default_values_dict["settings"]["Measurement_running"]\
-                and not self.Start_Stop_gui.state_indi.text() == "Measurement running"\
-                and not self.variables.default_values_dict["settings"]["State"] == "Measurement running":
-            self.Start_Stop_gui.state_indi.setText("Measurement running")
-            #self.variables.default_values_dict["settings"]["State"] = "Measurement running"
-            self.Start_Stop_gui.state_indi.setStyleSheet("background : rgb(50,20,200); border-radius: 5px")
-
-        elif not self.variables.default_values_dict["settings"]["Measurement_running"]\
-                and not self.Start_Stop_gui.state_indi.text() == "IDLE"\
-                and not self.variables.default_values_dict["settings"]["State"] == "IDLE":
-            self.Start_Stop_gui.state_indi.setText("IDLE")
-            #self.variables.default_values_dict["settings"]["State"] = "IDLE"
-            self.Start_Stop_gui.state_indi.setStyleSheet("background : rgb(50,100,100); border-radius: 5px")
-
-        elif self.Start_Stop_gui.state_indi.text() != self.variables.default_values_dict["settings"]["State"]:
+        if self.Start_Stop_gui.state_indi.text() != self.variables.default_values_dict["settings"]["State"]:
             self.Start_Stop_gui.state_indi.setText(self.variables.default_values_dict["settings"]["State"])
-            self.Start_Stop_gui.state_indi.setStyleSheet("background : rgb(50,100,100); border-radius: 5px")
+            self.Start_Stop_gui.state_indi.setStyleSheet(self.states.get(self.variables.default_values_dict["settings"]["State"], "DEFAULT"))
 
 
     # Orders

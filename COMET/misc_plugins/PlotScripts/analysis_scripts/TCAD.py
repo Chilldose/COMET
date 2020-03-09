@@ -10,7 +10,7 @@ hv.extension('bokeh')
 
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout
 from forge.tools import twiny, relabelPlot
-from forge.tools import SimplePlot, convert_to_EngUnits
+from forge.tools import SimplePlot, convert_to_EngUnits, plainPlot, customize_plot
 from forge.specialPlots import dospecialPlots
 from forge.utilities import line_intersection
 
@@ -20,7 +20,7 @@ class TCAD:
     def __init__(self, data, configs):
 
         self.log = logging.getLogger(__name__)
-        self.data = convert_to_df(data, abs=True)
+        self.data = convert_to_df(data, abs=False)
         self.config = configs
         self.df = []
         self.basePlots = None
@@ -34,12 +34,15 @@ class TCAD:
 
         self.to_plot = [("IV", "IV_1", self.areafactors.get("IV", 1), self.scalefactors.get("IV", 1)),
                         ("CV", "CV_1", self.areafactors.get("CV", 1), self.scalefactors.get("CV", 1)),
-                        ("1c2", "1c2_1", self.areafactors.get("1c2", 1), self.scalefactors.get("1c2", 1))
+                        ("1c2", "1c2_1", self.areafactors.get("1c2", 1), self.scalefactors.get("1c2", 1)),
+                        ("oxide_charges", "interstrip_resistance", self.areafactors.get("interstrip_resistance", 1),
+                         self.scalefactors.get("interstrip_resistance", 1)),
+                        ("pstop_depth", "interstrip_resistance", self.areafactors.get("interstrip_resistance", 1),
+                         self.scalefactors.get("interstrip_resistance", 1))
                         ]
 
     def run(self):
         """Runs the script"""
-
         # Convert the units to the desired ones
         for meas in self.measurements:
             unit = self.config[self.analysisname].get(meas, {}).get("UnitConversion", None)
@@ -48,18 +51,74 @@ class TCAD:
 
         # Scale data first
         for plots_data in self.to_plot:
-            self.data["All"][plots_data[1]] = self.data["All"][plots_data[1]] * float(plots_data[2]) * float(plots_data[3])  # Take the y axis and multipy area and scaling
-            for meas in self.data['keys']:
-                self.data[meas]["data"][plots_data[1]] = self.data[meas]["data"][plots_data[1]] * float(plots_data[2]) * float( plots_data[3])  # Take the y axis and multipy area and scaling
+            try:
+                self.data["All"][plots_data[1]] = self.data["All"][plots_data[1]] * float(plots_data[2]) * float(plots_data[3])  # Take the y axis and multipy area and scaling
+                for meas in self.data['keys']:
+                    self.data[meas]["data"][plots_data[1]] = self.data[meas]["data"][plots_data[1]] * float(plots_data[2]) * float(plots_data[3])  # Take the y axis and multipy area and scaling
+            except:
+                pass
 
         # Plot all Measurements
         self.PlotDict["All"] = None
         for plots_data in self.to_plot:
-            if self.PlotDict["All"]:
-                self.PlotDict["All"] += SimplePlot(self.data, self.config, plots_data[1], plots_data[0], self.analysisname)
-            else:
-                self.PlotDict["All"] = SimplePlot(self.data, self.config, plots_data[1], plots_data[0], self.analysisname)
+            try: # If key is not there error happens
+                if self.PlotDict["All"]:
+                    self.PlotDict["All"] += SimplePlot(self.data, self.config, plots_data[1], plots_data[0], self.analysisname)
+                else:
+                    self.PlotDict["All"] = SimplePlot(self.data, self.config, plots_data[1], plots_data[0], self.analysisname)
+            except:
+                self.log.warning("Key '{}' not found in data. Skipping.".format(plots_data[1]))
+
+        # Do CCE
+        self.do_CCE()
 
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config.get(self.analysisname, {}).get("Layout", {}))
         return self.PlotDict
+
+    def do_CCE(self):
+        """Runs the CCE calculations and does the plot for the CCE measurement for ION and LASER sources"""
+        if not "IonPad1" in self.measurements: # Todo: find a better check
+            return
+
+        from scipy import integrate
+        IntPad1 = self.data["All"].groupby(self.data["All"].Name).apply(lambda g: integrate.trapz(g.IonPad1_1, x=g.IonPad1))
+        IntPad2 = self.data["All"].groupby(self.data["All"].Name).apply(lambda g: integrate.trapz(g.IonPad2_1, x=g.IonPad2))
+        TotalElectrons = ((IntPad1+IntPad2)/1.602e-19)
+        Electronsperum = ((IntPad1+IntPad2)/1.602e-19)/self.config["TCAD"].get("CCE",{}).get("BulkThickness", 1)
+        picoCoulombs = ((IntPad1 + IntPad2) * 1e12)
+        units = {"Total electrons": TotalElectrons, "Electrons per um": Electronsperum, "Pico Coulombs": picoCoulombs}
+
+        self.log.info("TotalElectrons: {} \n"
+                      "Electrons per um: {}\n"
+                      "picoCoulombs: {} \n".format(TotalElectrons, Electronsperum, picoCoulombs))
+
+        CCEOptions = self.config["TCAD"].get("CCE",{}).get("General", {})
+        CCEOptions.update(self.config["TCAD"].get("CCE",{}).get("PlotOptions", {}))
+
+        for pltType in self.config["TCAD"].get("CCE",{}).get("PlotStyles", ["Bars"]):
+            plot = plainPlot(pltType,
+                      self.config["TCAD"].get("CCE", {})["FileXPositions"],
+                      units[self.config["TCAD"].get("CCE",{}).get("yAxisUnits", "Pico Coulombs")],
+                      self.config["TCAD"].get("CCE",{}).get("PlotLabel", "NOName"),
+                      "CCE",
+                      self.config["TCAD"]
+                      )
+
+            if self.PlotDict["All"]:
+                self.PlotDict["All"] += plot
+            else:
+                self.PlotDict["All"] = plot
+
+        # Generate all Plots from the individual Files
+        for pltType in self.config["TCAD"].get("IonSource",{}).get("PlotStyles", ["Curve"]):
+            for file in self.data["keys"]:
+                PlotPad1 = plainPlot(pltType, self.data[file]["data"].IonPad1,self.data[file]["data"].IonPad1_1, label="Pad1", plotName="IonSource", configs=self.config["TCAD"])
+                PlotPad2 = plainPlot(pltType, self.data[file]["data"].IonPad2,self.data[file]["data"].IonPad2_1, label="Pad2", plotName="IonSource", configs=self.config["TCAD"])
+                PLOT = PlotPad1*PlotPad2
+                PLOT = customize_plot(PLOT, "IonSource", self.config["TCAD"])
+
+                self.PlotDict["All"] += PLOT
+
+
+

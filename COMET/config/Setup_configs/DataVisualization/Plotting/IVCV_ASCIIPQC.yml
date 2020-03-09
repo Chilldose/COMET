@@ -4,29 +4,21 @@
 
 # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files
-    header_lines: 1
-    measurement_description: 1
-    units_line: 1
-    data_start: 2
+    header_lines: 9
+    measurement_description: 9
+    units_line: 9
+    data_start: 10
     data_separator: ","
 
   Analysis:
-    - TCAD # The type of analysis, which will be performed
+    - IVCV_QTC # The type of analysis, which will be performed
 
 
 # Optional Parameters
-  AreaFactors: # Area factor of a measurement
-    IV: 3.404075935e7
-    CV: 3.367163085e7
-  
-  ScalingFactors: # Final scaling factor in the plot
-    IV: 0.001
-    CV: 1.0
-    1c2: 1e-31
 
   # Options for the different Analyses scripts
   # These options are entirely up to you and what you need in your analysis
-  TCAD:
+  IVCV_QTC:
       General: # Options common to all plots
           fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
           responsive: False
@@ -36,74 +28,42 @@
       Layout:
           cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
 
-      CCE:
-          PlotLabel: IonSource - Charge Collection Efficiency 
-          PlotStyles: 
-            - Bars
-         
-          FileXPositions: [0,10,20,30,35,40,50,60,70,80,90] # The position markers for the files (xlabeling)
-          BulkThickness: 290 #um
-          yAxisUnits: Electrons per um
-         
-          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              logy: False
-              logx: False
-              invert_xaxis: False
-              invert_yaxis: False
-              padding: !!python/tuple [0, 0.1]
-              show_grid: True
-              xlabel: Beam Position [um]
-              ylabel: Collected Charge [pC]
-              gridstyle:
-                  grid_line_color: black
-                  grid_line_width: 1.5
-                  minor_xgrid_line_color: lightgray
-                  minor_ygrid_line_color: lightgray
-                  xgrid_line_dash: [4, 4]
-                  ygrid_line_dash: [10, 4]
-              shared_axes: False # If the axes should be shared with other plots, usually it is False
-              xformatter: "%.0f"
-              yformatter: "%.0f"
-    
-            
-      IonSource:
-          PlotLabel: IonSource
-          PlotStyles: 
-            - Curve
-          UnitConversion: pico # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
-         
-          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              logy: False
-              logx: False
-              invert_xaxis: False
-              invert_yaxis: False
-              padding: !!python/tuple [0, 0.1]
-              show_grid: True
-              ylabel: Current [A]
-              xlabel: time [s]
-              gridstyle:
-                  grid_line_color: black
-                  grid_line_width: 1.5
-                  minor_xgrid_line_color: lightgray
-                  minor_ygrid_line_color: lightgray
-                  xgrid_line_dash: [4, 4]
-                  ygrid_line_dash: [10, 4]
-              shared_axes: False # If the axes should be shared with other plots, usually it is False
-              #xformatter: "%.0f"
-              #yformatter: "%.0f"
-          #ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
-          #    yaxisENG: True # If you want to plot the y axis in engineering representation
+      DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measurements has this special plot stated
+          - BoxWhisker
 
+      BoxWhiskerOptions:
+          shared_axes: False
+          box_alpha: 0.3
+          width: 2600
+          height: 1500
 
-      IV_1:
-          PlotLabel: IV CURVE TCAD
+      # Measurement names and their config
+      temperature:
+          PlotLabel: Temperature
+          AdditionalPlots:
+              - BoxWhisker
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              show_grid: False
+
+      humidity:
+          PlotLabel: Humidity
+          AdditionalPlots:
+              - BoxWhisker
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              show_grid: False
+
+      current:
+          PlotLabel: IV CURVES
           UnitConversion: nano # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
-         
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              logy: False
+              logy: True
               logx: False
               invert_xaxis: False
               invert_yaxis: False
+              #ylim: !!python/tuple [0, 10e-6]
+              #xlim: !!python/tuple [0, 1000]
+              #legend_position: "bottom_right"
+              #aspect: equal
               padding: !!python/tuple [0, 0.1]
               show_grid: True
               gridstyle:
@@ -113,21 +73,19 @@
                   minor_ygrid_line_color: lightgray
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
+              #xlabel: voltage [V]
+              #ylabel: current [nA] # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               yaxisENG: True # If you want to plot the y axis in engineering representation
-              
-      CV_1:
-          PlotLabel: CV CURVE TCAD
-          UnitConversion: nano # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
-         
+
+
+      CVQValue:
+          PlotLabel: Q-Value CV measurement
+          UnitConversion: mega
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              logy: False
-              logx: False
-              invert_xaxis: False
-              invert_yaxis: False
               padding: !!python/tuple [0, 0.1]
               show_grid: True
               gridstyle:
@@ -137,21 +95,26 @@
                   minor_ygrid_line_color: lightgray
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
+              #xlabel: voltage [V]
+              #ylabel: current [nA]
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               yaxisENG: True # If you want to plot the y axis in engineering representation
-              
-      1c2_1:
-          PlotLabel: 1c2 CURVE TCAD
-          #UnitConversion: nano # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
-         
+
+      capacitance:
+          PlotLabel: CV CURVES
+          UnitConversion: nano
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               logy: False
               logx: False
               invert_xaxis: False
               invert_yaxis: False
+              #ylim: !!python/tuple [0, 10e-6]
+              #xlim: !!python/tuple [0, 1000]
+              #legend_position: "bottom_right"
+              #aspect: equal
               padding: !!python/tuple [0, 0.1]
               show_grid: True
               gridstyle:
@@ -161,8 +124,33 @@
                   minor_ygrid_line_color: lightgray
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
-              shared_axes: False # If the axes should be shared with other plots, usually it is False
-              xformatter: "%.0f"
-              yformatter: "%.0f"
-          #ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
-          #    yaxisENG: True # If you want to plot the y axis in engineering representation
+              #xlabel: voltage [V]
+              ylabel: capacitance [nF]
+              shared_axes: False
+
+      1C2:
+          PlotLabel: CV CURVES - Full depletion
+          DoFullDepletionCalculation: True
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              logy: False
+              logx: False
+              invert_xaxis: False
+              invert_yaxis: False
+              #ylim: !!python/tuple [0, 10e-6]
+              #xlim: !!python/tuple [0, 1000]
+              #legend_position: "bottom_right"
+              #aspect: equal
+              padding: !!python/tuple [0, 0.1]
+              show_grid: True
+              gridstyle:
+                  grid_line_color: black
+                  grid_line_width: 1.5
+                  minor_xgrid_line_color: lightgray
+                  minor_ygrid_line_color: lightgray
+                  xgrid_line_dash: [4, 4]
+                  ygrid_line_dash: [10, 4]
+              #xlabel: voltage [V]
+              ylabel: 1/c^2 [arb. units]
+              shared_axes: False
+              #ylim: !!python/tuple [0, 0.08]
+              #xlim: !!python/tuple [0, 500]

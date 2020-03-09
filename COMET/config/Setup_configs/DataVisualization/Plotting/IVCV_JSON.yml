@@ -132,6 +132,7 @@
 
       1C2:
           PlotLabel: CV CURVES - Full depletion
+          DoFullDepletionCalculation: True
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               logy: False
               logx: False

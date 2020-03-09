@@ -36,9 +36,10 @@ from .GUI_classes import GUI_classes
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
-try:  # QtWebEngineWidgets must be imported before a QCoreApplication instance is created, but not all systems have it installed
-    from .VisaConnectWizard import VisaConnectWizard
+try:
+    # QtWebEngineWidgets must be imported before a QCoreApplication instance is created, but not all systems have it installed
     from PyQt5.QtWebEngineWidgets import QWebEngineView
+    from .VisaConnectWizard import VisaConnectWizard
 except:
     pass
 

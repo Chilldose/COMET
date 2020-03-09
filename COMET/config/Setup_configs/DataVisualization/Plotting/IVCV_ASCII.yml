@@ -54,9 +54,7 @@
 
       current:
           PlotLabel: IV CURVES
-          UnitConversion: pico # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
-          AdditionalPlots:
-              - BoxWhisker
+          UnitConversion: nano # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               logy: True
               logx: False
@@ -132,6 +130,7 @@
 
       1C2:
           PlotLabel: CV CURVES - Full depletion
+          DoFullDepletionCalculation: True
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               logy: False
               logx: False
