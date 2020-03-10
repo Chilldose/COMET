@@ -70,6 +70,7 @@ def BoxWhisker(dfs, measurement, configs, analysisType, **addConfigs):
     log.info("Generating BoxWhisker Plot for {}".format(measurement))
     try:
         plot = hv.BoxWhisker(dfs["All"], kdims="Name", vdims=measurement, group="BoxWhisker: {}".format(measurement))
+        # plot = relabelPlot(plot, label="{}".format(measurement))
         # get labels from the configs
         #ylabel = "{} [{}]".format(measurement, dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
         try:
@@ -140,7 +141,6 @@ def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None,
     log.info("Generating concat histograms for measurements {}...".format(measurement))
     try:
         df = dfs["All"]
-
         # Sanatize data
         data = df[measurement].dropna() # Drop all nan
         mean = np.mean(data)
@@ -177,26 +177,67 @@ def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None,
                                 median=median,
                                 rms=rms)
         log.info(text)
-        #text = hv.Text(700, 0.055, text).opts(fontsize=30)
+        x = data[1].max()*0.9 if data[1].max()>0 else data[1].min()*0.9
+        y = data[1].max()*0.9 if data[0].max()>0 else data[0].min()*0.9
+        text = hv.Text(x, y, text).opts(fontsize=30)
+        plots *= text
 
     except Exception as err:
-        log.error("Unexpected error happend during concatHist plot generation {}. Error: {}".format(measurement, err))
+        log.error("Unexpected error happened during concatHist plot generation {}. Error: {}".format(measurement, err))
         return None
 
     return plots
 
-def addHistogram(plotItem, dimensions="x"):
-    """Generates a Points Plot with a corresponding Histogram
-    #TODO:review, it may not work anymore"""
-    plotList = plotItem.keys()
+def Histogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None, **addConfigs):
+    """Generates a Points Plot with a corresponding Histogram"""
+    newConfigs = addConfigs
+    log.info("Generating histograms for measurement {}...".format(measurement))
+    finalplots = None
+    try:
+        for key in dfs["keys"]:
+            log.info("Generating histograms for measurement {} for file {}...".format(measurement, key))
+            # Sanatize data
+            data = dfs[key]["data"][measurement].dropna() # Drop all nan
+            mean = np.mean(data)
+            rms = np.sqrt(np.mean(data ** 2))
+            median = np.median(data)
 
-    hist = None
-    for type, name in plotList:
-        if type in ("Scatter", "Points", "Curve"):
-            if hist:
-                hist *= histogram(getattr(getattr(plotItem, type), name), dimension=dimensions)
-            else:
-                hist = histogram(getattr(getattr(plotItem, type), name), dimension=dimensions)
-        else:
-            log.warning("Histograms can only be added to plots of type: (Scatter, Points)")
-    return (plotItem << hist.opts(show_legend=False)).opts(opts.Histogram(alpha=0.3, xticks=5))
+            if iqr:
+                data = reject_outliers(data, iqr)
+            data = np.histogram(data, bins=bins)
+
+            plt = hv.Histogram(data, group="Histogram: {}: {}".format(measurement, key))
+            #plt = hv.Histogram(data, vdims=to_plot, group="Concatenated Histogram: {}".format(to_plot))
+
+            try:
+                xlabel = "{} [{}]".format(measurement,
+                                      dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
+            except Exception as err:
+                log.error("Label could not be generated for Histogram {}. Error: {}".format(measurement, err))
+                xlabel = "X-Axis"
+
+            plt.opts(xlabel=xlabel)
+            # Update the plot specific options if need be
+            generalOptions = configs[analysisType].get("General", {})
+            newConfigs.update(generalOptions.copy())
+            data_options = configs[analysisType].get(measurement, {}).get("Single Histogram", {}).get("PlotOptions", {})
+            newConfigs.update(configs[analysisType].get("{}Options".format("Histogram"), {}))
+            newConfigs.update(data_options)
+            plots = customize_plot(plt, "", configs[analysisType], **newConfigs)
+
+            if finalplots:
+                finalplots += plots
+            else: finalplots = plots
+
+            # Add text
+            text = 'Mean: {mean} \n' \
+                   'Median: {median} \n' \
+                   'RMS: {rms}'.format(mean=mean,
+                                    median=median,
+                                    rms=rms)
+            log.info(text)
+    except Exception as err:
+        log.error("Unexpected error happened during Hist plot generation {}. Error: {}".format(measurement, err))
+        return None
+
+    return finalplots

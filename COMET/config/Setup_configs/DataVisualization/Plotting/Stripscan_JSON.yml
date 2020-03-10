@@ -1,6 +1,6 @@
 --- # Dummy config file for testing
 
-  Filetype: ASCII # Other options are json, ACII
+  Filetype: JSON # Other options are json, ACII
 
 # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files
@@ -33,6 +33,10 @@
         concatHistogram:
             bins: 50
             iqr: 0.1
+        singleHistogram:
+            bins: 50
+            iqr: 0.1
+            
 
       DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measuremnt has this special plot stated
           - concatHistogram

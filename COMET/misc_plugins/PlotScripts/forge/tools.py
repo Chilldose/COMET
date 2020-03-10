@@ -11,7 +11,6 @@ import numpy as np
 hv.extension('bokeh')
 import pandas as pd
 from bokeh.models import LinearAxis, Range1d
-from bokeh.plotting import ColumnDataSource
 from bokeh.io import export_svgs, export_png
 from bokeh.io import save
 import json, yaml
@@ -43,7 +42,9 @@ def convert_to_EngUnits(data, dataType, unit="nano"):
         ("m","milli") : 1e-3,
         ("u","micro") : 1e-6,
         ("n","nano") : 1e-9,
-        ("p","pico") :  1e-12
+        ("p","pico") :  1e-12,
+        ("f", "femto"): 1e-15,
+        ("a", "atto"): 1e-18
     }
 
     for file in data["keys"]:
@@ -82,33 +83,23 @@ def convert_to_EngUnits(data, dataType, unit="nano"):
 
     return data
 
-
-    # if "ToolsOptions" in configs.get(plotType, {}):
-    #     log.info("Starting customizing plot with tool box scripts...")
-    #     kwargs = configs[plotType]["ToolsOptions"]
-    #
-    #     # Engineering Notation
-    #     log.info("Engineering notation...")
-    #     plot = EngUnit_representation(plot, kwargs.get("xaxisENG", False), kwargs.get("yaxisENG", False))
-    #
-    # else:
-    #     log.debug(
-    #         "No ToolsOptions defined, no alterations made to plot, continuing with holoviews configurations...")
-
-def SimplePlot(data, configs, measurement_to_plot, xaxis_measurement, analysis_name):
+def Simple2DPlot(data, configs, measurement_to_plot, xaxis_measurement, analysis_name):
     """
-    Plots a panda data frames together
+    Generates a 2D Plot out of a pandas data frame for the DataVis
     :param data: the data structure for one measurement
     :param configs: the configs dict
-    :param measurement_to_plot: y data
+    :param measurement_to_plot: y data name in the df
     :param xaxis_measurement: name of the meausurement which define the xaxsis, x data
     :param analysis_name: The name of the analysis, from the config
-    :return: Holoviews plot object
+    :return: Holoviews plot object (only 2D plot)
     """
 
     # Generate a plot with all data plotted
     log.debug("Started plotting {} curve...".format(measurement_to_plot))
-    return holoplot(measurement_to_plot, data, configs.get(analysis_name, {}), xaxis_measurement, measurement_to_plot)
+    return holoplot(measurement_to_plot, data,
+                    configs.get(analysis_name, {}),
+                    kdims = [xaxis_measurement, measurement_to_plot],
+                    vdims="Name")
 
 def plot_all_measurements(data, config, xaxis_measurement, analysis_name, do_not_plot=()):
     """
@@ -127,9 +118,9 @@ def plot_all_measurements(data, config, xaxis_measurement, analysis_name, do_not
         if measurement not in do_not_plot:
             try:
                 if finalPlot:
-                    finalPlot += SimplePlot(data, config, measurement, xaxis_measurement, analysis_name)
+                    finalPlot += Simple2DPlot(data, config, measurement, xaxis_measurement, analysis_name)
                 else:
-                    finalPlot = SimplePlot(data, config, measurement, xaxis_measurement, analysis_name)
+                    finalPlot = Simple2DPlot(data, config, measurement, xaxis_measurement, analysis_name)
             except:
                 pass
 
@@ -318,14 +309,14 @@ def plainPlot(plotType, xdata, ydata, label="NOName", plotName=None, configs={},
     else:
         log.error("Holovies has no attribute with name: {}".format(plotType))
 
-def holoplot(plotType, df_list, configs, xdata, ydata, **addConfigs):
+def holoplot(plotType, df_list, configs, kdims, vdims=None, **addConfigs):
     """
     Simply plots an configs a plot
     :param plotType: The type of plot, e.g. 'IV'
     :param df_list: List of panda dataframes
     :param configs: the plot configuration dicts, only dicts with entries holoviews can decode, all other in kwargs
-    :param xdata: xlabel which will be plotted
-    :param ydata: ylabel which will be plotted
+    :param kdims: key dimensions to plot aka xyz axis, the first two kdims must be the x and y data specifier!!!
+    :param vdims: value dimension, aka, the depth or the name across to plot
     :param **kwargs: some additional kwargs which can be needed by the self written tools
     :return: Holoviews plot object
     """
@@ -333,6 +324,11 @@ def holoplot(plotType, df_list, configs, xdata, ydata, **addConfigs):
     # Add the additional configs to the configs
     configs = configs.copy()
     finalPlot = None
+
+    if len(kdims) < 2:
+        log.error("Holoplots needs at least two kdims to work with!")
+        raise
+
     # Loop over all types of plots which should be created
     for type in configs.get(plotType, {}).get("PlotStyles", ["Curve"]):
         plot = None
@@ -340,17 +336,17 @@ def holoplot(plotType, df_list, configs, xdata, ydata, **addConfigs):
         log.info("Generating plot {} in Style {}".format(plotType, type))
         if hasattr(hv, type):
             for key in df_list["keys"]: # Loop over all files
-                if ydata in df_list[key]["data"]:
+                if kdims[1] in df_list[key]["data"]:
                     log.debug("Generating plot {} for {}".format(key, plotType))
                     # get labels from the configs
-                    ylabel = "{} ({})".format(ydata, df_list[key]["units"][df_list[key]["measurements"].index(ydata)])
-                    xlabel = "{} ({})".format(xdata, df_list[key]["units"][df_list[key]["measurements"].index(xdata)])
+                    ylabel = "{} ({})".format(kdims[1], df_list[key]["units"][df_list[key]["measurements"].index(kdims[1])])
+                    xlabel = "{} ({})".format(kdims[0], df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])])
                     if plot:
-                        plot *= getattr(hv, type)(df_list[key]["data"], kdims=[xdata, ydata], vdims=['Name'], label=key, group=type)
-                    else: plot = getattr(hv, type)(df_list[key]["data"], kdims=[xdata, ydata], vdims=['Name'], label=key, group=type)
+                        plot *= getattr(hv, type)(df_list[key]["data"], kdims=kdims, vdims=vdims, label=key, group=type)
+                    else: plot = getattr(hv, type)(df_list[key]["data"], kdims=kdims, vdims=vdims, label=key, group=type)
                     plot.opts(xlabel=xlabel, ylabel=ylabel)
                 else:
-                    log.warning("The data key: {} is not present in dataset {}. Skipping this particular plot.".format(ydata, key))
+                    log.warning("The data key: {} is not present in dataset {}. Skipping this particular plot.".format(kdims[1], key))
         else:
             log.error("The plot type {} is not part of Holoviews.".format(type))
         log.debug("Generated plot: {} of type {}".format(plot, type))
