@@ -463,7 +463,7 @@ def parse_file_data(filecontent, settings):
     data = filecontent[settings["data_start"] - 1:]
     separator = settings.get("data_separator", None)
 
-    units_exp = r"{}".format(settings.get("units_regex", r"#?\w*\s?\W?(\w*)\W*\s*"))
+    units_exp = r"{}".format(settings.get("units_regex", r"(#?)\w*\s?\W?(#|\w*)\W*\s*"))
     data_exp = r"{}".format(settings.get("measurement_regex", r"(#|\w+)\s?\W?\w*\W?"))
 
     regex = [re.compile(data_exp, re.MULTILINE), re.compile(units_exp)]
@@ -473,11 +473,21 @@ def parse_file_data(filecontent, settings):
     for k, data_to_split in enumerate((measurements, units)):
         for i, meas in enumerate(data_to_split):  # This is just for safety there is usually one line here
             meas = re.findall(regex[k], meas)  # usually all spaces should be excluded but not sure if tab is removed as well
-            for j, singlemeas in enumerate(meas):
-                if singlemeas.strip():
-                    meas[j] = singlemeas.strip()
-                else:
-                    meas.pop(j)
+            for j, singleitem in enumerate(meas):
+                if isinstance(singleitem, tuple):
+                    found = False
+                    for singlemeas in singleitem:
+                        if singlemeas.strip():
+                            meas[j] = singlemeas.strip()
+                            found = True
+                            break
+                    if not found: meas.pop(j)
+
+                elif isinstance(singleitem, str):
+                    if singleitem.strip():
+                        meas[j] = singleitem.strip()
+                    else:
+                        meas.pop(j)
             parsed_obj.append(meas)
 
     # Now parse the actual data and build the tree dict structure needed
@@ -502,7 +512,8 @@ def parse_file_data(filecontent, settings):
                     dat.extend([np.nan for i in range(len(parsed_data[-1])-len(dat))])
             else:
                 log.debug("Data shape is not consistent. Droping data: {}".format(dat))
-        parsed_data.append(dat)
+        else:
+            parsed_data.append(dat)
 
     for i, meas in enumerate(parsed_obj[0][:len(parsed_data[0])]): # Prevents wolfgangs header error
         data_lists.append([parsed_data[x][i] for x in range(len(parsed_data))])
