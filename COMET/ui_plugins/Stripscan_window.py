@@ -189,7 +189,7 @@ class Stripscan_window:
 
         self.stripscan.start_time.setText(self.variables.default_values_dict["settings"]["Start_time"])  # sets the display to the desired value
         self.stripscan.end_time.setText(self.variables.default_values_dict["settings"]["End_time"])  # sets the display to the desired value
-        self.stripscan.strip_time.setText(str(round(self.variables.default_values_dict["settings"]["strip_scan_time"],2)))  # sets the display to the desired value
+        self.stripscan.strip_time.setText(str(round(float(self.variables.default_values_dict["settings"]["strip_scan_time"]),2)))  # sets the display to the desired value
 
     def reset_stat(self, kwargs=None):
         '''Resets the statistics panel'''

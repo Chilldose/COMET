@@ -3,8 +3,10 @@
 import logging
 import sys
 import numpy as np
+from time import sleep
 sys.path.append('../COMET')
 try:
+    from .IVCV import IVCV_class
     from .Stripscan import Stripscan_class
 except:
     from .stripscan import Stripscan_class
@@ -167,4 +169,79 @@ class FrequencyScan_class(Stripscan_class):
                 self.main.write(file, final + "\n")
         else:
             self.log.error("Length of results array are non matching, abort storing data to file")
+
+    def do_CV(self, xvalue=-1, samples=5, freqscan=False, write_to_main=True, alternative_switching=False,
+               frequency=1000):
+        '''Does the cac measurement'''
+        device_dict = self.LCR_meter
+        # Config the LCR to the correct freq of 1 kHz
+        self.change_value(device_dict, "set_frequency", frequency)
+        if not self.main.event_loop.stop_all_measurements_query():
+            if not self.switching.switch_to_measurement("CV"):
+                self.stop_everything()
+                return
+            sleep(5.0)  # Is need due to some stray capacitances which corrupt the measurement
+            if self.steady_state_check(device_dict, command="get_read", max_slope=1e-6, wait=0.0, samples=2, Rsq=0.5,
+                                       check_compliance=False):  # Is a dynamic waiting time for the measuremnt
+                value = self.do_measurement("CV", device_dict, xvalue, samples, write_to_main=not freqscan,
+                                                     correction=0)
+            else:
+                return False
+
+            return value
+
+    def do_measurement(self, name, device, xvalue = -1,
+                                samples = 5, write_to_main = True,
+                                query="get_read", apply_to=None, correction = None):
+        '''
+         Does a simple measurement - really simple. Only acquire some values and build the mean of it
+
+        :param name: What measurement is to be conducetd, if you pass a list, values returned, must be the same shape, other wise error will occure
+        :param device: Which device schould be used
+        :param xvalue: Which strip we are on, -1 means arbitrary
+        :param samples: How many samples should be taken
+        :param write_to_main: Writes the value back to the main loop
+        :param query: what query should be used
+        :param apply_to: data array will be given to a function for further calculations
+        :param correction: single value or list of values subtracted to the resulting solution
+        :return: Returns the mean of all aquired values
+        '''
+        # Do some averaging over values
+        values = []
+        command = self.main.build_command(device, query)
+        for i in range(samples): # takes samples
+            values.append(self.vcw.query(device, command))
+        values = np.array(list(map(lambda x: x.split(device.get("separator", ",")), values)), dtype=float)
+        values = np.mean(values, axis=0)
+
+        # Apply correction values
+        if isinstance(correction, list) or isinstance(correction, tuple):
+            for i, val in enumerate(correction):
+                values[i] -= val
+        elif isinstance(correction, float) or isinstance(correction, int):
+            values[0] -= correction
+
+        if apply_to:
+            # Only a single float or int are allowed as returns
+            value = apply_to(values)
+        elif values.shape == (1,) or isinstance(values, float):
+            value = values
+        else:
+            value = values[0]
+
+        if write_to_main: # Writes data to the main, or not
+            if isinstance(name, str):
+                self.main.measurement_data[str(name)][0][self.strip_iter] = float(xvalue)
+                self.main.measurement_data[str(name)][1][self.strip_iter] = float(value)
+                self.main.queue_to_main.put({str(name): [float(xvalue), float(value)]})
+            elif isinstance(name, list) or isinstance(name, tuple):
+                try:
+                    for i, sub in enumerate(name):
+                        self.main.measurement_data[str(sub)][0][self.strip_iter] = float(xvalue)
+                        self.main.measurement_data[str(sub)][1][self.strip_iter] = float(values[i])
+                        self.main.queue_to_main.put({str(sub): [float(xvalue), float(values[i])]})
+                except IndexError as err:
+                    self.log.error("An error happened during values indexing in multi value return with error: {}".format(err))
+
+        return values
 

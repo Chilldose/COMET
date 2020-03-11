@@ -861,7 +861,7 @@ class Framework:
             try:
                 function()
             except Exception as err:
-                self.log.critical("While updating the framework an error happend in function {} with error: {}".format(function, err))
+                self.log.info("While updating the framework an error happend in function {} with error: {}".format(function, err))
                 raise
 
 class transformation:

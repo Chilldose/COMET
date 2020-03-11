@@ -11,13 +11,13 @@ from .forge_tools import tools
 ttime = time
 import numpy as np
 
-class dynamicwaiting_class(tools):
+class Dynamicwaiting_class(tools):
 
     def __init__(self, main_class):
 
         # Init the tools class and the variables from the main
         self.main = main_class
-        super(dynamicwaiting_class, self).__init__(self.main.framework, self.main)
+        super(Dynamicwaiting_class, self).__init__(self.main.framework, self.main)
         self.log = logging.getLogger(__name__)
 
         # Get data from the framework
@@ -27,24 +27,27 @@ class dynamicwaiting_class(tools):
 
 
         # Job specific variables
-        self.compliance = main_class.job_details["dynamicwaiting"]["Compliance"]
+        self.compliance = main_class.job_details["Dynamicwaiting"]["Compliance"]
         self.justlength = 24
         # The intervall of every measurement, (is something else then the delay value!)
-        self.interval = self.main.job_details["dynamicwaiting"]["Interval"]/1000.
-        self.buffer = self.main.job_details["dynamicwaiting"]["Samples"]
+        self.interval = self.main.job_details["Dynamicwaiting"]["Interval"]/1000.
+        self.buffer = self.main.job_details["Dynamicwaiting"]["Samples"]
         # This delay is the fixed measurement delay, which delays EVERY measurement before a value is aquired
         # If you get bad values increase this to give the ADC some time to aquire a value
-        self.delay = self.main.job_details["dynamicwaiting"]["Delay"]
-        self.NPLC = self.main.job_details["dynamicwaiting"]["NPLC"]
+        self.delay = self.main.job_details["Dynamicwaiting"]["Delay"]
+        self.NPLC = self.main.job_details["Dynamicwaiting"]["NPLC"]
         # The Start delay defines a global offset before a measurement series actually starts
-        self.start_delay = self.main.job_details["dynamicwaiting"]["start_delay"]
-        self.SMURange = self.main.job_details["dynamicwaiting"]["Range"]
+        self.start_delay = self.main.job_details["Dynamicwaiting"]["start_delay"]
+        self.SMURange = self.main.job_details["Dynamicwaiting"]["Range"]
 
         # Some variables
         self.current_voltage = None
         self.voltage_step_list = []
         self.xvalues = []
         self.yvalues = []
+
+        if "bias_voltage" not in self.framework["Configs"]["config"]["settings"]:
+            self.framework["Configs"]["config"]["settings"]["bias_voltage"] = 0.0
 
         # The commands differ from device to device
         # Therefore I need to write the commands for every device on its own. Nice work Keithley....
@@ -137,16 +140,17 @@ class dynamicwaiting_class(tools):
         # Conduct the measurement
         for i, voltage in enumerate(self.voltage_step_list):
             if not self.main.event_loop.stop_all_measurements_query():  # To shut down if necessary
+                self.main.settings["settings"]["progress"] = voltage / self.voltage_step_list[-1]
 
                 # Some elusive error happens sometimes, where the smu forgets its pervious config
                 #self.main.send_to_device(self.biasSMU, self.SMU_config.format(samples=self.buffer, interval=self.interval))
                 # Here the magic happens it changes all values and so on
-                self.xvalues[i], self.yvalues[i], time = self.do_dynamic_measurement("dynamicwaiting", self.biasSMU, voltage, self.buffer, self.interval, True)
+                self.xvalues[i], self.yvalues[i], time = self.do_dynamic_measurement("Dynamicwaiting", self.biasSMU, voltage, self.buffer, self.interval, True)
 
                 if self.check_compliance(self.biasSMU, float(self.compliance), command="get_read",):
                     self.stop_everything()  # stops the measurement if compliance is reached
 
-                if not self.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=5, Rsq=0.5, compliance=self.compliance):  # Is a dynamic waiting time for the measuremnts
+                if not self.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0.2, samples=5, Rsq=0.5, compliance=self.compliance):  # Is a dynamic waiting time for the measuremnts
                     self.stop_everything()
 
                 sleep(1.)
@@ -158,7 +162,7 @@ class dynamicwaiting_class(tools):
         self.change_value(self.biasSMU, "set_output", self.SMUOFF)
         self.framework["Configs"]["config"]["settings"]["bias_voltage"] = 0
 
-        self.write_dyn_to_file(self.main.measurement_files["dynamicwaiting"], self.voltage_step_list, self.xvalues, self.yvalues)
+        self.write_dyn_to_file(self.main.measurement_files["Dynamicwaiting"], self.voltage_step_list, self.xvalues, self.yvalues)
 
     def write_dyn_to_file(self, file, voltages, xvalues, yvalues):
         """
@@ -187,9 +191,9 @@ class dynamicwaiting_class(tools):
         """
 
         # Get ramping list
-        voltage_Start = self.main.job_details["dynamicwaiting"].get("StartVolt", 0)
-        voltage_End = self.main.job_details["dynamicwaiting"].get("EndVolt", 0)
-        voltage_steps = self.main.job_details["dynamicwaiting"].get("Steps", 10)
+        voltage_Start = self.main.job_details["Dynamicwaiting"].get("StartVolt", 0)
+        voltage_End = self.main.job_details["Dynamicwaiting"].get("EndVolt", 0)
+        voltage_steps = self.main.job_details["Dynamicwaiting"].get("Steps", 10)
         self.voltage_step_list = self.ramp_value(voltage_Start, voltage_End, voltage_steps)
 
         # Switch to IV for correct biasing for ramp
@@ -202,7 +206,7 @@ class dynamicwaiting_class(tools):
         self.change_value(self.biasSMU, "set_voltage", "0.0")
         self.change_value(self.biasSMU, "set_output", self.SMUON)
 
-        if self.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0, samples=3, Rsq=0.5, compliance=self.compliance):  # Is a dynamic waiting time for the measuremnts
+        if self.steady_state_check(self.biasSMU, command="get_read_current", max_slope=1e-6, wait=0.05, samples=10, Rsq=0.1, compliance=self.compliance):  # Is a dynamic waiting time for the measuremnts
             self.current_voltage = self.framework["Configs"]["config"]["settings"]["bias_voltage"]
         else:
             self.stop_everything()
@@ -251,9 +255,8 @@ class dynamicwaiting_class(tools):
                 yvalues = yvalues[:int(samples)]
 
             if write_to_main: # Writes data to the main, or not
-                self.main.queue_to_main.put({str(str_name): [xvalues, yvalues]})
+                self.main.queue_to_main.put({str(str_name): [np.array(xvalues), np.array(yvalues)]})
             # Clear buffer
-            #self.main.send_to_device(device, self.SMU_clean_buffer)
 
             return xvalues, yvalues, time
 

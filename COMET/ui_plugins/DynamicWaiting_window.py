@@ -128,7 +128,7 @@ class DynamicWaiting_window:
         self.steps = self.dynamic.voltage_steps_IV.value()
         self.update_stats(0)
 
-        self.final_job.update({"dynamicwaiting": {"StartVolt": -1.0,
+        self.final_job.update({"Dynamicwaiting": {"StartVolt": -1.0,
                                                   "EndVolt": float(self.dynamic.max_voltage_IV.value()),
                                                   "Steps": float(self.dynamic.voltage_steps_IV.value()),
                                                   "Compliance": float(self.dynamic.compliance_IV.value())*1e-6,
@@ -151,11 +151,11 @@ class DynamicWaiting_window:
     def update(self):
         if self.variables.default_values_dict["settings"]["new_data"]:
             try:
-                if "dynamicwaiting" in self.variables.meas_data:
+                if "Dynamicwaiting" in self.variables.meas_data:
                     self.dynamic.current_plot.clear()
-                    for i, vstepdata in enumerate(self.variables.meas_data["dynamicwaiting"][0]):
+                    for i, vstepdata in enumerate(self.variables.meas_data["Dynamicwaiting"][0]):
                         if vstepdata.any(): # To exclude exception spawning when measurement is not conducted
-                            self.dynamic.current_plot.plot(vstepdata, self.variables.meas_data["dynamicwaiting"][1][i], pen=self.setpg.mkPen(tuple(self.cmapLookup[i])))
-                            self.update_stats(len(self.variables.meas_data["dynamicwaiting"][0]))
+                            self.dynamic.current_plot.plot(vstepdata, self.variables.meas_data["Dynamicwaiting"][1][i], pen=self.setpg.mkPen(tuple(self.cmapLookup[i])))
+                            self.update_stats(len(self.variables.meas_data["Dynamicwaiting"][0]))
             except Exception as e:
                 l.error("An exception in the Dynamic waiting time plot occured, with error {error!s}".format(error=e))

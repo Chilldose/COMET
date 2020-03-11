@@ -303,6 +303,8 @@ class Stripscan_class(tools):
             self.perform_open_correction(self.LCR_meter, self.cal_to)
             self.main.queue_to_main.put({"INFO": "Open correction done..."})
 
+            # Make a open measurement
+
         # Move the table up again
         self.main.queue_to_main.put({"INFO": "Lowering the probe card to sensor..."})
         self.main.table.move_up(self.height)
@@ -431,14 +433,19 @@ class Stripscan_class(tools):
                                 # If we are near the edge, move card to fit the edge and say we donnot need to move
                                 else:
                                     if self.main.table.move_to_strip(self.sensor_pad_data,
-                                                                     part[1] - self.wedge_card_size + reverse_needles,
-                                                                     self.trans, self.T, self.V0, self.height):
+                                                                part[1] - self.wedge_card_size + reverse_needles,
+                                                                self.trans, self.T, self.V0, self.height):
                                         self.last_move = part[1] - self.wedge_card_size  # Last strip the table moved to
                                     move = False
 
                             # If the next strip is contacted and we can accesss it with alternate switching
                             else:
                                 move = False
+
+                        if self.main.framework['Configs']['config']['settings'].get('2NeedleConfiguration', False):
+                        # If the two needle configuration is used. Always move and never change needle config
+                            move = True
+                            reverse_needles = False
 
                         # Do the strip measurement
                         self.do_one_strip(current_strip, move, reverse_needles)
@@ -704,18 +711,17 @@ class Stripscan_class(tools):
         '''Does the idiel measurement'''
         device_dict = self.SMU2
         #config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_zero_check", "OFF")]
-        config_commands = [("set_source_voltage", ""), ("set_measure_current", ""), ("set_current_range", "1e-6"), ("set_compliance", 1.0E-8), ("set_voltage", "5.0"), ("set_output", "ON")]
+        config_commands = [("set_source_voltage", ""), ("set_measure_current", ""), ("set_current_range", "1e-6"), ("set_compliance", 1.0E-6), ("set_voltage", "10.0"), ("set_output", "ON")]
 
         if not self.main.event_loop.stop_all_measurements_query():
             if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Idiel", alternative_switching)):
                 self.stop_everything()
                 return
-            self.config_setup(device_dict, config_commands) # config the elmeter
-            if self.steady_state_check(device_dict, command="get_read", max_slope=1e-6, wait=0.0, samples=2, Rsq=0.3, check_compliance=False): # Is a dynamic waiting time for the measuremnt
+            self.config_setup(device_dict, config_commands) # config the SMU2
+            if self.steady_state_check(device_dict, command="get_read", max_slope=1e-6, wait=0.1, samples=2, Rsq=0.3, check_compliance=False): # Is a dynamic waiting time for the measurement
                 value = self.__do_simple_measurement("Idiel", device_dict, xvalue, samples, write_to_main=write_to_main)
             else:
                 value =  False
-            #self.config_setup(device_dict, [("set_zero_check", "ON")])  # unconfig elmeter
             self.config_setup(device_dict, [("set_voltage", "0"), ("set_output", "OFF"), ("set_current_range", device_dict.get("default_current_range",10E6))])  # unconfig elmeter
             return value
 
@@ -727,7 +733,7 @@ class Stripscan_class(tools):
             if not self.switching.switch_to_measurement(self.get_switching_for_measurement("Istrip", alternative_switching)):
                 self.stop_everything()
                 return
-            config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_zero_check", "OFF")]
+            config_commands = [("set_zero_check", "ON"), ("set_measure_current", ""), ("set_current_range", "20e-9"), ("set_zero_check", "OFF")]
             self.config_setup(device_dict, config_commands)  # config the elmeter
             if self.steady_state_check(device_dict, command="get_read", max_slope=1e-6, wait=0., samples=2, Rsq=0.5, check_compliance=False):  # Is a dynamic waiting time for the measuremnt
                 value = self.__do_simple_measurement("Istrip", device_dict, xvalue, samples, write_to_main=write_to_main)
