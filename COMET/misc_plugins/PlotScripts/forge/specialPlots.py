@@ -142,12 +142,14 @@ def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None,
     try:
         df = dfs["All"]
         # Sanatize data
-        data = df[measurement].dropna() # Drop all nan
-        mean = np.mean(data)
-        rms = np.sqrt(np.mean(data ** 2))
-        median = np.median(data)
+        data = df[measurement].dropna()  # Drop all nan
         if iqr:
+            log.info("Outliers correction with iqr: {}".format(iqr))
             data = reject_outliers(data, iqr)
+        mean = np.round(np.mean(data), 2)
+        rms = np.round(np.sqrt(np.mean(data ** 2)), 2)
+        std = np.round(np.std(data), 2)
+        median = np.round(np.median(data), 2)
         data = np.histogram(data, bins=bins)
 
         plt = hv.Histogram(data, group="Concatenated Histogram: {}".format(measurement))
@@ -171,14 +173,16 @@ def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None,
         plots = customize_plot(plt, "", configs[analysisType], **newConfigs)
 
         # Add text
-        text = 'Mean: {mean} \n' \
+        text = '\nMean: {mean} \n' \
                'Median: {median} \n' \
-               'RMS: {rms}'.format(mean=mean,
+               'RMS: {rms}\n' \
+               'std: {std}'.format(mean=mean,
                                 median=median,
-                                rms=rms)
+                                rms=rms,
+                                std=std)
         log.info(text)
-        x = data[1].max()*0.9 if data[1].max()>0 else data[1].min()*0.9
-        y = data[1].max()*0.9 if data[0].max()>0 else data[0].min()*0.9
+        y = data[0].max()
+        x = data[1][int(len(data[1])*0.9)]
         text = hv.Text(x, y, text).opts(fontsize=30)
         plots *= text
 
@@ -198,12 +202,14 @@ def Histogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None, **add
             log.info("Generating histograms for measurement {} for file {}...".format(measurement, key))
             # Sanatize data
             data = dfs[key]["data"][measurement].dropna() # Drop all nan
-            mean = np.mean(data)
-            rms = np.sqrt(np.mean(data ** 2))
-            median = np.median(data)
-
             if iqr:
+                log.info("Outliers correction with iqr: {}".format(iqr))
                 data = reject_outliers(data, iqr)
+            mean = np.round(np.mean(data), 2)
+            rms = np.round(np.sqrt(np.mean(data ** 2)), 2)
+            std = np.round(np.std(data), 2)
+            median = np.round(np.median(data), 2)
+
             data = np.histogram(data, bins=bins)
 
             plt = hv.Histogram(data, group="Histogram: {}: {}".format(measurement, key))
@@ -230,12 +236,18 @@ def Histogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None, **add
             else: finalplots = plots
 
             # Add text
-            text = 'Mean: {mean} \n' \
+            text = '\nMean: {mean} \n' \
                    'Median: {median} \n' \
-                   'RMS: {rms}'.format(mean=mean,
-                                    median=median,
-                                    rms=rms)
+                   'RMS: {rms}\n' \
+                   'std: {std}'.format(mean=mean,
+                                       median=median,
+                                       rms=rms,
+                                       std=std)
             log.info(text)
+            y = data[0].max()
+            x = data[1][int(len(data[1]) * 0.9)]
+            text = hv.Text(x, y, text).opts(fontsize=30)
+            plots *= text
     except Exception as err:
         log.error("Unexpected error happened during Hist plot generation {}. Error: {}".format(measurement, err))
         return None
