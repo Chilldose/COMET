@@ -195,7 +195,7 @@ class PlottingMain:
             try:
                 exc_info = sys.exc_info()
             except Exception as err2:
-                log.error("A really bad error happend in analysis process {}! "
+                log.error("A really bad error happened in analysis process {}! "
                                "System exception info could not be obtained correctly. "
                                "The thing I have is the exception itself: {}"
                                ", and the error while obtaining the stack trace: {}".format(analysis, err, err2))

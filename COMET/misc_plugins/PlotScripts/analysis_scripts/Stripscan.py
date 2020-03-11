@@ -85,6 +85,13 @@ class Stripscan:
             self.PlotDict["Violin"] = self.Violin
             self.PlotDict["All"] = self.PlotDict["All"] + self.Violin
 
+        # singleHist Plot
+        self.singleHist = dospecialPlots(self.data, self.config, "Stripscan", "Histogram", self.measurements,
+                                         **self.config["Stripscan"].get("AuxOptions", {}).get("singleHistogram", {}))
+        if self.singleHist:
+            self.PlotDict["singleHistogram"] = self.singleHist
+            self.PlotDict["All"] = self.PlotDict["All"] + self.singleHist
+
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config["Stripscan"].get("Layout", {}))
         return self.PlotDict
