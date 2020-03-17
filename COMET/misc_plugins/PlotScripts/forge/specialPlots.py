@@ -69,7 +69,7 @@ def BoxWhisker(dfs, measurement, configs, analysisType, **addConfigs):
     newConfigs = addConfigs
     log.info("Generating BoxWhisker Plot for {}".format(measurement))
     try:
-        plot = hv.BoxWhisker(dfs["All"], kdims="Name", vdims=measurement, group="BoxWhisker: {}".format(measurement))
+        plot = hv.BoxWhisker(dfs["All"], kdims="Name", vdims=measurement, label="BoxWhisker: {}".format(measurement), group="BoxWhisker: {}".format(measurement))
         # plot = relabelPlot(plot, label="{}".format(measurement))
         # get labels from the configs
         #ylabel = "{} [{}]".format(measurement, dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
@@ -106,7 +106,7 @@ def Violin(dfs, measurement, configs, analysisType, **addConfigs):
     newConfigs = addConfigs
     log.info("Generating Violin Plot for {}".format(measurement))
     try:
-        plot = hv.Violin(dfs["All"], kdims="Name", vdims=measurement, group="Violin: {}".format(measurement))
+        plot = hv.Violin(dfs["All"], kdims="Name", vdims=measurement, label="Violin: {}".format(measurement), group="Violin: {}".format(measurement))
         # get labels from the configs
         #ylabel = "{} [{}]".format(measurement, dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
         try:
@@ -152,7 +152,7 @@ def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None,
         median = np.round(np.median(data), 2)
         data = np.histogram(data, bins=bins)
 
-        plt = hv.Histogram(data, group="Concatenated Histogram: {}".format(measurement))
+        plt = hv.Histogram(data, label="Concatenated Histogram: {}".format(measurement), group="Concatenated Histogram: {}".format(measurement))
         #plt = hv.Histogram(data, vdims=to_plot, group="Concatenated Histogram: {}".format(to_plot))
 
         try:
@@ -184,7 +184,7 @@ def concatHistogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None,
         y = data[0].max()
         x = data[1][int(len(data[1])*0.9)]
         text = hv.Text(x, y, text).opts(fontsize=30)
-        plots *= text
+        plots = plots*text
 
     except Exception as err:
         log.error("Unexpected error happened during concatHist plot generation {}. Error: {}".format(measurement, err))
@@ -212,7 +212,7 @@ def Histogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None, **add
 
             data = np.histogram(data, bins=bins)
 
-            plt = hv.Histogram(data, group="Histogram: {}: {}".format(measurement, key))
+            plt = hv.Histogram(data, label="Histogram: {}".format(measurement), group="Histogram: {}: {}".format(measurement, key))
             #plt = hv.Histogram(data, vdims=to_plot, group="Concatenated Histogram: {}".format(to_plot))
 
             try:
@@ -231,9 +231,6 @@ def Histogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None, **add
             newConfigs.update(data_options)
             plots = customize_plot(plt, "", configs[analysisType], **newConfigs)
 
-            if finalplots:
-                finalplots += plots
-            else: finalplots = plots
 
             # Add text
             text = '\nMean: {mean} \n' \
@@ -247,7 +244,12 @@ def Histogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None, **add
             y = data[0].max()
             x = data[1][int(len(data[1]) * 0.9)]
             text = hv.Text(x, y, text).opts(fontsize=30)
-            plots *= text
+            plots = plots*text
+
+            if finalplots:
+                finalplots += plots
+            else:
+                finalplots = plots
     except Exception as err:
         log.error("Unexpected error happened during Hist plot generation {}. Error: {}".format(measurement, err))
         return None
