@@ -13,6 +13,10 @@ from bokeh.io import show
 from pathlib import Path
 from copy import deepcopy
 from time import sleep
+
+from warnings import filterwarnings
+filterwarnings('ignore', message='save()', category=UserWarning)
+
 hv.extension('bokeh')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import importlib

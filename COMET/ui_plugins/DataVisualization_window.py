@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QWidget, QFileDialog, QTreeWidgetItem
 from PyQt5.QtCore import QUrl, Qt
 from PyQt5 import QtGui
 from PyQt5 import QtCore
-import holoviews as hv
 import threading
 import ast
 import re
