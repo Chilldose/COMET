@@ -11,7 +11,7 @@
 
   Analysis:
     - Stripscan
-    #- bad_strip_detection
+    - bad_strip_detection
 
 # Optional Parameters
 

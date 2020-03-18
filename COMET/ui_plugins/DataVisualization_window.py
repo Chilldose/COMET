@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QWidget, QFileDialog, QTreeWidgetItem
 from PyQt5.QtCore import QUrl, Qt
 from PyQt5 import QtGui
 from PyQt5 import QtCore
-import holoviews as hv
 import threading
 import ast
 import re
@@ -223,8 +222,9 @@ class DataVisualization_window:
                 configs = configs[path]
 
             # Change the plot label from the line edit
-            configs["PlotLabel"] = self.widget.plot_label_lineEdit.text()
-            self.current_plot_object = relabelPlot(self.current_plot_object, configs["PlotLabel"])
+            if self.widget.plot_label_lineEdit.text():
+                configs["PlotLabel"] = self.widget.plot_label_lineEdit.text()
+                self.current_plot_object = relabelPlot(self.current_plot_object, configs["PlotLabel"])
 
             # Find the plot options otherwise generate
             if not "PlotOptions" in configs:
@@ -233,7 +233,7 @@ class DataVisualization_window:
             # Find index of first colon
             line = self.widget.options_lineEdit.text()
             if line:
-                ind =  line.find(":")
+                ind = line.find(":")
                 if ind == -1:
                     ind = line.find("=")
                 #Try  to evaluate
@@ -245,7 +245,32 @@ class DataVisualization_window:
             else:
                 newItem = {} # If no options are passed, generate an empty one
             try:
-                self.apply_options_to_plot(self.current_plot_object, **newItem)
+                apply_success = False
+                errors = []
+
+                if hasattr(self.current_plot_object, "children"):
+                    childs = len(self.current_plot_object.children)
+                else: childs = 1
+
+                if childs > 1:
+                    self.log.critical("Applying options to composite plot objects is currently experimental. Unforseen results may occure!")
+                    for child in self.current_plot_object.keys():
+                        plot_object = self.current_plot_object
+                        for path in child:
+                            plot_object = getattr(plot_object, path)
+                        try:
+                            self.apply_options_to_plot(plot_object, **newItem)
+                            apply_success = True
+                            break
+                        except Exception as err:
+                            self.log.debug(err)
+                            errors.append(err)
+                    if not apply_success:
+                        for err in errors:
+                                raise Exception(err)
+                else:
+                    self.apply_options_to_plot(self.current_plot_object, **newItem)
+
                 self.replot_and_reload_html(self.current_plot_object)
                 configs["PlotOptions"].update(newItem)
                 self.update_plot_options_tree(self.current_plot_object)
@@ -265,6 +290,7 @@ class DataVisualization_window:
         """Updates the plot options tree for the plot"""
         self.widget.plot_options_treeWidget.clear()
         self.widget.options_lineEdit.setText("")
+        self.change_plot_label_edit("")
         configs = self.plotting_Object.config
         self.selected_plot_option = ()
         try:
@@ -296,7 +322,7 @@ class DataVisualization_window:
 
             # In case of special plots other access needed
             try:
-                plotLabel = plot._group_param_value
+                plotLabel = plot.group
                 plotLabel = plotLabel.split(":")
 
                 for ana in configs["Analysis"]:

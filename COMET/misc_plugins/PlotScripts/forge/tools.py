@@ -83,7 +83,7 @@ def convert_to_EngUnits(data, dataType, unit="nano"):
 
     return data
 
-def Simple2DPlot(data, configs, measurement_to_plot, xaxis_measurement, analysis_name):
+def Simple2DPlot(data, configs, measurement_to_plot, xaxis_measurement, analysis_name, vdims="Name", keys=None, **kwargs):
     """
     Generates a 2D Plot out of a pandas data frame for the DataVis
     :param data: the data structure for one measurement
@@ -99,9 +99,9 @@ def Simple2DPlot(data, configs, measurement_to_plot, xaxis_measurement, analysis
     return holoplot(measurement_to_plot, data,
                     configs.get(analysis_name, {}),
                     kdims = [xaxis_measurement, measurement_to_plot],
-                    vdims="Name")
+                    vdims=vdims, keys=keys, **kwargs)
 
-def plot_all_measurements(data, config, xaxis_measurement, analysis_name, do_not_plot=()):
+def plot_all_measurements(data, config, xaxis_measurement, analysis_name, do_not_plot=(), keys=None, **kwargs):
     """
     Simply plots all available measurements from data frames against one xaxsis measurement.
     The data structure needs a entry for 'measurements' containing a list of all measurements
@@ -118,9 +118,9 @@ def plot_all_measurements(data, config, xaxis_measurement, analysis_name, do_not
         if measurement not in do_not_plot:
             try:
                 if finalPlot:
-                    finalPlot += Simple2DPlot(data, config, measurement, xaxis_measurement, analysis_name)
+                    finalPlot += Simple2DPlot(data, config, measurement, xaxis_measurement, analysis_name, keys=keys, **kwargs)
                 else:
-                    finalPlot = Simple2DPlot(data, config, measurement, xaxis_measurement, analysis_name)
+                    finalPlot = Simple2DPlot(data, config, measurement, xaxis_measurement, analysis_name, keys=keys, **kwargs)
             except:
                 pass
 
@@ -309,7 +309,7 @@ def plainPlot(plotType, xdata, ydata, label="NOName", plotName=None, configs={},
     else:
         log.error("Holovies has no attribute with name: {}".format(plotType))
 
-def holoplot(plotType, df_list, configs, kdims, vdims=None, **addConfigs):
+def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConfigs):
     """
     Simply plots an configs a plot
     :param plotType: The type of plot, e.g. 'IV'
@@ -335,12 +335,17 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, **addConfigs):
         # Loop over all data
         log.info("Generating plot {} in Style {}".format(plotType, type))
         if hasattr(hv, type):
-            for key in df_list["keys"]: # Loop over all files
+            for key in keys if keys else df_list["keys"]: # Loop over all files
                 if kdims[1] in df_list[key]["data"]:
                     log.debug("Generating plot {} for {}".format(key, plotType))
                     # get labels from the configs
-                    ylabel = "{} ({})".format(kdims[1], df_list[key]["units"][df_list[key]["measurements"].index(kdims[1])])
-                    xlabel = "{} ({})".format(kdims[0], df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])])
+                    if df_list[key]["units"][df_list[key]["measurements"].index(kdims[1])]:
+                        ylabel = "{} ({})".format(kdims[1], df_list[key]["units"][df_list[key]["measurements"].index(kdims[1])])
+                    else:
+                        ylabel = "{}".format(kdims[1])
+                    if df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])]:
+                        xlabel = "{} ({})".format(kdims[0], df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])])
+                    else: xlabel = "{}".format(kdims[0])
                     if plot:
                         plot *= getattr(hv, type)(df_list[key]["data"], kdims=kdims, vdims=vdims, label=key, group=type)
                     else: plot = getattr(hv, type)(df_list[key]["data"], kdims=kdims, vdims=vdims, label=key, group=type)
@@ -377,6 +382,12 @@ def customize_plot(plot, plotName, configs, **addConfigs):
     :return: configured plot object
     """
 
+    # Look if a PlotLabel is in the addConfigs
+    if "PlotLabel" in addConfigs:
+        newlabel = addConfigs.pop("PlotLabel")
+    else: newlabel = None
+
+
     # Get options
     log.debug("Configuring plot with holoviews parameters for plot {}...".format(plotName))
     gen_opts = configs.get("General", {})
@@ -386,10 +397,32 @@ def customize_plot(plot, plotName, configs, **addConfigs):
     options.update(specific_opts)
     options.update(addConfigs)
     try:
-        plot = plot.relabel(configs.get(plotName, {}).get("PlotLabel", "")).opts(**options)
+        if not newlabel:
+            label = configs.get(plotName, {}).get("PlotLabel", "")
+        else: label = newlabel
+        plot = plot.relabel(label).opts(**options)
     except AttributeError as err:
         log.warning("Relable of plot {} was not possible!".format(configs.get(plotName, {}).get("PlotLabel", "")))
     return plot
+
+def read_in_CSV_measurement_files(filepathes):
+    """This reads in csv files and converts the directly to a pandas data frame!!!"""
+    all_data = {}
+    load_order = []
+
+    for file in filepathes:
+        load_order.append(file)
+        data_dict = {"analysed": False, "plots": False, "header": ""}
+        data = pd.read_csv(file)
+        data_dict["measurements"] = list(data.columns)
+        data_dict["units"] = ["" for i in data_dict["measurements"]]
+        data_dict["data"] = data
+        all_data[os.path.basename(file).split(".")[0]] = data_dict
+
+    return all_data, load_order
+
+
+
 
 def read_in_JSON_measurement_files(filepathes):
     """This function reads in a QTC measurement file and return a dictionary with the data in the file"""

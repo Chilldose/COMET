@@ -206,7 +206,7 @@ class stripanalysis:
         """
 
         results = []
-        padarray = data["Strip"][tokeep[data_label]]
+        padarray = data["Pad"][tokeep[data_label]]
         start = np.arange(0, len(padarray) - piecesize, piecesize)
         end = np.arange(piecesize, len(padarray), piecesize)
         if len(end):
@@ -281,7 +281,7 @@ class stripanalysis:
         single_lms = lms_fit[measurement]
         single_cutted = cutted[measurement]
 
-        xvalues = data["Strip"]
+        xvalues = data["Pad"]
         xvalues = xvalues[single_cutted]
 
         start, stop = self.create_piecewise_arrays(xvalues, piecesize)
@@ -428,7 +428,7 @@ class stripanalysis:
             self.log.warning("Cannot compare array of different sizes. Taking logical and and try with this data. Data sets: {}".format(compare))
 
 
-        xvalues = data["Strip"]
+        xvalues = data["Pad"]
         Fxval = xvalues[Firstcut]
         Sxval = xvalues[Secondcut]
 

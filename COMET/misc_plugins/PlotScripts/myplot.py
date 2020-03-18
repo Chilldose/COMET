@@ -13,6 +13,10 @@ from bokeh.io import show
 from pathlib import Path
 from copy import deepcopy
 from time import sleep
+
+from warnings import filterwarnings
+filterwarnings('ignore', message='save()', category=UserWarning)
+
 hv.extension('bokeh')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 import importlib
@@ -21,6 +25,7 @@ import importlib
 from bokeh.io import save
 
 from .forge.tools import read_in_ASCII_measurement_files, read_in_JSON_measurement_files, save_plot
+from .forge.tools import read_in_CSV_measurement_files
 
 class PlottingMain:
 
@@ -65,8 +70,12 @@ class PlottingMain:
                 self.log.critical("The data typ seem not to be ASCII, trying with JSON file type.")
                 self.config["Filetype"] = "JSON"
 
-        if self.config["Filetype"].upper() == "JSON":
+        elif self.config["Filetype"].upper() == "JSON":
             self.data, load_order = read_in_JSON_measurement_files(self.config["Files"])
+            self.config["file_order"] = load_order  # To keep easy track of the names and not the pathes
+
+        elif self.config["Filetype"].upper() == "CSV":
+            self.data, load_order = read_in_CSV_measurement_files(self.config["Files"])
             self.config["file_order"] = load_order  # To keep easy track of the names and not the pathes
 
         # Sanatise units and measurements
