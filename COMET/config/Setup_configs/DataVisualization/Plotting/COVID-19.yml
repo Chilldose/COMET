@@ -1,0 +1,69 @@
+--- # Dummy config file for testing
+
+  Filetype: CSV # Other options are json, ACII
+
+  Analysis:
+    - COVID19 # The type of analysis, which will be performed
+
+
+# Optional Parameters
+
+  # Options for the different Analyses scripts
+  # These options are entirely up to you and what you need in your analysis
+  COVID19:
+      General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 1200
+          height: 800
+          shared_axes: False
+      Layout:
+          cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
+
+      Confirmed:
+          PlotLabel: "Confirmed Cases"
+          PlotStyles:
+              - Bars
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              padding: !!python/tuple [0, 0.1]
+              show_grid: True
+              ylim: !!python/tuple [0,NULL]
+              gridstyle:
+                  grid_line_color: black
+                  grid_line_width: 1.5
+                  minor_xgrid_line_color: lightgray
+                  minor_ygrid_line_color: lightgray
+                  xgrid_line_dash: [4, 4]
+                  ygrid_line_dash: [10, 4]
+              shared_axes: False # If the axes should be shared with other plots, usually it is False
+        
+      Recovered:
+          PlotLabel: "Recovered Cases"
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              padding: !!python/tuple [0, 0.1]
+              show_grid: True
+              ylim: !!python/tuple [0,NULL]
+              gridstyle:
+                  grid_line_color: black
+                  grid_line_width: 1.5
+                  minor_xgrid_line_color: lightgray
+                  minor_ygrid_line_color: lightgray
+                  xgrid_line_dash: [4, 4]
+                  ygrid_line_dash: [10, 4]
+              shared_axes: False # If the axes should be shared with other plots, usually it is False
+             
+      Deaths:
+          PlotLabel: "Deaths"
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              padding: !!python/tuple [0, 0.1]
+              show_grid: True
+              ylim: !!python/tuple [0,NULL]
+              gridstyle:
+                  grid_line_color: black
+                  grid_line_width: 1.5
+                  minor_xgrid_line_color: lightgray
+                  minor_ygrid_line_color: lightgray
+                  xgrid_line_dash: [4, 4]
+                  ygrid_line_dash: [10, 4]
+              shared_axes: False # If the axes should be shared with other plots, usually it is False
+            

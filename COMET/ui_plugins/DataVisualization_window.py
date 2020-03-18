@@ -247,7 +247,12 @@ class DataVisualization_window:
             try:
                 apply_success = False
                 errors = []
-                if len(self.current_plot_object.children) > 1:
+
+                if hasattr(self.current_plot_object, "children"):
+                    childs = len(self.current_plot_object.children)
+                else: childs = 1
+
+                if childs > 1:
                     self.log.critical("Applying options to composite plot objects is currently experimental. Unforseen results may occure!")
                     for child in self.current_plot_object.keys():
                         plot_object = self.current_plot_object
