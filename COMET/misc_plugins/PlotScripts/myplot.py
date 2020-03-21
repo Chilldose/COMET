@@ -161,9 +161,10 @@ class PlottingMain:
                             for attr in path:
                                 plots = getattr(plots, attr)
                             try:
-                                label = plots._label
-                            except:
                                 label = "_".join(path)
+                            except:
+                                label = plots._label
+
                             save_plot(label, plots, save_dir, save_as=self.config["Save_as"])
                             saved += 1
                     except:

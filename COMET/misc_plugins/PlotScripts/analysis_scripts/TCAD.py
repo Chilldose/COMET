@@ -10,7 +10,7 @@ hv.extension('bokeh')
 
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout
 from forge.tools import twiny, relabelPlot
-from forge.tools import SimplePlot, convert_to_EngUnits, plainPlot, customize_plot
+from forge.tools import Simple2DPlot, convert_to_EngUnits, plainPlot, customize_plot
 from forge.specialPlots import dospecialPlots
 from forge.utilities import line_intersection
 
@@ -63,9 +63,9 @@ class TCAD:
         for plots_data in self.to_plot:
             try: # If key is not there error happens
                 if self.PlotDict["All"]:
-                    self.PlotDict["All"] += SimplePlot(self.data, self.config, plots_data[1], plots_data[0], self.analysisname)
+                    self.PlotDict["All"] += Simple2DPlot(self.data, self.config, plots_data[1], plots_data[0], self.analysisname)
                 else:
-                    self.PlotDict["All"] = SimplePlot(self.data, self.config, plots_data[1], plots_data[0], self.analysisname)
+                    self.PlotDict["All"] = Simple2DPlot(self.data, self.config, plots_data[1], plots_data[0], self.analysisname)
             except:
                 self.log.warning("Key '{}' not found in data. Skipping.".format(plots_data[1]))
 

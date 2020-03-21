@@ -524,7 +524,7 @@ class DataVisualization_window:
                             self.variables.framework_variables["Message_to_main"],))
                         self.not_saving = True
                     else:
-                        if self.plotting_thread.isAlive():
+                        if self.plotting_thread.is_Alive():
                             self.not_saving = False
                         else:
                             self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(

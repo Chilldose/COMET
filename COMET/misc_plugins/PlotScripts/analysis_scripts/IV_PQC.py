@@ -33,6 +33,9 @@ class IV_PQC:
         self.donts = ["timestamp", "voltage"]
         hv.renderer('bokeh')
 
+        c2 = 1 / (self.data['ChuckLeakage-Default_HME_S-PQC_Flute_1-Diode_IV']['data']["current"] *
+             self.data['ChuckLeakage-Default_HME_S-PQC_Flute_1-Diode_IV']['data']["current"])
+
         # Convert the units to the desired ones
         for meas in self.measurements:
             unit = self.config[self.name].get(meas, {}).get("UnitConversion", None)

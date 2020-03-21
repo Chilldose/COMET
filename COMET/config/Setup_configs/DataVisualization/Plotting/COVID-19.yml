@@ -12,22 +12,37 @@
   # These options are entirely up to you and what you need in your analysis
   COVID19:
       General: # Options common to all plots
-          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 15, 'yticks': 15, 'legend': 11}
           responsive: False
-          width: 1200
+          width: 1800
           height: 800
           shared_axes: False
       Layout:
           cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
+      
+      Normalize: False
+      Countries:
+          Austria: 8793370
+          Switzerland: 8292809
+          Germany: 80457737
+          Italy: 62246674
+          China: 1384688986
+          US: 329256465
+          
+      GrowingRateMulti: 100
+          
+      HistogramOptions:
+          shared_axes: False
+          alpha: 0.6
 
       Confirmed:
           PlotLabel: "Confirmed Cases"
           PlotStyles:
-              - Bars
+            - Bars
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              padding: !!python/tuple [0, 0.1]
               show_grid: True
-              ylim: !!python/tuple [0,NULL]
+              xrotation: 60
+              legend_position: top_left
               gridstyle:
                   grid_line_color: black
                   grid_line_width: 1.5
@@ -39,10 +54,12 @@
         
       Recovered:
           PlotLabel: "Recovered Cases"
+          PlotStyles:
+            - Bars
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              padding: !!python/tuple [0, 0.1]
               show_grid: True
-              ylim: !!python/tuple [0,NULL]
+              xrotation: 60
+              legend_position: top_left
               gridstyle:
                   grid_line_color: black
                   grid_line_width: 1.5
@@ -54,10 +71,12 @@
              
       Deaths:
           PlotLabel: "Deaths"
+          PlotStyles:
+            - Bars
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              padding: !!python/tuple [0, 0.1]
               show_grid: True
-              ylim: !!python/tuple [0,NULL]
+              xrotation: 60
+              legend_position: top_left
               gridstyle:
                   grid_line_color: black
                   grid_line_width: 1.5

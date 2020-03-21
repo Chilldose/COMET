@@ -255,3 +255,44 @@ def Histogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None, **add
         return None
 
     return finalplots
+
+def SimplifiedBarChart(dfs, measurement, configs, analysisType, xaxis, bins=50, **addConfigs):
+    """Generates a simplified bar chart with a simplified x axis, can be handy if you have lots of points """
+    newConfigs = addConfigs
+    log.info("Generating BarChart for measurement {}...".format(measurement))
+    finalplots = None
+    try:
+        for key in dfs["keys"]:
+            log.info("Generating histograms for measurement {} for file {}...".format(measurement, key))
+            # Sanatize data
+            data = dfs[key]["data"][[measurement, xaxis]].dropna() # Drop all nan
+            invertedaxis = data.reset_index().set_index(measurement)
+            data = np.histogram(data[measurement], bins=data[xaxis])
+
+            plt = hv.Histogram(data, label="BarChart: {}".format(measurement), group="{}".format(key))
+
+            try:
+                xlabel = "{} [{}]".format(measurement,
+                                      dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
+            except Exception as err:
+                log.error("Label could not be generated for Histogram {}. Error: {}".format(measurement, err))
+                xlabel = "X-Axis"
+
+            plt.opts(xlabel=xlabel)
+            # Update the plot specific options if need be
+            generalOptions = configs[analysisType].get("General", {})
+            newConfigs.update(generalOptions.copy())
+            data_options = configs[analysisType].get(measurement, {}).get("Single Histogram", {}).get("PlotOptions", {})
+            newConfigs.update(configs[analysisType].get("{}Options".format("Histogram"), {}))
+            newConfigs.update(data_options)
+            plots = customize_plot(plt, "", configs[analysisType], **newConfigs)
+
+            if finalplots:
+                finalplots += plots
+            else:
+                finalplots = plots
+    except Exception as err:
+        log.error("Unexpected error happened during Hist plot generation {}. Error: {}".format(measurement, err))
+        return None
+
+    return finalplots

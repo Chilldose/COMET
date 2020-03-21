@@ -96,10 +96,28 @@ def Simple2DPlot(data, configs, measurement_to_plot, xaxis_measurement, analysis
 
     # Generate a plot with all data plotted
     log.debug("Started plotting {} curve...".format(measurement_to_plot))
-    return holoplot(measurement_to_plot, data,
-                    configs.get(analysis_name, {}),
-                    kdims = [xaxis_measurement, measurement_to_plot],
-                    vdims=vdims, keys=keys, **kwargs)
+    conf = deepcopy(configs.get(analysis_name, {}))
+
+    if "Bars" in conf.get(measurement_to_plot, {}).get("PlotStyles", ["Curve"]) or False:
+        conf[measurement_to_plot]["PlotStyles"].pop(conf[measurement_to_plot]["PlotStyles"].index("Bars"))
+        plots = holoplot(measurement_to_plot, data,
+                        conf,
+                        kdims = [xaxis_measurement, measurement_to_plot],
+                        vdims=vdims, keys=keys, **kwargs)
+        conf[measurement_to_plot]["PlotStyles"] = ["Bars"]
+        bars = holoplot(measurement_to_plot, data,
+                        conf,
+                        kdims = [xaxis_measurement],
+                        vdims=measurement_to_plot, keys=keys, **kwargs)
+        if plots:
+            return bars+plots
+        else:
+            return bars
+    else:
+        return holoplot(measurement_to_plot, data,
+                        conf,
+                        kdims = [xaxis_measurement, measurement_to_plot],
+                        vdims=vdims, keys=keys, **kwargs)
 
 def plot_all_measurements(data, config, xaxis_measurement, analysis_name, do_not_plot=(), keys=None, **kwargs):
     """
@@ -130,7 +148,6 @@ def plot_all_measurements(data, config, xaxis_measurement, analysis_name, do_not
 def save_plot(name, subplot, save_dir, save_as="default"):
     """Saves a plot object"""
     log.info("Saving {}".format(name))
-
     try:
         if "default" in save_as:
             fig = hv.render(subplot, backend='bokeh')
@@ -225,7 +242,7 @@ def config_layout(PlotItem, **kwargs):
             opts.Histogram(tools=[hover]),
             opts.Points(tools=[hover]),
             opts.BoxWhisker(tools=[hover]),
-            opts.Bars(tools=[hover]),
+            opts.Bars(tools=[HoverTool(tooltips=[('Value of ID:',' $x'),('Value:','$y')])]),
             opts.Violin(tools=[hover])
         )
     except AttributeError as err:
@@ -326,8 +343,9 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
     finalPlot = None
 
     if len(kdims) < 2:
-        log.error("Holoplots needs at least two kdims to work with!")
-        raise
+        log.warning("Holoplots usually needs at least two kdims to work with! Plotting may fail")
+        ind = 0
+    else: ind = 1
 
     # Loop over all types of plots which should be created
     for type in configs.get(plotType, {}).get("PlotStyles", ["Curve"]):
@@ -336,16 +354,14 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
         log.info("Generating plot {} in Style {}".format(plotType, type))
         if hasattr(hv, type):
             for key in keys if keys else df_list["keys"]: # Loop over all files
-                if kdims[1] in df_list[key]["data"]:
+                if kdims[ind] in df_list[key]["data"]:
                     log.debug("Generating plot {} for {}".format(key, plotType))
                     # get labels from the configs
-                    if df_list[key]["units"][df_list[key]["measurements"].index(kdims[1])]:
-                        ylabel = "{} ({})".format(kdims[1], df_list[key]["units"][df_list[key]["measurements"].index(kdims[1])])
-                    else:
-                        ylabel = "{}".format(kdims[1])
-                    if df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])]:
-                        xlabel = "{} ({})".format(kdims[0], df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])])
-                    else: xlabel = "{}".format(kdims[0])
+                    try:
+                        xlabel, ylabel = get_axis_labels(df_list, key, kdims, vdims)
+                    except Exception as err:
+                        log.error("Could not generate x and y label. Error: {}".format(err))
+                        xlabel, ylabel = "X-Axis", "Y-Axis"
                     if plot:
                         plot *= getattr(hv, type)(df_list[key]["data"], kdims=kdims, vdims=vdims, label=key, group=type)
                     else: plot = getattr(hv, type)(df_list[key]["data"], kdims=kdims, vdims=vdims, label=key, group=type)
@@ -369,6 +385,26 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
             finalPlot = plot
 
     return finalPlot
+
+def get_axis_labels(df_list, key, kdims, vdims):
+    """Generates the axis labels"""
+    try:
+        if df_list[key]["units"][df_list[key]["measurements"].index(kdims[1])]:
+            ylabel = "{} ({})".format(kdims[1], df_list[key]["units"][df_list[key]["measurements"].index(kdims[1])])
+        else:
+            ylabel = "{}".format(kdims[1])
+    except:
+        if df_list[key]["units"][df_list[key]["measurements"].index(vdims)]:
+            ylabel = "{} ({})".format(vdims, df_list[key]["units"][df_list[key]["measurements"].index(vdims)])
+        else:
+            ylabel = "{}".format(vdims)
+
+    if df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])]:
+        xlabel = "{} ({})".format(kdims[0], df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])])
+    else:
+        xlabel = "{}".format(kdims[0])
+
+    return xlabel, ylabel
 
 def relabelPlot(plot, label):
     return plot.relabel(label)
