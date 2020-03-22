@@ -81,8 +81,12 @@ class IVCV_QTC:
         # Add full depletion point to 1/c^2 curve
         if self.config["IVCV_QTC"].get("1C2", {}).get("DoFullDepletionCalculation", False):
             try:
-                c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion
-                self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion = self.find_full_depletion(c2plot, self.data, self.config)
+                if self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.children:
+                    c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.opts(clone = True)
+                else: c2plot = self.basePlots.Curve.CV_CURVES_hyphen_minus_Full_depletion.opts(clone = True)
+                fdestimation = self.find_full_depletion(c2plot, self.data, self.config, PlotLabel="Full depletion estimation")
+                self.PlotDict["All"] += fdestimation
+                self.PlotDict["BasePlots"] += fdestimation
             except Exception as err:
                 self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
