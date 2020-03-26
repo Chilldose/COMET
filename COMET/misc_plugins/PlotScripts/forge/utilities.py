@@ -35,6 +35,12 @@ def line_intersection(line1, line2):
     y = det(d, ydiff) / div
     return x, y
 
+def reload_plugins(plugins):
+    """Reloads plugins"""
+    l.debug("Reloading analysis plugins...")
+    for module in plugins.values():
+        importlib.reload(module)
+
 def load_plugins(settings, rootdir):
     # Load all measurement functions
     to_ignore = ["__init__", "__pycache__"]

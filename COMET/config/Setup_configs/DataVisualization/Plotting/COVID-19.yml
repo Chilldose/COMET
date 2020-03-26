@@ -42,6 +42,7 @@
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               show_grid: True
               xrotation: 60
+              #logy: True
               legend_position: top_left
               gridstyle:
                   grid_line_color: black

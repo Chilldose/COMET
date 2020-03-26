@@ -5,7 +5,7 @@ import logging
 import sys, os
 
 from .forge.utilities import parse_args, LogFile, load_yaml, exception_handler, sanatise_units, sanatise_measurement
-from .forge.utilities import load_plugins
+from .forge.utilities import load_plugins, reload_plugins
 from multiprocessing import Pool
 import traceback
 import holoviews as hv
@@ -90,6 +90,7 @@ class PlottingMain:
 
     def run(self):
         """Runs the script"""
+        reload_plugins(self.plugins)
         self.plot()
         if self.args.show:
             self.show_results()

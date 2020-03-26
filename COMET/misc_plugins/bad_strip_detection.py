@@ -375,11 +375,11 @@ class stripanalysis:
 
     def find_relation(self, compare, factors, data, lms_data, cutted, piecesize):
         """
-        Finds if a relation between two observables are present, for e.g. imnplant short.
-        It conpares the data with a factor from the lms line fit.
+        Finds if a relation between two observables are present, for e.g. inplant short.
+        It compares the data with a factor from the lms line fit.
         Example: Implant short: ( ('Istrip', 'Rpoly'), (2,0.5), data, lms_data, cutted, piecesize)
         Data from istrip and Rpoly will be checked against the scaled (factor) lms_line fit. And a true table will be
-        returned. These truth tables are checked for common indizes wich then will be (in our case) a implant short
+        returned. These truth tables are checked for common indizes which then will be (in our case) a implant short
 
         :param compare: Tuple - ("Istrip", "Rpoly") etc. So what data you want to compare
         :param factors: Tuple - (2, 0.5), scaling factor at which we say its suspicious
