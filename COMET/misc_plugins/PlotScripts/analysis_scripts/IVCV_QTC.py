@@ -201,4 +201,6 @@ class IVCV_QTC:
         #returnPlot = relabelPlot(returnPlot, "CV CURVES - Full depletion calculation")
         returnPlot = customize_plot(returnPlot, "1C2", configs["IVCV_QTC"], **addConfigs)
 
+
+
         return returnPlot
