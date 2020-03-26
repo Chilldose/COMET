@@ -126,9 +126,9 @@ class IVCV_QTC:
                 self.log.debug("Data: {}".format(samplekey))
                 sample = deepcopy(data[samplekey])
                 try:
-                    df = pd.DataFrame({"xaxis": sample["data"]["voltage"], "yaxis": sample["data"]["1C2"]})
+                    df = sample["data"][["voltage", "1C2"]]
                 except:
-                    df = pd.DataFrame({"xaxis": sample["data"]["Voltage"], "yaxis": sample["data"]["1C2"]})
+                    df = sample["data"][["Voltage", "1C2"]]
                 df = df.dropna()
 
 
