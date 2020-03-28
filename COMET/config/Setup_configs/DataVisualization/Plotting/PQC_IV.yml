@@ -82,6 +82,63 @@
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               yaxisENG: True # If you want to plot the y axis in engineering representation
 
+
+
+      capacitance2:
+
+          PlotLabel: CV CURVES2
+
+          UnitConversion: nano
+
+          findFlatBandVoltage: True
+
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+
+              logy: False
+
+              logx: False
+
+              invert_xaxis: False
+
+              invert_yaxis: False
+
+              #ylim: !!python/tuple [0, 10e-6]
+
+              #xlim: !!python/tuple [0, 1000]
+
+              #legend_position: "bottom_right"
+
+              #aspect: equal
+
+              padding: !!python/tuple [0, 0.1]
+
+              show_grid: True
+
+              gridstyle:
+
+                  grid_line_color: black
+
+                  grid_line_width: 1.5
+
+                  minor_xgrid_line_color: lightgray
+
+                  minor_ygrid_line_color: lightgray
+
+                  xgrid_line_dash: [4, 4]
+
+                  ygrid_line_dash: [10, 4]
+
+              xlabel: voltage [V]
+
+              ylabel: capacitance [nF]
+
+              shared_axes: False
+              xformatter: "%.0f"
+              yformatter: "%.2f"
+          ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+              yaxisENG: True # If you want to plot the y axis in engineering representation
+
+
       derivative:
 
           PlotLabel: firstderivative
