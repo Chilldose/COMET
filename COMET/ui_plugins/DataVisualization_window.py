@@ -283,6 +283,38 @@ class DataVisualization_window:
                                "Warning: Depending on the error, you may have compromised the plot object and a re-render "
                                "may be needed!".format(err))
 
+        else:
+            # If the plot was altered and no options can be rebuild
+            self.log.error("The plot options for this plot can not be retraced! Maybe the plot was altered during building."
+                           " Applying options anyway, but no options history can be shown!")
+            try:
+                # Change the plot label from the line edit
+                if self.widget.plot_label_lineEdit.text():
+                    configs["PlotLabel"] = self.widget.plot_label_lineEdit.text()
+                    self.current_plot_object = relabelPlot(self.current_plot_object, configs["PlotLabel"])
+
+                # Find index of first colon
+                line = self.widget.options_lineEdit.text()
+                if line:
+                    ind = line.find(":")
+                    if ind == -1:
+                        ind = line.find("=")
+                    # Try  to evaluate
+                    try:
+                        value = ast.literal_eval(line[ind + 1:].strip())
+                    except:
+                        value = line[ind + 1:].strip()
+                    newItem = {line[:ind].strip(): value}
+                else:
+                    newItem = {}  # If no options are passed, generate an empty one
+                self.apply_options_to_plot(self.current_plot_object, **newItem)
+                self.replot_and_reload_html(self.current_plot_object)
+            except Exception as err:
+                self.log.error("An error happened with the newly passed option with error: {} Option will be removed! "
+                               "Warning: Depending on the error, you may have compromised the plot object and a re-render "
+                               "may be needed!".format(err))
+
+
     def apply_options_to_plot(self, plot, **opts):
         """Applies the opts to the plot"""
         plot.opts(**opts)
