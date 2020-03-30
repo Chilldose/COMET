@@ -101,15 +101,17 @@ class DataVisualization_window:
         """Opens file select for template selection"""
         fileDialog = QFileDialog()
         files = fileDialog.getOpenFileNames()
+        basename = None
         if files:
             for file in files[0]:
                 try:
                     json_dump = load_yaml(file)
                     basename = os.path.basename(file).split(".")[0]
                     self.variables.framework_variables['Configs']['additional_files']['Plotting'][basename] = {"data": json_dump}
+
                 except Exception as err:
                     self.log.error("Could not load file {}, exception raised: {}".format(file, err))
-        self.config_selectable_templates()
+        self.config_selectable_templates(select=basename)
 
 
     def select_files_action(self):
@@ -408,11 +410,16 @@ class DataVisualization_window:
         options = ["html/png/xml", "html/png/json/hdf5", "html", "html/png", "html/json", "html/png/json", "png", "html/hdf5", "hdf5/json", "svg", "xml"]
         self.widget.save_as_comboBox.addItems(options)
 
-    def config_selectable_templates(self):
+    def config_selectable_templates(self, select=None):
         """Configs the combo box for selectable analysis templates"""
         self.widget.templates_comboBox.clear()
         plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
         self.widget.templates_comboBox.addItems(plotConfigs.keys())
+        if select:
+            index = self.widget.templates_comboBox.findText(select, QtCore.Qt.MatchFixedString)
+            if index >= 0:
+                self.widget.templates_comboBox.setCurrentIndex(index)
+
 
     def save_data(self, type, dirr, base_name="data"):
         """Saves the data in the specified type"""
