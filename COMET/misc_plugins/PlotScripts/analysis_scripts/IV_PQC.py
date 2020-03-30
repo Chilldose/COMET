@@ -264,7 +264,7 @@ class IV_PQC:
         epsilonNull = 8.85418e-12
         epsilonSiliconOxide = 3.9
         Areanm = 1.73056e+13
-        #AreaFile3nm = 250000*25000 #area of a specif file, not to be used by you
+        #AreaFile3nm = 250000*250000 #area of a specif file, not to be used by you
         Cap = np.max(df["yaxis"])
         Tox = epsilonNull * epsilonSiliconOxide * Areanm / Cap
 
@@ -286,7 +286,7 @@ class IV_PQC:
         Nox = (Cap*(phi_ms2 - flatband_voltage[0][0])*(1e-9))/(q*Areacm) #use (phi_ms+flatband_voltage[:, 0]) if p-type
 
         # Add text
-        text = hv.Text(-.5, 0.30, 'Flat band voltage: {} V \n'
+        text = hv.Text(-.5, 0.35, 'Flat band voltage: {} V \n'
 
                         'C accumulation: {} nF  \n'
         
@@ -294,7 +294,7 @@ class IV_PQC:
                        'Nox: {} cm^-2'.format(np.round(np.median(flatband_voltage[:, 0]), 2),
                                            np.round(Cap, 2),
                                            np.round(Tox, 2),
-                                           np.round(Nox, 2))
+                                           np.format_float_scientific(Nox, 2))
 
                        ).opts(style=dict(text_font_size='20pt'))
 
