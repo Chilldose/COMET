@@ -31,15 +31,25 @@ class IV_PQC:
         self.PlotDict = {"Name": "IV"}
         self.capincluded = False
 
-        if "capacitance" in self.data[self.data["keys"][0]]["data"]:
-            self.data["columns"].insert(3, "derivative")  # because we are adding it later on
-            self.data["columns"].insert(4, "derivative2")
+        # add a copy of capacitance and derivatives to the data
 
+        if "capacitance" in self.data[self.data["keys"][0]]["data"]:
+            self.data["columns"].insert(3, "capacitance2")
+            self.data["columns"].insert(4, "derivative")
+            self.data["columns"].insert(5, "derivative2")
+            self.capincluded = True
+        elif "Capacity" in self.data[self.data["keys"][0]]["data"]:
+            self.data["columns"].insert(3, "capacitance2")
+            self.data["columns"].insert(4, "derivative")
+            self.data["columns"].insert(5, "derivative2")
             self.capincluded = True
 
+
+
+
         self.measurements = self.data["columns"]
-        self.xaxis = "voltage"
-        self.donts = ["timestamp", "voltage","current"]
+        self.xaxis = self.measurements[0]
+        self.donts = ["timestamp", "voltage","current","Current","Voltage","Stepsize","Wait","Stepsize","Frequency"]
         hv.renderer('bokeh')
 
 
@@ -60,33 +70,44 @@ class IV_PQC:
 
             if "capacitance" in self.data[df]["data"]:
                 capacitance2 = self.data[df]["data"]["capacitance"].copy()
-                capMin= self.data[df]["data"]["capacitance"][0]
+                capMin= np.max(self.data[df]["data"]["capacitance"][:20])
                 for x in range(len(self.data[df]["data"]["capacitance"])):
                     if capacitance2[x] < capMin :
                         capacitance2[x] = capMin
-            self.data[df]["data"].insert(3, "capacitance2", capacitance2)
+                self.data[df]["data"].insert(3, "capacitance2", capacitance2)
+                self.data[df]["units"].append("arb. units")
+                self.data[df]["measurements"].append("capacitance2")
+            elif "Capacity" in self.data[df]["data"]:
+                capacitance2 = self.data[df]["data"]["Capacity"].copy()
+                capMin= np.max(self.data[df]["data"]["Capacity"][:20])
+                for x in range(len(self.data[df]["data"]["Capacity"])):
+                    if capacitance2[x] < capMin :
+                        capacitance2[x] = capMin
+                self.data[df]["data"].insert(3, "capacitance2", capacitance2)
+                self.data[df]["units"].append("arb. units")
+                self.data[df]["measurements"].append("capacitance2")
 
 
         # Add the first and second derivative data to the dataframes
 
         for df in self.data["keys"]:
 
-            if "capacitance" in self.data[df]["data"]:
+            if "capacitance2" in self.data[df]["data"]:
 
-                der1 = np.diff(self.data[df]["data"]["capacitance2"],n=1) ## Compute the first derivative
-                firstdev = np.insert(der1,0,der1[0]) ## Add an element to the array to have the same number of rows as in df
+                der1 = np.diff(self.data[df]["data"]["capacitance2"],n=1)
+                firstdev = np.insert(der1,0,der1[0]) # Add an element to the array to have the same number of rows as in df
 
-                der2= np.diff(self.data[df]["data"]["capacitance2"],n=2) ## Compute the second derivative
-                seconddev1=  np.insert(der2,0,der2[0]) ## Add two elements to the array to have the same number of rows as in df
+                der2= np.diff(self.data[df]["data"]["capacitance2"],n=2)
+                seconddev1=  np.insert(der2,0,der2[0]) # Add two elements to the array to have the same number of rows as in df
                 seconddev= np.insert(seconddev1,0,seconddev1[0])
 
-                self.data[df]["data"].insert(4, "derivative", firstdev) ## Add 'derivative' series to df
+                self.data[df]["data"].insert(4, "derivative", firstdev)
 
                 self.data[df]["units"].append("arb. units")
 
                 self.data[df]["measurements"].append("derivative")
 
-                self.data[df]["data"].insert(5, "derivative2", seconddev)  ## Add 'derivative2' series to df
+                self.data[df]["data"].insert(5, "derivative2", seconddev)
 
                 self.data[df]["units"].append("arb. units")
 
@@ -94,12 +115,12 @@ class IV_PQC:
 
 
                 ## Find the index of the row of the maximum of the second derivative
-                indexMax = self.data['CV_MOS_VPX28441_02_18_MOS_4_3_2020_15h16m31s']['data'].index.get_loc(
-                    self.data['CV_MOS_VPX28441_02_18_MOS_4_3_2020_15h16m31s']['data']['derivative2'].values.argmax())
+                indexMax = self.data[df]['data'].index.get_loc(
+                    self.data[df]['data']['derivative2'].values.argmax())
 
                 ## Find the index of the row of the minimum of the second derivative
-                indexMin = self.data['CV_MOS_VPX28441_02_18_MOS_4_3_2020_15h16m31s']['data'].index.get_loc(
-                    self.data['CV_MOS_VPX28441_02_18_MOS_4_3_2020_15h16m31s']['data']['derivative2'].values.argmin())
+                indexMin = self.data[df]['data'].index.get_loc(
+                    self.data[df]['data']['derivative2'].values.argmin())
 
 
 
@@ -137,7 +158,7 @@ class IV_PQC:
 
         return self.PlotDict
 
-    def find_flatBand_voltage(self, plot, data, configs, indexMax,indexMin, **addConfigs):
+    def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, **addConfigs):
         """
         Finds the full depletion voltage of all data samples and adds a vertical line for the full depletion in the
         plot. Vertical line is the mean of all measurements. Furthermore, adds a text with the statistics.
@@ -208,13 +229,13 @@ class IV_PQC:
         ## Add slopes central
         xmax = df["xaxis"][indexMin]
 
-        fit_line = np.array([[0, np.median(fit_stats[:, 2])],
-                               [xmax+0.5, np.median(fit_stats[:, 1]) * (xmax+0.5) + np.median(fit_stats[:, 2])]])
+        fit_line = np.array([[df["xaxis"][indexMax-3], np.median(fit_stats[:, 1]) *df["xaxis"][indexMax-3]  + np.median(fit_stats[:, 2])],
+                               [xmax+0.2, np.median(fit_stats[:, 1]) * (xmax+0.2) + np.median(fit_stats[:, 2])]])
 
 
         ## Add slopes right
         xmax = df["xaxis"][len(df["yaxis"]) - 1]
-        right_line = np.array([[0, np.median(Right_stats[:, 2])],
+        right_line = np.array([[df["xaxis"][indexMax-3],np.median(Right_stats[:, 1]) *df["xaxis"][indexMax-3]  + np.median(Right_stats[:, 2]) ],
                                [xmax, np.median(Right_stats[:, 1]) * xmax + np.median(Right_stats[:, 2])]])
         ##Plots
         right_line = hv.Curve(right_line).opts(color='blue')
@@ -231,7 +252,7 @@ class IV_PQC:
 
         valid_indz = np.nonzero(flatband_voltage[:, 0])
 
-        vline = hv.VLine(np.median(flatband_voltage[valid_indz], axis=0)[0]).opts(color='black', line_width=5.0)
+        vline = hv.VLine(np.median(flatband_voltage[valid_indz], axis=0)[0]).opts(color='black', line_width=2.0)
 
         ###vline = hv.VLine(flatband_voltage[0]).opts(color='black', line_width=5.0)
 
@@ -242,40 +263,38 @@ class IV_PQC:
         ## Find Tox
         epsilonNull = 8.85418e-12
         epsilonSiliconOxide = 3.9
-        Area = 1.73056e+13
-        last_capvalue = len(self.data['CV_MOS_VPX28441_02_18_MOS_4_3_2020_15h16m31s']['data']['capacitance'])
-        Cap = (self.data['CV_MOS_VPX28441_02_18_MOS_4_3_2020_15h16m31s']['data']['capacitance'][last_capvalue-1] +
-               self.data['CV_MOS_VPX28441_02_18_MOS_4_3_2020_15h16m31s']['data']['capacitance'][last_capvalue-2] +
-               self.data['CV_MOS_VPX28441_02_18_MOS_4_3_2020_15h16m31s']['data']['capacitance'][last_capvalue-3] +
-               self.data['CV_MOS_VPX28441_02_18_MOS_4_3_2020_15h16m31s']['data']['capacitance'][last_capvalue-4]) / 4
-        Tox = epsilonNull * epsilonSiliconOxide * Area / Cap
+        Areanm = 1.73056e+13
+        #AreaFile3nm = 250000*25000 #area of a specif file, not to be used by you
+        Cap = np.max(df["yaxis"])
+        Tox = epsilonNull * epsilonSiliconOxide * Areanm / Cap
 
 
-        ## Find Nox
-        q= 1.60217e-10
-        #phi_ms = -0.68  ##usual value
+        # Find Nox
+        q= 1.60217e-19
+        #phi_ms = -0.68  #-0.68 is the usual value
         electronAffinity= 4.05
         bandGapEnergy=1.12
         intrinsicDopingConcentration=1.45e10
-        SiliconDoping=5e12 ##select silicon doping
+        SiliconDoping=5e12
         boltzmannConstant=1.38064e-23
-        Temperature= 20  ##select temperature
+        Temperature= 20  #select temperature
+        Areacm= 0.173056
+        #AreaFile3cm= .25*.25 #area of a specif file, not to be used by you
         phi_s= electronAffinity+ bandGapEnergy/2 +(boltzmannConstant*Temperature*np.log(SiliconDoping/intrinsicDopingConcentration))/q
-        phi_ms2=4.08-phi_s  ##value at 20 degrees
-        ##use (phi_ms+flatband_voltage[:, 0]) if p-type
-        Nox = Cap*((phi_ms2 + flatband_voltage[:, 0])*(1e9))/(q*Area)
+        phi_ms2=4.08-phi_s
+
+        Nox = (Cap*(phi_ms2 - flatband_voltage[0][0])*(1e-9))/(q*Areacm) #use (phi_ms+flatband_voltage[:, 0]) if p-type
 
         # Add text
-        text = hv.Text(0.7, 1.05, 'Flat band voltage: {} V \n'
+        text = hv.Text(-.5, 0.30, 'Flat band voltage: {} V \n'
 
-                        'Error: {} V  \n'
+                        'C accumulation: {} nF  \n'
         
                        'Tox: {} nm \n'
-                       'Nox: {} nm^2'.format(np.round(np.median(flatband_voltage[:, 0]), 2),
-
-                                           np.round(np.std(flatband_voltage[valid_indz, 0]), 2),
+                       'Nox: {} cm^-2'.format(np.round(np.median(flatband_voltage[:, 0]), 2),
+                                           np.round(Cap, 2),
                                            np.round(Tox, 2),
-                                            np.round(Nox,2))
+                                           np.round(Nox, 2))
 
                        ).opts(style=dict(text_font_size='20pt'))
 
