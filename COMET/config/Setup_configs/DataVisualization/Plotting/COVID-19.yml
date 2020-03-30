@@ -22,20 +22,22 @@
       
       Normalize: False
       Countries:
-          Austria: 8793370
-          Switzerland: 8292809
-          Germany: 80457737
-          Italy: 62246674
-          China: 1384688986
-          US: 329256465
+          #- Switzerland: 8292809
+          #- Italy: 62246674
+          #- Spain: 46660000
+          - Austria: 8793370
+          #- Germany: 80457737
+          #- US: 329256465
+          #- China: 1384688986
+          #
           
-      GrowingRateMulti: 100
+      GrowingRateMulti: 1000
           
       HistogramOptions:
           shared_axes: False
           alpha: 0.6
 
-      Confirmed:
+      confirmed:
           PlotLabel: "Confirmed Cases"
           PlotStyles:
             - Bars
@@ -53,7 +55,7 @@
                   ygrid_line_dash: [10, 4]
               shared_axes: False # If the axes should be shared with other plots, usually it is False
         
-      Recovered:
+      recovered:
           PlotLabel: "Recovered Cases"
           PlotStyles:
             - Bars
@@ -70,7 +72,7 @@
                   ygrid_line_dash: [10, 4]
               shared_axes: False # If the axes should be shared with other plots, usually it is False
              
-      Deaths:
+      deaths:
           PlotLabel: "Deaths"
           PlotStyles:
             - Bars
