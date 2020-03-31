@@ -263,10 +263,10 @@ class IV_PQC:
         ## Find Tox
         epsilonNull = 8.85418e-12
         epsilonSiliconOxide = 3.9
-        Areanm = 1.73056e+13
-        #AreaFile3nm = 250000*250000 #area of a specif file, not to be used by you
+        #Areanm = 1.73056e+13
+        AreaFile3nm = 2500000*2500000 #area of a specif file, not to be used by you
         Cap = np.max(df["yaxis"])
-        Tox = epsilonNull * epsilonSiliconOxide * Areanm / Cap
+        Tox = epsilonNull * epsilonSiliconOxide * AreaFile3nm / Cap
 
 
         # Find Nox
@@ -278,12 +278,12 @@ class IV_PQC:
         SiliconDoping = 5e12
         boltzmannConstant = 1.38064e-23
         Temperature = 20  #select temperature
-        Areacm= 0.173056
-        #AreaFile3cm = .25*.25 #area of a specif file, not to be used by you
+        #Areacm= 0.173056
+        AreaFile3cm = .25*.25 #area of a specif file, not to be used by you
         phi_s= electronAffinity + bandGapEnergy/2 + (boltzmannConstant*Temperature*np.log(SiliconDoping/intrinsicDopingConcentration))/q
         phi_ms2=4.08-phi_s
 
-        Nox = (Cap*(phi_ms2 + flatband_voltage[0][0])*(1e-9))/(q*Areacm) #use (phi_ms-flatband_voltage[:, 0]) if n-type
+        Nox = (Cap*(phi_ms2 + flatband_voltage[0][0])*(1e-9))/(q*AreaFile3cm) #use (phi_ms-flatband_voltage[:, 0]) if n-type
 
         # Add text
         text = hv.Text(-.5, 0.35, 'Flat band voltage: {} V \n'
