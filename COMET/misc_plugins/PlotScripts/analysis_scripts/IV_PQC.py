@@ -94,10 +94,10 @@ class IV_PQC:
 
             if "capacitance2" in self.data[df]["data"]:
 
-                der1 = np.diff(self.data[df]["data"]["capacitance2"],n=1)
+                der1 = 5*np.diff(self.data[df]["data"]["capacitance2"],n=1)
                 firstdev = np.insert(der1,0,der1[0]) # Add an element to the array to have the same number of rows as in df
 
-                der2= np.diff(self.data[df]["data"]["capacitance2"],n=2)
+                der2= 15*np.diff(self.data[df]["data"]["capacitance2"],n=2)
                 seconddev1=  np.insert(der2,0,der2[0]) # Add two elements to the array to have the same number of rows as in df
                 seconddev= np.insert(seconddev1,0,seconddev1[0])
 
@@ -272,18 +272,18 @@ class IV_PQC:
         # Find Nox
         q= 1.60217e-19
         #phi_ms = -0.68  #-0.68 is the usual value
-        electronAffinity= 4.05
-        bandGapEnergy=1.12
+        electronAffinity = 4.05
+        bandGapEnergy = 1.12
         intrinsicDopingConcentration=1.45e10
-        SiliconDoping=5e12
-        boltzmannConstant=1.38064e-23
-        Temperature= 20  #select temperature
+        SiliconDoping = 5e12
+        boltzmannConstant = 1.38064e-23
+        Temperature = 20  #select temperature
         Areacm= 0.173056
-        #AreaFile3cm= .25*.25 #area of a specif file, not to be used by you
-        phi_s= electronAffinity+ bandGapEnergy/2 +(boltzmannConstant*Temperature*np.log(SiliconDoping/intrinsicDopingConcentration))/q
+        #AreaFile3cm = .25*.25 #area of a specif file, not to be used by you
+        phi_s= electronAffinity + bandGapEnergy/2 + (boltzmannConstant*Temperature*np.log(SiliconDoping/intrinsicDopingConcentration))/q
         phi_ms2=4.08-phi_s
 
-        Nox = (Cap*(phi_ms2 - flatband_voltage[0][0])*(1e-9))/(q*Areacm) #use (phi_ms+flatband_voltage[:, 0]) if p-type
+        Nox = (Cap*(phi_ms2 + flatband_voltage[0][0])*(1e-9))/(q*Areacm) #use (phi_ms-flatband_voltage[:, 0]) if n-type
 
         # Add text
         text = hv.Text(-.5, 0.35, 'Flat band voltage: {} V \n'
