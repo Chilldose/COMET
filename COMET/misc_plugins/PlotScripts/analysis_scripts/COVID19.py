@@ -125,15 +125,15 @@ class COVID19:
                                                label=countryName, ylabel="New Cases",
                                                **self.config['COVID19']['General'], **self.config['COVID19']['GvC']["PlotOptions"])
 
-                # Death vs growth
-                if not self.DeathvsCases:
-                    self.DeathvsCases = plainPlot("Curve", self.data["Accumulated"]["data"]["confirmed"],
+            # Death vs growth
+            if not self.DeathvsCases:
+                self.DeathvsCases = plainPlot("Curve", self.data["Accumulated"]["data"]["confirmed"],
                                                    self.data["Accumulated"]["data"]["deaths"],
                                                    label=countryName, ylabel="Total Deaths",
                                                    **self.config['COVID19']['General'],
                                                    **self.config['COVID19']['GvC']["PlotOptions"])
-                else:
-                    self.DeathvsCases *= plainPlot("Curve", self.data["Accumulated"]["data"]["confirmed"],
+            else:
+                self.DeathvsCases *= plainPlot("Curve", self.data["Accumulated"]["data"]["confirmed"],
                                                     self.data["Accumulated"]["data"]["deaths"],
                                                     label=countryName, ylabel="Total Deaths",
                                                     **self.config['COVID19']['General'],
@@ -173,7 +173,7 @@ class COVID19:
     def accumulated_all_countries_normalizes(self, countryName, inhabitants):
 
         # Normalize to mio inhabitants
-        factor = inhabitants/1e6
+        factor = float(inhabitants)/1e6
 
         # Change data
         for data in ["confirmed", "deaths", "recovered"]:

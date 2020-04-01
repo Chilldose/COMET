@@ -563,13 +563,12 @@ class DataVisualization_window:
                             self.variables.framework_variables["Message_to_main"],))
                         self.not_saving = True
                     else:
-                        if self.plotting_thread.is_Alive():
+                        if self.plotting_threadself.plotting_thread.is_Alive():
                             self.not_saving = False
                         else:
                             self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
                             self.variables.framework_variables["Message_to_main"],))
                             self.not_saving = True
-                    #self.plotting_Object.save_to(progress_queue=self.variables.framework_variables["Queue_to_GUI"]) # Starts the routine
                     if self.not_saving:
                         self.plotting_thread.start()
                     else:

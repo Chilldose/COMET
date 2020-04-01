@@ -27,9 +27,14 @@
           - Spain: 46660000
           - Austria: 8793370
           - Germany: 80457737
-          - US: 329256465
           - China: 1384688986
-          - Iran: 1
+          - Iran: 83992949
+          - France: 65273511
+          - US: 329256465
+          #- Belgium: 11589623
+          #- "Korea, South": 51269185
+          #- Mexico: 128932753
+          
           
       GrowingRateMulti: 1000
           
@@ -95,6 +100,7 @@
               xlabel: Total cases
               logx: True
               logy: True
+              line_width: 4
               padding: !!python/tuple [5,1]
               #xlim: !!python/tuple [10,None]
               #ylim: !!python/tuple [1,None]
