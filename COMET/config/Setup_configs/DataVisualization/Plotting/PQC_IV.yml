@@ -3,10 +3,10 @@
 
 # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files
-    header_lines: 3
-    measurement_description: 3
-    units_line: 3
-    data_start: 4
+    header_lines: 5
+    measurement_description: 5
+    units_line: 5
+    data_start: 6
     data_separator: ","
 
   Analysis:
@@ -25,7 +25,6 @@
       SiliconDoping: 5.0e+12 #cm^-3
       boltzmannConstant: 1.38064e-23
       Temperature: 293.15 #kelvin
-      Area_um: 17305600   #Input the area in micrometer
 
 # Options for the different Analyses scripts
   # These options are entirely up to you and what you need in your analysis

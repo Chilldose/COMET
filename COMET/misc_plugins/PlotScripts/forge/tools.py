@@ -516,7 +516,6 @@ def read_in_ASCII_measurement_files(filepathes, settings):
             data.update({"analysed": False, "plots": False})
             all_data[filename] = data
             load_order.append(filename)
-
         return all_data, load_order
 
     except Exception as e:
@@ -599,7 +598,7 @@ def parse_file_data(filecontent, settings):
             # Adapt the measurements name as well
             parsed_obj[0][i] = new_name
 
-    return_dict = {"data": data_dict, "header": header, "measurements": parsed_obj[0][:len(parsed_data[0])], "units": parsed_obj[1][:len(parsed_data[0])]}
+    return_dict = {"data": data_dict,  "header": header, "measurements": parsed_obj[0][:len(parsed_data[0])], "units": parsed_obj[1][:len(parsed_data[0])]}
     return return_dict
 
 

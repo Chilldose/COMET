@@ -258,7 +258,7 @@ class IV_PQC:
 
         # Find oxide thickness Tox
         Accum_capacitance = np.max(df["yaxis"])
-        Tox = self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] * self.config['IV_PQC_parameter']['Area_um']*1e+6/ Accum_capacitance
+        Tox = self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] * float(self.data[self.data['keys'][0]]['header'][1]) *1e+6/ Accum_capacitance
 
 
         # Find Fixed oxide charge Nox
@@ -267,7 +267,7 @@ class IV_PQC:
                    *np.log(self.config['IV_PQC_parameter']['SiliconDoping']/self.config['IV_PQC_parameter']['intrinsicDopingConcentration']))/self.config['IV_PQC_parameter']['q']
         phi_ms = self.config['IV_PQC_parameter']['phi_m']-phi_s
 
-        Nox = (Accum_capacitance*(phi_ms + flatband_voltage[0][0])*(1e-9))/(self.config['IV_PQC_parameter']['q']*self.config['IV_PQC_parameter']['Area_um']*1e-8)
+        Nox = (Accum_capacitance*(phi_ms + flatband_voltage[0][0])*(1e-9))/(self.config        ['IV_PQC_parameter']['q'] * float(self.data[self.data['keys'][0]]['header'][1]) * 1e-8)
 
         # Add text
         text = hv.Text(-.5, 0.35, 'Flat band voltage: {} V \n'
