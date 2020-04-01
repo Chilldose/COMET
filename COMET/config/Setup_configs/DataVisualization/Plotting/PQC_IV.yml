@@ -13,9 +13,21 @@
     - IV_PQC # The type of analysis, which will be performed
 
 
-# Optional Parameters
+# Optional Parameters, is up to you to change the Silicon doping, the Temperature and the Area and so on..
+  IV_PQC_parameter:
+      phi_m: 4.08 #aluminum work function
+      epsilonNull: 8.85418e-12
+      epsilonSiliconOxide: 3.9
+      q: 1.60217e-19 #elementary charge
+      electronAffinity: 4.05 #eV
+      bandGapEnergy: 1.12 #eV
+      intrinsicDopingConcentration: 1.45e+10 #cm^-3
+      SiliconDoping: 5.0e+12 #cm^-3
+      boltzmannConstant: 1.38064e-23
+      Temperature: 293.15 #kelvin
+      Area_um: 17305600   #Input the area in micrometer
 
-  # Options for the different Analyses scripts
+# Options for the different Analyses scripts
   # These options are entirely up to you and what you need in your analysis
   IV_PQC:
       General: # Options common to all plots
@@ -136,7 +148,7 @@
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               yaxisENG: True # If you want to plot the y axis in engineering representation
 
-
+      #Copy of capacitance without the small kink that sometimes appear before the rising slope
       capacitance2:
 
           PlotLabel: CV CURVES2
