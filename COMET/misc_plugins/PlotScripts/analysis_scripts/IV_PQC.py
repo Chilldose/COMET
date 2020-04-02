@@ -6,6 +6,7 @@ import holoviews as hv
 from holoviews import opts
 from scipy.stats import linregress
 from copy import deepcopy
+
 import pandas as pd
 import numpy as np
 hv.extension('bokeh', 'matplotlib')
@@ -28,13 +29,30 @@ class IV_PQC:
         self.basePlots = None
         self.name = "IV_PQC"
         self.PlotDict = {"Name": "IV"}
+        self.capincluded = False
+
+        # add a copy of capacitance and first and second derivatives to the data
+
+        if "capacitance" in self.data[self.data["keys"][0]]["data"]:
+            self.data["columns"].insert(3, "capacitance2")
+            self.data["columns"].insert(4, "derivative")
+            self.data["columns"].insert(5, "derivative2")
+            self.capincluded = True
+        elif "Capacity" in self.data[self.data["keys"][0]]["data"]:
+            self.data["columns"].insert(3, "capacitance2")
+            self.data["columns"].insert(4, "derivative")
+            self.data["columns"].insert(5, "derivative2")
+            self.capincluded = True
+
+
+
+
         self.measurements = self.data["columns"]
-        self.xaxis = "voltage"
-        self.donts = ["timestamp", "voltage"]
+        self.xaxis = self.measurements[0]
+        self.donts = ["timestamp", "voltage","current","Current","Voltage","Stepsize","Wait","Stepsize","Frequency"]
         hv.renderer('bokeh')
 
-        c2 = 1 / (self.data['ChuckLeakage-Default_HME_S-PQC_Flute_1-Diode_IV']['data']["current"] *
-             self.data['ChuckLeakage-Default_HME_S-PQC_Flute_1-Diode_IV']['data']["current"])
+
 
         # Convert the units to the desired ones
         for meas in self.measurements:
@@ -46,38 +64,242 @@ class IV_PQC:
 
     def run(self):
         """Runs the script"""
+
+        # Add a copy of the capacitance values to the data frame, where the small kink in the plot is deleted
+        for df in self.data["keys"]:
+
+
+            if "capacitance" in self.data[df]["data"]:
+                if 'Voltage' in self.data[df]['data']: # check that the voltage values have increasing order
+                    if self.data[df]["data"]["Voltage"][0] > 0:
+                        self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))
+                        self.data[df]["data"]["capacitance"] = list(reversed(self.data[df]["data"]["capacitance"]))
+                self.data[df]["data"]["capacitance"]=self.data[df]["data"]["capacitance"] / float((self.data[self.data['keys'][0]]['header'][0])[9:]) # Normalize by the Area
+                capacitance2 = self.data[df]["data"]["capacitance"].copy()
+                capMin= np.max(self.data[df]["data"]["capacitance"][:20])  # find the Maximum among te first 20 values of the capacitance and set it as minimum capacitance value
+                for x in range(len(self.data[df]["data"]["capacitance"])):
+                    if capacitance2[x] < capMin :
+                        capacitance2[x] = capMin
+                #insert into the data frame
+                self.data[df]["data"].insert(3, "capacitance2", capacitance2)
+                self.data[df]["units"].append("arb. units")
+                self.data[df]["measurements"].append("capacitance2")
+
+            elif "Capacity" in self.data[df]["data"]:
+                if 'Voltage' in self.data[df]['data']: # check that the voltage values have increasing order
+                    if self.data[df]["data"]["Voltage"][0] > 0:
+                        self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))
+                        self.data[df]["data"]["Capacity"] = list(reversed(self.data[df]["data"]["Capacity"]))
+                self.data[df]["data"]["Capacity"] = self.data[df]["data"]["Capacity"] / float((self.data[self.data['keys'][0]]['header'][0])[9:]) # Normalize by the Area
+                capacitance2 = self.data[df]["data"]["Capacity"].copy()
+                capMin= np.max(self.data[df]["data"]["Capacity"][:20]) # find the Maximum among te first 20 values of the capacitance and set it as minimum capacitance value
+                for x in range(len(self.data[df]["data"]["Capacity"])):
+                    if capacitance2[x] < capMin :
+                        capacitance2[x] = capMin
+                # insert into the data frame
+                self.data[df]["data"].insert(3, "capacitance2", capacitance2)
+                self.data[df]["units"].append("arb. units")
+                self.data[df]["measurements"].append("capacitance2")
+
+
+
+        # Add the first and second derivative data to the dataframes
+        for df in self.data["keys"]:
+
+            if "capacitance2" in self.data[df]["data"]:
+
+                dy1 = np.diff(self.data[df]["data"]["capacitance2"]) #compute the difference between each consecutive capacitance value and store it into an array with length i-1
+                dx1 = np.diff(self.data[df]["data"][self.xaxis]) #compute the difference between each consecutive voltage value and store it into an array with length i-1
+                der1 = dy1/dx1
+
+                firstdev = np.insert(der1,0,der1[0]) # Add an element to the array to have the same number of rows as in df
+
+                dy2= np.diff(self.data[df]["data"]["capacitance2"],n=2) #n=2 applies diff() two times to compute the second derivative, dy2 is of lenght i-2
+                dy2_2=np.insert(dy2,0,dy2[0]) #add one element to dy2 to have the same length of dx1
+                der2=dy2_2/dx1
+                seconddev=  np.insert(der2,0,der2[0]) # Add one element to the array to have the same number of rows as in df
+
+                #insert first derivative into dataframe
+                self.data[df]["data"].insert(4, "derivative", firstdev)
+                self.data[df]["units"].append("arb. units")
+                self.data[df]["measurements"].append("derivative")
+
+                #insert second derivative into dataframe
+                self.data[df]["data"].insert(5, "derivative2", seconddev)
+                self.data[df]["units"].append("arb. units")
+                self.data[df]["measurements"].append("derivative2")
+
+
+                ## Find the index of the row which contains the maximum value of the second derivative
+                indexMax = self.data[df]['data'].index.get_loc(
+                    self.data[df]['data']['derivative2'].values.argmax())
+
+                ## Find the index of the row which contains the minimum value of the second derivative
+                indexMin = self.data[df]['data'].index.get_loc(
+                    self.data[df]['data']['derivative2'].values.argmin())
+
+
         # Plot all Measurements
         self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name, do_not_plot = self.donts)
         self.PlotDict["BasePlots"] = self.basePlots
         self.PlotDict["All"] = self.basePlots
 
-        # Histogram Plot
-        self.Histogram = dospecialPlots(self.data, self.config, self.name, "concatHistogram", self.measurements,
-                                        **self.config[self.name].get("AuxOptions", {}).get("concatHistogram", {}))
-        if self.Histogram:
-            self.PlotDict["Histogram"] = self.Histogram
-            self.PlotDict["All"] = self.PlotDict["All"] + self.Histogram
+        # Add flat bandage voltage point to the capacitance curve
+        if self.config["IV_PQC"].get("capacitance2", {}).get("findFlatBandVoltage", False):
+            try:
+                if self.basePlots.Overlay.CV_CURVES.children:
+                    c2plot = self.basePlots.Overlay.CV_CURVES.opts(clone=True)
+                else:
+                    c2plot = self.basePlots.Curve.CV_CURVES.opts(clone=True)
 
-        # Whiskers Plot
-        self.WhiskerPlots = dospecialPlots(self.data, self.config, self.name, "BoxWhisker", self.measurements)
-        if self.WhiskerPlots:
-            self.PlotDict["Whiskers"] = self.WhiskerPlots
-            self.PlotDict["All"] = self.PlotDict["All"] + self.WhiskerPlots
+                fBestimation = self.find_flatBand_voltage(c2plot, self.data, self.config, indexMax, indexMin,
+                                                        PlotLabel="Flat band voltage estimation")
 
-        # Violin Plot
-        self.Violin = dospecialPlots(self.data, self.config,self.name, "Violin", self.measurements)
-        if self.Violin:
-            self.PlotDict["Violin"] = self.Violin
-            self.PlotDict["All"] += self.Violin
+                self.PlotDict["All"] += fBestimation
+                self.PlotDict["BasePlots"] += fBestimation
 
-        # singleHist Plot
-        self.singleHist = dospecialPlots(self.data, self.config, self.name, "Histogram", self.measurements,
-                                         **self.config[self.name].get("AuxOptions", {}).get("singleHistogram", {}))
-        if self.singleHist:
-            self.PlotDict["singleHistogram"] = self.singleHist
-            self.PlotDict["All"] = self.PlotDict["All"] + self.singleHist
+            except Exception as err:
+                self.log.warning("No flat band voltage calculation possible... Error: {}".format(err))
+
 
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
 
         return self.PlotDict
+
+    def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, **addConfigs):
+        """
+        Finds the full depletion voltage of all data samples and adds a vertical line for the full depletion in the
+        plot. Vertical line is the mean of all measurements. Furthermore, adds a text with the statistics.
+        :param plot: The plot object
+        :param data: The data files
+        :param configs: the configs
+        :param **addConfigs: the configs special for the 1/C2 plot, it is recomended to pass the same options here again, like in the original plot!
+        :return: The updated plot
+        """
+        flatband_voltage = np.zeros((len(data["keys"]), 2))
+        Right_stats = np.zeros((len(data["keys"]), 6), dtype=np.object)
+        fit_stats = np.zeros((len(data["keys"]), 6), dtype=np.object)
+        self.log.info("Searching for flat band voltage voltage in all files...")
+
+        for i, samplekey in enumerate(data["keys"]):
+            if "capacitance2" not in data[samplekey]["data"]:
+                self.log.warning("Flat band voltage calculation could not be done for data set: {}".format(samplekey))
+
+            else:
+                self.log.debug("Data: {}".format(samplekey))
+                sample = deepcopy(data[samplekey])
+                try:
+                    df = pd.DataFrame({"xaxis": sample["data"]["voltage"], "yaxis": sample["data"]["capacitance2"]})
+                except:
+                    df = pd.DataFrame({"xaxis": sample["data"]["Voltage"], "yaxis": sample["data"]["capacitance2"]})
+                df = df.dropna()
+
+
+                # Loop one time from the right side, to get the slope of the accumulation region, and then loop on the fit region to get the fit slope
+                RR2 = 0
+                fitR2 = 0
+
+                for idx in range(5, len(df)-5):
+                    # Right
+                    slope_right, intercept_right, r_right, p_value, std_err_right = linregress(df["xaxis"][idx:],df["yaxis"][idx:])
+                    r2_right = r_right * r_right
+                    self.log.debug("Right side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+                        slope_right, intercept_right, r2_right, std_err_right)
+                    )
+
+                    # See if the r2 value has increased and store it
+                    if r2_right >= RR2:
+                        RR2 = r2_right
+                        RightEndPoints = (
+                            (df["xaxis"][idx], slope_right * df["xaxis"][idx] + intercept_right),
+                            (df["xaxis"][len(df["xaxis"]) - 1], slope_right * df["xaxis"][len(df["xaxis"]) - 1] + intercept_right),
+                        )
+                        Right_stats[i] = (RightEndPoints, slope_right, intercept_right, r_right, p_value, std_err_right)
+
+
+
+        ## Fit central region
+
+                for idx in range(indexMax, indexMin-2):
+
+                    #Central fit
+                    slope_fit, intercept_fit, r_fit, p_valuefit, std_err_fit = linregress(df["xaxis"][idx:indexMin-2],
+                                                                                          df["yaxis"][idx:indexMin-2])
+                    r2_fit = r_fit * r_fit
+                    self.log.debug("central fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+                        slope_fit, intercept_fit, r2_fit, std_err_fit)
+                    )
+
+                    # See if the r2 value has increased and store it
+                    if r2_fit >= fitR2:
+                        fitR2 = r2_fit
+                        fitEndPoints = (
+                            (df["xaxis"][indexMax], slope_fit * df["xaxis"][indexMax] + intercept_fit),
+                            (df["xaxis"][idx+1], slope_fit * df["xaxis"][idx+1] + intercept_fit) # use idx +1 to avoid having the same end points
+                        )
+                        fit_stats[i] = (fitEndPoints, slope_fit, intercept_fit, r_fit, p_valuefit, std_err_fit)
+
+        ## Add central slope
+        xmax = df["xaxis"][indexMin]
+
+        fit_line = np.array([[df["xaxis"][indexMax-3], np.median(fit_stats[:, 1]) *df["xaxis"][indexMax-3]  + np.median(fit_stats[:, 2])],
+                               [xmax+0.2, np.median(fit_stats[:, 1]) * (xmax+0.2) + np.median(fit_stats[:, 2])]])
+
+        ## Add right slope
+        xmax = df["xaxis"][len(df["yaxis"]) - 1]
+        right_line = np.array([[df["xaxis"][indexMax-3],np.median(Right_stats[:, 1]) *df["xaxis"][indexMax-3]  + np.median(Right_stats[:, 2]) ],
+                               [xmax, np.median(Right_stats[:, 1]) * xmax + np.median(Right_stats[:, 2])]])
+
+        #Plots of the fits
+        right_line = hv.Curve(right_line).opts(color='blue')
+        fit_line = hv.Curve(fit_line).opts(color='red')
+
+        #compute the flatband voltage
+        flatband_voltage[i]=line_intersection(fitEndPoints, RightEndPoints)
+
+
+        #  Find nonzero indices and add vertical line for full depletion
+
+        valid_indz = np.nonzero(flatband_voltage[:, 0])
+
+        vline = hv.VLine(np.median(flatband_voltage[valid_indz], axis=0)[0]).opts(color='black', line_width=2.0)
+
+        #plots of the derivatives
+        firstDerivativePlot= self.basePlots.Curve.firstderivative
+        secondDerivativePlot = self.basePlots.Curve.secondderivative
+
+
+        # Find oxide thickness Tox
+        Accum_capacitance_normalized = np.max(df["yaxis"])
+        Tox = self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] *1e+6/ Accum_capacitance_normalized
+
+
+        # Find Fixed oxide charge Nox
+        phi_s = self.config['IV_PQC_parameter']['electronAffinity'] + self.config['IV_PQC_parameter']['bandGapEnergy']/2\
+                + (self.config['IV_PQC_parameter']['boltzmannConstant']*self.config['IV_PQC_parameter']['Temperature']
+                   *np.log(self.config['IV_PQC_parameter']['SiliconDoping']/self.config['IV_PQC_parameter']['intrinsicDopingConcentration']))/self.config['IV_PQC_parameter']['q']
+        phi_ms = self.config['IV_PQC_parameter']['phi_m']-phi_s
+
+        Nox = (Accum_capacitance_normalized*(phi_ms + flatband_voltage[0][0])*(1e-9))/(self.config        ['IV_PQC_parameter']['q'] * 1e-8)
+
+        # Add text
+        text = hv.Text(-.5, 0.00000000035, 'Flat band voltage: {} V \n'
+
+                        'C accumulation/A: {} nF  \n'
+        
+                       'Tox: {} nm \n'
+                       'Nox: {} cm^-2'.format(np.round(np.median(flatband_voltage[:, 0]), 2),
+                                           np.round(Accum_capacitance_normalized, 10),
+                                           np.round(Tox, 2),
+                                           np.format_float_scientific(Nox, 2))
+
+                       ).opts(style=dict(text_font_size='20pt'))
+
+
+        # Update the plot specific options if need be
+        returnPlot = plot * vline * text * secondDerivativePlot * firstDerivativePlot * fit_line * right_line
+        #returnPlot = relabelPlot(returnPlot, "CV CURVES - Full depletion calculation")
+        #returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
+
+        return returnPlot

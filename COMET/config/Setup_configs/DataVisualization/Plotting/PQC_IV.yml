@@ -1,88 +1,634 @@
---- 
+---
+
   Filetype: ASCII # Other options are json, ACII
 
+
+
 # Optional Parameters
+
   ASCII_file_specs: # The specifications for the ascii file type measurements files
-    header_lines: 10
-    measurement_description: 10
-    units_line: 10
-    data_start: 11
+
+    header_lines: 4
+
+    measurement_description: 4
+
+    units_line: 4
+
+    data_start: 5
+
     data_separator: ","
 
+
+
   Analysis:
+
     - IV_PQC # The type of analysis, which will be performed
 
 
-# Optional Parameters
 
-  # Options for the different Analyses scripts
+
+
+# Optional Parameters, is up to you to change the Silicon doping, the Temperature and the Area and so on..
+
+  IV_PQC_parameter:
+
+      phi_m: 4.08 #aluminum work function
+
+      epsilonNull: 8.85418e-12
+
+      epsilonSiliconOxide: 3.9
+
+      q: 1.60217e-19 #elementary charge
+
+      electronAffinity: 4.05 #eV
+
+      bandGapEnergy: 1.12 #eV
+
+      intrinsicDopingConcentration: 1.45e+10 #cm^-3
+
+      SiliconDoping: 5.0e+12 #cm^-3
+
+      boltzmannConstant: 1.38064e-23
+
+      Temperature: 293.15 #kelvin
+
+
+
+# Options for the different Analyses scripts
+
   # These options are entirely up to you and what you need in your analysis
+
   IV_PQC:
+
       General: # Options common to all plots
+
           fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+
           responsive: False
+
           width: 1200
+
           height: 800
+
           shared_axes: False
+
       Layout:
+
           cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
 
-      DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measurements has this special plot stated
-          - concatHistogram
-          - Violin
-          - BoxWhisker
-          - Histogram
-          
-      AuxOptions: # Analysis options, not plot options
-        concatHistogram:
-            bins: 50
-            iqr: 0.1 #Outlier rejection by iqr
-        singleHistogram:
-            bins: 20
-          
-      HistogramOptions:
-          shared_axes: False
-          #alpha: 0.6
 
-      BoxWhiskerOptions:
-          shared_axes: False
-          box_alpha: 0.3
-          width: 1200
-          height: 1200
 
-      ViolinOptions:
-          shared_axes: False
-          box_alpha: 0.3
-          width: 1200
-          height: 1200
 
-      current:
-          PlotLabel: IV CURVES
-          UnitConversion: nano # Converts the units to nano
-          PlotStyles: # Here you can state some plot types you want to have, possible Options are Curve, Spike, Histogram, if non is stated, curve is selected
-              - Curve
-          AdditionalPlots: # If a special plot is stated here it will be plotted. If the plot is specified in the DoSpecialPlots variable!!!
-            - Violin
-            - concatHistogram
-            - BoxWhisker
+
+
+
+
+
+      Capacity:
+
+
+
+          PlotLabel: CV CURVES
+
+
+
+          UnitConversion: nano
+
+
+
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+
+
+
               logy: False
+
+
+
               logx: False
-              invert_xaxis: True
-              invert_yaxis: True
+
+
+
+              invert_xaxis: False
+
+
+
+              invert_yaxis: False
+
+
+
+              #ylim: !!python/tuple [0, 10e-6]
+
+
+
+              #xlim: !!python/tuple [0, 1000]
+
+
+
+              #legend_position: "bottom_right"
+
+
+
+              #aspect: equal
+
+
+
               padding: !!python/tuple [0, 0.1]
+
+
+
               show_grid: True
+
+
+
               gridstyle:
+
+
+
                   grid_line_color: black
+
+
+
                   grid_line_width: 1.5
+
+
+
                   minor_xgrid_line_color: lightgray
+
+
+
                   minor_ygrid_line_color: lightgray
+
+
+
                   xgrid_line_dash: [4, 4]
+
+
+
                   ygrid_line_dash: [10, 4]
-              #xlabel: voltage [V]
-              #ylabel: current [nA] # This overrides the automatic generated ylabel
-              shared_axes: False # If the axes should be shared with other plots, usually it is False
+
+
+
+              xlabel: voltage [V]
+
+
+
+              ylabel: capacitance [nF]
+
+
+
+              shared_axes: False
+
               xformatter: "%.0f"
+
               yformatter: "%.2f"
+
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+
               yaxisENG: True # If you want to plot the y axis in engineering representation
+
+
+
+
+
+
+
+      capacitance:
+
+
+
+          PlotLabel: CV CURVES
+
+
+
+          UnitConversion: nano
+
+
+
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+
+
+
+              logy: False
+
+
+
+              logx: False
+
+
+
+              invert_xaxis: False
+
+
+
+              invert_yaxis: False
+
+
+
+              #ylim: !!python/tuple [0, 10e-6]
+
+
+
+              #xlim: !!python/tuple [0, 1000]
+
+
+
+              #legend_position: "bottom_right"
+
+
+
+              #aspect: equal
+
+
+
+              padding: !!python/tuple [0, 0.1]
+
+
+
+              show_grid: True
+
+
+
+              gridstyle:
+
+
+
+                  grid_line_color: black
+
+
+
+                  grid_line_width: 1.5
+
+
+
+                  minor_xgrid_line_color: lightgray
+
+
+
+                  minor_ygrid_line_color: lightgray
+
+
+
+                  xgrid_line_dash: [4, 4]
+
+
+
+                  ygrid_line_dash: [10, 4]
+
+
+
+              xlabel: voltage [V]
+
+
+
+              ylabel: capacitance [nF]
+
+
+
+              shared_axes: False
+
+              xformatter: "%.0f"
+
+              yformatter: "%.2f"
+
+          ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+
+              yaxisENG: True # If you want to plot the y axis in engineering representation
+
+
+
+      #Copy of capacitance without the small kink that sometimes appear before the rising slope
+
+      capacitance2:
+
+
+
+          PlotLabel: CV CURVES2
+
+
+
+          findFlatBandVoltage: True
+
+
+
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+
+
+
+              logy: False
+
+
+
+              logx: False
+
+
+
+              invert_xaxis: False
+
+
+
+              invert_yaxis: False
+
+
+
+              #ylim: !!python/tuple [0, 10e-6]
+
+
+
+              #xlim: !!python/tuple [0, 1000]
+
+
+
+              #legend_position: "bottom_right"
+
+
+
+              #aspect: equal
+
+
+
+              padding: !!python/tuple [0, 0.1]
+
+
+
+              show_grid: True
+
+
+
+              gridstyle:
+
+
+
+                  grid_line_color: black
+
+
+
+                  grid_line_width: 1.5
+
+
+
+                  minor_xgrid_line_color: lightgray
+
+
+
+                  minor_ygrid_line_color: lightgray
+
+
+
+                  xgrid_line_dash: [4, 4]
+
+
+
+                  ygrid_line_dash: [10, 4]
+
+
+
+              xlabel: voltage [V]
+
+
+
+              ylabel: capacitance [nF]
+
+
+
+              shared_axes: False
+
+              xformatter: "%.0f"
+
+              yformatter: "%.2f"
+
+          ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+
+              yaxisENG: True # If you want to plot the y axis in engineering representation
+
+
+
+
+
+
+
+      derivative:
+
+
+
+          PlotLabel: firstderivative
+
+
+
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+
+
+
+            logy: False
+
+
+
+            logx: False
+
+
+
+            invert_xaxis: False
+
+
+
+            invert_yaxis: False
+
+
+
+            #ylim: !!python/tuple [0, 10e-6]
+
+
+
+            #xlim: !!python/tuple [0, 1000]
+
+
+
+            #legend_position: "bottom_right"
+
+
+
+            #aspect: equal
+
+
+
+            padding: !!python/tuple [0, 0.1]
+
+
+
+            show_grid: True
+
+
+
+            gridstyle:
+
+
+
+              grid_line_color: black
+
+
+
+              grid_line_width: 1.5
+
+
+
+              minor_xgrid_line_color: lightgray
+
+
+
+              minor_ygrid_line_color: lightgray
+
+
+
+              xgrid_line_dash: [4, 4]
+
+
+
+              ygrid_line_dash: [10, 4]
+
+
+
+              xformatter: "%.0f"
+
+
+
+            xlabel: voltage [V]
+
+
+
+            ylabel: capacitance [nF]
+
+
+
+            shared_axes: False
+
+
+
+            #ylim: !!python/tuple [0, 0.08]
+
+
+
+            #xlim: !!python/tuple [0, 500]
+
+
+
+            xformatter: "%.0f"
+
+            yformatter: "%.2f"
+
+          ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+
+            yaxisENG: True # If you want to plot the y axis in engineering representation
+
+
+
+      derivative2:
+
+
+
+          PlotLabel: secondderivative
+
+
+
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+
+
+
+            logy: False
+
+
+
+            logx: False
+
+
+
+            invert_xaxis: False
+
+
+
+            invert_yaxis: False
+
+
+
+            #ylim: !!python/tuple [0, 10e-6]
+
+
+
+            #xlim: !!python/tuple [0, 1000]
+
+
+
+            #legend_position: "bottom_right"
+
+
+
+            #aspect: equal
+
+
+
+            padding: !!python/tuple [0, 0.1]
+
+
+
+            show_grid: True
+
+
+
+            gridstyle:
+
+
+
+              grid_line_color: black
+
+
+
+              grid_line_width: 1.5
+
+
+
+              minor_xgrid_line_color: lightgray
+
+
+
+              minor_ygrid_line_color: lightgray
+
+
+
+              xgrid_line_dash: [4, 4]
+
+
+
+              ygrid_line_dash: [10, 4]
+
+
+
+              xformatter: "%.0f"
+
+
+
+            xlabel: voltage [V]
+
+
+
+            ylabel: capacitance [nF]
+
+
+
+            shared_axes: False
+
+
+
+            #ylim: !!python/tuple [0, 0.08]
+
+
+
+            #xlim: !!python/tuple [0, 500]
+
+
+
+            xformatter: "%.0f"
+
+            yformatter: "%.2f"
+
+          ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+
+            yaxisENG: True # If you want to plot the y axis in engineering representation
+
