@@ -3,11 +3,12 @@
 
 # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files
-    header_lines: 10
-    measurement_description: 10
-    units_line: 10
-    data_start: 11
+    header_lines: 4
+    measurement_description: 5
+    units_line: 5
+    data_start: 6
     data_separator: ","
+    units_regex: "(#|\\w+)\\s?\\W?\\w*\\W?"
 
   Analysis:
     - IV_PQC # The type of analysis, which will be performed

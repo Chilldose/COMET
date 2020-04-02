@@ -101,15 +101,17 @@ class DataVisualization_window:
         """Opens file select for template selection"""
         fileDialog = QFileDialog()
         files = fileDialog.getOpenFileNames()
+        basename = None
         if files:
             for file in files[0]:
                 try:
                     json_dump = load_yaml(file)
                     basename = os.path.basename(file).split(".")[0]
                     self.variables.framework_variables['Configs']['additional_files']['Plotting'][basename] = {"data": json_dump}
+
                 except Exception as err:
                     self.log.error("Could not load file {}, exception raised: {}".format(file, err))
-        self.config_selectable_templates()
+        self.config_selectable_templates(select=basename)
 
 
     def select_files_action(self):
@@ -281,6 +283,38 @@ class DataVisualization_window:
                                "Warning: Depending on the error, you may have compromised the plot object and a re-render "
                                "may be needed!".format(err))
 
+        else:
+            # If the plot was altered and no options can be rebuild
+            self.log.error("The plot options for this plot can not be retraced! Maybe the plot was altered during building."
+                           " Applying options anyway, but no options history can be shown!")
+            try:
+                # Change the plot label from the line edit
+                if self.widget.plot_label_lineEdit.text():
+                    configs["PlotLabel"] = self.widget.plot_label_lineEdit.text()
+                    self.current_plot_object = relabelPlot(self.current_plot_object, configs["PlotLabel"])
+
+                # Find index of first colon
+                line = self.widget.options_lineEdit.text()
+                if line:
+                    ind = line.find(":")
+                    if ind == -1:
+                        ind = line.find("=")
+                    # Try  to evaluate
+                    try:
+                        value = ast.literal_eval(line[ind + 1:].strip())
+                    except:
+                        value = line[ind + 1:].strip()
+                    newItem = {line[:ind].strip(): value}
+                else:
+                    newItem = {}  # If no options are passed, generate an empty one
+                self.apply_options_to_plot(self.current_plot_object, **newItem)
+                self.replot_and_reload_html(self.current_plot_object)
+            except Exception as err:
+                self.log.error("An error happened with the newly passed option with error: {} Option will be removed! "
+                               "Warning: Depending on the error, you may have compromised the plot object and a re-render "
+                               "may be needed!".format(err))
+
+
     def apply_options_to_plot(self, plot, **opts):
         """Applies the opts to the plot"""
         plot.opts(**opts)
@@ -408,11 +442,16 @@ class DataVisualization_window:
         options = ["html/png/xml", "html/png/json/hdf5", "html", "html/png", "html/json", "html/png/json", "png", "html/hdf5", "hdf5/json", "svg", "xml"]
         self.widget.save_as_comboBox.addItems(options)
 
-    def config_selectable_templates(self):
+    def config_selectable_templates(self, select=None):
         """Configs the combo box for selectable analysis templates"""
         self.widget.templates_comboBox.clear()
         plotConfigs = self.variables.framework_variables["Configs"]["additional_files"].get("Plotting", {})
         self.widget.templates_comboBox.addItems(plotConfigs.keys())
+        if select:
+            index = self.widget.templates_comboBox.findText(select, QtCore.Qt.MatchFixedString)
+            if index >= 0:
+                self.widget.templates_comboBox.setCurrentIndex(index)
+
 
     def save_data(self, type, dirr, base_name="data"):
         """Saves the data in the specified type"""
@@ -524,13 +563,12 @@ class DataVisualization_window:
                             self.variables.framework_variables["Message_to_main"],))
                         self.not_saving = True
                     else:
-                        if self.plotting_thread.is_Alive():
+                        if self.plotting_threadself.plotting_thread.is_Alive():
                             self.not_saving = False
                         else:
                             self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
                             self.variables.framework_variables["Message_to_main"],))
                             self.not_saving = True
-                    #self.plotting_Object.save_to(progress_queue=self.variables.framework_variables["Queue_to_GUI"]) # Starts the routine
                     if self.not_saving:
                         self.plotting_thread.start()
                     else:
