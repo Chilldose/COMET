@@ -73,9 +73,9 @@ class IV_PQC:
                     if self.data[df]["data"]["Voltage"][0] > 0:
                         self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))
                         self.data[df]["data"]["capacitance"] = list(reversed(self.data[df]["data"]["capacitance"]))
-                self.data[df]["data"]["capacitance"]=self.data[df]["data"]["capacitance"] / (float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e+8)) # Normalize by the Area anc convert to cm^2
+                self.data[df]["data"]["capacitance"] = self.data[df]["data"]["capacitance"] / (float(self.data[df]['header'][0].split(':')[1])*(1e-8)) # Normalize by the Area anc convert to cm^2
                 capacitance2 = self.data[df]["data"]["capacitance"].copy()
-                capMin= np.max(self.data[df]["data"]["capacitance"][:20])  # find the Maximum among te first 20 values of the capacitance and set it as minimum capacitance value
+                capMin= np.max(self.data[df]["data"]["capacitance"][:20])  # find the Maximum among the first 20 values of the capacitance and set it as minimum capacitance value
                 for x in range(len(self.data[df]["data"]["capacitance"])):
                     if capacitance2[x] < capMin:
                         capacitance2[x] = capMin
@@ -89,7 +89,7 @@ class IV_PQC:
                     if self.data[df]["data"]["Voltage"][0] > 0:
                         self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))
                         self.data[df]["data"]["Capacity"] = list(reversed(self.data[df]["data"]["Capacity"]))
-                self.data[df]["data"]["Capacity"] = self.data[df]["data"]["Capacity"] / (float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e+8)) # Normalize by the Area and convert to cm^2
+                self.data[df]["data"]["Capacity"] = self.data[df]["data"]["Capacity"] / (float(self.data[df]['header'][0].split(':')[1])*(1e-8)) # Normalize by the Area and convert to cm^2
                 capacitance2 = self.data[df]["data"]["Capacity"].copy()
                 capMin= np.max(self.data[df]["data"]["Capacity"][:20]) # Find the Maximum among te first 20 values of the capacitance and set it as minimum capacitance value
                 for x in range(len(self.data[df]["data"]["Capacity"])):
