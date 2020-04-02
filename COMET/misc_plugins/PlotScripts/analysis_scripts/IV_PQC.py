@@ -68,7 +68,13 @@ class IV_PQC:
         # Add a copy of the capacitance values to the data frame, where the small kink in the plot is deleted
         for df in self.data["keys"]:
 
+
             if "capacitance" in self.data[df]["data"]:
+                if 'Voltage' in self.data[df]['data']: # check that the voltage values have increasing order
+                    if self.data[df]["data"]["Voltage"][0] > 0:
+                        self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))
+                        self.data[df]["data"]["capacitance"] = list(reversed(self.data[df]["data"]["capacitance"]))
+                self.data[df]["data"]["capacitance"]=self.data[df]["data"]["capacitance"] / float((self.data[self.data['keys'][0]]['header'][0])[9:]) # Normalize by the Area
                 capacitance2 = self.data[df]["data"]["capacitance"].copy()
                 capMin= np.max(self.data[df]["data"]["capacitance"][:20])  # find the Maximum among te first 20 values of the capacitance and set it as minimum capacitance value
                 for x in range(len(self.data[df]["data"]["capacitance"])):
@@ -78,7 +84,13 @@ class IV_PQC:
                 self.data[df]["data"].insert(3, "capacitance2", capacitance2)
                 self.data[df]["units"].append("arb. units")
                 self.data[df]["measurements"].append("capacitance2")
+
             elif "Capacity" in self.data[df]["data"]:
+                if 'Voltage' in self.data[df]['data']: # check that the voltage values have increasing order
+                    if self.data[df]["data"]["Voltage"][0] > 0:
+                        self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))
+                        self.data[df]["data"]["Capacity"] = list(reversed(self.data[df]["data"]["Capacity"]))
+                self.data[df]["data"]["Capacity"] = self.data[df]["data"]["Capacity"] / float((self.data[self.data['keys'][0]]['header'][0])[9:]) # Normalize by the Area
                 capacitance2 = self.data[df]["data"]["Capacity"].copy()
                 capMin= np.max(self.data[df]["data"]["Capacity"][:20]) # find the Maximum among te first 20 values of the capacitance and set it as minimum capacitance value
                 for x in range(len(self.data[df]["data"]["Capacity"])):
@@ -88,6 +100,8 @@ class IV_PQC:
                 self.data[df]["data"].insert(3, "capacitance2", capacitance2)
                 self.data[df]["units"].append("arb. units")
                 self.data[df]["measurements"].append("capacitance2")
+
+
 
         # Add the first and second derivative data to the dataframes
         for df in self.data["keys"]:
@@ -222,7 +236,7 @@ class IV_PQC:
                         fitR2 = r2_fit
                         fitEndPoints = (
                             (df["xaxis"][indexMax], slope_fit * df["xaxis"][indexMax] + intercept_fit),
-                            (df["xaxis"][idx], slope_fit * df["xaxis"][idx] + intercept_fit)
+                            (df["xaxis"][idx+1], slope_fit * df["xaxis"][idx+1] + intercept_fit) # use idx +1 to avoid having the same end points
                         )
                         fit_stats[i] = (fitEndPoints, slope_fit, intercept_fit, r_fit, p_valuefit, std_err_fit)
 
@@ -257,8 +271,8 @@ class IV_PQC:
 
 
         # Find oxide thickness Tox
-        Accum_capacitance = np.max(df["yaxis"])
-        Tox = self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] * float(self.data[self.data['keys'][0]]['header'][1]) *1e+6/ Accum_capacitance
+        Accum_capacitance_normalized = np.max(df["yaxis"])
+        Tox = self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] *1e+6/ Accum_capacitance_normalized
 
 
         # Find Fixed oxide charge Nox
@@ -267,16 +281,16 @@ class IV_PQC:
                    *np.log(self.config['IV_PQC_parameter']['SiliconDoping']/self.config['IV_PQC_parameter']['intrinsicDopingConcentration']))/self.config['IV_PQC_parameter']['q']
         phi_ms = self.config['IV_PQC_parameter']['phi_m']-phi_s
 
-        Nox = (Accum_capacitance*(phi_ms + flatband_voltage[0][0])*(1e-9))/(self.config        ['IV_PQC_parameter']['q'] * float(self.data[self.data['keys'][0]]['header'][1]) * 1e-8)
+        Nox = (Accum_capacitance_normalized*(phi_ms + flatband_voltage[0][0])*(1e-9))/(self.config        ['IV_PQC_parameter']['q'] * 1e-8)
 
         # Add text
-        text = hv.Text(-.5, 0.35, 'Flat band voltage: {} V \n'
+        text = hv.Text(-.5, 0.00000000035, 'Flat band voltage: {} V \n'
 
-                        'C accumulation: {} nF  \n'
+                        'C accumulation/A: {} nF  \n'
         
                        'Tox: {} nm \n'
                        'Nox: {} cm^-2'.format(np.round(np.median(flatband_voltage[:, 0]), 2),
-                                           np.round(Accum_capacitance, 2),
+                                           np.round(Accum_capacitance_normalized, 10),
                                            np.round(Tox, 2),
                                            np.format_float_scientific(Nox, 2))
 
@@ -284,7 +298,7 @@ class IV_PQC:
 
 
         # Update the plot specific options if need be
-        returnPlot = plot * secondDerivativePlot * firstDerivativePlot * fit_line * right_line * vline * text
+        returnPlot = plot * vline * text * secondDerivativePlot * firstDerivativePlot * fit_line * right_line
         #returnPlot = relabelPlot(returnPlot, "CV CURVES - Full depletion calculation")
         #returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
 
