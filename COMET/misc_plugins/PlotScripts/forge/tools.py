@@ -605,6 +605,8 @@ def parse_file_data(filecontent, settings):
             # Adapt the measurements name as well
             parsed_obj[0][i] = new_name
 
+    log.critical("Extracted measurements are: {}".format(parsed_obj[0][:len(parsed_data[0])]))
+    log.critical("Extracted units are: {}".format(parsed_obj[1][:len(parsed_data[0])]))
     return_dict = {"data": data_dict, "header": header, "measurements": parsed_obj[0][:len(parsed_data[0])], "units": parsed_obj[1][:len(parsed_data[0])]}
     return return_dict
 
