@@ -1,7 +1,10 @@
 ---
   Filetype: ASCII # Other options are json, ACII
 
+
+
 # Optional Parameters
+
   ASCII_file_specs: # The specifications for the ascii file type measurements files
     header_lines: 4
     measurement_description: 4
@@ -9,7 +12,11 @@
     data_start: 5
     data_separator: ","
 
+
+
+
   Analysis:
+
     - IV_PQC # The type of analysis, which will be performed
 
 
@@ -28,14 +35,23 @@
 
 # Options for the different Analyses scripts
   # These options are entirely up to you and what you need in your analysis
+
   IV_PQC:
+
       General: # Options common to all plots
+
           fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+
           responsive: False
+
           width: 1200
+
           height: 800
+
           shared_axes: False
+
       Layout:
+
           cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
 
 
@@ -143,8 +159,11 @@
 
               shared_axes: False
               xformatter: "%.0f"
+
               yformatter: "%.2f"
+
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+
               yaxisENG: True # If you want to plot the y axis in engineering representation
 
       #Copy of capacitance without the small kink that sometimes appear before the rising slope
@@ -315,4 +334,3 @@
             yformatter: "%.2f"
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
             yaxisENG: True # If you want to plot the y axis in engineering representation
-

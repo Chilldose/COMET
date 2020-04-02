@@ -22,20 +22,27 @@
       
       Normalize: False
       Countries:
-          Austria: 8793370
-          Switzerland: 8292809
-          Germany: 80457737
-          Italy: 62246674
-          China: 1384688986
-          US: 329256465
+          - Switzerland: 8292809
+          - Italy: 62246674
+          - Spain: 46660000
+          - Austria: 8793370
+          - Germany: 80457737
+          - China: 1384688986
+          - Iran: 83992949
+          - France: 65273511
+          - US: 329256465
+          #- Belgium: 11589623
+          #- "Korea, South": 51269185
+          #- Mexico: 128932753
           
-      GrowingRateMulti: 100
+          
+      GrowingRateMulti: 1000
           
       HistogramOptions:
           shared_axes: False
           alpha: 0.6
 
-      Confirmed:
+      confirmed:
           PlotLabel: "Confirmed Cases"
           PlotStyles:
             - Bars
@@ -53,7 +60,7 @@
                   ygrid_line_dash: [10, 4]
               shared_axes: False # If the axes should be shared with other plots, usually it is False
         
-      Recovered:
+      recovered:
           PlotLabel: "Recovered Cases"
           PlotStyles:
             - Bars
@@ -70,7 +77,7 @@
                   ygrid_line_dash: [10, 4]
               shared_axes: False # If the axes should be shared with other plots, usually it is False
              
-      Deaths:
+      deaths:
           PlotLabel: "Deaths"
           PlotStyles:
             - Bars
@@ -86,4 +93,22 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               shared_axes: False # If the axes should be shared with other plots, usually it is False
+              
+      GvC:
+           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              show_grid: True
+              xlabel: Total cases
+              logx: True
+              logy: True
+              line_width: 4
+              padding: !!python/tuple [5,1]
+              #xlim: !!python/tuple [10,None]
+              #ylim: !!python/tuple [1,None]
+              gridstyle:
+                  grid_line_color: black
+                  grid_line_width: 1.5
+                  minor_xgrid_line_color: lightgray
+                  minor_ygrid_line_color: lightgray
+                  xgrid_line_dash: [4, 4]
+                  ygrid_line_dash: [10, 4]
             
