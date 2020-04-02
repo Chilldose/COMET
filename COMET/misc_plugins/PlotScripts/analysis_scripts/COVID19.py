@@ -13,6 +13,7 @@ hv.extension('bokeh')
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout
 from forge.tools import twiny, relabelPlot
 from forge.tools import plot_all_measurements, convert_to_EngUnits
+from forge.tools import plot
 from forge.specialPlots import dospecialPlots
 from forge.utilities import line_intersection
 import numpy as np
@@ -21,7 +22,6 @@ import numpy as np
 class COVID19:
 
     def __init__(self, data, configs):
-
         self.log = logging.getLogger(__name__)
         self.data = convert_to_df(data, abs=False)
         self.config = configs
@@ -31,7 +31,7 @@ class COVID19:
         self.PlotDict = {"Name": self.analysisname}
         self.measurements = self.data["columns"][4:] # Cut the non measurement lines
         hv.renderer('bokeh')
-        self.keys_basenames = [name.split("-")[-1] for name in self.data["keys"]]
+        self.keys_basenames = [name.split("_")[-2] for name in self.data["keys"]]
         self.countries = []
 
         # Plot canvas:
@@ -45,20 +45,24 @@ class COVID19:
         self.casesNorm = None
         self.recoveredNorm  = None
         self.deathsNorm  = None
+        self.GrowthvsCases = None
+        self.DeathvsCases = None
 
 
 
 
     def run(self):
         """Runs the script"""
-
+        from forge.tools import plainPlot # some elusive error in debugger it works while running it does not, but only here
         # Do some grouping and sanatizing
         groupedcountries = self.data["All"].groupby(self.data["All"]["Country/Region"]) # Data grouped by country
         self.countries = list(groupedcountries.groups)
 
         self.PlotDict["All"] = None
         prekeys = self.data["keys"]
-        for countryName, inhabitants in self.config["COVID19"]["Countries"].items():
+        for items in self.config["COVID19"]["Countries"]:
+            countryName = list(items.keys())[0]
+            inhabitants = list(items.values())[0]
             countrycasegrouped = groupedcountries.get_group(countryName).groupby("Name") # Grouped for death, confirmed, recovered
 
             seldata = {} # a dict containing all data from one country grouped by death, confirmed, recovered
@@ -106,15 +110,38 @@ class COVID19:
             else: self.Plots = individual
 
             self.relgrowth_all_countries(countryName)
-            if self.config["COVID19"]["Normalize"]:
+            if self.config["COVID19"]["Normalize"] == True:
                 self.accumulated_all_countries_normalizes(countryName, inhabitants)
-            else:
+            elif self.config["COVID19"]["Normalize"] == False:
                 self.accumulated_all_countries(countryName)
 
+            # Cases vs growth
+            if not self.GrowthvsCases:
+                self.GrowthvsCases = plainPlot("Curve", self.data["Accumulated"]["data"]["confirmed"], self.data["Growth"]["data"]["confirmed"],
+                      label=countryName, ylabel="New Cases", **self.config['COVID19']['General'], **self.config['COVID19']['GvC']["PlotOptions"])
+            else:
+                self.GrowthvsCases *= plainPlot("Curve", self.data["Accumulated"]["data"]["confirmed"],
+                                               self.data["Growth"]["data"]["confirmed"],
+                                               label=countryName, ylabel="New Cases",
+                                               **self.config['COVID19']['General'], **self.config['COVID19']['GvC']["PlotOptions"])
 
-
+            # Death vs growth
+            if not self.DeathvsCases:
+                self.DeathvsCases = plainPlot("Curve", self.data["Accumulated"]["data"]["confirmed"],
+                                                   self.data["Accumulated"]["data"]["deaths"],
+                                                   label=countryName, ylabel="Total Deaths",
+                                                   **self.config['COVID19']['General'],
+                                                   **self.config['COVID19']['GvC']["PlotOptions"])
+            else:
+                self.DeathvsCases *= plainPlot("Curve", self.data["Accumulated"]["data"]["confirmed"],
+                                                    self.data["Accumulated"]["data"]["deaths"],
+                                                    label=countryName, ylabel="Total Deaths",
+                                                    **self.config['COVID19']['General'],
+                                                    **self.config['COVID19']['GvC']["PlotOptions"])
 
         # Relabel the plots
+        self.GrowthvsCases = relabelPlot(self.GrowthvsCases.opts(xlim=(1, None), ylim=(1,None)), "New Cases vs. Total Cases")
+        self.DeathvsCases = relabelPlot(self.DeathvsCases.opts(xlim=(1, None), ylim=(1,None)), "Total Death vs. Total Cases")
         if not self.config["COVID19"]["Normalize"]:
             self.cases = relabelPlot(self.cases, "Confirmed Cases not normalized")
             self.recovered = relabelPlot(self.recovered, "Recovered Cases not normalized")
@@ -128,7 +155,7 @@ class COVID19:
             self.deathsNorm = relabelPlot(self.deathsNorm, "Deaths normalized")
 
         # Define Plotting order
-        self.plottingOrder = [self.casesNorm, self.recoveredNorm, self.deathsNorm,
+        self.plottingOrder = [self.GrowthvsCases, self.DeathvsCases, self.casesNorm, self.recoveredNorm, self.deathsNorm,
                               self.casesrelgrowth, self.recoveredrelgrowth, self.deathsrelgrowth,
                               self.cases , self.recovered, self.deaths,
                               self.Plots]
@@ -146,10 +173,10 @@ class COVID19:
     def accumulated_all_countries_normalizes(self, countryName, inhabitants):
 
         # Normalize to mio inhabitants
-        factor = inhabitants/1e6
+        factor = float(inhabitants)/1e6
 
         # Change data
-        for data in ["Confirmed", "Deaths", "Recovered"]:
+        for data in ["confirmed", "deaths", "recovered"]:
             self.data["Accumulated"]["data"][data] = self.data["Accumulated"]["data"][data] / factor
             #self.data["Accumulated"]["data"].insert(0, "{}Norm".format(data), self.data["Accumulated"]["data"][data]/factor) # Not very efficient
             #self.data["Accumulated"]["measurements"].append(data)
@@ -158,9 +185,9 @@ class COVID19:
             #self.config["COVID19"]["{}Norm".format(data)] = self.config["COVID19"][data]
 
         # Plot total Cases for all countries in one plot
-        acc = plot_all_measurements(self.data, self.config, "Date", "COVID19",
+        acc = plot(self.data, self.config, "Date", "COVID19",
                                     keys=["Accumulated"],
-                                    do_not_plot=["Date", "Deaths", "Recovered", "DeathsNorm", "RecoveredNorm"],
+                                    do_not_plot=["Date", "deaths", "recovered", "DeathsNorm", "RecoveredNorm"],
                                     PlotLabel="{}".format(countryName))
         if self.casesNorm:
             self.casesNorm *= acc
@@ -168,9 +195,9 @@ class COVID19:
             self.casesNorm = acc
 
         # Plot total Recovered for all countries in one plot
-        rec = plot_all_measurements(self.data, self.config, "Date", "COVID19",
+        rec = plot(self.data, self.config, "Date", "COVID19",
                                     keys=["Accumulated"],
-                                    do_not_plot=["Date", "Deaths", "Confirmed", "DeathsNorm", "ConfirmedNorm"],
+                                    do_not_plot=["Date", "deaths", "confirmed", "DeathsNorm", "ConfirmedNorm"],
                                     PlotLabel="{}".format(countryName))
         if self.recoveredNorm:
             self.recoveredNorm *= rec
@@ -178,9 +205,9 @@ class COVID19:
             self.recoveredNorm = rec
 
         # Plot total Death for all countries in one plot
-        deaths = plot_all_measurements(self.data, self.config, "Date", "COVID19",
+        deaths = plot(self.data, self.config, "Date", "COVID19",
                                        keys=["Accumulated"],
-                                       do_not_plot=["Date", "Recovered", "Confirmed","RecoveredNorm", "ConfirmedNorm"],
+                                       do_not_plot=["Date", "recovered", "confirmed","RecoveredNorm", "ConfirmedNorm"],
                                        PlotLabel="{}".format(countryName))
         if self.deathsNorm:
             self.deathsNorm *= deaths
@@ -190,9 +217,9 @@ class COVID19:
     def accumulated_all_countries(self, countryName):
         """ACCUMULATED PLOTS ALL COUNTRIES TOGETHER"""
         # Plot total Cases for all countries in one plot
-        acc = plot_all_measurements(self.data, self.config, "Date", "COVID19",
+        acc = plot(self.data, self.config, "Date", "COVID19",
                                     keys=["Accumulated"],
-                                    do_not_plot=["Date", "Deaths", "Recovered"],
+                                    do_not_plot=["Date", "deaths", "recovered"],
                                     PlotLabel="{}".format(countryName))
         if self.cases:
             self.cases *= acc
@@ -201,9 +228,9 @@ class COVID19:
 
 
         # Plot total Recovered for all countries in one plot
-        rec = plot_all_measurements(self.data, self.config, "Date", "COVID19",
+        rec = plot(self.data, self.config, "Date", "COVID19",
                                     keys=["Accumulated"],
-                                    do_not_plot=["Date", "Deaths", "Confirmed"],
+                                    do_not_plot=["Date", "deaths", "confirmed"],
                                     PlotLabel="{}".format(countryName))
         if self.recovered:
             self.recovered *= rec
@@ -211,9 +238,9 @@ class COVID19:
             self.recovered = rec
 
         # Plot total Death for all countries in one plot
-        deaths = plot_all_measurements(self.data, self.config, "Date", "COVID19",
+        deaths = plot(self.data, self.config, "Date", "COVID19",
                                        keys=["Accumulated"],
-                                       do_not_plot=["Date", "Recovered", "Confirmed"],
+                                       do_not_plot=["Date", "recovered", "confirmed"],
                                        PlotLabel="{}".format(countryName))
         if self.deaths:
             self.deaths *= deaths
@@ -225,9 +252,9 @@ class COVID19:
     def relgrowth_all_countries(self, countryName):
         """ACCUMULATED PLOTS ALL COUNTRIES TOGETHER"""
         # Plot total Cases for all countries in one plot
-        acc = plot_all_measurements(self.data, self.config, "Date", "COVID19",
+        acc = plot(self.data, self.config, "Date", "COVID19",
                                     keys=["RelativeGrowth*{}".format(self.config["COVID19"]["GrowingRateMulti"])],
-                                    do_not_plot=["Date", "Deaths", "Recovered"],
+                                    do_not_plot=["Date", "deaths", "recovered"],
                                     PlotLabel="{}".format(countryName), ylabel="Confirmed (%)")
         if self.casesrelgrowth:
             self.casesrelgrowth *= acc
@@ -235,9 +262,9 @@ class COVID19:
             self.casesrelgrowth = acc
 
         # Plot total Recovered for all countries in one plot
-        rec = plot_all_measurements(self.data, self.config, "Date", "COVID19",
+        rec = plot(self.data, self.config, "Date", "COVID19",
                                     keys=["RelativeGrowth*{}".format(self.config["COVID19"]["GrowingRateMulti"])],
-                                    do_not_plot=["Date", "Deaths", "Confirmed"],
+                                    do_not_plot=["Date", "deaths", "confirmed"],
                                     PlotLabel="{}".format(countryName), ylabel="Recovered (%)")
         if self.recoveredrelgrowth:
             self.recoveredrelgrowth *= rec
@@ -245,9 +272,9 @@ class COVID19:
             self.recoveredrelgrowth = rec
 
         # Plot total Death for all countries in one plot
-        deaths = plot_all_measurements(self.data, self.config, "Date", "COVID19",
+        deaths = plot(self.data, self.config, "Date", "COVID19",
                                        keys=["RelativeGrowth*{}".format(self.config["COVID19"]["GrowingRateMulti"])],
-                                       do_not_plot=["Date", "Recovered", "Confirmed"],
+                                       do_not_plot=["Date", "recovered", "confirmed"],
                                        PlotLabel="{}".format(countryName), ylabel="Deaths (%)")
         if self.deathsrelgrowth:
             self.deathsrelgrowth *= deaths

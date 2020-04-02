@@ -91,6 +91,7 @@ def Simple2DPlot(data, configs, measurement_to_plot, xaxis_measurement, analysis
     :param measurement_to_plot: y data name in the df
     :param xaxis_measurement: name of the meausurement which define the xaxsis, x data
     :param analysis_name: The name of the analysis, from the config
+    :param keys: the keys from which data sets the plotting should be done
     :return: Holoviews plot object (only 2D plot)
     """
 
@@ -120,6 +121,9 @@ def Simple2DPlot(data, configs, measurement_to_plot, xaxis_measurement, analysis
                         vdims=vdims, keys=keys, **kwargs)
 
 def plot_all_measurements(data, config, xaxis_measurement, analysis_name, do_not_plot=(), keys=None, **kwargs):
+    return plot(data, config, xaxis_measurement, analysis_name, do_not_plot=do_not_plot, keys=keys, **kwargs)
+
+def plot(data, config, xaxis_measurement, analysis_name, do_not_plot=(), plot_only=(), keys=None, **kwargs):
     """
     Simply plots all available measurements from data frames against one xaxsis measurement.
     The data structure needs a entry for 'measurements' containing a list of all measurements
@@ -127,12 +131,14 @@ def plot_all_measurements(data, config, xaxis_measurement, analysis_name, do_not
     :param config: The Configs dictionary
     :param xaxis_measurement: The measurement against all others are plotted
     :param analysis_name: The analysis name out of which the configs for the individual plots are extracted
-    :param do_not_plot: List/tuple of plots which should not be plotted
+    :param do_not_plot: List/tuple of plots which should not be plotted aka. columns in each dataset
+    :param plot_only: List/tuple of plots which should only be plottet aka. columns in each dataset
+    :param keys: the keys from which data sets the plotting should be done
     :return: Holoviews Plot object
     """
 
     finalPlot = None
-    for measurement in data["columns"]:
+    for measurement in plot_only if plot_only else data["columns"]:
         if measurement not in do_not_plot:
             try:
                 if finalPlot:
@@ -141,7 +147,6 @@ def plot_all_measurements(data, config, xaxis_measurement, analysis_name, do_not
                     finalPlot = Simple2DPlot(data, config, measurement, xaxis_measurement, analysis_name, keys=keys, **kwargs)
             except:
                 pass
-
 
     return config_layout(finalPlot, **config.get(analysis_name, {}).get("Layout", {}))
 
@@ -334,6 +339,7 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
     :param configs: the plot configuration dicts, only dicts with entries holoviews can decode, all other in kwargs
     :param kdims: key dimensions to plot aka xyz axis, the first two kdims must be the x and y data specifier!!!
     :param vdims: value dimension, aka, the depth or the name across to plot
+    :param keys: the keys from which data sets the plotting should be done
     :param **kwargs: some additional kwargs which can be needed by the self written tools
     :return: Holoviews plot object
     """
@@ -599,6 +605,8 @@ def parse_file_data(filecontent, settings):
             # Adapt the measurements name as well
             parsed_obj[0][i] = new_name
 
+    log.critical("Extracted measurements are: {}".format(parsed_obj[0][:len(parsed_data[0])]))
+    log.critical("Extracted units are: {}".format(parsed_obj[1][:len(parsed_data[0])]))
     return_dict = {"data": data_dict, "header": header, "measurements": parsed_obj[0][:len(parsed_data[0])], "units": parsed_obj[1][:len(parsed_data[0])]}
     return return_dict
 
