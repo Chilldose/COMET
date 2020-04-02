@@ -680,3 +680,8 @@ def save_data(self, type, dirr, base_name="data"):
             save_dict_as_xml(xml_dict, os.path.join(os.path.normpath(dirr), "data"), base_name)
 
 
+def text_box(text, xpos, ypos, boxsize, fontsize=30, fontcolor="black", bgcolor="white"):
+    """Generates a box with text in it"""
+    hvtext = hv.Text(xpos, ypos, text).opts(fontsize=fontsize, color=fontcolor)
+    box = hv.Polygons(hv.Box(xpos, ypos, boxsize).opts(color="black")).opts(color=bgcolor)
+    return box*hvtext

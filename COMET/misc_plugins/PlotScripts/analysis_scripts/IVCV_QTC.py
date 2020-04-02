@@ -13,7 +13,7 @@ hv.extension('bokeh', 'matplotlib')
 from bokeh.models import CustomJS
 from bokeh.models.widgets import Button
 
-from forge.tools import customize_plot, holoplot, convert_to_df, config_layout
+from forge.tools import customize_plot, holoplot, convert_to_df, config_layout, text_box
 from forge.tools import twiny, relabelPlot
 from forge.tools import plot_all_measurements, convert_to_EngUnits
 from forge.specialPlots import dospecialPlots
@@ -101,6 +101,59 @@ class IVCV_QTC:
 
         return self.PlotDict
 
+    def calculate_slopes(self, df, minSize, startidx=0):
+        """
+        Calculates two slopes one starting vom left and on starting from right. It checks if the r^2 value has increased
+        and returns the r2 value as well as the slope parameters as tuples
+        :param df: Data frame
+        :param minSize: minumum size to start linregress
+        :param startidx: startindex top start the calculation (cut the beginning eg)
+        :return: LR2, Lparameters, RR2, Rparameters
+        """
+
+        # Calculate the slopes from the right and the left
+        LR2 = 0  # r^2 values for both sides
+        RR2 = 0
+        lpp = 9999
+        rpp = 9999
+        Right_stats = 0
+        Left_stats = 0
+        for endidx in range(minSize+startidx, len(df)-startidx-minSize+1):  # Start a 5 since the linear fit needs at least a few values to work
+            # Left slope
+            slope_left, intercept_left, r_left, lp_value, std_err_left = linregress(df["xaxis"][startidx:endidx], df["yaxis"][startidx:endidx])
+            r2_left = r_left * r_left
+            self.log.debug("Left side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+                slope_left, intercept_left, r2_left, std_err_left)
+            )
+
+            # Right slope
+            slope_right, intercept_right, r_right, rp_value, std_err_right = linregress(df["xaxis"][-endidx:-startidx-1], df["yaxis"][-endidx:-startidx-1])
+            r2_right = r_right * r_right
+            self.log.debug("Right side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+                slope_right, intercept_right, r2_right, std_err_right)
+            )
+
+            # See if the r2 value has increased and store end points
+            if r2_left>LR2 and lp_value<lpp:
+                LR2 = r2_left
+                lpp =lp_value
+                LeftEndPoints = (
+                    (df["xaxis"][0], intercept_left),
+                    (df["xaxis"][endidx], slope_left * df["xaxis"][endidx] + intercept_left)
+                )
+                Left_stats = (LeftEndPoints, slope_left, intercept_left, r_left, lp_value, std_err_left)
+
+            # See if the r2 value has increased and store it
+            if r2_right>RR2 and rp_value<rpp:
+                RR2 = r2_right
+                rpp = rp_value
+                RightEndPoints = (
+                    (df["xaxis"][endidx], slope_right * df["xaxis"][endidx] + intercept_right),
+                    (df["xaxis"][len(df["xaxis"]) - 1], slope_right * df["xaxis"][len(df["xaxis"]) - 1] + intercept_right),
+                )
+                Right_stats = (RightEndPoints, slope_right, intercept_right, r_right, rp_value, std_err_right)
+
+        return LR2, Left_stats, RR2, Right_stats
 
     def find_full_depletion(self, plot, data, configs, **addConfigs):
         """
@@ -126,57 +179,22 @@ class IVCV_QTC:
                 self.log.debug("Data: {}".format(samplekey))
                 sample = deepcopy(data[samplekey])
                 try:
-                    df = sample["data"][["voltage", "1C2"]]
+                    df = sample["data"][["voltage", "1C2"]].rename(columns={"voltage": "xaxis", "1C2": "yaxis"})
                 except:
-                    df = sample["data"][["Voltage", "1C2"]]
+                    df = sample["data"][["Voltage", "1C2"]].rename(columns={"Voltage": "xaxis", "1C2": "yaxis"})
                 df = df.dropna()
 
-
                 # Loop one time from the right side and from the left, to get both slopes
-                LR2 = 0 # r^2 values for both sides
-                RR2 = 0
-
-
-                for idx in range(5, len(df)-5):
-                    # Left
-                    slope_left, intercept_left, r_left, p_value, std_err_left = linregress(df["xaxis"][:-idx],df["yaxis"][:-idx])
-                    r2_left = r_left * r_left
-                    self.log.debug("Left side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
-                        slope_left, intercept_left, r2_left, std_err_left)
-                    )
-
-                    # Right
-                    slope_right, intercept_right, r_right, p_value, std_err_right = linregress(df["xaxis"][idx:],df["yaxis"][idx:])
-                    r2_right = r_right * r_right
-                    self.log.debug("Right side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
-                        slope_right, intercept_right, r2_right, std_err_right)
-                    )
-
-                    # See if the r2 value has increased and store end points
-                    if r2_left >= LR2:
-                        LR2 = r2_left
-                        LeftEndPoints = (
-                            (df["xaxis"][0], intercept_left),
-                            (df["xaxis"][idx], slope_left * df["xaxis"][idx] + intercept_left)
-                        )
-                        Left_stats[i] = (LeftEndPoints, slope_left, intercept_left, r_left, p_value, std_err_left)
-
-                    # See if the r2 value has increased and store it
-                    if r2_right >= RR2:
-                        RR2 = r2_right
-                        RightEndPoints = (
-                            (df["xaxis"][idx], slope_right * df["xaxis"][idx] + intercept_right),
-                            (df["xaxis"][len(df["xaxis"]) - 1], slope_right * df["xaxis"][len(df["xaxis"]) - 1] + intercept_right),
-                        )
-                        Right_stats[i] = (RightEndPoints, slope_right, intercept_right, r_right, p_value, std_err_right)
+                LR2, Left_stats[i], RR2, Right_stats[i] = self.calculate_slopes(df, minSize=5, startidx=5)
 
                 # Make the line intersection
-                full_depletion_voltages[i] = line_intersection(LeftEndPoints, RightEndPoints)
+                full_depletion_voltages[i] = line_intersection(Left_stats[i][0], Right_stats[i][0])
+                self.log.info("Full depletion voltage to data file {} is {}, with LR^2={} and RR^2={}".format(samplekey, full_depletion_voltages[i], LR2, RR2))
 
         # Add vertical line for full depletion
-        # Find nonzero indizes
+        # Calculate the mean of all full depeltion voltages and draw a line there
         valid_indz = np.nonzero(full_depletion_voltages[:, 0])
-        vline = hv.VLine(np.median(full_depletion_voltages[valid_indz], axis=0)[0]).opts(color='black', line_width=5.0)
+        vline = hv.VLine(np.mean(full_depletion_voltages[valid_indz], axis=0)[0]).opts(color='black', line_width=5.0)
 
         # Add slopes
         xmax = df["xaxis"][len(df["yaxis"])-1]
@@ -190,14 +208,21 @@ class IVCV_QTC:
         self.log.info('Full depletion voltage: {} V, '
                         'Error: {} V'.format(np.round(np.median(full_depletion_voltages[valid_indz, 0]), 2),
                                            np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2)))
-        text = hv.Text(700, 0.055, 'Depletion voltage: {} V \n'
-                        'Error: {} V'.format(np.round(np.median(full_depletion_voltages[:, 0]), 2),
-                                           np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2))
-                       ).opts(fontsize=30)
+        #text = hv.Text(np.mean(full_depletion_voltages[valid_indz], axis=0)[0]*2, np.mean(full_depletion_voltages[valid_indz], axis=0)[1]*1.2, 'Depletion voltage: {} V \n'
+        #                'Error: {} V'.format(np.round(np.mean(full_depletion_voltages[:, 0]), 2),
+        #                                   np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2))
+        #               ).opts(fontsize=30)
 
-
+        bounds = np.mean(full_depletion_voltages[valid_indz], axis=0)
+        text = text_box('Depletion voltage: {} V \n'
+                        'Error: {} V'.format(np.round(np.mean(full_depletion_voltages[:, 0]), 2),
+                                           np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2)),
+                       np.mean(full_depletion_voltages[valid_indz], axis=0)[0] * 2,
+                       np.mean(full_depletion_voltages[valid_indz], axis=0)[1] * 1.3,
+                       boxsize= (200, bounds[1]*0.3)
+                       )
         # Update the plot specific options if need be
-        returnPlot = plot * vline * right_line * left_line * text
+        returnPlot = vline * right_line * left_line * text * plot
         #returnPlot = relabelPlot(returnPlot, "CV CURVES - Full depletion calculation")
         returnPlot = customize_plot(returnPlot, "1C2", configs["IVCV_QTC"], **addConfigs)
 
