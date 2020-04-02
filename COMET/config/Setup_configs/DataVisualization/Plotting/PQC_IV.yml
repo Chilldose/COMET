@@ -59,9 +59,9 @@
 
       Capacity:
 
-          PlotLabel: CV CURVES
+          PlotLabel: MOS CV CURVES
 
-          UnitConversion: nano
+          #UnitConversion: nano
 
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
 
@@ -99,13 +99,13 @@
 
                   ygrid_line_dash: [10, 4]
 
-              xlabel: voltage [V]
+              #xlabel: voltage [V]
 
-              ylabel: capacitance [nF]
+              ylabel: C/A (F/cm^2)
 
               shared_axes: False
               xformatter: "%.0f"
-              yformatter: "%.2f"
+             # yformatter: None
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               yaxisENG: True # If you want to plot the y axis in engineering representation
 
@@ -115,7 +115,7 @@
 
           PlotLabel: CV CURVES
 
-          UnitConversion: nano
+          #UnitConversion: nano
 
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
 
@@ -153,20 +153,21 @@
 
                   ygrid_line_dash: [10, 4]
 
-              xlabel: voltage [V]
+              #xlabel: voltage [V]
 
-              ylabel: capacitance [nF]
+              #ylabel: capacitance [nF]
 
               shared_axes: False
               xformatter: "%.0f"
 
-              yformatter: "%.2f"
+              yformatter: "None"
 
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
 
               yaxisENG: True # If you want to plot the y axis in engineering representation
 
-      #Copy of capacitance without the small kink that sometimes appear before the rising slope
+
+      #Plot a copy of the capacitance without the small kink that sometimes appear before the rising slope:
       capacitance2:
 
           PlotLabel: CV CURVES2
@@ -209,9 +210,9 @@
 
                   ygrid_line_dash: [10, 4]
 
-              xlabel: voltage [V]
+              #xlabel: voltage [V]
 
-              ylabel: capacitance [nF]
+              #ylabel: capacitance [nF]
 
               shared_axes: False
               xformatter: "%.0f"
@@ -263,9 +264,9 @@
 
               xformatter: "%.0f"
 
-            xlabel: voltage [V]
+            #xlabel: voltage [V]
 
-            ylabel: capacitance [nF]
+            #ylabel: capacitance [nF]
 
             shared_axes: False
 
@@ -320,9 +321,9 @@
 
               xformatter: "%.0f"
 
-            xlabel: voltage [V]
+            #xlabel: voltage [V]
 
-            ylabel: capacitance [nF]
+            #ylabel: capacitance [nF]
 
             shared_axes: False
 

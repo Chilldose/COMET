@@ -68,17 +68,16 @@ class IV_PQC:
         # Add a copy of the capacitance values to the data frame, where the small kink in the plot is deleted
         for df in self.data["keys"]:
 
-
             if "capacitance" in self.data[df]["data"]:
                 if 'Voltage' in self.data[df]['data']: # check that the voltage values have increasing order
                     if self.data[df]["data"]["Voltage"][0] > 0:
                         self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))
                         self.data[df]["data"]["capacitance"] = list(reversed(self.data[df]["data"]["capacitance"]))
-                self.data[df]["data"]["capacitance"]=self.data[df]["data"]["capacitance"] / float((self.data[self.data['keys'][0]]['header'][0])[9:]) # Normalize by the Area
+                self.data[df]["data"]["capacitance"]=self.data[df]["data"]["capacitance"] / (float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e+8)) # Normalize by the Area anc convert to cm^2
                 capacitance2 = self.data[df]["data"]["capacitance"].copy()
                 capMin= np.max(self.data[df]["data"]["capacitance"][:20])  # find the Maximum among te first 20 values of the capacitance and set it as minimum capacitance value
                 for x in range(len(self.data[df]["data"]["capacitance"])):
-                    if capacitance2[x] < capMin :
+                    if capacitance2[x] < capMin:
                         capacitance2[x] = capMin
                 #insert into the data frame
                 self.data[df]["data"].insert(3, "capacitance2", capacitance2)
@@ -86,15 +85,15 @@ class IV_PQC:
                 self.data[df]["measurements"].append("capacitance2")
 
             elif "Capacity" in self.data[df]["data"]:
-                if 'Voltage' in self.data[df]['data']: # check that the voltage values have increasing order
+                if 'Voltage' in self.data[df]['data']: # Check that the voltage values have increasing order
                     if self.data[df]["data"]["Voltage"][0] > 0:
                         self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))
                         self.data[df]["data"]["Capacity"] = list(reversed(self.data[df]["data"]["Capacity"]))
-                self.data[df]["data"]["Capacity"] = self.data[df]["data"]["Capacity"] / float((self.data[self.data['keys'][0]]['header'][0])[9:]) # Normalize by the Area
+                self.data[df]["data"]["Capacity"] = self.data[df]["data"]["Capacity"] / (float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e+8)) # Normalize by the Area and convert to cm^2
                 capacitance2 = self.data[df]["data"]["Capacity"].copy()
-                capMin= np.max(self.data[df]["data"]["Capacity"][:20]) # find the Maximum among te first 20 values of the capacitance and set it as minimum capacitance value
+                capMin= np.max(self.data[df]["data"]["Capacity"][:20]) # Find the Maximum among te first 20 values of the capacitance and set it as minimum capacitance value
                 for x in range(len(self.data[df]["data"]["Capacity"])):
-                    if capacitance2[x] < capMin :
+                    if capacitance2[x] < capMin:
                         capacitance2[x] = capMin
                 # insert into the data frame
                 self.data[df]["data"].insert(3, "capacitance2", capacitance2)
@@ -147,10 +146,10 @@ class IV_PQC:
         # Add flat bandage voltage point to the capacitance curve
         if self.config["IV_PQC"].get("capacitance2", {}).get("findFlatBandVoltage", False):
             try:
-                if self.basePlots.Overlay.CV_CURVES.children:
-                    c2plot = self.basePlots.Overlay.CV_CURVES.opts(clone=True)
+                if self.basePlots.Overlay.MOS_CV_CURVES.children:
+                    c2plot = self.basePlots.Overlay.MOS_CV_CURVES.opts(clone=True)
                 else:
-                    c2plot = self.basePlots.Curve.CV_CURVES.opts(clone=True)
+                    c2plot = self.basePlots.Curve.MOS_CV_CURVES.opts(clone=True)
 
                 fBestimation = self.find_flatBand_voltage(c2plot, self.data, self.config, indexMax, indexMin,
                                                         PlotLabel="Flat band voltage estimation")
@@ -299,7 +298,7 @@ class IV_PQC:
 
         # Update the plot specific options if need be
         returnPlot = plot * vline * text * secondDerivativePlot * firstDerivativePlot * fit_line * right_line
-        #returnPlot = relabelPlot(returnPlot, "CV CURVES - Full depletion calculation")
+        #returnPlot = relabelPlot(returnPlot, "MOS_CV CURVES - Full depletion calculation")
         #returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
 
         return returnPlot
