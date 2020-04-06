@@ -133,7 +133,7 @@ def plot(data, config, xaxis_measurement, analysis_name, do_not_plot=(), plot_on
     :param analysis_name: The analysis name out of which the configs for the individual plots are extracted
     :param do_not_plot: List/tuple of plots which should not be plotted aka. columns in each dataset
     :param plot_only: List/tuple of plots which should only be plottet aka. columns in each dataset
-    :param keys: the keys from which data sets the plotting should be done
+    :param keys: the keys from which data sets the plotting should be done, aka the data file name
     :return: Holoviews Plot object
     """
 
@@ -412,8 +412,8 @@ def get_axis_labels(df_list, key, kdims, vdims):
 
     return xlabel, ylabel
 
-def relabelPlot(plot, label):
-    return plot.relabel(label)
+def relabelPlot(plot, label, group=None):
+    return plot.relabel(label, **{"group": group} if group else {})
 
 def customize_plot(plot, plotName, configs, **addConfigs):
     """

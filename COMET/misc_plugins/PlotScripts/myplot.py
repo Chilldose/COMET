@@ -135,7 +135,7 @@ class PlottingMain:
 
     def save_to(self, progress_queue=None):
         """This function saves all plots from every analysis for each datasets as svg"""
-        self.log.info("Saving plots...")
+        self.log.critical("Saving plots...")
         progress_steps = 0
         saved = 0
         # Generate base folder
@@ -166,10 +166,10 @@ class PlottingMain:
                             except:
                                 label = plots._label
 
-                            save_plot(label, plots, save_dir, save_as=self.config["Save_as"])
+                            save_plot(label, plots, save_dir, save_as=self.config.get("Save_as", ["html"]))
                             saved += 1
                     except:
-                        save_plot(Allplots.group, Allplots, save_dir, save_as=self.config["Save_as"])
+                        save_plot(Allplots.group, Allplots, save_dir, save_as=self.config.get("Save_as", ["html"]))
                         saved += 1
 
                 else:
