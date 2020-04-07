@@ -276,8 +276,15 @@ def convert_to_df(convert, abs = False, keys = "all"):
         for key in keys:
             if key in precol:
                 columns.append(key)
+        if not columns:
+            raise Exception("No passed keys: {} matched the possible columns of the passed data: {}. "
+                            "DataFrame generation failed!".format(keys, precol))
     elif keys == "all":
         columns = precol
+    if not columns:
+        raise Exception("DataFrame generation failed! No valid columns found!")
+
+
 
     return_dict = {"All": pd.DataFrame(columns=columns), "keys": index, "columns":columns}
     for key, data in to_convert.items():
