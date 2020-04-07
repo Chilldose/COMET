@@ -6,6 +6,16 @@ Furthermore, it will guide you through the process to create and add new physica
 
 Before we can start, please follow the steps in chapter :ref:`Your first GUI` and create an empty new Project with the name of your liking.
 
+Switch to another GUI
+---------------------
+
+The first time you start up COMET you will be asked what GUI you want to load see :ref:`Running/Initializing The Program`. If you decide to load another GUI
+after your first start up you can change you preferences via the "Edit/Prefernece" option in the header of the GUI. Or if you want to
+load a specific GUI at start up you can pass the option ``--loadGUI <your_GUI_name>`` or if you do not know for sure what GUI you want
+and you want to be prompted with all GUIs available type ``--reinit`` and COMET will start up like the first time you started it.
+
+
+
 Add a GUI element
 -----------------
 
