@@ -25,8 +25,8 @@
           width: 1200
           height: 800
           shared_axes: False
-      #Layout:
-      #    cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
+      Layout:
+          cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
 
       DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measurements has this special plot stated
           - BoxWhisker
@@ -83,6 +83,7 @@
               yformatter: "%.0f"
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               yaxisENG: True # If you want to plot the y axis in engineering representation
+
 
 
       CVQValue:

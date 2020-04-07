@@ -5,6 +5,7 @@ import logging
 from .utilities import load_yaml
 import os, sys
 import re
+import ast
 import holoviews as hv
 from holoviews import opts
 import numpy as np
@@ -133,7 +134,7 @@ def plot(data, config, xaxis_measurement, analysis_name, do_not_plot=(), plot_on
     :param analysis_name: The analysis name out of which the configs for the individual plots are extracted
     :param do_not_plot: List/tuple of plots which should not be plotted aka. columns in each dataset
     :param plot_only: List/tuple of plots which should only be plottet aka. columns in each dataset
-    :param keys: the keys from which data sets the plotting should be done
+    :param keys: the keys from which data sets the plotting should be done, aka the data file name
     :return: Holoviews Plot object
     """
 
@@ -412,8 +413,14 @@ def get_axis_labels(df_list, key, kdims, vdims):
 
     return xlabel, ylabel
 
-def relabelPlot(plot, label):
-    return plot.relabel(label)
+def relabelPlot(plot, label, group=None):
+    return plot.relabel(label, **{"group": group} if group else {})
+
+def applyPlotOptions(plot, optionsdict):
+    """Applies user defined options directly to the plot without changing previous options"""
+    # Now convert the non converted values in the dict
+    options = ast_evaluate_dict_values(optionsdict)
+    return plot.opts(options)
 
 def customize_plot(plot, plotName, configs, **addConfigs):
     """
@@ -438,6 +445,10 @@ def customize_plot(plot, plotName, configs, **addConfigs):
     options.update(gen_opts)
     options.update(specific_opts)
     options.update(addConfigs)
+
+    # Now convert the non converted values in the dict
+    options = ast_evaluate_dict_values(options)
+
     try:
         if not newlabel:
             label = configs.get(plotName, {}).get("PlotLabel", "")
@@ -446,6 +457,22 @@ def customize_plot(plot, plotName, configs, **addConfigs):
     except AttributeError as err:
         log.warning("Relable of plot {} was not possible!".format(configs.get(plotName, {}).get("PlotLabel", "")))
     return plot
+
+def ast_evaluate_dict_values(edict):
+    """Ast evaluates dict entries and returns the evaluated dict."""
+    returndict = {}
+    for key, value in edict.items():
+        if isinstance(value, dict):
+            value = ast_evaluate_dict_values(value)
+        if isinstance(value, str): # Only evaluate str values all other must be correct
+            try:
+                value = eval(value)
+            except Exception as err:
+                log.debug("Could not interpret '{}' in key '{}' as a valid object. Stays as is! Error: {}".format(value, key, err))
+
+        returndict[key] = value
+    return returndict
+
 
 def read_in_CSV_measurement_files(filepathes):
     """This reads in csv files and converts the directly to a pandas data frame!!!"""
