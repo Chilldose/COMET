@@ -14,7 +14,7 @@ from bokeh.models import CustomJS
 from bokeh.models.widgets import Button
 
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout, text_box
-from forge.tools import twiny, relabelPlot
+from forge.tools import twiny, relabelPlot, applyPlotOptions
 from forge.tools import plot_all_measurements, convert_to_EngUnits
 from forge.specialPlots import dospecialPlots
 from forge.utilities import line_intersection
@@ -75,6 +75,7 @@ class IVCV_QTC:
 
         # Plot all Measurements
         self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, "IVCV_QTC", do_not_plot = self.donts)
+        #self.basePlots = applyPlotOptions(self.basePlots, {'Curve': {'color': "hv.Cycle('PiYG')"}})
         self.PlotDict["BasePlots"] = self.basePlots
         self.PlotDict["All"] = self.basePlots
 

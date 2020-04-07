@@ -4,6 +4,11 @@
 
   Analysis:
     - COVID19 # The type of analysis, which will be performed
+    
+  Files:
+    - D:\GitRepos\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_covid19_confirmed_global.csv
+    - D:\GitRepos\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_covid19_deaths_global.csv
+    - D:\GitRepos\COVID-19\csse_covid_19_data\csse_covid_19_time_series\time_series_covid19_recovered_global.csv
 
 
 # Optional Parameters
