@@ -1,3 +1,4 @@
+
 .. COMET documentation master file, created by
    sphinx-quickstart on Thu Aug 02 08:34:07 2018.
    You can adapt this file completely to your liking, but it should at least

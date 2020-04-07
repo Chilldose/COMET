@@ -21,9 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -205,8 +206,8 @@ In order to do so we need to design a GUI first.</p>
 With the <a class="reference internal" href="installation.html#installation"><span class="std std-ref">Installation</span></a> of this software, which you have followed I hope, the so-called QtDesigner was installed as well.
 If features a simple GUI based program, in which you can generate your own GUI and save them in <code class="docutils literal notranslate"><span class="pre">.ui</span></code> format.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">You can normally find the QTDesigner in your install directory of python under the QT directory in the lib. And I will not go into details on how you build GUIs in QtDesigner, there are plenty of tutorial videos in the web.</p>
+<p class="admonition-title">Note</p>
+<p>You can normally find the QTDesigner in your install directory of python under the QT directory in the lib. And I will not go into details on how you build GUIs in QtDesigner, there are plenty of tutorial videos in the web.</p>
 </div>
 <p>When your GUI element is finished save it in the directory <code class="docutils literal notranslate"><span class="pre">.COMET/QT_Designer_UI</span></code>. Now COMET can access them easily.</p>
 <p>The next step is to tell the Program to render this UI. Open the <code class="docutils literal notranslate"><span class="pre">settings.yml</span></code> in your project folder and
@@ -221,8 +222,8 @@ add in the parameter <code class="docutils literal notranslate"><span class="pre
 <p>Unfortunately this is not all. We know have to write some code to tell the framework that we want to render this <code class="docutils literal notranslate"><span class="pre">.ui</span></code> file you have just created.
 For this we generate a file in the directory <code class="docutils literal notranslate"><span class="pre">.COMET/ui_plugins</span></code>. This file you have to call <code class="docutils literal notranslate"><span class="pre">&lt;YourCoolGUI&gt;_window.py</span></code>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">It is important, that you add the suffix <code class="docutils literal notranslate"><span class="pre">_window</span></code> to your python file, this makes it clear for the framework, that this is a window and treads it as one. All other files will be ignored and cannot be added this way!</p>
+<p class="admonition-title">Note</p>
+<p>It is important, that you add the suffix <code class="docutils literal notranslate"><span class="pre">_window</span></code> to your python file, this makes it clear for the framework, that this is a window and treads it as one. All other files will be ignored and cannot be added this way!</p>
 </div>
 <p>Inside your python GUI plugin you have to direct the framework what to do.
 The minimal example to run just the GUI without anything else is as follows:</p>
@@ -263,36 +264,35 @@ To do so add the line:</p>
 </div>
 <p>The top entry <strong>Devices</strong> is a mandatory entry which tells the software that the following entries are devices.
 The sub-entries are up to your liking, but this will be the name of the internal representation of the device object in the software!</p>
-<dl class="docutils">
-<dt>The entires:</dt>
-<dd><ul class="first last simple">
-<li>Device_name</li>
-<li>Device_IDN</li>
-<li>Connection_resource</li>
+<dl class="simple">
+<dt>The entires:</dt><dd><ul class="simple">
+<li><p>Device_name</p></li>
+<li><p>Device_IDN</p></li>
+<li><p>Connection_resource</p></li>
 </ul>
 </dd>
 </dl>
 <p>are mandatory for eacht sub-entries. You can extend this list as you like, the main framework will ignore them, but if you do need some additional parameters which cannot
 be configured in the main device config, knock yourself out.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If you have a RS232 device connected you can add the <code class="docutils literal notranslate"><span class="pre">Baud_rate</span></code> parameter and change the default baud rate for the device. This also holds true for other RS232 parameters. For more information see, the device connection API reference for more information.</p>
+<p class="admonition-title">Note</p>
+<p>If you have a RS232 device connected you can add the <code class="docutils literal notranslate"><span class="pre">Baud_rate</span></code> parameter and change the default baud rate for the device. This also holds true for other RS232 parameters. For more information see, the device connection API reference for more information.</p>
 </div>
 <p><strong>Connection_resource</strong> is a parameter which tells the framework what kind of connection the device listens to and at what port.
 Possible options are:</p>
 <blockquote>
 <div><ul class="simple">
-<li>RS232:&lt;ComPort&gt;</li>
-<li>GPIB:&lt;Address&gt;</li>
-<li>IP:&lt;IP_INSTR_descriptor&gt;</li>
+<li><p>RS232:&lt;ComPort&gt;</p></li>
+<li><p>GPIB:&lt;Address&gt;</p></li>
+<li><p>IP:&lt;IP_INSTR_descriptor&gt;</p></li>
 </ul>
 </div></blockquote>
 <p>If you then start the COMET software with your project selected. The device should appear in the resources tab. Depending if
 the device is connected to the PC the connection lamp should switch to green, which means that the software has successfully established
 a connection to the device and everything was configured correctly.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Most often, if you experience connection difficulties the Device_IDN is not completely correct entered.</p>
+<p class="admonition-title">Note</p>
+<p>Most often, if you experience connection difficulties the Device_IDN is not completely correct entered.</p>
 </div>
 <p>The result schould lool like this:</p>
 <img alt="Flowchart_main" class="floatingflask" src="_images/Resources1.png" />
@@ -331,8 +331,8 @@ If you have a device which is not listed you have to add this device to the lib.
 There you can add your device as as <code class="docutils literal notranslate"><span class="pre">.yml</span></code> styled file. You can choose the name of the file as you see fit. As long it does not
 interfere with another name in the same directory.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The software only accepts <code class="docutils literal notranslate"><span class="pre">.yml</span></code> files, all other files will be ignored.</p>
+<p class="admonition-title">Note</p>
+<p>The software only accepts <code class="docutils literal notranslate"><span class="pre">.yml</span></code> files, all other files will be ignored.</p>
 </div>
 <p>Inside such a device file you can set a multitude of parameters. Such a exemplary device file looks as follows:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">---</span>
@@ -372,10 +372,10 @@ interfere with another name in the same directory.</p>
 <p>In principal you have four different sections in a device file:</p>
 <blockquote>
 <div><ul class="simple">
-<li><strong>Set Parameters</strong></li>
-<li><strong>Get Parameters</strong></li>
-<li><strong>Reset Parameters</strong></li>
-<li><strong>Misc. Parameters</strong></li>
+<li><p><strong>Set Parameters</strong></p></li>
+<li><p><strong>Get Parameters</strong></p></li>
+<li><p><strong>Reset Parameters</strong></p></li>
+<li><p><strong>Misc. Parameters</strong></p></li>
 </ul>
 </div></blockquote>
 <p><strong>Set Parameters:</strong></p>
@@ -413,8 +413,8 @@ command sent to the device: <code class="docutils literal notranslate"><span cla
 <p>These parameters are completely optional, you can give them names as you like, you do not have to set any prefixes or whatsoever.
 I personally use these parametes for nice to know/have commands.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The only &quot;important&quot; parameter in the Misc. section is the <code class="docutils literal notranslate"><span class="pre">reset_device:</span> <span class="pre">[&quot;*RST&quot;,</span> <span class="pre">&quot;*CLS&quot;]</span></code> if you have this key in your config file, the software uses the list passed to soft-reset the device. But be aware, the software does not check any of these commands, it just sends them. Its up to you they are correct soft-reset commands!</p>
+<p class="admonition-title">Note</p>
+<p>The only &quot;important&quot; parameter in the Misc. section is the <code class="docutils literal notranslate"><span class="pre">reset_device:</span> <span class="pre">[&quot;*RST&quot;,</span> <span class="pre">&quot;*CLS&quot;]</span></code> if you have this key in your config file, the software uses the list passed to soft-reset the device. But be aware, the software does not check any of these commands, it just sends them. Its up to you they are correct soft-reset commands!</p>
 </div>
 <div class="section" id="device-command-structure">
 <h3>Device Command Structure<a class="headerlink" href="#device-command-structure" title="Permalink to this headline">¶</a></h3>
@@ -428,8 +428,8 @@ send this command via the simple command structure <code class="docutils literal
 the device object, containing all information about the device, &quot;set_voltage&quot; is the key and 100.0 the value. This results
 in the command send to the device &quot;BiasSMU&quot;: <code class="docutils literal notranslate"><span class="pre">smua.levelV</span> <span class="pre">=</span> <span class="pre">100.0</span></code>.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If you have several variables to be passed. Like <code class="docutils literal notranslate"><span class="pre">set_beep:</span> <span class="pre">beeper.beep({},</span> <span class="pre">{})</span></code> you can do <code class="docutils literal notranslate"><span class="pre">vcw.query(BiasSMU,</span> <span class="pre">&quot;set_beep&quot;,</span> <span class="pre">24000,</span> <span class="pre">1)</span></code>, and it will result in: <code class="docutils literal notranslate"><span class="pre">beeper.beep(24000,</span> <span class="pre">1)</span></code></p>
+<p class="admonition-title">Note</p>
+<p>If you have several variables to be passed. Like <code class="docutils literal notranslate"><span class="pre">set_beep:</span> <span class="pre">beeper.beep({},</span> <span class="pre">{})</span></code> you can do <code class="docutils literal notranslate"><span class="pre">vcw.query(BiasSMU,</span> <span class="pre">&quot;set_beep&quot;,</span> <span class="pre">24000,</span> <span class="pre">1)</span></code>, and it will result in: <code class="docutils literal notranslate"><span class="pre">beeper.beep(24000,</span> <span class="pre">1)</span></code></p>
 </div>
 <p>The functionality how you can send commands is quiet extensive and would expand beyond the topic of this section. Therefore, please see
 section ??? for more details.</p>
@@ -455,8 +455,8 @@ class with the exact same name as the name of the file and it contains AND the s
 Furthermore, the class only becomes one parameter passed during init, this being the measurement event loop instance.</p>
 <p>Otherwise there are no real restrictions on how your measurement is working.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The whole measurement class will be run in a thread on their own. So make sure to be as thread save as possible when you program it. But you do not need to do anything concerning the thread capabilities of your routine. The framework takes care of that.</p>
+<p class="admonition-title">Note</p>
+<p>The whole measurement class will be run in a thread on their own. So make sure to be as thread save as possible when you program it. But you do not need to do anything concerning the thread capabilities of your routine. The framework takes care of that.</p>
 </div>
 <p>Now comes to the fun part, coding the actual measurement procedure.</p>
 <p>As an example I show you a simple IV measurement plugin.</p>
@@ -612,8 +612,8 @@ Furthermore, the class only becomes one parameter passed during init, this being
 </pre></div>
 </td></tr></table></div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">The mechanics and functions behind the actual measurement procedure is quiet big. Therefore, I will only talk about the here programmed example but note that the framework tool box gives you a ton of functions to work with for measurement algorithm development. Please see for the dedicated tutorials on that.</p>
+<p class="admonition-title">Note</p>
+<p>The mechanics and functions behind the actual measurement procedure is quiet big. Therefore, I will only talk about the here programmed example but note that the framework tool box gives you a ton of functions to work with for measurement algorithm development. Please see for the dedicated tutorials on that.</p>
 </div>
 <p>So lets go through this program in detail:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># This file conducts a simple IV measurement</span>
@@ -717,8 +717,8 @@ it generates you a file in which you can easily write. To do so you have to acce
 <code class="docutils literal notranslate"><span class="pre">self.main.write(self.main.measurement_files[&quot;IV&quot;],</span> <span class="pre">string_to_write</span> <span class="pre">+</span> <span class="pre">&quot;\n&quot;)</span></code> and the string gets written to the file.
 The <code class="docutils literal notranslate"><span class="pre">self.main.measurement_files</span></code> variable is a dict containing all file pointer.</p>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">All this easy access of the main variable is solemnly possible if you make it a member of your measurement plugin, as I did in the init!!!</p>
+<p class="admonition-title">Warning</p>
+<p>All this easy access of the main variable is solemnly possible if you make it a member of your measurement plugin, as I did in the init!!!</p>
 </div>
 </div>
 <div class="section" id="add-a-continuous-environment-monitor">
@@ -739,15 +739,15 @@ the <em>update_interval</em>. This plugin class must have, like with all other m
 routine. Furthermore, the plugin is spawned in its own thread, but the framework does not handel recalling the function. It is
 in your responability the thread does not kill itself after a run through!</p>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">The spawned thread is a demonized thread! So it shuts down automatically when the framework shuts down.</p>
+<p class="admonition-title">Warning</p>
+<p>The spawned thread is a demonized thread! So it shuts down automatically when the framework shuts down.</p>
 </div>
 <p>For data storage of the data, the measurement_event_loop has two numpy arrays for storage: <code class="docutils literal notranslate"><span class="pre">measurement_event_loop.humidity_history</span></code>
 and <code class="docutils literal notranslate"><span class="pre">measurement_event_loop.temperature_history</span></code>. You can store your data there or use your own storage solution.
 If you want to pass your data to the GUI use the dedicated queue objects for data sharing like with any other measurement plugin.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Do not forget to add the measurements to your settings, so your GUI recognizes your data!!! See <a class="reference internal" href="#add-a-new-measurement"><span class="std std-ref">Add a new measurement</span></a></p>
+<p class="admonition-title">Note</p>
+<p>Do not forget to add the measurements to your settings, so your GUI recognizes your data!!! See <a class="reference internal" href="#add-a-new-measurement"><span class="std std-ref">Add a new measurement</span></a></p>
 </div>
 </div>
 <div class="section" id="change-the-behaviour-of-the-framework-and-misc">
@@ -757,8 +757,8 @@ All these features can be accessed by a parameter in the <code class="docutils l
 <p><strong>GUI_update_interval: &lt;time_in_ms&gt;</strong></p>
 <p>This parameter handles the update interval -in ms- of the GUI, this includes the framework functions which you specified as well.</p>
 <div class="admonition caution">
-<p class="first admonition-title">Caution</p>
-<p class="last">Too low values can cause the GUI to freeze or be lagging. This depends on how resource depended your functions are. To high values can cause the GUI to be unresponsive.</p>
+<p class="admonition-title">Caution</p>
+<p>Too low values can cause the GUI to freeze or be lagging. This depends on how resource depended your functions are. To high values can cause the GUI to be unresponsive.</p>
 </div>
 <p><strong>store_data_as: &lt;data_type&gt;</strong></p>
 <p>This parameter defines an additional data type, your measurement data will be stored. Currently only <em>json</em> is supported.</p>
