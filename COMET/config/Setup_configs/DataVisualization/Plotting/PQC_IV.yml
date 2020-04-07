@@ -50,6 +50,9 @@
 
           shared_axes: False
 
+
+
+
       Layout:
 
           cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
@@ -60,6 +63,9 @@
           PlotLabel: MOS CV CURVES
 
           #UnitConversion: nano
+          PlotStyles: # Here you can state some plot types you want to have, possible Options are Curve, Spike, Histogram, if non is stated, curve is selected
+
+            - Curve
 
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
 
@@ -75,13 +81,14 @@
 
               #xlim: !!python/tuple [0, 1000]
 
-              #legend_position: "bottom_right"
+              #legend_position: 'right'
 
               #aspect: equal
 
               padding: !!python/tuple [0, 0.1]
 
               show_grid: True
+              toolbar: left
 
               gridstyle:
 
@@ -104,6 +111,8 @@
               shared_axes: False
               xformatter: "%.0f"
               yformatter: "%.0e"
+
+
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               #yaxisENG: False # If you want to plot the y axis in engineering representation
 
@@ -114,6 +123,7 @@
           PlotLabel: CV CURVES2
 
           #UnitConversion: nano
+
 
           findFlatBandVoltage: True
 
@@ -158,8 +168,11 @@
               ylabel: C/A (F/cm^2)
 
               shared_axes: False
+
               xformatter: "%.0f"
+
               yformatter: "%.0e"
+
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               yaxisENG: True # If you want to plot the y axis in engineering representation
 
@@ -168,6 +181,7 @@
       derivative:
 
           PlotLabel: firstderivative
+
 
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
 
@@ -220,7 +234,9 @@
             #xlim: !!python/tuple [0, 500]
 
             xformatter: "%.0f"
+
             yformatter: "%.0e"
+
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
             yaxisENG: True # If you want to plot the y axis in engineering representation
 
@@ -277,6 +293,8 @@
             #xlim: !!python/tuple [0, 500]
 
             xformatter: "%.0f"
+
            #yformatter: "%.2f"
+
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
             yaxisENG: True # If you want to plot the y axis in engineering representation

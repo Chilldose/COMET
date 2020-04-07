@@ -127,6 +127,7 @@ class IV_PQC:
             try:
                 if self.basePlots.Overlay.MOS_CV_CURVES.children:
                     c2plot = self.basePlots.Overlay.MOS_CV_CURVES.opts(clone=True)
+
                 else:
                     c2plot = self.basePlots.Curve.MOS_CV_CURVES.opts(clone=True)
 
@@ -142,7 +143,7 @@ class IV_PQC:
 
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
-
+        # .BasePlots.opts(opts.Curve(color=hv.Cycle('Category20')))
         return self.PlotDict
 
     def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, **addConfigs):
@@ -230,8 +231,8 @@ class IV_PQC:
                                [xmax, np.median(Right_stats[:, 1]) * xmax + np.median(Right_stats[:, 2])]])
 
         # Plots of the fits
-        right_line = hv.Curve(right_line).opts(color='blue')
-        fit_line = hv.Curve(fit_line).opts(color='red')
+        right_line = hv.Curve(right_line)
+        fit_line = hv.Curve(fit_line)
 
         # Compute the flatband voltage
         flatband_voltage[i]=line_intersection(fitEndPoints, RightEndPoints)
@@ -280,8 +281,9 @@ class IV_PQC:
 
 
         # Update the plot specific options if need be
-        returnPlot = plot * vline * text * firstDerivativePlot * secondDerivativePlot * fit_line * right_line
+        returnPlot =  plot * vline * text  * firstDerivativePlot * right_line * secondDerivativePlot * fit_line
         #returnPlot = relabelPlot(returnPlot, "MOS_CV CURVES - Full depletion calculation")
         #returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
 
         return returnPlot
+        #self.basePlots.opts(opts.Curve(color=hv.Cycle('Category20')))
