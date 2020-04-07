@@ -242,7 +242,7 @@ def config_layout(PlotItem, **kwargs):
             ]
         hover = HoverTool(tooltips=TOOLTIPS)
         PlotItem.opts(
-            opts.Curve(color=hv.Cycle('Category20'),tools=[hover]),
+            opts.Curve(tools=[hover]),
             opts.Scatter(tools=[hover]),
             opts.Histogram(tools=[hover]),
             opts.Points(tools=[hover]),
