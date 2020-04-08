@@ -1,4 +1,5 @@
 --- # Dummy config file for testing
+
 # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files
     header_lines: 8

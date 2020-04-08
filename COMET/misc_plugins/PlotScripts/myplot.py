@@ -16,7 +16,7 @@ from warnings import filterwarnings
 filterwarnings('ignore', message='save()', category=UserWarning)
 hv.extension('bokeh')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-from .forge.tools import read_in_files, save_plot
+from .forge.tools import read_in_files, save_plot, read_in_CUSTOM_measurement_files
 
 class PlottingMain:
 
@@ -47,12 +47,8 @@ class PlottingMain:
 
 
         self.log.critical("Loading data files...")
-        if "Filetype" in self.config:
-            self.data, load_order = read_in_files(self.config["Files"], self.config["Filetype"], self.config.get("ASCII_file_specs", {}))
-            self.config["file_order"] = load_order  # To keep easy track of the names and not the pathes
-        else:
-            self.data, load_order = read_in_files(self.config["Files"], file_specs=self.config.get("ASCII_file_specs", {}))
-            self.config["file_order"] = load_order  # To keep easy track of the names and not the pathes
+        self.data, load_order = read_in_files(self.config["Files"], self.config)
+        self.config["file_order"] = load_order  # To keep easy track of the names and not the pathes
 
         self.log.critical("Loading data files completed.")
 

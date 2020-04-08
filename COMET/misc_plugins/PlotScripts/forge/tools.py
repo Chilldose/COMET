@@ -4,6 +4,7 @@ import numpy as np
 import logging
 from .utilities import load_yaml
 import os, sys
+import traceback
 import re
 import ast
 import holoviews as hv
@@ -17,6 +18,7 @@ from bokeh.io import save
 import json, yaml
 from copy import deepcopy
 from bokeh.models import HoverTool
+import importlib.util
 try:
     import pdfkit
 except:
@@ -492,23 +494,40 @@ def ast_evaluate_dict_values(edict):
         returndict[key] = value
     return returndict
 
-def read_in_files(filepathes, filetype=None, file_specs=None):
+def read_in_files(filepathes, configs):
     """
     This function is to streamline the import of data
     :param filepathes: A list of files
-    :param filetype: If you want to force to use an importer
+    :param configs: the configs file content
     :return: data dicts
     """
+    filetype = configs.get("Filetype", None)
+    ascii_specs = configs.get("ASCII_file_specs", None)
+    custom_specs = configs.get("Custom_specs", None)
+
     if filetype:
         if filetype.upper() == "ASCII":
-            if file_specs:
-                return read_in_ASCII_measurement_files(filepathes, file_specs)
+            if ascii_specs:
+                return read_in_ASCII_measurement_files(filepathes, ascii_specs)
             else:
                 log.error("ASCII file type files must be given with specifications how to interpret data.")
         elif filetype.upper() == "JSON":
             return read_in_JSON_measurement_files(filepathes)
         elif filetype.upper() == "CSV":
             return read_in_CSV_measurement_files(filepathes)
+        elif filetype.upper() == "CUSTOM":
+            if custom_specs:
+                data = read_in_CUSTOM_measurement_files(filepathes, custom_specs)
+                if data and isinstance(data, dict):
+                    return data, []
+                else:
+                    log.error("Return data from CUSTOM file parsing did not yield valid data. Data must be a dictionary!")
+                    return {}, []
+
+            else:
+                log.error("If you want to use custom file import you must specifiy a 'Custom_specs' section in "
+                          "your configuration.")
+                return {}
 
     data = {}
     load_order = []
@@ -516,8 +535,8 @@ def read_in_files(filepathes, filetype=None, file_specs=None):
         if os.path.exists(file):
             filename, file_extension = os.path.splitext(file)
             if file_extension.lower() == ".txt" or file_extension.lower == ".dat":
-                if file_specs:
-                    data.update(read_in_ASCII_measurement_files([file], file_specs))
+                if ascii_specs:
+                    data.update(read_in_ASCII_measurement_files([file], ascii_specs))
                 else:
                     log.error("ASCII file type files must be given with specifications how to interpret data.")
             elif file_extension.lower() == ".json" or file_extension.lower == ".yml" or file_extension.lower == ".yaml":
@@ -531,6 +550,31 @@ def read_in_files(filepathes, filetype=None, file_specs=None):
         else:
             log.error("Path {} does not exists, skipping file!".format(file))
     return data, load_order
+
+def read_in_CUSTOM_measurement_files(filepathes, configs):
+    """
+    Loads a custom module for file import, executes it and returns data
+    :param filepathes: List of filepathes
+    :param module: the module name
+    :param name: the class/function name
+    :param kwargs: additional kwargs the module needs
+    :return: parsed data as dict
+    """
+    try:
+        path = configs["path"]
+        module = configs["module"]
+        name = configs["name"]
+        spec = importlib.util.spec_from_file_location(module, os.path.normpath(path))
+        func = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(func)
+        return getattr(func, name)(filepathes, **configs.get("parameters", {}))
+    except ImportError as err:
+        log.error("Could not load module for custom import with error: {}".format(err))
+        return None
+    except Exception as err:
+        log.error("An error happened while performing custom import: {}".format(traceback.format_exc()))
+        return None
+
 
 def read_in_CSV_measurement_files(filepathes):
     """This reads in csv files and converts the directly to a pandas data frame!!!"""
