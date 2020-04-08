@@ -1,14 +1,10 @@
 --- # Dummy config file for testing
-
-  Filetype: JSON # Other options are json, ACII
-
 # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files
     header_lines: 8
     measurement_description: 9
     units_line: 9
     data_start: 10
-#    data_separator: ","
 
   Analysis:
     - IVCV_QTC # The type of analysis, which will be performed
