@@ -492,6 +492,45 @@ def ast_evaluate_dict_values(edict):
         returndict[key] = value
     return returndict
 
+def read_in_files(filepathes, filetype=None, file_specs=None):
+    """
+    This function is to streamline the import of data
+    :param filepathes: A list of files
+    :param filetype: If you want to force to use an importer
+    :return: data dicts
+    """
+    if filetype:
+        if filetype.upper() == "ASCII":
+            if file_specs:
+                return read_in_ASCII_measurement_files(filepathes, file_specs)
+            else:
+                log.error("ASCII file type files must be given with specifications how to interpret data.")
+        elif filetype.upper() == "JSON":
+            return read_in_JSON_measurement_files(filepathes)
+        elif filetype.upper() == "CSV":
+            return read_in_CSV_measurement_files(filepathes)
+
+    data = {}
+    load_order = []
+    for file in filepathes:
+        if os.path.exists(file):
+            filename, file_extension = os.path.splitext(file)
+            if file_extension.lower() == ".txt" or file_extension.lower == ".dat":
+                if file_specs:
+                    data.update(read_in_ASCII_measurement_files([file], file_specs))
+                else:
+                    log.error("ASCII file type files must be given with specifications how to interpret data.")
+            elif file_extension.lower() == ".json" or file_extension.lower == ".yml" or file_extension.lower == ".yaml":
+                data_new, order = read_in_JSON_measurement_files([file])
+                load_order.append(order)
+                data.update(data_new)
+                continue # In order to prevent the next load order to be executed
+            elif file_extension.lower() == ".csv":
+                data.update(read_in_CSV_measurement_files([file]))
+            load_order.append(file)
+        else:
+            log.error("Path {} does not exists, skipping file!".format(file))
+    return data, load_order
 
 def read_in_CSV_measurement_files(filepathes):
     """This reads in csv files and converts the directly to a pandas data frame!!!"""
@@ -507,7 +546,9 @@ def read_in_CSV_measurement_files(filepathes):
         data_dict["data"] = data
         all_data[os.path.basename(file).split(".")[0]] = data_dict
 
-    return all_data, load_order
+    if len(load_order) > 1:
+        return all_data, load_order
+    else: return all_data
 
 
 
@@ -542,8 +583,8 @@ def read_in_JSON_measurement_files(filepathes):
                     all_data[filename] = item
                     load_order.append(filename)
 
-
         return all_data, load_order
+
 
     except Exception as e:
         log.warning("Something went wrong while importing the file " + str(files) + " with error: " + str(e))
@@ -569,7 +610,10 @@ def read_in_ASCII_measurement_files(filepathes, settings):
             all_data[filename] = data
             load_order.append(filename)
 
-        return all_data, load_order
+        if len(load_order) > 1:
+            return all_data, load_order
+        else:
+            return all_data
 
     except Exception as e:
         log.error("Something went wrong while importing the file " + str(current_file) + " with error: " + str(e))
