@@ -27,6 +27,7 @@ class IV_PQC:
         self.config = configs
         self.df = []
         self.basePlots = None
+        self.basePlots_2 = None
         self.name = "IV_PQC"
         self.PlotDict = {"Name": "IV"}
         self.capincluded = False
@@ -37,6 +38,10 @@ class IV_PQC:
             self.data["columns"].insert(3, "CapacityCopy")
             self.data["columns"].insert(4, "derivative")
             self.data["columns"].insert(5, "derivative2")
+            self.data["columns"].insert(6, "1C2")
+            self.data["columns"].insert(7,"derivative1C2")
+            self.data["columns"].insert(8, "x")
+            self.data["columns"].insert(9, "N")
             self.capincluded = True
 
 
@@ -44,7 +49,7 @@ class IV_PQC:
 
         self.measurements = self.data["columns"]
         self.xaxis = self.measurements[0]
-        self.donts = ["timestamp", "voltage","current","Current","Voltage","Stepsize","Wait","Stepsize","Frequency"]
+        self.donts = ["timestamp", "voltage","current","Voltage","Stepsize","Wait","Stepsize","Frequency",'x','N']
         hv.renderer('bokeh')
 
 
@@ -60,24 +65,55 @@ class IV_PQC:
     def run(self):
         """Runs the script"""
 
+        # Add the 1/c^2 data to the dataframes
         # Add a copy of the Capacity values to the data frame, where the small kink in the plot is deleted
         for df in self.data["keys"]:
 
             if "Capacity" in self.data[df]["data"]:
-                if 'Voltage' in self.data[df]['data']: # Check that the voltage values have increasing order
-                    if self.data[df]["data"]["Voltage"][0] > 0:
-                        self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))
-                        self.data[df]["data"]["Capacity"] = list(reversed(self.data[df]["data"]["Capacity"]))
-                self.data[df]["data"]["Capacity"] = self.data[df]["data"]["Capacity"] / (float(self.data[df]['header'][0].split(':')[1])*(1e-8)) # Normalize by the Area and convert to cm^2
-                CapacityCopy = self.data[df]["data"]["Capacity"].copy()
-                capMin= np.max(self.data[df]["data"]["Capacity"][:20]) # Find the Maximum among te first 20 values of the Capacity and set it as minimum Capacity value
-                for x in range(len(self.data[df]["data"]["Capacity"])):
-                    if CapacityCopy[x] < capMin:
-                        CapacityCopy[x] = capMin
-                # insert into the data frame
-                self.data[df]["data"].insert(3, "CapacityCopy", CapacityCopy)
-                self.data[df]["units"].append("arb. units")
-                self.data[df]["measurements"].append("CapacityCopy")
+                if 'Area_um' in self.data[df]['header'][0].split(':'):
+                    if 'Voltage' in self.data[df]['data']: # Check that the voltage values have increasing order
+                        if self.data[df]["data"]["Voltage"][0] > 0:
+                            self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))
+                            self.data[df]["data"]["Capacity"] = list(reversed(self.data[df]["data"]["Capacity"]))
+                    self.data[df]["data"]["Capacity"] = self.data[df]["data"]["Capacity"] / (float(self.data[df]['header'][0].split(':')[1])*(1e-8)) # Normalize by the Area and convert to cm^2
+                    CapacityCopy = self.data[df]["data"]["Capacity"].copy()
+                    capMin= np.max(self.data[df]["data"]["Capacity"][:20]) # Find the Maximum among te first 20 values of the Capacity and set it as minimum Capacity value
+                    for x in range(len(self.data[df]["data"]["Capacity"])):
+                        if CapacityCopy[x] < capMin:
+                            CapacityCopy[x] = capMin
+                    # insert into the data frame
+                    self.data[df]["data"].insert(3, "CapacityCopy", CapacityCopy)
+                    self.data[df]["units"].append("arb. units")
+                    self.data[df]["measurements"].append("CapacityCopy")
+
+                elif 'Area_um' not in self.data[df]['header'][0].split(':'):
+
+                    if "Capacity" in self.data[df]["data"]:
+
+                        self.data[df]["data"]["Voltage"] = list(map(abs,self.data[df]["data"]["Voltage"]))
+                        self.data[df]["data"].insert(3, "1C2", 1 / self.data[df]["data"]["Capacity"].pow(2))
+                        self.data[df]["units"].append("arb. units")
+                        self.data[df]["measurements"].append("1C2")
+
+                        invers_C2_dy = np.diff(self.data[df]["data"]["1C2"])
+                        invers_C2_dx = np.diff(self.data[df]["data"][self.xaxis])
+                        der_invers_C2 = invers_C2_dy/invers_C2_dx
+                        firstdev_invers_C2 = np.insert(der_invers_C2, 0, der_invers_C2[0])  # Add an element to the array to have the same number of rows as in df
+                        self.data[df]["data"].insert(4, "derivative", firstdev_invers_C2)
+                        self.data[df]["units"].append("arb. units")
+                        self.data[df]["measurements"].append("derivative")
+
+                        x = self.config['IV_PQC_parameter']['epsilonNull']*(1e+2) \
+                            * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] / self.data[df]["data"]["Capacity"]
+                        self.data[df]['data'].insert(5, 'x', x)
+                        self.data[df]["units"].append("arb. units")
+                        self.data[df]["measurements"].append("x")
+
+                        N = 2*(1e+10)/(self.config['IV_PQC_parameter']['epsilonNull'] \
+                            * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] * self.data[df]["data"]["derivative"])
+                        self.data[df]['data'].insert(6, 'N', N)
+                        self.data[df]["units"].append("arb. units")
+                        self.data[df]["measurements"].append("N")
 
 
 
@@ -116,22 +152,57 @@ class IV_PQC:
                 indexMin = self.data[df]['data'].index.get_loc(
                     self.data[df]['data']['derivative2'].values.argmin())
 
+        for df in self.data["keys"]:
+            if "Current" in self.data[df]["data"]:
+                mxx= max(self.data[df]['data']['Current'])
+                min= np.mean(self.data[df]['data']['Current'][-20:])
+                Isurf=mxx-min
 
         # Plot all Measurements
         self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name, do_not_plot = self.donts)
         self.PlotDict["BasePlots"] = self.basePlots
         self.PlotDict["All"] = self.basePlots
+        # Add plot with a different x axis
+        self.basePlots_2 = plot_all_measurements(self.data, self.config, 'x', self.name, do_not_plot = ['Voltage','Current','Capacity','1C2','derivative','x'])
+        self.PlotDict["BasePlots"] += self.basePlots_2
+        self.PlotDict["All"] += self.basePlots_2
+
+        self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"], {'Curve': {'color': "hv.Cycle('PiYG')"}})
+
+        # Add full depletion point to 1/c^2 curve
+
+        if self.config["IV_PQC"].get("1C2", {}).get("DoFullDepletionCalculation", False):
+
+            try:
+
+                if self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.children:
+
+                    c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.opts(clone=True)
+
+                else:
+                    c2plot = self.basePlots.Curve.CV_CURVES_hyphen_minus_Full_depletion.opts(clone=True)
+
+                fdestimation = self.find_full_depletion_c2(c2plot, self.data, self.config,
+                                                        PlotLabel="Full depletion estimation")
+
+                self.PlotDict["All"] += fdestimation
+
+                self.PlotDict["BasePlots"] += fdestimation
+
+            except Exception as err:
+
+                self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
         # Add flat bandage voltage point to the Capacity curve
         if self.config["IV_PQC"].get("CapacityCopy", {}).get("findFlatBandVoltage", False):
             try:
                 if self.basePlots.Overlay.MOS_CV_CURVES.children:
-                    c2plot = self.basePlots.Overlay.MOS_CV_CURVES.opts(clone=True)
+                    clone_plot = self.basePlots.Overlay.MOS_CV_CURVES.opts(clone=True)
 
                 else:
-                    c2plot = self.basePlots.Curve.MOS_CV_CURVES.opts(clone=True)
+                    clone_plot = self.basePlots.Curve.MOS_CV_CURVES.opts(clone=True)
 
-                fBestimation = self.find_flatBand_voltage(c2plot, self.data, self.config, indexMax, indexMin,
+                fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax, indexMin,
                                                         PlotLabel="Flat band voltage estimation")
 
                 self.PlotDict["All"] += fBestimation
@@ -140,10 +211,10 @@ class IV_PQC:
             except Exception as err:
                 self.log.warning("No flat band voltage calculation possible... Error: {}".format(err))
 
-
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
         # .BasePlots.opts(opts.Curve(color=hv.Cycle('Category20')))
+
         return self.PlotDict
 
     def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, **addConfigs):
@@ -231,8 +302,8 @@ class IV_PQC:
                                [xmax, np.median(Right_stats[:, 1]) * xmax + np.median(Right_stats[:, 2])]])
 
         # Plots of the fits
-        right_line = hv.Curve(right_line)
-        fit_line = hv.Curve(fit_line)
+        right_line = hv.Curve(right_line).opts(color='blue')
+        fit_line = hv.Curve(fit_line).opts(color='red')
 
         # Compute the flatband voltage
         flatband_voltage[i]=line_intersection(fitEndPoints, RightEndPoints)
@@ -287,3 +358,199 @@ class IV_PQC:
 
         return returnPlot
         #self.basePlots.opts(opts.Curve(color=hv.Cycle('Category20')))
+
+    def find_full_depletion_c2(self, plot, data, configs, **addConfigs):
+
+        """
+
+        Finds the full depletion voltage of all data samples and adds a vertical line for the full depletion in the
+
+        plot. Vertical line is the mean of all measurements. Furthermore, adds a text with the statistics.
+
+        :param plot: The plot object
+
+        :param data: The data files
+
+        :param configs: the configs
+
+        :param **addConfigs: the configs special for the 1/C2 plot, it is recomended to pass the same options here again, like in the original plot!
+
+        :return: The updated plot
+
+        """
+
+
+
+        full_depletion_voltages = np.zeros((len(data["keys"]), 2))
+
+        Left_stats = np.zeros((len(data["keys"]), 6), dtype=np.object)
+
+        Right_stats = np.zeros((len(data["keys"]), 6), dtype=np.object)
+
+        self.log.info("Searching for full depletion voltage in all files...")
+
+
+
+        for i, samplekey in enumerate(data["keys"]):
+
+            if "1C2" not in data[samplekey]["data"]:
+
+                self.log.warning("Full depletion calculation could not be done for data set: {}".format(samplekey))
+
+
+
+            else:
+
+                self.log.debug("Data: {}".format(samplekey))
+
+                sample = deepcopy(data[samplekey])
+
+                df = pd.DataFrame({"xaxis": sample["data"]["Voltage"], "yaxis": sample["data"]["1C2"]})
+
+                df = df.dropna()
+
+
+
+
+
+                # Loop one time from the right side and from the left, to get both slopes
+
+                LR2 = 0 # r^2 values for both sides
+
+                RR2 = 0
+
+
+
+
+
+                for idx in range(5, len(df)-5):
+
+                    # Left
+
+                    slope_left, intercept_left, r_left, p_value, std_err_left = linregress(df["xaxis"][:-idx],df["yaxis"][:-idx])
+
+                    r2_left = r_left * r_left
+
+                    self.log.debug("Left side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+
+                        slope_left, intercept_left, r2_left, std_err_left)
+
+                    )
+
+
+
+                    # Right
+
+                    slope_right, intercept_right, r_right, p_value, std_err_right = linregress(df["xaxis"][idx:],df["yaxis"][idx:])
+
+                    r2_right = r_right * r_right
+
+                    self.log.debug("Right side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+
+                        slope_right, intercept_right, r2_right, std_err_right)
+
+                    )
+
+
+
+                    # See if the r2 value has increased and store end points
+
+                    if r2_left >= LR2:
+
+                        LR2 = r2_left
+
+                        LeftEndPoints = (
+
+                            (df["xaxis"][0], intercept_left),
+
+                            (df["xaxis"][idx], slope_left * df["xaxis"][idx] + intercept_left)
+
+                        )
+
+                        Left_stats[i] = (LeftEndPoints, slope_left, intercept_left, r_left, p_value, std_err_left)
+
+
+
+                    # See if the r2 value has increased and store it
+
+                    if r2_right >= RR2:
+
+                        RR2 = r2_right
+
+                        RightEndPoints = (
+
+                            (df["xaxis"][idx], slope_right * df["xaxis"][idx] + intercept_right),
+
+                            (df["xaxis"][len(df["xaxis"]) - 1], slope_right * df["xaxis"][len(df["xaxis"]) - 1] + intercept_right),
+
+                        )
+
+                        Right_stats[i] = (RightEndPoints, slope_right, intercept_right, r_right, p_value, std_err_right)
+
+
+
+                # Make the line intersection
+
+                full_depletion_voltages[i] = line_intersection(LeftEndPoints, RightEndPoints)
+
+
+
+        # Add vertical line for full depletion
+
+        # Find nonzero indizes
+
+        valid_indz = np.nonzero(full_depletion_voltages[:, 0])
+
+        vline = hv.VLine(np.median(full_depletion_voltages[valid_indz], axis=0)[0]).opts(color='black', line_width=5.0)
+
+
+
+        # Add slopes
+
+        xmax = df["xaxis"][len(df["yaxis"])-1]
+
+        left_line = np.array([[0, np.median(Left_stats[:,2])],[xmax, np.median(Left_stats[:,1])*xmax + np.median(Left_stats[:,2])]])
+
+        left_line = hv.Curve(left_line).opts(color='grey')
+
+
+
+        right_line = np.array([[0, np.median(Right_stats[:,2])],[xmax, np.median(Right_stats[:,1])*xmax + np.median(Right_stats[:,2])]])
+
+        right_line = hv.Curve(right_line).opts(color='grey')
+
+
+
+        # Add text
+
+        self.log.info('Full depletion voltage: {} V, '
+
+                        'Error: {} V'.format(np.round(np.median(full_depletion_voltages[valid_indz, 0]), 2),
+
+                                           np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2)))
+
+        text = hv.Text(700, 0.055, 'Depletion voltage: {} V \n'
+
+                        'Error: {} V'.format(np.round(np.median(full_depletion_voltages[:, 0]), 2),
+
+                                           np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2))
+
+                       ).opts(fontsize=30)
+
+
+
+
+
+        # Update the plot specific options if need be
+
+        returnPlot = plot * vline * right_line * left_line * text
+
+        #returnPlot = relabelPlot(returnPlot, "CV CURVES - Full depletion calculation")
+
+        #returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
+
+
+
+        return returnPlot
+
+
