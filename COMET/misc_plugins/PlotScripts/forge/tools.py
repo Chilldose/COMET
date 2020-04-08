@@ -314,6 +314,18 @@ def convert_to_df(convert, abs = False, keys = "all"):
 
     return return_dict
 
+def rename_columns(df, new_names):
+    """Renames columns in a data frame. Needs the dataframe and a dict of the desired names"""
+    df["All"] = df["All"].rename(columns=new_names)
+    df["columns"] = list(df["All"].columns)
+
+    for key in df["keys"]:
+        df[key]["data"] = df[key]["data"].rename(columns=new_names)
+        df[key]["measurements"] = list(df[key]["data"].columns)
+
+    return df
+
+
 def plainPlot(plotType, xdata, ydata, label="NOName", plotName=None, configs={}, **addConfigs):
     """
 

@@ -19,6 +19,16 @@
   # Options for the different Analyses scripts
   # These options are entirely up to you and what you need in your analysis
   IVCV_QTC:
+
+      Measurement_aliases: # Renames a column to another one (this is used to fit your column names with the ones in the analysis)
+          Voltage: voltage
+          CV: capacitance
+          IV: current
+          QValue: CVQValue
+          Humidity: humidity
+          Temperature: temperature
+
+
       General: # Options common to all plots
           fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
           responsive: False

@@ -4,6 +4,7 @@ from PyQt5.QtCore import QUrl, Qt
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 import threading
+import traceback
 import ast
 import re
 from time import asctime
@@ -164,8 +165,9 @@ class DataVisualization_window:
             yaml.dump(template, outfile, default_flow_style=False)
 
         args = ["--config", "{}".format(filepath), "--show"]
-        plotting = PlottingMain(configs=args)
+
         try:
+            plotting = PlottingMain(configs=args)
             plotting.run()
             self.update_plt_tree(plotting)
 
@@ -187,6 +189,10 @@ class DataVisualization_window:
 
         except Exception as err:
             self.log.error("An error happened during plotting with error {}".format(err))
+            try:
+                raise
+            except:
+                self.log.error(traceback.format_exc())
             # Try to extract data until crash (this is just wishfull thinking, in most cases this will fail)
             try:
                 self.update_plt_tree(plotting)
@@ -196,7 +202,6 @@ class DataVisualization_window:
                 pass
             # Restore Cursor
             self.variables.app.restoreOverrideCursor()
-            raise
 
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()
