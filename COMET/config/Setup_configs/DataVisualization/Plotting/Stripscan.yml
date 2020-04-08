@@ -1,7 +1,5 @@
 --- # Dummy config file for testing
 
-  Filetype: JSON # Other options are json, ACII
-
 # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files
     header_lines: 19
