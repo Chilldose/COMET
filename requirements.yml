@@ -70,7 +70,7 @@ dependencies:
   - numpy=1.16.5=py37h19fb1c0_0
   - numpy-base=1.16.5=py37hc3f5095_0
   - olefile=0.46=py37_0
-  - openssl=1.1.1c=hfa6e2cd_0
+  - openssl=1.1.1f
   - packaging=19.2=py_0
   - pandas=0.25.1=py37ha925a31_0
   - pandoc=2.2.3.2=0
