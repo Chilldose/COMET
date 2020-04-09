@@ -75,7 +75,7 @@ class Message:
         return obj
 
     def _create_message(
-        self, _, content_bytes, content_type, content_encoding
+        self, *_, content_bytes, content_type, content_encoding
     ):
         jsonheader = {
             "byteorder": sys.byteorder,

@@ -143,7 +143,7 @@ class Table_widget(object):
 
     def table_move_indi(self):
         '''This function updates the table indicator'''
-        if self.variables.default_values_dict["settings"]["table_is_moving"]:
+        if self.variables.default_values_dict["settings"].get("table_is_moving", None):
             self.Table_gui.table_ind.setStyleSheet("background: rgb(255,0,0); border-radius: 25px; border: 1px solid black; border-radius: 5px")
         else:
             self.Table_gui.table_ind.setStyleSheet("background: rgb(105,105,105); border-radius: 25px; border: 1px solid black; border-radius: 5px")
