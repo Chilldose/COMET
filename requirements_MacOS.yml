@@ -7,6 +7,7 @@ dependencies:
   - python==3.7.4
   - qt==5.9.7
   - pip==19.2.3
+  - pandas=0.25.1
   - numba
   - scipy
   - Holoviews
