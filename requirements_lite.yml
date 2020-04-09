@@ -22,6 +22,9 @@ dependencies:
   - Holoviews
   - PyQt
   - phantomjs
+  - selectors2c
+  - yaml
+  - pyyaml
   - pip:
     - aiohttp==3.6.2
     - async-timeout==3.0.1
@@ -35,5 +38,4 @@ dependencies:
     - tables==3.5.2
     - telepot==12.7
     - yarl==1.4.2
-    - selectors
 prefix: C:\Users\dbloech\Anaconda3\envs\COMET
