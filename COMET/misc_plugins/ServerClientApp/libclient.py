@@ -71,9 +71,7 @@ class Message:
         tiow.close()
         return obj
 
-    def _create_message(
-        self, *, content_bytes, content_type, content_encoding
-    ):
+    def _create_message(self, _, content_bytes, content_type, content_encoding):
         """Creates the structure header of a message, to be send over a socket
         It contains the byte order of your system, the content type e.g. text/json
         and the content encoding e.g. utf-8 and the length of the message in byte"""
