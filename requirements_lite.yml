@@ -35,4 +35,5 @@ dependencies:
     - tables==3.5.2
     - telepot==12.7
     - yarl==1.4.2
+    - selectors
 prefix: C:\Users\dbloech\Anaconda3\envs\COMET
