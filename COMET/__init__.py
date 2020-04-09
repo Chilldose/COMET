@@ -5,5 +5,8 @@ __beta__ = "20.12.2017"
 __release__ = "28.05.2018"
 __version__ = "0.10.1"
 
-from .misc_plugins.ServerClientApp.socket_connections import *
-from .utilities import *
+try:
+    from .utilities import *
+    from .misc_plugins.ServerClientApp.socket_connections import *
+except:
+    pass

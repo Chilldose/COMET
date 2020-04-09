@@ -16,7 +16,7 @@ channels:
 dependencies:
   - python=3.7.4
   - qt=5.9.7
-  - pip
+  - pip=19.2.3
   - numba
   - scipy
   - Holoviews
