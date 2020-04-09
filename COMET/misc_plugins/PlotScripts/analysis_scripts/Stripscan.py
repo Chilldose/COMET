@@ -25,15 +25,15 @@ class Stripscan:
         self.measurements = self.data["columns"]
         self.donts = ()
 
-        if "Strip" in self.measurements:
-            padidx = self.measurements.index("Strip")
-            self.xrow = "Strip"
+        if "Pad" in self.measurements:
+            padidx = self.measurements.index("Pad")
+            self.xrow = "Pad"
         else:
             self.log.error("No 'Strip' column found in data. Analysis cannot be done!")
             return
 
         self.PlotDict = {"Name": self.analysisName}
-        self.donts = ["Strip", "Name"]
+        self.donts = ["Pad", "Name"]
 
         # Convert the units to the desired ones
         for meas in self.measurements:
