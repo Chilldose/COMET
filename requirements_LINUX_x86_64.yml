@@ -1,4 +1,4 @@
-name: COMET2
+name: COMET
 channels:
   - conda-forge
   - https://repo.anaconda.com/pkgs/main/linux-64/
