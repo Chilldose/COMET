@@ -54,7 +54,7 @@ try:
             except Exception:
                 print(
                     "main: error: exception for",
-                    f"{message.addr}:\n{traceback.format_exc()}",
+                    "{message.addr}:\n{traceback.format_exc()}",
                 )
                 message.close()
         # Check for a socket being monitored to continue.

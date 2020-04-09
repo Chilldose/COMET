@@ -28,7 +28,7 @@ class Message:
         elif mode == "rw":
             events = selectors.EVENT_READ | selectors.EVENT_WRITE
         else:
-            raise ValueError(f"Invalid events mask mode {repr(mode)}.")
+            raise ValueError("Invalid events mask mode {repr(mode)}.")
         self.selector.modify(self.sock, events, data=self)
 
     def _read(self):
@@ -48,7 +48,7 @@ class Message:
     def _write(self):
         """Checks if the send buffer contains data and sends the data over the socket"""
         if self._send_buffer:
-            print("sending", repr(self._send_buffer), "to", self.addr)
+            print("sending {} to {}".format(self._send_buffer, self.addr))
             try:
                 # Should be ready to write
                 sent = self.sock.send(self._send_buffer)
@@ -92,11 +92,11 @@ class Message:
         """Write back the content of the response if json format"""
         content = self.response
         result = content.get("result")
-        print(f"got result: {result}")
+        print("got result: {}".format(result))
 ########################
     def _process_response_binary_content(self):
         content = self.response
-        print(f"got response: {repr(content)}")
+        print("got response: {}".format(content))
 
     def process_events(self, mask):
         """Looks if mask state is either read or write and, then executes read or write """
@@ -147,18 +147,12 @@ class Message:
         try:
             self.selector.unregister(self.sock)
         except Exception as e:
-            print(
-                f"error: selector.unregister() exception for",
-                f"{self.addr}: {repr(e)}",
-            )
+            print("error: selector.unregister() exception for {}: {}".format(self.addr, e))
 
         try:
             self.sock.close()
         except OSError as e:
-            print(
-                f"error: socket.close() exception for",
-                f"{self.addr}: {repr(e)}",
-            )
+            print("error: socket.close() exception for {}: {}".format(self.addr, e))
         finally:
             # Delete reference to socket object for garbage collection
             self.sock = None
@@ -224,15 +218,12 @@ class Message:
         if self.jsonheader["content-type"] == "text/json":
             encoding = self.jsonheader["content-encoding"]
             self.response = self._json_decode(data, encoding)
-            print("received response", repr(self.response), "from", self.addr)
+            print("received response {} from {}".format(repr(self.response), self.addr))
             self._process_response_json_content()
         else:
             # Binary or unknown content-type
             self.response = data
-            print(
-                f'received {self.jsonheader["content-type"]} response from',
-                self.addr,
-            )
+            print('received {} response from {}'.format(self.jsonheader["content-type"],self.addr))
             self._process_response_binary_content()
         # Close when response has been processed
         self.close()

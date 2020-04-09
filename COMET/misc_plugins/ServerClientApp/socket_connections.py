@@ -193,7 +193,7 @@ class BaseMessage:
         elif mode == "rw":
             events = selectors.EVENT_READ | selectors.EVENT_WRITE
         else:
-            raise ValueError(f"Invalid events mask mode {repr(mode)}.")
+            raise ValueError("Invalid events mask mode {}.".format(mode))
         self.selector.modify(self.sock, events, data=self)
 
     def _read(self):
@@ -278,18 +278,12 @@ class BaseMessage:
         try:
             self.selector.unregister(self.sock)
         except Exception as e:
-            self.log.error(
-                f"error: selector.unregister() exception for",
-                f"{self.addr}: {repr(e)}",
-            )
+            self.log.error("error: selector.unregister() exception for".format(self.addr, e))
 
         try:
             self.sock.close()
         except OSError as e:
-            self.log.error(
-                f"error: socket.close() exception for",
-                f"{self.addr}: {repr(e)}",
-            )
+            self.log.error("error: socket.close() exception for".format(self.addr, e))
         finally:
             # Delete reference to socket object for garbage collection
             self.sock = None
@@ -415,11 +409,11 @@ class MessageClient(BaseMessage):
         """Write back the content of the response if json format"""
         content = self.response
         result = content.get("result")
-        self.log.debug(f"got result: {result}")
+        self.log.debug("got result: {}".format(result))
 
     def _process_response_binary_content(self):
         content = self.response
-        self.log.debug(f"got response: {repr(content)}")
+        self.log.debug("got response: {}".format(content))
 
     def read(self):
         """Reads from the socket.

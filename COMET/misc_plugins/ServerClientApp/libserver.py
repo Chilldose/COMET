@@ -32,7 +32,7 @@ class Message:
         elif mode == "rw":
             events = selectors.EVENT_READ | selectors.EVENT_WRITE
         else:
-            raise ValueError(f"Invalid events mask mode {repr(mode)}.")
+            raise ValueError("Invalid events mask mode {}.".format(mode))
         self.selector.modify(self.sock, events, data=self)
 
     def _read(self):
@@ -148,18 +148,12 @@ class Message:
         try:
             self.selector.unregister(self.sock)
         except Exception as e:
-            print(
-                f"error: selector.unregister() exception for",
-                f"{self.addr}: {repr(e)}",
-            )
+            print("error: selector.unregister() exception for".format(self.addr, e))
 
         try:
             self.sock.close()
         except OSError as e:
-            print(
-                f"error: socket.close() exception for",
-                f"{self.addr}: {repr(e)}",
-            )
+            print("error: socket.close() exception for".format(self.addr, e))
         finally:
             # Delete reference to socket object for garbage collection
             self.sock = None
