@@ -15,7 +15,11 @@ class environement_setup:
         print(python_version)
 
         try:
-            cmd = "conda env create -f requirements.yml"
+            requirement_file = sys.argv[1]
+        except: requirement_file = "requirements.yml"
+
+        try:
+            cmd = "conda env create -f {}".format(requirement_file)
             os.system(cmd)
         except:
             print("No Anaconda installation found please install all modules listed in the requirements.yml via pip")
