@@ -1,7 +1,7 @@
 name: COMET2
 channels:
   - conda-forge
-  - https://repo.anaconda.com/pkgs/main/linux-64/
+  - https://repo.anaconda.com/pkgs/main/win-64/
   - defaults
 dependencies:
   - python==3.7.4
