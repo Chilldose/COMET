@@ -93,10 +93,10 @@ class Message:
         action = self.request.get("action")
         if action == "search":
             query = self.request.get("value")
-            answer = request_search.get(query) or f'No match for "{query}".'
+            answer = request_search.get(query) or 'No match for "{}".'.format(query)
             content = {"result": answer}
         else:
-            content = {"result": f'Error: invalid action "{action}".'}
+            content = {"result": 'Error: invalid action "{}".'.format(action)}
         content_encoding = "utf-8"
         response = {
             "content_bytes": self._json_encode(content, content_encoding),
@@ -180,7 +180,7 @@ class Message:
                 "content-encoding",
             ):
                 if reqhdr not in self.jsonheader:
-                    raise ValueError(f'Missing required header "{reqhdr}".')
+                    raise ValueError('Missing required header "{}".'.format(reqhdr))
 
     ######################################
     def process_request(self):
@@ -196,10 +196,7 @@ class Message:
         else:
             # Binary or unknown content-type
             self.request = data
-            print(
-                f'received {self.jsonheader["content-type"]} request from',
-                self.addr,
-            )
+            print('received {} request from'.format(self.jsonheader["content-type"], self.addr))
         # Set selector to listen for write events, we're done reading.
         self._set_selector_events_mask("w")
 

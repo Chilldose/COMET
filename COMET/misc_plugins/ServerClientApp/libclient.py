@@ -203,7 +203,7 @@ class Message:
                 "content-encoding",
             ):
                 if reqhdr not in self.jsonheader:
-                    raise ValueError(f'Missing required header "{reqhdr}".')
+                    raise ValueError('Missing required header "{}".'.format(reqhdr))
 
     #############################
     def process_response(self):
