@@ -115,8 +115,41 @@ class IV_PQC:
                         self.data[df]["units"].append("arb. units")
                         self.data[df]["measurements"].append("N")
 
+                    # Plot all Measurements
+                    self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
+                                                           do_not_plot=self.donts)
+                    self.PlotDict["BasePlots"] = self.basePlots
+                    self.PlotDict["All"] = self.basePlots
+                    # Add full depletion point to 1/c^2 curve
+                    if self.config["IV_PQC"].get("1C2", {}).get("DoFullDepletionCalculation", False):
+
+                            try:
+
+                                if self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.children:
+
+                                    c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.opts(
+                                        clone=True)
+
+                                else:
+                                    c2plot = self.basePlots.Curve.CV_CURVES_hyphen_minus_Full_depletion.opts(clone=True)
+
+                                fdestimation = self.find_full_depletion_c2(c2plot, self.data, self.config,
+                                                                           PlotLabel="Full depletion estimation")
+
+                                self.PlotDict["All"] += fdestimation
+
+                                self.PlotDict["BasePlots"] += fdestimation
+
+                            except Exception as err:
+
+                                self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
 
+        fbvoltage = []
+        Accum_capacitance = []
+        Accum_capacitance_normalized = []
+        Tox = []
+        Nox = []
         # Add the first and second derivative data to the dataframes
         for df in self.data["keys"]:
 
@@ -152,69 +185,79 @@ class IV_PQC:
                 indexMin = self.data[df]['data'].index.get_loc(
                     self.data[df]['data']['derivative2'].values.argmin())
 
-        for df in self.data["keys"]:
             if "Current" in self.data[df]["data"]:
-                mxx= max(self.data[df]['data']['Current'])
-                min= np.mean(self.data[df]['data']['Current'][-20:])
-                Isurf=mxx-min
+                mxx = max(self.data[df]['data']['Current'])
+                min = np.mean(self.data[df]['data']['Current'][-20:])
+                Isurf = mxx - min
 
-        # Plot all Measurements
-        self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name, do_not_plot = self.donts)
-        self.PlotDict["BasePlots"] = self.basePlots
-        self.PlotDict["All"] = self.basePlots
-        # Add plot with a different x axis
-        self.basePlots_2 = plot_all_measurements(self.data, self.config, 'x', self.name, do_not_plot = ['Voltage','Current','Capacity','1C2','derivative','x'])
-        self.PlotDict["BasePlots"] += self.basePlots_2
-        self.PlotDict["All"] += self.basePlots_2
+                text = hv.Text(0, 9*(1e-11), 'Isurf: {} A'.format(
+                    np.round(Isurf, 15)),
+
+
+                           ).opts(style=dict(text_font_size='25pt'))
+
+
+            # Plot all Measurements
+            self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
+                                                   do_not_plot=self.donts)
+            self.PlotDict["BasePlots"] = self.basePlots #*text
+            self.PlotDict["All"] = self.basePlots #*text
+            if 'x' in self.data[df]["data"]:
+                # Add plot with a different x axis
+                self.basePlots_2 = plot_all_measurements(self.data, self.config, 'x', self.name,
+                                                         do_not_plot=['Voltage', 'Current', 'Capacity', '1C2',
+                                                                      'derivative', 'x'])
+                self.PlotDict["BasePlots"] += self.basePlots_2
+                self.PlotDict["All"] += self.basePlots_2
+
+            # Add flat bandage voltage point to the Capacity curve
+            if self.config["IV_PQC"].get("CapacityCopy", {}).get("findFlatBandVoltage", False):
+                    try:
+                        if self.basePlots.Overlay.MOS_CV_CURVES.children:
+                            clone_plot = self.basePlots.Overlay.MOS_CV_CURVES.opts(clone=True)
+
+                        else:
+                            clone_plot = self.basePlots.Curve.MOS_CV_CURVES.opts(clone=True)
+
+                        fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax,
+                                                                  indexMin,
+                                                                  PlotLabel="Flat band voltage estimation")
+
+                        fbvoltage += fBestimation[1][0]
+                        Accum_capacitance += fBestimation[2]
+                        Accum_capacitance_normalized += fBestimation[3]
+                        Tox += fBestimation[4]
+                        Nox += fBestimation[5]
+
+                        self.PlotDict["All"] += fBestimation[0]
+                        self.PlotDict["BasePlots"] += fBestimation[0]
+
+                    except Exception as err:
+                        self.log.warning("No flat band voltage calculation possible... Error: {}".format(err))
+
+
+
+
 
         self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"], {'Curve': {'color': "hv.Cycle('PiYG')"}})
 
-        # Add full depletion point to 1/c^2 curve
 
-        if self.config["IV_PQC"].get("1C2", {}).get("DoFullDepletionCalculation", False):
 
-            try:
 
-                if self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.children:
+        # Add table
+        for df in self.data["keys"]:
+            table = hv.Table(self.data[df]['data'], ['Name', 'Voltage'], group=df)
+            table.opts(width=1300, height=800)
+            self.PlotDict["All"] += table
+            self.PlotDict["BasePlots"] += table
 
-                    c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.opts(clone=True)
-
-                else:
-                    c2plot = self.basePlots.Curve.CV_CURVES_hyphen_minus_Full_depletion.opts(clone=True)
-
-                fdestimation = self.find_full_depletion_c2(c2plot, self.data, self.config,
-                                                        PlotLabel="Full depletion estimation")
-
-                self.PlotDict["All"] += fdestimation
-
-                self.PlotDict["BasePlots"] += fdestimation
-
-            except Exception as err:
-
-                self.log.warning("No full depletion calculation possible... Error: {}".format(err))
-
-        # Add flat bandage voltage point to the Capacity curve
-        if self.config["IV_PQC"].get("CapacityCopy", {}).get("findFlatBandVoltage", False):
-            try:
-                if self.basePlots.Overlay.MOS_CV_CURVES.children:
-                    clone_plot = self.basePlots.Overlay.MOS_CV_CURVES.opts(clone=True)
-
-                else:
-                    clone_plot = self.basePlots.Curve.MOS_CV_CURVES.opts(clone=True)
-
-                fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax, indexMin,
-                                                        PlotLabel="Flat band voltage estimation")
-
-                self.PlotDict["All"] += fBestimation
-                self.PlotDict["BasePlots"] += fBestimation
-
-            except Exception as err:
-                self.log.warning("No flat band voltage calculation possible... Error: {}".format(err))
+        #df2 = pd.DataFrame({"Name": self.data['keys'], "fbVoltage": fbvoltage, 'Accum_capacitance'=Accum_capacitance,'Accum_capacitance_normalized'=Accum_capacitance_normalized,'Tox'=Tox,'Nox'=Nox})
+        #table1=hv.Table(df2)
+        #self.PlotDict["All"] += table1
+        #self.PlotDict["BasePlots"] += table1
 
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
-        # .BasePlots.opts(opts.Curve(color=hv.Cycle('Category20')))
-
         return self.PlotDict
 
     def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, **addConfigs):
@@ -298,7 +341,7 @@ class IV_PQC:
 
         # Add right slope
         xmax = df["xaxis"][len(df["yaxis"]) - 1]
-        right_line = np.array([[df["xaxis"][indexMax-3],np.median(Right_stats[:, 1]) *df["xaxis"][indexMax-3] + np.median(Right_stats[:, 2]) ],
+        right_line = np.array([[df["xaxis"][indexMax-3],np.median(Right_stats[:, 1]) *df["xaxis"][indexMax-3] + np.median(Right_stats[:, 2])],
                                [xmax, np.median(Right_stats[:, 1]) * xmax + np.median(Right_stats[:, 2])]])
 
         # Plots of the fits
@@ -356,7 +399,7 @@ class IV_PQC:
         #returnPlot = relabelPlot(returnPlot, "MOS_CV CURVES - Full depletion calculation")
         #returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
 
-        return returnPlot
+        return returnPlot, flatband_voltage[:, 0], Accum_capacitance, Accum_capacitance_normalized,Tox, Nox
         #self.basePlots.opts(opts.Curve(color=hv.Cycle('Category20')))
 
     def find_full_depletion_c2(self, plot, data, configs, **addConfigs):
@@ -552,5 +595,6 @@ class IV_PQC:
 
 
         return returnPlot
+
 
 
