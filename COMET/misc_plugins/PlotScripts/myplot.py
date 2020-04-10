@@ -72,9 +72,8 @@ class PlottingMain:
             if isinstance(self.config["Analysis"], list):
                 # All plot scripts must return the plot objects, in which all plots are included. Saving of plots will
                 # be done via the main script.
+                # config_data = [(analysis, analysis_obj, deepcopy(self.data), self.config.copy(), self.log) for analysis, analysis_obj in self.plugins.items()]
                 config_data = [(analysis, analysis_obj, deepcopy(self.data), self.config.copy(), self.log) for analysis, analysis_obj in self.plugins.items()]
-                # Todo: multiporcess the analysis
-                #self.plotObjects = self.pool.starmap(self.start_analysis, config_data)
                 self.plotObjects = []
                 for conf in config_data:
                     self.plotObjects.append(self.start_analysis(*conf))
@@ -167,7 +166,7 @@ class PlottingMain:
         """Simply starts the passed analysis"""
         try:
             log.critical("Starting analysis/plot script: {}".format(analysis))
-            analysisObj = getattr(analysis_obj, analysis)(data.copy(), config)
+            analysisObj = getattr(analysis_obj, analysis)(data, config)
             return analysisObj.run()
 
         except Exception as err:

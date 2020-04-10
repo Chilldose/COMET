@@ -15,13 +15,10 @@
 
   # Options for the different Analyses scripts
   # These options are entirely up to you and what you need in your analysis
+  
+  # Converts all arrays to their absolute 
+  abs_value_only: False 
   Stripscan:
-
-      Measurement_aliases: # Renames a column to another one (this is used to fit your column names with the ones in the analysis)
-          Pad: Strip
-          strip: Strip
-
-
       General: # Options common to all plots
           fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
           responsive: False
@@ -42,11 +39,11 @@
             iqr: 0.1
             
 
-      DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measuremnt has this special plot stated
-          - concatHistogram
-          - Violin
-          - BoxWhisker
-          - Histogram
+      #DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measuremnt has this special plot stated
+      #    - concatHistogram
+      #    - Violin
+      #    - BoxWhisker
+       #   - Histogram
 
       HistogramOptions:
           shared_axes: False
@@ -94,6 +91,7 @@
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               show_grid: True
               padding: !!python/tuple [0.1, 0.1]
+              legend_position: top_left
               gridstyle:
                   grid_line_color: black
                   grid_line_width: 1.5
@@ -108,7 +106,7 @@
       Idiel:
           PlotLabel: Current through dielectric
           PlotStyles: # Here you can state some plot types you want to have, possible Options are Curve, Spike, Histogram, if non is stated, curve is selected
-              - Scatter
+              - Curve
           AdditionalPlots:
               - Violin
               - concatHistogram
@@ -116,6 +114,7 @@
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               padding: !!python/tuple [0.1, 0.1]
               show_grid: True
+              legend_position: top_left
               #logy: True
               gridstyle:
                   grid_line_color: black

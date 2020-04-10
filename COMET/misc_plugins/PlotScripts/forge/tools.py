@@ -476,7 +476,9 @@ def customize_plot(plot, plotName, configs, **addConfigs):
         else: label = newlabel
         plot = plot.relabel(label).opts(**options)
     except AttributeError as err:
-        log.warning("Relable of plot {} was not possible!".format(configs.get(plotName, {}).get("PlotLabel", "")))
+        log.error("Relabeling plot {} was not possible! Error: {}".format(configs.get(plotName, {}).get("PlotLabel", ""), err))
+    except ValueError as err:
+        log.error("Configuring plot {} was not possible! Error: {}".format(configs.get(plotName, {}).get("PlotLabel", ""), err))
     return plot
 
 def ast_evaluate_dict_values(edict):
@@ -546,8 +548,8 @@ def read_in_files(filepathes, configs):
                 data.update(data_new)
                 continue # In order to prevent the next load order to be executed
             elif file_extension.lower() == ".csv":
-                data, load = read_in_CSV_measurement_files([file])
-                data.update(data)
+                data_new, load = read_in_CSV_measurement_files([file])
+                data.update(data_new)
             load_order.append(file)
         else:
             log.error("Path {} does not exists, skipping file!".format(file))
