@@ -70,7 +70,7 @@ class IV_PQC:
         for df in self.data["keys"]:
 
             if "Capacity" in self.data[df]["data"]:
-                if 'Area_um' in self.data[df]['header'][0].split(':'):
+                if not self.data['keys'][0][0:8] == 'CV_Diode' or self.data['keys'][0][0:5] == 'IV_GCD':
                     if 'Voltage' in self.data[df]['data']: # Check that the voltage values have increasing order
                         if self.data[df]["data"]["Voltage"][0] > 0:
                             self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))
@@ -86,7 +86,36 @@ class IV_PQC:
                     self.data[df]["units"].append("arb. units")
                     self.data[df]["measurements"].append("CapacityCopy")
 
-                elif 'Area_um' not in self.data[df]['header'][0].split(':'):
+
+                    dy1 = np.diff(self.data[df]["data"][
+                                      "CapacityCopy"])  # compute the difference between each consecutive Capacity value and store it into an array with length i-1
+                    dx1 = np.diff(self.data[df]["data"][
+                                      self.xaxis])  # compute the difference between each consecutive voltage value and store it into an array with length i-1
+                    der1 = dy1 / dx1
+                    firstdev = np.insert(der1, 0, der1[
+                        0])  # Add an element to the array to have the same number of rows as in df
+                    dy2 = np.diff(self.data[df]["data"]["CapacityCopy"],
+                                  n=2)  # n=2 applies diff() two times to compute the second derivative, dy2 is of lenght i-2
+                    dy2_2 = np.insert(dy2, 0, dy2[0])  # add one element to dy2 to have the same length of dx1
+                    der2 = dy2_2 / dx1
+                    seconddev = np.insert(der2, 0, der2[
+                        0])  # Add one element to the array to have the same number of rows as in df
+                    # insert first derivative into dataframe
+                    self.data[df]["data"].insert(4, "derivative", firstdev)
+                    self.data[df]["units"].append("arb. units")
+                    self.data[df]["measurements"].append("derivative")
+                    # insert second derivative into dataframe
+                    self.data[df]["data"].insert(5, "derivative2", seconddev)
+                    self.data[df]["units"].append("arb. units")
+                    self.data[df]["measurements"].append("derivative2")
+                    ## Find the index of the row which contains the maximum value of the second derivative
+                    indexMax = self.data[df]['data'].index.get_loc(
+                        self.data[df]['data']['derivative2'].values.argmax())
+                    ## Find the index of the row which contains the minimum value of the second derivative
+                    indexMin = self.data[df]['data'].index.get_loc(
+                        self.data[df]['data']['derivative2'].values.argmin())
+
+                elif self.data['keys'][0][0:8] == 'CV_Diode' or self.data['keys'][0][0:5] == 'IV_GCD':
 
                     if "Capacity" in self.data[df]["data"]:
 
@@ -99,18 +128,19 @@ class IV_PQC:
                         invers_C2_dx = np.diff(self.data[df]["data"][self.xaxis])
                         der_invers_C2 = invers_C2_dy/invers_C2_dx
                         firstdev_invers_C2 = np.insert(der_invers_C2, 0, der_invers_C2[0])  # Add an element to the array to have the same number of rows as in df
-                        self.data[df]["data"].insert(4, "derivative", firstdev_invers_C2)
+                        self.data[df]["data"].insert(4, "derivative1C2", firstdev_invers_C2)
                         self.data[df]["units"].append("arb. units")
-                        self.data[df]["measurements"].append("derivative")
+                        self.data[df]["measurements"].append("derivative1C2")
 
-                        x = self.config['IV_PQC_parameter']['epsilonNull']*(1e+2) \
-                            * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] / self.data[df]["data"]["Capacity"]
+                        x = (self.config['IV_PQC_parameter']['epsilonNull']*(1e-6)* float(self.data[self.data['keys'][0]]['header'][0].split(':')[1]) \
+                            * self.config['IV_PQC_parameter']['epsilonSiliconOxide']) / self.data[df]["data"]["Capacity"][:42]
                         self.data[df]['data'].insert(5, 'x', x)
                         self.data[df]["units"].append("arb. units")
                         self.data[df]["measurements"].append("x")
 
-                        N = 2*(1e+10)/(self.config['IV_PQC_parameter']['epsilonNull'] \
-                            * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] * self.data[df]["data"]["derivative"])
+                        N = (2)/(self.config['IV_PQC_parameter']['epsilonNull']*(1e-2) \
+                            * self.config['IV_PQC_parameter']['q'] * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] * self.data[df]["data"]["derivative1C2"][:42] \
+                                      *(float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e-8))*(float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e-8)))
                         self.data[df]['data'].insert(6, 'N', N)
                         self.data[df]["units"].append("arb. units")
                         self.data[df]["measurements"].append("N")
@@ -153,37 +183,7 @@ class IV_PQC:
         # Add the first and second derivative data to the dataframes
         for df in self.data["keys"]:
 
-            if "CapacityCopy" in self.data[df]["data"]:
 
-                dy1 = np.diff(self.data[df]["data"]["CapacityCopy"]) #compute the difference between each consecutive Capacity value and store it into an array with length i-1
-                dx1 = np.diff(self.data[df]["data"][self.xaxis]) #compute the difference between each consecutive voltage value and store it into an array with length i-1
-                der1 = dy1/dx1
-
-                firstdev = np.insert(der1,0,der1[0]) # Add an element to the array to have the same number of rows as in df
-
-                dy2= np.diff(self.data[df]["data"]["CapacityCopy"],n=2) #n=2 applies diff() two times to compute the second derivative, dy2 is of lenght i-2
-                dy2_2=np.insert(dy2,0,dy2[0]) #add one element to dy2 to have the same length of dx1
-                der2=dy2_2/dx1
-                seconddev=  np.insert(der2,0,der2[0]) # Add one element to the array to have the same number of rows as in df
-
-                #insert first derivative into dataframe
-                self.data[df]["data"].insert(4, "derivative", firstdev)
-                self.data[df]["units"].append("arb. units")
-                self.data[df]["measurements"].append("derivative")
-
-                #insert second derivative into dataframe
-                self.data[df]["data"].insert(5, "derivative2", seconddev)
-                self.data[df]["units"].append("arb. units")
-                self.data[df]["measurements"].append("derivative2")
-
-
-                ## Find the index of the row which contains the maximum value of the second derivative
-                indexMax = self.data[df]['data'].index.get_loc(
-                    self.data[df]['data']['derivative2'].values.argmax())
-
-                ## Find the index of the row which contains the minimum value of the second derivative
-                indexMin = self.data[df]['data'].index.get_loc(
-                    self.data[df]['data']['derivative2'].values.argmin())
 
             if "Current" in self.data[df]["data"]:
                 mxx = max(self.data[df]['data']['Current'])
@@ -206,7 +206,7 @@ class IV_PQC:
                 # Add plot with a different x axis
                 self.basePlots_2 = plot_all_measurements(self.data, self.config, 'x', self.name,
                                                          do_not_plot=['Voltage', 'Current', 'Capacity', '1C2',
-                                                                      'derivative', 'x'])
+                                                                      'derivative1C2', 'x'])
                 self.PlotDict["BasePlots"] += self.basePlots_2
                 self.PlotDict["All"] += self.basePlots_2
 
@@ -267,7 +267,7 @@ class IV_PQC:
         :param plot: The plot object
         :param data: The data files
         :param configs: the configs
-        :param **addConfigs: the configs special for the 1/C2 plot, it is recomended to pass the same options here again, like in the original plot!
+        :param **addConfigs: the configs special for the 1/C2 plot, it is recommended to pass the same options here again, like in the original plot!
         :return: The updated plot
         """
         flatband_voltage = np.zeros((len(data["keys"]), 2))
@@ -349,7 +349,7 @@ class IV_PQC:
         fit_line = hv.Curve(fit_line).opts(color='red')
 
         # Compute the flatband voltage
-        flatband_voltage[i]=line_intersection(fitEndPoints, RightEndPoints)
+        flatband_voltage[i]=line_intersection(fit_stats[i][0], Right_stats[i][0])
 
 
         # Find nonzero indices and add vertical line for full depletion
