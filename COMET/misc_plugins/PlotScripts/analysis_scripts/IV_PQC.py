@@ -64,6 +64,11 @@ class IV_PQC:
 
     def run(self):
         """Runs the script"""
+        fbvoltage = []
+        Accum_capacitance = []
+        Accum_capacitance_normalized = []
+        Tox = []
+        Nox = []
 
         # Add the 1/c^2 data to the dataframes
         # Add a copy of the Capacity values to the data frame, where the small kink in the plot is deleted
@@ -115,6 +120,39 @@ class IV_PQC:
                     indexMin = self.data[df]['data'].index.get_loc(
                         self.data[df]['data']['derivative2'].values.argmin())
 
+                    # Plot all Measurements
+                    self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
+                                                           do_not_plot=self.donts)
+                    self.PlotDict["BasePlots"] = self.basePlots  # *text
+                    self.PlotDict["All"] = self.basePlots  # *text
+
+                    # Add flat bandage voltage point to the Capacity curve
+                    if self.config["IV_PQC"].get("CapacityCopy", {}).get("findFlatBandVoltage", False):
+                        try:
+                            if self.basePlots.Overlay.MOS_CV_CURVES.children:
+                                clone_plot = self.basePlots.Overlay.MOS_CV_CURVES.opts(clone=True)
+
+                            else:
+                                clone_plot = self.basePlots.Curve.MOS_CV_CURVES.opts(clone=True)
+
+                            fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax,
+                                                                      indexMin, df,
+                                                                      PlotLabel="Flat band voltage estimation")
+
+                            fbvoltage += fBestimation[1]
+                            #Accum_capacitance += fBestimation[2]
+                            #Accum_capacitance_normalized += fBestimation[3]
+                            #Tox += fBestimation[4]
+                            #Nox += fBestimation[5]
+
+                            self.PlotDict["All"] += fBestimation[0]
+                            self.PlotDict["BasePlots"] += fBestimation[0]
+
+                        except Exception as err:
+                            self.log.warning("No flat band voltage calculation possible... Error: {}".format(err))
+
+
+
                 elif self.data['keys'][0][0:8] == 'CV_Diode' or self.data['keys'][0][0:5] == 'IV_GCD':
 
                     if "Capacity" in self.data[df]["data"]:
@@ -150,6 +188,13 @@ class IV_PQC:
                                                            do_not_plot=self.donts)
                     self.PlotDict["BasePlots"] = self.basePlots
                     self.PlotDict["All"] = self.basePlots
+                    # Add plot with a different x axis
+                    self.basePlots_2 = plot_all_measurements(self.data, self.config, 'x', self.name,
+                                                             do_not_plot=['Voltage', 'Current', 'Capacity', '1C2',
+                                                                          'derivative1C2', 'x'])
+                    self.PlotDict["BasePlots"] += self.basePlots_2
+                    self.PlotDict["All"] += self.basePlots_2
+
                     # Add full depletion point to 1/c^2 curve
                     if self.config["IV_PQC"].get("1C2", {}).get("DoFullDepletionCalculation", False):
 
@@ -174,82 +219,42 @@ class IV_PQC:
 
                                 self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
-
-        fbvoltage = []
-        Accum_capacitance = []
-        Accum_capacitance_normalized = []
-        Tox = []
-        Nox = []
-        # Add the first and second derivative data to the dataframes
-        for df in self.data["keys"]:
-
-
-
-            if "Current" in self.data[df]["data"]:
-                mxx = max(self.data[df]['data']['Current'])
-                min = np.mean(self.data[df]['data']['Current'][-20:])
-                Isurf = mxx - min
-
-                text = hv.Text(0, 9*(1e-11), 'Isurf: {} A'.format(
-                    np.round(Isurf, 15)),
-
-
-                           ).opts(style=dict(text_font_size='25pt'))
-
-
-            # Plot all Measurements
-            self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
-                                                   do_not_plot=self.donts)
-            self.PlotDict["BasePlots"] = self.basePlots #*text
-            self.PlotDict["All"] = self.basePlots #*text
-            if 'x' in self.data[df]["data"]:
-                # Add plot with a different x axis
-                self.basePlots_2 = plot_all_measurements(self.data, self.config, 'x', self.name,
-                                                         do_not_plot=['Voltage', 'Current', 'Capacity', '1C2',
-                                                                      'derivative1C2', 'x'])
-                self.PlotDict["BasePlots"] += self.basePlots_2
-                self.PlotDict["All"] += self.basePlots_2
-
-            # Add flat bandage voltage point to the Capacity curve
-            if self.config["IV_PQC"].get("CapacityCopy", {}).get("findFlatBandVoltage", False):
-                    try:
-                        if self.basePlots.Overlay.MOS_CV_CURVES.children:
-                            clone_plot = self.basePlots.Overlay.MOS_CV_CURVES.opts(clone=True)
-
-                        else:
-                            clone_plot = self.basePlots.Curve.MOS_CV_CURVES.opts(clone=True)
-
-                        fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax,
-                                                                  indexMin,
-                                                                  PlotLabel="Flat band voltage estimation")
-
-                        fbvoltage += fBestimation[1][0]
-                        Accum_capacitance += fBestimation[2]
-                        Accum_capacitance_normalized += fBestimation[3]
-                        Tox += fBestimation[4]
-                        Nox += fBestimation[5]
-
-                        self.PlotDict["All"] += fBestimation[0]
-                        self.PlotDict["BasePlots"] += fBestimation[0]
-
-                    except Exception as err:
-                        self.log.warning("No flat band voltage calculation possible... Error: {}".format(err))
-
-
-
-
-
         self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"], {'Curve': {'color': "hv.Cycle('PiYG')"}})
+        # Add the first and second derivative data to the dataframes
+
+
+
+        #for df in self.data["keys"]:
+#
+#
+#
+        #    if "Current" in self.data[df]["data"]:
+        #        mxx = max(self.data[df]['data']['Current'])
+        #        min = np.mean(self.data[df]['data']['Current'][-20:])
+        #        Isurf = mxx - min
+#
+        #        text = hv.Text(0, 9*(1e-11), 'Isurf: {} A'.format(
+        #            np.round(Isurf, 15)),
+#
+#
+        #                   ).opts(style=dict(text_font_size='25pt'))
+
+
+
+
+
+
+
 
 
 
 
         # Add table
-        for df in self.data["keys"]:
-            table = hv.Table(self.data[df]['data'], ['Name', 'Voltage'], group=df)
-            table.opts(width=1300, height=800)
-            self.PlotDict["All"] += table
-            self.PlotDict["BasePlots"] += table
+        ##for df in self.data["keys"]:
+         #   table = hv.Table(self.data[df]['data'], ['Name', 'Voltage'], group=df)
+         #   table.opts(width=1300, height=800)
+         #   self.PlotDict["All"] += table
+         #   self.PlotDict["BasePlots"] += table
 
         #df2 = pd.DataFrame({"Name": self.data['keys'], "fbVoltage": fbvoltage, 'Accum_capacitance'=Accum_capacitance,'Accum_capacitance_normalized'=Accum_capacitance_normalized,'Tox'=Tox,'Nox'=Nox})
         #table1=hv.Table(df2)
@@ -260,7 +265,7 @@ class IV_PQC:
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
         return self.PlotDict
 
-    def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, **addConfigs):
+    def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, df, **addConfigs):
         """
         Finds the full depletion voltage of all data samples and adds a vertical line for the full depletion in the
         plot. Vertical line is the mean of all measurements. Furthermore, adds a text with the statistics.
@@ -270,136 +275,127 @@ class IV_PQC:
         :param **addConfigs: the configs special for the 1/C2 plot, it is recommended to pass the same options here again, like in the original plot!
         :return: The updated plot
         """
-        flatband_voltage = np.zeros((len(data["keys"]), 2))
-        Right_stats = np.zeros((len(data["keys"]), 6), dtype=np.object)
-        fit_stats = np.zeros((len(data["keys"]), 6), dtype=np.object)
+        #flatband_voltage = np.zeros((len(data["keys"]), 2))
+        #Right_stats = np.zeros((len(data["keys"]), 6), dtype=np.object)
+        #fit_stats = np.zeros((len(data["keys"]), 6), dtype=np.object)
         self.log.info("Searching for flat band voltage voltage in all files...")
 
-        for i, samplekey in enumerate(data["keys"]):
-            if "CapacityCopy" not in data[samplekey]["data"]:
-                self.log.warning("Flat band voltage calculation could not be done for data set: {}".format(samplekey))
-
-            else:
-                self.log.debug("Data: {}".format(samplekey))
-                sample = deepcopy(data[samplekey])
-                try:
-                    df = pd.DataFrame({"xaxis": sample["data"]["voltage"], "yaxis": sample["data"]["CapacityCopy"]})
-                except:
-                    df = pd.DataFrame({"xaxis": sample["data"]["Voltage"], "yaxis": sample["data"]["CapacityCopy"]})
-                df = df.dropna()
+        #for i, samplekey in enumerate(data["keys"]):
 
 
-                # Loop one time from the right side, to get the slope of the accumulation region, and then loop on the fit region to get the fit slope
-                RR2 = 0
-                fitR2 = 0
-
-                for idx in range(5, len(df)-5):
-                    # Right
-                    slope_right, intercept_right, r_right, p_value, std_err_right = linregress(df["xaxis"][idx:],df["yaxis"][idx:])
-                    r2_right = r_right * r_right
-                    self.log.debug("Right side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
-                        slope_right, intercept_right, r2_right, std_err_right)
-                    )
-
-                    # See if the r2 value has increased and store it
-                    if r2_right >= RR2:
-                        RR2 = r2_right
-                        RightEndPoints = (
-                            (df["xaxis"][idx], slope_right * df["xaxis"][idx] + intercept_right),
-                            (df["xaxis"][len(df["xaxis"]) - 1], slope_right * df["xaxis"][len(df["xaxis"]) - 1] + intercept_right),
-                        )
-                        Right_stats[i] = (RightEndPoints, slope_right, intercept_right, r_right, p_value, std_err_right)
-
-
-
+        sample = deepcopy(data[df])
+        try:
+            df1 = pd.DataFrame({"xaxis": sample["data"]["voltage"], "yaxis": sample["data"]["CapacityCopy"]})
+        except:
+            df1 = pd.DataFrame({"xaxis": sample["data"]["Voltage"], "yaxis": sample["data"]["CapacityCopy"]})
+        df1 = df1.dropna()
+        # Loop one time from the right side, to get the slope of the accumulation region, and then loop on the fit region to get the fit slope
+        RR2 = 0
+        fitR2 = 0
+        for idx in range(5, len(df1)-5):
+            # Right
+            slope_right, intercept_right, r_right, p_value, std_err_right = linregress(df1["xaxis"][idx:],df1["yaxis"][idx:])
+            r2_right = r_right * r_right
+            self.log.debug("Right side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+                slope_right, intercept_right, r2_right, std_err_right)
+            )
+            # See if the r2 value has increased and store it
+            if r2_right >= RR2:
+                RR2 = r2_right
+                RightEndPoints = (
+                    (df1["xaxis"][idx], slope_right * df1["xaxis"][idx] + intercept_right),
+                    (df1["xaxis"][len(df1["xaxis"]) - 1], slope_right * df1["xaxis"][len(df1["xaxis"]) - 1] + intercept_right),
+                )
+                Right_stats = [RightEndPoints, slope_right, intercept_right, r_right, p_value, std_err_right]
         ## Fit central region
-
-                for idx in range(indexMax, indexMin-2):
-
-                    #Central fit
-                    slope_fit, intercept_fit, r_fit, p_valuefit, std_err_fit = linregress(df["xaxis"][idx:indexMin-2],
-                                                                                          df["yaxis"][idx:indexMin-2])
-                    r2_fit = r_fit * r_fit
-                    self.log.debug("central fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
-                        slope_fit, intercept_fit, r2_fit, std_err_fit)
-                    )
-
-                    # See if the r2 value has increased and store it
-                    if r2_fit >= fitR2:
-                        fitR2 = r2_fit
-                        fitEndPoints = (
-                            (df["xaxis"][indexMax], slope_fit * df["xaxis"][indexMax] + intercept_fit),
-                            (df["xaxis"][idx+1], slope_fit * df["xaxis"][idx+1] + intercept_fit) # use idx +1 to avoid having the same end points
-                        )
-                        fit_stats[i] = (fitEndPoints, slope_fit, intercept_fit, r_fit, p_valuefit, std_err_fit)
-
+        for idx in range(indexMax, indexMin-2):
+            #Central fit
+            slope_fit, intercept_fit, r_fit, p_valuefit, std_err_fit = linregress(df1["xaxis"][idx:indexMin-2],
+                                                                                  df1["yaxis"][idx:indexMin-2])
+            r2_fit = r_fit * r_fit
+            self.log.debug("central fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+                slope_fit, intercept_fit, r2_fit, std_err_fit)
+            )
+            # See if the r2 value has increased and store it
+            if r2_fit >= fitR2:
+                fitR2 = r2_fit
+                fitEndPoints = (
+                    (df1["xaxis"][indexMax], slope_fit * df1["xaxis"][indexMax] + intercept_fit),
+                    (df1["xaxis"][idx+1], slope_fit * df1["xaxis"][idx+1] + intercept_fit) # use idx +1 to avoid having the same end points
+                )
+                fit_stats = [fitEndPoints, slope_fit, intercept_fit, r_fit, p_valuefit, std_err_fit]
+        self.log.info("Test1 for flat band voltage voltage in all files...")
         # Add central slope
-        xmax = df["xaxis"][indexMin]
+        xmax = df1["xaxis"][indexMin]
 
-        fit_line = np.array([[df["xaxis"][indexMax-3], np.median(fit_stats[:, 1]) *df["xaxis"][indexMax-3]  + np.median(fit_stats[:, 2])],
-                               [xmax+0.2, np.median(fit_stats[:, 1]) * (xmax+0.2) + np.median(fit_stats[:, 2])]])
+        fit_line = np.array([[df1["xaxis"][indexMax-3], fit_stats[1] * df1["xaxis"][indexMax-3]  + fit_stats[2]],
+                               [xmax+0.2, fit_stats[1] * (xmax+0.2) + fit_stats[2]]])
 
         # Add right slope
-        xmax = df["xaxis"][len(df["yaxis"]) - 1]
-        right_line = np.array([[df["xaxis"][indexMax-3],np.median(Right_stats[:, 1]) *df["xaxis"][indexMax-3] + np.median(Right_stats[:, 2])],
-                               [xmax, np.median(Right_stats[:, 1]) * xmax + np.median(Right_stats[:, 2])]])
+        xmax = df1["xaxis"][len(df1["yaxis"]) - 1]
+        right_line = np.array([[df1["xaxis"][indexMax-3], Right_stats[1] *df1["xaxis"][indexMax-3] + Right_stats[2]],
+                               [xmax, Right_stats[1] * xmax + Right_stats[2]]])
 
         # Plots of the fits
         right_line = hv.Curve(right_line).opts(color='blue')
         fit_line = hv.Curve(fit_line).opts(color='red')
 
         # Compute the flatband voltage
-        flatband_voltage[i]=line_intersection(fit_stats[i][0], Right_stats[i][0])
+        flatband_voltage = line_intersection(fit_stats[0], Right_stats[0])
+        self.log.info("Flatband voltage to data file {} is {}".format(df,
+                                                                                                     flatband_voltage[
+                                                                                                          0]))
 
+        self.log.info("Test2 for flat band voltage voltage in all files...")
 
         # Find nonzero indices and add vertical line for full depletion
 
-        valid_indz = np.nonzero(flatband_voltage[:, 0])
-
-        vline = hv.VLine(np.median(flatband_voltage[valid_indz], axis=0)[0]).opts(color='black', line_width=2.0)
-
+        valid_indz = np.nonzero(flatband_voltage[0])
+        self.log.info("Test3 for flat band voltage voltage in all files...")
+        #vline = hv.VLine(np.median(flatband_voltage[valid_indz], axis=0)[0]).opts(color='black', line_width=2.0)
+        self.log.info("Test4 for flat band voltage voltage in all files...")
         # Plots of the derivatives
-        firstDerivativePlot= self.basePlots.Curve.firstderivative
-        secondDerivativePlot = self.basePlots.Curve.secondderivative
+        #firstDerivativePlot= self.basePlots.Curve.firstderivative
+        #secondDerivativePlot = self.basePlots.Curve.secondderivative
 
-
-        # Find oxide thickness Tox in nm
-        Accum_capacitance = np.max(df["yaxis"]) * (float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e-8)) # float(..) is the area. Only valide if only one data file is used
-        Accum_capacitance_normalized = np.max(df["yaxis"])  #F/cm^2
-        Tox = self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] * 1e+5 / Accum_capacitance_normalized
-
-
-        # Find Fixed oxide charge Nox in cm^-2
-        phi_s = self.config['IV_PQC_parameter']['electronAffinity'] + self.config['IV_PQC_parameter']['bandGapEnergy']/2\
-                + (self.config['IV_PQC_parameter']['boltzmannConstant']*self.config['IV_PQC_parameter']['Temperature']
-                   *np.log(self.config['IV_PQC_parameter']['SiliconDoping']/self.config['IV_PQC_parameter']['intrinsicDopingConcentration']))/self.config['IV_PQC_parameter']['q']
-        phi_ms = self.config['IV_PQC_parameter']['phi_m']-phi_s
-
-        Nox = (Accum_capacitance_normalized*(phi_ms + flatband_voltage[0][0]))/(self.config['IV_PQC_parameter']['q'])
+        self.log.info("Test3 for flat band voltage voltage in all files...")
+        ## Find oxide thickness Tox in nm
+        #Accum_capacitance = np.max(df["yaxis"]) * (float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e-8)) # float(..) is the area. Only valide if only one data file is used
+        #Accum_capacitance_normalized = np.max(df["yaxis"])  #F/cm^2
+        #Tox = self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] * 1e+5 / Accum_capacitance_normalized
+#
+#
+        ## Find Fixed oxide charge Nox in cm^-2
+        #phi_s = self.config['IV_PQC_parameter']['electronAffinity'] + self.config['IV_PQC_parameter']['bandGapEnergy']/2\
+        #        + (self.config['IV_PQC_parameter']['boltzmannConstant']*self.config['IV_PQC_parameter']['Temperature']
+        #           *np.log(self.config['IV_PQC_parameter']['SiliconDoping']/self.config['IV_PQC_parameter']['intrinsicDopingConcentration']))/self.config['IV_PQC_parameter']['q']
+        #phi_ms = self.config['IV_PQC_parameter']['phi_m']-phi_s
+#
+        #Nox = (Accum_capacitance_normalized*(phi_ms + flatband_voltage[0][0]))/(self.config['IV_PQC_parameter']['q'])
 
         # Add text
-        text = hv.Text(-2.5, 0.00000000065, 'Flat band voltage: {} V \n'
-                          
-                        'C accumulation: {} F \n'                   
-
-                        'C accumulation/A: {} F/cm\N{SUPERSCRIPT TWO} \n'
-        
-                       'Tox: {} nm \n'
-                       'Nox: {} cm\N{SUPERSCRIPT MINUS}\N{SUPERSCRIPT TWO}'.format(np.round(np.median(flatband_voltage[:, 0]), 2),
-                                           np.round(Accum_capacitance,10),
-                                           np.round(Accum_capacitance_normalized, 10),
-                                           np.round(Tox, 2),
-                                           np.format_float_scientific(Nox, 2))
-
-                       ).opts(style=dict(text_font_size='25pt'))
+        #text = hv.Text(-2.5, 0.00000000065, 'Flat band voltage: {} V \n'
+        #
+        #                'C accumulation: {} F \n'
+#
+        #                'C accumulation/A: {} F/cm\N{SUPERSCRIPT TWO} \n'
+        #
+        #               'Tox: {} nm \n'
+        #               'Nox: {} cm\N{SUPERSCRIPT MINUS}\N{SUPERSCRIPT TWO}'.format(np.round(np.median(flatband_voltage[:, 0]), 2),
+        #                                   np.round(Accum_capacitance,10),
+        #                                   np.round(Accum_capacitance_normalized, 10),
+        #                                   np.round(Tox, 2),
+        #                                   np.format_float_scientific(Nox, 2))
+#
+        #               ).opts(style=dict(text_font_size='25pt'))
 
 
         # Update the plot specific options if need be
-        returnPlot =  plot * vline * text  * firstDerivativePlot * right_line * secondDerivativePlot * fit_line
+        returnPlot =  plot  * right_line  * fit_line #* secondDerivativePlot * firstDerivativePlot
         #returnPlot = relabelPlot(returnPlot, "MOS_CV CURVES - Full depletion calculation")
-        #returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
-
-        return returnPlot, flatband_voltage[:, 0], Accum_capacitance, Accum_capacitance_normalized,Tox, Nox
+        returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
+        self.log.info("Test5 for flat band voltage voltage in all files...")
+        return returnPlot, flatband_voltage[0] # Accum_capacitance, Accum_capacitance_normalized,Tox, Nox
         #self.basePlots.opts(opts.Curve(color=hv.Cycle('Category20')))
 
     def find_full_depletion_c2(self, plot, data, configs, **addConfigs):
