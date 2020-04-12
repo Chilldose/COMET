@@ -1,0 +1,691 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 3.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 3.7" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>VisaConnectWizard &mdash; COMET beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> COMET
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.10.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../programstructure.html">COMET layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">How to</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../measurementjobgen.html">Measurement Job Generation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dataexchange.html">Data Exchange</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../measurement_plugins/IVCV.html">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../measurement_plugins/Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Purpose Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Data_Visualization.html">Data Visualization and Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Switching_Control.html">Switching Matrix Control</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html">Measurement Tool Box functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html#xyz-stage-control-class">XYZ-Stage Control Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html#switching-system-control-class">Switching System Control Class</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">COMET</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="index.html">Module code</a> &raquo;</li>
+        
+      <li>VisaConnectWizard</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for VisaConnectWizard</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">visa</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">threading</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
+
+<span class="n">lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+<span class="n">llock</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;ThreadLock&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">run_with_lock</span><span class="p">(</span><span class="n">method</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Intended to be used as decorator for functions which need to be threadsave. Warning: all functions acquire the same lock, be carefull.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">with_lock</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Try running the method</span>
+            <span class="k">with</span> <span class="n">lock</span><span class="p">:</span>
+                <span class="n">llock</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Lock acquired by program: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">method</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">method</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">)</span>
+            <span class="n">llock</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Lock released by program: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">method</span><span class="o">.</span><span class="vm">__name__</span><span class="p">))</span>
+        <span class="c1"># raise the exception and print the stack trace</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
+            <span class="n">llock</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;A lock could not be acquired in &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">method</span><span class="o">.</span><span class="vm">__name__</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="c1"># this is optional but sometime the raise does not work</span>
+            <span class="k">raise</span>  <span class="c1"># this raises the error with stack backtrace</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">with_lock</span>  <span class="c1"># here the memberfunction timed will be called</span>
+
+<span class="c1">#Opens a connection to a VISA resource device (GPIB, USB, RS232, IP)</span>
+<div class="viewcode-block" id="VisaConnectWizard"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard">[docs]</a><span class="k">class</span> <span class="nc">VisaConnectWizard</span><span class="p">:</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This Class is for connecting RS232, GPIB, IP and USB devices via pyVisa.</span>
+
+<span class="sd">    It can be called with arguments, which defines the specific resource you want to connect to.</span>
+
+<span class="sd">    With the kwarg &#39;backend&#39; you can define the backend. &#39;\@py&#39; uses the pyvisa-py backend or &#39;\@sim&#39; for PyVisa-sim,</span>
+<span class="sd">    if you pass nothing the standard pyvisa with the NI-Visa bindings will be used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+
+    <span class="c1"># initialization</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="o">*</span><span class="n">arg</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Constructs a new connection manager.</span>
+
+<span class="sd">        Keyword arguments:</span>
+<span class="sd">        - backend -- VISA backend, None for NI driver, &#39;@py&#39; for PyVISA-py or &#39;@sim&#39; for PyVisa-sim</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># constants</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span> <span class="o">=</span> <span class="p">[]</span> <span class="c1">#contains list of all instruments connected to</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">choose_default_instrument</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments_dict</span> <span class="o">=</span> <span class="p">{}</span> <span class="c1">#contains a dict, in which only the devices are present, which responded to the IDN query value = resourse key = IDN</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">baud_rate</span> <span class="o">=</span> <span class="mi">57600</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">xonoff</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">GPIB_interface</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">backend</span> <span class="o">=</span> <span class="n">backend</span> <span class="ow">or</span> <span class="s1">&#39;&#39;</span>
+        <span class="c1"># Create resource manager</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">rm</span> <span class="o">=</span> <span class="n">visa</span><span class="o">.</span><span class="n">ResourceManager</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">backend</span><span class="p">)</span>
+        <span class="c1">#visa.log_to_screen()</span>
+
+        <span class="c1"># Tries to connect to a GPIB interface if possible</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">GPIB_interface</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rm</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="s1">&#39;GPIB::INTFC&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reset_interface</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No GPIB interface could be found&quot;</span><span class="p">)</span>
+
+
+        <span class="c1">#Connects to an instrument given in arg (this function will be obsolete if no argument is given)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">choose_default_instrument</span><span class="o">=</span><span class="kc">True</span>
+                <span class="c1"># Important ----------------------------------------------------------------</span>
+                <span class="c1"># Opens the Instruments for input and/or output</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rm</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="c1"># Important ----------------------------------------------------------------</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">connection_error</span><span class="p">(</span><span class="n">arg</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+<div class="viewcode-block" id="VisaConnectWizard.reset_interface"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.reset_interface">[docs]</a>    <span class="k">def</span> <span class="nf">reset_interface</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Resets the GPIB interface, if none is present nothing will happen, but a log will be written&quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">GPIB_interface</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Resetting the interface...&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">GPIB_interface</span><span class="o">.</span><span class="n">send_ifc</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Reset of interface was successfull.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No GPIB interface to reset...&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Reset of interface was not successfull. Error: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+    <span class="c1">#If connections fails this will be called</span>
+<div class="viewcode-block" id="VisaConnectWizard.connection_error"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.connection_error">[docs]</a>    <span class="k">def</span> <span class="nf">connection_error</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">failed_resource</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes an error to the log, with the information on the passed resource</span>
+
+<span class="sd">        :param failed_resource: A visa resource object</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Attemp to connect to visa resource &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">failed_resource</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; failed.&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1">#Lists all connected resources (no sniff)</span>
+<div class="viewcode-block" id="VisaConnectWizard.show_resources"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.show_resources">[docs]</a>    <span class="k">def</span> <span class="nf">show_resources</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function shows you all available resources currently connected to this machine&quot;&quot;&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="p">)</span></div>
+
+    <span class="c1">#Looks for all Instruments in the network and shows them</span>
+<div class="viewcode-block" id="VisaConnectWizard.show_instruments"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.show_instruments">[docs]</a>    <span class="k">def</span> <span class="nf">show_instruments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;This function will search for instruments available to the machine and list them&quot;&quot;&quot;</span>
+        <span class="c1"># Lists all available resources found</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;All available visa resources:&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rm</span><span class="o">.</span><span class="n">list_resources</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span> <span class="o">==</span> <span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No Visa resources found!&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># enumerate and print all resources</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2"> </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="VisaConnectWizard.reconnect_to_device"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.reconnect_to_device">[docs]</a>    <span class="k">def</span> <span class="nf">reconnect_to_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This functions reconnects to a device</span>
+
+<span class="sd">        :param device_dict: a device_dict object, containing the visa resource</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Try to solve error on device: &quot;</span> <span class="o">+</span> <span class="n">device_dict</span><span class="p">[</span><span class="s2">&quot;Device_name&quot;</span><span class="p">])</span>
+        <span class="n">resource_name</span> <span class="o">=</span> <span class="n">device_dict</span><span class="p">[</span><span class="s2">&quot;Visa_Resource&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">resource_name</span>
+
+        <span class="c1"># Closing connection to device</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">close_connections</span><span class="p">(</span><span class="n">device_dict</span><span class="p">[</span><span class="s2">&quot;Visa_Resource&quot;</span><span class="p">])</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;An error happend while closing device: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
+
+        <span class="c1"># Reopening connection to device</span>
+        <span class="n">resource</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rm</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="n">resource_name</span><span class="p">)</span>  <span class="c1"># Tries opening the connection to a device</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_resource</span><span class="p">(</span><span class="n">resource_name</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">device_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Baudrate&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="n">IDN</span> <span class="o">=</span> <span class="n">device_dict</span><span class="p">[</span><span class="s2">&quot;Device_IDN&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Query the IDN</span>
+        <span class="n">IDN_query</span> <span class="o">=</span> <span class="n">resource</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">device_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;device_IDN_query&quot;</span><span class="p">,</span> <span class="s2">&quot;*IDN?&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">IDN</span><span class="p">)</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="n">IDN_query</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">device_dict</span><span class="p">[</span><span class="s2">&quot;Visa_Resource&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">resource</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Connection to the device: &quot;</span> <span class="o">+</span> <span class="n">device_dict</span><span class="p">[</span><span class="s2">&quot;Device_name&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;is now reestablished&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Connection to the device: &quot;</span> <span class="o">+</span> <span class="n">device_dict</span><span class="p">[</span><span class="s2">&quot;Device_name&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;could not be reestablished&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="VisaConnectWizard.connect_to"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.connect_to">[docs]</a>    <span class="k">def</span> <span class="nf">connect_to</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">IDN</span><span class="p">,</span> <span class="n">baudrate</span> <span class="o">=</span> <span class="mi">57600</span><span class="p">,</span> <span class="n">device_IDN</span> <span class="o">=</span> <span class="s2">&quot;*IDN?&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function connects to a specific device</span>
+
+<span class="sd">        :param device: The Visa resource name</span>
+<span class="sd">        :param IDN: The identification string of the device</span>
+<span class="sd">        :param baudrate: A baudrate (only used for RS232 devices)</span>
+<span class="sd">        :param device_IDN: The IDN query string (default: *IDN?)</span>
+<span class="sd">        :return: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Try connecting to device: &quot;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">[</span><span class="n">device</span><span class="p">])</span>
+            <span class="n">device_resource</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">rm</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">[</span><span class="n">device</span><span class="p">])</span><span class="c1"># Tries opening the connection to a device</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">device_resource</span><span class="p">)</span>  <span class="c1"># If valid, append it to the List, for now</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">config_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">[</span><span class="n">device</span><span class="p">],</span> <span class="n">device_resource</span><span class="p">,</span> <span class="n">baudrate</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">IDN</span> <span class="o">==</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">verify_ID</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">device_IDN</span><span class="p">))</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="c1"># So that the last added device will be queried</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">IDN</span><span class="p">:</span> <span class="n">device_resource</span><span class="p">})</span>  <span class="c1"># Adds the device ID for each instrument into the dict</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">device_resource</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; =&gt; &quot;</span> <span class="o">+</span> <span class="n">IDN</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">True</span> <span class="c1"># this means success</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Device IDN for &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">[</span><span class="n">device</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; does not match with IDN from input Device &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">IDN</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; != &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">verify_ID</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="p">))))</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>  <span class="c1"># removes the item from the list</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Attempt to connect to device: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">[</span><span class="n">device</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; failed.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+
+    <span class="c1">#Connects to a instrument or all instruments available in the network</span>
+<div class="viewcode-block" id="VisaConnectWizard.connect_to_instruments"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.connect_to_instruments">[docs]</a>    <span class="k">def</span> <span class="nf">connect_to_instruments</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">connect_to_all</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">connect_to</span><span class="o">=</span><span class="p">[]):</span> <span class="c1"># If no args are given it will try to connect to all available resourses</span>
+        <span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">        Debricated function</span>
+<span class="sd">        &#39;&#39;&#39;</span>
+        <span class="k">if</span> <span class="n">connect_to_all</span><span class="p">:</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">show_instruments</span><span class="p">()</span>  <span class="c1"># Lists all resourses</span>
+
+            <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">:</span> <span class="c1"># Loop over all resoruses</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">rm</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span> <span class="c1"># Tries opening the resourse</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rm</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="n">instrument</span><span class="p">))</span> <span class="c1"># If valid, append it to the List</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config_resource</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="c1"># Makes a first configuration of the instrument (not for all resource types necessary)</span>
+                    <span class="c1">#Warning: this are only preset values, they may differ to config files now</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">connection_error</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span>
+
+        <span class="k">elif</span> <span class="n">connect_to</span> <span class="o">!=</span> <span class="p">[]</span> <span class="ow">and</span> <span class="n">connect_to_all</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span> <span class="c1"># Connection type for another case</span>
+
+            <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="n">connect_to</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rm</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">[</span><span class="n">instrument</span><span class="p">]))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">[</span><span class="n">instrument</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">connection_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">[</span><span class="n">instrument</span><span class="p">])</span>
+
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">dummy</span> <span class="o">=</span> <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Choose resource from list above: </span><span class="se">\n</span><span class="s2">Typing -1 will try to connect to all available instruments </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">dummy</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+
+
+                <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rm</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="n">instrument</span><span class="p">))</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">config_resource</span><span class="p">(</span><span class="n">instrument</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">connection_error</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">rm</span><span class="o">.</span><span class="n">open_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">[</span><span class="n">dummy</span><span class="p">]))</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">config_resource</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">[</span><span class="n">dummy</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">connection_error</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resource_names</span><span class="p">[</span><span class="n">dummy</span><span class="p">])</span></div>
+
+
+<div class="viewcode-block" id="VisaConnectWizard.config_resource"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.config_resource">[docs]</a>    <span class="k">def</span> <span class="nf">config_resource</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resources_name</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">baudrate</span> <span class="o">=</span> <span class="mi">9600</span><span class="p">,</span> <span class="n">timeout</span> <span class="o">=</span> <span class="mf">5000.</span><span class="p">):</span> <span class="c1"># For different types of connections different configurations can be done</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Configs the resource for correct usage. Currently only RS232 devices are configured with this.</span>
+<span class="sd">        All other devices config them self.</span>
+
+<span class="sd">        :param resources_name: The visa resource name</span>
+<span class="sd">        :param resource: The resource object</span>
+<span class="sd">        :param baudrate: The baudrate</span>
+<span class="sd">        :param timeout: A timeout in ms</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+
+        <span class="c1"># ASRL type resourses are RS232 they usually need some additional configuration</span>
+        <span class="c1"># Furthermore this function is for a primitive configuration, we cannot know by now which device has which configuration. IDN is necessary for that,</span>
+        <span class="c1"># but we can only ask for IDN if connection is valid.</span>
+
+        <span class="k">if</span> <span class="n">resources_name</span><span class="p">[:</span><span class="mi">4</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;ASRL&#39;</span><span class="p">:</span>
+            <span class="c1"># Additional Parameters for rs232, usually the baudrate is the only configuration needed, pyvisa will do the rest</span>
+            <span class="n">resource</span><span class="o">.</span><span class="n">baud_rate</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">baudrate</span><span class="p">)</span>
+            <span class="c1">#resource.values_format.is_binary = False</span>
+            <span class="c1">#resource.values_format.datatype = &#39;d&#39;w e</span>
+            <span class="c1">#resource.StopBit=visa.constants.StopBits.one</span>
+            <span class="c1">#resource.Parity=visa.constants.Parity.even</span>
+            <span class="c1">#resource.SerialTermination=visa.constants.SerialTermination.termination_break</span>
+            <span class="c1">#resource.write_terminator = visa.constants.SerialTermination.termination_char</span>
+            <span class="c1">#resource.read_terminator = visa.constants.SerialTermination.termination_char</span>
+            <span class="n">resource</span><span class="o">.</span><span class="n">xoxoff</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">xonoff</span>
+            <span class="c1">#resource.write_termination = &#39;\r\n&#39;</span>
+            <span class="c1">#resource.read_termination = &#39;\r\n&#39;</span>
+            <span class="c1">#resource.values_format.is_big_endian = False</span>
+
+        <span class="n">resource</span><span class="o">.</span><span class="n">timeout</span> <span class="o">=</span> <span class="n">timeout</span> <span class="c1"># Setting a resource timeout</span></div>
+
+    <span class="c1">#No response function</span>
+<div class="viewcode-block" id="VisaConnectWizard.no_response"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.no_response">[docs]</a>    <span class="k">def</span> <span class="nf">no_response</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instrument</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Log entry for a no response error</span>
+
+<span class="sd">        :param instrument: The instrument resource name</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s1">&#39;The device &#39;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; is not responing.&quot;</span><span class="p">)</span></div>
+
+
+    <span class="c1">#Verifing the ID of connected resources typing -1 asks for all id of all resources</span>
+<div class="viewcode-block" id="VisaConnectWizard.verify_ID"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.verify_ID">[docs]</a>    <span class="k">def</span> <span class="nf">verify_ID</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">number</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">command</span> <span class="o">=</span> <span class="s2">&quot;*IDN?&quot;</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">            Prints all IDN of all devices connected to this machine</span>
+
+<span class="sd">            :param number: The number in the myInstruments, pass -1 for all devices</span>
+<span class="sd">            :param command: The IDN query</span>
+<span class="sd">            :return: False or None</span>
+<span class="sd">            &quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">number</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;All IDN of devices:&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">device_IDN</span> <span class="o">=</span> <span class="n">instrument</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">command</span><span class="p">))</span> <span class="c1">#Gets me the IDN for the device</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments_dict</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="n">device_IDN</span><span class="p">:</span> <span class="n">instrument</span><span class="p">})</span> <span class="c1"># Adds the device ID for each instrument into the dict</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">instrument</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; =&gt; &quot;</span> <span class="o">+</span> <span class="n">device_IDN</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))</span>
+                    <span class="k">except</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">no_response</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">instrument</span><span class="p">))</span>
+                        <span class="c1">#self.close_connections(instrument) # Closes the connection to the not responding instruments</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="p">[</span><span class="n">number</span><span class="p">]</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
+                <span class="k">except</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">no_response</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">myInstruments</span><span class="p">[</span><span class="n">number</span><span class="p">])</span>
+                    <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="c1">#@run_with_lock # So only one talker and listener can be there</span>
+<div class="viewcode-block" id="VisaConnectWizard.query"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.query">[docs]</a>    <span class="k">def</span> <span class="nf">query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_dict</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">reconnect</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Makes a query to the resource (the same as first write then read)</span>
+
+<span class="sd">        :param resource_dict: The device resource object (with the commands)</span>
+<span class="sd">        :param code: The string to write to the device</span>
+<span class="sd">        :param reconnect: If a timeout happens, if you want to reconnect</span>
+<span class="sd">        :return: Response (str) or False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#Just check if a resource or object was passed and prepare everything</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="n">resource_dict</span><span class="p">[</span><span class="s2">&quot;Visa_Resource&quot;</span><span class="p">]</span>
+            <span class="c1">#reconnect = True # if dict a reconection attempt is possible</span>
+        <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not access Visa Resource for device: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource_dict</span><span class="p">[</span><span class="s2">&quot;Device_name&quot;</span><span class="p">]</span> <span class="o">+</span>
+                       <span class="s2">&quot;. This usually happens when the device is not connected.&quot;</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="ne">TypeError</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="n">resource_dict</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;An unknown error occured while accessing a Visa resource with error </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">)))</span> <span class="c1"># try to query</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Query of: </span><span class="si">{}</span><span class="s2"> to device: </span><span class="si">{}</span><span class="s2"> was answered with: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">resource_dict</span><span class="p">[</span><span class="s2">&quot;Device_name&quot;</span><span class="p">],</span> <span class="n">query</span><span class="o">.</span><span class="n">strip</span><span class="p">()))</span>
+            <span class="k">return</span> <span class="n">query</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
+            <span class="c1"># Try to reconnect to the device if no answer comes from the device in the timeout</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;The query of device </span><span class="si">{}</span><span class="s2"> with query </span><span class="si">{}</span><span class="s2"> failed with error: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">resource_dict</span><span class="p">[</span><span class="s2">&quot;Device_name&quot;</span><span class="p">],</span>
+                                                                                               <span class="n">code</span><span class="p">,</span> <span class="n">err</span><span class="p">))</span>
+
+            <span class="k">if</span> <span class="n">reconnect</span> <span class="ow">and</span> <span class="nb">type</span><span class="p">(</span><span class="n">resource_dict</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Trying to reconnect to device and reset interfaces...&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reset_interface</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">reconnect_to_device</span><span class="p">(</span><span class="n">resource_dict</span><span class="p">)</span>
+                <span class="k">if</span> <span class="s2">&quot;GPIB&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="p">):</span> <span class="c1"># For all other devices</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="s2">&quot;</span><span class="se">\r\n</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># tries to reset it this way</span>
+                <span class="n">query</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">resource_dict</span><span class="p">[</span><span class="s2">&quot;Visa_Resource&quot;</span><span class="p">],</span> <span class="n">code</span><span class="p">,</span> <span class="n">reconnect</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">query</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Query command: </span><span class="si">{}</span><span class="s2"> to: </span><span class="si">{}</span><span class="s2"> was answered with: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">resource_dict</span><span class="p">[</span><span class="s2">&quot;Device_name&quot;</span><span class="p">],</span> <span class="n">query</span><span class="p">))</span>
+                    <span class="k">return</span> <span class="n">query</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Attempt to reconnect to device was not successful...&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">False</span> <span class="c1"># if no response a -1 will be returned</span></div>
+
+    <span class="c1">#@run_with_lock  # So only one talker and listener can be there</span>
+<div class="viewcode-block" id="VisaConnectWizard.write"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.write">[docs]</a>    <span class="k">def</span> <span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_dict</span><span class="p">,</span> <span class="n">code</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes a value to a resource, if a list is passed instead of a string all in the list will be send, one after another</span>
+
+<span class="sd">        :param resource_dict: The device resource object (with the commands)</span>
+<span class="sd">        :param code: The string to write to the device</span>
+<span class="sd">        :return: bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">resource_dict</span><span class="p">)</span> <span class="o">==</span> <span class="nb">dict</span><span class="p">:</span> <span class="c1"># Checks if dict or only resource</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">resource</span> <span class="o">=</span> <span class="n">resource_dict</span><span class="p">[</span><span class="s2">&quot;Visa_Resource&quot;</span><span class="p">]</span>
+            <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;A key error occured in dict &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource_dict</span><span class="p">[</span><span class="s2">&quot;Device_name&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;. This usually happens when the device is not connected.&quot;</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;An unknown error occured while accessing a Visa resource &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">resource</span> <span class="o">=</span> <span class="n">resource_dict</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Now look if the code is a list or not</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">code</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">list_write</span><span class="p">(</span><span class="n">resource_dict</span><span class="p">,</span> <span class="n">code</span><span class="p">,</span> <span class="n">delay</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">full_command</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">code</span><span class="p">)</span>
+                <span class="n">resource</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">full_command</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Write command: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">full_command</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; to: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">resource</span><span class="p">))</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="c1">#Reads a value from the resource</span>
+<div class="viewcode-block" id="VisaConnectWizard.read"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.read">[docs]</a>    <span class="k">def</span> <span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource_dict</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Reads from a device</span>
+
+<span class="sd">        :param resource_dict: The device resource object (with the commands)</span>
+<span class="sd">        :return: Response (str) or False</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">resource_dict</span><span class="p">[</span><span class="s2">&quot;Visa_Resource&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+    <span class="c1">#Closes the connection to all active resources and closes the visa resource manager</span>
+<div class="viewcode-block" id="VisaConnectWizard.close_connections"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.close_connections">[docs]</a>    <span class="k">def</span> <span class="nf">close_connections</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">inst</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Closes the connection to a device</span>
+
+<span class="sd">        :param inst: Either the visa device to close or -1 (default) for all devices</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">inst</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">instrument</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="c1">#self.initiate_instrument(self.myInstruments_dict[instrument], [&quot;*rst&quot;])</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Closed connection to device &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">myInstruments_dict</span><span class="p">[</span><span class="n">instrument</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments_dict</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">myInstruments_dict</span><span class="p">[</span><span class="n">instrument</span><span class="p">]</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">rm</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+        <span class="k">else</span><span class="p">:</span> <span class="c1"># Closes the connection to a specific resource</span>
+            <span class="n">inst</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+            <span class="n">inst</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Closed connection to device &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">inst</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="VisaConnectWizard.list_write"><a class="viewcode-back" href="../Tools.html#VisaConnectWizard.VisaConnectWizard.list_write">[docs]</a>    <span class="k">def</span> <span class="nf">list_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">commands</span><span class="p">,</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.</span><span class="p">):</span> <span class="c1"># Writes initiate commands to the device</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Writes a list of commands to the device specified. Usually you dont need this function. User the normal</span>
+<span class="sd">        write function, if you pass a list this function will automatically be called. This way it will also work nested</span>
+
+<span class="sd">        :param resource: The device resource dictionary</span>
+<span class="sd">        :param commands: A list of commands to write</span>
+<span class="sd">        :param delay: A delay between the commands</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">commands</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>
+            <span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span> <span class="c1">#A better way possible but gives the instrument its time</span></div></div>
+
+
+<span class="k">class</span> <span class="nc">bcolors</span><span class="p">:</span>
+    <span class="n">HEADER</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[95m&#39;</span>
+    <span class="n">OKBLUE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[94m&#39;</span>
+    <span class="n">OKGREEN</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[92m&#39;</span>
+    <span class="n">WARNING</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[93m&#39;</span>
+    <span class="n">FAIL</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[91m&#39;</span>
+    <span class="n">ENDC</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[0m&#39;</span>
+    <span class="n">BOLD</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[1m&#39;</span>
+    <span class="n">UNDERLINE</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\033</span><span class="s1">[4m&#39;</span>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Dominic Bloech
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

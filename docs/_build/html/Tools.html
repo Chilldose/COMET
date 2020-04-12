@@ -1,0 +1,1047 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 3.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 3.7" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Measurement Tool Box functions &mdash; COMET beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Switching Matrix Control" href="GUI_plugins/Switching_Control.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> COMET
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.10.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">How to</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/IVCV.html">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Purpose Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Data_Visualization.html">Data Visualization and Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Switching_Control.html">Switching Matrix Control</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Measurement Tool Box functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#xyz-stage-control-class">XYZ-Stage Control Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#switching-system-control-class">Switching System Control Class</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">COMET</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Measurement Tool Box functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/Tools.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="measurement-tool-box-functions">
+<h1>Measurement Tool Box functions<a class="headerlink" href="#measurement-tool-box-functions" title="Permalink to this headline">¶</a></h1>
+<p>In the following a simple doc string representation of all tool box functions are displayed. These functions can be used
+to simplify your own measurement plugin. You can simply import it and save an instance of this class and reference it.
+Or more conveniently, your measurement plugin can inherit the tools class and make every member of <strong>tools</strong> a member of
+your plugin. To see how this works see in the tutorial section the chapter <a class="reference internal" href="tutorial.html#add-a-new-measurement"><span class="std std-ref">Add a new measurement</span></a>.</p>
+<dl class="class">
+<dt id="measurement_plugins.forge_tools.tools">
+<em class="property">class </em><code class="descclassname">measurement_plugins.forge_tools.</code><code class="descname">tools</code><span class="sig-paren">(</span><em>framework</em>, <em>event_loop</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some tools for forging your own measurement plugins. It needs the framework and the event_loop object</p>
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.capacitor_discharge">
+<code class="descname">capacitor_discharge</code><span class="sig-paren">(</span><em>device_dict</em>, <em>relay_dict</em>, <em>Setterminal=None</em>, <em>terminal=None</em>, <em>do_anyway=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.capacitor_discharge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.capacitor_discharge" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is rather special for SQC. It checks if the capacitor of the decouple box is correctly discharged</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device_dict</strong> -- Device object</li>
+<li><strong>relay_dict</strong> -- Relay object</li>
+<li><strong>Setterminal</strong> -- set terminla command</li>
+<li><strong>terminal</strong> -- terminal Front or back</li>
+<li><strong>do_anyway</strong> -- Do it anyway</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.change_value">
+<code class="descname">change_value</code><span class="sig-paren">(</span><em>device_dict</em>, <em>order</em>, <em>value=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.change_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.change_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function simply sends a command to a device.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device_dict</strong> -- The device object</li>
+<li><strong>order</strong> -- The command to be send</li>
+<li><strong>value</strong> -- The value for the command</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.change_value_query">
+<code class="descname">change_value_query</code><span class="sig-paren">(</span><em>device_dict</em>, <em>order</em>, <em>value=''</em>, <em>answer='1'</em>, <em>ignore_answer=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.change_value_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.change_value_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function query a command to a device and waits for a return value and compares
+it with the answer statement, if they are the same a true is returned otherwise a None</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device_dict</strong> -- Device object</li>
+<li><strong>order</strong> -- The command to be send</li>
+<li><strong>value</strong> -- The value</li>
+<li><strong>answer</strong> -- The answer it should have</li>
+<li><strong>ignore_answer</strong> -- Should the answer be ignored</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Answer or None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.check_compliance">
+<code class="descname">check_compliance</code><span class="sig-paren">(</span><em>device</em>, <em>compliance=None</em>, <em>command='get_read'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.check_compliance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.check_compliance" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks if the current compliance is reached.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device</strong> -- The device object</li>
+<li><strong>compliance</strong> -- The compliance value</li>
+<li><strong>command</strong> -- The command to check</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.config_setup">
+<code class="descname">config_setup</code><span class="sig-paren">(</span><em>device</em>, <em>commands=()</em>, <em>delay=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.config_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.config_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function configures the setup for a specific measurement.
+Commands is a list of tuples, containing (command, values) if no value is defined only command will be send</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device</strong> -- The device object</li>
+<li><strong>commands</strong> -- A list of tuples with (command, values). If no value is defined only command will be send</li>
+<li><strong>delay</strong> -- The delay between each command</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.do_ramp_value">
+<code class="descname">do_ramp_value</code><span class="sig-paren">(</span><em>resource</em>, <em>order</em>, <em>voltage_Start</em>, <em>voltage_End</em>, <em>step</em>, <em>wait_time=0.05</em>, <em>compliance=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.do_ramp_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.do_ramp_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions ramps a value from one point to another. It actually sends the commands to the device</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resource</strong> -- Device object</li>
+<li><strong>order</strong> -- The command to set tje voltage</li>
+<li><strong>voltage_Start</strong> -- Start point</li>
+<li><strong>voltage_End</strong> -- End point</li>
+<li><strong>step</strong> -- Stepsize</li>
+<li><strong>wait_time</strong> -- Wait between values</li>
+<li><strong>compliance</strong> -- Compliance, if None the compliance check will be skipped</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">True</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.query_device">
+<code class="descname">query_device</code><span class="sig-paren">(</span><em>device_dict</em>, <em>command</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.query_device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.query_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>This command just sends the command directly to the device, and waits for an answer. Warning it is not recommended to use this function. Use this
+function only if you must! Use query_value instead</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device_dict</strong> -- Dictionary of the device</li>
+<li><strong>command</strong> -- The command you want to send to the device</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Return string from the device</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.query_value">
+<code class="descname">query_value</code><span class="sig-paren">(</span><em>device_dict</em>, <em>order</em>, <em>value=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.query_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.query_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function simply queries a command to a device.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device_dict</strong> -- The device object</li>
+<li><strong>order</strong> -- The command to be send</li>
+<li><strong>value</strong> -- The value for the command</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">the return from the device</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.ramp_value">
+<code class="descname">ramp_value</code><span class="sig-paren">(</span><em>min_value</em>, <em>max_value</em>, <em>deltaI</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.ramp_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.ramp_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a list of values in the defined stepsize between the and min/max values</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>min_value</strong> -- Start point of list</li>
+<li><strong>max_value</strong> -- End point of list</li>
+<li><strong>deltaI</strong> -- Stepsize between points</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">List</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.ramp_value_log10">
+<code class="descname">ramp_value_log10</code><span class="sig-paren">(</span><em>min_value</em>, <em>max_value</em>, <em>deltasteps</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.ramp_value_log10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.ramp_value_log10" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function takes a min and max value, deltasteps and generates a list of values in log10 format with each deltasteps values per decade</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>min_value</strong> -- Start value</li>
+<li><strong>max_value</strong> -- End Value</li>
+<li><strong>deltasteps</strong> -- How many steps per decade</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">List</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.refine_ramp">
+<code class="descname">refine_ramp</code><span class="sig-paren">(</span><em>ramp</em>, <em>start</em>, <em>stop</em>, <em>step</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.refine_ramp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.refine_ramp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refines a ramp of values eg. for IVCV, in the beginning it makes sense to refine the ramp</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>ramp</strong> -- A list of values</li>
+<li><strong>start</strong> -- Start point of refinement (must be inside of ramp)</li>
+<li><strong>stop</strong> -- End point of refinement (must be inside of ramp)</li>
+<li><strong>step</strong> -- The step size of the refinement</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Updated list</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.send_to_device">
+<code class="descname">send_to_device</code><span class="sig-paren">(</span><em>device_dict</em>, <em>command</em>, <em>seperate=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.send_to_device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.send_to_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>This command just sends the command directly to the device. Warning it is not recommended to use this function. Use this
+function only if you must! Use change_value instead.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device_dict</strong> -- Dictionary of the device</li>
+<li><strong>command</strong> -- The command you want to send to the device</li>
+<li><strong>seperate</strong> -- if specified, the string gets split and the command will be send separately at the separator</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.steady_state_check">
+<code class="descname">steady_state_check</code><span class="sig-paren">(</span><em>device</em>, <em>command='get_read'</em>, <em>max_slope=0.001</em>, <em>wait=0.2</em>, <em>samples=4</em>, <em>Rsq=0.95</em>, <em>compliance=5e-05</em>, <em>do_anyway=False</em>, <em>check_compliance=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.steady_state_check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.steady_state_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function reads values from a device and fits a linear fit to it. If the fit exceeds a maximum slope it waits a
+specified time and does ot again. If the slope condition is not reached after a few attempts the function returns False.
+Otherwise it returns True and indicates a equilibrium has been reached.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device</strong> -- The device object which should be queried</li>
+<li><strong>command</strong> -- The command which should be queried</li>
+<li><strong>max_slope</strong> -- The maximum slope</li>
+<li><strong>wait</strong> -- How long to wait between attempts</li>
+<li><strong>samples</strong> -- How many samples should be used</li>
+<li><strong>Rsq</strong> -- Minimum R^2 value</li>
+<li><strong>compliance</strong> -- The compliance value which the value should not exceed</li>
+<li><strong>do_anyway</strong> -- </li>
+<li><strong>check_compliance</strong> -- If the program should check the compliance value</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Bool - True means steady state reached</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.stop_measurement">
+<code class="descname">stop_measurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.stop_measurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.stop_measurement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends a signal to the framework to stop every measurement</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="vcw-visa-connect-wizard">
+<h1>VCW - Visa Connect Wizard<a class="headerlink" href="#vcw-visa-connect-wizard" title="Permalink to this headline">¶</a></h1>
+<p>In the following a simple doc string representation of all VCW functions are displayed. These functions can be used
+to simplify your own measurement plugin. You can simply import it and save an instance of this class and reference it.
+Or more conveniently, your measurement plugin always gets a working instance of it in the form of the framework variables
+object. With it you can easy and savely send your devices any kind of command directly.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Usually you are using a wrapper function of the <a class="reference internal" href="#measurement-tool-box-functions"><span class="std std-ref">Measurement Tool Box functions</span></a> for this functions!</p>
+</div>
+<dl class="class">
+<dt id="VisaConnectWizard.VisaConnectWizard">
+<em class="property">class </em><code class="descclassname">VisaConnectWizard.</code><code class="descname">VisaConnectWizard</code><span class="sig-paren">(</span><em>*arg</em>, <em>backend=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard" title="Permalink to this definition">¶</a></dt>
+<dd><p>This Class is for connecting RS232, GPIB, IP and USB devices via pyVisa.</p>
+<p>It can be called with arguments, which defines the specific resource you want to connect to.</p>
+<p>With the kwarg 'backend' you can define the backend. '&#64;py' uses the pyvisa-py backend or '&#64;sim' for PyVisa-sim,
+if you pass nothing the standard pyvisa with the NI-Visa bindings will be used.</p>
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.close_connections">
+<code class="descname">close_connections</code><span class="sig-paren">(</span><em>inst=-1</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.close_connections"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.close_connections" title="Permalink to this definition">¶</a></dt>
+<dd><p>Closes the connection to a device</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>inst</strong> -- Either the visa device to close or -1 (default) for all devices</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.config_resource">
+<code class="descname">config_resource</code><span class="sig-paren">(</span><em>resources_name</em>, <em>resource</em>, <em>baudrate=9600</em>, <em>timeout=5000.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.config_resource"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.config_resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Configs the resource for correct usage. Currently only RS232 devices are configured with this.
+All other devices config them self.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resources_name</strong> -- The visa resource name</li>
+<li><strong>resource</strong> -- The resource object</li>
+<li><strong>baudrate</strong> -- The baudrate</li>
+<li><strong>timeout</strong> -- A timeout in ms</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.connect_to">
+<code class="descname">connect_to</code><span class="sig-paren">(</span><em>device</em>, <em>IDN</em>, <em>baudrate=57600</em>, <em>device_IDN='*IDN?'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.connect_to"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.connect_to" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function connects to a specific device</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device</strong> -- The Visa resource name</li>
+<li><strong>IDN</strong> -- The identification string of the device</li>
+<li><strong>baudrate</strong> -- A baudrate (only used for RS232 devices)</li>
+<li><strong>device_IDN</strong> -- The IDN query string (default: <a href="#id1"><span class="problematic" id="id2">*</span></a>IDN?)</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.connect_to_instruments">
+<code class="descname">connect_to_instruments</code><span class="sig-paren">(</span><em>connect_to_all=True</em>, <em>connect_to=[]</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.connect_to_instruments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.connect_to_instruments" title="Permalink to this definition">¶</a></dt>
+<dd><p>Debricated function</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.connection_error">
+<code class="descname">connection_error</code><span class="sig-paren">(</span><em>failed_resource</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.connection_error"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.connection_error" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes an error to the log, with the information on the passed resource</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>failed_resource</strong> -- A visa resource object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.list_write">
+<code class="descname">list_write</code><span class="sig-paren">(</span><em>resource</em>, <em>commands</em>, <em>delay=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.list_write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.list_write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a list of commands to the device specified. Usually you dont need this function. User the normal
+write function, if you pass a list this function will automatically be called. This way it will also work nested</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resource</strong> -- The device resource dictionary</li>
+<li><strong>commands</strong> -- A list of commands to write</li>
+<li><strong>delay</strong> -- A delay between the commands</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.no_response">
+<code class="descname">no_response</code><span class="sig-paren">(</span><em>instrument</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.no_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.no_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>Log entry for a no response error</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>instrument</strong> -- The instrument resource name</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.query">
+<code class="descname">query</code><span class="sig-paren">(</span><em>resource_dict</em>, <em>code</em>, <em>reconnect=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.query" title="Permalink to this definition">¶</a></dt>
+<dd><p>Makes a query to the resource (the same as first write then read)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resource_dict</strong> -- The device resource object (with the commands)</li>
+<li><strong>code</strong> -- The string to write to the device</li>
+<li><strong>reconnect</strong> -- If a timeout happens, if you want to reconnect</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">Response (str) or False</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.read">
+<code class="descname">read</code><span class="sig-paren">(</span><em>resource_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.read"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.read" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reads from a device</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>resource_dict</strong> -- The device resource object (with the commands)</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">Response (str) or False</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.reconnect_to_device">
+<code class="descname">reconnect_to_device</code><span class="sig-paren">(</span><em>device_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.reconnect_to_device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.reconnect_to_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions reconnects to a device</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>device_dict</strong> -- a device_dict object, containing the visa resource</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">None</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.reset_interface">
+<code class="descname">reset_interface</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.reset_interface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.reset_interface" title="Permalink to this definition">¶</a></dt>
+<dd><p>Resets the GPIB interface, if none is present nothing will happen, but a log will be written</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.show_instruments">
+<code class="descname">show_instruments</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.show_instruments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.show_instruments" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function will search for instruments available to the machine and list them</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.show_resources">
+<code class="descname">show_resources</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.show_resources"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.show_resources" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function shows you all available resources currently connected to this machine</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.verify_ID">
+<code class="descname">verify_ID</code><span class="sig-paren">(</span><em>number=-1</em>, <em>command='*IDN?'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.verify_ID"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.verify_ID" title="Permalink to this definition">¶</a></dt>
+<dd><p>Prints all IDN of all devices connected to this machine</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>number</strong> -- The number in the myInstruments, pass -1 for all devices</li>
+<li><strong>command</strong> -- The IDN query</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">False or None</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="VisaConnectWizard.VisaConnectWizard.write">
+<code class="descname">write</code><span class="sig-paren">(</span><em>resource_dict</em>, <em>code</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/VisaConnectWizard.html#VisaConnectWizard.write"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#VisaConnectWizard.VisaConnectWizard.write" title="Permalink to this definition">¶</a></dt>
+<dd><p>Writes a value to a resource, if a list is passed instead of a string all in the list will be send, one after another</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resource_dict</strong> -- The device resource object (with the commands)</li>
+<li><strong>code</strong> -- The string to write to the device</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="xyz-stage-control-class">
+<h1>XYZ-Stage Control Class<a class="headerlink" href="#xyz-stage-control-class" title="Permalink to this headline">¶</a></h1>
+<p>The XYZ-Stage Control Class is a core feature of COMET it allows you to safely operate any configured automated table.
+An instance is generated on start up -if a stage is configured- in the <a class="reference internal" href="datastructure.html#framework-variables"><span class="std std-ref">Framework variables</span></a>. It features several
+move functions which has build in the functionality to first move down the stage and then move to another location and
+if in position move the table up again. This prevents scratches on e.g. silicon sensors when contacted with needles.</p>
+<p>Furthermore, it checks the position of the stage to make sure the table is always on the correct location. If not an error
+will be raised in the COMETs internal error handling system.</p>
+</div>
+<div class="section" id="switching-system-control-class">
+<h1>Switching System Control Class<a class="headerlink" href="#switching-system-control-class" title="Permalink to this headline">¶</a></h1>
+<p>The Switching System Control Class gives you functions to safely operate a switching system.
+An instance is generated on start up in the <a class="reference internal" href="datastructure.html#framework-variables"><span class="std std-ref">Framework variables</span></a>. It has the ability to cope
+with lots of different variants of switching systems. In the following section the needed config files and a how to, will
+be explained.</p>
+<p>First of all you need at least one switching device configured. This device needs an entry <code class="docutils literal notranslate"><span class="pre">Device_type:</span> <span class="pre">Switching</span> <span class="pre">relay</span></code>
+so that COMET knows that this device is a switching capable device. The other parameters of this device are of the same
+type as any other measurement device.</p>
+<p>The other thing you need are configs to tell COMET what to switch. Therefore, you need a config YAML file in your project
+with the <code class="docutils literal notranslate"><span class="pre">Settings_name:</span> <span class="pre">Switching</span></code> entry and <code class="docutils literal notranslate"><span class="pre">Device_type:</span> <span class="pre">Switching</span> <span class="pre">relay</span></code>. This is followed by the entry <code class="docutils literal notranslate"><span class="pre">Switching_Schemes</span></code>.
+In it are the different measurement types to switch followed by the name of the device and then the switching relays which need
+to be closed.</p>
+<p>To clarify what I mean with that see an example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">---</span>
+<span class="n">Settings_name</span><span class="p">:</span> <span class="n">Switching</span>
+<span class="n">Device_type</span><span class="p">:</span> <span class="s2">&quot;Switching relay&quot;</span>
+<span class="n">Switching_Schemes</span><span class="p">:</span>
+  <span class="n">IV</span><span class="p">:</span> <span class="c1"># Name of the switching configuration</span>
+    <span class="n">HVSwitching</span><span class="p">:</span> <span class="c1"># Name or Alias of a Switching device</span>
+      <span class="o">-</span> <span class="n">A1</span>  <span class="c1"># relay to switch</span>
+      <span class="o">-</span> <span class="n">B1</span>
+      <span class="o">-</span> <span class="n">C2</span>
+  <span class="n">Rpoly</span><span class="p">:</span>
+    <span class="n">HVSwitching</span><span class="p">:</span> <span class="c1"># Name or Alias of a Switching device</span>
+      <span class="o">-</span> <span class="n">A1</span>
+      <span class="o">-</span> <span class="n">B1</span>
+      <span class="o">-</span> <span class="n">C1</span>
+
+    <span class="n">LVSwitching</span><span class="p">:</span> <span class="c1"># Name or Alias of a Switching device</span>
+      <span class="o">-</span> <span class="mi">1</span><span class="n">C05</span>
+      <span class="o">-</span> <span class="mi">1</span><span class="n">C06</span>
+</pre></div>
+</div>
+<p>Here two switching schemes are defined. IV and Rpoly. For IV only the device/alias HVSwitching will be switched with
+the relays: A1,B1,C2. For Rpoly not only HVSwitching also the switching device LVSwitching will be switched.</p>
+<p>If you have configured your setup like this it is fairly easy to switch to the measurement configuration IV.
+Just call the function: <code class="docutils literal notranslate"><span class="pre">switch_to_measurement(&quot;IV&quot;)</span></code> and the class will handle the switching on its own.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">The class checks if the switching has been done correctly. If your switching of the device does not match the intended switching an error will be raised and the user will be informed.</p>
+</div>
+<p>Some devices have the ability to do a device exclusive switching, so all switching logic is done by the device.
+If you want to use this device exclusive switching, the device config file must have the entry: <code class="docutils literal notranslate"><span class="pre">device_exclusive_switching:</span> <span class="pre">True</span></code>
+Otherwise you can set it False or not state it at all.
+For non exclusive switching devices the switching logic will be done via the switching class.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In future releases there will be a config option to decide BBM or MBB. Currently it is hard coded to BBM since this is the recommended way to do it.</p>
+</div>
+<dl class="class">
+<dt id="COMET.utilities.switching_control">
+<em class="property">class </em><code class="descclassname">COMET.utilities.</code><code class="descname">switching_control</code><span class="sig-paren">(</span><em>settings</em>, <em>devices</em>, <em>queue_to_main</em>, <em>vcw</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/COMET/utilities.html#switching_control"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#COMET.utilities.switching_control" title="Permalink to this definition">¶</a></dt>
+<dd><p>This class handles all switching actions, for all switching devices</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>settings</strong> -- default settings ( state machine )</li>
+<li><strong>devices</strong> -- devices dict</li>
+<li><strong>queue_to_main</strong> -- The queue object to the main</li>
+<li><strong>vcw</strong> -- A visa connect wizard instance</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<dl class="method">
+<dt id="COMET.utilities.switching_control.apply_specific_switching">
+<code class="descname">apply_specific_switching</code><span class="sig-paren">(</span><em>switching_dict</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/COMET/utilities.html#switching_control.apply_specific_switching"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#COMET.utilities.switching_control.apply_specific_switching" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function takes a dict of type {&quot;Switching&quot;: [/switch nodes], ....} and switches to these specific type</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>switching_dict</strong> -- What to switch</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">bool</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="COMET.utilities.switching_control.change_switching">
+<code class="descname">change_switching</code><span class="sig-paren">(</span><em>device</em>, <em>config</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/COMET/utilities.html#switching_control.change_switching"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#COMET.utilities.switching_control.change_switching" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fancy name, but just sends the swithing command</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Device:</th><td class="field-body">The device object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> -- the list of nodes which need to be switched</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="COMET.utilities.switching_control.check_all_closed_channel">
+<code class="descname">check_all_closed_channel</code><span class="sig-paren">(</span><em>device</em>, <em>to_be</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/COMET/utilities.html#switching_control.check_all_closed_channel"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#COMET.utilities.switching_control.check_all_closed_channel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks if all channels are correctly closed</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device</strong> -- The device</li>
+<li><strong>to_be</strong> -- the to be state of the relays for this device</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="COMET.utilities.switching_control.check_switching_action">
+<code class="descname">check_switching_action</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/COMET/utilities.html#switching_control.check_switching_action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#COMET.utilities.switching_control.check_switching_action" title="Permalink to this definition">¶</a></dt>
+<dd><p>Checks what channels are closed on all switching devices</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="COMET.utilities.switching_control.device_exclusive_switching">
+<code class="descname">device_exclusive_switching</code><span class="sig-paren">(</span><em>device</em>, <em>configs</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/COMET/utilities.html#switching_control.device_exclusive_switching"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#COMET.utilities.switching_control.device_exclusive_switching" title="Permalink to this definition">¶</a></dt>
+<dd><p>Switching will be done exclusivly by the device itself. Warning make sure the device is correctly configured if
+you are using this routine</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device</strong> -- The device</li>
+<li><strong>configs</strong> -- The configs dict</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="COMET.utilities.switching_control.manual_switching">
+<code class="descname">manual_switching</code><span class="sig-paren">(</span><em>device</em>, <em>configs</em>, <em>BBM=True</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/COMET/utilities.html#switching_control.manual_switching"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#COMET.utilities.switching_control.manual_switching" title="Permalink to this definition">¶</a></dt>
+<dd><p>Manual switching, so opening and closing of channels is done via this software. Old keithley will need this
+Newer devices can do exclusive opening and closing.
+BBM or Break-before-make is the order how to switch, if False make-before-break is used. This is not
+recommended since it can dry weld the switches.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>device</strong> -- The device</li>
+<li><strong>configs</strong> -- The configs dict</li>
+<li><strong>BBM</strong> -- Break before make or make before break,</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">bool</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="COMET.utilities.switching_control.pick_switch_response">
+<code class="descname">pick_switch_response</code><span class="sig-paren">(</span><em>device</em>, <em>current_switching</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/COMET/utilities.html#switching_control.pick_switch_response"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#COMET.utilities.switching_control.pick_switch_response" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function picks the string response and returns a list.
+This function searches for a separator in the device dict and uses it to discect the message, standard is ','</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Device:</th><td class="field-body">The device object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Parameters:</th><td class="field-body"><strong>current_switching</strong> -- is a string containing the current switching</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="COMET.utilities.switching_control.reset_switching">
+<code class="descname">reset_switching</code><span class="sig-paren">(</span><em>device='all'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/COMET/utilities.html#switching_control.reset_switching"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#COMET.utilities.switching_control.reset_switching" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function resets all switching or one device switching</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>device</strong> -- all oder device object:</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="COMET.utilities.switching_control.switch_to_measurement">
+<code class="descname">switch_to_measurement</code><span class="sig-paren">(</span><em>measurement</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/COMET/utilities.html#switching_control.switch_to_measurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#COMET.utilities.switching_control.switch_to_measurement" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function switches all switching systems to a specific measurement type</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>measurement</strong> -- string e.g. &quot;IV&quot;, &quot;CV&quot; must be defined in the switching dict</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">true or false, so if switching was successfull or not</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="GUI_plugins/Switching_Control.html" class="btn btn-neutral float-left" title="Switching Matrix Control" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Dominic Bloech
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

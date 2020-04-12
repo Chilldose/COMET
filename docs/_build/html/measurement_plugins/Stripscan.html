@@ -1,0 +1,397 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 3.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 3.7" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Stripscan &mdash; COMET beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Relaxation Time Analysis" href="RelaxTimeAnalysis.html" />
+    <link rel="prev" title="IVCV" href="IVCV.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> COMET
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.10.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../programstructure.html">COMET layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">How to</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../measurementjobgen.html">Measurement Job Generation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dataexchange.html">Data Exchange</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="IVCV.html">IVCV</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Stripscan</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#bad-strip-detection">Bad Strip Detection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#alignment-procedure">Alignment Procedure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#sensor-files">Sensor Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#accessing-pad-data">Accessing Pad data</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Purpose Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Data_Visualization.html">Data Visualization and Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Switching_Control.html">Switching Matrix Control</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html">Measurement Tool Box functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html#xyz-stage-control-class">XYZ-Stage Control Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html#switching-system-control-class">Switching System Control Class</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">COMET</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>Stripscan</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/measurement_plugins/Stripscan.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="stripscan">
+<h1>Stripscan<a class="headerlink" href="#stripscan" title="Permalink to this headline">¶</a></h1>
+<p>The Stripscan GUI is only a presenter of the data recorded by measurement plugin. It displays you all conducted measurements
+as well as some statistics and current values of the individual measurements. To start a Stripscan measurement you need to
+configure it correctly in the settings tab (see below), and then start it over the Main GUI via the start button.</p>
+<img alt="Flowchart_main" class="floatingflask" src="../_images/StripscanGUI.png" />
+<p>The settings tab to configure the stripscan parameters are shown below. Basically you have to have checked the corresponding
+radio button and then each individual measurements radio button you want values from.
+Each measurement hast three parameters.</p>
+<ul class="simple">
+<li>Measure every - Measure every n-th pad position</li>
+<li>Start strip - The n-th pad position the measurement will start</li>
+<li>End strip - The n-th pad position to stop the measurement</li>
+</ul>
+<img alt="Flowchart_main" class="floatingflask" src="../_images/QTCSettings.png" />
+<div class="section" id="bad-strip-detection">
+<h2>Bad Strip Detection<a class="headerlink" href="#bad-strip-detection" title="Permalink to this headline">¶</a></h2>
+<p>After a successful measurement you usually want to know about bad strips and the general condition of your results/sensor.
+Therefore, there is a Bad Strip Detection GUI, in which you can load several measurement files and analyse them with the
+bad strip detection algorithm.</p>
+<p>After loading the measurements you can press <strong>Analyse all</strong> and the script will do its magic. It then shows you for each
+measurement and each parameter the results. The top plot shows you the data and the supposed boundaries. The green region
+is the supposed region where the data should be and the yellow region shows you the meadian of the data +- a few precent.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The data/sensor is good, if the data points are inside the green and the yellow regions. Otherwise something is not correct.</p>
+</div>
+<p>The second plot shows you a histogram representation of the data. With the bin scroller you can adjust the binning.</p>
+<p>On the left side you get the verbose output of the analysis with further information on strip parameters and the faults.</p>
+<img alt="Flowchart_main" class="floatingflask" src="../_images/bad_strip_analysis.png" />
+</div>
+<div class="section" id="alignment-procedure">
+<h2>Alignment Procedure<a class="headerlink" href="#alignment-procedure" title="Permalink to this headline">¶</a></h2>
+<p>In order to make a connection from your table coordinate system to the one your sensor has you need to tell the framework
+how to do so. This can easily be done via the <strong>Alignment</strong> tab shown below:</p>
+<img alt="Flowchart_main" class="floatingflask" src="../_images/Alignment.png" />
+<p>If you have selected an Sensor in a Project in the Main Tab you can hit the button <strong>Start Alignment</strong> the GUI will display
+all important information about the project and the sensor again, as well as the alignment pads you designated in the configs.
+If you are not content with them, you can change them via the spin boxes.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last">On how to config a specific Project/Sensor for this procedure please see <a class="reference internal" href="#sensor-files"><span class="std std-ref">Sensor Files</span></a>.</p>
+</div>
+<p>The text field below will guide you through the alignment procedure, please follow the steps stated there to successfully
+align your sensor.</p>
+<p>Furthermore, the widget has the ability to communicate with a camera attached to the microscope, to check the status of the
+needles via a camera. Simply switch on the camera if you want.</p>
+<p>The bottom widget is the table control widget you know from the main tab. With it you can do the same table manipulations like
+in the main tab.</p>
+</div>
+<div class="section" id="sensor-files">
+<h2>Sensor Files<a class="headerlink" href="#sensor-files" title="Permalink to this headline">¶</a></h2>
+<p>Since the Stripscan  GUI is relying on the xyz stage you need to have a pad file with the corresponding pad positions. When you start
+the Alignment plugin the data gets converged to an easy accessible pad file structure. For this to work you need a <code class="docutils literal notranslate"><span class="pre">Pad_files</span></code> folder
+within your project description folder. Inside has to be folders which are project descriptors and inside that are <code class="docutils literal notranslate"><span class="pre">.txt</span></code> files
+containing the pad positions</p>
+<p>A possible structure could be</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>│   badstrip.yml
+│   framework_variables.yml
+│   settings.yml
+│   switching.yml
+│
+└───Pad_files
+    ├───HPK 6 inch
+    │       Irradiation2.txt
+    │
+    ├───HPK 6 inch 2018
+    │       2S.txt
+    │       PSlight_notcorr.txt
+</pre></div>
+</div>
+<p>This will generate the projects <strong>HPK 6 inch</strong> and <strong>HPK 6 inch 2018</strong> with the corresponding files in it.</p>
+<p>In these files general information about the Sensor  are stored as well as optional location information.
+This location information are for automated test in the probe station. These additional folder will be interpreted as different projects you are working on. (See accessing the data section below).</p>
+<p>Such a Pad file can looks like this:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Campaign</span><span class="p">:</span> <span class="n">Hamamatsu</span> <span class="mi">6</span><span class="n">inch</span> <span class="n">Irradiation</span>
+<span class="n">Creator</span><span class="p">:</span> <span class="n">Dominic</span> <span class="n">Bloech</span> <span class="mf">17.07</span><span class="o">.</span><span class="mi">2018</span>
+
+<span class="n">reference</span> <span class="n">pad</span><span class="p">:</span> <span class="mi">1</span>
+<span class="n">reference</span> <span class="n">pad</span><span class="p">:</span> <span class="mi">32</span>
+<span class="n">reference</span> <span class="n">pad</span><span class="p">:</span> <span class="mi">64</span>
+
+<span class="c1"># Additional parameters</span>
+<span class="n">implant_length</span><span class="p">:</span> <span class="mi">20036</span>
+<span class="n">metal_width</span><span class="p">:</span> <span class="mi">35</span>
+<span class="n">implant_width</span><span class="p">:</span> <span class="mi">22</span>
+<span class="n">metal_length</span><span class="p">:</span> <span class="mf">19332.35</span>
+<span class="n">pitch</span><span class="p">:</span> <span class="mi">90</span>
+<span class="n">thickness</span><span class="p">:</span> <span class="mi">240</span>
+<span class="nb">type</span><span class="p">:</span> <span class="n">p</span><span class="o">-</span><span class="nb">type</span>
+
+<span class="n">strip</span>        <span class="n">x</span>       <span class="n">y</span>       <span class="n">z</span>
+<span class="mi">1</span>        <span class="mi">0</span>   <span class="mi">0</span>       <span class="mi">0</span>
+<span class="mi">2</span>        <span class="mi">0</span>   <span class="mi">90</span>      <span class="mi">0</span>
+<span class="mi">3</span>        <span class="mi">0</span>   <span class="mi">180</span>     <span class="mi">0</span>
+<span class="mi">4</span>        <span class="mi">0</span>   <span class="mi">270</span>     <span class="mi">0</span>
+<span class="mi">5</span>        <span class="mi">0</span>   <span class="mi">360</span>     <span class="mi">0</span>
+<span class="mi">6</span>        <span class="mi">0</span>   <span class="mi">450</span>     <span class="mi">0</span>
+<span class="mi">7</span>        <span class="mi">0</span>   <span class="mi">540</span>     <span class="mi">0</span>
+<span class="mi">8</span>        <span class="mi">0</span>   <span class="mi">630</span>     <span class="mi">0</span>
+<span class="mi">9</span>        <span class="mi">0</span>   <span class="mi">720</span>     <span class="mi">0</span>
+<span class="mi">10</span>       <span class="mi">0</span>   <span class="mi">810</span>     <span class="mi">0</span>
+<span class="mi">11</span>       <span class="mi">0</span>   <span class="mi">900</span>     <span class="mi">0</span>
+<span class="mi">12</span>       <span class="mi">0</span>   <span class="mi">990</span>     <span class="mi">0</span>
+<span class="mi">13</span>       <span class="mi">0</span>   <span class="mi">1080</span>    <span class="mi">0</span>
+<span class="mi">14</span>       <span class="mi">0</span>   <span class="mi">1170</span>    <span class="mi">0</span>
+</pre></div>
+</div>
+<p>In the first few lines of text the header is defined. Each line with a '#' is considered to be a comment line. The other
+lines having a semicolon represent a item type variable for additional information. Non of these parameters in the header
+are mandatory and you also can extend these parameters. How you use it in your workflow is to your liking.</p>
+<p>If you want to make automated measurements in a probe station least three parameters of type <code class="docutils literal notranslate"><span class="pre">reference_pad:</span> <span class="pre">xyz</span></code>.
+These specify (if correctly implemented) the three points/pad numbers for the coordinate transformation.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">This structure is implemented as a plugin, if you write your own plugins for the alignment you can exchange this mechanism with one you like!</p>
+</div>
+<p>The second part of this file are coordinates. Here the starting line is <code class="docutils literal notranslate"><span class="pre">strip</span> <span class="pre">x</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">y</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">z</span></code>. This line HAS to start with
+the word strip, otherwise the program will not know where the coordinates start. (Except you teach the program to).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can add more parameters if you want, e.g. an angle or so.</p>
+</div>
+<p>After that the program reads in the data separated by tabs or spaces in a list of lists. See accessing data part for clarification.</p>
+<div class="section" id="accessing-pad-data">
+<h3>Accessing Pad data<a class="headerlink" href="#accessing-pad-data" title="Permalink to this headline">¶</a></h3>
+<p>The corresponding data structure is called <code class="docutils literal notranslate"><span class="pre">pad_files_dict</span></code>. The type of this structure is again a dictionary containing
+as items the different folders in the <code class="docutils literal notranslate"><span class="pre">Pad_files</span></code> folder. These are as mentioned before interpreted as some kind of
+projects you have. Inside those folders are then the individual pad files.</p>
+<p>The accessing scheme is a hierarchical one. Meaning the keys of <code class="docutils literal notranslate"><span class="pre">pad_files_dict</span></code> are the names of the project aka. folder
+names. Inside the value to this key you find yet again a dictionary with the keys being the individual sensors. Inside those
+you find also a dictionary with the keys <code class="docutils literal notranslate"><span class="pre">reference_pads</span></code>, <code class="docutils literal notranslate"><span class="pre">header</span></code>, <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">additional_params</span></code>.</p>
+<blockquote>
+<div><ul class="simple">
+<li>The <code class="docutils literal notranslate"><span class="pre">reference_pads</span></code> entry contains the pad and the locations of the defined reference pads</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">header</span></code> entry contains the whole header</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">additional_params</span></code> entry contains the parameters of the header with : as dictionary</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">data</span></code> entry is a list of the length of the coordinate lines in the pad file. Each list entry is another list, containing the tab or space separated values form the coordiante section of the pad file.</li>
+</ul>
+</div></blockquote>
+<p>Wow, a lot of dictionaries and list, to clarify a small example how you access data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">xcor</span> <span class="o">=</span> <span class="n">pad_files_dict</span><span class="p">[</span><span class="s2">&quot;My_project&quot;</span><span class="p">][</span><span class="s2">&quot;Sensor_1&quot;</span><span class="p">][</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="c1"># Will be 0</span>
+<span class="n">ycor</span> <span class="o">=</span> <span class="n">pad_files_dict</span><span class="p">[</span><span class="s2">&quot;My_project&quot;</span><span class="p">][</span><span class="s2">&quot;Sensor_1&quot;</span><span class="p">][</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span> <span class="c1"># Will be 90</span>
+<span class="n">zcor</span> <span class="o">=</span> <span class="n">pad_files_dict</span><span class="p">[</span><span class="s2">&quot;My_project&quot;</span><span class="p">][</span><span class="s2">&quot;Sensor_1&quot;</span><span class="p">][</span><span class="s2">&quot;data&quot;</span><span class="p">][</span><span class="mi">2</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span> <span class="c1"># Will be 0</span>
+
+<span class="n">metal_width</span> <span class="o">=</span> <span class="n">pad_files_dict</span><span class="p">[</span><span class="s2">&quot;My_project&quot;</span><span class="p">][</span><span class="s2">&quot;Sensor_1&quot;</span><span class="p">][</span><span class="s2">&quot;additional_params&quot;</span><span class="p">][</span><span class="s2">&quot;metal_width&quot;</span><span class="p">]</span> <span class="c1"># Will be 35</span>
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Be careful while accessing data from the dictionaries, if the key does not exist python will say No and the program stops. So make sure you check the availability before accessing!!!</p>
+</div>
+</div>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="RelaxTimeAnalysis.html" class="btn btn-neutral float-right" title="Relaxation Time Analysis" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="IVCV.html" class="btn btn-neutral float-left" title="IVCV" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Dominic Bloech
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

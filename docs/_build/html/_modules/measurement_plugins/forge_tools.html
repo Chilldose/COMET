@@ -1,0 +1,677 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 3.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 3.7" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>measurement_plugins.forge_tools &mdash; COMET beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../../" src="../../_static/documentation_options.js"></script>
+        <script type="text/javascript" src="../../_static/jquery.js"></script>
+        <script type="text/javascript" src="../../_static/underscore.js"></script>
+        <script type="text/javascript" src="../../_static/doctools.js"></script>
+    
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../../index.html" class="icon icon-home"> COMET
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.10.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../programstructure.html">COMET layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorial.html">How to</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../measurementjobgen.html">Measurement Job Generation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dataexchange.html">Data Exchange</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../measurement_plugins/IVCV.html">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../measurement_plugins/Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Purpose Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GUI_plugins/Data_Visualization.html">Data Visualization and Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GUI_plugins/Documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../GUI_plugins/Switching_Control.html">Switching Matrix Control</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../Tools.html">Measurement Tool Box functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Tools.html#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Tools.html#xyz-stage-control-class">XYZ-Stage Control Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../Tools.html#switching-system-control-class">Switching System Control Class</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">COMET</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../../index.html">Docs</a> &raquo;</li>
+        
+          <li><a href="../index.html">Module code</a> &raquo;</li>
+        
+      <li>measurement_plugins.forge_tools</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for measurement_plugins.forge_tools</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;This file contains a class containing all tools necessary for forging your own</span>
+<span class="sd">Measurement plugins&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">time</span> <span class="k">import</span> <span class="n">sleep</span>
+<span class="kn">from</span> <span class="nn">scipy</span> <span class="k">import</span> <span class="n">stats</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">..utilities</span> <span class="k">import</span> <span class="n">build_command</span>
+<span class="k">except</span><span class="p">:</span>
+    <span class="k">pass</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+
+<div class="viewcode-block" id="tools"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools">[docs]</a><span class="k">class</span> <span class="nc">tools</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Some tools for forging your own measurement plugins. It needs the framework and the event_loop object</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">framework</span><span class="p">,</span> <span class="n">event_loop</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">framework</span> <span class="o">=</span> <span class="n">framework</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event_loop</span> <span class="o">=</span> <span class="n">event_loop</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span> <span class="o">=</span> <span class="n">framework</span><span class="p">[</span><span class="s2">&quot;VCW&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">settings</span> <span class="o">=</span> <span class="n">framework</span><span class="p">[</span><span class="s2">&quot;Configs&quot;</span><span class="p">][</span><span class="s2">&quot;config&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue_to_main</span> <span class="o">=</span> <span class="n">framework</span><span class="p">[</span><span class="s2">&quot;Message_to_main&quot;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<div class="viewcode-block" id="tools.steady_state_check"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.steady_state_check">[docs]</a>    <span class="k">def</span> <span class="nf">steady_state_check</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot;get_read&quot;</span><span class="p">,</span> <span class="n">max_slope</span> <span class="o">=</span> <span class="mf">0.001</span><span class="p">,</span>
+                           <span class="n">wait</span> <span class="o">=</span> <span class="mf">0.2</span><span class="p">,</span> <span class="n">samples</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span> <span class="n">Rsq</span> <span class="o">=</span> <span class="mf">0.95</span><span class="p">,</span> <span class="n">compliance</span> <span class="o">=</span> <span class="mf">50e-6</span><span class="p">,</span> <span class="n">do_anyway</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+                           <span class="n">check_compliance</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function reads values from a device and fits a linear fit to it. If the fit exceeds a maximum slope it waits a</span>
+<span class="sd">        specified time and does ot again. If the slope condition is not reached after a few attempts the function returns False.</span>
+<span class="sd">        Otherwise it returns True and indicates a equilibrium has been reached.</span>
+
+<span class="sd">        :param device: The device object which should be queried</span>
+<span class="sd">        :param command: The command which should be queried</span>
+<span class="sd">        :param max_slope: The maximum slope</span>
+<span class="sd">        :param wait: How long to wait between attempts</span>
+<span class="sd">        :param samples: How many samples should be used</span>
+<span class="sd">        :param Rsq: Minimum R^2 value</span>
+<span class="sd">        :param compliance: The compliance value which the value should not exceed</span>
+<span class="sd">        :param do_anyway:</span>
+<span class="sd">        :param check_compliance: If the program should check the compliance value</span>
+<span class="sd">        :return: Bool - True means steady state reached</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># TODO: I have the feeling that this function is not exactly dooing what she is supposed to do, check!</span>
+        <span class="n">steady_state</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1">#stop = self.event_loop.stop_measurement</span>
+        <span class="k">if</span> <span class="n">do_anyway</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Overwriting steady_state_check is not advised. Use with caution&quot;</span><span class="p">)</span>
+            <span class="n">stop</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># Todo: the stop signal does not work correctly here.</span>
+        <span class="k">while</span> <span class="ow">not</span> <span class="n">steady_state</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">counter</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="c1"># If too many attempts where made</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Attempt to reach steady state was not successfully after 5 times&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+
+            <span class="n">comm</span> <span class="o">=</span> <span class="n">build_command</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">compliance</span> <span class="ow">and</span> <span class="n">check_compliance</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_compliance</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">compliance</span><span class="p">),</span> <span class="n">command</span><span class="o">=</span><span class="n">command</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">stop_measurement</span><span class="p">()</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">samples</span><span class="p">):</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Conducting steady state check...&quot;</span><span class="p">)</span>
+                <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">comm</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]))</span>
+                <span class="n">sleep</span><span class="p">(</span><span class="n">wait</span><span class="p">)</span>
+            <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="n">r_value</span><span class="p">,</span> <span class="n">p_value</span><span class="p">,</span> <span class="n">std_err</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">linregress</span><span class="p">([</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">))],</span> <span class="n">values</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">std_err</span> <span class="o">&lt;=</span> <span class="mf">1e-6</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">slope</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">max_slope</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="tools.ramp_value_log10"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.ramp_value_log10">[docs]</a>    <span class="k">def</span> <span class="nf">ramp_value_log10</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">deltasteps</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function takes a min and max value, deltasteps and generates a list of values in log10 format with each deltasteps values per decade</span>
+
+<span class="sd">        :param min_value: Start value</span>
+<span class="sd">        :param max_value: End Value</span>
+<span class="sd">        :param deltasteps: How many steps per decade</span>
+<span class="sd">        :return: List</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1">#Todo: from max to min is not working yet</span>
+        <span class="k">if</span> <span class="n">max_value</span> <span class="o">&gt;</span> <span class="n">min_value</span><span class="p">:</span>
+            <span class="n">positive</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">positive</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Make it linear</span>
+        <span class="nb">min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">min_value</span><span class="p">)])[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="nb">max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log10</span><span class="p">([</span><span class="nb">abs</span><span class="p">(</span><span class="n">max_value</span><span class="p">)])[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="c1"># Find absolute delta</span>
+        <span class="n">abs_delta</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">min</span> <span class="o">-</span> <span class="nb">max</span><span class="p">)</span>
+        <span class="n">delta_steps</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">abs_delta</span> <span class="o">/</span> <span class="n">deltasteps</span><span class="p">),</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">ramp_list</span> <span class="o">=</span> <span class="p">[</span><span class="nb">min</span> <span class="o">+</span> <span class="n">delta_steps</span> <span class="o">*</span> <span class="n">step</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">deltasteps</span><span class="p">))]</span>
+        <span class="n">to_big</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">while</span> <span class="n">to_big</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ramp_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ramp_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">max_value</span><span class="p">:</span>
+                <span class="n">ramp_list</span> <span class="o">=</span> <span class="n">ramp_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">to_big</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="n">positive</span><span class="p">:</span>
+            <span class="n">ramp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">max</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ramp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">min</span><span class="p">)</span>
+
+        <span class="c1"># Now make a log skale out of it</span>
+        <span class="n">ramp_list</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="mi">10</span><span class="o">**</span><span class="n">x</span><span class="p">,</span><span class="mi">0</span><span class="p">),</span> <span class="n">ramp_list</span><span class="p">)</span>
+
+        <span class="c1">#if not positive: # Reverses the ramp list</span>
+        <span class="c1">#    ramp_list = [x for x in reversed(ramp_list)]</span>
+
+        <span class="k">return</span> <span class="n">ramp_list</span></div>
+
+<div class="viewcode-block" id="tools.refine_ramp"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.refine_ramp">[docs]</a>    <span class="k">def</span> <span class="nf">refine_ramp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ramp</span><span class="p">,</span> <span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">step</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Refines a ramp of values eg. for IVCV, in the beginning it makes sense to refine the ramp</span>
+
+<span class="sd">        :param ramp: A list of values</span>
+<span class="sd">        :param start: Start point of refinement (must be inside of ramp)</span>
+<span class="sd">        :param stop: End point of refinement (must be inside of ramp)</span>
+<span class="sd">        :param step: The step size of the refinement</span>
+<span class="sd">        :return: Updated list</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">ramp</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">*</span> <span class="n">start</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">ramp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">*</span> <span class="n">stop</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ramp</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">&lt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">start</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ramp</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">stop</span><span class="p">):</span>
+            <span class="c1"># Todo: if the refined array has positive and negative values it does not work currently</span>
+            <span class="n">ramp</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">ramp</span><span class="p">)</span>
+            <span class="n">ref_ramp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ramp_value</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">stop</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+            <span class="n">to_delete</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logical_and</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">ramp</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="nb">abs</span><span class="p">(</span><span class="n">ramp</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">stop</span><span class="p">))</span>
+            <span class="n">start_ind</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">nonzero</span><span class="p">(</span><span class="n">to_delete</span><span class="p">)[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># Finds the index where I have to insert the new array</span>
+            <span class="n">del_list</span> <span class="o">=</span> <span class="n">ramp</span><span class="p">[</span><span class="o">~</span><span class="n">to_delete</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">ind</span><span class="p">,</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">ref_ramp</span><span class="p">):</span>
+                <span class="n">del_list</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">start_ind</span> <span class="o">+</span> <span class="n">ind</span><span class="p">,</span> <span class="n">elem</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">del_list</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Refining of array not possible. Boundaries for refinement must be inside source array. Returning input array&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ramp</span></div>
+
+<div class="viewcode-block" id="tools.ramp_value"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.ramp_value">[docs]</a>    <span class="k">def</span> <span class="nf">ramp_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_value</span><span class="p">,</span> <span class="n">max_value</span><span class="p">,</span> <span class="n">deltaI</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generates a list of values in the defined stepsize between the and min/max values</span>
+
+<span class="sd">        :param min_value: Start point of list</span>
+<span class="sd">        :param max_value: End point of list</span>
+<span class="sd">        :param deltaI: Stepsize between points</span>
+<span class="sd">        :return: List</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">#Find out if positive or negative ramp</span>
+        <span class="k">if</span> <span class="n">max_value</span> <span class="o">&gt;</span> <span class="n">min_value</span><span class="p">:</span>
+            <span class="n">positive</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">positive</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Find absolute delta</span>
+        <span class="n">abs_delta</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">min_value</span><span class="o">-</span><span class="n">max_value</span><span class="p">)</span>
+        <span class="n">delta_steps</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">abs_delta</span><span class="o">/</span><span class="n">deltaI</span><span class="p">),</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">positive</span><span class="p">:</span>
+            <span class="n">ramp_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">min_value</span> <span class="o">+</span> <span class="n">deltaI</span> <span class="o">*</span> <span class="n">step</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">delta_steps</span><span class="p">))]</span>
+
+            <span class="n">to_big</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">while</span> <span class="n">to_big</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ramp_list</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ramp_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">max_value</span><span class="p">:</span>
+                    <span class="n">ramp_list</span> <span class="o">=</span> <span class="n">ramp_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">to_big</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ramp_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">min_value</span> <span class="o">-</span> <span class="n">deltaI</span> <span class="o">*</span> <span class="n">step</span> <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">delta_steps</span><span class="p">))]</span>
+
+            <span class="n">to_big</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">while</span> <span class="n">to_big</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">ramp_list</span><span class="p">)</span><span class="o">&gt;</span><span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">ramp_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">max_value</span><span class="p">:</span>
+                    <span class="n">ramp_list</span> <span class="o">=</span> <span class="n">ramp_list</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">to_big</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">ramp_list</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">ramp_list</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">max_value</span><span class="p">:</span>
+                <span class="n">ramp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">ramp_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">max_value</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ramp_list</span></div>
+
+<div class="viewcode-block" id="tools.do_ramp_value"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.do_ramp_value">[docs]</a>    <span class="k">def</span> <span class="nf">do_ramp_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resource</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">voltage_Start</span><span class="p">,</span> <span class="n">voltage_End</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">wait_time</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span> <span class="n">compliance</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This functions ramps a value from one point to another. It actually sends the commands to the device</span>
+
+<span class="sd">        :param resource: Device object</span>
+<span class="sd">        :param order: The command to set tje voltage</span>
+<span class="sd">        :param voltage_Start: Start point</span>
+<span class="sd">        :param voltage_End: End point</span>
+<span class="sd">        :param step: Stepsize</span>
+<span class="sd">        :param wait_time: Wait between values</span>
+<span class="sd">        :param compliance: Compliance, if None the compliance check will be skipped</span>
+<span class="sd">        :return: True</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Start ramping...&quot;</span><span class="p">)</span>
+        <span class="n">voltage_End</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">voltage_End</span><span class="p">)</span>
+        <span class="n">voltage_Start</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">voltage_Start</span><span class="p">)</span>
+        <span class="n">step</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+        <span class="n">wait_time</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">wait_time</span><span class="p">)</span>
+
+        <span class="n">voltage_step_list</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ramp_value</span><span class="p">(</span><span class="n">voltage_Start</span><span class="p">,</span> <span class="n">voltage_End</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+
+        <span class="c1"># Check if current bias voltage is inside this ramp and delete if necessary</span>
+        <span class="c1">#bias_voltage = float(self.settings[&quot;settings&quot;][&quot;bias_voltage&quot;])</span>
+
+        <span class="c1">#for i, voltage in enumerate(voltage_step_list):</span>
+        <span class="c1">#    if abs(voltage) &gt; abs(bias_voltage):</span>
+        <span class="c1">#        voltage_step_list = voltage_step_list[i:]</span>
+        <span class="c1">#        break</span>
+
+        <span class="k">for</span> <span class="n">voltage</span> <span class="ow">in</span> <span class="n">voltage_step_list</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">voltage</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">voltage</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">compliance</span><span class="p">:</span> <span class="c1"># Otherwise measurement can take to long, which leads to a potential timeout error</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_compliance</span><span class="p">(</span><span class="n">resource</span><span class="p">,</span> <span class="n">compliance</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+            <span class="c1">#self.settings[&quot;settings&quot;][&quot;bias_voltage&quot;] = float(voltage)  # changes the bias voltage</span>
+            <span class="n">sleep</span><span class="p">(</span><span class="n">wait_time</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span></div>
+
+<div class="viewcode-block" id="tools.query_value"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.query_value">[docs]</a>    <span class="k">def</span> <span class="nf">query_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_dict</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function simply queries a command to a device.</span>
+
+<span class="sd">        :param device_dict: The device object</span>
+<span class="sd">        :param order: The command to be send</span>
+<span class="sd">        :param value: The value for the command</span>
+<span class="sd">        :return: the return from the device</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">build_command</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="tools.change_value_query"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.change_value_query">[docs]</a>    <span class="k">def</span> <span class="nf">change_value_query</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_dict</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">answer</span><span class="o">=</span><span class="s2">&quot;1&quot;</span><span class="p">,</span> <span class="n">ignore_answer</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function query a command to a device and waits for a return value and compares</span>
+<span class="sd">        it with the answer statement, if they are the same a true is returned otherwise a None</span>
+
+<span class="sd">        :param device_dict: Device object</span>
+<span class="sd">        :param order: The command to be send</span>
+<span class="sd">        :param value: The value</span>
+<span class="sd">        :param answer: The answer it should have</span>
+<span class="sd">        :param ignore_answer: Should the answer be ignored</span>
+<span class="sd">        :return: Answer or None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">answ</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ignore_answer</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">type</span><span class="p">(</span><span class="n">order</span><span class="p">)</span> <span class="o">==</span> <span class="nb">list</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">com</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
+                    <span class="n">command</span> <span class="o">=</span> <span class="n">build_command</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="p">(</span><span class="n">com</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+                    <span class="n">answ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span> <span class="c1"># writes the new order to the device</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="n">build_command</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+                <span class="n">answ</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>  <span class="c1"># writes the new order to the device</span>
+
+            <span class="n">answ</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">answ</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">answ</span> <span class="o">==</span> <span class="n">answer</span><span class="p">:</span>
+                <span class="k">return</span> <span class="kc">None</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">answ</span> <span class="c1"># For errorhandling it is the return from the device which was not the expected answer</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Overwrite in progress in change_value_query, no check of correct answer is done!!!!&quot;</span><span class="p">)</span>
+            <span class="n">command</span> <span class="o">=</span> <span class="n">build_command</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="tools.send_to_device"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.send_to_device">[docs]</a>    <span class="k">def</span> <span class="nf">send_to_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_dict</span><span class="p">,</span> <span class="n">command</span><span class="p">,</span> <span class="n">seperate</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This command just sends the command directly to the device. Warning it is not recommended to use this function. Use this</span>
+<span class="sd">        function only if you must! Use change_value instead.</span>
+
+<span class="sd">        :param device_dict: Dictionary of the device</span>
+<span class="sd">        :param command: The command you want to send to the device</span>
+<span class="sd">        :param seperate: if specified, the string gets split and the command will be send separately at the separator</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">seperate</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">command</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">seperate</span><span class="p">):</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>  <span class="c1"># writes the new order to the device</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not send </span><span class="si">{command!s}</span><span class="s2"> to device </span><span class="si">{device!s}</span><span class="s2">, error </span><span class="si">{error!s}</span><span class="s2"> occured&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="n">command</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="n">e</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="tools.query_device"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.query_device">[docs]</a>    <span class="k">def</span> <span class="nf">query_device</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_dict</span><span class="p">,</span> <span class="n">command</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This command just sends the command directly to the device, and waits for an answer. Warning it is not recommended to use this function. Use this</span>
+<span class="sd">        function only if you must! Use query_value instead</span>
+
+<span class="sd">        :param device_dict: Dictionary of the device</span>
+<span class="sd">        :param command: The command you want to send to the device</span>
+<span class="sd">        :return: Return string from the device</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">command</span><span class="p">))</span>  <span class="c1"># writes the new order to the device</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not send </span><span class="si">{command!s}</span><span class="s2"> to device </span><span class="si">{device!s}</span><span class="s2">, error </span><span class="si">{error!s}</span><span class="s2"> occured&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">command</span><span class="o">=</span><span class="n">command</span><span class="p">,</span>
+                                                                                                      <span class="n">device</span><span class="o">=</span><span class="n">device_dict</span><span class="p">,</span>
+                                                                                                      <span class="n">error</span><span class="o">=</span><span class="n">e</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="tools.change_value"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.change_value">[docs]</a>    <span class="k">def</span> <span class="nf">change_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_dict</span><span class="p">,</span> <span class="n">order</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function simply sends a command to a device.</span>
+
+<span class="sd">        :param device_dict: The device object</span>
+<span class="sd">        :param order: The command to be send</span>
+<span class="sd">        :param value: The value for the command</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">command</span> <span class="o">=</span> <span class="n">build_command</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="p">(</span><span class="n">order</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+<div class="viewcode-block" id="tools.check_compliance"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.check_compliance">[docs]</a>    <span class="k">def</span> <span class="nf">check_compliance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">compliance</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="s2">&quot;get_read&quot;</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function checks if the current compliance is reached.</span>
+
+<span class="sd">        :param device: The device object</span>
+<span class="sd">        :param compliance: The compliance value</span>
+<span class="sd">        :param command: The command to check</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">compliance</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No compliance set for measurement, default compliance is used! This may cause deamage to the sensor!&quot;</span><span class="p">)</span>
+                <span class="n">compliance</span> <span class="o">=</span> <span class="n">device</span><span class="p">[</span><span class="s2">&quot;default_compliance&quot;</span><span class="p">]</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Device &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">device</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; has no compliance set!&quot;</span><span class="p">)</span>
+
+        <span class="n">command</span> <span class="o">=</span> <span class="n">build_command</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+        <span class="c1">#value = float(str(self.vcw.query(device, command)).split(&quot;,&quot;)[0]) #237SMU</span>
+        <span class="n">value</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">command</span><span class="p">))</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\t</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s2">&quot;settings&quot;</span><span class="p">][</span><span class="s2">&quot;bias_voltage&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>  <span class="c1"># changes the bias voltage</span>
+
+        <span class="k">if</span> <span class="mf">0.</span> <span class="o">&lt;</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">-</span> <span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">compliance</span><span class="p">)</span><span class="o">*</span><span class="mf">0.99</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Complience reached in instrument &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">device</span><span class="p">[</span><span class="s2">&quot;Device_name&quot;</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot; at: &quot;</span><span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;. Complience at &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">compliance</span><span class="p">))</span>
+            <span class="c1">#self.queue_to_main.put({&quot;MeasError&quot;: &quot;Compliance reached. Value. &quot; + str(value[0]) + &quot; A&quot;})</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+
+<div class="viewcode-block" id="tools.config_setup"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.config_setup">[docs]</a>    <span class="k">def</span> <span class="nf">config_setup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device</span><span class="p">,</span> <span class="n">commands</span> <span class="o">=</span> <span class="p">(),</span> <span class="n">delay</span><span class="o">=</span><span class="mf">0.0</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function configures the setup for a specific measurement.</span>
+<span class="sd">        Commands is a list of tuples, containing (command, values) if no value is defined only command will be send</span>
+
+<span class="sd">        :param device: The device object</span>
+<span class="sd">        :param commands: A list of tuples with (command, values). If no value is defined only command will be send</span>
+<span class="sd">        :param delay: The delay between each command</span>
+<span class="sd">        :return: None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">for</span> <span class="n">command</span> <span class="ow">in</span> <span class="n">commands</span><span class="p">:</span>
+            <span class="n">final_string</span> <span class="o">=</span> <span class="n">build_command</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">device</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">final_string</span><span class="p">))</span>  <span class="c1"># finally writes the command to the device</span>
+            <span class="n">sleep</span><span class="p">(</span><span class="n">delay</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="tools.stop_measurement"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.stop_measurement">[docs]</a>    <span class="k">def</span> <span class="nf">stop_measurement</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Sends a signal to the framework to stop every measurement&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">critical</span><span class="p">(</span><span class="s2">&quot;Measurement stop sended by tools functions...&quot;</span><span class="p">)</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ABORT_MEASUREMENT&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>  <span class="c1"># just for now</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">queue_to_main</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">order</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="tools.capacitor_discharge"><a class="viewcode-back" href="../../Tools.html#measurement_plugins.forge_tools.tools.capacitor_discharge">[docs]</a>    <span class="k">def</span> <span class="nf">capacitor_discharge</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">device_dict</span><span class="p">,</span> <span class="n">relay_dict</span><span class="p">,</span> <span class="n">Setterminal</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">terminal</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">do_anyway</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function is rather special for SQC. It checks if the capacitor of the decouple box is correctly discharged</span>
+
+<span class="sd">        :param device_dict: Device object</span>
+<span class="sd">        :param relay_dict: Relay object</span>
+<span class="sd">        :param Setterminal: set terminla command</span>
+<span class="sd">        :param terminal: terminal Front or back</span>
+<span class="sd">        :param do_anyway: Do it anyway</span>
+<span class="sd">        :return: Bool</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1">#Todo: this function needs clean up and generalization</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Discharging capacitors...&quot;</span><span class="p">)</span>
+        <span class="c1"># First switch the smu terminals front/rear</span>
+        <span class="k">if</span> <span class="n">Setterminal</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">Setterminal</span><span class="p">,</span> <span class="n">terminal</span><span class="p">)</span>
+
+        <span class="c1"># Set the switching for the discharge (a relay must be switched in the decouple box by applying 5V</span>
+        <span class="c1">#sleep(1.) # Slow switching shit on BB</span>
+        <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_value_query</span><span class="p">(</span><span class="n">relay_dict</span><span class="p">,</span> <span class="s2">&quot;set_discharge&quot;</span><span class="p">,</span> <span class="s2">&quot;ON&quot;</span><span class="p">,</span> <span class="s2">&quot;OK&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">queue_to_main</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="s2">&quot;RequestError&quot;</span><span class="p">:</span> <span class="s2">&quot;Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: &quot;</span> <span class="o">+</span>  <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; got &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; instead.&quot;</span><span class="p">})</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: &quot;</span> <span class="o">+</span>  <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; got &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; instead.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">sleep</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span> <span class="c1"># relay is really slow</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="s2">&quot;set_source_current&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="s2">&quot;set_measure_voltage&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="s2">&quot;set_output&quot;</span><span class="p">,</span> <span class="s2">&quot;ON&quot;</span><span class="p">)</span>
+        <span class="n">counter</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">voltage</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">):</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="n">build_command</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="s2">&quot;get_read&quot;</span><span class="p">)</span>
+                <span class="n">voltage</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">command</span><span class="p">)))</span>
+
+            <span class="k">if</span> <span class="nb">sum</span><span class="p">(</span><span class="n">voltage</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">voltage</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mf">0.3</span><span class="p">:</span> <span class="c1"># this is when we break the loop</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="s2">&quot;set_output&quot;</span><span class="p">,</span> <span class="s2">&quot;OFF&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="s2">&quot;set_source_voltage&quot;</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="s2">&quot;set_measure_current&quot;</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">change_value</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">Setterminal</span><span class="p">,</span> <span class="s2">&quot;REAR&quot;</span><span class="p">)</span>
+                <span class="c1"># return to default mode for this switching</span>
+                <span class="n">sleep</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>  <span class="c1"># Slow switching shit on BB</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_value_query</span><span class="p">(</span><span class="n">relay_dict</span><span class="p">,</span> <span class="s2">&quot;set_discharge&quot;</span><span class="p">,</span> <span class="s2">&quot;OFF&quot;</span><span class="p">,</span> <span class="s2">&quot;OK&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">queue_to_main</span><span class="o">.</span><span class="n">put</span><span class="p">({</span>
+                                               <span class="s2">&quot;RequestError&quot;</span><span class="p">:</span> <span class="s2">&quot;Capacitor discharged failed! Switching the discharge&quot;</span>
+                                                               <span class="s2">&quot; relay failed! Expected reply from device would be: &quot;</span>
+                                                               <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="s2">&quot;OK&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; got &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; instead.&quot;</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                            <span class="s2">&quot;OK&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; got &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; instead.&quot;</span><span class="p">)</span>
+
+                    <span class="k">return</span> <span class="kc">False</span>
+                <span class="n">sleep</span><span class="p">(</span><span class="mf">1.</span><span class="p">)</span>  <span class="c1"># relay is really slow</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">queue_to_main</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="s2">&quot;Info&quot;</span><span class="p">:</span> <span class="s2">&quot;Capacitor discharged failed: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; times, with a voltage of &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">voltage</span><span class="p">)</span><span class="o">/</span><span class="nb">len</span><span class="p">(</span><span class="n">voltage</span><span class="p">))})</span>
+
+            <span class="k">if</span> <span class="n">counter</span> <span class="o">&gt;=</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">queue_to_main</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="s2">&quot;FatalError&quot;</span><span class="p">:</span> <span class="s2">&quot;The capacitor discharge failed more than 5 times. Discharge the capacitor manually!&quot;</span><span class="p">})</span>
+                <span class="c1"># Set output to on for reading mode</span>
+                <span class="n">command</span> <span class="o">=</span> <span class="n">build_command</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;set_output&quot;</span><span class="p">,</span> <span class="s2">&quot;OFF&quot;</span><span class="p">))</span>  <span class="c1"># switch back to default terminal</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">vcw</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">device_dict</span><span class="p">,</span> <span class="n">command</span><span class="p">)</span>  <span class="c1"># writes the new order to the device</span>
+                <span class="c1"># return to default mode for this switching</span>
+                <span class="n">error</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">change_value_query</span><span class="p">(</span><span class="n">relay_dict</span><span class="p">,</span> <span class="s2">&quot;set_discharge&quot;</span><span class="p">,</span> <span class="s2">&quot;OFF&quot;</span><span class="p">,</span> <span class="s2">&quot;OK&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">error</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">queue_to_main</span><span class="o">.</span><span class="n">put</span><span class="p">({</span><span class="s2">&quot;RequestError&quot;</span><span class="p">:</span> <span class="s2">&quot;Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                                            <span class="s2">&quot;OK&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; got &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; instead.&quot;</span><span class="p">})</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">toolslog</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                        <span class="s2">&quot;Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span>
+                            <span class="s2">&quot;OK&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; got &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">error</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; instead.&quot;</span><span class="p">)</span>
+
+                <span class="k">return</span> <span class="kc">False</span></div></div>
+</pre></div>
+
+           </div>
+           
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Dominic Bloech
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>
