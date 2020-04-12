@@ -12,8 +12,8 @@ The option **Data Files** lets you select the data files to be plotted together.
 which has all information stored for analysing and plotting the selected data. The **save to** option lets you define a
 directory to store your data/plots.
 
-To actually see something one has to hit the **Render** button, which initiates the plotting/analysis. And wit the save
-as button and the corresponding combo box you can chosse to save the data, as well as who the data is stored.
+To actually see something one has to hit the **Render** button, which initiates the plotting/analysis. And with the save
+as button and the corresponding combo box you can choose to save the data, as well as who the data is stored.
 
 .. important:: The analysis script is actually a stand alone software which can also be found on my github page. So if you are interested in developing your own plotting plugin, please see the corresponding docs of the plotting scripts.
 
@@ -24,3 +24,4 @@ line edit below. By pressing the **Apply** button the software reconfigs the plo
 
 .. caution:: If you pass a critical parameter which is somehow malformed in its value. You can damage the current plot object to a degree it is no longer plottable. In this case you have to re-render all plots. By doing so you loose all previous changes to the plots!
 
+For the basic structure and usage of the plotting lib please see the ReadMe for the plotting lib at `Plotting Scripts doc <https://github.com/Chilldose/PlotScripts>`_

@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -196,8 +195,8 @@
 I recommended to use COMET with an Anaconda python distribution which you can download here:</p>
 <p><a class="reference external" href="https://www.anaconda.com/download/">Download Anaconda here</a></p>
 <div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Make sure to download the 64-bit version!</p>
+<p class="first admonition-title">Warning</p>
+<p class="last">Make sure to download the 64-bit version!</p>
 </div>
 <p>it will work with a normal python version too, but I have not tested it. Furthermore, i have set up an Anaconda environment,
 so you do not need to painfully install all modules by hand.</p>
@@ -206,19 +205,19 @@ so you do not need to painfully install all modules by hand.</p>
 <p>You will need drivers higher than 17.0 for COMET to work properly. If you have installed a LabView version it is usually already
 installed on your pc. If so, make sure in the NiMAX app what version of NI-Visa is installed on your system.</p>
 <div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>The module PyVISA works with 32- and 64- bit Python and can deal with 32- and 64-bit NI-VISA libraries without any extra configuration. What PyVISA cannot do is open a 32-bit VISA library while running in 64-bit Python (or the other way around).</p>
+<p class="first admonition-title">Warning</p>
+<p class="last">The module PyVISA works with 32- and 64- bit Python and can deal with 32- and 64-bit NI-VISA libraries without any extra configuration. What PyVISA cannot do is open a 32-bit VISA library while running in 64-bit Python (or the other way around).</p>
 </div>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>There is a pyvisa-py version as well, which does not rely on the NIVisa drivers. For simple measurement setups this will work as well, but it is not as sophisticated as the normal pyvisa and errors may happen. So be warned.</p>
+<p class="first admonition-title">Note</p>
+<p class="last">There is a pyvisa-py version as well, which does not rely on the NIVisa drivers. For simple measurement setups this will work as well, but it is not as sophisticated as the normal pyvisa and errors may happen. So be warned.</p>
 </div>
 <p>The program is known to be running on Windows, Linux (Centos7) and Mac.</p>
 </div>
 <div class="section" id="setting-up-the-environment">
 <h2>Setting Up The Environment<a class="headerlink" href="#setting-up-the-environment" title="Permalink to this headline">¶</a></h2>
-<p>With python up and running, you can run the the <strong>environement_setup.py</strong> file by:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">py</span>
+<p>With python up and running, you can run the the <strong>environement_setup.py &lt;your_system_req_file.yml</strong> file by e.g.:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">py</span> <span class="n">requiremnts_Winx86</span><span class="o">.</span><span class="n">yml</span>
 </pre></div>
 </div>
 <p>this will (when Anaconda is installed) automatically install all required modules for the program to run. If you don't have Anaconda installed and don't want to use it, you can look in the &quot;requirements.yml&quot; file to see what dependencies the program needs.</p>
