@@ -6,11 +6,11 @@
 # Optional Parameters
 
   ASCII_file_specs: # The specifications for the ascii file type measurements files
-    header_lines: 4
-    measurement_description: 4
-    units_line: 4
-    data_start: 5
-    data_separator: ","
+    header_lines: 3
+    measurement_description: 3
+    units_line: 3
+    data_start: 4
+    #data_separator: ","
 
 
   Analysis:
@@ -120,7 +120,7 @@
           PlotLabel: 1C2
 
           #UnitConversion: nano
-          findFlatBandVoltage: False
+          DoFullDepletionCalculation: True
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
 
               logy: False
@@ -520,6 +520,65 @@
               xlabel: Depth (um)
 
               ylabel: N (cm-3)
+
+              shared_axes: False
+              xformatter: "%.0f"
+              yformatter: "%.0e"
+
+
+          ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+              #yaxisENG: False # If you want to plot the y axis in engineering representation
+
+
+      Flat band voltage estimation:
+
+          PlotLabel: Flat band voltage estimation
+
+          #UnitConversion: nano
+          PlotStyles: # Here you can state some plot types you want to have, possible Options are Curve, Spike, Histogram, if non is stated, curve is selected
+
+            - Curve
+
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+
+              logy: False
+
+              logx: False
+
+              invert_xaxis: False
+
+              invert_yaxis: False
+
+              #ylim: !!python/tuple [0, 10e-6]
+
+              #xlim: !!python/tuple [0, 1000]
+
+              #legend_position: 'right'
+
+              #aspect: equal
+
+              padding: !!python/tuple [0, 0.1]
+
+              show_grid: True
+              toolbar: left
+
+              gridstyle:
+
+                  grid_line_color: black
+
+                  grid_line_width: 1.5
+
+                  minor_xgrid_line_color: lightgray
+
+                  minor_ygrid_line_color: lightgray
+
+                  xgrid_line_dash: [4, 4]
+
+                  ygrid_line_dash: [10, 4]
+
+              xlabel: Voltage (V)
+
+              ylabel: Capacity/A (F/cm^2)
 
               shared_axes: False
               xformatter: "%.0f"

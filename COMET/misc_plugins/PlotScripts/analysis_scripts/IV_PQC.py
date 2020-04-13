@@ -49,7 +49,7 @@ class IV_PQC:
 
         self.measurements = self.data["columns"]
         self.xaxis = self.measurements[0]
-        self.donts = ["timestamp", "voltage","current","Voltage","Stepsize","Wait","Stepsize","Frequency",'x','N']
+        self.donts = ["timestamp", "voltage","Voltage","Stepsize","Wait","Stepsize","Frequency",'x','N']
         hv.renderer('bokeh')
 
 
@@ -69,13 +69,14 @@ class IV_PQC:
         Accum_capacitance_normalized = []
         Tox = []
         Nox = []
-
+        fdepvoltage = []
+        count = 0
         # Add the 1/c^2 data to the dataframes
         # Add a copy of the Capacity values to the data frame, where the small kink in the plot is deleted
         for df in self.data["keys"]:
 
             if "Capacity" in self.data[df]["data"]:
-                if not self.data['keys'][0][0:8] == 'CV_Diode' or self.data['keys'][0][0:5] == 'IV_GCD':
+                if not df[0:8] == 'CV_Diode' or df[0:5] == 'IV_GCD':
                     if 'Voltage' in self.data[df]['data']: # Check that the voltage values have increasing order
                         if self.data[df]["data"]["Voltage"][0] > 0:
                             self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))
@@ -151,37 +152,41 @@ class IV_PQC:
                         except Exception as err:
                             self.log.warning("No flat band voltage calculation possible... Error: {}".format(err))
 
+                    count += 1
+                    df2 = pd.DataFrame(
+                        {"Name": self.data['keys'][:count], "fbVoltage": fbvoltage, 'Accum_capacitance': Accum_capacitance,
+                         'Accum_capacitance_normalized': Accum_capacitance_normalized, 'Tox': Tox, 'Nox': Nox})
+                    table1 = hv.Table(df2)
+                    table1.opts(width=1300, height=800)
+                    self.PlotDict["All"] += table1
+                    self.PlotDict["BasePlots"] += table1
+                    self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
+                                                            {'Curve': {'color': "hv.Cycle('PiYG')"}})
 
+                elif df[0:8] == 'CV_Diode':
 
-                elif self.data['keys'][0][0:8] == 'CV_Diode' or self.data['keys'][0][0:5] == 'IV_GCD':
-
-                    if "Capacity" in self.data[df]["data"]:
-
-                        self.data[df]["data"]["Voltage"] = list(map(abs,self.data[df]["data"]["Voltage"]))
-                        self.data[df]["data"].insert(3, "1C2", 1 / self.data[df]["data"]["Capacity"].pow(2))
-                        self.data[df]["units"].append("arb. units")
-                        self.data[df]["measurements"].append("1C2")
-
-                        invers_C2_dy = np.diff(self.data[df]["data"]["1C2"])
-                        invers_C2_dx = np.diff(self.data[df]["data"][self.xaxis])
-                        der_invers_C2 = invers_C2_dy/invers_C2_dx
-                        firstdev_invers_C2 = np.insert(der_invers_C2, 0, der_invers_C2[0])  # Add an element to the array to have the same number of rows as in df
-                        self.data[df]["data"].insert(4, "derivative1C2", firstdev_invers_C2)
-                        self.data[df]["units"].append("arb. units")
-                        self.data[df]["measurements"].append("derivative1C2")
-
-                        x = (self.config['IV_PQC_parameter']['epsilonNull']*(1e-6)* float(self.data[self.data['keys'][0]]['header'][0].split(':')[1]) \
-                            * self.config['IV_PQC_parameter']['epsilonSiliconOxide']) / self.data[df]["data"]["Capacity"][:42]
-                        self.data[df]['data'].insert(5, 'x', x)
-                        self.data[df]["units"].append("arb. units")
-                        self.data[df]["measurements"].append("x")
-
-                        N = (2)/(self.config['IV_PQC_parameter']['epsilonNull']*(1e-2) \
-                            * self.config['IV_PQC_parameter']['q'] * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] * self.data[df]["data"]["derivative1C2"][:42] \
-                                      *(float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e-8))*(float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e-8)))
-                        self.data[df]['data'].insert(6, 'N', N)
-                        self.data[df]["units"].append("arb. units")
-                        self.data[df]["measurements"].append("N")
+                    self.data[df]["data"]["Voltage"] = list(map(abs,self.data[df]["data"]["Voltage"]))
+                    self.data[df]["data"].insert(3, "1C2", 1 / self.data[df]["data"]["Capacity"].pow(2))
+                    self.data[df]["units"].append("arb. units")
+                    self.data[df]["measurements"].append("1C2")
+                    invers_C2_dy = np.diff(self.data[df]["data"]["1C2"])
+                    invers_C2_dx = np.diff(self.data[df]["data"][self.xaxis])
+                    der_invers_C2 = invers_C2_dy/invers_C2_dx
+                    firstdev_invers_C2 = np.insert(der_invers_C2, 0, der_invers_C2[0])  # Add an element to the array to have the same number of rows as in df
+                    self.data[df]["data"].insert(4, "derivative1C2", firstdev_invers_C2)
+                    self.data[df]["units"].append("arb. units")
+                    self.data[df]["measurements"].append("derivative1C2")
+                    x = (self.config['IV_PQC_parameter']['epsilonNull']*(1e-6)* float(self.data[self.data['keys'][0]]['header'][0].split(':')[1]) \
+                        * self.config['IV_PQC_parameter']['epsilonSiliconOxide']) / self.data[df]["data"]["Capacity"][:42]
+                    self.data[df]['data'].insert(5, 'x', x)
+                    self.data[df]["units"].append("arb. units")
+                    self.data[df]["measurements"].append("x")
+                    N = (2)/(self.config['IV_PQC_parameter']['epsilonNull']*(1e-2) \
+                        * self.config['IV_PQC_parameter']['q'] * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] * self.data[df]["data"]["derivative1C2"][:42] \
+                                  *(float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e-8))*(float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e-8)))
+                    self.data[df]['data'].insert(6, 'N', N)
+                    self.data[df]["units"].append("arb. units")
+                    self.data[df]["measurements"].append("N")
 
                     # Plot all Measurements
                     self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
@@ -200,53 +205,74 @@ class IV_PQC:
 
                             try:
 
-                                if self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.children:
+                                if self.basePlots.Overlay.A_1C2.children:
 
-                                    c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.opts(
+                                    c2plot = self.basePlots.Overlay.A_1C2.opts(
                                         clone=True)
 
                                 else:
-                                    c2plot = self.basePlots.Curve.CV_CURVES_hyphen_minus_Full_depletion.opts(clone=True)
+                                    c2plot = self.basePlots.Curve.A_1C2.opts(clone=True)
 
                                 fdestimation = self.find_full_depletion_c2(c2plot, self.data, self.config,
                                                                            PlotLabel="Full depletion estimation")
 
-                                self.PlotDict["All"] += fdestimation
+                                fdepvoltage.append(fdestimation[1])
 
-                                self.PlotDict["BasePlots"] += fdestimation
+                                self.PlotDict["All"] += fdestimation[0]
+
+                                self.PlotDict["BasePlots"] += fdestimation[0]
 
                             except Exception as err:
 
                                 self.log.warning("No full depletion calculation possible... Error: {}".format(err))
-
-        self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"], {'Curve': {'color': "hv.Cycle('PiYG')"}})
-        # Add the first and second derivative data to the dataframes
-
-
-
-        #for df in self.data["keys"]:
-#
-#
-#
-        #    if "Current" in self.data[df]["data"]:
-        #        mxx = max(self.data[df]['data']['Current'])
-        #        min = np.mean(self.data[df]['data']['Current'][-20:])
-        #        Isurf = mxx - min
-#
-        #        text = hv.Text(0, 9*(1e-11), 'Isurf: {} A'.format(
-        #            np.round(Isurf, 15)),
-#
-#
-        #                   ).opts(style=dict(text_font_size='25pt'))
+                    count += 1
+                    df3 = pd.DataFrame({"Name": self.data['keys'][:count], "fdepvoltage": fdepvoltage})
+                    table2=hv.Table(df3)
+                    table2.opts(width=1300, height=800)
+                    self.PlotDict["All"] += table2
+                    self.PlotDict["BasePlots"] += table2
+                    self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
+                                                            {'Curve': {'color': "hv.Cycle('PiYG')"}})
 
 
 
 
+            else:
+                mxx = max(self.data[df]['data']['Current'])
+                min = np.mean(self.data[df]['data']['Current'][-20:])
+                Isurf = mxx - min
+                text = hv.Text(0, 9 * (1e-11), 'Isurf: {} A'.format(
+                    np.round(Isurf, 15)),
+                               ).opts(style=dict(text_font_size='25pt'))
+                # Plot all Measurements
+                self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
+                                                       do_not_plot=self.donts)
 
+                if len(self.data["keys"]) == 1:
+                    self.PlotDict["BasePlots"] = self.basePlots *text
+                    self.PlotDict["All"] = self.basePlots   *text
+                    self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
+                    self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
+                                                    {'Curve': {'color': "hv.Cycle('PiYG')"}})
+                    count += 1
+                    df4 = pd.DataFrame({"Name": self.data['keys'][:count], "Isurf": Isurf})
+                    table3 = hv.Table(df4)
+                    table3.opts(width=1300, height=800)
+                    self.PlotDict["All"] += table3
+                    self.PlotDict["BasePlots"] += table3
 
-
-
-
+                elif len(self.data["keys"]) > 1:
+                    self.PlotDict["BasePlots"] = self.basePlots # *text
+                    self.PlotDict["All"] = self.basePlots   #*text
+                    self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
+                    self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
+                                                    {'Curve': {'color': "hv.Cycle('PiYG')"}})
+                    count += 1
+                    df4 = pd.DataFrame({"Name": self.data['keys'][:count], "Isurf": Isurf})
+                    table3 = hv.Table(df4)
+                    table3.opts(width=1300, height=800)
+                    self.PlotDict["All"] += table3
+                    self.PlotDict["BasePlots"] += table3
 
 
         # Add table
@@ -256,14 +282,9 @@ class IV_PQC:
          #   self.PlotDict["All"] += table
          #   self.PlotDict["BasePlots"] += table
 
-        df2 = pd.DataFrame({"Name": self.data['keys'], "fbVoltage": fbvoltage, 'Accum_capacitance': Accum_capacitance,'Accum_capacitance_normalized': Accum_capacitance_normalized,'Tox': Tox,'Nox': Nox})
-        table1=hv.Table(df2)
-        table1.opts(width=1300, height=800)
-        self.PlotDict["All"] += table1
-        self.PlotDict["BasePlots"] += table1
 
         # Reconfig the plots to be sure
-        self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
+        #self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
         return self.PlotDict
 
     def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, df, **addConfigs):
@@ -597,11 +618,12 @@ class IV_PQC:
 
         #returnPlot = relabelPlot(returnPlot, "CV CURVES - Full depletion calculation")
 
-        #returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
+        returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
 
 
+        self.log.info("Test1 for flat band voltage voltage in all files...")
 
-        return returnPlot
+        return returnPlot, full_depletion_voltages[0][0]
 
 
 
