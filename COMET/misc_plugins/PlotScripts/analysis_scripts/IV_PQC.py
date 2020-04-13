@@ -9,7 +9,7 @@ from copy import deepcopy
 
 import pandas as pd
 import numpy as np
-hv.extension('bokeh', 'matplotlib')
+hv.extension('bokeh', 'matplotlib', 'colorcet')
 
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout, applyPlotOptions
 from forge.tools import twiny, relabelPlot
@@ -160,8 +160,9 @@ class IV_PQC:
                     #Do plots
                     self.PlotDict["All"] += table1
                     self.PlotDict["BasePlots"] += table1
+
                     self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
-                                                            {'Curve': {'color': "hv.Cycle('PiYG')"}})
+                                                            {'Curve': {'color': "hv.Palette('Category20')"}})
 
 
                 #Start Diode Analysis
@@ -242,7 +243,7 @@ class IV_PQC:
                     self.PlotDict["All"] += table2
                     self.PlotDict["BasePlots"] += table2
                     self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
-                                                            {'Curve': {'color': "hv.Cycle('PiYG')"}})
+                                                            {'Curve': {'color': "hv.Palette('Category20')"}})
 
 
 
@@ -265,7 +266,7 @@ class IV_PQC:
                     self.PlotDict["All"] = self.basePlots *text
                     self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
                     self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
-                                                    {'Curve': {'color': "hv.Cycle('PiYG')"}}) #change color cycle
+                                                    {'Curve': {'color': "hv.Palette('Category20')"}}) #change color cycle
 
                     #add table that shows resulting parameters of the analysis
                     count += 1
@@ -281,7 +282,7 @@ class IV_PQC:
                     self.PlotDict["All"] = self.basePlots   #*text
                     self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
                     self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
-                                                    {'Curve': {'color': "hv.Cycle('PiYG')"}})
+                                                    {'Curve': {'color': "hv.Palette('Category20')"}})
                     # add table that shows resulting parameters of the analysis
                     count += 1
                     df4 = pd.DataFrame({"Name": self.data['keys'][:count], "Isurf": Isurf})

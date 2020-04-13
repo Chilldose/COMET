@@ -10,7 +10,7 @@
     measurement_description: 4
     units_line: 4
     data_start: 5
-    #data_separator: ","
+    data_separator: ","
 
 
   Analysis:
