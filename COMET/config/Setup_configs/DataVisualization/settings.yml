@@ -5,10 +5,11 @@
 
 
     GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
+        - DataBrowser
         - DataVisualization
         - CombiningPlots
         - Documentation
         - StripAnalysis
-        - DataBrowser
+
 
   
