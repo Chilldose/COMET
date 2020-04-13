@@ -6,10 +6,10 @@
 # Optional Parameters
 
   ASCII_file_specs: # The specifications for the ascii file type measurements files
-    header_lines: 3
-    measurement_description: 3
-    units_line: 3
-    data_start: 4
+    header_lines: 4
+    measurement_description: 4
+    units_line: 4
+    data_start: 5
     #data_separator: ","
 
 
