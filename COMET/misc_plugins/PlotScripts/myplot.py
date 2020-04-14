@@ -4,8 +4,15 @@ This scripts takes arguments parsed by the user, usually a config file"""
 import logging
 import sys, os
 
-from .forge.utilities import parse_args, LogFile, load_yaml, exception_handler, sanatise_units, sanatise_measurement
-from .forge.utilities import load_plugins, reload_plugins
+try:
+    from .forge.utilities import parse_args, LogFile, load_yaml
+    from .forge.utilities import load_plugins, reload_plugins
+    from .forge.tools import read_in_files, save_plot
+except:
+    from forge.utilities import parse_args, LogFile, load_yaml
+    from forge.utilities import load_plugins, reload_plugins
+    from forge.tools import read_in_files, save_plot
+
 import traceback
 import holoviews as hv
 from bokeh.io import show
@@ -16,7 +23,7 @@ from warnings import filterwarnings
 filterwarnings('ignore', message='save()', category=UserWarning)
 hv.extension('bokeh')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-from .forge.tools import read_in_files, save_plot, read_in_CUSTOM_measurement_files
+
 
 class PlottingMain:
 

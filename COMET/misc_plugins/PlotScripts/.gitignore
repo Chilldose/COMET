@@ -1,0 +1,10 @@
+.idea\**
+*.pyc
+*.png
+*.pdf
+*.html
+*.xml
+*.iml
+*.log
+*.nbc
+*.nbi

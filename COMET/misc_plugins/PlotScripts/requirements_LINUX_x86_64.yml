@@ -1,0 +1,27 @@
+name: PlotScripts
+channels:
+  - conda-forge
+  - https://repo.anaconda.com/pkgs/main/linux-64/
+  - defaults
+dependencies:
+  - python==3.7.4
+  - qt==5.9.7
+  - pip==19.2.3
+  - numba
+  - pandas=0.25.1
+  - scipy
+  - Holoviews
+  - PyQt
+  - phantomjs
+  - yaml
+  - pyyaml
+  - pip:
+    - aiohttp==3.6.2
+    - async-timeout==3.0.1
+    - chardet==3.0.4
+    - mock==3.0.5
+    - multidict==4.7.4
+    - numexpr==2.7.0
+    - tables==3.5.2
+    - yarl==1.4.2
+prefix: C:\Users\dbloech\Anaconda3\envs\COMET
