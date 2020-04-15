@@ -86,6 +86,18 @@ def main():
     log.info("Logfile initiated...")
     log.critical("Initializing programm:")
 
+    # Check the environment if something has changed
+    if args.update:
+        log.critical("Checking conda environment requirements...")
+        osType = sys.platform
+        if "win" in osType.lower():
+            version = "requirements_Winx86.yml"
+        elif "linux" in osType.lower():
+            version = "requirements_LINUX_x86_64.yml"
+        else:
+            version = "requirements_MacOS.yml"
+        os.system("conda env update --prefix ./env --file {}  --prune".format(version))
+
     # Create a custom exception handler
     if not args.minimal:
         try:

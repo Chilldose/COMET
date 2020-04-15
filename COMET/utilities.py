@@ -1802,6 +1802,8 @@ def parse_args():
                         type=str)
     parser.add_argument("--minimal", help="Loads only the bare minimum for headless applications.",
                         action="store_true")
+    parser.add_argument("--update", help="Checks for updates in the requirement files and updats them if need be.",
+                        action="store_true")
     # If you dont want the gui to show you have to pass the argument "-platform offscreen"
     args, unknown = parser.parse_known_args()
 
