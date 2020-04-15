@@ -26,7 +26,7 @@ class Curve_plots:
         self.basePlots = None
         self.PlotDict = {"Name": "Curve_plots"}
         self.measurements = self.data["columns"]
-        hv.renderer('bokeh')
+        #hv.renderer('bokeh')
 
     def run(self):
         """Runs the script"""

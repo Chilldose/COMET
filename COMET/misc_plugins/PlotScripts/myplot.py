@@ -67,10 +67,10 @@ class PlottingMain:
         """Runs the script"""
         reload_plugins(self.plugins)
         self.plot()
-        if self.args.show:
+        if self.args.dont_show:
             self.show_results()
         if self.args.save:
-            self.save_to()
+            self.save_to(backend=self.config.get("backend", "bokeh"))
 
 
     def plot(self):
@@ -92,7 +92,7 @@ class PlottingMain:
         """This function plots a object, by saving the plot as html file in a temporary file and returning the path
         to the file"""
         #finalfig = hv.render(plot_object, backend='bokeh')
-        save_plot("temp_plot", plot_object, self.rootdir, save_as="html")
+        save_plot("temp_plot", plot_object, self.rootdir, save_as=["html"])
         return os.path.join(self.rootdir, "html", "temp_plot.html")
 
     def show_results(self):
@@ -107,8 +107,8 @@ class PlottingMain:
             else:
                 self.log.info("No 'all' plot defined, skipping...")
 
-    def save_to(self, progress_queue=None):
-        """This function saves all plots from every analysis for each datasets as svg"""
+    def save_to(self, progress_queue=None, backend="bokeh"):
+        """This function saves all plots from every analysis for each datasets"""
         self.log.critical("Saving plots...")
         progress_steps = 0
         saved = 0
@@ -140,20 +140,20 @@ class PlottingMain:
                             except:
                                 label = plots._label
 
-                            save_plot(label, plots, save_dir, save_as=self.config.get("Save_as", ["html"]))
+                            save_plot(label, plots, save_dir, save_as=self.config.get("Save_as", ["html"]), backend=backend)
                             saved += 1
                     except:
-                        save_plot(Allplots.group, Allplots, save_dir, save_as=self.config.get("Save_as", ["html"]))
+                        save_plot(Allplots.group, Allplots, save_dir, save_as=self.config.get("Save_as", ["html"]), backend=backend)
                         saved += 1
 
                 else:
                     self.log.info("Saving all subplots from the 'All' not possible due to missing key...")
-                    self.log.info("Saving all plots across the dictionary...")
+                    self.log.info("Saving all plots across the dictionary instead...")
                     progress_steps = len(plot.items())
                     for key, subplot in plot.items():
                         if progress_queue:
                             progress_queue.put({"progress": saved/(progress_steps + 1)})
-                        save_plot(key, subplot, save_dir)
+                        save_plot(key, subplot, save_dir, backend=backend)
                         saved += 1
                 try:
                     self.log.info("Export the 'All' html plot...")

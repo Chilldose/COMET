@@ -31,7 +31,7 @@ class IV_PQC:
         self.measurements = self.data["columns"]
         self.xaxis = "voltage"
         self.donts = ["timestamp", "voltage"]
-        hv.renderer('bokeh')
+        #hv.renderer('bokeh')
 
         c2 = 1 / (self.data['ChuckLeakage-Default_HME_S-PQC_Flute_1-Diode_IV']['data']["current"] *
              self.data['ChuckLeakage-Default_HME_S-PQC_Flute_1-Diode_IV']['data']["current"])

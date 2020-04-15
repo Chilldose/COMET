@@ -30,6 +30,7 @@ class CombiningPlots_window:
         self.to_combine_plots = [] # This is a list of tuples (plot_obj, session, path_in_session)
         self.not_saving = True
         self.combined_plot = None
+        self.combinedPlotOptions = None
 
         # Device communication widget
         self.VisWidget = QWidget()
@@ -73,7 +74,7 @@ class CombiningPlots_window:
                 # Start renderer
                 for plot in plotters:
                     if plot in options:
-                        save_plot("Combined Plot", self.combined_plot, directory, save_as = plot)
+                        save_plot("Combined Plot", self.combined_plot, directory, save_as = [plot], backend="bokeh")
             else:
                 self.log.error("Either the path {} does not exist, or you must first render a few plots".format(directory))
 
@@ -121,7 +122,7 @@ class CombiningPlots_window:
         self.combinedPlotTemplate = self.widget.templates_comboBox.currentText()
         finalPlot = customize_plot(finalPlot, self.widget.templates_comboBox.currentText(),
                                    self.combinedPlotOptions)
-        save_plot("temp_combine_plot", finalPlot, path, save_as = "html")
+        save_plot("temp_combine_plot", finalPlot, path, save_as =["html"])
         self.widget.webEngineView.load(QUrl.fromLocalFile(os.path.join(path, "html", "temp_combine_plot.html")))
         self.current_plot_object = None
         self.combined_plot = finalPlot
@@ -166,7 +167,7 @@ class CombiningPlots_window:
             os.mkdir(path)
         ind = self.widget.combine_treeWidget.currentIndex().row()
         plot = self.to_combine_plots[ind][0]
-        save_plot("temp_combine_plot", plot, path, save_as="html")
+        save_plot("temp_combine_plot", plot, path, save_as=["html"])
         self.widget.webEngineView.load(QUrl.fromLocalFile(os.path.join(path, "html", "temp_combine_plot.html")))
 
         self.variables.app.restoreOverrideCursor()
@@ -212,7 +213,7 @@ class CombiningPlots_window:
         path = os.path.join(os.getcwd(), "__temp__")
         if not os.path.exists(path):
             os.mkdir(path)
-        save_plot("temp_combine_plot", plot, path, save_as="html")
+        save_plot("temp_combine_plot", plot, path, save_as=["html"])
         self.widget.webEngineView.load(QUrl.fromLocalFile(os.path.join(path, "html", "temp_combine_plot.html")))
         self.current_plot_object = None
         self.combined_plot = plot

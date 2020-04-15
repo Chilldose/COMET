@@ -28,7 +28,7 @@ There are several possible args you can pass,
 | Arg                                | Type          | mandatory  | description                                                       |
 | ---------------------------------- |:-------------:| ----------:| ----------------------------------------------------------------- |
 | --config, --file, --c, --conf      | path/str      | yes        | The path to the config file                                       |
-| --show                             | bool          |   no       | If False the script will not show any html plots, default is True |
+| --dont_show                             | bool          |   no       | If False the script will not show any html plots, default is True |
 | --save, --s                        | bool          |    no      | Bool if you want to save the plots or not, default is False        |
 
 # The Config file
@@ -52,6 +52,7 @@ In principle such a file looks like this:
       param2: "Hello"
 
   Output: myplot #Output folder path for my plots
+  backend: bokeh # Choose the backend for the plotting Warning: Output may change with different backends.
 
   Save_as: # save the plots in different data formats, if more than one is specified all of them will be plotted
     - html
@@ -143,6 +144,12 @@ entry in your config.
 After parsing your data, the framework wants as a return a dict. The top level keys must be a kind of representation of your files (I use the filename).
 The values to this keys are again dicts with keys beeing the columns/data sets inside like voltage, capacitance etc. As values it can be any iterable object. But I would recommend a list or a numpy array.  
 
+# Plotting backend
+PlotScripts is build on holoviews, and can plot with different plotting backends. The standard backend is bokeh. But you can choose another backend if you want with the parameter "backend". The options are bokeh, matplotlib and plotly.
+
+Depending on the capabilities of the plotting backend, some plotting options may not be present in all backends. Therefore, the output may change!
+
+The automatic preview will always be done via the bokeh backend. If you want to suppress this you have to pass the argument --dont_show
 
 # The measurements files
 If you have json or YAML files you do not need special treatment here, just state it correctly in the config file.

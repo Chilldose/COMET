@@ -53,7 +53,7 @@ class IVCV_QTC:
             unit = self.config[self.analysisName].get(meas, {}).get("UnitConversion", None)
             if unit:
                 self.data = convert_to_EngUnits(self.data, meas, unit)
-        hv.renderer('bokeh')
+        #hv.renderer('bokeh')
 
     def run(self):
         """Runs the script"""

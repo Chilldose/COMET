@@ -25,7 +25,7 @@ class relaxation_time:
         self.individual = None
         self.PlotDict = {"Name": "Relaxation time"}
         self.measurements = self.data["columns"]
-        hv.renderer('bokeh')
+        #hv.renderer('bokeh')
 
     def run(self):
         """Runs the script"""

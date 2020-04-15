@@ -30,7 +30,7 @@ class COVID19:
         self.analysisname = "COVID19"
         self.PlotDict = {"Name": self.analysisname}
         self.measurements = self.data["columns"][4:] # Cut the non measurement lines
-        hv.renderer('bokeh')
+        #hv.renderer('bokeh')
         self.keys_basenames = [name.split("_")[-2] for name in self.data["keys"]]
         self.countries = []
 

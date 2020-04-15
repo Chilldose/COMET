@@ -27,7 +27,7 @@ class TCAD:
         self.analysisname = "TCAD"
         self.PlotDict = {"Name": self.analysisname}
         self.measurements = self.data["columns"]
-        hv.renderer('bokeh')
+        #hv.renderer('bokeh')
 
         self.areafactors = self.config["AreaFactors"]
         self.scalefactors = self.config["ScalingFactors"]

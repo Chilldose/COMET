@@ -12,10 +12,16 @@
     - ".\\testdata\\IVC_VPX28442_2S_11.txt"
     - ".\\testdata\\IVC_VPX28442_2S_19.txt"
     - ".\\testdata\\IVC_VPX28442_2S_20.txt"
+    
+  Output: ".\\testdata\\plots"
 
   Analysis:
     - IVCV_QTC # The type of analysis, which will be performed
-
+  backend: bokeh
+  Save_as:
+    - png
+    - html
+    - svg
 
 # Optional Parameters
 

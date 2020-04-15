@@ -565,14 +565,14 @@ class DataVisualization_window:
                             self.plotting_Object.config["Save_as"].append(plot)
                     if not self.plotting_thread:
                         self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
-                            self.variables.framework_variables["Message_to_main"],))
+                            self.variables.framework_variables["Message_to_main"],), kwargs={"backend": "bokeh"})
                         self.not_saving = True
                     else:
-                        if self.plotting_threadself.plotting_thread.is_Alive():
+                        if self.plotting_thread: #and self.plotting_thread.is_Alive():
                             self.not_saving = False
                         else:
                             self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
-                            self.variables.framework_variables["Message_to_main"],))
+                            self.variables.framework_variables["Message_to_main"],), kwargs={"backend": "bokeh"})
                             self.not_saving = True
                     if self.not_saving:
                         self.plotting_thread.start()

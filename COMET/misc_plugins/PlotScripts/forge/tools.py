@@ -11,10 +11,11 @@ import holoviews as hv
 from holoviews import opts
 import numpy as np
 hv.extension('bokeh')
+hv.extension('matplotlib')
 import pandas as pd
 from bokeh.models import LinearAxis, Range1d
-from bokeh.io import export_svgs, export_png
-from bokeh.io import save
+#from bokeh.io import export_svgs, export_png
+#from bokeh.io import save
 import json, yaml
 from copy import deepcopy
 from bokeh.models import HoverTool
@@ -153,63 +154,45 @@ def plot(data, config, xaxis_measurement, analysis_name, do_not_plot=(), plot_on
 
     return config_layout(finalPlot, **config.get(analysis_name, {}).get("Layout", {}))
 
-def save_plot(name, subplot, save_dir, save_as="default"):
+def save_plot(name, subplot, save_dir, save_as="default", backend="bokeh"):
     """Saves a plot object"""
-    log.info("Saving {}".format(name))
-    try:
-        if "default" in save_as:
-            fig = hv.render(subplot, backend='bokeh')
-            save(fig, os.path.join(save_dir, "{}.html".format(name)), fmt="html", title=name)  # , width=1920, height=1080)
-        if "html" in save_as:
-            fig = hv.render(subplot, backend='bokeh')
-            path = os.path.join(save_dir, "html")
-            if not os.path.exists(path):
-                os.mkdir(path)
-            save(fig, os.path.join(path, "{}.html".format(name)), fmt="html", title=name)  # , width=1920, height=1080)
-
-            if "pdf" in save_as:
-                #todo: does not work :/
-                htmlpath = path
-                path = os.path.join(save_dir, "pdf")
-                if not os.path.exists(path):
-                    os.mkdir(path)
-                options = {
-                    'page-size': 'A4',
-                    'margin-top': '0.75in',
-                    'margin-right': '0.75in',
-                    'margin-bottom': '0.75in',
-                    'margin-left': '0.75in',
-                }
-
-                pdfkit.from_file(os.path.join(htmlpath, "{}.html".format(name)),
-                                 os.path.join(path, "{}.pdf".format(name)),
-                                 options=options)
+    if not os.path.exists(save_dir):
+        os.mkdir(save_dir)
+    path = os.path.normpath(save_dir)
 
 
-        if "png" in save_as:
-            fig = hv.render(subplot.opts(toolbar=None), backend='bokeh')
-            path = os.path.join(save_dir, "png")
-            if not os.path.exists(path):
-                os.mkdir(path)
-            export_png(fig, os.path.join(path, "{}.png".format(name)))  # , width=1920, height=1080)
-        if "svg" in save_as:
-            #subplot.output_backend = "svg"
-            fig = hv.render(subplot.opts(toolbar=None), backend='bokeh')
-            path = os.path.join(save_dir, "svg")
-            if not os.path.exists(path):
-                os.mkdir(path)
-            fig.output_backend = "svg"
-            export_svgs(fig, os.path.join(path, "{}.svg".format(name)))
-            #export_svgs(fig, os.path.join(path, "{}.svg".format(name)),)
-    except Exception as err:
-        log.warning("Exporting plot {} was not possible. Error: {}".format(name, err))
-        log.info("Try exporting as png...")
-        fig = hv.render(subplot.opts(toolbar=None), backend='bokeh')
+    # Generate the figure
+    if "default" in save_as:
+        stdformat = "html" if backend == "bokeh" else "png"
+        save_dir = os.path.join(path, name)
+        save_dir+="."+stdformat
+        log.info("Saving plot {} as {} to {}".format(name, stdformat, save_dir))
+        hv.save(subplot, save_dir, backend=backend)
+        return
+
+    # Save the figure
+    for save_format in save_as:
         try:
-            export_png(fig, os.path.join(save_dir, "{}.png".format(name)))  # , width=1920, height=1080)
-            log.info("Exporting as png was successful!")
-        except:
-            log.error("Exporting '{}' as png was also not possible...".format(name))
+            log.info("Saving plot {} as {} to {}".format(name, save_format, path))
+            if save_format.lower() == "html" and backend=="bokeh":
+                save_dir = os.path.join(path, "html")
+                if not os.path.exists(save_dir):
+                    os.mkdir(save_dir)
+                hv.save(subplot, os.path.join(save_dir,name)+".html", backend=backend)
+
+            if save_format.lower() == "png":
+                save_dir = os.path.join(path, "png")
+                if not os.path.exists(save_dir):
+                    os.mkdir(save_dir)
+                hv.save(subplot, os.path.join(save_dir,name)+".png", backend=backend)
+            if save_format.lower() == "svg":
+                save_dir = os.path.join(path, "svg")
+                if not os.path.exists(save_dir):
+                    os.mkdir(save_dir)
+                hv.save(subplot, os.path.join(save_dir,name)+".svg", backend=backend)
+
+        except Exception as err:
+            log.warning("Exporting plot {} was not possible. Error: {}".format(name, err))
 
 def twiny(plot, element):
     # Setting the second y axis range name and range

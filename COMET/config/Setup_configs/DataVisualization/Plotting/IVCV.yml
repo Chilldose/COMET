@@ -39,6 +39,9 @@
           - BoxWhisker
           - Histogram
 
+      HistogramOptions:
+          shared_axes: False
+        
       BoxWhiskerOptions:
           shared_axes: False
           box_alpha: 0.3
