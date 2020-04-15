@@ -95,6 +95,13 @@ class IVCV_QTC:
             self.PlotDict["Whiskers"] = self.WhiskerPlots
             self.PlotDict["All"] = self.PlotDict["All"] + self.WhiskerPlots
 
+        # Histogram Plot
+        self.HistogramPlots = dospecialPlots(self.data, self.config, self.analysisName, "Histogram",
+                                            self.measurements)
+        if self.HistogramPlots:
+            self.PlotDict["Histogram"] = self.HistogramPlots
+            self.PlotDict["All"] = self.PlotDict["All"] + self.HistogramPlots
+
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.analysisName].get("Layout", {}))
 

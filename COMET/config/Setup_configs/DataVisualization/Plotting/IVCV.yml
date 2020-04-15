@@ -37,6 +37,7 @@
 
       DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measurements has this special plot stated
           - BoxWhisker
+          - Histogram
 
       BoxWhiskerOptions:
           shared_axes: False
@@ -49,6 +50,7 @@
           PlotLabel: Temperature
           AdditionalPlots:
               - BoxWhisker
+              - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               show_grid: False
 
@@ -56,6 +58,7 @@
           PlotLabel: Humidity
           AdditionalPlots:
               - BoxWhisker
+              - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               show_grid: False
 

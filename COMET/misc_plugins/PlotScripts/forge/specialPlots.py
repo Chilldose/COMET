@@ -1,5 +1,5 @@
 """Here special plot scripts are defined, which can be accessed from the config"""
-from forge.tools import customize_plot, config_layout, relabelPlot, reject_outliers
+from forge.tools import customize_plot, config_layout, relabelPlot, reject_outliers, text_box
 import holoviews as hv
 from holoviews import opts
 from holoviews.operation import histogram
@@ -209,11 +209,8 @@ def Histogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None, **add
             rms = np.round(np.sqrt(np.mean(data ** 2)), 2)
             std = np.round(np.std(data), 2)
             median = np.round(np.median(data), 2)
-
             data = np.histogram(data, bins=bins)
-
             plt = hv.Histogram(data, label="Histogram: {}".format(measurement), group="Histogram: {}: {}".format(measurement, key))
-            #plt = hv.Histogram(data, vdims=to_plot, group="Concatenated Histogram: {}".format(to_plot))
 
             try:
                 xlabel = "{} [{}]".format(measurement,
@@ -244,6 +241,7 @@ def Histogram(dfs, measurement, configs, analysisType,  bins=50, iqr=None, **add
             y = data[0].max()
             x = data[1][int(len(data[1]) * 0.9)]
             text = hv.Text(x, y, text).opts(fontsize=30)
+            #text = text_box(text, x, y, boxsize= (100, 150))
             plots = plots*text
 
             if finalplots:
