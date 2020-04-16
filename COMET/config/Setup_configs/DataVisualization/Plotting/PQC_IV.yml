@@ -10,7 +10,7 @@
     measurement_description: 4
     units_line: 4
     data_start: 5
-    data_separator: ","
+    #data_separator: ","
 
 
   Analysis:
@@ -30,6 +30,7 @@
       SiliconDoping: 5.0e+12 #cm^-3
       boltzmannConstant: 1.38064e-23 #J/K
       Temperature: 293.15 #kelvin
+      n_i_intrinsic_carrier_concentration: 5.415e+9 #cm^-3
 
 # Options for the different Analyses scripts
   # These options are entirely up to you and what you need in your analysis

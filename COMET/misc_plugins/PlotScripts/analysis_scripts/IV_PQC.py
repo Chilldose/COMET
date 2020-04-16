@@ -235,9 +235,23 @@ class IV_PQC:
 
                                 self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
+                    # Find resistivity
+                    C_min = np.mean(self.data[df]['data']['Current'][-20:])
+                    d_active = self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter'][
+                        'epsilonSiliconOxide'] * \
+                               (float(self.data[self.data['keys'][0]]['header'][0].split(':')[1]) * (1e-8)) / C_min
+                    rho = d_active * d_active / (
+                                2 * self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter'][
+                            'epsilonSiliconOxide'] * fdestimation[1]) # * u_mobility)
+
+                    # TODO: add mobility in rho formula
+
+                    resistivity = []
+                    resistivity.append(rho)
+
                     #Add a table that show the results of the analysis
                     count += 1
-                    df3 = pd.DataFrame({"Name": self.data['keys'][:count], "fdepvoltage": fdepvoltage})
+                    df3 = pd.DataFrame({"Name": self.data['keys'][:count], "fdepvoltage": fdepvoltage, "resistivity": resistivity})
                     table2=hv.Table(df3)
                     table2.opts(width=1300, height=800)
                     self.PlotDict["All"] += table2
@@ -252,6 +266,8 @@ class IV_PQC:
                 mxx = max(self.data[df]['data']['Current']) #find maximum of value of the current-voltage curve
                 min = np.mean(self.data[df]['data']['Current'][-20:]) #find the minimum of the curr-voltage curve by averaging 20 points values in the curve tail
                 Isurf = mxx - min #compute the surface current
+                # S_null = Isurf/(self.config['IV_PQC_parameter']['q'] * self.config['IV_PQC_parameter']['n_i_intrinsic_carrier_concentration'] * 25000000 *(1e-8))
+                # TODO: change area for surface recombination velocity
 
                 #Add text to the plot
                 text = hv.Text(0, 9 * (1e-11), 'Isurf: {} A'.format(
