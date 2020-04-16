@@ -149,7 +149,7 @@ PlotScripts is build on holoviews, and can plot with different plotting backends
 
 Depending on the capabilities of the plotting backend, some plotting options may not be present in all backends. Therefore, the output may change!
 
-The automatic preview will always be done via the bokeh backend. If you want to suppress this you have to pass the argument --dont_show
+The automatic preview will always be done via the bokeh backend. If you want to suppress this you have to pass the argument --dont_show.
 
 # The measurements files
 If you have json or YAML files you do not need special treatment here, just state it correctly in the config file.

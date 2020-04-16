@@ -354,7 +354,7 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
     finalPlot = None
 
     if len(kdims) < 2:
-        log.warning("Holoplots usually needs at least two kdims to work with! Plotting may fail")
+        log.debug("Holoplots usually needs at least two kdims to work with! Plotting may fail")
         ind = 0
     else: ind = 1
 

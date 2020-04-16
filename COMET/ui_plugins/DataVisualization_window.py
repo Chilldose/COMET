@@ -164,7 +164,7 @@ class DataVisualization_window:
         with open(filepath, 'w') as outfile:
             yaml.dump(template, outfile, default_flow_style=False)
 
-        args = ["--config", "{}".format(filepath), "--show"]
+        args = ["--config", "{}".format(filepath), "--dont_show"]
 
         try:
             plotting = PlottingMain(configs=args)
