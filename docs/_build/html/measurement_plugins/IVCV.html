@@ -21,9 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -194,24 +195,24 @@ change them every time you start up.</p>
 This will direct the software to either do this part or not. The other spin boxes are for the specific settings on
 bias voltage and step sizes.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">You can choose different bias voltages for CV or IV measurement. So stop the CV measurement at 400 V but the IV measurement should continue to 1000 V. Or vice versa.</p>
+<p class="admonition-title">Note</p>
+<p>You can choose different bias voltages for CV or IV measurement. So stop the CV measurement at 400 V but the IV measurement should continue to 1000 V. Or vice versa.</p>
 </div>
 <p>The voltage step refinement option lets you refine the step size in a specific region of the IVCV ramp. This is especially
 useful, if you want to investigate the behavior near the full depletion point, but you do not want the small step-size for the
 whole measurement, to safe time.</p>
 <p>Next are comming the <strong>Start</strong>, <strong>Stop</strong> and <strong>Quit</strong> button. These buttons handles the start and the stop and quit of the program.</p>
 <div class="admonition hint">
-<p class="first admonition-title">Hint</p>
-<p class="last">You can always quit the program via the option <strong>File</strong> in the header of the software!</p>
+<p class="admonition-title">Hint</p>
+<p>You can always quit the program via the option <strong>File</strong> in the header of the software!</p>
 </div>
 <p>Next is a event log. Here all important messages will be displayed which COMET encounters during operation. These events
 are color coded. Red means error, orange means warning and green are infos.</p>
 <p>On the right side you see two plots, which will be populated if a measurement is conducted. Below that is the environment
 control which starts running on start up. Here you can choose the humidity and temperature levels/regions during measurement.</p>
 <div class="admonition important">
-<p class="first admonition-title">Important</p>
-<p class="last">If the environment levels are not reached, COMET will wait for the environment to reach these levels before it proceeds with the measurement.</p>
+<p class="admonition-title">Important</p>
+<p>If the environment levels are not reached, COMET will wait for the environment to reach these levels before it proceeds with the measurement.</p>
 </div>
 <p>Since COMET heavily rely on GUI plugins you can have different GUI which does basically the same thing like this one.
 One of those is the IVCV_QTC GUI plugin which looks pretty similar to the above shown one</p>

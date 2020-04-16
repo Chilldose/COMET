@@ -21,9 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -88,6 +89,7 @@
 <li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET layout</a></li>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Getting Started</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#updating-comet">Updating COMET</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#running-initializing-the-program">Running/Initializing The Program</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#your-first-gui">Your first GUI</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#your-first-device">Your first device</a></li>
@@ -190,6 +192,22 @@
 <h1>Getting Started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
 <p>In order to run this program you need a Python Anaconda distribution and the NI-Visa drivers.
 For more information on how to install see the <a class="reference internal" href="installation.html#installation"><span class="std std-ref">Installation</span></a> guide.</p>
+<div class="section" id="updating-comet">
+<h2>Updating COMET<a class="headerlink" href="#updating-comet" title="Permalink to this headline">¶</a></h2>
+<p>COMET is hosted via a remote Git repository. So in order to update COMET you can simply pull from the repository and get the latest updates.
+In order to make things easier for the user it is possible to update not only the repository on your machine, it is also possible to update the
+needed packages of COMET. This may come in handy if you experience some errors. Then the first thing to do is update COMET via:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">COMET</span><span class="o">.</span><span class="n">py</span> <span class="o">--</span><span class="n">update</span>
+</pre></div>
+</div>
+<p>After everything is updated, restart COMET. If this did not help to solve your problems. It may be necessary to completely re-install the COMET environemnt.</p>
+<p>This can be done via the commands:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">env</span> <span class="n">remove</span> <span class="o">--</span><span class="n">name</span> <span class="n">COMET</span>
+<span class="n">python</span> <span class="n">environment_setup</span> <span class="n">requirements_</span><span class="o">&lt;</span><span class="n">yourSystem</span><span class="o">&gt;.</span><span class="n">yml</span>
+</pre></div>
+</div>
+<p>If this still is not working. Please email the owner!</p>
+</div>
 <div class="section" id="running-initializing-the-program">
 <h2>Running/Initializing The Program<a class="headerlink" href="#running-initializing-the-program" title="Permalink to this headline">¶</a></h2>
 <p>Now it should be possible to run the program by:</p>
@@ -201,12 +219,12 @@ For more information on how to install see the <a class="reference internal" hre
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If you running COMET in a normal python distribution you have to install all modules by hand. No environment will be set up for you. For needed modules see the requirements.yml file.</p>
+<p class="admonition-title">Note</p>
+<p>If you running COMET in a normal python distribution you have to install all modules by hand. No environment will be set up for you. For needed modules see the requirements.yml file.</p>
 </div>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">If you run into a problem like, python does not find the environment, python was not recognised or a module cannot be found. Make sure the Anaconda python is accessible from the command prompt.</p>
+<p class="admonition-title">Warning</p>
+<p>If you run into a problem like, python does not find the environment, python was not recognised or a module cannot be found. Make sure the Anaconda python is accessible from the command prompt.</p>
 </div>
 <p>If something does not work out as planned try to test if everything was correctly installed on your system. Just follow
 the instructions on <a class="reference internal" href="installation.html#once-installed-test"><span class="std std-ref">Once installed, test</span></a></p>
@@ -217,12 +235,12 @@ this.</p>
 After that the main GUI should pop up. Depending on which setup you selected you should see something like:</p>
 <img alt="PyVISA" class="floatingflask" src="_images/COMET_GUI.png" />
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This GUI selection window will only appear at first start up. Next time you start the software the PC knows which setup you initially loaded and will automatically load this setup. If you want to load another setup you have to pass the cmd argument &quot;--reinit&quot; when starting the script. Or inside the program, navigate to &quot;Edit/Preferences&quot; and choose the setup you want to load.</p>
+<p class="admonition-title">Note</p>
+<p>This GUI selection window will only appear at first start up. Next time you start the software the PC knows which setup you initially loaded and will automatically load this setup. If you want to load another setup you have to pass the cmd argument &quot;--reinit&quot; when starting the script. Or inside the program, navigate to &quot;Edit/Preferences&quot; and choose the setup you want to load.</p>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">In order to add your own setups to this list, please see the chapter <a class="reference internal" href="#getting-started"><span class="std std-ref">Getting Started</span></a>. There everything is explained in detail.</p>
+<p class="admonition-title">Note</p>
+<p>In order to add your own setups to this list, please see the chapter <a class="reference internal" href="#getting-started"><span class="std std-ref">Getting Started</span></a>. There everything is explained in detail.</p>
 </div>
 </div>
 <div class="section" id="your-first-gui">
@@ -238,8 +256,8 @@ inside this directory create a &quot;settings.yml&quot; file with the following 
 </div>
 <p>after that restart the software with the cmd parameter <code class="docutils literal notranslate"><span class="pre">--reinit</span></code> and select the your project. Now an empty GUI should disappear.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">You can alternatively copy the project <code class="docutils literal notranslate"><span class="pre">Empty_Project</span></code> and rename it to your liking</p>
+<p class="admonition-title">Note</p>
+<p>You can alternatively copy the project <code class="docutils literal notranslate"><span class="pre">Empty_Project</span></code> and rename it to your liking</p>
 </div>
 <p>This GUI is basically capable of doing nothing. To change that we have to add some GUI elements to it.
 COMET comes with a plugin approach for GUI elements. To add a GUI simply add the entry:</p>
@@ -268,8 +286,8 @@ shown there and their stats as well if they are connected or not.</p>
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Don't panic! If you do not understand everything now what all this means. In the following chapters (<a class="reference internal" href="tutorial.html#add-a-new-device"><span class="std std-ref">Add a new device</span></a>) the correct and in depth explanation is written.</p>
+<p class="admonition-title">Note</p>
+<p>Don't panic! If you do not understand everything now what all this means. In the following chapters (<a class="reference internal" href="tutorial.html#add-a-new-device"><span class="std std-ref">Add a new device</span></a>) the correct and in depth explanation is written.</p>
 </div>
 <p>If you now restart the Software and change to the Resources tab you should see an entry for this device.</p>
 <img alt="Flowchart_main" class="floatingflask" src="_images/Resources1.png" />

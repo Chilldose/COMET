@@ -4,6 +4,23 @@ Getting Started
 In order to run this program you need a Python Anaconda distribution and the NI-Visa drivers.
 For more information on how to install see the :ref:`installation` guide.
 
+Updating COMET
+~~~~~~~~~~~~~~
+
+COMET is hosted via a remote Git repository. So in order to update COMET you can simply pull from the repository and get the latest updates.
+In order to make things easier for the user it is possible to update not only the repository on your machine, it is also possible to update the
+needed packages of COMET. This may come in handy if you experience some errors. Then the first thing to do is update COMET via: ::
+
+    python COMET.py --update
+
+After everything is updated, restart COMET. If this did not help to solve your problems. It may be necessary to completely re-install the COMET environemnt.
+
+This can be done via the commands: ::
+
+    conda env remove --name COMET
+    python environment_setup requirements_<yourSystem>.yml
+
+If this still is not working. Please email the owner!
 
 Running/Initializing The Program
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -99,5 +116,3 @@ If you now restart the Software and change to the Resources tab you should see a
 .. image:: pictures/Resources.png
    :alt: Flowchart_main
    :class: floatingflask
-
-

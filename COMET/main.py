@@ -88,15 +88,31 @@ def main():
 
     # Check the environment if something has changed
     if args.update:
+        log.critical("Try getting Git remote repo...")
+        try:
+            import git
+            repo = git.Repo()
+            o = repo.remotes.origin
+            o.fetch()
+            o.pull()
+        except Exception as err:
+            log.error("An error happened while updating COMET source code. Error: {}...".format(err))
+
         log.critical("Checking conda environment requirements...")
-        osType = sys.platform
-        if "win" in osType.lower():
-            version = "requirements_Winx86.yml"
-        elif "linux" in osType.lower():
-            version = "requirements_LINUX_x86_64.yml"
-        else:
-            version = "requirements_MacOS.yml"
-        os.system("conda env update --prefix ./env --file {}  --prune".format(version))
+        try:
+            osType = sys.platform
+            if "win" in osType.lower():
+                version = "requirements_Winx86.yml"
+            elif "linux" in osType.lower():
+                version = "requirements_LINUX_x86_64.yml"
+            else:
+                version = "requirements_MacOS.yml"
+            os.system("conda env update --prefix ./env --file {}  --prune".format(version))
+        except Exception as err:
+            log.error("An error happened while updating COMET environment. Error: {}...".format(err))
+
+        log.critical("Please restart COMET for the updates to have an effect!")
+        sys.exit(0)
 
     # Create a custom exception handler
     if not args.minimal:
