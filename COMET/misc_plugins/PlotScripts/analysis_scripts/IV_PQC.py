@@ -8,7 +8,6 @@ from scipy.stats import linregress
 from copy import deepcopy
 import pandas as pd
 import numpy as np
-hv.extension('bokeh', 'matplotlib')
 
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout
 from forge.tools import twiny, relabelPlot

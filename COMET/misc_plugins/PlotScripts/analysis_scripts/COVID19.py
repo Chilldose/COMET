@@ -8,8 +8,6 @@ import pandas as pd
 from holoviews import opts
 
 
-hv.extension('bokeh')
-
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout
 from forge.tools import twiny, relabelPlot
 from forge.tools import plot_all_measurements, convert_to_EngUnits

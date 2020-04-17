@@ -8,7 +8,6 @@ from scipy.stats import linregress
 from copy import deepcopy
 import pandas as pd
 import numpy as np
-hv.extension('bokeh', 'matplotlib')
 
 from bokeh.models import CustomJS
 from bokeh.models.widgets import Button

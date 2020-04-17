@@ -21,7 +21,6 @@ from copy import deepcopy
 from time import sleep
 from warnings import filterwarnings
 filterwarnings('ignore', message='save()', category=UserWarning)
-hv.extension('matplotlib')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 

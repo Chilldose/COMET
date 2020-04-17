@@ -4,8 +4,6 @@ Data must be """
 import logging
 import holoviews as hv
 
-hv.extension('bokeh')
-
 from forge.tools import convert_to_df, rename_columns
 from forge.tools import plot_all_measurements, convert_to_EngUnits
 from forge.specialPlots import *
