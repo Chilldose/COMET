@@ -21,7 +21,7 @@ from copy import deepcopy
 from time import sleep
 from warnings import filterwarnings
 filterwarnings('ignore', message='save()', category=UserWarning)
-hv.extension('bokeh')
+hv.extension('matplotlib')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 
@@ -72,7 +72,6 @@ class PlottingMain:
         if self.args.save:
             self.save_to(backend=self.config.get("backend", "bokeh"))
 
-
     def plot(self):
         """This function starts the plotting process. It simply calls the plotting script"""
         if "Analysis" in self.config:
@@ -88,11 +87,16 @@ class PlottingMain:
             else:
                 self.log.error("Data type of analysis parameter must be list of str.")
 
-    def temp_html_output(self, plot_object):
+    def temp_png_output(self, plot_object, backend="bokeh"):
+        """This function plots a object, by saving the plot as png file in a temporary file and returning the path
+        to the file"""
+        save_plot("temp_plot", plot_object, self.rootdir, save_as=["png"], backend=backend)
+        return os.path.join(self.rootdir, "png", "temp_plot.png")
+
+    def temp_html_output(self, plot_object, backend="bokeh"):
         """This function plots a object, by saving the plot as html file in a temporary file and returning the path
         to the file"""
-        #finalfig = hv.render(plot_object, backend='bokeh')
-        save_plot("temp_plot", plot_object, self.rootdir, save_as=["html"])
+        save_plot("temp_plot", plot_object, self.rootdir, save_as=["html"], backend=backend)
         return os.path.join(self.rootdir, "html", "temp_plot.html")
 
     def show_results(self):

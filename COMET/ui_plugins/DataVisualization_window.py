@@ -9,8 +9,11 @@ import ast
 import re
 from time import asctime
 from ..utilities import save_dict_as_hdf5, save_dict_as_json, save_dict_as_xml
-
 import yaml
+from warnings import filterwarnings
+filterwarnings('ignore', message='yaml.load()', category=yaml.YAMLLoadWarning)
+
+
 try:
     from StringIO import StringIO
 except ImportError:
@@ -36,6 +39,7 @@ class DataVisualization_window:
         self.current_plot_name = ""
         self.not_saving = True
         self.plotting_thread = None
+        self.backend = None
 
         # Device communication widget
         self.VisWidget = QWidget()
@@ -45,6 +49,11 @@ class DataVisualization_window:
         # Config
         self.config_selectable_templates()
         self.config_save_options()
+
+        # Set the possible plotting backends
+        self.possible_backends = ["bokeh", "matplotlib"]
+        self.widget.backend_comboBox.addItems(self.possible_backends)
+        self.set_backend("bokeh")
 
         # Connect buttons
         self.widget.files_toolButton.clicked.connect(self.select_files_action)
@@ -56,6 +65,14 @@ class DataVisualization_window:
         self.widget.plot_options_treeWidget.itemClicked.connect(self.tree_option_select_action)
         self.widget.save_as_pushButton.clicked.connect(self.save_as_action)
         self.widget.apply_option_pushButton.clicked.connect(self.apply_option_button)
+        self.widget.backend_comboBox.currentTextChanged.connect(self.set_backend)
+
+    def set_backend(self, backend):
+        """Sets the entries for the plotting backends"""
+        self.backend = backend
+        index = self.widget.backend_comboBox.findText(backend, QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            self.widget.backend_comboBox.setCurrentIndex(index)
 
     def set_current_plot_object(self):
         """Saves the current plot object in the global data construct. Otherwise changes are not saved"""
@@ -69,6 +86,20 @@ class DataVisualization_window:
                 else:
                     analy["All"] = self.current_plot_object
 
+    def generate_html_page_for_png_view(self, filepath):
+        """Generates a html page, which simply shows an png."""
+        html_content = '<html> \
+                       <body> \
+                       <img border="0" src="{}" alt="name" width="{}" height="{}" /> \
+                       </body> \
+                       </html>'
+
+        path = os.path.normpath(filepath.split(".")[0] + ".html")
+        width, height = self.get_image_size(filepath)
+        with open(path, "w+") as f:
+            f.write(html_content.format(filepath, width, height))
+        return path
+
     def load_html_to_screen(self, item):
         """Loads a html file plot to the screen"""
         self.variables.app.setOverrideCursor(Qt.WaitCursor)
@@ -78,7 +109,14 @@ class DataVisualization_window:
                     plot = analy["All"]
                     for path_part in self.plot_path[item.text(0)]:
                         plot = getattr(plot, path_part)
-                    filepath = self.plotting_Object.temp_html_output(plot)
+                    if self.backend == "bokeh":
+                        filepath = self.plotting_Object.temp_html_output(plot, backend=self.backend)
+                    elif self.backend == "matplotlib":
+                        filepath = self.plotting_Object.temp_png_output(plot, backend=self.backend)
+                        filepath = self.generate_html_page_for_png_view(filepath)
+                    else:
+                        self.log.error("The backend {} is not a valid backend!".format(self.backend))
+                        return
                     self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
                     self.current_plot_object = plot
                     self.current_plot_name = item.text(0)
@@ -158,6 +196,10 @@ class DataVisualization_window:
         # Add the parameters
         template["Files"] = [self.widget.files_comboBox.itemText(i) for i in range(self.widget.files_comboBox.count())]
         template["Output"] = self.widget.save_lineEdit.text()
+        #if "backend" in template:
+        #    self.set_backend(template["backend"])
+        #else:
+        template["backend"] = self.backend
 
         # Dump the yaml file in the output directory
         filepath = os.path.normpath(os.path.join(os.getcwd(), "COMET", "temp", "{}.yml".format("tempCONFIG")))
@@ -583,3 +625,40 @@ class DataVisualization_window:
 
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()
+
+    def get_image_size(self, fname):
+        '''Determine the image type of fhandle and return its size.
+        from draco'''
+        import struct
+        import imghdr
+        with open(fname, 'rb') as fhandle:
+            head = fhandle.read(24)
+            if len(head) != 24:
+                return
+            if imghdr.what(fname) == 'png':
+                check = struct.unpack('>i', head[4:8])[0]
+                if check != 0x0d0a1a0a:
+                    return
+                width, height = struct.unpack('>ii', head[16:24])
+            elif imghdr.what(fname) == 'gif':
+                width, height = struct.unpack('<HH', head[6:10])
+            elif imghdr.what(fname) == 'jpeg':
+                try:
+                    fhandle.seek(0)  # Read 0xff next
+                    size = 2
+                    ftype = 0
+                    while not 0xc0 <= ftype <= 0xcf:
+                        fhandle.seek(size, 1)
+                        byte = fhandle.read(1)
+                        while ord(byte) == 0xff:
+                            byte = fhandle.read(1)
+                        ftype = ord(byte)
+                        size = struct.unpack('>H', fhandle.read(2))[0] - 2
+                    # We are at a SOFn block
+                    fhandle.seek(1, 1)  # Skip `precision' byte.
+                    height, width = struct.unpack('>HH', fhandle.read(4))
+                except Exception:  # IGNORE:W0703
+                    return
+            else:
+                return
+            return width, height

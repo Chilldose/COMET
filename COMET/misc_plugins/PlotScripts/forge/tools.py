@@ -168,7 +168,6 @@ def save_plot(name, subplot, save_dir, save_as="default", backend="bokeh"):
         save_dir+="."+stdformat
         log.info("Saving plot {} as {} to {}".format(name, stdformat, save_dir))
         hv.save(subplot, save_dir, backend=backend)
-        return
 
     # Save the figure
     for save_format in save_as:
@@ -191,8 +190,10 @@ def save_plot(name, subplot, save_dir, save_as="default", backend="bokeh"):
                     os.mkdir(save_dir)
                 hv.save(subplot, os.path.join(save_dir,name)+".svg", backend=backend)
 
+
         except Exception as err:
             log.warning("Exporting plot {} was not possible. Error: {}".format(name, err))
+
 
 def twiny(plot, element):
     # Setting the second y axis range name and range
