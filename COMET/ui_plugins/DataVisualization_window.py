@@ -133,7 +133,11 @@ class DataVisualization_window:
 
     def replot_and_reload_html(self, plot):
         """Replots a plot and displays it"""
-        filepath = self.plotting_Object.temp_html_output(plot)
+        if self.backend == "bokeh":
+            filepath = self.plotting_Object.temp_html_output(plot)
+        elif self.backend == "matplotlib":
+            filepath = self.plotting_Object.temp_png_output(plot)
+            filepath = self.generate_html_page_for_png_view(filepath)
         self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
 
     def select_analysis_template(self):
