@@ -46,9 +46,6 @@ class COVID19:
         self.GrowthvsCases = None
         self.DeathvsCases = None
 
-
-
-
     def run(self):
         """Runs the script"""
         from forge.tools import plainPlot # some elusive error in debugger it works while running it does not, but only here

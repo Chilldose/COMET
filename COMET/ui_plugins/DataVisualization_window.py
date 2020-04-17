@@ -110,9 +110,9 @@ class DataVisualization_window:
                     for path_part in self.plot_path[item.text(0)]:
                         plot = getattr(plot, path_part)
                     if self.backend == "bokeh":
-                        filepath = self.plotting_Object.temp_html_output(plot, backend=self.backend)
+                        filepath = self.plotting_Object.temp_html_output(plot)
                     elif self.backend == "matplotlib":
-                        filepath = self.plotting_Object.temp_png_output(plot, backend=self.backend)
+                        filepath = self.plotting_Object.temp_png_output(plot)
                         filepath = self.generate_html_page_for_png_view(filepath)
                     else:
                         self.log.error("The backend {} is not a valid backend!".format(self.backend))
@@ -607,21 +607,22 @@ class DataVisualization_window:
                             self.plotting_Object.config["Save_as"].append(plot)
                     if not self.plotting_thread:
                         self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
-                            self.variables.framework_variables["Message_to_main"],), kwargs={"backend": "bokeh"})
-                        self.not_saving = True
+                            self.variables.framework_variables["Message_to_main"],))
                     else:
-                        if self.plotting_thread: #and self.plotting_thread.is_Alive():
-                            self.not_saving = False
-                        else:
-                            self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
-                            self.variables.framework_variables["Message_to_main"],), kwargs={"backend": "bokeh"})
-                            self.not_saving = True
+                        del self.plotting_thread
+                        self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
+                            self.variables.framework_variables["Message_to_main"],))
                     if self.not_saving:
                         self.plotting_thread.start()
+                        self.not_saving = False
                     else:
                         self.log.error("Saving of plots is currently ongoing, please wait until saving is complete!")
             else:
                 self.log.error("Either the path {} does not exist, or you must first render a few plots".format(directory))
+        else:
+            if not self.plotting_thread.is_alive():
+                self.not_saving = True
+                self.save_as_action() # Start it here.
 
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()

@@ -32,6 +32,7 @@ class PlottingMain:
         self.data = {}
         self.rootdir = Path(__file__).parent.resolve()
         self.plotObjects = []
+        self.backend = None
 
         # Initialize a logfile class
         self.logFile = LogFile(path="LogFiles\LoggerConfig.yml")
@@ -47,9 +48,13 @@ class PlottingMain:
             self.log.critical("Arguments parsed: {}".format(self.args))
 
         # Load the config to a dictionary
+        self.log.critical("Loading config file: {}".format(self.args.file))
         self.config = load_yaml(self.args.file)
 
-        self.log.critical("Loaded config file: {}".format(self.args.file))
+        # Define backend for plotting
+        self.backend = self.config.get("backend", "bokeh")
+        hv.extension(self.backend)
+        self.log.info("Plotting backend is {}".format(self.backend))
 
 
         self.log.critical("Loading data files...")
@@ -69,7 +74,7 @@ class PlottingMain:
         if self.args.dont_show:
             self.show_results()
         if self.args.save:
-            self.save_to(backend=self.config.get("backend", "bokeh"))
+            self.save_to()
 
     def plot(self):
         """This function starts the plotting process. It simply calls the plotting script"""
@@ -86,13 +91,13 @@ class PlottingMain:
             else:
                 self.log.error("Data type of analysis parameter must be list of str.")
 
-    def temp_png_output(self, plot_object, backend="bokeh"):
+    def temp_png_output(self, plot_object, backend=None):
         """This function plots a object, by saving the plot as png file in a temporary file and returning the path
         to the file"""
         save_plot("temp_plot", plot_object, self.rootdir, save_as=["png"], backend=backend)
         return os.path.join(self.rootdir, "png", "temp_plot.png")
 
-    def temp_html_output(self, plot_object, backend="bokeh"):
+    def temp_html_output(self, plot_object, backend=None):
         """This function plots a object, by saving the plot as html file in a temporary file and returning the path
         to the file"""
         save_plot("temp_plot", plot_object, self.rootdir, save_as=["html"], backend=backend)
@@ -100,17 +105,18 @@ class PlottingMain:
 
     def show_results(self):
         """This function shows all results form all analyses"""
-        hv.renderer('bokeh')
-        self.log.info("Showing the 'all' plot from every analysis...")
-        for plot in self.plotObjects:
-            if "All" in plot:
-                finalfig = hv.render(plot["All"], backend='bokeh')
-                show(finalfig)
-                sleep(1.)
-            else:
-                self.log.info("No 'all' plot defined, skipping...")
+        if self.backend == "bokeh":
+            self.log.info("Showing the 'all' plot from every analysis...")
+            for plot in self.plotObjects:
+                if "All" in plot:
+                    finalfig = hv.render(plot["All"], backend='bokeh')
+                    show(finalfig)
+                    sleep(1.)
+                else:
+                    self.log.info("No 'all' plot defined, skipping...")
+        else: self.log.error("Showing all results only possible with bokeh backend...")
 
-    def save_to(self, progress_queue=None, backend="bokeh"):
+    def save_to(self, progress_queue=None, backend=None):
         """This function saves all plots from every analysis for each datasets"""
         self.log.critical("Saving plots...")
         progress_steps = 0
@@ -143,10 +149,10 @@ class PlottingMain:
                             except:
                                 label = plots._label
 
-                            save_plot(label, plots, save_dir, save_as=self.config.get("Save_as", ["html"]), backend=backend)
+                            save_plot(label, plots, save_dir, save_as=self.config.get("Save_as", ["png"]), backend=backend)
                             saved += 1
                     except:
-                        save_plot(Allplots.group, Allplots, save_dir, save_as=self.config.get("Save_as", ["html"]), backend=backend)
+                        save_plot(Allplots.group, Allplots, save_dir, save_as=self.config.get("Save_as", ["png"]), backend=backend)
                         saved += 1
 
                 else:
@@ -159,8 +165,9 @@ class PlottingMain:
                         save_plot(key, subplot, save_dir, backend=backend)
                         saved += 1
                 try:
-                    self.log.info("Export the 'All' html plot...")
-                    save_plot(plot.get("Name", "All Plots"), plot["All"], save_dir)
+                    if self.backend == "bokeh":
+                        self.log.info("Export the 'All' html plot...")
+                        save_plot(plot.get("Name", "All Plots"), plot["All"], save_dir)
                     if progress_queue:
                         progress_queue.put({"PROGRESS": 1})
                 except:
