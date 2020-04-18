@@ -6,6 +6,9 @@
     measurement_description: 9
     units_line: 9
     data_start: 10
+  
+  # The backend which will be used for plotting
+  backend: bokeh
     
   Files:
     - ".\\testdata\\IVC_VPX28442_2S_04.txt"
@@ -17,7 +20,6 @@
 
   Analysis:
     - IVCV_QTC # The type of analysis, which will be performed
-  backend: bokeh
   Save_as:
     - png
     - html
