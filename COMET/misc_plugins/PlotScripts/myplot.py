@@ -105,16 +105,17 @@ class PlottingMain:
 
     def show_results(self):
         """This function shows all results form all analyses"""
-        if self.backend == "bokeh":
-            self.log.info("Showing the 'all' plot from every analysis...")
-            for plot in self.plotObjects:
-                if "All" in plot:
+        for plot in self.plotObjects:
+            if "All" in plot:
+                if self.backend == "matplotlib":
+                    renderer = hv.renderer(self.backend)
+                    renderer.show(plot["All"])
+                if self.backend == "bokeh":
                     finalfig = hv.render(plot["All"], backend='bokeh')
                     show(finalfig)
-                    sleep(1.)
-                else:
-                    self.log.info("No 'all' plot defined, skipping...")
-        else: self.log.error("Showing all results only possible with bokeh backend...")
+                sleep(1.)
+            else:
+                self.log.info("No 'all' plot defined, skipping...")
 
     def save_to(self, progress_queue=None, backend=None):
         """This function saves all plots from every analysis for each datasets"""

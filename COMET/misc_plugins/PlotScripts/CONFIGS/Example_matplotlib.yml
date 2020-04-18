@@ -41,9 +41,9 @@
 
 
       General: # Options common to all plots
-          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          fontsize: {'title': 15, 'labels': 13, 'xticks': 13, 'yticks': 13, 'legend': 6}
           aspect: 2
-          fig_size: 500
+          fig_size: 900
 
       DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measurements has this special plot stated
           - BoxWhisker
