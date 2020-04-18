@@ -152,7 +152,7 @@ def plot(data, config, xaxis_measurement, analysis_name, do_not_plot=(), plot_on
 
     return config_layout(finalPlot, **config.get(analysis_name, {}).get("Layout", {}))
 
-def save_plot(name, subplot, save_dir, save_as="default", backend="bokeh"):
+def save_plot(name, subplot, save_dir, save_as=("default"), backend="bokeh"):
     """Saves a plot object"""
     if not os.path.exists(save_dir):
         os.mkdir(save_dir)
@@ -164,8 +164,9 @@ def save_plot(name, subplot, save_dir, save_as="default", backend="bokeh"):
         stdformat = "html" if backend == "bokeh" else "png"
         save_dir = os.path.join(path, name)
         save_dir+="."+stdformat
-        log.info("Saving plot {} as {} to {}".format(name, stdformat, save_dir))
+        log.info("Saving default plot {} as {} to {}".format(name, stdformat, save_dir))
         hv.save(subplot, save_dir, backend=backend)
+        return
 
     # Save the figure
     for save_format in save_as:
@@ -178,16 +179,18 @@ def save_plot(name, subplot, save_dir, save_as="default", backend="bokeh"):
                 hv.save(subplot.opts(toolbar='above'), os.path.join(save_dir,name)+".html", backend=backend)
                 subplot.opts(toolbar='disable')
 
-            if save_format.lower() == "png":
+            elif save_format.lower() == "png":
                 save_dir = os.path.join(path, "png")
                 if not os.path.exists(save_dir):
                     os.mkdir(save_dir)
                 hv.save(subplot, os.path.join(save_dir,name)+".png", backend=backend)
-            if save_format.lower() == "svg":
+            elif save_format.lower() == "svg":
                 save_dir = os.path.join(path, "svg")
                 if not os.path.exists(save_dir):
                     os.mkdir(save_dir)
                 hv.save(subplot, os.path.join(save_dir,name)+".svg", backend=backend)
+            else:
+                log.error("Saving format {} not recognised. Saving not possible!".format(save_format))
 
 
         except Exception as err:

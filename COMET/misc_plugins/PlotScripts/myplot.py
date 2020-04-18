@@ -166,9 +166,8 @@ class PlottingMain:
                         save_plot(key, subplot, save_dir, backend=backend)
                         saved += 1
                 try:
-                    if self.backend == "bokeh":
-                        self.log.info("Export the 'All' html plot...")
-                        save_plot(plot.get("Name", "All Plots"), plot["All"], save_dir)
+                    self.log.info("Export the 'All' plot...")
+                    save_plot(plot.get("Name", "All Plots"), plot["All"], save_dir, backend=self.backend)
                     if progress_queue:
                         progress_queue.put({"PROGRESS": 1})
                 except:
