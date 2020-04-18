@@ -9,7 +9,7 @@ from copy import deepcopy
 
 import pandas as pd
 import numpy as np
-hv.extension('bokeh', 'matplotlib', 'colorcet')
+hv.extension('bokeh', 'matplotlib')
 
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout, applyPlotOptions
 from forge.tools import twiny, relabelPlot
@@ -53,8 +53,6 @@ class IV_PQC:
         self.donts = ["timestamp", "voltage","Voltage","Stepsize","Wait","Stepsize","Frequency",'x','N'] #do not plot this data
         hv.renderer('bokeh')
 
-
-
         # Convert the units to the desired ones
         for meas in self.measurements:
             unit = self.config[self.name].get(meas, {}).get("UnitConversion", None)
@@ -72,16 +70,26 @@ class IV_PQC:
         Nox = [] #list that is used later on to store the oxide charge values for all the different files used in the analysis
         fdepvoltage = [] #list that is used later on to store the full depletion  voltage values for all the different files used in the analysis
         count = 0
+        count2 = 0
+        count3 = 0
+        diode = []
+        cv = []
+        gate = []
 
+        #self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
+        #                                       do_not_plot=self.donts)
+        #self.PlotDict["BasePlots"] = self.basePlots
+        #self.PlotDict["All"] = self.basePlots
 
         # Add the 1/c^2 data to the dataframes
         # Add a copy of the Capacity values to the data frame, where the small kink in the plot is deleted
         for df in self.data["keys"]:
 
-            #Start the cv_mos analysis
+            # Start the cv_mos analysis
 
             if "Capacity" in self.data[df]["data"]:
                 if not df[0:8] == 'CV_Diode' or df[0:5] == 'IV_GCD': #If not Diode or Gate analysis do the cv mos analysis
+                    cv.append(df)
                     if 'Voltage' in self.data[df]['data']: # Check that the voltage values have increasing order
                         if self.data[df]["data"]["Voltage"][0] > 0:
                             self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"])) #if decreasing order, reverse it.
@@ -120,20 +128,21 @@ class IV_PQC:
                     indexMin = self.data[df]['data'].index.get_loc(self.data[df]['data']['derivative2'].values.argmin())
 
                     # Plot all Measurements
-                    self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name, do_not_plot=self.donts)
-                    self.PlotDict["BasePlots"] = self.basePlots
-                    self.PlotDict["All"] = self.basePlots
+                    self.donts2 = ["timestamp", "voltage", "Voltage", "Stepsize", "Wait", "Stepsize", "Frequency", 'x', 'N', 'Current']
+                    self.basePlots5 = plot_all_measurements(self.data, self.config, self.xaxis, self.name, do_not_plot=self.donts2, keys = cv)
+                    self.PlotDict["BasePlots_MOS"] = self.basePlots5
+                    #self.PlotDict["All"] = self.basePlots
 
                     # Add flat bandage voltage point to the Capacity curve
                     if self.config["IV_PQC"].get("CapacityCopy", {}).get("findFlatBandVoltage", False):
                         try:
-                            if self.basePlots.Overlay.MOS_CV_CURVES.children:
-                                clone_plot = self.basePlots.Overlay.MOS_CV_CURVES.opts(clone=True)
+                            if self.basePlots5.Overlay.MOS_CV_CURVES.children:
+                                clone_plot = self.basePlots5.Overlay.MOS_CV_CURVES.opts(clone=True)
 
                             else:
-                                clone_plot = self.basePlots.Curve.MOS_CV_CURVES.opts(clone=True)
+                                clone_plot = self.basePlots5.Curve.MOS_CV_CURVES.opts(clone=True)
 
-                            fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax,indexMin, df,
+                            fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax,indexMin, df, cv,
                                                                       PlotLabel="Flat band voltage estimation")
 
                             fbvoltage.append(fBestimation[1])
@@ -142,8 +151,8 @@ class IV_PQC:
                             Tox.append(fBestimation[4])
                             Nox.append(fBestimation[5])
 
-                            self.PlotDict["All"] += fBestimation[0]
-                            self.PlotDict["BasePlots"] += fBestimation[0]
+                            #self.PlotDict["All"] += fBestimation[0]
+                            self.PlotDict["BasePlots_MOS"] += fBestimation[0]
 
                         except Exception as err:
                             self.log.warning("No flat band voltage calculation possible... Error: {}".format(err))
@@ -152,22 +161,22 @@ class IV_PQC:
                     #Add a Table that shows the differents analysis parameters values
                     count += 1
                     df2 = pd.DataFrame(
-                        {"Name": self.data['keys'][:count], "fbVoltage": fbvoltage, 'Accum_capacitance': Accum_capacitance,
+                        {"Name": cv, "fbVoltage": fbvoltage, 'Accum_capacitance': Accum_capacitance,
                          'Accum_capacitance_normalized': Accum_capacitance_normalized, 'Tox': Tox, 'Nox': Nox})
                     table1 = hv.Table(df2)
                     table1.opts(width=1300, height=800)
 
                     #Do plots
-                    self.PlotDict["All"] += table1
-                    self.PlotDict["BasePlots"] += table1
+                    #self.PlotDict["All"] += table1
+                    self.PlotDict["BasePlots_MOS"] += table1
 
-                    self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
-                                                            {'Curve': {'color': "hv.Palette('Category20')"}})
+                    #self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
+                    #                                        {'Curve': {'color': "hv.Palette('Category20')"}})
 
 
-                #Start Diode Analysis
+                # Start Diode Analysis
                 elif df[0:8] == 'CV_Diode':
-
+                    diode.append(df)
                     self.data[df]["data"]["Voltage"] = list(map(abs,self.data[df]["data"]["Voltage"])) #take absolute value of Voltage
                     self.data[df]["data"].insert(3, "1C2", 1 / self.data[df]["data"]["Capacity"].pow(2))
                     self.data[df]["units"].append("arb. units")
@@ -197,39 +206,41 @@ class IV_PQC:
                     self.data[df]["units"].append("arb. units")
                     self.data[df]["measurements"].append("N")
 
+
                     # Plot all Measurements
-                    self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
-                                                           do_not_plot=self.donts)
-                    self.PlotDict["BasePlots"] = self.basePlots
-                    self.PlotDict["All"] = self.basePlots
+                    self.basePlots4 = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
+                                                           do_not_plot=self.donts, keys = diode )
+                    self.PlotDict["BasePlots_diode"] = self.basePlots4
+                    #self.PlotDict["All"] += self.basePlots
                     # Add plot with a different x axis
                     self.basePlots_2 = plot_all_measurements(self.data, self.config, 'x', self.name,
                                                              do_not_plot=['Voltage', 'Current', 'Capacity', '1C2',
-                                                                          'derivative1C2', 'x'])
-                    self.PlotDict["BasePlots"] += self.basePlots_2
-                    self.PlotDict["All"] += self.basePlots_2
+                                                                          'derivative1C2', 'x'], keys = diode)
+                    self.PlotDict["BasePlots_diode"] += self.basePlots_2
+
+                    #self.PlotDict["All"] += self.basePlots_2
 
                     # Add full depletion point to 1/c^2 curve
                     if self.config["IV_PQC"].get("1C2", {}).get("DoFullDepletionCalculation", False):
 
                             try:
 
-                                if self.basePlots.Overlay.A_1C2.children:
+                                if self.basePlots4.Overlay.A_1C2.children:
 
-                                    c2plot = self.basePlots.Overlay.A_1C2.opts(
+                                    c2plot = self.basePlots4.Overlay.A_1C2.opts(
                                         clone=True)
 
                                 else:
-                                    c2plot = self.basePlots.Curve.A_1C2.opts(clone=True)
+                                    c2plot = self.basePlots4.Curve.A_1C2.opts(clone=True)
 
-                                fdestimation = self.find_full_depletion_c2(c2plot, self.data, self.config,
+                                fdestimation = self.find_full_depletion_c2(c2plot, self.data, self.config, diode,
                                                                            PlotLabel="Full depletion estimation")
 
                                 fdepvoltage.append(fdestimation[1])
 
-                                self.PlotDict["All"] += fdestimation[0]
+                                #self.PlotDict["All"] += fdestimation[0]
 
-                                self.PlotDict["BasePlots"] += fdestimation[0]
+                                self.PlotDict["BasePlots_diode"] += fdestimation[0]
 
                             except Exception as err:
 
@@ -250,66 +261,85 @@ class IV_PQC:
                     resistivity.append(rho)
 
                     #Add a table that show the results of the analysis
-                    count += 1
-                    df3 = pd.DataFrame({"Name": self.data['keys'][:count], "fdepvoltage": fdepvoltage, "resistivity": resistivity})
+                    count2 += 1
+                    df3 = pd.DataFrame({"Name": diode, "fdepvoltage": fdepvoltage, "resistivity": resistivity})
                     table2=hv.Table(df3)
                     table2.opts(width=1300, height=800)
-                    self.PlotDict["All"] += table2
-                    self.PlotDict["BasePlots"] += table2
-                    self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
-                                                            {'Curve': {'color': "hv.Palette('Category20')"}})
+                    #self.PlotDict["All"] += table2
+                    self.PlotDict["BasePlots_diode"] += table2
+                    #self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
+                    #                                        {'Curve': {'color': "hv.Palette('Category20')"}})
 
 
 
-            #Start Gate analysis
+            # Start Gate analysis
             else:
-                mxx = max(self.data[df]['data']['Current']) #find maximum of value of the current-voltage curve
-                min = np.mean(self.data[df]['data']['Current'][-20:]) #find the minimum of the curr-voltage curve by averaging 20 points values in the curve tail
-                Isurf = mxx - min #compute the surface current
+                gate.append(df)
+                mxx = max(self.data[df]['data']['Current']) # find maximum of value of the current-voltage curve
+                min = np.mean(self.data[df]['data']['Current'][-20:]) # find the minimum of the curr-voltage curve by averaging 20 points values in the curve tail
+                Isurf = mxx - min # compute the surface current
                 # S_null = Isurf/(self.config['IV_PQC_parameter']['q'] * self.config['IV_PQC_parameter']['n_i_intrinsic_carrier_concentration'] * 25000000 *(1e-8))
                 # TODO: change area for surface recombination velocity
 
-                #Add text to the plot
+                # Add text to the plot
                 text = hv.Text(0, 9 * (1e-11), 'Isurf: {} A'.format(
                     np.round(Isurf, 15)),
                                ).opts(style=dict(text_font_size='25pt'))
                 # Plot all Measurements
-                self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
-                                                       do_not_plot=self.donts)
+                self.basePlots3 = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
+                                                       do_not_plot=self.donts, keys = gate)
                 #do this if the analysis is of just one file
                 if len(self.data["keys"]) == 1:
-                    self.PlotDict["BasePlots"] = self.basePlots *text
-                    self.PlotDict["All"] = self.basePlots *text
-                    self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
-                    self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
-                                                    {'Curve': {'color': "hv.Palette('Category20')"}}) #change color cycle
+                    self.PlotDict["BasePlots_gate"] = self.basePlots3 *text
+                    #self.PlotDict["All"] += self.basePlots *text
+                    #self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
+                    #self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
+                    #                                {'Curve': {'color': "hv.Palette('Category20')"}}) #change color cycle
 
                     #add table that shows resulting parameters of the analysis
-                    count += 1
-                    df4 = pd.DataFrame({"Name": self.data['keys'][:count], "Isurf": Isurf})
+                    count3 += 1
+                    df4 = pd.DataFrame({"Name": self.data['keys'][:count3], "Isurf": Isurf})
                     table3 = hv.Table(df4)
                     table3.opts(width=1300, height=800)
-                    self.PlotDict["All"] += table3
-                    self.PlotDict["BasePlots"] += table3
+                    #self.PlotDict["All"] += table3
+                    self.PlotDict["BasePlots_gate"] += table3
 
                 # do this if the analysis is of more than one file
                 elif len(self.data["keys"]) > 1:
-                    self.PlotDict["BasePlots"] = self.basePlots # *text
-                    self.PlotDict["All"] = self.basePlots   #*text
-                    self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
-                    self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
-                                                    {'Curve': {'color': "hv.Palette('Category20')"}})
+                    self.PlotDict["BasePlots_gate"] = self.basePlots3 # *text
+                    #self.PlotDict["All"] += self.basePlots   # *text
+                    #self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
+                    #self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
+                    #                                {'Curve': {'color': "hv.Palette('Category20')"}})
                     # add table that shows resulting parameters of the analysis
-                    count += 1
-                    df4 = pd.DataFrame({"Name": self.data['keys'][:count], "Isurf": Isurf})
+                    count3 += 1
+                    df4 = pd.DataFrame({"Name": gate, "Isurf": Isurf})
                     table3 = hv.Table(df4)
                     table3.opts(width=1300, height=800)
-                    self.PlotDict["All"] += table3
-                    self.PlotDict["BasePlots"] += table3
+                    #self.PlotDict["All"] += table3
+                    self.PlotDict["BasePlots_gate"] += table3
+
+        if count != 0 and count2 !=0 and count3 != 0:
+            self.PlotDict['All'] =  self.PlotDict["BasePlots_gate"] + self.PlotDict["BasePlots_diode"] + self.PlotDict["BasePlots_MOS"]
+        elif count != 0 and count2 !=0 and count3 == 0:
+            self.PlotDict['All'] = self.PlotDict["BasePlots_diode"] + self.PlotDict["BasePlots_MOS"]
+
+        elif count == 0 and count2 !=0 and count3 == 0:
+            self.PlotDict['All'] = self.PlotDict["BasePlots_diode"]
+        elif count != 0 and count2 ==0 and count3 == 0:
+            self.PlotDict['All'] = self.PlotDict["BasePlots_MOS"]
+
+        elif count == 0 and count2 ==0 and count3 != 0:
+            self.PlotDict['All'] = self.PlotDict["BasePlots_gate"]
+        elif count != 0 and count2 ==0 and count3 != 0:
+            self.PlotDict['All'] = self.PlotDict["BasePlots_MOS"] + self.PlotDict["BasePlots_gate"]
+        else:
+            self.PlotDict['All'] = self.PlotDict["BasePlots_diode"] + self.PlotDict["BasePlots_gate"]
+
 
         return self.PlotDict
 
-    def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, df, **addConfigs):
+    def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, df,cv, **addConfigs,):
         """
         Finds the full depletion voltage of all data samples and adds a vertical line for the full depletion in the
         plot. Vertical line is the mean of all measurements. Furthermore, adds a text with the statistics.
@@ -380,7 +410,7 @@ class IV_PQC:
         right_line = np.array([[df1["xaxis"][indexMax-3], Right_stats[1] *df1["xaxis"][indexMax-3] + Right_stats[2]],
                                [xmax, Right_stats[1] * xmax + Right_stats[2]]])
 
-
+        self.log.info("Test3 for flat band voltage voltage in all files...")
 
         # Compute the flatband voltage
         flatband_voltage = line_intersection(fit_stats[0], Right_stats[0])
@@ -404,9 +434,9 @@ class IV_PQC:
                    * np.log(self.config['IV_PQC_parameter']['SiliconDoping'] / self.config['IV_PQC_parameter'][
                     'intrinsicDopingConcentration'])) / self.config['IV_PQC_parameter']['q']
         phi_ms = self.config['IV_PQC_parameter']['phi_m'] - phi_s
-
+        self.log.info("Test4 for flat band voltage voltage in all files...")
         Nox = (Accum_capacitance_normalized * (phi_ms + flatband_voltage[0])) / (self.config['IV_PQC_parameter']['q'])
-
+        self.log.info("Test41 for flat band voltage voltage in all files...")
         # Add text
         text = hv.Text(-2.5, 0.00000000065, 'Flat band voltage: {} V \n'
 
@@ -423,9 +453,10 @@ class IV_PQC:
             np.format_float_scientific(Nox, 2))
 
                        ).opts(style=dict(text_font_size='25pt'))
+        self.log.info("Test42 for flat band voltage voltage in all files...")
 
         #if more than one file do not do the derivates plot
-        if not len(data["keys"]) == 1:
+        if not len(cv) == 1:
             # Update the plot specific options if need be
             returnPlot = plot
             # returnPlot = relabelPlot(returnPlot, "MOS_CV CURVES - Full depletion calculation")
@@ -435,18 +466,18 @@ class IV_PQC:
 
 
 
-        elif len(data["keys"]) == 1:
+        elif len(cv) == 1:
             #plot a vertical line where the fb voltage is
             vline = hv.VLine(flatband_voltage[0]).opts(color='black', line_width=2.0)
 
-
+            self.log.info("Test43 for flat band voltage voltage in all files...")
             # Plots of the derivatives
-            firstDerivativePlot= self.basePlots.Curve.firstderivative
-            secondDerivativePlot = self.basePlots.Curve.secondderivative
+            firstDerivativePlot= self.basePlots5.Curve.firstderivative
+            secondDerivativePlot = self.basePlots5.Curve.secondderivative
             # Plots of the fits
             right_line = hv.Curve(right_line).opts(color='blue')
             fit_line = hv.Curve(fit_line).opts(color='red')
-
+            self.log.info("Test44 for flat band voltage voltage in all files...")
             # Update the plot specific options if need be
             returnPlot = plot * right_line * fit_line * text * secondDerivativePlot * firstDerivativePlot * vline
             # returnPlot = relabelPlot(returnPlot, "MOS_CV CURVES - Full depletion calculation")
@@ -456,7 +487,7 @@ class IV_PQC:
 
 
 
-    def find_full_depletion_c2(self, plot, data, configs, **addConfigs):
+    def find_full_depletion_c2(self, plot, data, configs,diode, **addConfigs):
 
         """
 
@@ -478,17 +509,17 @@ class IV_PQC:
 
 
 
-        full_depletion_voltages = np.zeros((len(data["keys"]), 2))
+        full_depletion_voltages = np.zeros((len(diode), 2))
 
-        Left_stats = np.zeros((len(data["keys"]), 6), dtype=np.object)
+        Left_stats = np.zeros((len(diode), 6), dtype=np.object)
 
-        Right_stats = np.zeros((len(data["keys"]), 6), dtype=np.object)
+        Right_stats = np.zeros((len(diode), 6), dtype=np.object)
 
         self.log.info("Searching for full depletion voltage in all files...")
 
 
 
-        for i, samplekey in enumerate(data["keys"]):
+        for i, samplekey in enumerate(diode):
 
             if "1C2" not in data[samplekey]["data"]:
 
