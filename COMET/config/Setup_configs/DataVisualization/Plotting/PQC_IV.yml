@@ -75,6 +75,7 @@
               invert_xaxis: False
 
               invert_yaxis: False
+              xlim: !!python/tuple [0, 12]
 
               #ylim: !!python/tuple [0, 10e-6]
 
@@ -175,7 +176,7 @@
       #Plot a copy of the Capacity without the small kink that sometimes appear before the rising slope:
       CapacityCopy:
 
-          PlotLabel: CV CURVES2
+          PlotLabel: CV CURVES_wout_kink
 
           #UnitConversion: nano
 
@@ -188,13 +189,15 @@
 
               logx: False
 
+
+
               invert_xaxis: False
 
               invert_yaxis: False
 
               #ylim: !!python/tuple [0, 10e-6]
 
-              #xlim: !!python/tuple [0, 1000]
+              xlim: !!python/tuple [0, 12]
 
               #legend_position: "bottom_right"
 
@@ -243,6 +246,8 @@
             logy: False
 
             logx: False
+
+            xlim: !!python/tuple [0, 20]
 
             invert_xaxis: False
 
@@ -305,6 +310,8 @@
 
             logx: False
 
+            xlim: !!python/tuple [0, 20]
+
             invert_xaxis: False
 
             invert_yaxis: False
@@ -357,7 +364,7 @@
 
       Current:
 
-          PlotLabel: Current
+          PlotLabel: Current Gate
 
           #UnitConversion: nano
           PlotStyles: # Here you can state some plot types you want to have, possible Options are Curve, Spike, Histogram, if non is stated, curve is selected
@@ -369,6 +376,8 @@
               logy: False
 
               logx: False
+
+              xlim: !!python/tuple [-6, 12]
 
               invert_xaxis: False
 
@@ -486,6 +495,8 @@
               logy: False
 
               logx: False
+
+              xlim: !!python/tuple [20, 100]
 
               invert_xaxis: False
 
