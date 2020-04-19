@@ -16,6 +16,7 @@ from forge.tools import twiny, relabelPlot
 from forge.tools import plot_all_measurements, convert_to_EngUnits
 from forge.specialPlots import dospecialPlots
 from forge.utilities import line_intersection
+#hv.help(hv.Table)
 
 
 class IV_PQC:
@@ -75,7 +76,8 @@ class IV_PQC:
         diode = []
         cv = []
         gate = []
-
+        Surface_current = []
+        Surface_recombination_velocity = []
         #self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
         #                                       do_not_plot=self.donts)
         #self.PlotDict["BasePlots"] = self.basePlots
@@ -161,8 +163,8 @@ class IV_PQC:
                     #Add a Table that shows the differents analysis parameters values
                     count += 1
                     df2 = pd.DataFrame(
-                        {"Name": cv, "fbVoltage": fbvoltage, 'Accum_capacitance': Accum_capacitance,
-                         'Accum_capacitance_normalized': Accum_capacitance_normalized, 'Tox': Tox, 'Nox': Nox})
+                        {"Name": cv, "Flatband Voltage (V)": fbvoltage, 'Accumulation capacitance (F)': Accum_capacitance,
+                         'Accumulation capacitance normalized (F/cm^2)': Accum_capacitance_normalized, 'Tox (nm)': Tox, 'Nox (cm^-2)': Nox})
                     table1 = hv.Table(df2)
                     table1.opts(width=1300, height=800)
 
@@ -192,7 +194,7 @@ class IV_PQC:
                     self.data[df]["measurements"].append("derivative1C2")
 
                     #Calculate deep x
-                    x = (self.config['IV_PQC_parameter']['epsilonNull']*(1e-6)* float(self.data[self.data['keys'][0]]['header'][0].split(':')[1]) \
+                    x = (self.config['IV_PQC_parameter']['epsilonNull']*(1e-6)* float(self.data[df]['header'][0].split(':')[1]) \
                         * self.config['IV_PQC_parameter']['epsilonSiliconOxide']) / self.data[df]["data"]["Capacity"][:42]
                     self.data[df]['data'].insert(5, 'x', x)
                     self.data[df]["units"].append("arb. units")
@@ -201,7 +203,7 @@ class IV_PQC:
                     #Calculate doping profile
                     N = (2)/(self.config['IV_PQC_parameter']['epsilonNull']*(1e-2) \
                         * self.config['IV_PQC_parameter']['q'] * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] * self.data[df]["data"]["derivative1C2"][:42] \
-                                  *(float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e-8))*(float(self.data[self.data['keys'][0]]['header'][0].split(':')[1])*(1e-8)))
+                                  *(float(self.data[df]['header'][0].split(':')[1])*(1e-8))*(float(self.data[df]['header'][0].split(':')[1])*(1e-8)))
                     self.data[df]['data'].insert(6, 'N', N)
                     self.data[df]["units"].append("arb. units")
                     self.data[df]["measurements"].append("N")
@@ -247,22 +249,21 @@ class IV_PQC:
                                 self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
                     # Find resistivity
-                    C_min = np.mean(self.data[df]['data']['Current'][-20:])
-                    d_active = self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter'][
-                        'epsilonSiliconOxide'] * \
-                               (float(self.data[self.data['keys'][0]]['header'][0].split(':')[1]) * (1e-8)) / C_min
+                    C_min = np.mean(self.data[df]['data']['Capacity'][-20:])
+                    d_active = self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter']['epsilonSiliconOxide'] * (float(self.data[df]['header'][0].split(':')[1]) * (1e-8)) * (1e-2)/ C_min # in cm
+                    T_n= 295/300
+                    u_holes_mobility = 54.3*pow(T_n,-0.57) +1.36*(1e+8)* pow(295,-2.23)/(1+((5e+12)/(2.35*(1e+17)*pow(T_n,2.4)))*0.88*pow(T_n,-0.146)) # in cm^2/(V*s)
                     rho = d_active * d_active / (
-                                2 * self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter'][
-                            'epsilonSiliconOxide'] * fdestimation[1]) # * u_mobility)
+                                2 * self.config['IV_PQC_parameter']['epsilonNull']*(1e-2) * self.config['IV_PQC_parameter'][
+                            'epsilonSiliconOxide'] * fdestimation[1] * u_holes_mobility) # in Ohm * cm
 
-                    # TODO: add mobility in rho formula
-
+                    rho_table = '{:.2e}'.format(rho)
                     resistivity = []
-                    resistivity.append(rho)
+                    resistivity.append(rho_table)
 
                     #Add a table that show the results of the analysis
                     count2 += 1
-                    df3 = pd.DataFrame({"Name": diode, "fdepvoltage": fdepvoltage, "resistivity": resistivity})
+                    df3 = pd.DataFrame({"Name": diode, "full depletion voltage (V)": fdepvoltage, " Bulk resistivity (Ohm * cm)": resistivity})
                     table2=hv.Table(df3)
                     table2.opts(width=1300, height=800)
                     #self.PlotDict["All"] += table2
@@ -276,21 +277,27 @@ class IV_PQC:
             else:
                 gate.append(df)
                 mxx = max(self.data[df]['data']['Current']) # find maximum of value of the current-voltage curve
-                min = np.mean(self.data[df]['data']['Current'][-20:]) # find the minimum of the curr-voltage curve by averaging 20 points values in the curve tail
+                min = np.mean(self.data[df]['data']['Current'][-20:]) # find the minimum of the current-voltage curve by averaging 20 points values in the curve tail
                 Isurf = mxx - min # compute the surface current
-                # S_null = Isurf/(self.config['IV_PQC_parameter']['q'] * self.config['IV_PQC_parameter']['n_i_intrinsic_carrier_concentration'] * 25000000 *(1e-8))
-                # TODO: change area for surface recombination velocity
+                Isurf_table = '{:.2e}'.format(Isurf)
+                Surface_current.append(Isurf_table)
+                S_null = Isurf/(self.config['IV_PQC_parameter']['q'] * self.config['IV_PQC_parameter']['n_i_intrinsic_carrier_concentration'] * (float(self.data[df]['header'][0].split(':')[1])  *(1e-8)))
+                Surface_recombination_velocity.append(S_null)
+
 
                 # Add text to the plot
-                text = hv.Text(0, 9 * (1e-11), 'Isurf: {} A'.format(
+                text = hv.Text(2, 9 * (1e-11), 'Isurf: {} A'.format(
                     np.round(Isurf, 15)),
                                ).opts(style=dict(text_font_size='25pt'))
                 # Plot all Measurements
                 self.basePlots3 = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
                                                        do_not_plot=self.donts, keys = gate)
                 #do this if the analysis is of just one file
-                if len(self.data["keys"]) == 1:
-                    self.PlotDict["BasePlots_gate"] = self.basePlots3 *text
+                if len(gate) == 1:
+                    Path_min = hv.Path([(-2, min), (6, min)]).opts(line_width=2.0)
+                    Path_mxx = hv.Path([(-2, mxx), (6, mxx)]).opts(line_width=2.0)
+                    Path_Isurf = hv.Path([(0, mxx), (0, min)]).opts(line_width=3.0)
+                    self.PlotDict["BasePlots_gate"] = self.basePlots3 *text * Path_min * Path_mxx * Path_Isurf
                     #self.PlotDict["All"] += self.basePlots *text
                     #self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
                     #self.PlotDict["All"] = applyPlotOptions(self.PlotDict["All"],
@@ -298,14 +305,14 @@ class IV_PQC:
 
                     #add table that shows resulting parameters of the analysis
                     count3 += 1
-                    df4 = pd.DataFrame({"Name": self.data['keys'][:count3], "Isurf": Isurf})
+                    df4 = pd.DataFrame({"Name": gate, "Surface current (A)": Surface_current, 'Surface recombination velocity (cm/s)': Surface_recombination_velocity})
                     table3 = hv.Table(df4)
                     table3.opts(width=1300, height=800)
                     #self.PlotDict["All"] += table3
                     self.PlotDict["BasePlots_gate"] += table3
 
                 # do this if the analysis is of more than one file
-                elif len(self.data["keys"]) > 1:
+                elif len(gate) > 1:
                     self.PlotDict["BasePlots_gate"] = self.basePlots3 # *text
                     #self.PlotDict["All"] += self.basePlots   # *text
                     #self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.name].get("Layout", {}))
@@ -313,7 +320,7 @@ class IV_PQC:
                     #                                {'Curve': {'color': "hv.Palette('Category20')"}})
                     # add table that shows resulting parameters of the analysis
                     count3 += 1
-                    df4 = pd.DataFrame({"Name": gate, "Isurf": Isurf})
+                    df4 = pd.DataFrame({"Name": gate, "Surface current (A)": Surface_current , 'Surface recombination velocity (cm/s)': Surface_recombination_velocity})
                     table3 = hv.Table(df4)
                     table3.opts(width=1300, height=800)
                     #self.PlotDict["All"] += table3
@@ -422,11 +429,13 @@ class IV_PQC:
 
         # Find oxide thickness Tox in nm
         Accum_capacitance = np.max(df1["yaxis"]) * (float(self.data[df]['header'][0].split(':')[1]) * (
-            1e-8))  # float(..) is the area. Only valide if only one data file is used
+            1e-8))  # float(..) is the area.
+        Accum_capacitance_table = '{:.2e}'.format(Accum_capacitance)
         Accum_capacitance_normalized = np.max(df1["yaxis"])  # F/cm^2
+        Accum_capacitance_normalized_table = '{:.2e}'.format(Accum_capacitance_normalized)
         Tox = self.config['IV_PQC_parameter']['epsilonNull'] * self.config['IV_PQC_parameter'][
             'epsilonSiliconOxide'] * 1e+5 / Accum_capacitance_normalized
-
+        Tox_table = '{:.2e}'.format(Tox)
         # Find Fixed oxide charge Nox in cm^-2
         phi_s = self.config['IV_PQC_parameter']['electronAffinity'] + self.config['IV_PQC_parameter'][
             'bandGapEnergy'] / 2 \
@@ -437,6 +446,7 @@ class IV_PQC:
         self.log.info("Test4 for flat band voltage voltage in all files...")
         Nox = (Accum_capacitance_normalized * (phi_ms + flatband_voltage[0])) / (self.config['IV_PQC_parameter']['q'])
         self.log.info("Test41 for flat band voltage voltage in all files...")
+        Nox_table = '{:.2e}'.format(Nox)
         # Add text
         text = hv.Text(-2.5, 0.00000000065, 'Flat band voltage: {} V \n'
 
@@ -462,7 +472,7 @@ class IV_PQC:
             # returnPlot = relabelPlot(returnPlot, "MOS_CV CURVES - Full depletion calculation")
             returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
             self.log.info("Test5 for flat band voltage voltage in all files...")
-            return returnPlot, flatband_voltage[0], Accum_capacitance, Accum_capacitance_normalized, Tox, Nox
+            return returnPlot, flatband_voltage[0], Accum_capacitance_table, Accum_capacitance_normalized_table, Tox_table, Nox_table
 
 
 
@@ -483,7 +493,7 @@ class IV_PQC:
             # returnPlot = relabelPlot(returnPlot, "MOS_CV CURVES - Full depletion calculation")
             returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
             self.log.info("Test5 for flat band voltage voltage in all files...")
-            return returnPlot, flatband_voltage[0], Accum_capacitance, Accum_capacitance_normalized, Tox, Nox
+            return returnPlot, flatband_voltage[0], Accum_capacitance_table, Accum_capacitance_normalized_table, Tox_table, Nox_table
 
 
 
