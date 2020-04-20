@@ -470,12 +470,15 @@ class stripanalysis:
         if len(metal_shorts):
             if shift:
                 metal_shorts = self.shift_strip_numbering("Cac", metal_shorts, shift)
-            self.log.warning("Weak metal short found at strips: {}".format(metal_shorts))
-            if len(intersect):
-                intersect = self.shift_strip_numbering("Idiel", intersect, shift)
-                self.log.warning("Metal short found at strips: {}".format(intersect))
+                self.log.warning("Weak metal short found at strips: {}".format(metal_shorts))
+
+        if len(intersect) and shift:
+            intersect = self.shift_strip_numbering("Idiel", intersect, shift)
+            self.log.warning("Metal short found at strips: {}".format(intersect))
+            return intersect
         else:
             self.log.info("No metal shorts found.")
+            return []
 
     def remove_nan(self, data):
         """Removes nan values from any labeld data arrays"""
