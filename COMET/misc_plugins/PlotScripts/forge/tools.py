@@ -379,7 +379,7 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
                     try:
                         xlabel, ylabel = get_axis_labels(df_list, key, kdims, vdims)
                     except Exception as err:
-                        log.error("Could not generate x and y label. Error: {}".format(err))
+                        log.error("Could not generate x and y label for plot {}. Error: {}".format(plotType, err))
                         xlabel, ylabel = "X-Axis", "Y-Axis"
                     if plot:
                         plot *= getattr(hv, type)(df_list[key]["data"], kdims=kdims, vdims=vdims, label=key, group=type)
@@ -671,7 +671,8 @@ def parse_file_data(filecontent, settings):
     parsed_obj = []
     for k, data_to_split in enumerate((measurements, units)):
         for i, meas in enumerate(data_to_split):  # This is just for safety there is usually one line here
-            meas = re.findall(regex[k], meas)  # usually all spaces should be excluded but not sure if tab is removed as well
+            to_del_ind = []
+            meas = re.findall(regex[k], meas.strip())  # usually all spaces should be excluded but not sure if tab is removed as well
             for j, singleitem in enumerate(meas):
                 if isinstance(singleitem, tuple):
                     found = False
@@ -680,14 +681,17 @@ def parse_file_data(filecontent, settings):
                             meas[j] = singlemeas.strip()
                             found = True
                             break
-                    if not found: meas.pop(j)
+                    if not found: to_del_ind.append(j)
 
                 elif isinstance(singleitem, str):
                     if singleitem.strip():
                         meas[j] = singleitem.strip()
                     else:
-                        meas.pop(j)
+                        to_del_ind.append(j)
+            for j in reversed(to_del_ind): # Delete empty or non valid ones
+                meas.pop(j)
             parsed_obj.append(meas)
+
 
     # Now parse the actual data and build the tree dict structure needed
     data_lists = []  # is a list containing all entries from one measurement, while having the same order like the measurements object
@@ -729,9 +733,12 @@ def parse_file_data(filecontent, settings):
             # Adapt the measurements name as well
             parsed_obj[0][i] = new_name
 
-    log.critical("Extracted measurements are: {}".format(parsed_obj[0][:len(parsed_data[0])]))
-    log.critical("Extracted units are: {}".format(parsed_obj[1][:len(parsed_data[0])]))
-    return_dict = {"data": data_dict, "header": header, "measurements": parsed_obj[0][:len(parsed_data[0])], "units": parsed_obj[1][:len(parsed_data[0])]}
+    log.critical("Extracted measurements are: {} with len {}".format(parsed_obj[0], len(parsed_obj[0])))
+    log.critical("Extracted units are: {} with len {}".format(parsed_obj[1], len(parsed_obj[1])))
+    if len(parsed_obj[0]) != len(parsed_obj[1]):
+        log.error("Parsed measurement decription len is not equal to len of extracted units. Errors may rise! If this error persists please change units_regex and measurement_regex in the"
+                  " ASCII parameters to fit your data!")
+    return_dict = {"data": data_dict, "header": header, "measurements": parsed_obj[0], "units": parsed_obj[1]}
     return return_dict
 
 
