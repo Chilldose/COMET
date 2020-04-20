@@ -18,7 +18,7 @@
 
 
 Pad                     Istrip                  Rpoly                   Idark                   Cac                     Cint                    Idiel                   Rint                    Temperature             Humidity                
-#                       current[A]              res[Ohm]                current[A]              cap[F]                  cap[F]                  current[A]              res[Ohm]                degree[C]               rel. percent[rel%]      
+padNumber[#]            current[A]              res[Ohm]                current[A]              cap[F]                  cap[F]                  current[A]              res[Ohm]                degree[C]               rel. percent[rel%]      
 1.0                     --                      --                      --                      --                      --                      --                      --                      21.2                    20.3                    
 2.0                     -1.203639e-10           1938115.94709           -1.84013333333e-07      1.48189666667e-10       4.71583e-12             -3.35330366667e-11      --                      21.2                    20.3                    
 3.0                     -9.079903e-11           1932907.86233           -1.83905333333e-07      1.48212333333e-10       4.73185e-12             -2.40601026667e-11      --                      21.2                    20.3                    

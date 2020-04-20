@@ -11,10 +11,9 @@
   backend: bokeh
     
   Files:
-    - ".\\testdata\\IVC_VPX28442_2S_04.txt"
-    - ".\\testdata\\IVC_VPX28442_2S_11.txt"
-    - ".\\testdata\\IVC_VPX28442_2S_19.txt"
-    - ".\\testdata\\IVC_VPX28442_2S_20.txt"
+    - ".\\testdata\\DiodeIVCV_1.txt"
+    - ".\\testdata\\DiodeIVCV_2.txt"
+    - ".\\testdata\\DiodeIVCV_3.txt"
     
   Output: ".\\testdata\\plots"
 
