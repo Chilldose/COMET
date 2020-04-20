@@ -661,6 +661,8 @@ def parse_file_data(filecontent, settings):
     units = filecontent[settings["units_line"] - 1:settings["units_line"]]
     data = filecontent[settings["data_start"] - 1:]
     separator = settings.get("data_separator", None)
+    preunits = settings.get("units", None)
+    premeasurement_cols = settings.get("measurements", None)
 
     units_exp = r"{}".format(settings.get("units_regex", r"(#?)\w*\s?\W?(#|\w*)\W*\s*"))
     data_exp = r"{}".format(settings.get("measurement_regex", r"(#|\w+)\s?\W?\w*\W?"))
@@ -669,28 +671,34 @@ def parse_file_data(filecontent, settings):
 
     # First parse the units and measurement types
     parsed_obj = []
-    for k, data_to_split in enumerate((measurements, units)):
-        for i, meas in enumerate(data_to_split):  # This is just for safety there is usually one line here
-            to_del_ind = []
-            meas = re.findall(regex[k], meas.strip())  # usually all spaces should be excluded but not sure if tab is removed as well
-            for j, singleitem in enumerate(meas):
-                if isinstance(singleitem, tuple):
-                    found = False
-                    for singlemeas in singleitem:
-                        if singlemeas.strip():
-                            meas[j] = singlemeas.strip()
-                            found = True
-                            break
-                    if not found: to_del_ind.append(j)
+    if not preunits or not premeasurement_cols:
+        log.info("Trying to extract measurements and units from file...")
+        for k, data_to_split in enumerate((measurements, units)):
+            for i, meas in enumerate(data_to_split):  # This is just for safety there is usually one line here
+                to_del_ind = []
+                meas = re.findall(regex[k], meas.strip())  # usually all spaces should be excluded but not sure if tab is removed as well
+                for j, singleitem in enumerate(meas):
+                    if isinstance(singleitem, tuple):
+                        found = False
+                        for singlemeas in singleitem:
+                            if singlemeas.strip():
+                                meas[j] = singlemeas.strip()
+                                found = True
+                                break
+                        if not found: to_del_ind.append(j)
 
-                elif isinstance(singleitem, str):
-                    if singleitem.strip():
-                        meas[j] = singleitem.strip()
-                    else:
-                        to_del_ind.append(j)
-            for j in reversed(to_del_ind): # Delete empty or non valid ones
-                meas.pop(j)
-            parsed_obj.append(meas)
+                    elif isinstance(singleitem, str):
+                        if singleitem.strip():
+                            meas[j] = singleitem.strip()
+                        else:
+                            to_del_ind.append(j)
+                for j in reversed(to_del_ind): # Delete empty or non valid ones
+                    meas.pop(j)
+                parsed_obj.append(meas)
+    elif units and premeasurement_cols:
+        log.info("Using predefined columns and units...")
+        parsed_obj.append(premeasurement_cols)
+        parsed_obj.append(preunits)
 
 
     # Now parse the actual data and build the tree dict structure needed
@@ -737,7 +745,7 @@ def parse_file_data(filecontent, settings):
     log.critical("Extracted units are: {} with len {}".format(parsed_obj[1], len(parsed_obj[1])))
     if len(parsed_obj[0]) != len(parsed_obj[1]):
         log.error("Parsed measurement decription len is not equal to len of extracted units. Errors may rise! If this error persists please change units_regex and measurement_regex in the"
-                  " ASCII parameters to fit your data!")
+                  " ASCII parameters to fit your data! Or define your own correctly.")
     return_dict = {"data": data_dict, "header": header, "measurements": parsed_obj[0], "units": parsed_obj[1]}
     return return_dict
 

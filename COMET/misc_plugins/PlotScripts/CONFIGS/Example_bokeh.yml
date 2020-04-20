@@ -6,9 +6,24 @@
     measurement_description: 9
     units_line: 9
     data_start: 10
+    #separator: "\\t"
+    #measurement_regex: ""
+    #units_regex: ""
+    measurements:
+        - voltage
+        - current
+    units:
+        - V
+        - A 
   
   # The backend which will be used for plotting
   backend: bokeh
+  
+  
+  # if you dont want to use the extracted ones (only works wit
+
+  
+
     
   Files:
     - ".\\testdata\\DiodeIVCV_1.txt"
