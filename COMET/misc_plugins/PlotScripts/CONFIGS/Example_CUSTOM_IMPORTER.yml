@@ -4,7 +4,7 @@
     
   # If CUSTOM was choosen in 'Filetype', then you must define this custom specs section to tell where to find the file etc
   Custom_specs:
-    path: "C:\\Users\\domin\\Desktop\\custom_importer.py" # The path to your python file where the importer is
+    path: ".\\CONFIGS\\importer\\custom_importer.py" # The path to your python file where the importer is
     module: custom_importer # The module name
     name: myImporter # The function name inside you want to load
     parameters: # Additional parameters your importer needs. Do not use if you dont need ones
@@ -15,9 +15,8 @@
   backend: bokeh
     
   Files:
-    - ".\\testdata\\DiodeIVCV_1.txt"
-    - ".\\testdata\\DiodeIVCV_2.txt"
-    - ".\\testdata\\DiodeIVCV_3.txt"
+    - ".\\testdata\\DiodeIVCV_1.txt" # This ios just a dummy file for this example!!
+   
     
   Output: ".\\testdata\\plots"
 
