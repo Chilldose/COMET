@@ -7,7 +7,7 @@ I recommended to use COMET with an Anaconda python distribution which you can do
 
 [Download Anaconda here](https://www.anaconda.com/download/)
 
-.. warning:: Make sure to download the 64-bit version!
+> warning:: Make sure to download the 64-bit version!
 
 it will work with a normal python version too, but I have not tested it. Furthermore, i have set up an Anaconda environment,
 so you do not need to painfully install all modules by hand.
@@ -22,9 +22,9 @@ if you want to use the Analysis and and plotting functionallity only, you do not
 You will need drivers higher than 17.0 for COMET to work properly. If you have installed a LabView version it is usually already
 installed on your pc. If so, make sure in the NiMAX app what version of NI-Visa is installed on your system.
 
-.. :warning: The module PyVISA works with 32- and 64- bit Python and can deal with 32- and 64-bit NI-VISA libraries without any extra configuration. What PyVISA cannot do is open a 32-bit VISA library while running in 64-bit Python (or the other way around).
+> :warning: The module PyVISA works with 32- and 64- bit Python and can deal with 32- and 64-bit NI-VISA libraries without any extra configuration. What PyVISA cannot do is open a 32-bit VISA library while running in 64-bit Python (or the other way around).
 
-.. :warning: There is a pyvisa-py version as well, which does not rely on the NIVisa drivers. For simple measurement setups this will work as well, but it is not as sophisticated as the normal pyvisa and errors may happen. So be warned.
+> :warning: There is a pyvisa-py version as well, which does not rely on the NIVisa drivers. For simple measurement setups this will work as well, but it is not as sophisticated as the normal pyvisa and errors may happen. So be warned.
 
 The program is known to be running on Windows, Linux (Centos7) and Mac.
 
