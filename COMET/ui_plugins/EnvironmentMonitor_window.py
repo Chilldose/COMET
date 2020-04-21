@@ -186,9 +186,9 @@ class EnvironmentMonitor_window:
                 p1 = self.temphum_plot[room].plotItem
     
                 ax = p1.getAxis('bottom')  # This is the trick
-                self.__cut_arrays(self.variables.meas_data,
-                                  float(self.history),
-                                  ["Temp_"+room, "hum_"+room])
+                #self.__cut_arrays(self.variables.meas_data,
+                #                  float(self.history),
+                #                  ["Temp_"+room, "hum_"+room])
                 ax.setTicks([get_thicks_for_timestamp_plot(self.variables.meas_data["Temp_"+room][0], 5,
                                                            self.variables.default_values_dict["settings"]["time_format"])])
                 try:
