@@ -512,6 +512,8 @@ def read_in_files(filepathes, configs):
             if custom_specs:
                 data = read_in_CUSTOM_measurement_files(filepathes, custom_specs)
                 if data and isinstance(data, dict):
+                    # Add the necessary data structure
+
                     return data, []
                 else:
                     log.error("Return data from CUSTOM file parsing did not yield valid data. Data must be a dictionary!")
@@ -529,8 +531,9 @@ def read_in_files(filepathes, configs):
             filename, file_extension = os.path.splitext(file)
             if file_extension.lower() == ".txt" or file_extension.lower == ".dat":
                 if ascii_specs:
-                    data, load = read_in_ASCII_measurement_files([file], ascii_specs)
-                    data.update(data)
+                    data_new, load = read_in_ASCII_measurement_files([file], ascii_specs)
+                    data.update(data_new)
+                    load_order.append(load)
                 else:
                     log.error("ASCII file type files must be given with specifications how to interpret data.")
             elif file_extension.lower() == ".json" or file_extension.lower == ".yml" or file_extension.lower == ".yaml":
