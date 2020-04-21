@@ -13,16 +13,18 @@ it will work with a normal python version too, but I have not tested it. Further
 so you do not need to painfully install all modules by hand.
 
 
-**Secondly** you need to install National Instrument VISA drivers. These drivers can be found here:
+**Secondly** if you want the SQC setup version you need to install National Instrument VISA drivers. These drivers can be found here:
 
 [NI-Visa drivers](http://www.ni.com/download/ni-visa-17.0/6646/en/>)
+
+if you want to use the Analysis and and plotting functionallity only, you do not need this.
 
 You will need drivers higher than 17.0 for COMET to work properly. If you have installed a LabView version it is usually already
 installed on your pc. If so, make sure in the NiMAX app what version of NI-Visa is installed on your system.
 
-> :warning: The module PyVISA works with 32- and 64- bit Python and can deal with 32- and 64-bit NI-VISA libraries without any extra configuration. What PyVISA cannot do is open a 32-bit VISA library while running in 64-bit Python (or the other way around).
+.. :warning: The module PyVISA works with 32- and 64- bit Python and can deal with 32- and 64-bit NI-VISA libraries without any extra configuration. What PyVISA cannot do is open a 32-bit VISA library while running in 64-bit Python (or the other way around).
 
-> :warning: There is a pyvisa-py version as well, which does not rely on the NIVisa drivers. For simple measurement setups this will work as well, but it is not as sophisticated as the normal pyvisa and errors may happen. So be warned.
+.. :warning: There is a pyvisa-py version as well, which does not rely on the NIVisa drivers. For simple measurement setups this will work as well, but it is not as sophisticated as the normal pyvisa and errors may happen. So be warned.
 
 The program is known to be running on Windows, Linux (Centos7) and Mac.
 
