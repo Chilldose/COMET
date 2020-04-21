@@ -510,11 +510,34 @@ def read_in_files(filepathes, configs):
             return read_in_CSV_measurement_files(filepathes)
         elif filetype.upper() == "CUSTOM":
             if custom_specs:
-                data = read_in_CUSTOM_measurement_files(filepathes, custom_specs)
-                if data and isinstance(data, dict):
+                data_raw = read_in_CUSTOM_measurement_files(filepathes, custom_specs)
+                if data_raw and isinstance(data_raw, dict):
                     # Add the necessary data structure
-
-                    return data, []
+                    final_data = {}
+                    for key, value in data_raw.items():
+                        try:
+                            if isinstance(value, dict):
+                                processed_data = {"analysed": False, "plots":False}
+                                processed_data["data"] = value["data"]
+                                if "measurements" not in value:
+                                    processed_data["measurements"] = list(value["data"].keys())
+                                else: processed_data["measurements"] = value["measurements"]
+                                if "units" not in value:
+                                    processed_data["units"] = ["arb. units" for i in processed_data["measurements"]]
+                                else:
+                                    processed_data["units"] = value["units"]
+                                if "header" not in value:
+                                    processed_data["header"] = ""
+                                else:
+                                    processed_data["header"] = value["header"]
+                                if "additional" in value:
+                                    processed_data["additional"] = value["additional"]
+                                final_data[key] = processed_data
+                            else:
+                                log.error("Data format for custom data array {} is not dict. Discarding data.".format(key))
+                        except Exception as err:
+                            log.error("An error happened during parsind data from CUSTOM importer output. Most likely the outpot did not had the correct form. Error: {}".format(err))
+                    return final_data, []
                 else:
                     log.error("Return data from CUSTOM file parsing did not yield valid data. Data must be a dictionary!")
                     return {}, []

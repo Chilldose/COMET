@@ -34,5 +34,5 @@
   Curve_plots:
       General: # Options common to all plots
           fontsize: {'title': 15, 'labels': 13, 'xticks': 13, 'yticks': 13, 'legend': 6}
-          aspect: 2
-          fig_size: 900
+          width: 800
+          height: 600
