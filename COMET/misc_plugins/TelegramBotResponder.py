@@ -97,7 +97,6 @@ class TelegramBotResponder:
             if plot:
                 if plot[0] in self.main.meas_data.keys():
                     plt_data = self.main.meas_data[plot[0]]
-                    plt = self.main.plot_objs[plot[0]]
                     exporter = self.main.default_values_dict['settings'].get('Telegram_exporter', 'matplotlib')
 
                     # Matplotlib exporter
@@ -130,6 +129,7 @@ class TelegramBotResponder:
                     elif exporter == "pyqtgraph":
                         #PYqtexporter
                         try:
+                            plt = self.main.plot_objs[plot[0]]
                             plt = plt.plotItem
                         except:
                             pass
