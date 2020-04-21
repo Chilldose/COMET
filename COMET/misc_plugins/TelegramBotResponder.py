@@ -72,7 +72,7 @@ class TelegramBotResponder:
         for val in value.values():
             if re.findall(r"Plots\b\?", val):
                 self.answer += "The possible plots to show are: \n\n"
-                self.answer += "\n".join(self.main.plot_objs.keys())
+                self.answer += "\n".join(self.main.meas_data.keys())
                 self.answer += "\n\nYou can access them by typing 'Plot <xyz>'"
 
     def do_send_plot_buttons(self, value, *args):
@@ -81,7 +81,7 @@ class TelegramBotResponder:
             if val.strip().lower() == "plot":
                 keyboard = {}
                 arrangement = []
-                for plots in self.main.plot_objs.keys():
+                for plots in self.main.meas_data.keys():
                     keyboard[plots] = 'Plot {}'.format(plots)
                     arrangement.append([plots])
                 self.answer = {"CALLBACK": {"info": "Choose a plot you want to see:",
