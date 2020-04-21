@@ -75,6 +75,19 @@ class TelegramBotResponder:
                 self.answer += "\n".join(self.main.plot_objs.keys())
                 self.answer += "\n\nYou can access them by typing 'Plot <xyz>'"
 
+    def do_send_plot_buttons(self, value, *args):
+        """Sends a callback keyboard for all possible plots"""
+        for val in value.values():
+            if val.strip().lower() == "plot":
+                keyboard = {}
+                arrangement = []
+                for plots in self.main.plot_objs.keys():
+                    keyboard[plots] = 'Plot {}'.format(plots)
+                    arrangement.append([plots])
+                self.answer = {"CALLBACK": {"info": "Choose a plot you want to see:",
+                                                         "keyboard": keyboard,
+                                                         "arrangement": arrangement}}
+
     def do_send_plot(self, value, *args):
         """Plot <xyz> - Plots you a certain plot"""
         # create an exporter instance, as an argument give it

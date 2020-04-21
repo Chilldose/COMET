@@ -9,12 +9,12 @@
     #separator: "\\t"
     #measurement_regex: ""
     #units_regex: ""
-    measurements:
-        - voltage
-        - current
-    units:
-        - V
-        - A 
+    #measurements:
+    #    - voltage
+    #    - current
+    #units:
+    #    - V
+    #    - A 
   
   # The backend which will be used for plotting
   backend: bokeh
