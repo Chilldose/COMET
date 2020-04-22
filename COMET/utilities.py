@@ -1884,7 +1884,7 @@ def save_dict_as_xml(data_dict, filepath, name):
     from dicttoxml import dicttoxml
     from xml.dom.minidom import parseString
     """
-    Writes out the data as xml file, for the CMS DB
+    Writes out the data as xml file
 
     :param filepath: Filepath where to store the xml
     :param name: name of the file 
