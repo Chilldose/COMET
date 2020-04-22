@@ -290,7 +290,7 @@
 
               xformatter: "%.0f"
 
-              yformatter: "%.0e"
+              yformatter: "%.2e"
 
             #xlabel: voltage [V]
 
@@ -304,7 +304,7 @@
 
             xformatter: "%.0f"
 
-            yformatter: "%.0e"
+            yformatter: "%.2e"
 
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
             yaxisENG: True # If you want to plot the y axis in engineering representation
@@ -352,7 +352,7 @@
               ygrid_line_dash: [10, 4]
 
               xformatter: "%.0f"
-              yformatter: "%.0e"
+              yformatter: "%.2e"
             #xlabel: voltage [V]
 
             ylabel: C/A (F/cm^2)/V^2
@@ -425,7 +425,7 @@
 
               shared_axes: False
               xformatter: "%.0f"
-              yformatter: "%.0e"
+              yformatter: "%.2e"
 
 
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
@@ -483,7 +483,7 @@
 
               shared_axes: False
               xformatter: "%.0f"
-              yformatter: "%.0e"
+              yformatter: "%.2e"
 
 
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
@@ -544,7 +544,7 @@
 
               shared_axes: False
               xformatter: "%.0f"
-              yformatter: "%.0e"
+              yformatter: "%.2e"
 
 
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
@@ -603,7 +603,7 @@
 
               shared_axes: False
               xformatter: "%.0f"
-              yformatter: "%.0e"
+              yformatter: "%.2e"
 
 
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
@@ -655,7 +655,7 @@
 
             xformatter: "%.0f"
 
-            yformatter: "%.0e"
+            yformatter: "%.2e"
 
           #xlabel: voltage [V]
 
@@ -669,7 +669,7 @@
 
           xformatter: "%.0f"
 
-          yformatter: "%.0e"
+          yformatter: "%.2e"
 
         ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
           yaxisENG: True # If you want to plot the y axis in engineering representation

@@ -92,9 +92,6 @@ class IV_PQC:
         for df in self.data["keys"]:
 
             # Start the cv_mos analysis
-
-
-
             if df[0:8] != 'CV_Diode' and df[0:6] != 'IV_GCD': #If not Diode or Gate analysis do the cv mos analysis
                 cv.append(df)
                 if 'Voltage' in self.data[df]['data']: # Check that the voltage values have increasing order
@@ -120,10 +117,18 @@ class IV_PQC:
                 dy2_2 = np.insert(dy2, 0, dy2[0])  # add one element to dy2 to have the same length of dx1
                 der2 = dy2_2 / dx1
                 seconddev = np.insert(der2, 0, der2[0])  # Add one element to the array to have the same number of rows as in df
+
+                xvals = np.arange(self.data[df]['data']['Voltage'][0],list(self.data[df]['data']['Voltage'][-1:])[0],0.000001)
+                yinterp = np.interp(xvals, self.data[df]['data']['Voltage'], firstdev1)
+                ele_max = yinterp.argmax()
+                xvals2 = xvals[ele_max]
+                maxderiplot = hv.VLine(xvals2)
                 # insert first derivative into dataframe
                 self.data[df]["data"].insert(4, "derivative", firstdev1)
                 self.data[df]["units"].append("arb. units")
                 self.data[df]["measurements"].append("derivative")
+
+
                 # insert second derivative into dataframe
                 self.data[df]["data"].insert(5, "derivative2", seconddev)
                 self.data[df]["units"].append("arb. units")
@@ -143,15 +148,14 @@ class IV_PQC:
                             clone_plot = self.basePlots5.Overlay.MOS_CV_CURVES.opts(clone=True)
                         else:
                             clone_plot = self.basePlots5.Curve.MOS_CV_CURVES.opts(clone=True)
-                        fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax,indexMin, df, cv,
+                        fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax,indexMin, df, cv,xvals2,
                                                                   PlotLabel="Flat band voltage estimation")
                         fbvoltage.append(fBestimation[1])
                         Accum_capacitance.append(fBestimation[2])
                         Accum_capacitance_normalized.append(fBestimation[3])
                         Tox.append(fBestimation[4])
                         Nox.append(fBestimation[5])
-                        #self.PlotDict["All"] += fBestimation[0]
-                        self.PlotDict["BasePlots_MOS"] += fBestimation[0]
+                        self.PlotDict["BasePlots_MOS"] += fBestimation[0]*maxderiplot
                     except Exception as err:
                         self.log.warning("No flat band voltage calculation possible... Error: {}".format(err))
                 #Add a Table that shows the differents analysis parameters values
@@ -336,7 +340,7 @@ class IV_PQC:
 
         return self.PlotDict
 
-    def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, df,cv, **addConfigs,):
+    def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, df,cv, xvals2, **addConfigs,):
         """
         Finds the full depletion voltage of all data samples and adds a vertical line for the full depletion in the
         plot. Vertical line is the mean of all measurements. Furthermore, adds a text with the statistics.
@@ -439,6 +443,7 @@ class IV_PQC:
         Nox_table = '{:.2e}'.format(Nox)
         # Add text
         text = hv.Text(10, 0.00000000065, 'Flat band voltage: {} V \n'
+                                            'Flat band voltage first derivative: {} V \n'
 
                                             'C accumulation: {} F \n'
 
@@ -447,6 +452,7 @@ class IV_PQC:
                                             'Tox: {} nm \n'
                                             'Nox: {} cm\N{SUPERSCRIPT MINUS}\N{SUPERSCRIPT TWO}'.format(
             np.round(np.median(flatband_voltage[0]), 2),
+            np.round(xvals2, 2),
             np.round(Accum_capacitance, 10),
             np.round(Accum_capacitance_normalized, 10),
             np.round(Tox, 2),
