@@ -51,6 +51,10 @@ In principle such a file looks like this:
       param1: 1
       param2: "Hello"
 
+  Measurement_aliases:
+    Your_column_name: the_alias
+    Your_column_name2: the_alias2
+
   Output: myplot #Output folder path for my plots
   backend: bokeh # Choose the backend for the plotting Warning: Output may change with different backends.
 

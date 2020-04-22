@@ -528,17 +528,19 @@ class DataVisualization_window:
                                                       dat["header"])
                 save_dict_as_xml(xml_dict, os.path.join(os.path.normpath(dirr), "data"), "{}_".format(key)+base_name)
 
-    def convert_data_to_xml_conform_dict(self, data, config, header):
+    def convert_data_to_xml_conform_dict(self, data, xml_config_file, header="", values={}):
         """
         Converts data to a specific form, as a dict stated in the config parameter.
         The config file must have a key named 'template' in it must be the dict representation of the xml file.
         Subkeys with a value enclosed by <..> are keywords. The header of the file will be searched for such key words.
         If it finds the regular expression r'<EXPR>\W\s?(.*)'
+
         :param data: data structure
-        :param config: the configs on how to convert data to xml
+        :param xml_config_file: the configs on how to convert data to xml
+        :param header: a header (str) with key values like "Operator: Batman", the function tries to extract the data for the xml from there
         :return: None
         """
-        template = deepcopy(config["Template"])
+        template = deepcopy(xml_config_file["Template"])
         keyword_re = re.compile(r"<(.*)>")
 
 

@@ -27,7 +27,7 @@ class Stripscan:
             padidx = self.measurements.index("Pad")
             self.xrow = "Pad"
         else:
-            self.log.error("No 'Strip' column found in data. Analysis cannot be done!")
+            self.log.error("No 'Pad' column found in data. Analysis cannot be done!")
             return
 
         self.PlotDict = {"Name": self.analysisName}
