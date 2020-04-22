@@ -7,15 +7,17 @@ I recommended to use COMET with an Anaconda python distribution which you can do
 
 [Download Anaconda here](https://www.anaconda.com/download/)
 
-.. warning:: Make sure to download the 64-bit version!
+> warning:: Make sure to download the 64-bit version!
 
 it will work with a normal python version too, but I have not tested it. Furthermore, i have set up an Anaconda environment,
 so you do not need to painfully install all modules by hand.
 
 
-**Secondly** you need to install National Instrument VISA drivers. These drivers can be found here:
+**Secondly** if you want the SQC setup version you need to install National Instrument VISA drivers. These drivers can be found here:
 
 [NI-Visa drivers](http://www.ni.com/download/ni-visa-17.0/6646/en/>)
+
+if you want to use the Analysis and and plotting functionallity only, you do not need this.
 
 You will need drivers higher than 17.0 for COMET to work properly. If you have installed a LabView version it is usually already
 installed on your pc. If so, make sure in the NiMAX app what version of NI-Visa is installed on your system.
