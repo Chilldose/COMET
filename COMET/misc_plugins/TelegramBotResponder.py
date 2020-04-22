@@ -133,7 +133,7 @@ class TelegramBotResponder:
                             plt = plt.plotItem
                         except:
                             pass
-
+    
                         try:
                             #exporter = pg.exporters.ImageExporter(plt) # Original exporter but he has a bug. --> Selfwritten one from stackoverflow
                             exporter = PQG_ImageExporter(plt) # This may fail

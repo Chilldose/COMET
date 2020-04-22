@@ -1,7 +1,7 @@
 Getting Started
 ===============
 
-In order to run this program you need a Python Anaconda distribution and the NI-Visa drivers.
+In order to run this program you need a Python Anaconda distribution (and the NI-Visa drivers).
 For more information on how to install see the :ref:`installation` guide.
 
 Updating COMET
@@ -13,14 +13,14 @@ needed packages of COMET. This may come in handy if you experience some errors. 
 
     python COMET.py --update
 
-After everything is updated, restart COMET. If this did not help to solve your problems. It may be necessary to completely re-install the COMET environemnt.
+After everything is updated, restart COMET. If this did not help to solve your problems. It may be necessary to completely re-install the COMET environment.
 
 This can be done via the commands: ::
 
     conda env remove --name COMET
     python environment_setup requirements_<yourSystem>.yml
 
-If this still is not working. Please email the owner!
+If this still is not working. Please email me!
 
 Running/Initializing The Program
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -58,6 +58,12 @@ After that the main GUI should pop up. Depending on which setup you selected you
 
 .. note:: In order to add your own setups to this list, please see the chapter :ref:`Getting Started`. There everything is explained in detail.
 
+I just want the plotting thing!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you only want the plotting GUI thing, choose the "DataVisualization" GUI at start up!
+See also the rather short COMET docs on Plotting in :ref:`Data Visualization and Analysis`
+as well as the dedicated docs on the plotting scripts `Plotting Scripts doc <https://github.com/Chilldose/PlotScripts>`_
 
 Your first GUI
 ~~~~~~~~~~~~~~

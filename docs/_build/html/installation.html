@@ -90,7 +90,7 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Installation</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#what-you-need">What you need</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-the-environment">Setting Up The Environment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#once-installed-test">Once installed, test</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#once-installed-test-only-sqc">Once installed, test (Only SQC)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#download-the-comet-source-code">Download the COMET source code</a></li>
 </ul>
 </li>
@@ -192,7 +192,7 @@
 <h1>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="what-you-need">
 <h2>What you need<a class="headerlink" href="#what-you-need" title="Permalink to this headline">¶</a></h2>
-<p><strong>First</strong> you need a python python 3.7 64 bit distribution. (32 bit works as well but will be unstable)
+<p><strong>First</strong> you need a python 3.7 64 bit distribution. (32 bit works as well but will be unstable)
 I recommended to use COMET with an Anaconda python distribution which you can download here:</p>
 <p><a class="reference external" href="https://www.anaconda.com/download/">Download Anaconda here</a></p>
 <div class="admonition warning">
@@ -213,18 +213,20 @@ installed on your pc. If so, make sure in the NiMAX app what version of NI-Visa 
 <p class="admonition-title">Note</p>
 <p>There is a pyvisa-py version as well, which does not rely on the NIVisa drivers. For simple measurement setups this will work as well, but it is not as sophisticated as the normal pyvisa and errors may happen. So be warned.</p>
 </div>
+<p>If you do not want or can install the NI-Visa drivers COMET ships with a device communication that is completely independent of those drivers.
+BUT these drivers are far from perfect and not as sophisticated as the NI drivers. So be warned.</p>
 <p>The program is known to be running on Windows, Linux (Centos7) and Mac.</p>
 </div>
 <div class="section" id="setting-up-the-environment">
 <h2>Setting Up The Environment<a class="headerlink" href="#setting-up-the-environment" title="Permalink to this headline">¶</a></h2>
-<p>With python up and running, you can run the the <strong>environement_setup.py &lt;your_system_req_file.yml</strong> file by e.g.:</p>
+<p>With python up and running, you can run the <strong>environement_setup.py &lt;your_system_req_file.yml</strong> file by e.g.:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">py</span> <span class="n">requiremnts_Winx86</span><span class="o">.</span><span class="n">yml</span>
 </pre></div>
 </div>
-<p>this will (when Anaconda is installed) automatically install all required modules for the program to run. If you don't have Anaconda installed and don't want to use it, you can look in the &quot;requirements.yml&quot; file to see what dependencies the program needs.</p>
+<p>this will (if Anaconda is installed) automatically install all required modules for the program to run. If you don't have Anaconda installed and don't want to use it, you can look in the &quot;requirements.yml&quot; file to see what dependencies the program needs.</p>
 </div>
-<div class="section" id="once-installed-test">
-<h2>Once installed, test<a class="headerlink" href="#once-installed-test" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="once-installed-test-only-sqc">
+<h2>Once installed, test (Only SQC)<a class="headerlink" href="#once-installed-test-only-sqc" title="Permalink to this headline">¶</a></h2>
 <p>If you have installed all correctly we can now test if everything is set-up correctly. First go and follow the
 instructions on <a class="reference internal" href="#setting-up-the-environment"><span class="std std-ref">Setting Up The Environment</span></a>. When this is done open the Anaconda Prompt app on your PC and activate
 the new environment which should have been set-up for you while installation. After that import the PyVisa module and
