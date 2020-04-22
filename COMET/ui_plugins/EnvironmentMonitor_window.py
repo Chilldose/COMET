@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import *
 import pyqtgraph
 from .. utilities import get_thicks_for_timestamp_plot
 import numpy as np
-from time import sleep
+from time import sleep, asctime
 
 class EnvironmentMonitor_window:
 
@@ -66,8 +66,6 @@ class EnvironmentMonitor_window:
         # Add the update function and run some inits
         self.variables.add_update_function(self.update_temphum_plots)
         self.valuechange()
-
-        #self.update_env_control()
 
     def update_lcd_displays(self):
         """Updates the displays"""
@@ -156,6 +154,7 @@ class EnvironmentMonitor_window:
                     hum = self.variables.meas_data["Hum_"+room][1][-1]
                     self.roomsGui[room][0].temp_lcd.display(temp)
                     self.roomsGui[room][0].hum_lcd.display(hum)
+                    self.roomsGui[room][0].last_update_label.setText("Last Update: {}".format(asctime(self.variables.meas_data["Temp_"+room][0][-1])))
     
                     # Set temp bar
                     max_temp = self.settings["Ranges"][room]["temp_max"]
