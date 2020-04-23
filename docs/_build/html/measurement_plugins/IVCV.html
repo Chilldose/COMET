@@ -1,0 +1,274 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 3.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 3.7" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>IVCV &mdash; COMET beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Stripscan" href="Stripscan.html" />
+    <link rel="prev" title="Data Exchange" href="../dataexchange.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> COMET
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.10.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../programstructure.html">COMET layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">How to</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../measurementjobgen.html">Measurement Job Generation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dataexchange.html">Data Exchange</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Purpose Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Data_Visualization.html">Data Visualization and Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Switching_Control.html">Switching Matrix Control</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html">Measurement Tool Box functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html#xyz-stage-control-class">XYZ-Stage Control Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html#switching-system-control-class">Switching System Control Class</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">COMET</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>IVCV</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/measurement_plugins/IVCV.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="ivcv">
+<h1>IVCV<a class="headerlink" href="#ivcv" title="Permalink to this headline">¶</a></h1>
+<p>The IVCV plugin is a plugin to conduct a Current-Voltage and a Current-Capacitance measurement. This GUI looks in its
+simples version like this:</p>
+<img alt="Flowchart_main" class="floatingflask" src="../_images/IV_GUI.png" />
+<p>In the top part of the GUI you can selcect the Project, Sensor, Operator and choose the file name the output file should
+have. Furthermore, you can choose the directory of the output, by either typing the path or by choosing via the button.</p>
+<p>With the Buttons <strong>Save settings</strong> and <strong>Load settings</strong> you can save or load your IVCV settings, so you do not have to
+change them every time you start up.</p>
+<p>The next part are the settings, on how exactly to conduct the measurement. The radio-Buttons can be switched on or off.
+This will direct the software to either do this part or not. The other spin boxes are for the specific settings on
+bias voltage and step sizes.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can choose different bias voltages for CV or IV measurement. So stop the CV measurement at 400 V but the IV measurement should continue to 1000 V. Or vice versa.</p>
+</div>
+<p>The voltage step refinement option lets you refine the step size in a specific region of the IVCV ramp. This is especially
+useful, if you want to investigate the behavior near the full depletion point, but you do not want the small step-size for the
+whole measurement, to safe time.</p>
+<p>Next are comming the <strong>Start</strong>, <strong>Stop</strong> and <strong>Quit</strong> button. These buttons handles the start and the stop and quit of the program.</p>
+<div class="admonition hint">
+<p class="admonition-title">Hint</p>
+<p>You can always quit the program via the option <strong>File</strong> in the header of the software!</p>
+</div>
+<p>Next is a event log. Here all important messages will be displayed which COMET encounters during operation. These events
+are color coded. Red means error, orange means warning and green are infos.</p>
+<p>On the right side you see two plots, which will be populated if a measurement is conducted. Below that is the environment
+control which starts running on start up. Here you can choose the humidity and temperature levels/regions during measurement.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>If the environment levels are not reached, COMET will wait for the environment to reach these levels before it proceeds with the measurement.</p>
+</div>
+<p>Since COMET heavily rely on GUI plugins you can have different GUI which does basically the same thing like this one.
+One of those is the IVCV_QTC GUI plugin which looks pretty similar to the above shown one</p>
+<img alt="Flowchart_main" class="floatingflask" src="../_images/COMET_GUI1.png" />
+<p>The difference here is that instead of the settings widgets, a table control widget is placed. The settings widget for IVCV is
+here in a separate tab, since for the QTC a stripscan can be conducted as well, see <a class="reference internal" href="Stripscan.html#stripscan"><span class="std std-ref">Stripscan</span></a>.</p>
+<img alt="Flowchart_main" class="floatingflask" src="../_images/QTCSettings.png" />
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="Stripscan.html" class="btn btn-neutral float-right" title="Stripscan" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../dataexchange.html" class="btn btn-neutral float-left" title="Data Exchange" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Dominic Bloech
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

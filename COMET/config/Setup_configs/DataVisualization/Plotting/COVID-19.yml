@@ -1,7 +1,5 @@
 --- # Dummy config file for testing
 
-  Filetype: CSV # Other options are json, ACII
-
   Analysis:
     - COVID19 # The type of analysis, which will be performed
     

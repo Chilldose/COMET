@@ -1,0 +1,95 @@
+--- # Dummy config file for testing
+
+# Optional Parameters
+  ASCII_file_specs: # The specifications for the ascii file type measurements files
+    header_lines: 8
+    measurement_description: 9
+    units_line: 9
+    data_start: 10
+    
+  # The backend which will be used for plotting
+  backend: matplotlib
+    
+  Files:
+    - ".\\testdata\\DiodeIVCV_1.txt"
+    - ".\\testdata\\DiodeIVCV_2.txt"
+    - ".\\testdata\\DiodeIVCV_3.txt"
+    
+  Output: ".\\testdata\\plots"
+
+  Analysis:
+    - IVCV_QTC # The type of analysis, which will be performed
+
+  Save_as:
+    - png
+    - svg
+
+# Optional Parameters
+
+  # Options for the different Analyses scripts
+  # These options are entirely up to you and what you need in your analysis
+  IVCV_QTC:
+
+      Measurement_aliases: # Renames a column to another one (this is used to fit your column names with the ones in the analysis)
+          Voltage: voltage
+          CV: capacitance
+          IV: current
+          QValue: CVQValue
+          Humidity: humidity
+          Temperature: temperature
+
+
+      General: # Options common to all plots
+          fontsize: {'title': 15, 'labels': 13, 'xticks': 13, 'yticks': 13, 'legend': 6}
+          aspect: 2
+          fig_size: 900
+
+      DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measurements has this special plot stated
+          - BoxWhisker
+
+      # Measurement names and their config
+      temperature:
+          PlotLabel: Temperature
+          AdditionalPlots:
+              - BoxWhisker
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              show_grid: False
+
+      humidity:
+          PlotLabel: Humidity
+          AdditionalPlots:
+              - BoxWhisker
+
+      current:
+          PlotLabel: IV CURVES
+          UnitConversion: nano # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
+              
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              logy: True
+              logx: False
+              invert_xaxis: False
+              invert_yaxis: False
+              padding: !!python/tuple [0, 0.1]
+              xformatter: "%.0f"
+              yformatter: "%.0f"
+          ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+              yaxisENG: True # If you want to plot the y axis in engineering representation
+
+      capacitance:
+          PlotLabel: CV CURVES
+          UnitConversion: nano
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              logy: False
+              logx: False
+              invert_xaxis: False
+              invert_yaxis: False
+              padding: !!python/tuple [0, 0.1]
+
+      1C2:
+          PlotLabel: CV CURVES - Full depletion
+          DoFullDepletionCalculation: True
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              logy: False
+              logx: False
+              invert_xaxis: False
+              invert_yaxis: False

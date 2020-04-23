@@ -5,8 +5,6 @@
 import logging
 import holoviews as hv
 
-hv.extension('bokeh')
-
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout
 from forge.tools import twiny, relabelPlot
 from forge.tools import plot_all_measurements, convert_to_EngUnits
@@ -26,7 +24,7 @@ class TCAD:
         self.analysisname = "TCAD"
         self.PlotDict = {"Name": self.analysisname}
         self.measurements = self.data["columns"]
-        hv.renderer('bokeh')
+        #hv.renderer('bokeh')
 
     def run(self):
         """Runs the script"""

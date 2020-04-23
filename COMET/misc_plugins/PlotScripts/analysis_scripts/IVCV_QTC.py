@@ -8,13 +8,12 @@ from scipy.stats import linregress
 from copy import deepcopy
 import pandas as pd
 import numpy as np
-hv.extension('bokeh', 'matplotlib')
 
 from bokeh.models import CustomJS
 from bokeh.models.widgets import Button
 
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout, text_box
-from forge.tools import twiny, relabelPlot, applyPlotOptions
+from forge.tools import twiny, relabelPlot, applyPlotOptions, rename_columns
 from forge.tools import plot_all_measurements, convert_to_EngUnits
 from forge.specialPlots import dospecialPlots
 from forge.utilities import line_intersection
@@ -25,37 +24,35 @@ class IVCV_QTC:
     def __init__(self, data, configs):
 
         self.log = logging.getLogger(__name__)
-        self.data = convert_to_df(data, abs=True, keys=["Voltage", "voltage", "current", "Current", "capacitance", "IV", "CV", "CVQValue", "humidity", "temperature"])
         self.config = configs
-        self.df = []
+        self.analysisName = "IVCV_QTC"
+        self.data = convert_to_df(data, abs=True)
+        self.data = rename_columns(self.data, self.config[self.analysisName].get("Measurement_aliases", {}))
         self.basePlots = None
-        self.PlotDict = {"Name": "IVCV"}
+        self.PlotDict = {"Name": "IVCV"} # Name of analysis and cnavas for all plots generated during this analysis
         self.capincluded = False
         if "capacitance" in self.data[self.data["keys"][0]]["data"] or "CV" in self.data[self.data["keys"][0]]["data"]:
-            self.data["columns"].insert(3,"1C2") # because we are adding it later on
+            self.data["columns"].insert(3, "1C2") # because we are adding it later on
             self.capincluded = True
         self.measurements = self.data["columns"]
         self.xaxis = self.measurements[0]
 
         # The do not plot list, you can extend this list as you like
-        self.donts = ("voltage", "voltage_1", "Idark", "Idiel", "Rpoly", "Cac", "Cint", "Rint", "Pad", "Istrip", "Temperature", "Humidity")
+        self.donts = ("Name", "voltage_1", "Idark", "Idiel", "Rpoly", "Cac", "Cint", "Rint", "Pad", "Istrip")
 
-        if "Voltage" in self.measurements:
-            self.xaxis = "Voltage"
-            padidx = self.measurements.index("Voltage")
-            del self.measurements[padidx]
-        elif "voltage" in self.measurements:
+        if "voltage" in self.measurements:
             self.xaxis = "voltage"
             padidx = self.measurements.index("voltage")
             del self.measurements[padidx]
+        else:
+            self.log.error("No 'voltage' entry found in data, cannot do IVC analysis. Maybe you have to set an alias for your measurement.")
 
         # Convert the units to the desired ones
         for meas in self.measurements:
-            unit = self.config["IVCV_QTC"].get(meas, {}).get("UnitConversion", None)
+            unit = self.config[self.analysisName].get(meas, {}).get("UnitConversion", None)
             if unit:
                 self.data = convert_to_EngUnits(self.data, meas, unit)
-
-        hv.renderer('bokeh')
+        #hv.renderer('bokeh')
 
     def run(self):
         """Runs the script"""
@@ -74,13 +71,13 @@ class IVCV_QTC:
         # Add the measurement to the list
 
         # Plot all Measurements
-        self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, "IVCV_QTC", do_not_plot = self.donts)
+        self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.analysisName, do_not_plot = self.donts)
         #self.basePlots = applyPlotOptions(self.basePlots, {'Curve': {'color': "hv.Cycle('PiYG')"}})
         self.PlotDict["BasePlots"] = self.basePlots
         self.PlotDict["All"] = self.basePlots
 
         # Add full depletion point to 1/c^2 curve
-        if self.config["IVCV_QTC"].get("1C2", {}).get("DoFullDepletionCalculation", False):
+        if self.config[self.analysisName].get("1C2", {}).get("DoFullDepletionCalculation", False):
             try:
                 if self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.children:
                     c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.opts(clone = True)
@@ -92,13 +89,20 @@ class IVCV_QTC:
                 self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
         # Whiskers Plot
-        self.WhiskerPlots = dospecialPlots(self.data, self.config, "IVCV_QTC", "BoxWhisker", self.measurements)
+        self.WhiskerPlots = dospecialPlots(self.data, self.config, self.analysisName, "BoxWhisker", self.measurements)
         if self.WhiskerPlots:
             self.PlotDict["Whiskers"] = self.WhiskerPlots
             self.PlotDict["All"] = self.PlotDict["All"] + self.WhiskerPlots
 
+        # Histogram Plot
+        self.HistogramPlots = dospecialPlots(self.data, self.config, self.analysisName, "Histogram",
+                                            self.measurements)
+        if self.HistogramPlots:
+            self.PlotDict["Histogram"] = self.HistogramPlots
+            self.PlotDict["All"] = self.PlotDict["All"] + self.HistogramPlots
+
         # Reconfig the plots to be sure
-        self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config["IVCV_QTC"].get("Layout", {}))
+        self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.analysisName].get("Layout", {}))
 
         return self.PlotDict
 
@@ -225,7 +229,7 @@ class IVCV_QTC:
         # Update the plot specific options if need be
         returnPlot = vline * right_line * left_line * text * plot
         #returnPlot = relabelPlot(returnPlot, "CV CURVES - Full depletion calculation")
-        returnPlot = customize_plot(returnPlot, "1C2", configs["IVCV_QTC"], **addConfigs)
+        returnPlot = customize_plot(returnPlot, "1C2", configs[self.analysisName], **addConfigs)
 
 
 

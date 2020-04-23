@@ -72,8 +72,21 @@ class TelegramBotResponder:
         for val in value.values():
             if re.findall(r"Plots\b\?", val):
                 self.answer += "The possible plots to show are: \n\n"
-                self.answer += "\n".join(self.main.plot_objs.keys())
+                self.answer += "\n".join(self.main.meas_data.keys())
                 self.answer += "\n\nYou can access them by typing 'Plot <xyz>'"
+
+    def do_send_plot_buttons(self, value, *args):
+        """Sends a callback keyboard for all possible plots"""
+        for val in value.values():
+            if val.strip().lower() == "plot":
+                keyboard = {}
+                arrangement = []
+                for plots in self.main.meas_data.keys():
+                    keyboard[plots] = 'Plot {}'.format(plots)
+                    arrangement.append([plots])
+                self.answer = {"CALLBACK": {"info": "Choose a plot you want to see:",
+                                                         "keyboard": keyboard,
+                                                         "arrangement": arrangement}}
 
     def do_send_plot(self, value, *args):
         """Plot <xyz> - Plots you a certain plot"""
@@ -82,27 +95,60 @@ class TelegramBotResponder:
         for val in value.values():
             plot = re.findall(r"Plot\b\s*(\w*)", val)
             if plot:
-                if plot[0] in self.main.plot_objs.keys():
-                    plt = self.main.plot_objs[plot[0]]
-                    try:
-                        plt = plt.plotItem
-                    except:
-                        pass
-                    try:
-                        #exporter = pg.exporters.ImageExporter(plt) # Original exporter but he has a bug. --> Selfwritten one from stackoverflow
-                        exporter = PQG_ImageExporter(plt) # This may fail
-                        # set export parameters if needed
-                        exporter.parameters()['width'] = 1920  # (note this also affects height parameter)
-                        # save to file
-                        filepath = os.path.join(os.path.dirname(__file__), "__temp__")
-                        if os.mkdir(filepath) if not os.path.isdir(filepath) else True:
-                            for file in  os.listdir(filepath):
-                                os.remove(os.path.join(filepath, file))
-                            exporter.export(os.path.join(filepath, '{}_plot.jpg'.format(plot[0])))
-                            self.answer = {"PLOT": str(os.path.join(filepath, '{}_plot.jpg'.format(plot[0])))}
+                if plot[0] in self.main.meas_data.keys():
+                    plt_data = self.main.meas_data[plot[0]]
+                    exporter = self.main.default_values_dict['settings'].get('Telegram_exporter', 'matplotlib')
 
-                    except Exception as err:
-                        self.main.log.error("Export of png for plot {} did not work. Error: {}".format(plot[0], err))
+                    # Matplotlib exporter
+                    if exporter == "matplotlib":
+                        try:
+                            import matplotlib
+                            import matplotlib.pyplot as plt
+
+                            fig, ax = plt.subplots()
+                            ax.plot(plt_data[0], plt_data[1])
+                            ax.set(xlabel='x-Axis', ylabel='y-Axis',
+                                   title=plot[0])
+                            ax.grid()
+
+                            # save to file
+                            filepath = os.path.join(os.path.dirname(__file__), "__temp__")
+                            if os.mkdir(filepath) if not os.path.isdir(filepath) else True:
+                                for file in os.listdir(filepath):
+                                    os.remove(os.path.join(filepath, file))
+                            fig.savefig(os.path.join(filepath, '{}_plot.png'.format(plot[0])))
+                            self.answer = {"PLOT": str(os.path.join(filepath, '{}_plot.png'.format(plot[0])))}
+
+                        except ImportError:
+                            self.main.log.error("It seem matplotlib is not installed, no plotting can be done.")
+                            self.answer = "It seem matplotlib is not installed, no plotting can be done."
+                        except Exception as err:
+                            self.main.log.error("An error occured while plotting: Error {}".format(err))
+                            self.answer = "An error occured while plotting: Error {}".format(err)
+
+                    elif exporter == "pyqtgraph":
+                        #PYqtexporter
+                        try:
+                            plt = self.main.plot_objs[plot[0]]
+                            plt = plt.plotItem
+                        except:
+                            pass
+
+                        try:
+                            #exporter = pg.exporters.ImageExporter(plt) # Original exporter but he has a bug. --> Selfwritten one from stackoverflow
+                            exporter = PQG_ImageExporter(plt) # This may fail
+                            # set export parameters if needed
+                            exporter.parameters()['width'] = 1920  # (note this also affects height parameter)
+                            # save to file
+                            filepath = os.path.join(os.path.dirname(__file__), "__temp__")
+                            if os.mkdir(filepath) if not os.path.isdir(filepath) else True:
+                                for file in  os.listdir(filepath):
+                                    os.remove(os.path.join(filepath, file))
+                                exporter.export(os.path.join(filepath, '{}_plot.jpg'.format(plot[0])))
+                                self.answer = {"PLOT": str(os.path.join(filepath, '{}_plot.jpg'.format(plot[0])))}
+
+                        except Exception as err:
+                            self.main.log.error("Export of png for plot {} did not work. Error: {}".format(plot[0], err))
                 else:
                     self.answer += "The plot '{}' is not a possible plot. Type: 'Plots?' to see valid plots.".format(val)
 

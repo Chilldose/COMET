@@ -1,0 +1,37 @@
+--- # Dummy config file for testing
+
+  Filetype: CUSTOM
+    
+  # If CUSTOM was choosen in 'Filetype', then you must define this custom specs section to tell where to find the file etc
+  Custom_specs:
+    path: ".\\CONFIGS\\importer\\custom_importer.py" # The path to your python file where the importer is
+    module: custom_importer # The module name
+    name: myImporter # The function name inside you want to load
+    parameters: # Additional parameters your importer needs. Do not use if you dont need ones
+      param1: "Some optional"
+      param2: "parameters"  
+      
+  # The backend which will be used for plotting
+  backend: bokeh
+    
+  Files:
+    - ".\\testdata\\DiodeIVCV_1.txt" # This ios just a dummy file for this example!!
+   
+    
+  Output: ".\\testdata\\plots"
+
+  Analysis:
+    - Curve_plots # The type of analysis, which will be performed
+
+  Save_as:
+    - html
+
+# Optional Parameters
+
+  # Options for the different Analyses scripts
+  # These options are entirely up to you and what you need in your analysis
+  Curve_plots:
+      General: # Options common to all plots
+          fontsize: {'title': 15, 'labels': 13, 'xticks': 13, 'yticks': 13, 'legend': 6}
+          width: 800
+          height: 600

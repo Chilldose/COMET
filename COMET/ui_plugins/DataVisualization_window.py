@@ -4,12 +4,16 @@ from PyQt5.QtCore import QUrl, Qt
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 import threading
+import traceback
 import ast
 import re
 from time import asctime
 from ..utilities import save_dict_as_hdf5, save_dict_as_json, save_dict_as_xml
-
 import yaml
+from warnings import filterwarnings
+filterwarnings('ignore', message='yaml.load()', category=yaml.YAMLLoadWarning)
+
+
 try:
     from StringIO import StringIO
 except ImportError:
@@ -35,6 +39,7 @@ class DataVisualization_window:
         self.current_plot_name = ""
         self.not_saving = True
         self.plotting_thread = None
+        self.backend = None
 
         # Device communication widget
         self.VisWidget = QWidget()
@@ -44,6 +49,11 @@ class DataVisualization_window:
         # Config
         self.config_selectable_templates()
         self.config_save_options()
+
+        # Set the possible plotting backends
+        self.possible_backends = ["bokeh", "matplotlib"]
+        self.widget.backend_comboBox.addItems(self.possible_backends)
+        self.set_backend("bokeh")
 
         # Connect buttons
         self.widget.files_toolButton.clicked.connect(self.select_files_action)
@@ -55,6 +65,14 @@ class DataVisualization_window:
         self.widget.plot_options_treeWidget.itemClicked.connect(self.tree_option_select_action)
         self.widget.save_as_pushButton.clicked.connect(self.save_as_action)
         self.widget.apply_option_pushButton.clicked.connect(self.apply_option_button)
+        self.widget.backend_comboBox.currentTextChanged.connect(self.set_backend)
+
+    def set_backend(self, backend):
+        """Sets the entries for the plotting backends"""
+        self.backend = backend
+        index = self.widget.backend_comboBox.findText(backend, QtCore.Qt.MatchFixedString)
+        if index >= 0:
+            self.widget.backend_comboBox.setCurrentIndex(index)
 
     def set_current_plot_object(self):
         """Saves the current plot object in the global data construct. Otherwise changes are not saved"""
@@ -68,6 +86,20 @@ class DataVisualization_window:
                 else:
                     analy["All"] = self.current_plot_object
 
+    def generate_html_page_for_png_view(self, filepath):
+        """Generates a html page, which simply shows an png."""
+        html_content = '<html> \
+                       <body> \
+                       <img border="0" src="{}" alt="name" width="{}" height="{}" /> \
+                       </body> \
+                       </html>'
+
+        path = os.path.normpath(filepath.split(".")[0] + ".html")
+        width, height = self.get_image_size(filepath)
+        with open(path, "w+") as f:
+            f.write(html_content.format(filepath, width, height))
+        return path
+
     def load_html_to_screen(self, item):
         """Loads a html file plot to the screen"""
         self.variables.app.setOverrideCursor(Qt.WaitCursor)
@@ -77,7 +109,14 @@ class DataVisualization_window:
                     plot = analy["All"]
                     for path_part in self.plot_path[item.text(0)]:
                         plot = getattr(plot, path_part)
-                    filepath = self.plotting_Object.temp_html_output(plot)
+                    if self.backend == "bokeh":
+                        filepath = self.plotting_Object.temp_html_output(plot)
+                    elif self.backend == "matplotlib":
+                        filepath = self.plotting_Object.temp_png_output(plot)
+                        filepath = self.generate_html_page_for_png_view(filepath)
+                    else:
+                        self.log.error("The backend {} is not a valid backend!".format(self.backend))
+                        return
                     self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
                     self.current_plot_object = plot
                     self.current_plot_name = item.text(0)
@@ -94,7 +133,11 @@ class DataVisualization_window:
 
     def replot_and_reload_html(self, plot):
         """Replots a plot and displays it"""
-        filepath = self.plotting_Object.temp_html_output(plot)
+        if self.backend == "bokeh":
+            filepath = self.plotting_Object.temp_html_output(plot)
+        elif self.backend == "matplotlib":
+            filepath = self.plotting_Object.temp_png_output(plot)
+            filepath = self.generate_html_page_for_png_view(filepath)
         self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
 
     def select_analysis_template(self):
@@ -157,15 +200,20 @@ class DataVisualization_window:
         # Add the parameters
         template["Files"] = [self.widget.files_comboBox.itemText(i) for i in range(self.widget.files_comboBox.count())]
         template["Output"] = self.widget.save_lineEdit.text()
+        #if "backend" in template:
+        #    self.set_backend(template["backend"])
+        #else:
+        template["backend"] = self.backend
 
         # Dump the yaml file in the output directory
         filepath = os.path.normpath(os.path.join(os.getcwd(), "COMET", "temp", "{}.yml".format("tempCONFIG")))
         with open(filepath, 'w') as outfile:
             yaml.dump(template, outfile, default_flow_style=False)
 
-        args = ["--config", "{}".format(filepath), "--show"]
-        plotting = PlottingMain(configs=args)
+        args = ["--config", "{}".format(filepath), "--dont_show"]
+
         try:
+            plotting = PlottingMain(configs=args)
             plotting.run()
             self.update_plt_tree(plotting)
 
@@ -187,6 +235,10 @@ class DataVisualization_window:
 
         except Exception as err:
             self.log.error("An error happened during plotting with error {}".format(err))
+            try:
+                raise
+            except:
+                self.log.error(traceback.format_exc())
             # Try to extract data until crash (this is just wishfull thinking, in most cases this will fail)
             try:
                 self.update_plt_tree(plotting)
@@ -196,7 +248,6 @@ class DataVisualization_window:
                 pass
             # Restore Cursor
             self.variables.app.restoreOverrideCursor()
-            raise
 
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()
@@ -477,17 +528,19 @@ class DataVisualization_window:
                                                       dat["header"])
                 save_dict_as_xml(xml_dict, os.path.join(os.path.normpath(dirr), "data"), "{}_".format(key)+base_name)
 
-    def convert_data_to_xml_conform_dict(self, data, config, header):
+    def convert_data_to_xml_conform_dict(self, data, xml_config_file, header="", values={}):
         """
         Converts data to a specific form, as a dict stated in the config parameter.
         The config file must have a key named 'template' in it must be the dict representation of the xml file.
         Subkeys with a value enclosed by <..> are keywords. The header of the file will be searched for such key words.
         If it finds the regular expression r'<EXPR>\W\s?(.*)'
+
         :param data: data structure
-        :param config: the configs on how to convert data to xml
+        :param xml_config_file: the configs on how to convert data to xml
+        :param header: a header (str) with key values like "Operator: Batman", the function tries to extract the data for the xml from there
         :return: None
         """
-        template = deepcopy(config["Template"])
+        template = deepcopy(xml_config_file["Template"])
         keyword_re = re.compile(r"<(.*)>")
 
 
@@ -561,20 +614,58 @@ class DataVisualization_window:
                     if not self.plotting_thread:
                         self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
                             self.variables.framework_variables["Message_to_main"],))
-                        self.not_saving = True
                     else:
-                        if self.plotting_threadself.plotting_thread.is_Alive():
-                            self.not_saving = False
-                        else:
-                            self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
+                        del self.plotting_thread
+                        self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
                             self.variables.framework_variables["Message_to_main"],))
-                            self.not_saving = True
                     if self.not_saving:
                         self.plotting_thread.start()
+                        self.not_saving = False
                     else:
                         self.log.error("Saving of plots is currently ongoing, please wait until saving is complete!")
             else:
                 self.log.error("Either the path {} does not exist, or you must first render a few plots".format(directory))
+        else:
+            if not self.plotting_thread.is_alive():
+                self.not_saving = True
+                self.save_as_action() # Start it here.
 
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()
+
+    def get_image_size(self, fname):
+        '''Determine the image type of fhandle and return its size.
+        from draco'''
+        import struct
+        import imghdr
+        with open(fname, 'rb') as fhandle:
+            head = fhandle.read(24)
+            if len(head) != 24:
+                return
+            if imghdr.what(fname) == 'png':
+                check = struct.unpack('>i', head[4:8])[0]
+                if check != 0x0d0a1a0a:
+                    return
+                width, height = struct.unpack('>ii', head[16:24])
+            elif imghdr.what(fname) == 'gif':
+                width, height = struct.unpack('<HH', head[6:10])
+            elif imghdr.what(fname) == 'jpeg':
+                try:
+                    fhandle.seek(0)  # Read 0xff next
+                    size = 2
+                    ftype = 0
+                    while not 0xc0 <= ftype <= 0xcf:
+                        fhandle.seek(size, 1)
+                        byte = fhandle.read(1)
+                        while ord(byte) == 0xff:
+                            byte = fhandle.read(1)
+                        ftype = ord(byte)
+                        size = struct.unpack('>H', fhandle.read(2))[0] - 2
+                    # We are at a SOFn block
+                    fhandle.seek(1, 1)  # Skip `precision' byte.
+                    height, width = struct.unpack('>HH', fhandle.read(4))
+                except Exception:  # IGNORE:W0703
+                    return
+            else:
+                return
+            return width, height

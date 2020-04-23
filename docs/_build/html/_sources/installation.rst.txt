@@ -3,7 +3,7 @@ Installation
 
 What you need
 ~~~~~~~~~~~~~
-**First** you need a python python 3.7 64 bit distribution. (32 bit works as well but will be unstable)
+**First** you need a python 3.7 64 bit distribution. (32 bit works as well but will be unstable)
 I recommended to use COMET with an Anaconda python distribution which you can download here:
 
 `Download Anaconda here <https://www.anaconda.com/download/>`_
@@ -25,25 +25,28 @@ installed on your pc. If so, make sure in the NiMAX app what version of NI-Visa 
 
 .. note:: There is a pyvisa-py version as well, which does not rely on the NIVisa drivers. For simple measurement setups this will work as well, but it is not as sophisticated as the normal pyvisa and errors may happen. So be warned.
 
+If you do not want or can install the NI-Visa drivers COMET ships with a device communication that is completely independent of those drivers.
+BUT these drivers are far from perfect and not as sophisticated as the NI drivers. So be warned.
+
 The program is known to be running on Windows, Linux (Centos7) and Mac.
 
 Setting Up The Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-With python up and running, you can run the the **environement_setup.py** file by::
+With python up and running, you can run the **environement_setup.py <your_system_req_file.yml** file by e.g.::
 
-    python environment_setup.py
+    python environment_setup.py requiremnts_Winx86.yml
 
-this will (when Anaconda is installed) automatically install all required modules for the program to run. If you don't have Anaconda installed and don't want to use it, you can look in the "requirements.yml" file to see what dependencies the program needs.
+this will (if Anaconda is installed) automatically install all required modules for the program to run. If you don't have Anaconda installed and don't want to use it, you can look in the "requirements.yml" file to see what dependencies the program needs.
 
-Once installed, test
-~~~~~~~~~~~~~~~~~~~~
+Once installed, test (Only SQC)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you have installed all correctly we can now test if everything is set-up correctly. First go and follow the
 instructions on :ref:`Setting Up The Environment`. When this is done open the Anaconda Prompt app on your PC and activate
 the new environment which should have been set-up for you while installation. After that import the PyVisa module and
 try to start a resource manager ::
 
-    (base) activate COMETenv
+    (base) activate COMET
     (COMETenv) python
     Python 3.7 |Anaconda, Inc.| (default, May  1 2018, 18:37:09) [MSC v.1500 64 bit (AMD64)] on win32
     Type "help", "copyright", "credits" or "license" for more information.
@@ -62,4 +65,3 @@ If you just want the latest version of COMET, download it from my GitHub reposit
 `Git repo <https://github.com/Chilldose/COMET>`_.
 
 Once you have the version you like, continue with the :ref:`Getting Started` section.
-

@@ -4,28 +4,25 @@ This scripts takes arguments parsed by the user, usually a config file"""
 import logging
 import sys, os
 
-from .forge.utilities import parse_args, LogFile, load_yaml, exception_handler, sanatise_units, sanatise_measurement
-from .forge.utilities import load_plugins, reload_plugins
-from multiprocessing import Pool
+try:
+    from .forge.utilities import parse_args, LogFile, load_yaml
+    from .forge.utilities import load_plugins, reload_plugins
+    from .forge.tools import read_in_files, save_plot
+except:
+    from forge.utilities import parse_args, LogFile, load_yaml
+    from forge.utilities import load_plugins, reload_plugins
+    from forge.tools import read_in_files, save_plot
+
 import traceback
 import holoviews as hv
 from bokeh.io import show
 from pathlib import Path
 from copy import deepcopy
 from time import sleep
-
 from warnings import filterwarnings
 filterwarnings('ignore', message='save()', category=UserWarning)
-
-hv.extension('bokeh')
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
-import importlib
 
-
-from bokeh.io import save
-
-from .forge.tools import read_in_ASCII_measurement_files, read_in_JSON_measurement_files, save_plot
-from .forge.tools import read_in_CSV_measurement_files
 
 class PlottingMain:
 
@@ -35,15 +32,12 @@ class PlottingMain:
         self.data = {}
         self.rootdir = Path(__file__).parent.resolve()
         self.plotObjects = []
-
+        self.backend = None
 
         # Initialize a logfile class
         self.logFile = LogFile(path="LogFiles\LoggerConfig.yml")
 
         self.log = logging.getLogger("mainPlotting")
-
-        # Init Except hook
-        #sys.excepthook = exception_handler
 
         # Get the args parsed to this script if necessary
         if not configs:
@@ -54,34 +48,19 @@ class PlottingMain:
             self.log.critical("Arguments parsed: {}".format(self.args))
 
         # Load the config to a dictionary
+        self.log.critical("Loading config file: {}".format(self.args.file))
         self.config = load_yaml(self.args.file)
 
-        self.log.critical("Loaded config file: {}".format(self.args.file))
+        # Define backend for plotting
+        self.backend = self.config.get("backend", "bokeh")
+        hv.extension(self.backend)
+        self.log.info("Plotting backend is {}".format(self.backend))
 
-        # Initialize process pool
-        #self.pool = Pool(processes=self.config.get("Poolsize", 1))
 
         self.log.critical("Loading data files...")
-        if self.config["Filetype"].upper() == "ASCII":
-            try:
-                self.data, load_order = read_in_ASCII_measurement_files(self.config["Files"], self.config["ASCII_file_specs"])
-                self.config["file_order"] = load_order # To keep easy track of the names and not the pathes
-            except TypeError:
-                self.log.critical("The data typ seem not to be ASCII, trying with JSON file type.")
-                self.config["Filetype"] = "JSON"
+        self.data, load_order = read_in_files(self.config["Files"], self.config)
+        self.config["file_order"] = load_order  # To keep easy track of the names and not the pathes
 
-        elif self.config["Filetype"].upper() == "JSON":
-            self.data, load_order = read_in_JSON_measurement_files(self.config["Files"])
-            self.config["file_order"] = load_order  # To keep easy track of the names and not the pathes
-
-        elif self.config["Filetype"].upper() == "CSV":
-            self.data, load_order = read_in_CSV_measurement_files(self.config["Files"])
-            self.config["file_order"] = load_order  # To keep easy track of the names and not the pathes
-
-        # Sanatise units and measurements
-        #for data in self.data.values():
-            #data["units"] = sanatise_units(data["units"])
-            #data["measurements"] = sanatise_measurement(data["measurements"])
         self.log.critical("Loading data files completed.")
 
         # Loading measurement plugins
@@ -92,11 +71,10 @@ class PlottingMain:
         """Runs the script"""
         reload_plugins(self.plugins)
         self.plot()
-        if self.args.show:
+        if self.args.dont_show:
             self.show_results()
         if self.args.save:
             self.save_to()
-
 
     def plot(self):
         """This function starts the plotting process. It simply calls the plotting script"""
@@ -104,9 +82,8 @@ class PlottingMain:
             if isinstance(self.config["Analysis"], list):
                 # All plot scripts must return the plot objects, in which all plots are included. Saving of plots will
                 # be done via the main script.
+                # config_data = [(analysis, analysis_obj, deepcopy(self.data), self.config.copy(), self.log) for analysis, analysis_obj in self.plugins.items()]
                 config_data = [(analysis, analysis_obj, deepcopy(self.data), self.config.copy(), self.log) for analysis, analysis_obj in self.plugins.items()]
-                # Todo: multiporcess the analysis
-                #self.plotObjects = self.pool.starmap(self.start_analysis, config_data)
                 self.plotObjects = []
                 for conf in config_data:
                     self.plotObjects.append(self.start_analysis(*conf))
@@ -114,27 +91,34 @@ class PlottingMain:
             else:
                 self.log.error("Data type of analysis parameter must be list of str.")
 
-    def temp_html_output(self, plot_object):
+    def temp_png_output(self, plot_object, backend=None):
+        """This function plots a object, by saving the plot as png file in a temporary file and returning the path
+        to the file"""
+        save_plot("temp_plot", plot_object, self.rootdir, save_as=["png"], backend=backend)
+        return os.path.join(self.rootdir, "png", "temp_plot.png")
+
+    def temp_html_output(self, plot_object, backend=None):
         """This function plots a object, by saving the plot as html file in a temporary file and returning the path
         to the file"""
-        #finalfig = hv.render(plot_object, backend='bokeh')
-        save_plot("temp_plot", plot_object, self.rootdir, save_as="html")
+        save_plot("temp_plot", plot_object, self.rootdir, save_as=["html"], backend=backend)
         return os.path.join(self.rootdir, "html", "temp_plot.html")
 
     def show_results(self):
         """This function shows all results form all analyses"""
-        hv.renderer('bokeh')
-        self.log.info("Showing the 'all' plot from every analysis...")
         for plot in self.plotObjects:
             if "All" in plot:
-                finalfig = hv.render(plot["All"], backend='bokeh')
-                show(finalfig)
+                if self.backend == "matplotlib":
+                    renderer = hv.renderer(self.backend)
+                    renderer.show(plot["All"])
+                if self.backend == "bokeh":
+                    finalfig = hv.render(plot["All"], backend='bokeh')
+                    show(finalfig)
                 sleep(1.)
             else:
                 self.log.info("No 'all' plot defined, skipping...")
 
-    def save_to(self, progress_queue=None):
-        """This function saves all plots from every analysis for each datasets as svg"""
+    def save_to(self, progress_queue=None, backend=None):
+        """This function saves all plots from every analysis for each datasets"""
         self.log.critical("Saving plots...")
         progress_steps = 0
         saved = 0
@@ -166,24 +150,24 @@ class PlottingMain:
                             except:
                                 label = plots._label
 
-                            save_plot(label, plots, save_dir, save_as=self.config.get("Save_as", ["html"]))
+                            save_plot(label, plots, save_dir, save_as=self.config.get("Save_as", ["png"]), backend=backend)
                             saved += 1
                     except:
-                        save_plot(Allplots.group, Allplots, save_dir, save_as=self.config.get("Save_as", ["html"]))
+                        save_plot(Allplots.group, Allplots, save_dir, save_as=self.config.get("Save_as", ["png"]), backend=backend)
                         saved += 1
 
                 else:
                     self.log.info("Saving all subplots from the 'All' not possible due to missing key...")
-                    self.log.info("Saving all plots across the dictionary...")
+                    self.log.info("Saving all plots across the dictionary instead...")
                     progress_steps = len(plot.items())
                     for key, subplot in plot.items():
                         if progress_queue:
                             progress_queue.put({"progress": saved/(progress_steps + 1)})
-                        save_plot(key, subplot, save_dir)
+                        save_plot(key, subplot, save_dir, backend=backend)
                         saved += 1
                 try:
-                    self.log.info("Export the 'All' html plot...")
-                    save_plot(plot.get("Name", "All Plots"), plot["All"], save_dir)
+                    self.log.info("Export the 'All' plot...")
+                    save_plot(plot.get("Name", "All Plots"), plot["All"], save_dir, backend=self.backend)
                     if progress_queue:
                         progress_queue.put({"PROGRESS": 1})
                 except:
@@ -199,7 +183,7 @@ class PlottingMain:
         """Simply starts the passed analysis"""
         try:
             log.critical("Starting analysis/plot script: {}".format(analysis))
-            analysisObj = getattr(analysis_obj, analysis)(data.copy(), config)
+            analysisObj = getattr(analysis_obj, analysis)(data, config)
             return analysisObj.run()
 
         except Exception as err:

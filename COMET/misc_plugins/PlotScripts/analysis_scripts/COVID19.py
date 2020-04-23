@@ -8,8 +8,6 @@ import pandas as pd
 from holoviews import opts
 
 
-hv.extension('bokeh')
-
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout
 from forge.tools import twiny, relabelPlot
 from forge.tools import plot_all_measurements, convert_to_EngUnits
@@ -30,7 +28,7 @@ class COVID19:
         self.analysisname = "COVID19"
         self.PlotDict = {"Name": self.analysisname}
         self.measurements = self.data["columns"][4:] # Cut the non measurement lines
-        hv.renderer('bokeh')
+        #hv.renderer('bokeh')
         self.keys_basenames = [name.split("_")[-2] for name in self.data["keys"]]
         self.countries = []
 
@@ -47,9 +45,6 @@ class COVID19:
         self.deathsNorm  = None
         self.GrowthvsCases = None
         self.DeathvsCases = None
-
-
-
 
     def run(self):
         """Runs the script"""

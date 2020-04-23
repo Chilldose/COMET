@@ -4,19 +4,20 @@ import numpy as np
 import logging
 from .utilities import load_yaml
 import os, sys
+import traceback
 import re
 import ast
 import holoviews as hv
 from holoviews import opts
 import numpy as np
-hv.extension('bokeh')
 import pandas as pd
 from bokeh.models import LinearAxis, Range1d
-from bokeh.io import export_svgs, export_png
-from bokeh.io import save
+#from bokeh.io import export_svgs, export_png
+#from bokeh.io import save
 import json, yaml
 from copy import deepcopy
 from bokeh.models import HoverTool
+import importlib.util
 try:
     import pdfkit
 except:
@@ -151,63 +152,50 @@ def plot(data, config, xaxis_measurement, analysis_name, do_not_plot=(), plot_on
 
     return config_layout(finalPlot, **config.get(analysis_name, {}).get("Layout", {}))
 
-def save_plot(name, subplot, save_dir, save_as="default"):
+def save_plot(name, subplot, save_dir, save_as=("default"), backend="bokeh"):
     """Saves a plot object"""
-    log.info("Saving {}".format(name))
-    try:
-        if "default" in save_as:
-            fig = hv.render(subplot, backend='bokeh')
-            save(fig, os.path.join(save_dir, "{}.html".format(name)), fmt="html", title=name)  # , width=1920, height=1080)
-        if "html" in save_as:
-            fig = hv.render(subplot, backend='bokeh')
-            path = os.path.join(save_dir, "html")
-            if not os.path.exists(path):
-                os.mkdir(path)
-            save(fig, os.path.join(path, "{}.html".format(name)), fmt="html", title=name)  # , width=1920, height=1080)
-
-            if "pdf" in save_as:
-                #todo: does not work :/
-                htmlpath = path
-                path = os.path.join(save_dir, "pdf")
-                if not os.path.exists(path):
-                    os.mkdir(path)
-                options = {
-                    'page-size': 'A4',
-                    'margin-top': '0.75in',
-                    'margin-right': '0.75in',
-                    'margin-bottom': '0.75in',
-                    'margin-left': '0.75in',
-                }
-
-                pdfkit.from_file(os.path.join(htmlpath, "{}.html".format(name)),
-                                 os.path.join(path, "{}.pdf".format(name)),
-                                 options=options)
+    if not os.path.exists(save_dir):
+        os.mkdir(save_dir)
+    path = os.path.normpath(save_dir)
 
 
-        if "png" in save_as:
-            fig = hv.render(subplot.opts(toolbar=None), backend='bokeh')
-            path = os.path.join(save_dir, "png")
-            if not os.path.exists(path):
-                os.mkdir(path)
-            export_png(fig, os.path.join(path, "{}.png".format(name)))  # , width=1920, height=1080)
-        if "svg" in save_as:
-            #subplot.output_backend = "svg"
-            fig = hv.render(subplot.opts(toolbar=None), backend='bokeh')
-            path = os.path.join(save_dir, "svg")
-            if not os.path.exists(path):
-                os.mkdir(path)
-            fig.output_backend = "svg"
-            export_svgs(fig, os.path.join(path, "{}.svg".format(name)))
-            #export_svgs(fig, os.path.join(path, "{}.svg".format(name)),)
-    except Exception as err:
-        log.warning("Exporting plot {} was not possible. Error: {}".format(name, err))
-        log.info("Try exporting as png...")
-        fig = hv.render(subplot.opts(toolbar=None), backend='bokeh')
+    # Generate the figure
+    if "default" in save_as:
+        stdformat = "html" if backend == "bokeh" else "png"
+        save_dir = os.path.join(path, name)
+        save_dir+="."+stdformat
+        log.info("Saving default plot {} as {} to {}".format(name, stdformat, save_dir))
+        hv.save(subplot, save_dir, backend=backend)
+        return
+
+    # Save the figure
+    for save_format in save_as:
         try:
-            export_png(fig, os.path.join(save_dir, "{}.png".format(name)))  # , width=1920, height=1080)
-            log.info("Exporting as png was successful!")
-        except:
-            log.error("Exporting '{}' as png was also not possible...".format(name))
+            log.info("Saving plot {} as {} to {}".format(name, save_format, path))
+            if save_format.lower() == "html":
+                save_dir = os.path.join(path, "html")
+                if not os.path.exists(save_dir):
+                    os.mkdir(save_dir)
+                hv.save(subplot.opts(toolbar='above'), os.path.join(save_dir,name)+".html", backend=backend)
+                subplot.opts(toolbar='disable')
+
+            elif save_format.lower() == "png":
+                save_dir = os.path.join(path, "png")
+                if not os.path.exists(save_dir):
+                    os.mkdir(save_dir)
+                hv.save(subplot, os.path.join(save_dir,name)+".png", backend=backend)
+            elif save_format.lower() == "svg":
+                save_dir = os.path.join(path, "svg")
+                if not os.path.exists(save_dir):
+                    os.mkdir(save_dir)
+                hv.save(subplot, os.path.join(save_dir,name)+".svg", backend=backend)
+            else:
+                log.error("Saving format {} not recognised. Saving not possible!".format(save_format))
+
+
+        except Exception as err:
+            log.warning("Exporting plot {} was not possible. Error: {}".format(name, err))
+
 
 def twiny(plot, element):
     # Setting the second y axis range name and range
@@ -243,16 +231,21 @@ def config_layout(PlotItem, **kwargs):
             ]
         hover = HoverTool(tooltips=TOOLTIPS)
         PlotItem.opts(
-            opts.Curve(tools=[hover]),
-            opts.Scatter(tools=[hover]),
-            opts.Histogram(tools=[hover]),
-            opts.Points(tools=[hover]),
-            opts.BoxWhisker(tools=[hover]),
-            opts.Bars(tools=[HoverTool(tooltips=[('Value of ID:',' $x'),('Value:','$y')])]),
-            opts.Violin(tools=[hover])
+            opts.Curve(tools=[hover], toolbar="disable"),
+            opts.Scatter(tools=[hover], toolbar="disable"),
+            opts.Histogram(tools=[hover], toolbar="disable"),
+            opts.Points(tools=[hover], toolbar="disable"),
+            opts.BoxWhisker(tools=[hover], toolbar="disable"),
+            opts.Bars(tools=[HoverTool(tooltips=[('Value of ID:',' $x'),('Value:','$y')])], toolbar="disable"),
+            opts.Violin(tools=[hover], toolbar="disable")
         )
     except AttributeError as err:
         log.error("Nonetype object encountered while configuring final plots layout. This should not happen! Error: {}".format(err))
+    except ValueError as err:
+        if "unexpected option 'tools'" in str(err).lower() or "unexpected option 'toolbar'" in str(err).lower():
+            pass
+        else:
+            raise
     return PlotItem
 
 def convert_to_df(convert, abs = False, keys = "all"):
@@ -276,8 +269,15 @@ def convert_to_df(convert, abs = False, keys = "all"):
         for key in keys:
             if key in precol:
                 columns.append(key)
+        if not columns:
+            raise Exception("No passed keys: {} matched the possible columns of the passed data: {}. "
+                            "DataFrame generation failed!".format(keys, precol))
     elif keys == "all":
         columns = precol
+    if not columns:
+        raise Exception("DataFrame generation failed! No valid columns found!")
+
+
 
     return_dict = {"All": pd.DataFrame(columns=columns), "keys": index, "columns":columns}
     for key, data in to_convert.items():
@@ -306,6 +306,18 @@ def convert_to_df(convert, abs = False, keys = "all"):
         return_dict["All"] = pd.concat([return_dict["All"],df], sort=True) # all files together
 
     return return_dict
+
+def rename_columns(df, new_names):
+    """Renames columns in a data frame. Needs the dataframe and a dict of the desired names"""
+    df["All"] = df["All"].rename(columns=new_names)
+    df["columns"] = list(df["All"].columns)
+
+    for key in df["keys"]:
+        df[key]["data"] = df[key]["data"].rename(columns=new_names)
+        df[key]["measurements"] = list(df[key]["data"].columns)
+
+    return df
+
 
 def plainPlot(plotType, xdata, ydata, label="NOName", plotName=None, configs={}, **addConfigs):
     """
@@ -350,7 +362,7 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
     finalPlot = None
 
     if len(kdims) < 2:
-        log.warning("Holoplots usually needs at least two kdims to work with! Plotting may fail")
+        log.debug("Holoplots usually needs at least two kdims to work with! Plotting may fail")
         ind = 0
     else: ind = 1
 
@@ -367,7 +379,7 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
                     try:
                         xlabel, ylabel = get_axis_labels(df_list, key, kdims, vdims)
                     except Exception as err:
-                        log.error("Could not generate x and y label. Error: {}".format(err))
+                        log.error("Could not generate x and y label for plot {}. Error: {}".format(plotType, err))
                         xlabel, ylabel = "X-Axis", "Y-Axis"
                     if plot:
                         plot *= getattr(hv, type)(df_list[key]["data"], kdims=kdims, vdims=vdims, label=key, group=type)
@@ -455,7 +467,9 @@ def customize_plot(plot, plotName, configs, **addConfigs):
         else: label = newlabel
         plot = plot.relabel(label).opts(**options)
     except AttributeError as err:
-        log.warning("Relable of plot {} was not possible!".format(configs.get(plotName, {}).get("PlotLabel", "")))
+        log.error("Relabeling plot {} was not possible! Error: {}".format(configs.get(plotName, {}).get("PlotLabel", ""), err))
+    except ValueError as err:
+        log.error("Configuring plot {} was not possible! Error: {}".format(configs.get(plotName, {}).get("PlotLabel", ""), err))
     return plot
 
 def ast_evaluate_dict_values(edict):
@@ -472,6 +486,115 @@ def ast_evaluate_dict_values(edict):
 
         returndict[key] = value
     return returndict
+
+def read_in_files(filepathes, configs):
+    """
+    This function is to streamline the import of data
+    :param filepathes: A list of files
+    :param configs: the configs file content
+    :return: data dicts
+    """
+    filetype = configs.get("Filetype", None)
+    ascii_specs = configs.get("ASCII_file_specs", None)
+    custom_specs = configs.get("Custom_specs", None)
+
+    if filetype:
+        if filetype.upper() == "ASCII":
+            if ascii_specs:
+                return read_in_ASCII_measurement_files(filepathes, ascii_specs)
+            else:
+                log.error("ASCII file type files must be given with specifications how to interpret data.")
+        elif filetype.upper() == "JSON":
+            return read_in_JSON_measurement_files(filepathes)
+        elif filetype.upper() == "CSV":
+            return read_in_CSV_measurement_files(filepathes)
+        elif filetype.upper() == "CUSTOM":
+            if custom_specs:
+                data_raw = read_in_CUSTOM_measurement_files(filepathes, custom_specs)
+                if data_raw and isinstance(data_raw, dict):
+                    # Add the necessary data structure
+                    final_data = {}
+                    for key, value in data_raw.items():
+                        try:
+                            if isinstance(value, dict):
+                                processed_data = {"analysed": False, "plots":False}
+                                processed_data["data"] = value["data"]
+                                if "measurements" not in value:
+                                    processed_data["measurements"] = list(value["data"].keys())
+                                else: processed_data["measurements"] = value["measurements"]
+                                if "units" not in value:
+                                    processed_data["units"] = ["arb. units" for i in processed_data["measurements"]]
+                                else:
+                                    processed_data["units"] = value["units"]
+                                if "header" not in value:
+                                    processed_data["header"] = ""
+                                else:
+                                    processed_data["header"] = value["header"]
+                                if "additional" in value:
+                                    processed_data["additional"] = value["additional"]
+                                final_data[key] = processed_data
+                            else:
+                                log.error("Data format for custom data array {} is not dict. Discarding data.".format(key))
+                        except Exception as err:
+                            log.error("An error happened during parsind data from CUSTOM importer output. Most likely the outpot did not had the correct form. Error: {}".format(err))
+                    return final_data, []
+                else:
+                    log.error("Return data from CUSTOM file parsing did not yield valid data. Data must be a dictionary!")
+                    return {}, []
+
+            else:
+                log.error("If you want to use custom file import you must specifiy a 'Custom_specs' section in "
+                          "your configuration.")
+                return {}
+
+    data = {}
+    load_order = []
+    for file in filepathes:
+        if os.path.exists(file):
+            filename, file_extension = os.path.splitext(file)
+            if file_extension.lower() == ".txt" or file_extension.lower == ".dat":
+                if ascii_specs:
+                    data_new, load = read_in_ASCII_measurement_files([file], ascii_specs)
+                    data.update(data_new)
+                    load_order.append(load)
+                else:
+                    log.error("ASCII file type files must be given with specifications how to interpret data.")
+            elif file_extension.lower() == ".json" or file_extension.lower == ".yml" or file_extension.lower == ".yaml":
+                data_new, order = read_in_JSON_measurement_files([file])
+                load_order.append(order)
+                data.update(data_new)
+                continue # In order to prevent the next load order to be executed
+            elif file_extension.lower() == ".csv":
+                data_new, load = read_in_CSV_measurement_files([file])
+                data.update(data_new)
+            load_order.append(file)
+        else:
+            log.error("Path {} does not exists, skipping file!".format(file))
+    return data, load_order
+
+def read_in_CUSTOM_measurement_files(filepathes, configs):
+    """
+    Loads a custom module for file import, executes it and returns data
+    :param filepathes: List of filepathes
+    :param module: the module name
+    :param name: the class/function name
+    :param kwargs: additional kwargs the module needs
+    :return: parsed data as dict
+    """
+    try:
+        path = configs["path"]
+        module = configs["module"]
+        name = configs["name"]
+        spec = importlib.util.spec_from_file_location(module, os.path.normpath(path))
+        func = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(func)
+        return getattr(func, name)(filepathes, **configs.get("parameters", {}))
+    except ImportError as err:
+        log.error("Could not load module for custom import with error: {}".format(err))
+        return None
+    except Exception as err:
+        log.error("An error happened while performing custom import: {}".format(traceback.format_exc()))
+        return None
 
 
 def read_in_CSV_measurement_files(filepathes):
@@ -523,8 +646,8 @@ def read_in_JSON_measurement_files(filepathes):
                     all_data[filename] = item
                     load_order.append(filename)
 
-
         return all_data, load_order
+
 
     except Exception as e:
         log.warning("Something went wrong while importing the file " + str(files) + " with error: " + str(e))
@@ -563,6 +686,8 @@ def parse_file_data(filecontent, settings):
     units = filecontent[settings["units_line"] - 1:settings["units_line"]]
     data = filecontent[settings["data_start"] - 1:]
     separator = settings.get("data_separator", None)
+    preunits = settings.get("units", None)
+    premeasurement_cols = settings.get("measurements", None)
 
     units_exp = r"{}".format(settings.get("units_regex", r"(#?)\w*\s?\W?(#|\w*)\W*\s*"))
     data_exp = r"{}".format(settings.get("measurement_regex", r"(#|\w+)\s?\W?\w*\W?"))
@@ -571,25 +696,35 @@ def parse_file_data(filecontent, settings):
 
     # First parse the units and measurement types
     parsed_obj = []
-    for k, data_to_split in enumerate((measurements, units)):
-        for i, meas in enumerate(data_to_split):  # This is just for safety there is usually one line here
-            meas = re.findall(regex[k], meas)  # usually all spaces should be excluded but not sure if tab is removed as well
-            for j, singleitem in enumerate(meas):
-                if isinstance(singleitem, tuple):
-                    found = False
-                    for singlemeas in singleitem:
-                        if singlemeas.strip():
-                            meas[j] = singlemeas.strip()
-                            found = True
-                            break
-                    if not found: meas.pop(j)
+    if not preunits or not premeasurement_cols:
+        log.info("Trying to extract measurements and units from file...")
+        for k, data_to_split in enumerate((measurements, units)):
+            for i, meas in enumerate(data_to_split):  # This is just for safety there is usually one line here
+                to_del_ind = []
+                meas = re.findall(regex[k], meas.strip())  # usually all spaces should be excluded but not sure if tab is removed as well
+                for j, singleitem in enumerate(meas):
+                    if isinstance(singleitem, tuple):
+                        found = False
+                        for singlemeas in singleitem:
+                            if singlemeas.strip():
+                                meas[j] = singlemeas.strip()
+                                found = True
+                                break
+                        if not found: to_del_ind.append(j)
 
-                elif isinstance(singleitem, str):
-                    if singleitem.strip():
-                        meas[j] = singleitem.strip()
-                    else:
-                        meas.pop(j)
-            parsed_obj.append(meas)
+                    elif isinstance(singleitem, str):
+                        if singleitem.strip():
+                            meas[j] = singleitem.strip()
+                        else:
+                            to_del_ind.append(j)
+                for j in reversed(to_del_ind): # Delete empty or non valid ones
+                    meas.pop(j)
+                parsed_obj.append(meas)
+    elif units and premeasurement_cols:
+        log.info("Using predefined columns and units...")
+        parsed_obj.append(premeasurement_cols)
+        parsed_obj.append(preunits)
+
 
     # Now parse the actual data and build the tree dict structure needed
     data_lists = []  # is a list containing all entries from one measurement, while having the same order like the measurements object
@@ -631,9 +766,12 @@ def parse_file_data(filecontent, settings):
             # Adapt the measurements name as well
             parsed_obj[0][i] = new_name
 
-    log.critical("Extracted measurements are: {}".format(parsed_obj[0][:len(parsed_data[0])]))
-    log.critical("Extracted units are: {}".format(parsed_obj[1][:len(parsed_data[0])]))
-    return_dict = {"data": data_dict, "header": header, "measurements": parsed_obj[0][:len(parsed_data[0])], "units": parsed_obj[1][:len(parsed_data[0])]}
+    log.critical("Extracted measurements are: {} with len {}".format(parsed_obj[0], len(parsed_obj[0])))
+    log.critical("Extracted units are: {} with len {}".format(parsed_obj[1], len(parsed_obj[1])))
+    if len(parsed_obj[0]) != len(parsed_obj[1]):
+        log.error("Parsed measurement decription len is not equal to len of extracted units. Errors may rise! If this error persists please change units_regex and measurement_regex in the"
+                  " ASCII parameters to fit your data! Or define your own correctly.")
+    return_dict = {"data": data_dict, "header": header, "measurements": parsed_obj[0], "units": parsed_obj[1]}
     return return_dict
 
 

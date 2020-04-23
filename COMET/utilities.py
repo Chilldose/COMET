@@ -1802,6 +1802,8 @@ def parse_args():
                         type=str)
     parser.add_argument("--minimal", help="Loads only the bare minimum for headless applications.",
                         action="store_true")
+    parser.add_argument("--update", help="Checks for updates in the requirement files and updats them if need be.",
+                        action="store_true")
     # If you dont want the gui to show you have to pass the argument "-platform offscreen"
     args, unknown = parser.parse_known_args()
 
@@ -1882,7 +1884,7 @@ def save_dict_as_xml(data_dict, filepath, name):
     from dicttoxml import dicttoxml
     from xml.dom.minidom import parseString
     """
-    Writes out the data as xml file, for the CMS DB
+    Writes out the data as xml file
 
     :param filepath: Filepath where to store the xml
     :param name: name of the file 

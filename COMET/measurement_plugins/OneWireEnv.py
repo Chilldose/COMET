@@ -37,7 +37,6 @@ class OneWireEnv(Thread):
                     self.log.critical("Sensor {} at pin {} for room {} did not answer.".format(sensortype, sensor["pin"], name))
             self.success_DHT = True
         except Exception as e:
-
             self.log.error("The temperature and humidity controller seems not to be responding. Error:" + str(e))
 
         # Try to query the 
@@ -46,13 +45,13 @@ class OneWireEnv(Thread):
         '''This is the update function for temp hum query'''
 
         if self.success_DHT and not self.running:
-            self.log.info("Humidity and temp control started...")
+            self.log.critical("Humidity and temp control started...")
             self.running = True
         elif not self.running:
-            self.log.info("Humidity and temp control NOT started...")
+            self.log.critical("Humidity and temp control NOT started...")
             return
 
-        if not self.stop_measurement_loop and self.success:
+        if not self.stop_measurement_loop and self.success_DHT:
             try:
                 for name, sensor in self.sensors.items():
                     sensortype = getattr(Adafruit_DHT, sensor["type"])
@@ -66,7 +65,7 @@ class OneWireEnv(Thread):
         if not self.main.stop_measurement_loop:
             self.start_timer(self.run)
         else:
-            self.log.info("Shutting down environment control due to stop of measurement loop")
+            self.log.critical("Shutting down environment control due to stop of measurement loop")
 
 
     def start_timer(self, object):

@@ -1,0 +1,577 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 3.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 3.7" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Measurement Tool Box functions &mdash; COMET beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Switching Matrix Control" href="GUI_plugins/Switching_Control.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="index.html" class="icon icon-home"> COMET
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.10.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="programstructure.html">COMET layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="tutorial.html">How to</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurementjobgen.html">Measurement Job Generation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dataexchange.html">Data Exchange</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/IVCV.html">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Purpose Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Data_Visualization.html">Data Visualization and Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="GUI_plugins/Switching_Control.html">Switching Matrix Control</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Measurement Tool Box functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#xyz-stage-control-class">XYZ-Stage Control Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#switching-system-control-class">Switching System Control Class</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">COMET</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="index.html">Docs</a> &raquo;</li>
+        
+      <li>Measurement Tool Box functions</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="_sources/Tools.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="measurement-tool-box-functions">
+<h1>Measurement Tool Box functions<a class="headerlink" href="#measurement-tool-box-functions" title="Permalink to this headline">¶</a></h1>
+<p>In the following a simple doc string representation of all tool box functions are displayed. These functions can be used
+to simplify your own measurement plugin. You can simply import it and save an instance of this class and reference it.
+Or more conveniently, your measurement plugin can inherit the tools class and make every member of <strong>tools</strong> a member of
+your plugin. To see how this works see in the tutorial section the chapter <a class="reference internal" href="tutorial.html#add-a-new-measurement"><span class="std std-ref">Add a new measurement</span></a>.</p>
+<dl class="class">
+<dt id="measurement_plugins.forge_tools.tools">
+<em class="property">class </em><code class="sig-prename descclassname">measurement_plugins.forge_tools.</code><code class="sig-name descname">tools</code><span class="sig-paren">(</span><em class="sig-param">framework=None</em>, <em class="sig-param">event_loop=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools" title="Permalink to this definition">¶</a></dt>
+<dd><p>Some tools for forging your own measurement plugins. It needs the framework and the event_loop object</p>
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.capacitor_discharge">
+<code class="sig-name descname">capacitor_discharge</code><span class="sig-paren">(</span><em class="sig-param">device_dict</em>, <em class="sig-param">relay_dict</em>, <em class="sig-param">Setterminal=None</em>, <em class="sig-param">terminal=None</em>, <em class="sig-param">do_anyway=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.capacitor_discharge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.capacitor_discharge" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function is rather special for SQC. It checks if the capacitor of the decouple box is correctly discharged</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device_dict</strong> -- Device object</p></li>
+<li><p><strong>relay_dict</strong> -- Relay object</p></li>
+<li><p><strong>Setterminal</strong> -- set terminla command</p></li>
+<li><p><strong>terminal</strong> -- terminal Front or back</p></li>
+<li><p><strong>do_anyway</strong> -- Do it anyway</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.change_value">
+<code class="sig-name descname">change_value</code><span class="sig-paren">(</span><em class="sig-param">device_dict</em>, <em class="sig-param">order</em>, <em class="sig-param">value=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.change_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.change_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function simply sends a command to a device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device_dict</strong> -- The device object</p></li>
+<li><p><strong>order</strong> -- The command to be send</p></li>
+<li><p><strong>value</strong> -- The value for the command</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.change_value_query">
+<code class="sig-name descname">change_value_query</code><span class="sig-paren">(</span><em class="sig-param">device_dict</em>, <em class="sig-param">order</em>, <em class="sig-param">value=''</em>, <em class="sig-param">answer='1'</em>, <em class="sig-param">ignore_answer=False</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.change_value_query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.change_value_query" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function query a command to a device and waits for a return value and compares
+it with the answer statement, if they are the same a true is returned otherwise a None</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device_dict</strong> -- Device object</p></li>
+<li><p><strong>order</strong> -- The command to be send</p></li>
+<li><p><strong>value</strong> -- The value</p></li>
+<li><p><strong>answer</strong> -- The answer it should have</p></li>
+<li><p><strong>ignore_answer</strong> -- Should the answer be ignored</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Answer or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.check_compliance">
+<code class="sig-name descname">check_compliance</code><span class="sig-paren">(</span><em class="sig-param">device</em>, <em class="sig-param">compliance=None</em>, <em class="sig-param">command='get_read'</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.check_compliance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.check_compliance" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function checks if the current compliance is reached.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device</strong> -- The device object</p></li>
+<li><p><strong>compliance</strong> -- The compliance value</p></li>
+<li><p><strong>command</strong> -- The command to check</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.config_setup">
+<code class="sig-name descname">config_setup</code><span class="sig-paren">(</span><em class="sig-param">device</em>, <em class="sig-param">commands=()</em>, <em class="sig-param">delay=0.0</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.config_setup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.config_setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function configures the setup for a specific measurement.
+Commands is a list of tuples, containing (command, values) if no value is defined only command will be send</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device</strong> -- The device object</p></li>
+<li><p><strong>commands</strong> -- A list of tuples with (command, values). If no value is defined only command will be send</p></li>
+<li><p><strong>delay</strong> -- The delay between each command</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.do_ramp_value">
+<code class="sig-name descname">do_ramp_value</code><span class="sig-paren">(</span><em class="sig-param">resource</em>, <em class="sig-param">order</em>, <em class="sig-param">voltage_Start</em>, <em class="sig-param">voltage_End</em>, <em class="sig-param">step</em>, <em class="sig-param">wait_time=0.05</em>, <em class="sig-param">compliance=None</em>, <em class="sig-param">set_value=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.do_ramp_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.do_ramp_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>This functions ramps a value from one point to another. It actually sends the commands to the device</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resource</strong> -- Device object</p></li>
+<li><p><strong>order</strong> -- The command to set tje voltage</p></li>
+<li><p><strong>voltage_Start</strong> -- Start point</p></li>
+<li><p><strong>voltage_End</strong> -- End point</p></li>
+<li><p><strong>step</strong> -- Stepsize</p></li>
+<li><p><strong>wait_time</strong> -- Wait between values</p></li>
+<li><p><strong>compliance</strong> -- Compliance, if None the compliance check will be skipped</p></li>
+<li><p><strong>set_value</strong> -- If you want to set a value each interation in the state machine (must be a callable function)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>True</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.query_device">
+<code class="sig-name descname">query_device</code><span class="sig-paren">(</span><em class="sig-param">device_dict</em>, <em class="sig-param">command</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.query_device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.query_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>This command just sends the command directly to the device, and waits for an answer. Warning it is not recommended to use this function. Use this
+function only if you must! Use query_value instead</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device_dict</strong> -- Dictionary of the device</p></li>
+<li><p><strong>command</strong> -- The command you want to send to the device</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Return string from the device</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.query_value">
+<code class="sig-name descname">query_value</code><span class="sig-paren">(</span><em class="sig-param">device_dict</em>, <em class="sig-param">order</em>, <em class="sig-param">value=''</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.query_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.query_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function simply queries a command to a device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device_dict</strong> -- The device object</p></li>
+<li><p><strong>order</strong> -- The command to be send</p></li>
+<li><p><strong>value</strong> -- The value for the command</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>the return from the device</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.ramp_value">
+<code class="sig-name descname">ramp_value</code><span class="sig-paren">(</span><em class="sig-param">min_value</em>, <em class="sig-param">max_value</em>, <em class="sig-param">deltaI</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.ramp_value"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.ramp_value" title="Permalink to this definition">¶</a></dt>
+<dd><p>Generates a list of values in the defined stepsize between the and min/max values</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_value</strong> -- Start point of list</p></li>
+<li><p><strong>max_value</strong> -- End point of list</p></li>
+<li><p><strong>deltaI</strong> -- Stepsize between points</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.ramp_value_log10">
+<code class="sig-name descname">ramp_value_log10</code><span class="sig-paren">(</span><em class="sig-param">min_value</em>, <em class="sig-param">max_value</em>, <em class="sig-param">deltasteps</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.ramp_value_log10"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.ramp_value_log10" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function takes a min and max value, deltasteps and generates a list of values in log10 format with each deltasteps values per decade</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_value</strong> -- Start value</p></li>
+<li><p><strong>max_value</strong> -- End Value</p></li>
+<li><p><strong>deltasteps</strong> -- How many steps per decade</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>List</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.refine_ramp">
+<code class="sig-name descname">refine_ramp</code><span class="sig-paren">(</span><em class="sig-param">ramp</em>, <em class="sig-param">start</em>, <em class="sig-param">stop</em>, <em class="sig-param">step</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.refine_ramp"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.refine_ramp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Refines a ramp of values eg. for IVCV, in the beginning it makes sense to refine the ramp</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ramp</strong> -- A list of values</p></li>
+<li><p><strong>start</strong> -- Start point of refinement (must be inside of ramp)</p></li>
+<li><p><strong>stop</strong> -- End point of refinement (must be inside of ramp)</p></li>
+<li><p><strong>step</strong> -- The step size of the refinement</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Updated list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.send_to_device">
+<code class="sig-name descname">send_to_device</code><span class="sig-paren">(</span><em class="sig-param">device_dict</em>, <em class="sig-param">command</em>, <em class="sig-param">seperate=None</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.send_to_device"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.send_to_device" title="Permalink to this definition">¶</a></dt>
+<dd><p>This command just sends the command directly to the device. Warning it is not recommended to use this function. Use this
+function only if you must! Use change_value instead.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device_dict</strong> -- Dictionary of the device</p></li>
+<li><p><strong>command</strong> -- The command you want to send to the device</p></li>
+<li><p><strong>seperate</strong> -- if specified, the string gets split and the command will be send separately at the separator</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.steady_state_check">
+<code class="sig-name descname">steady_state_check</code><span class="sig-paren">(</span><em class="sig-param">device</em>, <em class="sig-param">command='get_read'</em>, <em class="sig-param">max_slope=0.001</em>, <em class="sig-param">wait=0.2</em>, <em class="sig-param">samples=4</em>, <em class="sig-param">Rsq=0.95</em>, <em class="sig-param">compliance=5e-05</em>, <em class="sig-param">do_anyway=False</em>, <em class="sig-param">check_compliance=True</em>, <em class="sig-param">iteration=7</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.steady_state_check"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.steady_state_check" title="Permalink to this definition">¶</a></dt>
+<dd><p>This function reads values from a device and fits a linear fit to it. If the fit exceeds a maximum slope it waits a
+specified time and does ot again. If the slope condition is not reached after a few attempts the function returns False.
+Otherwise it returns True and indicates a equilibrium has been reached.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>device</strong> -- The device object which should be queried</p></li>
+<li><p><strong>command</strong> -- The command which should be queried</p></li>
+<li><p><strong>max_slope</strong> -- The maximum slope, x-axis is measured in seconds, so a slope of 1e-9 is a change of 1n per second</p></li>
+<li><p><strong>wait</strong> -- How long to wait between attempts</p></li>
+<li><p><strong>samples</strong> -- How many samples should be used</p></li>
+<li><p><strong>Rsq</strong> -- Minimum R^2 value</p></li>
+<li><p><strong>compliance</strong> -- The compliance value which the value should not exceed</p></li>
+<li><p><strong>do_anyway</strong> -- </p></li>
+<li><p><strong>check_compliance</strong> -- If the program should check the compliance value</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns</dt>
+<dd class="field-even"><p>Bool - True means steady state reached</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="method">
+<dt id="measurement_plugins.forge_tools.tools.stop_measurement">
+<code class="sig-name descname">stop_measurement</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/measurement_plugins/forge_tools.html#tools.stop_measurement"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#measurement_plugins.forge_tools.tools.stop_measurement" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sends a signal to the framework to stop every measurement</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="vcw-visa-connect-wizard">
+<h1>VCW - Visa Connect Wizard<a class="headerlink" href="#vcw-visa-connect-wizard" title="Permalink to this headline">¶</a></h1>
+<p>In the following a simple doc string representation of all VCW functions are displayed. These functions can be used
+to simplify your own measurement plugin. You can simply import it and save an instance of this class and reference it.
+Or more conveniently, your measurement plugin always gets a working instance of it in the form of the framework variables
+object. With it you can easy and savely send your devices any kind of command directly.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Usually you are using a wrapper function of the <a class="reference internal" href="#measurement-tool-box-functions"><span class="std std-ref">Measurement Tool Box functions</span></a> for this functions!</p>
+</div>
+</div>
+<div class="section" id="xyz-stage-control-class">
+<h1>XYZ-Stage Control Class<a class="headerlink" href="#xyz-stage-control-class" title="Permalink to this headline">¶</a></h1>
+<p>The XYZ-Stage Control Class is a core feature of COMET it allows you to safely operate any configured automated table.
+An instance is generated on start up -if a stage is configured- in the <a class="reference internal" href="datastructure.html#framework-variables"><span class="std std-ref">Framework variables</span></a>. It features several
+move functions which has build in the functionality to first move down the stage and then move to another location and
+if in position move the table up again. This prevents scratches on e.g. silicon sensors when contacted with needles.</p>
+<p>Furthermore, it checks the position of the stage to make sure the table is always on the correct location. If not an error
+will be raised in the COMETs internal error handling system.</p>
+</div>
+<div class="section" id="switching-system-control-class">
+<h1>Switching System Control Class<a class="headerlink" href="#switching-system-control-class" title="Permalink to this headline">¶</a></h1>
+<p>The Switching System Control Class gives you functions to safely operate a switching system.
+An instance is generated on start up in the <a class="reference internal" href="datastructure.html#framework-variables"><span class="std std-ref">Framework variables</span></a>. It has the ability to cope
+with lots of different variants of switching systems. In the following section the needed config files and a how to, will
+be explained.</p>
+<p>First of all you need at least one switching device configured. This device needs an entry <code class="docutils literal notranslate"><span class="pre">Device_type:</span> <span class="pre">Switching</span> <span class="pre">relay</span></code>
+so that COMET knows that this device is a switching capable device. The other parameters of this device are of the same
+type as any other measurement device.</p>
+<p>The other thing you need are configs to tell COMET what to switch. Therefore, you need a config YAML file in your project
+with the <code class="docutils literal notranslate"><span class="pre">Settings_name:</span> <span class="pre">Switching</span></code> entry and <code class="docutils literal notranslate"><span class="pre">Device_type:</span> <span class="pre">Switching</span> <span class="pre">relay</span></code>. This is followed by the entry <code class="docutils literal notranslate"><span class="pre">Switching_Schemes</span></code>.
+In it are the different measurement types to switch followed by the name of the device and then the switching relays which need
+to be closed.</p>
+<p>To clarify what I mean with that see an example:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">---</span>
+<span class="n">Settings_name</span><span class="p">:</span> <span class="n">Switching</span>
+<span class="n">Device_type</span><span class="p">:</span> <span class="s2">&quot;Switching relay&quot;</span>
+<span class="n">Switching_Schemes</span><span class="p">:</span>
+  <span class="n">IV</span><span class="p">:</span> <span class="c1"># Name of the switching configuration</span>
+    <span class="n">HVSwitching</span><span class="p">:</span> <span class="c1"># Name or Alias of a Switching device</span>
+      <span class="o">-</span> <span class="n">A1</span>  <span class="c1"># relay to switch</span>
+      <span class="o">-</span> <span class="n">B1</span>
+      <span class="o">-</span> <span class="n">C2</span>
+  <span class="n">Rpoly</span><span class="p">:</span>
+    <span class="n">HVSwitching</span><span class="p">:</span> <span class="c1"># Name or Alias of a Switching device</span>
+      <span class="o">-</span> <span class="n">A1</span>
+      <span class="o">-</span> <span class="n">B1</span>
+      <span class="o">-</span> <span class="n">C1</span>
+
+    <span class="n">LVSwitching</span><span class="p">:</span> <span class="c1"># Name or Alias of a Switching device</span>
+      <span class="o">-</span> <span class="mi">1</span><span class="n">C05</span>
+      <span class="o">-</span> <span class="mi">1</span><span class="n">C06</span>
+</pre></div>
+</div>
+<p>Here two switching schemes are defined. IV and Rpoly. For IV only the device/alias HVSwitching will be switched with
+the relays: A1,B1,C2. For Rpoly not only HVSwitching also the switching device LVSwitching will be switched.</p>
+<p>If you have configured your setup like this it is fairly easy to switch to the measurement configuration IV.
+Just call the function: <code class="docutils literal notranslate"><span class="pre">switch_to_measurement(&quot;IV&quot;)</span></code> and the class will handle the switching on its own.</p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The class checks if the switching has been done correctly. If your switching of the device does not match the intended switching an error will be raised and the user will be informed.</p>
+</div>
+<p>Some devices have the ability to do a device exclusive switching, so all switching logic is done by the device.
+If you want to use this device exclusive switching, the device config file must have the entry: <code class="docutils literal notranslate"><span class="pre">device_exclusive_switching:</span> <span class="pre">True</span></code>
+Otherwise you can set it False or not state it at all.
+For non exclusive switching devices the switching logic will be done via the switching class.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In future releases there will be a config option to decide BBM or MBB. Currently it is hard coded to BBM since this is the recommended way to do it.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="GUI_plugins/Switching_Control.html" class="btn btn-neutral float-left" title="Switching Matrix Control" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Dominic Bloech
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

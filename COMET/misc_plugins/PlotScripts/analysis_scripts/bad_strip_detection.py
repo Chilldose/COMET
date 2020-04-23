@@ -494,14 +494,16 @@ class stripanalysis:
         # Intersect Idiel with high Cac
         intersect = np.intersect1d(metal_shorts, metal_Idiel_shorts)
 
+
         if len(metal_shorts):
             if shift:
                 metal_shorts = self.shift_strip_numbering("Cac", metal_shorts, shift)
-            self.log.warning("Weak metal short found at strips: {}".format(metal_shorts))
-            if len(intersect):
-                intersect = self.shift_strip_numbering("Idiel", intersect, shift)
-                self.log.warning("Metal short found at strips: {}".format(intersect))
-                return intersect
+                self.log.warning("Weak metal short found at strips: {}".format(metal_shorts))
+
+        if len(intersect) and shift:
+            intersect = self.shift_strip_numbering("Idiel", intersect, shift)
+            self.log.warning("Metal short found at strips: {}".format(intersect))
+            return intersect
         else:
             self.log.info("No metal shorts found.")
             return []

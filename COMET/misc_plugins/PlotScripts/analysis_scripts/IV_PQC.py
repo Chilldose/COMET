@@ -9,7 +9,6 @@ from copy import deepcopy
 
 import pandas as pd
 import numpy as np
-hv.extension('bokeh', 'matplotlib')
 
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout, applyPlotOptions
 from forge.tools import twiny, relabelPlot
@@ -276,7 +275,7 @@ class IV_PQC:
 
                 # Add text to the plot
                 text = hv.Text(3, 9 * (1e-11), 'Isurf_max: {} A\n'
-                               'Isurf_average: {} A\n'                
+                               'Isurf_average: {} A\n'
                                'Surface recombination velocity_max: {} cm/s\n'
                                'Surface recombination velocity_average: {} cm/s'.format(
                     np.round(Isurf_max, 15), np.round(I_surf_average, 15) , np.round(S_null_max,4), np.round(S_null_average,4))
@@ -677,6 +676,3 @@ class IV_PQC:
 
 
         return returnPlot, full_depletion_voltages[0][0]
-
-
-

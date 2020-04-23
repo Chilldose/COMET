@@ -1,9 +1,26 @@
 Getting Started
 ===============
 
-In order to run this program you need a Python Anaconda distribution and the NI-Visa drivers.
+In order to run this program you need a Python Anaconda distribution (and the NI-Visa drivers).
 For more information on how to install see the :ref:`installation` guide.
 
+Updating COMET
+~~~~~~~~~~~~~~
+
+COMET is hosted via a remote Git repository. So in order to update COMET you can simply pull from the repository and get the latest updates.
+In order to make things easier for the user it is possible to update not only the repository on your machine, it is also possible to update the
+needed packages of COMET. This may come in handy if you experience some errors. Then the first thing to do is update COMET via: ::
+
+    python COMET.py --update
+
+After everything is updated, restart COMET. If this did not help to solve your problems. It may be necessary to completely re-install the COMET environment.
+
+This can be done via the commands: ::
+
+    conda env remove --name COMET
+    python environment_setup requirements_<yourSystem>.yml
+
+If this still is not working. Please email me!
 
 Running/Initializing The Program
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -41,6 +58,12 @@ After that the main GUI should pop up. Depending on which setup you selected you
 
 .. note:: In order to add your own setups to this list, please see the chapter :ref:`Getting Started`. There everything is explained in detail.
 
+I just want the plotting thing!
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you only want the plotting GUI thing, choose the "DataVisualization" GUI at start up!
+See also the rather short COMET docs on Plotting in :ref:`Data Visualization and Analysis`
+as well as the dedicated docs on the plotting scripts `Plotting Scripts doc <https://github.com/Chilldose/PlotScripts>`_
 
 Your first GUI
 ~~~~~~~~~~~~~~
@@ -99,5 +122,3 @@ If you now restart the Software and change to the Resources tab you should see a
 .. image:: pictures/Resources.png
    :alt: Flowchart_main
    :class: floatingflask
-
-
