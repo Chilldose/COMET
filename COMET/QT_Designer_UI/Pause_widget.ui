@@ -14,6 +14,20 @@
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="0">
+    <widget class="QPushButton" name="ramp_down_pushButton">
+     <property name="text">
+      <string>Ramp down</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QPushButton" name="continue_pushButton">
+     <property name="text">
+      <string>Continue</string>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="Pause_label">
      <property name="font">
@@ -32,43 +46,33 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label">
-     <property name="font">
-      <font>
-       <pointsize>10</pointsize>
-      </font>
-     </property>
+   <item row="2" column="1">
+    <widget class="QPushButton" name="ramp_previous_pushButton">
      <property name="text">
-      <string>Bias Voltage:</string>
+      <string>Ramp to previous voltage</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QPushButton" name="do_pause_pushButton">
+     <property name="text">
+      <string>Do Pause Stripscan</string>
      </property>
     </widget>
    </item>
    <item row="1" column="1">
-    <widget class="QLCDNumber" name="Votage_lcdNumber">
-     <property name="styleSheet">
-      <string notr="true"/>
+    <widget class="QLabel" name="status_label">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
      </property>
-    </widget>
-   </item>
-   <item row="2" column="0">
-    <widget class="QPushButton" name="ramp_down_pushButton">
      <property name="text">
-      <string>Ramp down</string>
+      <string>Stripscan not yet paused...</string>
      </property>
-    </widget>
-   </item>
-   <item row="2" column="1">
-    <widget class="QPushButton" name="ramp_previous_pushButton">
-     <property name="text">
-      <string>Ramp Previous</string>
-     </property>
-    </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QPushButton" name="continue_pushButton">
-     <property name="text">
-      <string>Continue</string>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
