@@ -180,14 +180,13 @@ class TelegramBotResponder:
 
     def do_update_code_from_repo(self, value, *args):
         """Update - Tries to update the code from a remote repo"""
-        try:
-            import git
-        except:
-            self.answer = "Could not import git module, please install 'gitpython' first on the machine."
-            return
-
         for val in value.values():
             if re.findall(r"Update\b", val):
+                try:
+                    import git
+                except:
+                    self.answer = "Could not import git module, please install 'gitpython' first on the machine."
+                    return
                 fetch_out = ""
                 pull_out = ""
                 try:
@@ -202,14 +201,14 @@ class TelegramBotResponder:
 
     def do_update_settings_from_repo(self, value, *args):
         """Update settings - Tries to update the settings. This only works if you have a assigned repo in the configs dir."""
-        try:
-            import git
-        except:
-            self.answer = "Could not import git module, please install 'gitpython' first on the machine."
-            return
 
         for val in value.values():
             if re.findall(r"Update settings\b", val):
+                try:
+                    import git
+                except:
+                    self.answer = "Could not import git module, please install 'gitpython' first on the machine."
+                    return
                 fetch_out = ""
                 pull_out = ""
                 path = os.path.normpath("COMET/config")
