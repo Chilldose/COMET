@@ -177,3 +177,29 @@ class TelegramBotResponder:
         for val in value.values():
             if str(val).strip().lower() == "ping":
                 self.answer = "Success \n\n"
+
+    def do_update_code_from_repo(self, value, *args):
+        """Update - Tries to update the code from a remote repo"""
+        try:
+            import git
+        except:
+            self.answer = "Could not import git module, please install 'gitpython' first on the machine."
+            return
+
+        for val in value.values():
+            if re.findall(r"Update code\b", val):
+                try:
+                    fetch_out = ""
+                    pull_out = ""
+                    repo = git.Repo()
+                    o = repo.remotes.origin
+                    fetch_out = o.fetch()
+                    pull_out = o.pull()
+                    self.answer = "Code successfully updated!"
+                except: self.answer = "Could not pull from remote repo. No update done. \n" \
+                                      "FETCH MESSAGE: {} \n" \
+                                      "PULL MESSAGE: {} \n".format(fetch_out, pull_out)
+
+
+
+
