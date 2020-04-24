@@ -70,9 +70,10 @@ def do_send_RF_code(value, TelegramResponder):
 
 
 def send_info(value, TelegramResponder):
-    """Sends some infos to the user"""
+    """Info - Sends some infos to the user"""
     # create an exporter instance, as an argument give it
     # the item you wish to export
     for val in value.values():  # Todo: add the temperature and humidity response
         if re.findall(r"Info\b\s*", val):
             text = "Temperature and Humidity: \n\n"
+

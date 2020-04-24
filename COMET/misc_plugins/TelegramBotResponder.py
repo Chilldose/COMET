@@ -187,10 +187,10 @@ class TelegramBotResponder:
             return
 
         for val in value.values():
-            if re.findall(r"Update code\b", val):
+            if re.findall(r"Update\b", val):
+                fetch_out = ""
+                pull_out = ""
                 try:
-                    fetch_out = ""
-                    pull_out = ""
                     repo = git.Repo()
                     o = repo.remotes.origin
                     fetch_out = o.fetch()
@@ -200,6 +200,29 @@ class TelegramBotResponder:
                                       "FETCH MESSAGE: {} \n" \
                                       "PULL MESSAGE: {} \n".format(fetch_out, pull_out)
 
+    def do_update_settings_from_repo(self, value, *args):
+        """Update settings - Tries to update the settings. This only works if you have a assigned repo in the configs dir."""
+        try:
+            import git
+        except:
+            self.answer = "Could not import git module, please install 'gitpython' first on the machine."
+            return
+
+        for val in value.values():
+            if re.findall(r"Update settings\b", val):
+                fetch_out = ""
+                pull_out = ""
+                path = os.path.normpath("COMET/config")
+                os.system("cd {}".format(path))
+                try:
+                    repo = git.Repo()
+                    o = repo.remotes.origin
+                    fetch_out = o.fetch()
+                    pull_out = o.pull()
+                    self.answer = "Code successfully updated!"
+                except: self.answer = "Could not pull from remote repo. No update done. \n" \
+                                      "FETCH MESSAGE: {} \n" \
+                                      "PULL MESSAGE: {} \n".format(fetch_out, pull_out)
 
 
 
