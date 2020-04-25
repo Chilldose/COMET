@@ -461,15 +461,18 @@ def customize_plot(plot, plotName, configs, **addConfigs):
     # Now convert the non converted values in the dict
     options = ast_evaluate_dict_values(options)
 
+#Todo: should not have changed
     try:
         if not newlabel:
             label = configs.get(plotName, {}).get("PlotLabel", "")
         else: label = newlabel
         plot = plot.relabel(label).opts(**options)
-    except AttributeError as err:
-        log.error("Relabeling plot {} was not possible! Error: {}".format(configs.get(plotName, {}).get("PlotLabel", ""), err))
-    except ValueError as err:
-        log.error("Configuring plot {} was not possible! Error: {}".format(configs.get(plotName, {}).get("PlotLabel", ""), err))
+    except Exception:
+        pass
+        #log.error("Relabeling plot {} was not possible! Error: {}".format(configs.get(plotName, {}).get("PlotLabel", ""), err))
+    except Exception:
+        pass
+        #log.error("Configuring plot {} was not possible! Error: {}".format(configs.get(plotName, {}).get("PlotLabel", ""), err))
     return plot
 
 def ast_evaluate_dict_values(edict):

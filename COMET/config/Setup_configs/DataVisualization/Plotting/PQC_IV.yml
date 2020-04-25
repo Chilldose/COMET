@@ -1,26 +1,27 @@
----
-#  Filetype: CUSTOM # Other options are json, ACII
-#
-#
+
+#  Filetype: ASCII # Other options are json, ACII
 #
 ## Optional Parameters
-#
-#  Custom_specs:
-#    path:  C:\Users\cmsbo\Desktop\hello.py # The path to your python file where the importer is
-#    module: hello # The module name
-#    name: foo # The function name inside you want to load
+#  ASCII_file_specs: # The specifications for the ascii file type measurements files
+#    header_lines: 4
+#    measurement_description: 4
+#    units_line: 4
+#    data_start: 5
+##    data_separator: ","
+#    #units_regex: "(#|\\w+)\\s?\\W?\\w*\\W?"
 
+--- # Dummy config file for testing
+  Filetype: CUSTOM
 
-  Filetype: ASCII # Other options are json, ACII
+  # If CUSTOM was choosen in 'Filetype', then you must define this custom specs section to tell where to find the file etc
+  Custom_specs:
+    path: C:\Users\cmsbo\Documents\GitHub\COMET\COMET\misc_plugins\PlotScripts\CONFIGS\importer\custom_importer.py # The path to your python file where the importer is
+    module: custom_importer # The module name
+    name: myImporter # The function name inside you want to load
+    parameters: # Additional parameters your importer needs. Do not use if you dont need ones
+      param1: "Some optional"
+      param2: "parameters"
 
-# Optional Parameters
-  ASCII_file_specs: # The specifications for the ascii file type measurements files
-    header_lines: 4
-    measurement_description: 4
-    units_line: 4
-    data_start: 5
-#    data_separator: ","
-    #units_regex: "(#|\\w+)\\s?\\W?\\w*\\W?"
 
   Analysis:
 
@@ -133,7 +134,7 @@
           #UnitConversion: nano
           DoFullDepletionCalculation: True
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              
+
               logy: False
 
               logx: False

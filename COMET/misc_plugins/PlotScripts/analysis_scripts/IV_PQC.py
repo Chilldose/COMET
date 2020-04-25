@@ -3,17 +3,18 @@ Data must be """
 
 import logging, os
 import holoviews as hv
-from holoviews import opts
+#from holoviews import opts
 from scipy.stats import linregress
 from copy import deepcopy
+from scipy.interpolate import interp1d
 
 import pandas as pd
 import numpy as np
 
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout, applyPlotOptions
-from forge.tools import twiny, relabelPlot
+#from forge.tools import twiny, relabelPlot
 from forge.tools import plot_all_measurements, convert_to_EngUnits
-from forge.specialPlots import dospecialPlots
+#from forge.specialPlots import dospecialPlots
 from forge.utilities import line_intersection
 
 
@@ -107,6 +108,16 @@ class IV_PQC:
                 self.data[df]["data"].insert(3, "CapacityCopy", CapacityCopy)
                 self.data[df]["units"].append("arb. units")
                 self.data[df]["measurements"].append("CapacityCopy")
+
+                f = interp1d(self.data[df]["data"][self.xaxis], self.data[df]["data"]["CapacityCopy"],kind='cubic')
+
+                xnew = np.arange(self.data[df]['data']['Voltage'][0],list(self.data[df]['data']['Voltage'][-1:])[0],0.001)
+                ynew = f(xnew)
+
+
+
+
+
                 #compute derivatives
                 dy1 = np.diff(self.data[df]["data"]["CapacityCopy"])  # compute the difference between each consecutive Capacity value and store it into an array with length i-1
                 dx1 = np.diff(self.data[df]["data"][self.xaxis])  # compute the difference between each consecutive voltage value and store it into an array with length i-1
@@ -117,11 +128,20 @@ class IV_PQC:
                 der2 = dy2_2 / dx1
                 seconddev = np.insert(der2, 0, der2[0])  # Add one element to the array to have the same number of rows as in df
 
-                xvals = np.arange(self.data[df]['data']['Voltage'][0],list(self.data[df]['data']['Voltage'][-1:])[0],0.000001)
-                yinterp = np.interp(xvals, self.data[df]['data']['Voltage'], firstdev1)
-                ele_max = yinterp.argmax()
-                xvals2 = xvals[ele_max]
-                maxderiplot = hv.VLine(xvals2)
+
+                dy1_interp = np.diff(ynew)
+                dx1_interp = np.diff(xnew)
+                der1_interp = dy1_interp / dx1_interp
+                firstdev1_interp = np.insert(der1_interp, 0, der1_interp[0])
+                points = (xnew, firstdev1_interp)
+                derivative_interpolation_plot = hv.Curve(points)
+
+                derivative_interpolation_plot = customize_plot(derivative_interpolation_plot, "derivative", self.config["IV_PQC"])
+
+                ele_max = firstdev1_interp.argmax()
+                xvals2 = xnew[ele_max]
+                maxderiplot = hv.VLine(xvals2).opts(line_width=2.0)
+                # TODO: check1
                 # insert first derivative into dataframe
                 self.data[df]["data"].insert(4, "derivative", firstdev1)
                 self.data[df]["units"].append("arb. units")
@@ -154,7 +174,7 @@ class IV_PQC:
                         Accum_capacitance_normalized.append(fBestimation[3])
                         Tox.append(fBestimation[4])
                         Nox.append(fBestimation[5])
-                        self.PlotDict["BasePlots_MOS"] += fBestimation[0]*maxderiplot
+                        self.PlotDict["BasePlots_MOS"] += fBestimation[0] * maxderiplot * derivative_interpolation_plot
                     except Exception as err:
                         self.log.warning("No flat band voltage calculation possible... Error: {}".format(err))
                 #Add a Table that shows the differents analysis parameters values
@@ -259,16 +279,21 @@ class IV_PQC:
                 #mean indexes
                 indexstart = indexMax7+10+10 #first +10 to account for the 10: in index max, second to be sure to be in the plateau region
                 indexend = indexMin7-10+10
-                I_surf_average= np.mean(self.data[df]['data']['Current'][indexstart:indexend])
-                I_surf_average_table = '{:.2e}'.format(I_surf_average)
-                Surface_current_average.append(I_surf_average_table)
+                I_surf_maxima_average = np.mean(self.data[df]['data']['Current'][indexstart:indexend])
+
+
+
 
                 mxx = max(self.data[df]['data']['Current']) # find maximum of value of the current-voltage curve
                 minx = np.mean(self.data[df]['data']['Current'][-20:]) # find the minimum of the current-voltage curve by averaging 20 points values in the curve tail
+                I_surf_average = I_surf_maxima_average - minx
+                I_surf_average_table = '{:.2e}'.format(I_surf_average)
+                Surface_current_average.append(I_surf_average_table)
+
                 Isurf_max = mxx - minx # compute the surface current
                 Isurf_table = '{:.2e}'.format(Isurf_max)
                 Surface_current.append(Isurf_table)
-                S_null_max = Isurf_max/(self.config['IV_PQC_parameter']['q'] * self.config['IV_PQC_parameter']['n_i_intrinsic_carrier_concentration'] * (float(self.data[df]['header'][0].split(':')[1])  *(1e-8)))
+                S_null_max = Isurf_max/(self.config['IV_PQC_parameter']['q'] * self.config['IV_PQC_parameter']['n_i_intrinsic_carrier_concentration'] * (float(self.data[df]['header'][0].split(':')[1]) *(1e-8)))
                 Surface_recombination_velocity.append(S_null_max)
                 S_null_average = I_surf_average/(self.config['IV_PQC_parameter']['q'] * self.config['IV_PQC_parameter']['n_i_intrinsic_carrier_concentration'] * (float(self.data[df]['header'][0].split(':')[1])  *(1e-8)))
                 Surface_recombination_velocity_average.append(S_null_average)
@@ -292,9 +317,9 @@ class IV_PQC:
                     #self.basePlots3.Current.opts(Plotlabel='test')
                     Path_min = hv.Path([(-2, minx), (6, minx)]).opts(line_width=2.0)
                     Path_mxx = hv.Path([(-2, mxx), (6, mxx)]).opts(line_width=2.0)
-                    Path_average =  hv.Path([(-2, I_surf_average), (6, I_surf_average)]).opts(line_width=2.0)
+                    Path_average =  hv.Path([(-2, I_surf_maxima_average), (6, I_surf_maxima_average)]).opts(line_width=2.0)
                    # Path_Isurf = hv.Path([(0, mxx), (0, min)]).opts(line_width=3.0)
-                    self.PlotDict["BasePlots_gate"] = self.basePlots3.Curve.Current_Gate *text * Path_min * Path_mxx *Path_average # * Path_Isurf
+                    self.PlotDict["BasePlots_gate"] = self.basePlots3.Curve.Current_Gate *text * Path_min * Path_mxx * Path_average # * Path_Isurf
                     self.PlotDict["BasePlots_gate"] += firstDerivative_gatePlot
 
                     #add table that shows resulting parameters of the analysis
