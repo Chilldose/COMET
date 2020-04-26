@@ -5,6 +5,7 @@ import logging, os
 import holoviews as hv
 #from holoviews import opts
 from scipy.stats import linregress
+import scipy.signal
 from copy import deepcopy
 from scipy.interpolate import interp1d
 
@@ -71,6 +72,7 @@ class IV_PQC:
     def run(self):
         """Runs the script"""
         fbvoltage = [] #list that is used later on to store the flat band voltage values for all the different files used in the analysis
+        fbvoltage_firstderivative = [] #list that is used later on to store the flat band voltage values computed with the first derivative for all the different files used in the analysis
         Accum_capacitance = [] #list that is used later on to store the accumulation capacitance values for all the different files used in the analysis
         Accum_capacitance_normalized = [] #list that is used later on to store the area-normalized accumulation capacitance values for all the different files used in the analysis
         Tox = [] #list that is used later on to store the oxide thickness values for all the different files used in the analysis
@@ -113,39 +115,45 @@ class IV_PQC:
 
                 xnew = np.arange(self.data[df]['data']['Voltage'][0],list(self.data[df]['data']['Voltage'][-1:])[0],0.001)
                 ynew = f(xnew)
+                points3 = (xnew,ynew)
+                capa_interp_plot = hv.Curve(points3)
+                capa_interp_plot = customize_plot(capa_interp_plot, "Capacity", self.config["IV_PQC"])
 
-
+                dx1 = np.diff(self.data[df]["data"][self.xaxis])
+                dy2 = np.diff(self.data[df]["data"]["CapacityCopy"],
+                              n=2)  # n=2 applies diff() two times to compute the second derivative, dy2 is of lenght i-2
+                dy2_2 = np.insert(dy2, 0, dy2[0])  # add one element to dy2 to have the same length of dx1
+                der2 = dy2_2 / dx1
+                seconddev = np.insert(der2, 0,
+                                      der2[0])  # Add one element to the array to have the same number of rows as in df
 
 
 
                 #compute derivatives
-                dy1 = np.diff(self.data[df]["data"]["CapacityCopy"])  # compute the difference between each consecutive Capacity value and store it into an array with length i-1
-                dx1 = np.diff(self.data[df]["data"][self.xaxis])  # compute the difference between each consecutive voltage value and store it into an array with length i-1
-                der1 = dy1 / dx1
-                firstdev1 = np.insert(der1, 0, der1[0])  # Add an element to the array to have the same number of rows as in df
-                dy2 = np.diff(self.data[df]["data"]["CapacityCopy"],n=2)  # n=2 applies diff() two times to compute the second derivative, dy2 is of lenght i-2
-                dy2_2 = np.insert(dy2, 0, dy2[0])  # add one element to dy2 to have the same length of dx1
-                der2 = dy2_2 / dx1
-                seconddev = np.insert(der2, 0, der2[0])  # Add one element to the array to have the same number of rows as in df
-
-
-                dy1_interp = np.diff(ynew)
                 dx1_interp = np.diff(xnew)
+                dy1_interp = np.diff(ynew)
+                dy2_interp = np.diff(ynew,n=2)
+                dy2_2_interp = np.insert(dy2_interp, 0, dy2_interp[0]) #add a point to the array
+                der2_interp = dy2_2_interp / dx1_interp
                 der1_interp = dy1_interp / dx1_interp
                 firstdev1_interp = np.insert(der1_interp, 0, der1_interp[0])
+                seconddev_interp = np.insert(der2_interp, 0, der2_interp[0])
                 points = (xnew, firstdev1_interp)
                 derivative_interpolation_plot = hv.Curve(points)
-
                 derivative_interpolation_plot = customize_plot(derivative_interpolation_plot, "derivative", self.config["IV_PQC"])
+                points2 = (xnew,seconddev_interp)
+                secondderivative_interp_plot = hv.Curve(points2)
+                secondderivative_interp_plot = customize_plot(secondderivative_interp_plot, "derivative2", self.config["IV_PQC"])
 
                 ele_max = firstdev1_interp.argmax()
                 xvals2 = xnew[ele_max]
-                maxderiplot = hv.VLine(xvals2).opts(line_width=2.0)
+                maxderiplot = hv.VLine(xvals2).opts(line_width=1.0)
+                fbvoltage_firstderivative.append(xvals2)
                 # TODO: check1
                 # insert first derivative into dataframe
-                self.data[df]["data"].insert(4, "derivative", firstdev1)
-                self.data[df]["units"].append("arb. units")
-                self.data[df]["measurements"].append("derivative")
+                #self.data[df]["data"].insert(4, "derivative", firstdev1)
+                #self.data[df]["units"].append("arb. units")
+                #self.data[df]["measurements"].append("derivative")
 
 
                 # insert second derivative into dataframe
@@ -154,11 +162,13 @@ class IV_PQC:
                 self.data[df]["measurements"].append("derivative2")
                 # Find the index of the row which contains the maximum value of the second derivative
                 indexMax = self.data[df]['data'].index.get_loc(self.data[df]['data']['derivative2'].values.argmax())
+
                 # Find the index of the row which contains the minimum value of the second derivative
                 indexMin = self.data[df]['data'].index.get_loc(self.data[df]['data']['derivative2'].values.argmin())
+
                 # Plot all Measurements
                 self.donts_mos = ["timestamp", "voltage", "Voltage", "Stepsize", "Wait", "Stepsize", "Frequency", 'x', 'N', 'Current']
-                self.basePlots5 = plot_all_measurements(self.data, self.config, self.xaxis, self.name, do_not_plot=self.donts_mos, keys = cv)
+                self.basePlots5 = plot_all_measurements(self.data, self.config, self.xaxis, self.name, do_not_plot = self.donts_mos, keys = cv)
                 self.PlotDict["BasePlots_MOS"] = self.basePlots5
                 # Add flat bandage voltage point to the Capacity curve
                 if self.config["IV_PQC"].get("CapacityCopy", {}).get("findFlatBandVoltage", False):
@@ -167,20 +177,28 @@ class IV_PQC:
                             clone_plot = self.basePlots5.Overlay.MOS_CV_CURVES.opts(clone=True)
                         else:
                             clone_plot = self.basePlots5.Curve.MOS_CV_CURVES.opts(clone=True)
-                        fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax,indexMin, df, cv,xvals2,
+                        fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax, indexMin, df, cv, xvals2,
                                                                   PlotLabel="Flat band voltage estimation")
                         fbvoltage.append(fBestimation[1])
                         Accum_capacitance.append(fBestimation[2])
                         Accum_capacitance_normalized.append(fBestimation[3])
                         Tox.append(fBestimation[4])
                         Nox.append(fBestimation[5])
-                        self.PlotDict["BasePlots_MOS"] += fBestimation[0] * maxderiplot * derivative_interpolation_plot
+
                     except Exception as err:
                         self.log.warning("No flat band voltage calculation possible... Error: {}".format(err))
-                #Add a Table that shows the differents analysis parameters values
+
                 count += 1
+                if count == 1:
+                    self.PlotDict["BasePlots_MOS"] += fBestimation[0]
+                    self.PlotDict["BasePlots_MOS"] += derivative_interpolation_plot
+                    self.PlotDict["BasePlots_MOS"] += secondderivative_interp_plot
+                    self.PlotDict["BasePlots_MOS"] += capa_interp_plot
+                    self.PlotDict["BasePlots_MOS"] += capa_interp_plot * maxderiplot * derivative_interpolation_plot * secondderivative_interp_plot
+                    self.PlotDict["BasePlots_MOS"] += fBestimation[6] * maxderiplot * derivative_interpolation_plot
+                #Add a Table that shows the differents analysis parameters values
                 df2 = pd.DataFrame(
-                    {"Name": cv, "Flatband Voltage (V)": fbvoltage, 'Accumulation capacitance (F)': Accum_capacitance,
+                    {"Name": cv, "Flatband Voltage second_derivative (V)": fbvoltage, 'Flatband Voltage first_derivative (V)': fbvoltage_firstderivative,  'Accumulation capacitance (F)': Accum_capacitance,
                      'Accumulation capacitance normalized (F/cm^2)': Accum_capacitance_normalized, 'Tox (nm)': Tox, 'Nox (cm^-2)': Nox})
                 table1 = hv.Table((df2), label = 'Mos analysis')
                 table1.opts(width=1300, height=800)
@@ -262,6 +280,80 @@ class IV_PQC:
             # Start Gate analysis
             else:
                 gate.append(df)
+
+                start_value = np.mean(self.data[df]['data']['Current'][10:20])
+
+
+                CurrentCopy = self.data[df]["data"]["Current"].copy()
+                for x in range(int(len(self.data[df]["data"]["Current"])/2)):
+                    if CurrentCopy[x] < start_value:
+                        CurrentCopy[x] = start_value
+
+                points12 = (self.data[df]["data"][self.xaxis],CurrentCopy)
+                plot_not_kink = hv.Curve(points12,label='Capacitance')
+                plot_not_kink = customize_plot(plot_not_kink, "Current", self.config["IV_PQC"])
+
+                try:
+                    y = self.data[df]['data']['Current']
+
+                    yhat = scipy.signal.savgol_filter(y, 51, 11)  # window size 51, polynomial order 3
+                    points13 = (self.data[df]['data']['Voltage'], yhat)
+                    curr_savgol_plot = hv.Curve(points13)
+                    curr_savgol_plot = customize_plot(curr_savgol_plot, "SavgolCurrent", self.config["IV_PQC"])
+                except:
+                    print('Exception for the savgol plot')
+
+                f = interp1d(self.data[df]["data"][self.xaxis], CurrentCopy, kind='cubic')
+                xnew = np.arange(self.data[df]['data']['Voltage'][0], list(self.data[df]['data']['Voltage'][-1:])[0],
+                                     0.001)
+
+
+                try:
+                    ynew = f(xnew)
+                except:
+                    ynew = np.arange(len(list(xnew)))
+                points4 = (xnew, ynew)
+                curr_interp_plot = hv.Curve(points4).opts(title="Current_Gate")
+                curr_interp_plot = customize_plot(curr_interp_plot, "InterpolatedCurrent", self.config["IV_PQC"])
+
+                diffx_interp = np.diff(xnew)
+                diffy_interp = np.diff(ynew)
+                der_one_interp = diffy_interp / diffx_interp
+                firstdev4_interp = np.insert(der_one_interp, 0, der_one_interp[0])
+                points9 = (xnew, firstdev4_interp)
+                dif_intep_plot = hv.Curve(points9)
+                dif_intep_plot = customize_plot(dif_intep_plot, "FirstDerivativeCurrent", self.config["IV_PQC"])
+
+                diffy_interp2 = np.diff(ynew,n=2)
+                diffy_interp2_add = np.insert(diffy_interp2, 0, diffy_interp2[0])
+                der_two_interp = diffy_interp2_add / diffx_interp
+                firstdev5_interp = np.insert(der_two_interp, 0, der_two_interp[0])
+                points10 = (xnew, firstdev5_interp)
+                dif2_intep_plot = hv.Curve(points10)
+                dif2_intep_plot = customize_plot(dif2_intep_plot, "SecondDerivativeCurrent", self.config["IV_PQC"])
+
+                max1_index = list(der_one_interp).index(max(der_one_interp))
+                min1_index = list(der_one_interp).index(min(der_one_interp))
+                if min1_index<max1_index:
+                    min1_index = max1_index+1
+                    max1_index = min1_index - 2
+                median_index = int(len(xnew)/2)
+                if median_index<max1_index:
+                    median_index = max1_index+1
+                if min1_index<median_index:
+                    min1_index = median_index+1
+                    max1_index = median_index-1
+
+
+                interesting_section = sorted(list(der_two_interp[max1_index:median_index]),reverse=True)
+                firstminimum = interesting_section[0]
+                interesting_section2 = sorted(list(der_two_interp[median_index:min1_index]),reverse=True)
+                second_minimum = interesting_section2[0]
+
+                start_average = list(der_two_interp).index(firstminimum)
+                end_average = list(der_two_interp).index(second_minimum)
+
+
                 dy1 = np.diff(self.data[df]["data"][
                                   "Current"])  # compute the difference between each consecutive Capacity value and store it into an array with length i-1
                 dx1 = np.diff(self.data[df]["data"]["Voltage"])  # compute the difference between each consecutive voltage value and store it into an array with length i-1
@@ -272,20 +364,14 @@ class IV_PQC:
                 self.data[df]["units"].append("arb. units")
                 self.data[df]["measurements"].append("firstderivative_gate")
 
-                # Find the index of the row which contains the maximum value of the second derivative
-                indexMax7 = self.data[df]['data'].index.get_loc(self.data[df]['data']['firstderivative_gate'][10:].values.argmax())
-                # Find the index of the row which contains the minimum value of the second derivative
-                indexMin7 = self.data[df]['data'].index.get_loc(self.data[df]['data']['firstderivative_gate'][10:].values.argmin())
-                #mean indexes
-                indexstart = indexMax7+10+10 #first +10 to account for the 10: in index max, second to be sure to be in the plateau region
-                indexend = indexMin7-10+10
-                I_surf_maxima_average = np.mean(self.data[df]['data']['Current'][indexstart:indexend])
+
+                I_surf_maxima_average = np.mean(list(ynew[start_average:end_average]))
 
 
 
 
-                mxx = max(self.data[df]['data']['Current']) # find maximum of value of the current-voltage curve
-                minx = np.mean(self.data[df]['data']['Current'][-20:]) # find the minimum of the current-voltage curve by averaging 20 points values in the curve tail
+                mxx = max(ynew) # find maximum of value of the current-voltage curve
+                minx = np.mean(list(ynew[-1000:])) # find the minimum of the current-voltage curve by averaging 20 points values in the curve tail
                 I_surf_average = I_surf_maxima_average - minx
                 I_surf_average_table = '{:.2e}'.format(I_surf_average)
                 Surface_current_average.append(I_surf_average_table)
@@ -307,20 +393,33 @@ class IV_PQC:
                                ).opts(style=dict(text_font_size='20pt'))
 
 
-                # Plot all Measurements
-                self.basePlots3 = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
-                                                       do_not_plot=self.donts, keys = gate)
+
+
 
                 #do this if the analysis is of just one file
                 if len(gate) == 1:
-                    firstDerivative_gatePlot = self.basePlots3.Curve.firstderivative_gate
+                    # Plot all Measurements
+                    self.donts11 = ["timestamp", "voltage", "Voltage", 'Current', "Stepsize", "Wait", "Stepsize",
+                                    "Frequency", 'x', 'N']
+                    #firstDerivative_gatePlot = self.basePlots3.Curve.firstderivative_gate
                     #self.basePlots3.Current.opts(Plotlabel='test')
                     Path_min = hv.Path([(-2, minx), (6, minx)]).opts(line_width=2.0)
                     Path_mxx = hv.Path([(-2, mxx), (6, mxx)]).opts(line_width=2.0)
-                    Path_average =  hv.Path([(-2, I_surf_maxima_average), (6, I_surf_maxima_average)]).opts(line_width=2.0)
-                   # Path_Isurf = hv.Path([(0, mxx), (0, min)]).opts(line_width=3.0)
-                    self.PlotDict["BasePlots_gate"] = self.basePlots3.Curve.Current_Gate *text * Path_min * Path_mxx * Path_average # * Path_Isurf
-                    self.PlotDict["BasePlots_gate"] += firstDerivative_gatePlot
+                    Path_average = hv.Path([(-2, I_surf_maxima_average), (6, I_surf_maxima_average)]).opts(line_width=2.0)
+                    Path_Isurf = hv.Arrow(-1, mxx,'max','^')
+                    Path_Isurf_average = hv.Arrow(0, I_surf_maxima_average,'average','^')
+                    self.PlotDict["BasePlots_gate"] = plot_not_kink
+                    self.PlotDict["BasePlots_gate"] += dif_intep_plot
+                    self.PlotDict["BasePlots_gate"] += dif2_intep_plot
+                    self.PlotDict["BasePlots_gate"] += curr_interp_plot
+                    try:
+                        self.PlotDict["BasePlots_gate"] += curr_savgol_plot
+                        self.PlotDict["BasePlots_gate"] += curr_savgol_plot* plot_not_kink
+                    except:
+                        print('exception savgol plot')
+                    self.PlotDict["BasePlots_gate"] += text* curr_interp_plot *plot_not_kink *Path_min * Path_mxx * Path_average *Path_Isurf *Path_Isurf_average
+                    self.PlotDict["BasePlots_gate"] += curr_interp_plot * dif_intep_plot *dif2_intep_plot * plot_not_kink#curr_savgol_plot# * Path_Isurf #self.basePlots3.Curve.Current_Gate *
+                    #self.PlotDict["BasePlots_gate"] += firstDerivative_gatePlot
 
                     #add table that shows resulting parameters of the analysis
                     count3 += 1
@@ -332,7 +431,10 @@ class IV_PQC:
 
                 # do this if the analysis is of more than one file
                 elif len(gate) > 1:
-                    #self.basePlots3.Overlay.Current.opts(Plotlabel = 'test')
+                    self.basePlots3 = plot_all_measurements(self.data, self.config, self.xaxis, self.name,
+                                                            do_not_plot=self.donts, keys=gate)
+
+
                     self.PlotDict["BasePlots_gate"] = self.basePlots3
                     # add table that shows resulting parameters of the analysis
                     count3 += 1
@@ -466,7 +568,7 @@ class IV_PQC:
         self.log.info("Test41 for flat band voltage voltage in all files...")
         Nox_table = '{:.2e}'.format(Nox)
         # Add text
-        text = hv.Text(10, 0.00000000065, 'Flat band voltage: {} V \n'
+        text = hv.Text(10, 0.00000000065, 'Flat band voltage_fit_2nd derivative: {} V \n'
                                             'Flat band voltage first derivative: {} V \n'
 
                                             'C accumulation: {} F \n'
@@ -498,22 +600,23 @@ class IV_PQC:
 
         elif len(cv) == 1:
             #plot a vertical line where the fb voltage is
-            vline = hv.VLine(flatband_voltage[0]).opts(color='black', line_width=2.0)
+            vline = hv.VLine(flatband_voltage[0]).opts(color='black', line_width=1.0)
 
 
             # Plots of the derivatives
-            firstDerivativePlot= self.basePlots5.Curve.firstderivative
+            #firstDerivativePlot= self.basePlots5.Curve.firstderivative
             secondDerivativePlot = self.basePlots5.Curve.secondderivative
             # Plots of the fits
-            right_line = hv.Curve(right_line).opts(color='blue')
-            fit_line = hv.Curve(fit_line).opts(color='red', line_width=3.0)
+            right_line = hv.Curve(right_line).opts(color='blue',line_width=1.0)
+            fit_line = hv.Curve(fit_line).opts(color='red', line_width=1.5)
 
             # Update the plot specific options if need be
-            returnPlot = plot * right_line * fit_line * text * secondDerivativePlot * firstDerivativePlot * vline
+            returnPlot = plot * right_line * fit_line  * secondDerivativePlot * vline #* firstDerivativePlot
             # returnPlot = relabelPlot(returnPlot, "MOS_CV CURVES - Full depletion calculation")
             returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
+            returnplot2 = plot * fit_line * right_line *vline *text
 
-            return returnPlot, flatband_voltage[0], Accum_capacitance_table, Accum_capacitance_normalized_table, Tox_table, Nox_table
+            return returnPlot, flatband_voltage[0], Accum_capacitance_table, Accum_capacitance_normalized_table, Tox_table, Nox_table, returnplot2
 
 
 
