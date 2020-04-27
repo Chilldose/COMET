@@ -79,6 +79,7 @@ class GUI_classes(QWidget):
         self.final_tabs = []
         self.ui_plugins = {}
         self.plot_objs = {} # pyqtgraph plot objects
+        self.plot_objs_axis = {} # Axis, tuple for the plots (optional)
 
         # Load ui plugins
         self.load_GUI_plugins()

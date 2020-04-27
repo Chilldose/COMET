@@ -82,7 +82,8 @@ class TelegramBotResponder:
                 keyboard = {}
                 arrangement = []
                 for plots in self.main.meas_data.keys():
-                    keyboard[plots] = 'Plot {}'.format(plots)
+                    axis = self.main.plot_objs_axis.get(plots, ("", ""))
+                    keyboard[plots] = 'Plot {} {} {}'.format(plots, axis[0], axis[1])
                     arrangement.append([plots])
                 self.answer = {"CALLBACK": {"info": "Choose a plot you want to see:",
                                                          "keyboard": keyboard,
@@ -114,9 +115,7 @@ class TelegramBotResponder:
                             else:
                                 xaxis = "X-Axis"
                                 yaxis = "Y-Axis"
-
-
-
+                                
                             fig, ax = plt.subplots()
                             ax.plot(plt_data[0], plt_data[1])
                             ax.set(xlabel=xaxis, ylabel=yaxis,
