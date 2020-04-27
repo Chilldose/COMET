@@ -104,12 +104,33 @@ class TelegramBotResponder:
                         try:
                             import matplotlib
                             import matplotlib.pyplot as plt
+                            from matplotlib import dates
+
+                            # Try to get the x and y axis
+                            splitted = val.split()
+                            if len(splitted) >= 4:
+                                xaxis = splitted[2]
+                                yaxis = splitted[3]
+                            else:
+                                xaxis = "X-Axis"
+                                yaxis = "Y-Axis"
+
+
 
                             fig, ax = plt.subplots()
                             ax.plot(plt_data[0], plt_data[1])
-                            ax.set(xlabel='x-Axis', ylabel='y-Axis',
+                            ax.set(xlabel=xaxis, ylabel=yaxis,
                                    title=plot[0])
+                            plt.gcf().autofmt_xdate()
                             ax.grid()
+
+                            time = True if "time" in xaxis else False
+                            if time:
+                                # matplotlib date format object
+                                hfmt = dates.DateFormatter('%d/%m %H:%M')
+                                ax.xaxis.set_major_locator(dates.MinuteLocator())
+                                ax.xaxis.set_major_formatter(hfmt)
+                                plt.xticks(rotation=30)
 
                             # save to file
                             filepath = os.path.join(os.path.dirname(__file__), "__temp__")
