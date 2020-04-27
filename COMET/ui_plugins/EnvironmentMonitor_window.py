@@ -94,8 +94,8 @@ class EnvironmentMonitor_window:
         self.temphum_plot[room] = self.roomsGui[room][0].temphum_plot
         # Add the plot to the plot objects
         self.variables.plot_objs[room] = self.roomsGui[room][0].temphum_plot
-        self.variables.plot_objs_axis[room+"_temp"] = ("time", "Temperature")
-        self.variables.plot_objs_axis[room+"_hum"] = ("time", "Rel. Humidity")
+        self.variables.plot_objs_axis["Temp_"+room] = ("time", "Temperature")
+        self.variables.plot_objs_axis["Hum_"+room] = ("time", "Humidity")
         self.variables.plot_objs_axis[room] = ("time", "")
         self.config_plot(self.temphum_plot[room], self.hum_plot_obj[room])  # config the plot items
 

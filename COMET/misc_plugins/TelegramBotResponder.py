@@ -82,8 +82,7 @@ class TelegramBotResponder:
                 keyboard = {}
                 arrangement = []
                 for plots in self.main.meas_data.keys():
-                    axis = self.main.plot_objs_axis.get(plots, ("", ""))
-                    keyboard[plots] = 'Plot {} {} {}'.format(plots, axis[0], axis[1])
+                    keyboard[plots] = 'Plot {}'.format(plots)
                     arrangement.append([plots])
                 self.answer = {"CALLBACK": {"info": "Choose a plot you want to see:",
                                                          "keyboard": keyboard,
@@ -108,28 +107,19 @@ class TelegramBotResponder:
                             from matplotlib import dates
 
                             # Try to get the x and y axis
-                            splitted = val.split()
-                            if len(splitted) >= 4:
-                                xaxis = splitted[2]
-                                yaxis = splitted[3]
-                            else:
-                                xaxis = "X-Axis"
-                                yaxis = "Y-Axis"
-                                
+                            axis = self.main.plot_objs_axis.get(plot[0], ("X-Axis", "Y-Axis"))
+
                             fig, ax = plt.subplots()
                             ax.plot(plt_data[0], plt_data[1])
-                            ax.set(xlabel=xaxis, ylabel=yaxis,
+                            ax.set(xlabel=axis[0], ylabel=axis[1],
                                    title=plot[0])
-                            plt.gcf().autofmt_xdate()
                             ax.grid()
 
-                            time = True if "time" in xaxis else False
-                            if time:
+                            time = True if "time" in axis[0] else False
+                            if time and plt_data[0]:
                                 # matplotlib date format object
                                 hfmt = dates.DateFormatter('%d/%m %H:%M')
-                                ax.xaxis.set_major_locator(dates.MinuteLocator())
                                 ax.xaxis.set_major_formatter(hfmt)
-                                plt.xticks(rotation=30)
 
                             # save to file
                             filepath = os.path.join(os.path.dirname(__file__), "__temp__")
