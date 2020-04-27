@@ -208,6 +208,35 @@ class IV_PQC:
             elif df[0:8] == 'CV_Diode':
                 diode.append(df)
                 self.data[df]["data"]["Voltage"] = list(map(abs,self.data[df]["data"]["Voltage"])) #take absolute value of Voltage
+
+
+                #######trial
+                #interpolate the capacity
+                f = interp1d(self.data[df]["data"][self.xaxis], self.data[df]["data"]["Capacity"],kind='cubic')
+                xnew = np.arange(self.data[df]['data']['Voltage'][0],list(self.data[df]['data']['Voltage'][-1:])[0],0.001)
+                ynew = f(xnew)
+                Onec2 = 1/(ynew * ynew)  #1C2 array
+                #derivative
+                dx = np.diff(xnew)
+                dy = np.diff(Onec2)
+                derivative = dy/dx
+                add_element_derivative = np.insert(derivative, 0, derivative[0])
+                points_capacity = (xnew,Onec2)
+                capacity_curve = hv.Curve(points_capacity)
+                capacity_curve = customize_plot(capacity_curve, "1C2", self.config["IV_PQC"]) ##curve 1c2
+                points_derivative_onec2 = (xnew, add_element_derivative)
+                derivative_onec2_curve = hv.Curve(points_derivative_onec2)
+                derivative_onec2_curve = customize_plot(derivative_onec2_curve, "1C2", self.config["IV_PQC"])
+
+                #savgolay plot
+                yhat = scipy.signal.savgol_filter(add_element_derivative, 5, 2)  # window size 51, polynomial order 3
+                points15 = (xnew, yhat)
+                deronec2_savgol_plot = hv.Curve(points15)
+                deronec2_savgol_plot = customize_plot(deronec2_savgol_plot, "1C2", self.config["IV_PQC"])
+                #####finsih trial
+
+                #continue normal analysis
+
                 self.data[df]["data"].insert(3, "1C2", 1 / self.data[df]["data"]["Capacity"].pow(2))
                 self.data[df]["units"].append("arb. units")
                 self.data[df]["measurements"].append("1C2")
@@ -242,6 +271,14 @@ class IV_PQC:
                                                          do_not_plot=['Voltage', 'Current', 'Capacity', '1C2',
                                                                       'derivative1C2', 'x'], keys = diode)
                 self.PlotDict["BasePlots_diode"] += self.basePlots_2
+
+                #add trial plots
+
+                self.PlotDict["BasePlots_diode"] += capacity_curve
+                self.PlotDict["BasePlots_diode"] += derivative_onec2_curve * deronec2_savgol_plot
+                self.PlotDict["BasePlots_diode"] += deronec2_savgol_plot
+
+
                 # Add full depletion point to 1/c^2 curve
                 if self.config["IV_PQC"].get("1C2", {}).get("DoFullDepletionCalculation", False):
                         try:
@@ -296,7 +333,7 @@ class IV_PQC:
                 try:
                     y = self.data[df]['data']['Current']
 
-                    yhat = scipy.signal.savgol_filter(y, 51, 11)  # window size 51, polynomial order 3
+                    yhat = scipy.signal.savgol_filter(y, 31, 11)  # window size 51, polynomial order 3
                     points13 = (self.data[df]['data']['Voltage'], yhat)
                     curr_savgol_plot = hv.Curve(points13)
                     curr_savgol_plot = customize_plot(curr_savgol_plot, "SavgolCurrent", self.config["IV_PQC"])
@@ -770,7 +807,7 @@ class IV_PQC:
 
         xmax = df["xaxis"][len(df["yaxis"])-1]
 
-        left_line = np.array([[0, np.median(Left_stats[:,2])],[xmax, np.median(Left_stats[:,1])*xmax + np.median(Left_stats[:,2])]])
+        left_line = np.array([[0, np.median(Left_stats[:,2])],[full_depletion_voltages[0][0], full_depletion_voltages[0][1]]])
 
         left_line = hv.Curve(left_line).opts(color='grey')
 
