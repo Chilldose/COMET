@@ -109,9 +109,9 @@ class TelegramBotResponder:
 
                             # Try to get the x and y axis
                             axis = self.main.plot_objs_axis.get(plot[0], ("X-Axis", "Y-Axis"))
-                            dates = [dt.datetime.fromtimestamp(ts) for ts in plt_data[0]]
+                            date = [dt.datetime.fromtimestamp(ts) for ts in plt_data[0]]
                             fig, ax = plt.subplots()
-                            ax.plot(dates, plt_data[1])
+                            ax.plot(date, plt_data[1])
                             ax.set(xlabel=axis[0], ylabel=axis[1],
                                    title=plot[0])
                             ax.grid()
