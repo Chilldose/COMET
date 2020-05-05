@@ -116,7 +116,7 @@ class TelegramBotResponder:
                             ax.grid()
 
                             time = True if "time" in axis[0] else False
-                            if time and plt_data[0]:
+                            if time and plt_data[0].any():
                                 # matplotlib date format object
                                 hfmt = dates.DateFormatter('%d/%m %H:%M')
                                 ax.xaxis.set_major_formatter(hfmt)
