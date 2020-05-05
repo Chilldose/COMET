@@ -121,6 +121,7 @@ class TelegramBotResponder:
                                 # matplotlib date format object
                                 hfmt = dates.DateFormatter('%d/%m %H:%M')
                                 ax.xaxis.set_major_formatter(hfmt)
+                                plt.xticks(rotation=25)
 
                             # save to file
                             filepath = os.path.join(os.path.dirname(__file__), "__temp__")
