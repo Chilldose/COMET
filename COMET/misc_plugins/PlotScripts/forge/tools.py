@@ -287,12 +287,18 @@ def convert_to_df(convert, abs = False, keys = "all"):
     for key, data in to_convert.items():
         return_dict[key] = data
         try:
-            if abs:
+            # Convert all datatypes that are not float or int to np.nan
+            for meas in data["data"].keys():
+                mask = data["data"][meas].apply(type) == str
+                data["data"][meas] = data["data"][meas].mask(mask, np.nan)
+
+            if abs: # Build abs of data or not
                 for meas, arr in data["data"].items():
                     if meas in columns:
-                        data["data"][meas] = np.abs(arr)
-            # Adding label of data
-            #data["data"]["Name"] = [key for i in range(len(data["data"][list(data["data"].keys())[0]]))]
+                        try:
+                            data["data"][meas] = np.abs(arr)
+                        except: # If the value is some non float or int etc
+                            pass
 
             sub_set = {}
             for ind in columns:
@@ -456,6 +462,7 @@ def customize_plot(plot, plotName, configs, **addConfigs):
     # Look if a PlotLabel is in the addConfigs
     if "PlotLabel" in addConfigs:
         newlabel = addConfigs.pop("PlotLabel")
+        plotName = newlabel
     else: newlabel = None
 
 

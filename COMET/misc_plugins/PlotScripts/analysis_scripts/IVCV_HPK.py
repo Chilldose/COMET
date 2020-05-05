@@ -14,96 +14,108 @@ from bokeh.models.widgets import Button
 
 from forge.tools import customize_plot, holoplot, convert_to_df, config_layout, text_box
 from forge.tools import twiny, relabelPlot, applyPlotOptions, rename_columns
-from forge.tools import plot_all_measurements, convert_to_EngUnits
+from forge.tools import plot_all_measurements, convert_to_EngUnits, plot, plainPlot
 from forge.specialPlots import dospecialPlots
 from forge.utilities import line_intersection
 
 
-class IVCV_QTC:
+class IVCV_HPK:
 
     def __init__(self, data, configs):
 
         self.log = logging.getLogger(__name__)
         self.config = configs
-        self.analysisName = "IVCV_QTC"
+        self.analysisName = "IVCV_HPK"
         self.data = convert_to_df(data, abs=True)
         self.data = rename_columns(self.data, self.config[self.analysisName].get("Measurement_aliases", {}))
         self.basePlots = None
         self.PlotDict = {"Name": "IVCV"} # Name of analysis and cnavas for all plots generated during this analysis
         self.capincluded = False
-        if "capacitance" in self.data[self.data["keys"][0]]["data"] or "CV" in self.data[self.data["keys"][0]]["data"]:
-            self.data["columns"].insert(3, "1C2") # because we are adding it later on
-            self.capincluded = True
         self.measurements = self.data["columns"]
-        self.xaxis = self.measurements[0]
+        self.measurements.remove("VR")
+        self.measurements.remove("Name")
+
+        # Find CV measurement
+        for file in self.data["keys"]:
+            if "CV" in file:
+                self.data["keys"].append("1C2")
+                self.data["1C2"] = self.data[file].copy()
+                self.data["1C2"]["data"] = 1/(self.data[file]["data"][self.measurements]*self.data[file]["data"][self.measurements])
+                self.data["1C2"]["data"]["VR"] = self.data[file]["data"]["VR"]
+                self.data["1C2"]["data"]["Name"] =  self.data[file]["data"]["Name"]+"1c2"
+                self.capincluded = True
+        self.xaxis = "VR"
 
         # The do not plot list, you can extend this list as you like
-        self.donts = ("Name", "voltage_1", "Idark", "Idiel", "Rpoly", "Cac", "Cint", "Rint", "Pad", "Istrip")
-
-        if "voltage" in self.measurements:
-            self.xaxis = "voltage"
-            padidx = self.measurements.index("voltage")
-            del self.measurements[padidx]
-        else:
-            self.log.error("No 'voltage' entry found in data, cannot do IVC analysis. Maybe you have to set an alias for your measurement.")
-
-        # Convert the units to the desired ones
-        for meas in self.measurements:
-            unit = self.config[self.analysisName].get(meas, {}).get("UnitConversion", None)
-            if unit:
-                self.data = convert_to_EngUnits(self.data, meas, unit)
-        #hv.renderer('bokeh')
+        self.donts = ("Name", "VR")
 
     def run(self):
         """Runs the script"""
 
-        # Add the 1/c^2 data to the dataframes
-        for df in self.data["keys"]:
-            if "CV" in self.data[df]["data"]:
-                self.data[df]["data"].insert(3, "1C2", 1 / self.data[df]["data"]["CV"].pow(2))
-                self.data[df]["units"].append("arb. units")
-                self.data[df]["measurements"].append("1C2")
-            elif "capacitance" in self.data[df]["data"]:
-                self.data[df]["data"].insert(3, "1C2", 1 / self.data[df]["data"]["capacitance"].pow(2))
-                self.data[df]["units"].append("arb. units")
-                self.data[df]["measurements"].append("1C2")
-
         # Add the measurement to the list
+        # Plot all IV measurements
+        # (data, config, xaxis_measurement, analysis_name, do_not_plot=(), plot_only=(), keys=None, **kwargs)
+        IVplot = None
+        self.PlotDict["All"] = None
+        for file in self.data["keys"]:
+            if "IV" in file:
+                for meas in self.measurements:
+                    self.config[self.analysisName][meas+"IV"] = self.config[self.analysisName]["current"]
+                    tempplot = plot(self.data, self.config, self.xaxis, self.analysisName, plot_only=(meas,), keys=(file,), do_not_plot = self.donts, PlotLabel=meas+"IV")
+                    if IVplot:
+                        IVplot *= tempplot
+                    else:
+                        IVplot = tempplot
+        IVplot = customize_plot(IVplot, "current", self.config[self.analysisName])
 
-        # Plot all Measurements
-        self.basePlots = plot_all_measurements(self.data, self.config, self.xaxis, self.analysisName, do_not_plot = self.donts)
-        #self.basePlots = applyPlotOptions(self.basePlots, {'Curve': {'color': "hv.Cycle('PiYG')"}})
-        self.PlotDict["BasePlots"] = self.basePlots
-        self.PlotDict["All"] = self.basePlots
+        # Plot all CV measurements
+        # (data, config, xaxis_measurement, analysis_name, do_not_plot=(), plot_only=(), keys=None, **kwargs)
+        CVplot = None
+        for file in self.data["keys"]:
+            if "CV" in file:
+                for meas in self.measurements:
+                    self.config[self.analysisName][meas+"CV"] = self.config[self.analysisName]["capacitance"]
+                    tempplot = plot(self.data, self.config, self.xaxis, self.analysisName, plot_only=(meas,),
+                                    keys=(file,), do_not_plot=self.donts, PlotLabel=meas+"CV")
+                    if CVplot:
+                        CVplot *= tempplot
+                    else:
+                        CVplot = tempplot
+        CVplot = customize_plot(CVplot, "capacitance", self.config[self.analysisName])
+
+
 
         # Add full depletion point to 1/c^2 curve
-        if self.config[self.analysisName].get("1C2", {}).get("DoFullDepletionCalculation", False):
-            try:
-                if self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.children:
-                    c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.opts(clone = True)
-                else: c2plot = self.basePlots.Curve.CV_CURVES_hyphen_minus_Full_depletion.opts(clone = True)
-                fdestimation = self.find_full_depletion(c2plot, self.data, self.config, PlotLabel="Full depletion estimation")
-                self.PlotDict["All"] += fdestimation
-                self.PlotDict["BasePlots"] += fdestimation
-            except Exception as err:
-                self.log.warning("No full depletion calculation possible... Error: {}".format(err))
+        c2plot = None
+        for file in self.data["keys"]:
+            if "1C2" in file:
+                for meas in self.measurements:
+                    self.config[self.analysisName][meas+"1c2"] = self.config[self.analysisName]["1C2"]
+                    tempplot = plot(self.data, self.config, self.xaxis, self.analysisName, plot_only=(meas,),
+                                    keys=(file,), do_not_plot=self.donts, PlotLabel=meas+"1c2")
+                    if c2plot:
+                        c2plot *= tempplot
+                    else:
+                        c2plot = tempplot
+        c2plot = customize_plot(c2plot, "1C2", self.config[self.analysisName])
 
-        # Whiskers Plot
-        self.WhiskerPlots = dospecialPlots(self.data, self.config, self.analysisName, "BoxWhisker", self.measurements)
-        if self.WhiskerPlots:
-            self.PlotDict["Whiskers"] = self.WhiskerPlots
-            self.PlotDict["All"] = self.PlotDict["All"] + self.WhiskerPlots
-
-        # Histogram Plot
-        self.HistogramPlots = dospecialPlots(self.data, self.config, self.analysisName, "Histogram",
-                                            self.measurements)
-        if self.HistogramPlots:
-            self.PlotDict["Histogram"] = self.HistogramPlots
-            self.PlotDict["All"] = self.PlotDict["All"] + self.HistogramPlots
+        #if self.config[self.analysisName].get("1C2", {}).get("DoFullDepletionCalculation", False):
+        #    try:
+        #        if self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.children:
+        #            c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.opts(clone = True)
+        ##        else: c2plot = self.basePlots.Curve.CV_CURVES_hyphen_minus_Full_depletion.opts(clone = True)
+        #        fdestimation = self.find_full_depletion(c2plot, self.data, self.config, PlotLabel="Full depletion estimation")
+        #        self.PlotDict["All"] += fdestimation
+        #        self.PlotDict["BasePlots"] += fdestimation
+        #    except Exception as err:
+        #        self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
         # Reconfig the plots to be sure
-        self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.analysisName].get("Layout", {}))
+        #self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.analysisName].get("Layout", {}))
 
+        self.PlotDict["All"] = IVplot + CVplot + c2plot
+        # Reconfig the plots to be sure
+        self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.analysisName].get("Layout", {}))
         return self.PlotDict
 
     def calculate_slopes(self, df, minSize, startidx=0):
@@ -167,7 +179,7 @@ class IVCV_QTC:
         :param plot: The plot object
         :param data: The data files
         :param configs: the configs
-        :param **addConfigs: the configs special for the 1/C2 plot, it is recommended to pass the same options here again, like in the original plot!
+        :param **addConfigs: the configs special for the 1/C2 plot, it is recomended to pass the same options here again, like in the original plot!
         :return: The updated plot
         """
 
