@@ -287,11 +287,6 @@ def convert_to_df(convert, abs = False, keys = "all"):
     for key, data in to_convert.items():
         return_dict[key] = data
         try:
-            # Convert all datatypes that are not float or int to np.nan
-            for meas in data["data"].keys():
-                mask = data["data"][meas].apply(type) == str
-                data["data"][meas] = data["data"][meas].mask(mask, np.nan)
-
             if abs: # Build abs of data or not
                 for meas, arr in data["data"].items():
                     if meas in columns:
@@ -308,6 +303,12 @@ def convert_to_df(convert, abs = False, keys = "all"):
                     log.warning("Key {} was not present, no data conversion".format(ind))
             sub_set["Name"] = [key for i in range(len(sub_set[list(sub_set.keys())[0]]))]
             df = pd.DataFrame(data=sub_set)
+
+            # Convert all datatypes that are not float or int to np.nan
+            for meas in df.keys():
+                mask = df[meas].apply(type) == str
+                df[meas] = df[meas].mask(mask, np.nan)
+
         except KeyError as err:
             log.error("In order to convert the data to panda dataframe, the data structure needs to have a key:'data'")
             raise err
