@@ -21,6 +21,7 @@ def myImporter(filepaths, **kwargs):
             file_content.append(fp.read())
         file_name = filepaths[count].split('/')[-1]
         dic[file_name] = file_content[count].split('\n')
+        dic[file_name]= [i.split('â')[0] for i in dic[file_name]]
 
         count2 = 0
         count3 = 0
@@ -57,9 +58,9 @@ def myImporter(filepaths, **kwargs):
             curr_dict[file_name] = [float(i) for i in curr]
 
             area[file_name] = [s for s in dic[file_name] if "Area" in s]
-
+            analysis_type = [s for s in dic[file_name] if "Run" in s][0].split(' ')[0]
             return_dict[file_name] = {"data": {"Voltage": volt_dict[file_name], "Current": curr_dict[file_name]}}
-            return_dict[file_name]["header"] = area[file_name]
+            return_dict[file_name]["header"] = [area[file_name][0], analysis_type]
             return_dict[file_name].update({"measurements": ["Voltage", "Current"]})
             return_dict[file_name].update({"units": ["V", "A"]})
 
@@ -79,9 +80,9 @@ def myImporter(filepaths, **kwargs):
             capacity_dict[file_name] = [float(i) for i in capacity]
 
             area[file_name] = [s for s in dic[file_name] if "Area" in s]
-
+            analysis_type = [s for s in dic[file_name] if "Run" in s][0].split(' ')[0]
             return_dict[file_name] = {"data": {"Voltage": volt_dict[file_name], "Current": curr_dict[file_name], 'Capacity': capacity_dict[file_name]}}
-            return_dict[file_name]["header"] = area[file_name]
+            return_dict[file_name]["header"] = [area[file_name][0], analysis_type]
             return_dict[file_name].update({"measurements": ["Voltage", "Current", 'Capacity']})
             return_dict[file_name].update({"units": ["V", "A", 'F']})
 
@@ -100,9 +101,10 @@ def myImporter(filepaths, **kwargs):
             curr_dict[file_name] = [float(i) for i in curr]
             capacity_dict[file_name] = [float(i) for i in capacity]
             area[file_name] = [s for s in dic[file_name] if "Area" in s]
+            analysis_type = [s for s in dic[file_name] if "Run" in s][0].split(' ')[0]
             return_dict[file_name] = {"data": {"Voltage": volt_dict[file_name], "Current": curr_dict[file_name],
                                                'Capacity': capacity_dict[file_name]}}
-            return_dict[file_name]["header"] = area[file_name]
+            return_dict[file_name]["header"] = [area[file_name][0], analysis_type]
             return_dict[file_name].update({"measurements": ["Voltage", "Current", 'Capacity']})
             return_dict[file_name].update({"units": ["V", "A", 'F']})
             count += 1

@@ -88,13 +88,15 @@ class IV_PQC:
         Surface_recombination_velocity = [] #list that is used later on to store the surface recombination velocity values for all the different gate files used in the analysis
         Surface_current_average = [] #list that is used later on to store the surface current values for all the different gate files used in the analysis
         Surface_recombination_velocity_average = [] #list that is used later on to store the surface recombination velocity values for all the different gate files used in the analysis
+        resistivity = []
+
 
         # Add the 1/c^2 data to the dataframes
         # Add a copy of the Capacity values to the data frame, where the small kink in the plot is deleted
         for df in self.data["keys"]:
 
             # Start the cv_mos analysis
-            if df[0:8] != 'CV_Diode' and df[0:6] != 'IV_GCD': #If not Diode or Gate analysis do the cv mos analysis
+            if self.data[df]['header'][1][0:8] != 'CV_Diode' and self.data[df]['header'][1][0:6] != 'IV_GCD': #If not Diode or Gate analysis do the cv mos analysis
                 cv.append(df)
                 if 'Voltage' in self.data[df]['data']: # Check that the voltage values have increasing order
                     if self.data[df]["data"]["Voltage"][0] > 0:
@@ -204,8 +206,9 @@ class IV_PQC:
                 table1.opts(width=1300, height=800)
                 #Do plots
                 self.PlotDict["BasePlots_MOS"] += table1
+
             # Start Diode Analysis
-            elif df[0:8] == 'CV_Diode':
+            elif self.data[df]['header'][1][0:8] == 'CV_Diode':
                 diode.append(df)
                 self.data[df]["data"]["Voltage"] = list(map(abs,self.data[df]["data"]["Voltage"])) #take absolute value of Voltage
 
@@ -290,7 +293,7 @@ class IV_PQC:
                             fdestimation = self.find_full_depletion_c2(c2plot, self.data, self.config, diode,
                                                                        PlotLabel="Full depletion estimation")
                             fdepvoltage.append(fdestimation[1])
-                            self.PlotDict["BasePlots_diode"] += fdestimation[0]
+                            #self.PlotDict["BasePlots_diode"] += fdestimation[0]
                         except Exception as err:
                             self.log.warning("No full depletion calculation possible... Error: {}".format(err))
                 # Find resistivity
@@ -302,17 +305,23 @@ class IV_PQC:
                             2 * self.config['IV_PQC_parameter']['epsilonNull']*(1e-2) * self.config['IV_PQC_parameter'][
                         'epsilonSiliconOxide'] * fdestimation[1] * u_holes_mobility) # in Ohm * cm
                 rho_table = '{:.2e}'.format(rho)
-                resistivity = []
                 resistivity.append(rho_table)
                 #Add a table that show the results of the analysis
                 count2 += 1
-                df3 = pd.DataFrame({"Name": diode, "full depletion voltage (V)": fdepvoltage, " Bulk resistivity (Ohm * cm)": resistivity})
-                table2=hv.Table((df3), label = 'Diode analysis')
-                table2.opts(width=1300, height=800)
-                self.PlotDict["BasePlots_diode"] += table2
 
-
-
+                if count2 ==1:
+                    self.PlotDict["BasePlots_diode"] += fdestimation[0]
+                    df3 = pd.DataFrame({"Name": diode, "full depletion voltage (V)": fdepvoltage,
+                                        " Bulk resistivity (Ohm * cm)": resistivity})
+                    table2 = hv.Table((df3), label='Diode analysis')
+                    table2.opts(width=1300, height=800)
+                    self.PlotDict["BasePlots_diode"] += table2
+                else:
+                    df3 = pd.DataFrame({"Name": diode, "full depletion voltage (V)": fdepvoltage,
+                                        " Bulk resistivity (Ohm * cm)": resistivity})
+                    table2 = hv.Table((df3), label='Diode analysis')
+                    table2.opts(width=1300, height=800)
+                    self.PlotDict["BasePlots_diode"] += table2
 
             # Start Gate analysis
             else:
@@ -333,8 +342,13 @@ class IV_PQC:
                 try:
                     y = self.data[df]['data']['Current']
 
-                    yhat = scipy.signal.savgol_filter(y, 31, 11)  # window size 51, polynomial order 3
-                    points13 = (self.data[df]['data']['Voltage'], yhat)
+                    i=0
+                    while i<2:
+                        y = scipy.signal.savgol_filter(y, 31, 3)  # window size 51, polynomial order 3
+                        i += 1
+
+                    maxsavgol = max(y)
+                    points13 = (self.data[df]['data']['Voltage'], y)
                     curr_savgol_plot = hv.Curve(points13)
                     curr_savgol_plot = customize_plot(curr_savgol_plot, "SavgolCurrent", self.config["IV_PQC"])
                 except:
@@ -442,6 +456,7 @@ class IV_PQC:
                     #self.basePlots3.Current.opts(Plotlabel='test')
                     Path_min = hv.Path([(-2, minx), (6, minx)]).opts(line_width=2.0)
                     Path_mxx = hv.Path([(-2, mxx), (6, mxx)]).opts(line_width=2.0)
+                    Path_savgolmax = hv.Path([(-2,maxsavgol),(6,maxsavgol)])
                     Path_average = hv.Path([(-2, I_surf_maxima_average), (6, I_surf_maxima_average)]).opts(line_width=2.0)
                     Path_Isurf = hv.Arrow(-1, mxx,'max','^')
                     Path_Isurf_average = hv.Arrow(0, I_surf_maxima_average,'average','^')
@@ -454,7 +469,7 @@ class IV_PQC:
                         self.PlotDict["BasePlots_gate"] += curr_savgol_plot* plot_not_kink
                     except:
                         print('exception savgol plot')
-                    self.PlotDict["BasePlots_gate"] += text* curr_interp_plot *plot_not_kink *Path_min * Path_mxx * Path_average *Path_Isurf *Path_Isurf_average
+                    self.PlotDict["BasePlots_gate"] += text* curr_interp_plot *plot_not_kink *Path_min * Path_mxx * Path_average *Path_Isurf *Path_Isurf_average *Path_savgolmax
                     self.PlotDict["BasePlots_gate"] += curr_interp_plot * dif_intep_plot *dif2_intep_plot * plot_not_kink#curr_savgol_plot# * Path_Isurf #self.basePlots3.Curve.Current_Gate *
                     #self.PlotDict["BasePlots_gate"] += firstDerivative_gatePlot
 
@@ -545,10 +560,10 @@ class IV_PQC:
 
 
         # Fit central region
-        for idx in range(indexMax, indexMin-2):
+        for idx in range(indexMax, indexMin-1):
             #Central fit
-            slope_fit, intercept_fit, r_fit, p_valuefit, std_err_fit = linregress(df1["xaxis"][idx:indexMin-2],
-                                                                                  df1["yaxis"][idx:indexMin-2])
+            slope_fit, intercept_fit, r_fit, p_valuefit, std_err_fit = linregress(df1["xaxis"][idx:indexMin-1],
+                                                                                  df1["yaxis"][idx:indexMin-1])
             r2_fit = r_fit * r_fit
             self.log.debug("central fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
                 slope_fit, intercept_fit, r2_fit, std_err_fit)
@@ -715,7 +730,7 @@ class IV_PQC:
 
                 LR2 = 0 # r^2 values for both sides
 
-                RR2 = 0
+                #RR2 = 0
 
 
 
@@ -737,17 +752,17 @@ class IV_PQC:
 
 
 
-                    # Right
-
-                    slope_right, intercept_right, r_right, p_value, std_err_right = linregress(df["xaxis"][idx:],df["yaxis"][idx:])
-
-                    r2_right = r_right * r_right
-
-                    self.log.debug("Right side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
-
-                        slope_right, intercept_right, r2_right, std_err_right)
-
-                    )
+                    ## Right
+#
+                    #slope_right, intercept_right, r_right, p_value, std_err_right = linregress(df["xaxis"][idx:],df["yaxis"][idx:])
+#
+                    #r2_right = r_right * r_right
+#
+                    #self.log.debug("Right side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+#
+                    #    slope_right, intercept_right, r2_right, std_err_right)
+#
+                    #)
 
 
 
@@ -771,19 +786,22 @@ class IV_PQC:
 
                     # See if the r2 value has increased and store it
 
-                    if r2_right >= RR2:
+                    #if r2_right >= RR2:
+#
+                    #    RR2 = r2_right
+#
+                    #    RightEndPoints = (
+#
+                    #        (df["xaxis"][idx], slope_right * df["xaxis"][idx] + intercept_right),
+#
+                    #        (df["xaxis"][len(df["xaxis"]) - 1], slope_right * df["xaxis"][len(df["xaxis"]) - 1] + intercept_right),
+#
+                    #    )
+#
+                    #    Right_stats[i] = (RightEndPoints, slope_right, intercept_right, r_right, p_value, std_err_right)
 
-                        RR2 = r2_right
-
-                        RightEndPoints = (
-
-                            (df["xaxis"][idx], slope_right * df["xaxis"][idx] + intercept_right),
-
-                            (df["xaxis"][len(df["xaxis"]) - 1], slope_right * df["xaxis"][len(df["xaxis"]) - 1] + intercept_right),
-
-                        )
-
-                        Right_stats[i] = (RightEndPoints, slope_right, intercept_right, r_right, p_value, std_err_right)
+                average_right = np.mean(list(df['yaxis'][-20:]))
+                RightEndPoints =[(df['xaxis'][len(df['xaxis'])-20],average_right),(df['xaxis'][len(df['xaxis'])-1],average_right)]
 
 
 
@@ -813,11 +831,11 @@ class IV_PQC:
 
 
 
-        right_line = np.array([[0, np.median(Right_stats[:,2])],[xmax, np.median(Right_stats[:,1])*xmax + np.median(Right_stats[:,2])]])
+        #right_line = np.array([[0, np.median(Right_stats[:,2])],[xmax, np.median(Right_stats[:,1])*xmax + np.median(Right_stats[:,2])]])
 
-        right_line = hv.Curve(right_line).opts(color='grey')
+        #right_line = hv.Curve(right_line).opts(color='grey')
 
-
+        right_line = hv.HLine(average_right).opts(color='grey')
 
         # Add text
 
