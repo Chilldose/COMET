@@ -1,23 +1,14 @@
 
-#  Filetype: ASCII # Other options are json, ACII
-#
-## Optional Parameters
-#  ASCII_file_specs: # The specifications for the ascii file type measurements files
-#    header_lines: 4
-#    measurement_description: 4
-#    units_line: 4
-#    data_start: 5
-##    data_separator: ","
-#    #units_regex: "(#|\\w+)\\s?\\W?\\w*\\W?"
 
---- # Dummy config file for testing
+
+---
   Filetype: CUSTOM
 
-  # If CUSTOM was choosen in 'Filetype', then you must define this custom specs section to tell where to find the file etc
+  # If CUSTOM you must define this custom specs section to tell where to find the file etc
   Custom_specs:
-    path: C:\Users\cmsbo\Documents\GitHub\COMET\COMET\misc_plugins\PlotScripts\CONFIGS\importer\custom_importer.py # The path to your python file where the importer is
-    module: custom_importer # The module name
-    name: myImporter # The function name inside you want to load
+    path: C:\Users\cmsbo\Documents\GitHub\COMET\COMET\misc_plugins\PlotScripts\CONFIGS\importer\importer_PQC.py # The path to your python file where the importer is
+    module: importer_PQC # The module name
+    name: importer # The function name inside you want to load
     parameters: # Additional parameters your importer needs. Do not use if you dont need ones
       param1: "Some optional"
       param2: "parameters"
