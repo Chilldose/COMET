@@ -1,6 +1,3 @@
-
-
-
 ---
   Filetype: CUSTOM
 
@@ -49,7 +46,6 @@
           height: 800
 
           shared_axes: False
-
 
 
 
@@ -190,8 +186,6 @@
 
               logx: False
 
-
-
               invert_xaxis: False
 
               invert_yaxis: False
@@ -297,7 +291,6 @@
 
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
             yaxisENG: True # If you want to plot the y axis in engineering representation
-
 
 
       derivative2:
@@ -721,10 +714,6 @@
 
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               #yaxisENG: False # If you want to plot the y axis in engineering representation
-
-
-
-
 
 
       FirstDerivativeCurrent:
