@@ -35,7 +35,7 @@ def do_send_RF_code(value, TelegramResponder):
                         TelegramResponder.current_light = None
 
                     # Switch the old one off, which are not included in the new one
-                    if old_light:
+                    if old_light and TelegramResponder.settings.get("Exclusive_Light_Switching", True):
                         path = os.path.normpath(TelegramResponder.main.default_values_dict["settings"]["433MHz_Transiever"]["path"])
                         onoff = 0
                         for switch in TelegramResponder.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][

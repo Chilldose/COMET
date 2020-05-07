@@ -21,6 +21,7 @@ class TelegramBotResponder:
         self.current_light = None # The current light config
         self.function_helps = {} # The help text of all available functions
         self.load_plugins()
+        self.settings = self.main.framework_variables["Configs"]["config"]["settings"]
 
 
     def run(self, action, value):
