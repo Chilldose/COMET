@@ -32,9 +32,11 @@ class bad_strip_detection:
         aliases = self.configs.get("Measurement_aliases", None)
         if aliases:
             for data in self.data:
-                for newkey, oldkey in aliases.items():
+                for oldkey, newkey in aliases.items():
                     try:
                         self.data[data]["data"][newkey] = self.data[data]["data"].pop(oldkey)
+                        idx = self.data[data]["measurements"].index(oldkey)
+                        self.data[data]["measurements"][idx] = newkey
                     except KeyError:
                         pass
 
