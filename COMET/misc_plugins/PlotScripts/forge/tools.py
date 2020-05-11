@@ -869,3 +869,9 @@ def save_data(self, type, dirr, base_name="data"):
             self.log.info("Saving xml file...")
             xml_dict = deepcopy(self.plotting_Object.data.get("xml_dict", self.plotting_Object.data)) # Either take the special xml representation or if not present take the normal dict representation
             save_dict_as_xml(xml_dict, os.path.join(os.path.normpath(dirr), "data"), base_name)
+
+def text_box(text, xpos, ypos, boxsize, fontsize=30, fontcolor="black", bgcolor="white"):
+    """Generates a box with text in it"""
+    hvtext = hv.Text(xpos, ypos, text).opts(fontsize=fontsize, color=fontcolor)
+    box = hv.Polygons(hv.Box(xpos, ypos, boxsize).opts(color="black")).opts(color=bgcolor)
+    return box*hvtext
