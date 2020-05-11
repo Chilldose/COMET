@@ -1,5 +1,4 @@
-"""__author__: Dallavalle Riccardo
-__email__: dallavallericcardo@outlook.com"""
+#__author__: Dallavalle Riccardo, __email__: dallavallericcardo@outlook.com
 ---
   Filetype: CUSTOM # If CUSTOM you must define this custom specs section to tell where to find the file etc
   Custom_specs:

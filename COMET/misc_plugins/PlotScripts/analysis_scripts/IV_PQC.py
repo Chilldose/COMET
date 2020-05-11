@@ -214,7 +214,6 @@ class IV_PQC:
                 else:
                     c2plot = self.basePlots4.Curve.A_1C2.opts(clone=True)
                 fdestimation = self.find_full_depletion_c2(c2plot, self.data, self.config, diode_files, PlotLabel="Full depletion estimation")
-
             except Exception as err:
                 self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
@@ -232,8 +231,8 @@ class IV_PQC:
             self.PlotDict["BasePlots_diode"] += fdestimation[0]
             # Add trial plots
             self.PlotDict["BasePlots_diode"] += capacity_curve
-            self.PlotDict["BasePlots_diode"] += derivative_onec2_curve * deronec2_savgol_plot
-            self.PlotDict["BasePlots_diode"] += deronec2_savgol_plot
+            ##self.PlotDict["BasePlots_diode"] += derivative_onec2_curve * deronec2_savgol_plot
+            ##self.PlotDict["BasePlots_diode"] += deronec2_savgol_plot
             # Add table
             df3 = pd.DataFrame({"Name": diode_files, "full depletion voltage (V)": fdepvoltage, " Bulk resistivity (Ohm * cm)": resistivity})
             table2 = hv.Table(df3, label='Diode analysis')
@@ -600,7 +599,7 @@ class IV_PQC:
 
                 # Loop one time from the from the left side, to get the slope
                 LR2 = 0
-                for idx in range(5, len(df)-5):
+                for idx in range(5, len(df)-20):
                     # Left
                     slope_left, intercept_left, r_left, p_value, std_err_left = linregress(df["xaxis"][:-idx],df["yaxis"][:-idx])
                     r2_left = r_left * r_left

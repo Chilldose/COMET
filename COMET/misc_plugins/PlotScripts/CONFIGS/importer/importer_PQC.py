@@ -27,7 +27,7 @@ def importer(filepaths, **kwargs):
         dic[file_name] = list(filter(None, dic[file_name])) # Remove blank lines from the data
         analysis_type = [s for s in dic[file_name] if "Run" in s][0].split()[0] # Define the analysis type (gate, diode or mos)
         all_files_types_of_analysis.append(analysis_type)
-        index_of_datastart = dic[file_name].index([s for s in dic[file_name] if "Run" in s][0]) + 3
+        index_of_datastart = dic[file_name].index([s for s in dic[file_name] if "Run" in s][0]) + 4 # (3+1) from Run entry to data values +3, +1 because the first data value is often unstable (ignore it)
 
         # Find where the data ends
         end_data = find_dataend(dic[file_name])
