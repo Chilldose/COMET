@@ -143,8 +143,10 @@ class Stripscan_window:
 
     def pause_button_action(self):
         '''This button pauses the strip scan, it asks if the HV should be shut of or not and if the table should go into the down position'''
+        self.stripscan.Pause_button.setEnabled(False)
         dialog = pause_stripscan_widget(self, parent=self.layout)
         dialog.exec_()
+        self.stripscan.Pause_button.setEnabled(True)
         sleep(3.)
 
     def update_strip_stat(self):

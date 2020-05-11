@@ -104,6 +104,9 @@ venv.bak/
 # mkdocs documentation
 /site
 
+# Setup Configs
+COMET\COMET\config\Setup_configs\*
+
 # Some misc files
 .mypy_cache/
 merge_strip_file.py

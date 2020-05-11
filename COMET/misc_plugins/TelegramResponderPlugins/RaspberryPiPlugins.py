@@ -35,7 +35,7 @@ def do_send_RF_code(value, TelegramResponder):
                         TelegramResponder.current_light = None
 
                     # Switch the old one off, which are not included in the new one
-                    if old_light:
+                    if old_light and TelegramResponder.settings.get("Exclusive_Light_Switching", True):
                         path = os.path.normpath(TelegramResponder.main.default_values_dict["settings"]["433MHz_Transiever"]["path"])
                         onoff = 0
                         for switch in TelegramResponder.main.default_values_dict["settings"]["433MHz_Transiever"]["Codes"][
@@ -70,9 +70,10 @@ def do_send_RF_code(value, TelegramResponder):
 
 
 def send_info(value, TelegramResponder):
-    """Sends some infos to the user"""
+    """Info - Sends some infos to the user"""
     # create an exporter instance, as an argument give it
     # the item you wish to export
     for val in value.values():  # Todo: add the temperature and humidity response
         if re.findall(r"Info\b\s*", val):
             text = "Temperature and Humidity: \n\n"
+

@@ -48,9 +48,12 @@ def convert_to_EngUnits(data, dataType, unit="nano"):
         ("f", "femto"): 1e-15,
         ("a", "atto"): 1e-18
     }
-
+    old_unit_key = None
     for file in data["keys"]:
         # Find current order of magnitude
+        if not data[file]["units"]:
+            log.warning("No units defined for file {}. No conversion possible".format(file))
+            continue
         if dataType in data[file]["measurements"]:
             idx = data[file]["measurements"].index(dataType)
             if len(data[file]["units"][idx]) > 1:
@@ -80,8 +83,9 @@ def convert_to_EngUnits(data, dataType, unit="nano"):
             return data
 
     # Convert the all df as well
-    factor = engUnits[old_unit_key] / engUnits[to_convert]
-    data["All"][dataType] = data["All"][dataType] * factor
+    if old_unit_key:
+        factor = engUnits[old_unit_key] / engUnits[to_convert]
+        data["All"][dataType] = data["All"][dataType] * factor
 
     return data
 
@@ -283,12 +287,13 @@ def convert_to_df(convert, abs = False, keys = "all"):
     for key, data in to_convert.items():
         return_dict[key] = data
         try:
-            if abs:
+            if abs: # Build abs of data or not
                 for meas, arr in data["data"].items():
                     if meas in columns:
-                        data["data"][meas] = np.abs(arr)
-            # Adding label of data
-            #data["data"]["Name"] = [key for i in range(len(data["data"][list(data["data"].keys())[0]]))]
+                        try:
+                            data["data"][meas] = np.abs(arr)
+                        except: # If the value is some non float or int etc
+                            pass
 
             sub_set = {}
             for ind in columns:
@@ -298,6 +303,12 @@ def convert_to_df(convert, abs = False, keys = "all"):
                     log.warning("Key {} was not present, no data conversion".format(ind))
             sub_set["Name"] = [key for i in range(len(sub_set[list(sub_set.keys())[0]]))]
             df = pd.DataFrame(data=sub_set)
+
+            # Convert all datatypes that are not float or int to np.nan
+            for meas in df.keys():
+                mask = df[meas].apply(type) == str
+                df[meas] = df[meas].mask(mask, np.nan)
+
         except KeyError as err:
             log.error("In order to convert the data to panda dataframe, the data structure needs to have a key:'data'")
             raise err
@@ -413,14 +424,20 @@ def get_axis_labels(df_list, key, kdims, vdims):
         else:
             ylabel = "{}".format(kdims[1])
     except:
-        if df_list[key]["units"][df_list[key]["measurements"].index(vdims)]:
-            ylabel = "{} ({})".format(vdims, df_list[key]["units"][df_list[key]["measurements"].index(vdims)])
-        else:
-            ylabel = "{}".format(vdims)
+        try:
+            if df_list[key]["units"][df_list[key]["measurements"].index(vdims)]:
+                ylabel = "{} ({})".format(vdims, df_list[key]["units"][df_list[key]["measurements"].index(vdims)])
+            else:
+                ylabel = "{}".format(vdims)
+        except:
+            ylabel = "{}".format(kdims[1])
 
-    if df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])]:
-        xlabel = "{} ({})".format(kdims[0], df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])])
-    else:
+    try:
+        if df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])]:
+            xlabel = "{} ({})".format(kdims[0], df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])])
+        else:
+            xlabel = "{}".format(kdims[0])
+    except:
         xlabel = "{}".format(kdims[0])
 
     return xlabel, ylabel
@@ -446,6 +463,7 @@ def customize_plot(plot, plotName, configs, **addConfigs):
     # Look if a PlotLabel is in the addConfigs
     if "PlotLabel" in addConfigs:
         newlabel = addConfigs.pop("PlotLabel")
+        plotName = newlabel
     else: newlabel = None
 
 
@@ -684,9 +702,13 @@ def parse_file_data(filecontent, settings):
     """This function parses the ADCII file content to the needed data types"""
     filecontent = filecontent.split("\n")
 
-    header = filecontent[:settings["header_lines"]]
-    measurements = filecontent[settings["measurement_description"] - 1:settings["measurement_description"]]
-    units = filecontent[settings["units_line"] - 1:settings["units_line"]]
+    header = filecontent[:settings.get("header_lines", 0)]
+    if "measurement_description" in settings:
+        measurements = filecontent[settings["measurement_description"] - 1:settings["measurement_description"]]
+    else: measurements = [""]
+    if "units_line" in settings:
+        units = filecontent[settings["units_line"] - 1:settings["units_line"]]
+    else: units = [""]
     data = filecontent[settings["data_start"] - 1:]
     separator = settings.get("data_separator", None)
     preunits = settings.get("units", None)
@@ -698,8 +720,8 @@ def parse_file_data(filecontent, settings):
     regex = [re.compile(data_exp, re.MULTILINE), re.compile(units_exp)]
 
     # First parse the units and measurement types
-    parsed_obj = []
-    if not preunits or not premeasurement_cols:
+    parsed_obj = [[],[]]
+    if not preunits or not premeasurement_cols: # If you have defined both dont do that, otherwise make best effort
         log.info("Trying to extract measurements and units from file...")
         for k, data_to_split in enumerate((measurements, units)):
             for i, meas in enumerate(data_to_split):  # This is just for safety there is usually one line here
@@ -722,12 +744,17 @@ def parse_file_data(filecontent, settings):
                             to_del_ind.append(j)
                 for j in reversed(to_del_ind): # Delete empty or non valid ones
                     meas.pop(j)
-                parsed_obj.append(meas)
-    elif units and premeasurement_cols:
-        log.info("Using predefined columns and units...")
-        parsed_obj.append(premeasurement_cols)
-        parsed_obj.append(preunits)
+                parsed_obj[k] = meas
 
+    elif premeasurement_cols:
+        log.info("Using predefined columns...")
+        parsed_obj[0] = premeasurement_cols
+    elif preunits:
+        log.info("Using predefined units...")
+        parsed_obj[1] = preunits
+
+    if not parsed_obj[0] and not parsed_obj[1]:
+        log.error("No measurements and units extracted. Plotting will fail!")
 
     # Now parse the actual data and build the tree dict structure needed
     data_lists = []  # is a list containing all entries from one measurement, while having the same order like the measurements object

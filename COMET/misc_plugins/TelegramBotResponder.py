@@ -21,6 +21,7 @@ class TelegramBotResponder:
         self.current_light = None # The current light config
         self.function_helps = {} # The help text of all available functions
         self.load_plugins()
+        self.settings = self.main.framework_variables["Configs"]["config"]["settings"]
 
 
     def run(self, action, value):
@@ -104,12 +105,24 @@ class TelegramBotResponder:
                         try:
                             import matplotlib
                             import matplotlib.pyplot as plt
+                            from matplotlib import dates
+                            import datetime as dt
 
+                            # Try to get the x and y axis
+                            axis = self.main.plot_objs_axis.get(plot[0], ("X-Axis", "Y-Axis"))
+                            date = [dt.datetime.fromtimestamp(ts) for ts in plt_data[0]]
                             fig, ax = plt.subplots()
-                            ax.plot(plt_data[0], plt_data[1])
-                            ax.set(xlabel='x-Axis', ylabel='y-Axis',
+                            ax.plot(date, plt_data[1])
+                            ax.set(xlabel=axis[0], ylabel=axis[1],
                                    title=plot[0])
                             ax.grid()
+
+                            time = True if "time" in axis[0] else False
+                            if time and plt_data[0].any():
+                                # matplotlib date format object
+                                hfmt = dates.DateFormatter('%d/%m %H:%M')
+                                ax.xaxis.set_major_formatter(hfmt)
+                                plt.xticks(rotation=25)
 
                             # save to file
                             filepath = os.path.join(os.path.dirname(__file__), "__temp__")
@@ -177,3 +190,51 @@ class TelegramBotResponder:
         for val in value.values():
             if str(val).strip().lower() == "ping":
                 self.answer = "Success \n\n"
+
+    def do_update_code_from_repo(self, value, *args):
+        """Update - Tries to update the code from a remote repo"""
+        for val in value.values():
+            if re.findall(r"Update\b", val):
+                try:
+                    import git
+                except:
+                    self.answer = "Could not import git module, please install 'gitpython' first on the machine."
+                    return
+                fetch_out = ""
+                pull_out = ""
+                try:
+                    repo = git.Repo()
+                    o = repo.remotes.origin
+                    fetch_out = o.fetch()
+                    pull_out = o.pull()
+                    self.answer = "Code successfully updated!"
+                except: self.answer = "Could not pull from remote repo. No update done. \n" \
+                                      "FETCH MESSAGE: {} \n" \
+                                      "PULL MESSAGE: {} \n".format(fetch_out, pull_out)
+
+    def do_update_settings_from_repo(self, value, *args):
+        """Update settings - Tries to update the settings. This only works if you have a assigned repo in the configs dir."""
+
+        for val in value.values():
+            if re.findall(r"Update settings\b", val):
+                try:
+                    import git
+                except:
+                    self.answer = "Could not import git module, please install 'gitpython' first on the machine."
+                    return
+                fetch_out = ""
+                pull_out = ""
+                path = os.path.normpath("COMET/config")
+                os.system("cd {}".format(path))
+                try:
+                    repo = git.Repo()
+                    o = repo.remotes.origin
+                    fetch_out = o.fetch()
+                    pull_out = o.pull()
+                    self.answer = "Code successfully updated!"
+                except: self.answer = "Could not pull from remote repo. No update done. \n" \
+                                      "FETCH MESSAGE: {} \n" \
+                                      "PULL MESSAGE: {} \n".format(fetch_out, pull_out)
+
+
+

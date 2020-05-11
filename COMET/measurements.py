@@ -58,6 +58,7 @@ class measurement_class(Thread):
         self.queue_to_main.put({"STATE": "Preparing Setup..."})
         self.settings["settings"]["Start_time"] = str(datetime.datetime.now())
         self.load_plugins()
+        self.reload_plugins()# This seems useless, but this ensures, that the newest version of the plugin is in memory!
         self.write_data()
 
         # Start the humidity/temperature control if checked
@@ -143,7 +144,7 @@ class measurement_class(Thread):
         all_measurement_functions = os.listdir(os.path.join(self.framework["rootdir"], "measurement_plugins"))
         all_measurement_functions = list(set([modules.split(".")[0] for modules in all_measurement_functions]))
 
-        self.log.debug("All measurement functions found: " + str(all_measurement_functions) + ".")
+        self.log.debug("All found measurement functions: " + str(all_measurement_functions) + ".")
 
         # import all modules specified in the measurement order, so not all are loaded
         if "measurement_order" in self.settings["settings"]:
@@ -159,6 +160,11 @@ class measurement_class(Thread):
             self.settings["settings"]["measurement_order"] = []
             self.log.warning("No measurement_order specified, no measurements can be conducted!")
 
+    def reload_plugins(self):
+        """Reloads the measurement plugins that are already loaded. Only works if plugins are already init"""
+        self.log.debug("Relaoding measurement plugins...")
+        for module in self.all_plugins.values():
+            importlib.reload(module)
 
     def create_data_file(self, header, filepath, filename="default"):
         self.log.debug("Creating new data file with name: {!s}".format(filename))
