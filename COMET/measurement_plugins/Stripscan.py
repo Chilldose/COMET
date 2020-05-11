@@ -166,7 +166,7 @@ class Stripscan_class(tools):
         self.clean_up()
 
     def remeasure_bad_strips(self, strips):
-        self.log.warning("Remeasure not yet implemented")
+        self.log.error("Remeasure not yet implemented")
 
     def clean_up(self):
         # Ramp down the voltage after stripscan
@@ -340,6 +340,15 @@ class Stripscan_class(tools):
                     self.last_move = 9999999 # Ensuring that the table moves to the first point
 
                     for current_strip in range(*part): # Loop over all strips
+
+                        # Pausing routine
+                        if self.main.framework['Configs']['config']['settings'].get("pause_stripscan", False):
+                            self.main.framework['Configs']['config']['settings']["stripscan_device"] = (self.bias_SMU, "set_voltage", self.current_voltage, self.voltage_steps)
+                            self.main.framework['Configs']['config']['settings']["stripscan_is_paused"] = True
+                            while self.main.framework['Configs']['config']['settings']["pause_stripscan"]:
+                                sleep(0.1)
+                            self.main.framework['Configs']['config']['settings']["stripscan_is_paused"] = False
+
                         if not self.main.event_loop.stop_all_measurements_query():
                             # Switch to normal IV mode
                             self.switching.switch_to_measurement("IV")

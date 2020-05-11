@@ -22,9 +22,24 @@ class bad_strip_detection:
 
         self.data = data
         self.configs = configs
+        self.rename_columns()
         #Todo: inheritance may be the more elegant solution here
         self.analysis = stripanalysis(None, settings=self.configs["bad_strip_detection"]["Config"])
         self.analysis.all_data = self.data
+
+    def rename_columns(self):
+        """Renames the columns for the badstripdetection"""
+        aliases = self.configs.get("Measurement_aliases", None)
+        if aliases:
+            for data in self.data:
+                for oldkey, newkey in aliases.items():
+                    try:
+                        self.data[data]["data"][newkey] = self.data[data]["data"].pop(oldkey)
+                        idx = self.data[data]["measurements"].index(oldkey)
+                        self.data[data]["measurements"][idx] = newkey
+                    except KeyError:
+                        pass
+
 
     def run(self):
         """Runs the script"""

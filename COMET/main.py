@@ -93,8 +93,8 @@ def main():
             import git
             repo = git.Repo()
             o = repo.remotes.origin
-            o.fetch()
-            o.pull()
+            log.info(o.fetch())
+            log.info(o.pull())
         except Exception as err:
             log.error("An error happened while updating COMET source code. Error: {}...".format(err))
 
