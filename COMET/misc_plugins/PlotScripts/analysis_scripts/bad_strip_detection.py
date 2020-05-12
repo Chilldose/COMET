@@ -29,7 +29,7 @@ class bad_strip_detection:
 
     def rename_columns(self):
         """Renames the columns for the badstripdetection"""
-        aliases = self.configs.get("Measurement_aliases", None)
+        aliases = self.configs.get("bad_strip_detection", {}).get("Measurement_aliases", None)
         if aliases:
             for data in self.data:
                 for oldkey, newkey in aliases.items():

@@ -17,7 +17,7 @@ class Stripscan:
         self.config = configs
         self.analysisName = "Stripscan"
         self.data = convert_to_df(data, abs=self.config.get("abs_value_only", False))
-        self.data = rename_columns(self.data, self.config[self.analysisName].get("Measurement_aliases", {}))
+        self.data = rename_columns(self.data, self.config.get(self.analysisName, {}).get("Measurement_aliases", {}))
         self.finalPlot = None
         self.df = []
         self.measurements = self.data["columns"]
