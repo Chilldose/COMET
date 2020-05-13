@@ -1,7 +1,6 @@
 """__author__: Dallavalle Riccardo
-__email__: dallavallericcardo@outlook.com"""
-
-"""Create a custom importer which is able to manage different kind of file analysis.
+__email__: dallavallericcardo@outlook.com
+Create a custom importer which is able to manage different kind of file analysis.
 Read the files and in the end return a dictionary containing the file content"""
 import os
 import logging

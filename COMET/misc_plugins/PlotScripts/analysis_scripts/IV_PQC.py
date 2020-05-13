@@ -102,7 +102,7 @@ class IV_PQC:
         return data
 
     def analysis_mos(self, df):
-        global fBestimation
+        #global fBestimation
         cv_files.append(df)  # Append data-frame to a list containing all the cv mos files that you want to analyze.
 
         # Double check that the voltage values have increasing order.
@@ -174,12 +174,12 @@ class IV_PQC:
         return self.PlotDict["BasePlots_MOS"]
 
     def analysis_diode(self, df):
-        global fdestimation
+        #global fdestimation
         diode_files.append(df)  # Append to a list containing all the diode files
         self.data[df]["data"]["Voltage"] = list(map(abs, self.data[df]["data"]["Voltage"]))  # take absolute value of Voltage
 
         # Try interpolation + filtered savitzy-golay derivative plot
-        capacity_curve, derivative_onec2_curve, deronec2_savgol_plot =  self.interp_derivative_diode(df, self.data[df]["data"][self.xaxis], self.data[df]["data"]["Capacity"])
+        capacity_curve, derivative_onec2_curve, deronec2_savgol_plot = self.interp_derivative_diode(df, self.data[df]["data"][self.xaxis], self.data[df]["data"]["Capacity"])
         self.insert_in_df(df, 3, "1C2", 1 / self.data[df]["data"]["Capacity"].pow(2))
 
         # Compute first derivative of 1/C2
@@ -248,7 +248,7 @@ class IV_PQC:
         return self.PlotDict["BasePlots_diode"]
 
     def analysis_gate(self, df):
-        global curr_savgol_plot, maxsavgol
+        #global curr_savgol_plot, maxsavgol
         gate_files.append(df)  # append to a list containing all the gate diode files
 
         # Remove initial kink from the data
@@ -262,15 +262,15 @@ class IV_PQC:
         plot_not_kink= self.add_single_plots(self.data[df]["data"][self.xaxis], CurrentCopy, "Current")
 
         # Try savgol filter
-        try:
-            i = 0
-            while i < 2:
-                curr_savgol = scipy.signal.savgol_filter(self.data[df]['data']['Current'], 31, 3)  # window size 51, polynomial order 3
-                i += 1
-            maxsavgol = max(curr_savgol)
-            curr_savgol_plot = self.add_single_plots(self.data[df]['data']['Voltage'], curr_savgol, "SavgolCurrent")
-        except Exception:
-            self.log.warning("No savgol plot possible... Error: {}")
+        ##try:
+        ##    i = 0
+        ##    while i < 2:
+        ##        curr_savgol = scipy.signal.savgol_filter(self.data[df]['data']['Current'], 31, 3)  # window size 51, polynomial order 3
+        ##        i += 1
+        ##    maxsavgol = max(curr_savgol)
+        ##    curr_savgol_plot = self.add_single_plots(self.data[df]['data']['Voltage'], curr_savgol, "SavgolCurrent")
+        ##except Exception:
+        ##    self.log.warning("No savgol plot possible... Error: {}")
 
         # Interpolation current curve
         xnew, ynew = self.interpolated_axis(df, self.data[df]["data"][self.xaxis], CurrentCopy)
@@ -343,7 +343,7 @@ class IV_PQC:
             # Add overlaid lines on the plot
             Path_min = hv.Path([(-2, miny), (6, miny)]).opts(line_width=2.0)
             Path_mxx = hv.Path([(-2, mxx), (6, mxx)]).opts(line_width=2.0)
-            Path_savgolmax = hv.Path([(-2, maxsavgol), (6, maxsavgol)])
+            ##Path_savgolmax = hv.Path([(-2, maxsavgol), (6, maxsavgol)]).opts(line_width=2.0)
             Path_average = hv.Path([(-2, I_surf_maxima_average), (6, I_surf_maxima_average)]).opts(line_width=2.0)
             Path_Isurf = hv.Arrow(-1, mxx, 'max', '^')
             Path_Isurf_average = hv.Arrow(0, I_surf_maxima_average, 'average', '^')
@@ -358,7 +358,7 @@ class IV_PQC:
                 self.PlotDict["BasePlots_gate"] += curr_savgol_plot * plot_not_kink
             except Exception:
                 self.log.warning("No savgol plot possible... Error: {}")
-            self.PlotDict["BasePlots_gate"] += text * curr_interp_plot * plot_not_kink * Path_min * Path_mxx * Path_average * Path_Isurf * Path_Isurf_average * Path_savgolmax
+            self.PlotDict["BasePlots_gate"] += text * plot_not_kink * Path_min * Path_mxx * Path_average * Path_Isurf * Path_Isurf_average #* Path_savgolmax
             self.PlotDict["BasePlots_gate"] += curr_interp_plot * dif_intep_plot * dif2_intep_plot * plot_not_kink
 
             # Add table that shows resulting parameters of the analysis
@@ -459,7 +459,7 @@ class IV_PQC:
         :param **addConfigs: the configs special for the 1/C2 plot, it is recommended to pass the same options here again, like in the original plot!
         :return: The updated plot
         """
-        global Right_stats, fit_stats
+        #global Right_stats, fit_stats
         self.log.info("Searching for flat band voltage in all files...")
         sample = deepcopy(data[df])
 
@@ -506,11 +506,11 @@ class IV_PQC:
 
         # Add central slope
         xmax = df1["xaxis"][indexMin]
-        fit_line = np.array([[df1["xaxis"][indexMax-3], fit_stats[1] * df1["xaxis"][indexMax-3] + fit_stats[2]],[xmax+0.2, fit_stats[1] * (xmax+0.2) + fit_stats[2]]])
+        fit_line = np.array([[df1["xaxis"][indexMax-3], fit_stats[1] * df1["xaxis"][indexMax-3] + fit_stats[2]], [xmax+0.2, fit_stats[1] * (xmax+0.2) + fit_stats[2]]])
 
         # Add right slope
         xmax = df1["xaxis"][len(df1["yaxis"]) - 1]
-        right_line = np.array([[df1["xaxis"][indexMax-3], Right_stats[1] * df1["xaxis"][indexMax-3] + Right_stats[2]],[xmax, Right_stats[1] * xmax + Right_stats[2]]])
+        right_line = np.array([[df1["xaxis"][indexMax-3], Right_stats[1] * df1["xaxis"][indexMax-3] + Right_stats[2]], [xmax, Right_stats[1] * xmax + Right_stats[2]]])
 
         # Compute the flatband voltage
         flatband_voltage = line_intersection(fit_stats[0], Right_stats[0])
@@ -584,11 +584,11 @@ class IV_PQC:
         :param **addConfigs: the configs special for the 1/C2 plot, it is recomended to pass the same options here again, like in the original plot!
         :return: The updated plot
         """
-        global LeftEndPoints, df
+        #global LeftEndPoints, df
         Left_stats = np.zeros((len(diode_files), 6), dtype=np.object)
         self.log.info("Searching for full depletion voltage in all files...")
 
-        for i, samplekey in enumerate(diode_files):
+        for samplekey in diode_files:
             if "1C2" not in data[samplekey]["data"]:
                 self.log.warning("Full depletion calculation could not be done for data set: {}".format(samplekey))
             else:
@@ -601,18 +601,18 @@ class IV_PQC:
                 LR2 = 0
                 for idx in range(5, len(df)-20):
                     # Left
-                    slope_left, intercept_left, r_left, p_value, std_err_left = linregress(df["xaxis"][:-idx],df["yaxis"][:-idx])
+                    slope_left, intercept_left, r_left, p_value, std_err_left = linregress(df["xaxis"][:-idx], df["yaxis"][:-idx])
                     r2_left = r_left * r_left
                     self.log.debug("Left side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(slope_left, intercept_left, r2_left, std_err_left))
 
                     # See if the r2 value has increased and store end points
                     if r2_left >= LR2:
                         LR2 = r2_left
-                        LeftEndPoints = ((df["xaxis"][0], intercept_left),(df["xaxis"][idx], slope_left * df["xaxis"][idx] + intercept_left))
+                        LeftEndPoints = ((df["xaxis"][0], intercept_left), (df["xaxis"][idx], slope_left * df["xaxis"][idx] + intercept_left))
 
         # Find the right fit by averaging on the final 20 points
         average_right = np.mean(list(df['yaxis'][-20:]))
-        RightEndPoints =[(df['xaxis'][len(df['xaxis'])-20],average_right),(df['xaxis'][len(df['xaxis'])-1],average_right)]
+        RightEndPoints =[(df['xaxis'][len(df['xaxis'])-20], average_right), (df['xaxis'][len(df['xaxis'])-1], average_right)]
 
         # Find the line intersection
         full_depletion_voltages = line_intersection(LeftEndPoints, RightEndPoints)
@@ -623,12 +623,12 @@ class IV_PQC:
         vline = hv.VLine(full_depletion_voltages[0]).opts(color='black', line_width=5.0)
 
         # Add slopes
-        left_line = np.array([[0, np.median(Left_stats[:,2])],[full_depletion_voltages[0], full_depletion_voltages[1]]])
+        left_line = np.array([[0, np.median(Left_stats[:,2])], [full_depletion_voltages[0], full_depletion_voltages[1]]])
         left_line = hv.Curve(left_line).opts(color='grey')
         right_line = hv.HLine(average_right).opts(color='grey')
 
         # Add text
-        text = hv.Text(230, (5e+21), 'Depletion voltage: {} V'.format(np.round(full_depletion_voltages[0], 2))).opts(style=dict(text_font_size='20pt'))
+        text = hv.Text(230, 5e+21, 'Depletion voltage: {} V'.format(np.round(full_depletion_voltages[0], 2))).opts(style=dict(text_font_size='20pt'))
 
         # Update the plot specific options if need be
         returnPlot = plot * vline * right_line * left_line * text
