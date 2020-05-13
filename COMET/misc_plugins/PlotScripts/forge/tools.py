@@ -690,7 +690,6 @@ def read_in_ASCII_measurement_files(filepathes, settings):
             data.update({"analysed": False, "plots": False})
             all_data[filename] = data
             load_order.append(filename)
-
         return all_data, load_order
 
     except Exception as e:
@@ -834,7 +833,7 @@ def save_dict_as_xml(data_dict, filepath, name):
     Writes out the data as xml file, for the CMS DB
 
     :param filepath: Filepath where to store the xml
-    :param name: name of the file 
+    :param name: name of the file
     :param data_dict: The data to store in this file. It has to be the dict representation of the xml file
     :return:
     """
@@ -870,7 +869,6 @@ def save_data(self, type, dirr, base_name="data"):
             self.log.info("Saving xml file...")
             xml_dict = deepcopy(self.plotting_Object.data.get("xml_dict", self.plotting_Object.data)) # Either take the special xml representation or if not present take the normal dict representation
             save_dict_as_xml(xml_dict, os.path.join(os.path.normpath(dirr), "data"), base_name)
-
 
 def text_box(text, xpos, ypos, boxsize, fontsize=30, fontcolor="black", bgcolor="white"):
     """Generates a box with text in it"""

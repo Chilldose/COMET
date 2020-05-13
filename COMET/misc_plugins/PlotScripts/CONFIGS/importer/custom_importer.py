@@ -44,5 +44,3 @@ def myImporter(filepathes, **kwargs):
 
     # If you want you can define an entry
     return return_dict
-
-
