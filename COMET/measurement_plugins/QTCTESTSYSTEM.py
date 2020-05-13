@@ -4,8 +4,10 @@ import logging
 import sys
 sys.path.append('../COMET')
 from time import time, sleep
+import time
 from ..utilities import transformation
 from .forge_tools import tools
+import numpy as np
 
 class QTCTESTSYSTEM_class(tools):
 
@@ -88,6 +90,46 @@ class QTCTESTSYSTEM_class(tools):
         self.current_voltage = self.main.framework['Configs']['config']['settings'].get("bias_voltage", 0)
         self.cal_to = {"Cac": 1000, "Cac_beta": 1000, "Cint": 1000000, "Cint_beta": 1000000} # Hz
         self.open_corrections = {}
+        self.progress = 0
+
+        # Data arrays
+        self.data = {
+            "Empty": {
+                "Chuckleakage": np.zeros(self.samples),
+                "Cacempty": np.zeros(self.samples),
+                "Cintempty": np.zeros(self.samples),
+                "Rpolyempty": np.zeros(self.samples),
+                "Rintempty": np.zeros(self.samples),
+                "Idielempty": np.zeros(self.samples),
+                "IVempty": np.zeros(self.samples),
+                "CVempty": np.zeros(self.samples)
+            },
+
+            "units": {
+                "Chuckleakage": "A",
+                "Cacempty": "F",
+                "Cintempty": "F",
+                "Rpolyempty": "Ohm",
+                "Rintempty": "Ohm",
+                "Idielempty": "A",
+                "IVempty": "A",
+                "CVempty": "F",
+                "R1": "Ohm",
+                "R2": "Ohm",
+                "C1": "F",
+                "C2": "F",
+            },
+
+            "TestCard": {
+                "R1": np.zeros(self.samples),
+                "R2": np.zeros(self.samples),
+                "C1": np.zeros(self.samples),
+                "C2": np.zeros(self.samples),
+                "RC1": np.zeros(self.samples),
+            }
+
+
+        }
 
         # Varaibels for testsystem and GUI
         self.main.framework['Configs']['config']['settings']["QTC_test"] = {}
@@ -107,6 +149,9 @@ class QTCTESTSYSTEM_class(tools):
             self.validalignment = True
 
         self.log = logging.getLogger(__name__)
+
+        #
+
         self.main.queue_to_main.put({"INFO": "Initialization of Setup test finished."})
 
 
@@ -135,6 +180,36 @@ class QTCTESTSYSTEM_class(tools):
 
     def save_results(self):
         """Saves everything to a file"""
+        padding = 24 # Padding for each of the data points
+        header = "SQC self test measurement file \n Date: {} \n Operator: {} \n\n".format(time.asctime(), self.main.framework['Configs']['config']['settings'].get("Operator", "None"))
+        empttykeys = self.data["Empty"].keys()
+        Cardkeys = self.data["TestCard"].keys()
+
+        measurements = list(empttykeys)
+        measurements.append(list(Cardkeys))
+        units = ["#".ljust(padding),]
+
+        # Append units:
+        for meas in measurements:
+            header += meas.ljust(padding)
+            units.append(self.data["units"].get(meas, "arb. units").ljust(padding))
+        header += "\n" + "".join(units)
+
+        finalarray = self.data["Empty"][empttykeys[0]]
+        # Add empty meas
+        for meas in empttykeys[1:]:
+            finalarray = np.concatenate((finalarray, self.data["Empty"][meas].T), axis=1)
+        # Add Test card
+        for meas in Cardkeys["TestCard"]:
+            finalarray = np.concatenate((finalarray, self.data["TestCard"][meas].T), axis=1)
+
+        filecontent = "\n"
+        for line in finalarray:
+            filecontent +="".ljust(padding).join(line)
+            filecontent += "\n"
+
+        self.main.write(self.main.measurement_files["SQC_test"], header+filecontent)
+
 
     def stop_everything(self):
         """Stops the measurement
