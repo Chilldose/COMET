@@ -41,17 +41,23 @@ class QTCSelfTest_window:
         self.update_stats()
         self.update_bins()
         self.plot_config()
+        self.variables.add_update_function(self.update_plot)
+        self.variables.add_update_function(self.update_stats)
+
+        # Set progressbar maximum
+        self.widget.Overall_progressBar.setMaximum(100)
+        self.widget.partial_progressBar.setMaximum(100)
 
     def update_stats(self):
         """Updates the stats"""
         if "QTC_test" in self.settings and self.settings.get("Measurement_running", False):
             # Set text label
-            self.widget.report_label.text(self.settings["QTC_test"]['text'])
+            self.widget.report_label.setText(self.settings["QTC_test"]['text'])
 
             # Set progress bars
-            self.widget.Overall_progressBar.setValue(self.settings["QTC_test"]['overallprogress'])
-            self.widget.partial_progressBar.setValue(self.settings["QTC_test"]['partialprogress'])
-            self.widget.label_partial.setValue("Progress: {}".format(self.settings["QTC_test"]['currenttest']))
+            self.widget.Overall_progressBar.setValue(self.settings["QTC_test"]['overallprogress']*100)
+            self.widget.partial_progressBar.setValue(self.settings["QTC_test"]['partialprogress']*100)
+            self.widget.label_partial.setText("Progress: {}".format(self.settings["QTC_test"]['currenttest']))
 
 
     def plot_config(self):
@@ -89,69 +95,30 @@ class QTCSelfTest_window:
     def update_bins(self):
         """Updates the bins for the histogram"""
         self.bins = self.widget.Slider_bins.value()
-        measurement = self.widget.which_measurement.currentText()
-        self.update_plot(measurement)
+        self.update_plot()
 
     def update_plot_selection(self):
         """Updates the possible plot selection"""
-        self.samples = 100
-        self.settings["QTC_test"] = {}
-        self.settings["QTC_test"]["branch"] = "Empty"
-
-        self.settings["QTC_test"]["data"] = {"Empty": {
-                "Chuckleakage": np.zeros(self.samples),
-                "Cacempty": np.zeros(self.samples),
-                "Cintempty": np.zeros(self.samples),
-                "Rpolyempty": np.zeros(self.samples),
-                "Rintempty": np.zeros(self.samples),
-                "Idielempty": np.zeros(self.samples),
-                "IVempty": np.zeros(self.samples),
-                "CVempty": np.zeros(self.samples)
-            },
-
-            "units": {
-                "Chuckleakage": "A",
-                "Cacempty": "F",
-                "Cintempty": "F",
-                "Rpolyempty": "Ohm",
-                "Rintempty": "Ohm",
-                "Idielempty": "A",
-                "IVempty": "A",
-                "CVempty": "F",
-                "R1": "Ohm",
-                "R2": "Ohm",
-                "C1": "F",
-                "C2": "F",
-            },
-
-            "TestCard": {
-                "R1": np.zeros(self.samples),
-                "R2": np.zeros(self.samples),
-                "C1": np.zeros(self.samples),
-                "C2": np.zeros(self.samples),
-                "RC1": np.zeros(self.samples),
-            }
-        }
         if "QTC_test" in self.settings:
             # Set text label
             self.widget.which_measurement.clear()
             data = self.settings["QTC_test"]['data']
             self.widget.which_measurement.addItems(data.get("Empty", {}).keys())
             self.widget.which_measurement.addItems(data.get("TestCard", {}).keys())
-            self.update_plot(self.widget.which_measurement.currentText())
+            self.update_plot()
 
-    def update_plot(self, measurement_name):
+    def update_plot(self):
         '''This handles the update of the plot'''
         # This clear here erases all data from the viewbox each time this function is called and draws all points again!
         # Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage
         # With the clear statement medium cpu und low memory usage
         measurement = self.widget.which_measurement.currentText()
-        if measurement:
+        if measurement and self.variables.default_values_dict["settings"]["new_data"]:
             branch = self.settings["QTC_test"]['branch']
             ydata = self.settings["QTC_test"]["data"][branch][measurement][np.nonzero(self.settings["QTC_test"]["data"][branch][measurement])[0]]
             xdata = np.array(range(len(ydata)))
 
-            self.reconfig_plot(measurement_name, measurement, unit=self.settings["QTC_test"]["data"]["units"][measurement])
+            self.reconfig_plot(measurement, measurement, unit=self.settings["QTC_test"]["data"]["units"][measurement])
             if ydata.any(): # Checks if data is available or if all is empty
                 if len(xdata) == len(ydata):  # sometimes it happens that the values are not yet ready (fucking multithreading)
 
@@ -162,9 +129,9 @@ class QTCSelfTest_window:
                     x,y = np.histogram(ydata, bins = self.bins)
                     self.widget.strip_plot_histogram.plot(y, x, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80), clear=True, connect="finite")
 
-            self.widget.strip_plot.enableAutoRange(y=True)
-            self.tooltip = show_cursor_position(self.widget.strip_plot)
-            return self.widget.strip_plot, self.widget.strip_plot_histogram
+            #self.widget.strip_plot.enableAutoRange(y=True)
+            #self.tooltip = show_cursor_position(self.widget.strip_plot)
+            return #self.widget.strip_plot, self.widget.strip_plot_histogram
 
     def reconfig_plot(self, Title, ylabel, unit):
         '''Reconfigs the plot for the different plots
@@ -194,3 +161,4 @@ class QTCSelfTest_window:
         self.final_job.update({"Header": header})
         self.variables.message_from_main.put({"Measurement": self.final_job})
         self.log.info("Sendet job: " + str({"Measurement": self.final_job}))
+

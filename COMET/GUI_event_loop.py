@@ -187,9 +187,6 @@ class GUI_event_loop(QThread):
             else:
                 self.log.error("Measurement " + str(measurement) + " could not be found in active data arrays. Data discarded.")
 
-
-
-
     def process_pending_events(self):
         '''This function sends all occured events to the measurement loop and does some cleaning in the program'''
 

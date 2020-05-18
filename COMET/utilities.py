@@ -861,7 +861,7 @@ class Framework:
             try:
                 function()
             except Exception as err:
-                self.log.info("While updating the framework an error happend in function {} with error: {}".format(function, err))
+                self.log.info("While updating the framework an error happened in function {} with error: {}".format(function, err))
                 raise
 
 class transformation:
@@ -1956,3 +1956,8 @@ def send_telegram_message(person, message, configs, client):
     else:
         l.debug("Not TelegramBot entry in the configs, no message dispatch: Message: {}".format(message))
         return False
+
+def force_plot_update(settings_dict):
+    """Forces the GUI to replot all plots. Needs the settings dict """
+    settings_dict["new_data"] = True  # Initiates the update of the plots
+    settings_dict["last_plot_update"] = settings_dict["update_counter"]

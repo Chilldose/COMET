@@ -5,7 +5,7 @@ import sys
 sys.path.append('../COMET')
 from time import time, sleep
 import time
-from ..utilities import transformation
+from ..utilities import transformation, force_plot_update
 from .forge_tools import tools
 import numpy as np
 
@@ -73,20 +73,20 @@ class QTCTESTSYSTEM_class(tools):
             self.elmeter = self.main.devices[self.device_configs["Elmeter"]]
             self.SMU2 = self.main.devices[self.device_configs["SMU2"]]
             self.discharge_switching = self.main.devices[self.device_configs["Switching"]]
+            self.testmode = False
         except KeyError as valErr:
             self.log.critical(
                 "One or more devices could not be found for the QTC test measurements. Error: {}".format(valErr))
+            self.testmode = True
 
         # Misc.
         self.job = self.main.job_details
-        self.sensor_pad_data = self.main.framework["Configs"]["additional_files"]["Pad_files"]["KIT_probecard"]["CARD"]
+        self.sensor_pad_data = self.main.framework["Configs"]["additional_files"]["Pad_files"].get("KIT_probecard", {}).get("CARD", None)
         self.height = 5000 # 5 mm height movement
         self.samples = 1000 # The amount of samples each measurement must have
-        self.T = self.main.framework['Configs']['config']['settings']["trans_matrix"]
-        self.V0 = self.main.framework['Configs']['config']['settings']["V0"]
+        self.T = self.main.framework['Configs']['config']['settings'].get("trans_matrix", None)
+        self.V0 = self.main.framework['Configs']['config']['settings'].get("V0", None)
         self.justlength = 24
-        self.project = self.main.job_details["Project"]
-        self.sensor = self.main.job_details["Sensor"]
         self.current_voltage = self.main.framework['Configs']['config']['settings'].get("bias_voltage", 0)
         self.cal_to = {"Cac": 1000, "Cac_beta": 1000, "Cint": 1000000, "Cint_beta": 1000000} # Hz
         self.open_corrections = {}
@@ -149,7 +149,7 @@ class QTCTESTSYSTEM_class(tools):
             self.log.warning("No Rint boundaries given, defaulting to [-1.,1.,0.1]. Consider adding it to your settings")
 
         # Check if alignment is present or not, if not stop measurement
-        if not self.main.framework['Configs']['config']['settings']["Alignment"]:
+        if not self.main.framework['Configs']['config']['settings'].get("Alignment", None) or not self.T or not self.sensor_pad_data:
             self.log.error("Alignment is missing. Only non table critical measurements will be conducted!")
             self.validalignment = False
         else:
@@ -166,34 +166,51 @@ class QTCTESTSYSTEM_class(tools):
         """Does all the testing"""
 
         # Do device empty tests - Do switching uncontacted and do self.samples measurements
-        self.empty_measurements()
+        if not self.testmode:
+            self.empty_measurements()
 
-        # Do the probe card measurements - Contact the probe card and measurer the KIT resistors and capacitors
-        if self.validalignment:
-            self.test_card_measurements()
+            # Do the probe card measurements - Contact the probe card and measurer the KIT resistors and capacitors
+            if self.validalignment:
+                self.test_card_measurements()
 
-        # Save the data to an ASCII/JSON file
-        self.save_results()
+            # Save the data to an ASCII/JSON file
+            self.save_results()
+        else:
+            self.empty_measurements_test()
 
-    def empty_measurements(self):
+    def empty_measurements_test(self):
         """Does the device empty measurement. It switches to the measurement and then takes samples. The card is
         not contacted at this time"""
-        pass
+        mu, sigma = 0, 0.1  # mean and standard deviation
+        s = np.random.normal(mu, sigma, self.samples)
+        i = 0
+        from time import sleep
+        self.main.framework['Configs']['config']['settings']["QTC_test"]['branch'] = "Empty"
+        for j, meas in enumerate(list(self.data["Empty"].keys())):
+            self.main.framework['Configs']['config']['settings']["QTC_test"]['overallprogress'] = j/len(list(self.data["Empty"].keys()))
+            self.main.framework['Configs']['config']['settings']["QTC_test"]['currenttest'] = meas
+            for k, sam in enumerate(s):
+                self.main.framework['Configs']['config']['settings']["QTC_test"]['partialprogress'] = k/self.samples
+                self.data["Empty"][meas][i] = sam
+                i+=1
+                sleep(0.05)
+                force_plot_update(self.main.framework['Configs']['config']['settings'])
+            i=0
 
     def test_card_measurements(self):
-        """Does the KIT test card measurements. It switches either to Rpoly, Cac, or Cint and conducts the measuremnt
+        """Does the KIT test card measurements. It switches either to Rpoly, Cac, or Cint and conducts the measurement
         on the card. Each measurement will be repeated self.samples times and the table will recontact every time."""
         pass
 
     def save_results(self):
         """Saves everything to a file"""
         padding = 24 # Padding for each of the data points
-        header = "SQC self test measurement file \n Date: {} \n Operator: {} \n\n".format(time.asctime(), self.main.framework['Configs']['config']['settings'].get("Operator", "None"))
-        empttykeys = self.data["Empty"].keys()
-        Cardkeys = self.data["TestCard"].keys()
+        header = "SQC self test measurement file \n Date: {} \n Operator: {} \n\n".format(time.asctime(), self.main.framework['Configs']['config']['settings'].get("Current_operator", "None"))
+        empttykeys = list(self.data["Empty"].keys())
+        Cardkeys = list(self.data["TestCard"].keys())
 
         measurements = list(empttykeys)
-        measurements.append(list(Cardkeys))
+        measurements.extend(list(Cardkeys))
         units = ["#".ljust(padding),]
 
         # Append units:
@@ -202,20 +219,24 @@ class QTCTESTSYSTEM_class(tools):
             units.append(self.data["units"].get(meas, "arb. units").ljust(padding))
         header += "\n" + "".join(units)
 
-        finalarray = self.data["Empty"][empttykeys[0]]
+        finalarray = np.ones(shape=(self.samples,(len(empttykeys) + len(Cardkeys))))
         # Add empty meas
-        for meas in empttykeys[1:]:
-            finalarray = np.concatenate((finalarray, self.data["Empty"][meas].T), axis=1)
+        i = 0
+        for meas in empttykeys:
+            finalarray[:,i] = self.data["Empty"][meas]
+            i+=1
         # Add Test card
-        for meas in Cardkeys["TestCard"]:
-            finalarray = np.concatenate((finalarray, self.data["TestCard"][meas].T), axis=1)
+        for meas in Cardkeys:
+            finalarray[:,i] = self.data["TestCard"][meas]
+            i+=1
 
         filecontent = "\n"
         for line in finalarray:
-            filecontent +="".ljust(padding).join(line)
+            for entry in line:
+                filecontent += str(entry).ljust(padding)
             filecontent += "\n"
 
-        self.main.write(self.main.measurement_files["SQC_test"], header+filecontent)
+        #self.main.write(self.main.measurement_files["SQC_test"], header+filecontent)
 
     def stop_everything(self):
         """Stops the measurement
