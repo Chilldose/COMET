@@ -127,15 +127,22 @@ class QTCTESTSYSTEM_class(tools):
                 "C2": np.zeros(self.samples),
                 "RC1": np.zeros(self.samples),
             }
-
-
         }
 
-        # Varaibels for testsystem and GUI
+        # Add measurements to the framework
+        #self.main.measurement_data.update(self.data["Empty"])
+        #self.main.measurement_data.update(self.data["TestCard"])
+
+        # Vars for testsystem and GUI
         self.main.framework['Configs']['config']['settings']["QTC_test"] = {}
         self.main.framework['Configs']['config']['settings']["QTC_test"]['proceed'] = False
-        self.main.framework['Configs']['config']['settings']["QTC_test"]['text'] = "This is the QTC test, init text"
+        self.main.framework['Configs']['config']['settings']["QTC_test"]['text'] = "This is the QTC test, init text."
         self.main.framework['Configs']['config']['settings']["QTC_test"]['currenttest'] = "None"
+        self.main.framework['Configs']['config']['settings']["QTC_test"]['overallprogress'] = 0
+        self.main.framework['Configs']['config']['settings']["QTC_test"]['partialprogress'] = 0
+        self.main.framework['Configs']['config']['settings']["QTC_test"]['data'] = self.data
+        self.main.framework['Configs']['config']['settings']["QTC_test"]['branch'] = None
+
 
         if "Rint_MinMax" not in self.main.framework['Configs']['config']['settings']:
             self.main.framework['Configs']['config']['settings']["Rint_MinMax"] = [-1.,1.,0.1]
@@ -209,7 +216,6 @@ class QTCTESTSYSTEM_class(tools):
             filecontent += "\n"
 
         self.main.write(self.main.measurement_files["SQC_test"], header+filecontent)
-
 
     def stop_everything(self):
         """Stops the measurement

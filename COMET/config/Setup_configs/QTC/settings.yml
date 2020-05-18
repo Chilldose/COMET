@@ -45,7 +45,8 @@
         - IVCV
         - Stripscan
         - Frequency Scan
-        - Dynamicwaiting
+        - dynamicwaiting
+        - QTCTESTSYSTEM
 
 
     # Optional parameters
@@ -86,6 +87,7 @@
         - FrequencyScan
         - DynamicWaiting
         - DataVisualization
+        - QTCSelfTest
         - Documentation
 
     # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name

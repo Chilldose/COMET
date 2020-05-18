@@ -36,7 +36,7 @@ class DeviceCommunication_window:
             self.currentDevice = self.variables.devices_dict[self.gui.device_comboBox.currentText()]
             self.get_device_commands()
         except:
-            self.log.warningo("It seems no devices are connected...")
+            self.log.warning("It seems no devices are connected...")
 
     def list_all_action(self):
         """Lists all devices"""
