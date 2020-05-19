@@ -548,10 +548,13 @@ class DataVisualization_window:
             """Genrerates a xml template entry"""
             xml_node.remove(xml_node.find(element_name)) # So that the template entry is gone
             keyword_re = re.compile(r"<(.*)>")
-            root = ET.SubElement(xml_node, element_name)
             for i, value in enumerate(data["data"][kdim]):
+                root = ET.SubElement(xml_node, element_name)
                 for key, entry in template.items():
-                    ET.SubElement(root, )
+                    data_key = keyword_re.findall(entry)
+                    if data_key:
+                        element = ET.SubElement(root, key)
+                        element.text = data["data"][key][i]
 
 
         def dict_template_insert_iter(diction, path):
@@ -569,7 +572,7 @@ class DataVisualization_window:
                             if kdim in dat["data"].keys(): # Todo: this may fail, and I am using raw data here,
                                 subtrees[kdim] = deepcopy(root)
                                 node = validate_node(subtrees[kdim], path[:-1]) # Since we dont want the actual entry, just where to put it
-                                generate_template_xml_elements(kdmi, path[-1], node, xml_config_file[keyword.string.replace("/", "")][kdim], dat)
+                                generate_template_xml_elements(kdim, path[-1], node, xml_config_file[keyword.string.replace("/", "")][kdim], dat)
                     path.pop()
 
         dict_template_insert_iter(xml_config_file["Template"], path=[])
