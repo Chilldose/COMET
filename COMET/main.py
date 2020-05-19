@@ -46,6 +46,11 @@ except:
 def main():
     """Main application entry point."""
 
+    # Add some pathes to make things easier
+    sys.path.append(os.path.abspath('COMET/'))
+    sys.path.append(os.path.abspath('COMET/resources'))
+    sys.path.append(os.path.abspath('COMET/misc_plugins'))
+
     # Parse Arguments
     args = utilities.parse_args()
 
@@ -54,7 +59,7 @@ def main():
     rootdir = os.path.dirname(os.path.abspath(__file__))
 
     # Load Style sheet
-    config = os.path.join(rootdir, "Qt_Style.css")
+    config = os.path.join(rootdir, "resources/Qt_Style.css")
     StyleSheet = utilities.load_QtCSS_StyleSheet(config)
 
     # Create app

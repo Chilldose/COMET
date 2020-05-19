@@ -15,7 +15,7 @@ from PyQt5.QtWidgets import *
 from .gui.MainWindow import MainWindow
 from .gui.PluginWidget import PluginWidget
 from .GUI_event_loop import *
-import os
+import os, sys
 from .utilities import send_telegram_message
 from .misc_plugins.TelegramBotResponder import TelegramBotResponder
 

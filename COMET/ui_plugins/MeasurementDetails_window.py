@@ -1,7 +1,7 @@
 import os
 import logging
 from PyQt5.QtWidgets import *
-from .. import engineering_notation as en
+from ..misc_plugins import engineering_notation as en
 import time
 
 from ..utilities import ramp_voltage_job, transformation, change_axis_ticks

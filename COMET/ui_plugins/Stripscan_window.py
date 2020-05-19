@@ -5,7 +5,7 @@ import pyqtgraph as pq
 
 from time import sleep, time
 from PyQt5.QtWidgets import *
-from .. import engineering_notation as en
+from ..misc_plugins import engineering_notation as en
 from .Pause_stripscan_widget import pause_stripscan_widget
 
 

@@ -9,7 +9,7 @@ import traceback
 import logging.config
 import datetime
 import logging
-from .engineering_notation import EngUnit
+from .misc_plugins.engineering_notation import EngUnit
 import json
 import yaml
 from threading import Thread

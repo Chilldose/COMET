@@ -11,7 +11,7 @@ from PyQt5.QtCore import Qt
 from PyQt5 import QtGui, QtCore
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
-from .. import engineering_notation as en
+from ..misc_plugins import engineering_notation as en
 
 from ..utilities import raise_exception, change_axis_ticks, build_command, write_init_file, get_thicks_for_timestamp_plot
 
