@@ -12,6 +12,7 @@ class SettingsControl_widget(object):
     def __init__(self, gui):
         """Configures the settings widget"""
         self.Setlog = logging.getLogger(__name__)
+        self.autodirgen = True # If the auto dir generator is on or off
 
         # Project widget
         if not "Settings" in gui.child_layouts:
@@ -63,7 +64,7 @@ class SettingsControl_widget(object):
         if "Current_filename" in self.variables.default_values_dict["settings"]:
             self.Settings_gui.filename.setText(str(self.variables.default_values_dict["settings"]["Current_filename"]))
         else:
-            self.variables.default_values_dict["settings"].update({"Current_filename": "enter_filename_here"})
+            self.variables.default_values_dict["settings"].update({"Current_filename": ""})
             self.Settings_gui.filename.setText(str(self.variables.default_values_dict["settings"]["Current_filename"]))
 
         for projects in self.variables.default_values_dict["settings"].get("Operator", ["None", ]):
@@ -76,12 +77,14 @@ class SettingsControl_widget(object):
             self.variables.default_values_dict["settings"].update(
                 {"Current_operator": self.variables.default_values_dict["settings"].get("Operator", ["None", ])[0]})
 
-        if "Current_directory" in self.variables.default_values_dict["settings"]:  # TODO check if directory exists
+        if "Current_directory" in self.variables.default_values_dict["settings"]:
             self.Settings_gui.output_dir_edit.setText(str(self.variables.default_values_dict["settings"]["Current_directory"]))
         else:
-            self.variables.default_values_dict["settings"].update(
-                {"Current_directory": str(os.path.join(os.path.dirname(sys.modules[__name__].__file__)))})
-            self.Settings_gui.output_dir_edit.setText(str(os.path.join(os.path.dirname(sys.modules[__name__].__file__))))
+            self.variables.default_values_dict["settings"].update({"Current_directory": str(os.getcwd())})
+            self.Settings_gui.output_dir_edit.setText(
+                str(self.variables.default_values_dict["settings"]["Current_directory"]))
+
+        self.variables.default_values_dict["settings"]["Base_directory"] = self.variables.default_values_dict["settings"]["Current_directory"]
 
         # Load settings presets
         self.load_setting_presets()
@@ -93,6 +96,8 @@ class SettingsControl_widget(object):
         self.Settings_gui.sensor_comboBox.activated[str].connect(self.sensor_selector_action)
         self.Settings_gui.proj_comboBox.activated[str].connect(self.project_selector_action)
         self.Settings_gui.filename.textChanged[str].connect(self.change_name)
+        self.Settings_gui.filename.textChanged[str].connect(self.dir_autopath_generator)
+        self.Settings_gui.output_dir_edit.textChanged[str].connect(self.dir_change_action)
         self.Settings_gui.select_settings_comboBox.currentTextChanged.connect(self.settings_select_change_action)
 
     # Order functions
@@ -110,10 +115,29 @@ class SettingsControl_widget(object):
         self.variables.default_values_dict["settings"]["Current_operator"] = str(operator)
 
     def dir_selector_action(self):
+        self.autodirgen = True
         fileDialog = QFileDialog()
         directory = fileDialog.getExistingDirectory()
         self.Settings_gui.output_dir_edit.setText(directory)
         self.variables.default_values_dict["settings"]["Current_directory"] = str(directory)
+        self.variables.default_values_dict["settings"]["Base_directory"] = str(directory)
+
+    def dir_change_action(self, dire):
+        """If the user changes the directory by hand"""
+        self.variables.default_values_dict["settings"]["Current_directory"] = dire
+
+
+    def dir_autopath_generator(self, filename):
+        """Generates a directory structure out of the file name"""
+        if self.autodirgen:
+            seperators = ["_", "-", ":"]
+            for sep in seperators:
+                splitted = filename.split(sep)
+                if len(splitted)>1:
+                    new_dir = os.path.join(self.variables.default_values_dict["settings"]["Base_directory"], *splitted)
+                    self.Settings_gui.output_dir_edit.setText(new_dir)
+                    break
+
 
     def load_measurement_settings_file(self):
         ''' This function loads a measurement settings file

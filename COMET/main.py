@@ -87,7 +87,7 @@ def main():
     # Get logger
     log = logging.getLogger(__name__)
     log.info("Logfile initiated...")
-    log.critical("Initializing programm:")
+    log.critical("Initializing program:")
 
     # Check the environment if something has changed
     if args.update:

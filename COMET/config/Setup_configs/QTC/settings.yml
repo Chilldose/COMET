@@ -58,11 +58,7 @@
     GUI_update_interval: 200.0 # How often should the GUI be updated in ms
     store_data_as: json # Additional parameter, usually data will be stored as ascii during measurement, but for the database it is easier to store data as json
     # but if you need the data in another format you can specify it here
-    Django_server:
-        Start_Server: False
-        Path: C:/Users/dbloech/PycharmProjects/DoHoCo/manage.py
-        IP: 127.0.0.1
-        Port: 8000
+    Current_directory: "./__temp__" # A directory which you can choose, for the start value for saving files
 
     Socket_connection: # Config for the socket connection, for data transfer between processes
         Host:
