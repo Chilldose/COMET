@@ -33,7 +33,7 @@ class GUI_event_loop(QThread):
                             "ThresholdError", "ERROR", "Error"]
         self.fatal_errors = ["MeasError", "DataError", "RequestError", "MEASUREMENT_FAILED", "FatalError", "ThresholdError"]
         self.measurement_types = self.default_values_dict["settings"].get("measurement_types", [])
-        self.event_types = ["MEASUREMENT_STATUS", "MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED", "PROGRESS", "STATE"]
+        self.event_types = ["MEASUREMENT_STATUS", "MEASUREMENT_FINISHED", "CLOSE_PROGRAM", "ABORT_MEASUREMENT", "START_MEASUREMENT", "MEASUREMENT_EVENT_LOOP_STOPED", "PROGRESS", "STATE", "SAVE_SESSION", "LOAD_SESSION"]
         self.error_list = []
         self.measurement_list = []
         self.event_list = [] # Messages send to the loop
@@ -113,7 +113,6 @@ class GUI_event_loop(QThread):
             self.error_log.append((str(now) ,prepend + str(error).upper() + ": " + str(message[str(error)]) + "</font> <br/>"))
 
         for event in self.event_list: #besser if "dfdf" in self.events oder? TODO vlt hier die abfrage der events anders machen
-
             if event == "START_MEASUREMENT":
                 if not self.measurement_running:
                     #self.measurement_running = True # If a measurement is running the loop will send and MeasError in which this value will be correted
@@ -127,10 +126,25 @@ class GUI_event_loop(QThread):
                 if self.measurement_running:
                     self.message_to_main.put({"Critical": "Measurement aborted by user interaction..."})
 
+            elif event == "SAVE_SESSION":
+                self.log.critical("Saving current session...")
+                try:
+                    import pickle, os
+                    with open(os.path.normpath('./COMET/resources/session_save.pkl'), 'wb') as output:
+                        pickle.dump(self.default_values_dict, output, pickle.HIGHEST_PROTOCOL)
+                except Exception as err:
+                    self.log.error("Saving session was not possible... Error {}".format(err))
+
+            elif event == "LOAD_SESSION":
+                self.log.critical("Loading saved session...")
+                try:
+                    import pickle, os
+                    with open(os.path.normpath('./COMET/resources/session_save.pkl'), 'rb') as input:
+                        self.default_values_dict = pickle.load(input)
+                except Exception as err:
+                    self.log.error("Loading session was not possible... Error {}".format(err))
 
             elif event == "CLOSE_PROGRAM":
-
-
                 if not self.measurement_running: #Prevents closing the program if a measurement is currently running
                     order = {"Status": {"CLOSE": True}}
                     self.close_program = True

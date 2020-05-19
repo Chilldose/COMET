@@ -61,6 +61,9 @@ class Controls_widget(object):
     def exit_order(self):
         reply = QMessageBox.question(None, 'Warning', "Are you sure to quit?", QMessageBox.Yes, QMessageBox.No)
         if reply == QMessageBox.Yes:
+            result = QMessageBox.question(None,"Save session?", "Do you want to save the current session?",QMessageBox.Yes, QMessageBox.No)
+            if result == QMessageBox.Yes:
+                self.variables.message_to_main.put({"SAVE_SESSION": True})
             self.variables.message_to_main.put({"CLOSE_PROGRAM": True})
             msg = QMessageBox()
             msg.setIcon(QMessageBox.Information)

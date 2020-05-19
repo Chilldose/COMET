@@ -53,6 +53,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.preferencesAct = QtWidgets.QAction(self.tr("&Preferences"), self)
         self.preferencesAct.setStatusTip(self.tr("Configure the application"))
         self.preferencesAct.triggered.connect(self.onPreferences)
+        # Load session.
+        self.LoadAct = QtWidgets.QAction(self.tr("&Load saved session"), self)
+        self.LoadAct.setStatusTip(self.tr("Loads a previously saved session"))
+        self.LoadAct.triggered.connect(self.onLoadSession)
+        # Save session.
+        self.SaveAct = QtWidgets.QAction(self.tr("&Save session"), self)
+        self.SaveAct.setStatusTip(self.tr("Saves the current session"))
+        self.SaveAct.triggered.connect(self.onSaveSession)
         # Action for starting a measurement.
         self.startAct = QtWidgets.QAction(self.tr("&Start"), self)
         self.startAct.setIcon(QtGui.QIcon(os.path.join(ResourcePath, 'start.svg')))
@@ -98,6 +106,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # Edit menu
         self.editMenu = self.menuBar().addMenu(self.tr("&Edit"))
         self.editMenu.addAction(self.preferencesAct)
+        self.editMenu.addAction(self.LoadAct)
+        self.editMenu.addAction(self.SaveAct)
         # Measurement menu
         self.measureMenu = self.menuBar().addMenu(self.tr("&Measure"))
         self.measureMenu.addActions(self.measureActGroup.actions())
@@ -153,6 +163,14 @@ class MainWindow(QtWidgets.QMainWindow):
         """Open web browser and open contents."""
         webbrowser.open_new_tab(ContentsURL)
 
+    def onLoadSession(self):
+        """Loads a previous session"""
+        self.message_to_main.put({"LOAD_SESSION": True})
+
+    def onSaveSession(self):
+        """Loads a previous session"""
+        self.message_to_main.put({"SAVE_SESSION": True})
+
     def closeEvent(self, event):
         """On window close event."""
         result = QtWidgets.QMessageBox.question(None,
@@ -161,6 +179,12 @@ class MainWindow(QtWidgets.QMainWindow):
             QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
         if result == QtWidgets.QMessageBox.Yes:
             # Send close message to main thread
+            result = QtWidgets.QMessageBox.question(None,
+                                                    self.tr("Save session?"),
+                                                    self.tr("Do you want to save the current session?"),
+                                                    QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+            if result == QtWidgets.QMessageBox.Yes:
+                self.message_to_main.put({"SAVE_SESSION": True})
             self.message_to_main.put({"CLOSE_PROGRAM": True})
             event.accept()
         else:
