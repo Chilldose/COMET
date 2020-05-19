@@ -26,7 +26,7 @@ class IVCV_QTC:
         self.log = logging.getLogger(__name__)
         self.config = configs
         self.analysisName = "IVCV_QTC"
-        self.data = convert_to_df(data, abs=True)
+        self.data = convert_to_df(data, abs=self.config.get("abs_value_only", False))
         self.data = rename_columns(self.data, self.config[self.analysisName].get("Measurement_aliases", {}))
         self.basePlots = None
         self.PlotDict = {"Name": "IVCV"} # Name of analysis and cnavas for all plots generated during this analysis
