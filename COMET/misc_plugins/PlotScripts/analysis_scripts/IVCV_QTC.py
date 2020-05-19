@@ -38,7 +38,7 @@ class IVCV_QTC:
         self.xaxis = self.measurements[0]
 
         # The do not plot list, you can extend this list as you like
-        self.donts = ("Name", "voltage_1", "Idark", "Idiel", "Rpoly", "Cac", "Cint", "Rint", "Pad", "Istrip")
+        self.donts = ["Name", "voltage_1", "Idark", "Idiel", "Rpoly", "Cac", "Cint", "Rint", "Pad", "Istrip"]
 
         if "voltage" in self.measurements:
             self.xaxis = "voltage"
