@@ -20,7 +20,14 @@
       PART:
         KIND_OF_PART: <Sensor Type> # Hamamatsu 2S Sensor
         SERIAL_NUMBER: <ID> # HPK_VPX28441_1002_2S
-      DATA: DATA_DUMP_template
+      DATA: //DATA_DUMP_template//
 
   DATA_DUMP_template:
-    STRIP: <STRIP_NUMBER>
+    Istrip:
+        STRIP: <Pad>
+        CURRNT_NAMPR: <Istrip>
+        TEMP_DEGC: <Temperature>
+        RH_PRCNT: <Humidity>
+        BIASCURRNT_NAMPR: <Idark>
+        
+        

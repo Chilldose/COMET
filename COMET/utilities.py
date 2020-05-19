@@ -1879,6 +1879,11 @@ def save_dict_as_hdf5(data, dirr, base_name):
     for key in df.get("keys", []):
         data[key]["data"].to_hdf(os.path.join(dirr, "singledata", "{}.hdf5".format(key)), key='df', mode='w')
 
+def convert_dict_to_xml(data_dict):
+    """Converts a dictionary to a xml conform string"""
+    from dicttoxml import dicttoxml
+    return dicttoxml(data_dict, attr_type=False)
+
 def save_dict_as_xml(data_dict, filepath, name):
     from json import loads
     from dicttoxml import dicttoxml

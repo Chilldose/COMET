@@ -8,7 +8,7 @@ import traceback
 import ast
 import re
 from time import asctime
-from ..utilities import save_dict_as_hdf5, save_dict_as_json, save_dict_as_xml
+from ..utilities import save_dict_as_hdf5, save_dict_as_json, save_dict_as_xml, convert_dict_to_xml
 import yaml
 from warnings import filterwarnings
 filterwarnings('ignore', message='yaml.load()', category=yaml.YAMLLoadWarning)
@@ -524,11 +524,59 @@ class DataVisualization_window:
             # Convert to CMS database xml
             data = self.plotting_Object.data
             for key, dat in data.items():
-                xml_dict = self.convert_data_to_xml_conform_dict(dat, self.variables.framework_variables["Configs"]["config"]["CMSxmlTemplate"],
-                                                      dat["header"])
-                save_dict_as_xml(xml_dict, os.path.join(os.path.normpath(dirr), "data"), "{}_".format(key)+base_name)
+                header_dict = self.insert_values_from_header(self.variables.framework_variables["Configs"]["config"]["CMSxmlTemplate"], dat["header"])
+                final_xml = convert_dict_to_xml(header_dict)
+                final_xml = self.insert_templates(dat, final_xml, self.variables.framework_variables["Configs"]["config"]["CMSxmlTemplate"])
 
-    def convert_data_to_xml_conform_dict(self, data, xml_config_file, header="", values={}):
+                save_dict_as_xml(final_xml, os.path.join(os.path.normpath(dirr), "data"), "{}_".format(key)+base_name)
+
+    def insert_templates(self, dat, xml_string, xml_config_file):
+        """Inserts any template for data into the XML string and returns a XML string"""#
+        import xml.etree.ElementTree as ET
+        template_re = re.compile(r"//(.*)//")
+        root = ET.fromstring(xml_string)
+
+        def validate_node(elem, path):
+            for child in elem.getchildren():
+                if path[0] == child.tag:
+                    if len(path[1:]): # If len is left, the full path is not yet resolved
+                        validate_node(child, path[1:])
+                    else:
+                        return child
+
+        def generate_template_xml_elements(kdim, element_name, xml_node, template, data):
+            """Genrerates a xml template entry"""
+            xml_node.remove(xml_node.find(element_name)) # So that the template entry is gone
+            keyword_re = re.compile(r"<(.*)>")
+            root = ET.SubElement(xml_node, element_name)
+            for i, value in enumerate(data["data"][kdim]):
+                for key, entry in template.items():
+                    ET.SubElement(root, )
+
+
+        def dict_template_insert_iter(diction, path):
+            """Goes over all entries in the dict and inserts single values from the header"""
+            for key, item in diction.items():
+                path.append(key)
+                if isinstance(item, dict):
+                    dict_template_insert_iter(item, path)
+                    path.pop()
+                else:
+                    keyword = template_re.match(str(item))
+                    if keyword:
+                        subtrees = {} # Todo: only one template allowed here, fix
+                        for kdim in xml_config_file[keyword.string.replace("/", "")]:
+                            if kdim in dat["data"].keys(): # Todo: this may fail, and I am using raw data here,
+                                subtrees[kdim] = deepcopy(root)
+                                node = validate_node(subtrees[kdim], path[:-1]) # Since we dont want the actual entry, just where to put it
+                                generate_template_xml_elements(kdmi, path[-1], node, xml_config_file[keyword.string.replace("/", "")][kdim], dat)
+                    path.pop()
+
+        dict_template_insert_iter(xml_config_file["Template"], path=[])
+        return xml_string
+
+
+    def insert_values_from_header(self, xml_config_file, header=""):
         """
         Converts data to a specific form, as a dict stated in the config parameter.
         The config file must have a key named 'template' in it must be the dict representation of the xml file.
@@ -543,11 +591,11 @@ class DataVisualization_window:
         template = deepcopy(xml_config_file["Template"])
         keyword_re = re.compile(r"<(.*)>")
 
-
-        def dict_iter(diction):
+        def dict_value_insert_iter(diction):
+            """Goes over all entries in the dict and inserts single values from the header"""
             for key, item in diction.items():
                 if isinstance(item, dict):
-                    dict_iter(item)
+                    dict_value_insert_iter(item)
                 else:
                     keyword = keyword_re.match(str(item))
                     if keyword:
@@ -557,12 +605,14 @@ class DataVisualization_window:
                                 diction[key] = str(newvalue[1]).strip()
                                 break
                             else:
+                                #pass
                                 diction[key] = str(None)
                     else:
                         diction[key] = str(None)
 
-        # go through the whole template
-        dict_iter(template)
+        # Insert the simple values from the header
+        dict_value_insert_iter(template)
+        # Insert the templates
 
         return template
 
