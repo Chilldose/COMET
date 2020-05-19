@@ -21,8 +21,6 @@ import sys
 import os
 from . import utilities
 from . import boot_up
-from .core.config import DeviceLib
-from .core.config import Setup
 from .measurement_event_loop import (
             measurement_event_loop,
             message_to_main,
@@ -140,14 +138,6 @@ def main():
         active_setup = QtCore.QSettings().value('active_setup', None)
 
     log.critical("Loading setup '%s'...", active_setup)
-    # TODO load config
-    path = os.path.join(rootdir, 'config', 'device_lib')
-    device_lib = DeviceLib()
-    device_lib.load(path)
-
-    path = os.path.join(rootdir, 'config', 'Setup_configs', active_setup)
-    setup = Setup()
-    setup.load(path)
 
     setup_loader = boot_up.SetupLoader()
     setup_loader.load(active_setup) # TODO
