@@ -8,6 +8,7 @@ from PyQt5.QtCore import Qt
 from ..utilities import ErrorMessageBoxHandler
 from .CentralWidget import CentralWidget
 from .PreferencesDialog import PreferencesDialog
+from .LoggerConfig import LoggerConfig
 
 ContentsURL = "https://chilldose.github.io/COMET/_build/html/index.html"
 """URL to primary documentation."""
@@ -39,8 +40,12 @@ class MainWindow(QtWidgets.QMainWindow):
         # Create error message dialog
         self.errMsg = ErrorMessageBoxHandler(QiD=self)
 
+        # Init Dialogs
         self.preferencesDialog = PreferencesDialog(self)
         self.preferencesDialog.hide()
+
+        self.loggerDialog = LoggerConfig(self)
+        self.loggerDialog.hide()
 
     def createActions(self):
         """Create actions, for the toolbar etc"""
@@ -97,6 +102,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.StatusLabel.setFixedWidth(150)
         self.StatusLabel.setAlignment(Qt.AlignCenter)
         self.StatusLabel.setText("Start up")
+        # Stream logging level.
+        self.streamLogger = QtWidgets.QAction(self.tr("Set Logging Level"), self)
+        self.streamLogger.setStatusTip(self.tr("Define the logging level of different loggers"))
+        self.streamLogger.triggered.connect(self.onLogger)
 
     def createMenus(self):
         """Create menus."""
@@ -111,6 +120,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # Measurement menu
         self.measureMenu = self.menuBar().addMenu(self.tr("&Measure"))
         self.measureMenu.addActions(self.measureActGroup.actions())
+        # Logging menu
+        self.LogMenu = self.menuBar().addMenu(self.tr("&Logging"))
+        self.LogMenu.addAction(self.streamLogger)
         # Help menu
         self.helpMenu = self.menuBar().addMenu(self.tr("&Help"))
         self.helpMenu.addAction(self.contentsAct)
@@ -144,6 +156,11 @@ class MainWindow(QtWidgets.QMainWindow):
         """Show preferences dialog."""
         self.preferencesDialog.show()
         self.preferencesDialog.raise_()
+
+    def onLogger(self):
+        """Shows the Logger configuration"""
+        self.loggerDialog.show()
+        self.loggerDialog.raise_()
 
     def onStart(self):
         """Starting a measurement."""

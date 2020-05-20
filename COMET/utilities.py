@@ -99,12 +99,15 @@ class QueueEmitHandler(logging.Handler):
     def emit(self, record):
         if record.levelno >= self.level:
             msg = None
-            if record.levelno == self.log_LEVELS["ERROR"]:
-                msg = {"Error": record.message}
-            elif record.levelno == self.log_LEVELS["CRITICAL"]:
-                msg = {"CRITICAL": record.message}
-            elif record.levelno == self.log_LEVELS["WARNING"]:
-                msg = {"WARNING": record.message}
+            try:
+                if record.levelno == self.log_LEVELS["ERROR"]:
+                    msg = {"Error": record.message}
+                elif record.levelno == self.log_LEVELS["CRITICAL"]:
+                    msg = {"CRITICAL": record.message}
+                elif record.levelno == self.log_LEVELS["WARNING"]:
+                    msg = {"WARNING": record.message}
+            except AttributeError:
+                pass # This happens if the logging level is higher than captured --> no message
             if msg:
                 self.queue.put(msg)
 
