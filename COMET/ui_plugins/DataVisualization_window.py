@@ -524,12 +524,17 @@ class DataVisualization_window:
             # Convert to CMS database xml
             data = self.plotting_Object.data
             for key, dat in data.items():
-                header_dict = self.insert_values_from_header(self.variables.framework_variables["Configs"]["config"]["CMSxmlTemplate"], dat["header"])
-                final_xml = convert_dict_to_xml(header_dict)
-                final_xml_dict = self.insert_templates(dat, final_xml, self.variables.framework_variables["Configs"]["config"]["CMSxmlTemplate"])
+                template_name = self.variables.framework_variables["Configs"]["config"]["settings"].get("xml_template", None)
+                if template_name:
+                    template = self.variables.framework_variables["Configs"]["config"][template_name]
+                    header_dict = self.insert_values_from_header(template, dat["header"])
+                    final_xml = convert_dict_to_xml(header_dict)
+                    final_xml_dict = self.insert_templates(dat, final_xml, template)
 
-                for subkey, value in final_xml_dict.items():
-                    save_dict_as_xml(value, os.path.join(os.path.normpath(dirr), "data"), "{}_{}_".format(key, subkey))
+                    for subkey, value in final_xml_dict.items():
+                        save_dict_as_xml(value, os.path.join(os.path.normpath(dirr), "data"), "{}_{}_".format(key, subkey))
+                else:
+                    self.log.error("No xml template stated in settings. Please add 'xml_template' to your configs.")
 
     def insert_templates(self, dat, xml_string, xml_config_file):
         """Inserts any template for data into the XML string and returns a XML string"""#

@@ -10,5 +10,7 @@
         - Documentation
         - StripAnalysis
         - DataBrowser
+        
+    xml_template: CMSxmlTemplate
 
 

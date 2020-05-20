@@ -109,6 +109,10 @@
 <li class="toctree-l1"><a class="reference internal" href="Device_Com.html">Device Communication Tab</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Data_Explorer.html">Data Explorer</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Data Visualization and Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#gui-specific-functions">GUI specific functions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#saving-data-as-xml">Saving Data as XML</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="Documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="Switching_Control.html">Switching Matrix Control</a></li>
 </ul>
@@ -205,6 +209,138 @@ line edit below. By pressing the <strong>Apply</strong> button the software reco
 <p>If you pass a critical parameter which is somehow malformed in its value. You can damage the current plot object to a degree it is no longer plottable. In this case you have to re-render all plots. By doing so you loose all previous changes to the plots!</p>
 </div>
 <p>For the basic structure and usage of the plotting lib please see the ReadMe for the plotting lib at <a class="reference external" href="https://github.com/Chilldose/PlotScripts">Plotting Scripts doc</a></p>
+</div>
+<div class="section" id="gui-specific-functions">
+<h1>GUI specific functions<a class="headerlink" href="#gui-specific-functions" title="Permalink to this headline">¶</a></h1>
+<p>The following sections describe functions of the Data Visualization GUI which are only accessible through the GUI version.</p>
+<div class="section" id="saving-data-as-xml">
+<h2>Saving Data as XML<a class="headerlink" href="#saving-data-as-xml" title="Permalink to this headline">¶</a></h2>
+<p>The Data Visualisation GUI features a XML parsing tool, which can save your data as an XML file.
+For it work a XML template must be present in the root folder of your GUI configs. (Or simply spoken, it has to be at the same directory as your settings config)</p>
+<p>Such a config is again a YAML file and can look like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="o">---</span>
+<span class="n">Settings_name</span><span class="p">:</span> <span class="n">CMSxmlTemplate</span>
+
+<span class="n">Template</span><span class="p">:</span>
+  <span class="n">HEADER</span><span class="p">:</span>
+    <span class="n">TYPE</span><span class="p">:</span>
+      <span class="n">EXTENSION_TABLE_NAME</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">EXTENSION_TABLE_NAME</span><span class="o">&gt;</span>
+      <span class="n">NAME</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">NAME</span><span class="o">&gt;</span>
+    <span class="n">RUN</span><span class="p">:</span>
+      <span class="n">RUN_TYPE</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Project</span><span class="o">&gt;</span>
+      <span class="n">RUN_NUMBER</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">RUN_NUMBER</span><span class="o">&gt;</span>
+      <span class="n">LOCATION</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">LOCATION</span><span class="o">&gt;</span>
+      <span class="n">INITIATED_BY_USER</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Operator</span><span class="o">&gt;</span>
+      <span class="n">RUN_BEGIN_TIMESTAMP</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Date</span><span class="o">&gt;</span>
+      <span class="n">RUN_END_TIMESTAMP</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">ENDTIME</span><span class="o">&gt;</span>
+      <span class="n">COMMENT_DESCRIPTION</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">RUN_COMMENT</span><span class="o">&gt;</span>
+  <span class="n">DATA_SET</span><span class="p">:</span>
+    <span class="n">COMMENT_DESCRIPTION</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">DATA_COMMENT</span><span class="o">&gt;</span>
+    <span class="n">VERSION</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">VERSION</span><span class="o">&gt;</span> <span class="c1"># The data version? How many times I started the measurement?</span>
+    <span class="n">PART</span><span class="p">:</span>
+      <span class="n">KIND_OF_PART</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Sensor</span> <span class="n">Type</span><span class="o">&gt;</span>
+      <span class="n">SERIAL_NUMBER</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">ID</span><span class="o">&gt;</span>
+    <span class="n">DATA</span><span class="p">:</span> <span class="o">//</span><span class="n">DATA_DUMP_template</span><span class="o">//</span>
+
+<span class="n">DATA_DUMP_template</span><span class="p">:</span>
+  <span class="n">Istrip</span><span class="p">:</span>
+      <span class="n">STRIP</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Pad</span><span class="o">&gt;</span>
+      <span class="n">CURRNT_NAMPR</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Istrip</span><span class="o">&gt;</span>
+      <span class="n">TEMP_DEGC</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Temperature</span><span class="o">&gt;</span>
+      <span class="n">RH_PRCNT</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Humidity</span><span class="o">&gt;</span>
+      <span class="n">BIASCURRNT_NAMPR</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Idark</span><span class="o">&gt;</span>
+  <span class="n">Cac</span><span class="p">:</span>
+      <span class="n">STRIP</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Pad</span><span class="o">&gt;</span>
+      <span class="n">CAPCTNC_PFRD</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Cac</span><span class="o">&gt;</span>
+      <span class="n">TEMP_DEGC</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Temperature</span><span class="o">&gt;</span>
+      <span class="n">RH_PRCNT</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Humidity</span><span class="o">&gt;</span>
+      <span class="n">BIASCURRNT_NAMPR</span><span class="p">:</span> <span class="o">&lt;</span><span class="n">Idark</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>in order for the framework to recognise your template you have to add the parameter:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">xml_template</span><span class="p">:</span> <span class="n">CMSxmlTemplate</span>
+</pre></div>
+</div>
+<p>to your main config file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The name can be changed to your liking here!</p>
+</div>
+<p>How does it work? -  The first entry is the &quot;Template&quot; entry. This defines the general structure of your output XML.
+The Keys inside are the items in the XML file and the values enclosed by &lt;...&gt; are placeholder names.
+These placeholder are searched for in the header of your file with the regex: r&quot;{}Ws?(.*)&quot;. The curly brackets is the placeholder name without &lt;&gt;.
+The value inside the () is then extracted as seen in the regex and inserted as value in the XML entry.</p>
+<p>To clarify this imagine the measurement file:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Measurement file:</span>
+<span class="c1"># Project: HPK 6 inch 2018</span>
+<span class="c1"># Sensor Type: 2S</span>
+<span class="c1"># ID: VPX28442_04_2S</span>
+<span class="c1"># Operator: Dominic</span>
+<span class="c1"># Date: Tue Feb 26 11:16:57 2019</span>
+
+<span class="n">Pad</span>                     <span class="n">Istrip</span>                  <span class="n">Rpoly</span>                   <span class="n">Idark</span>                   <span class="n">Cac</span>                     <span class="n">Cint</span>                    <span class="n">Idiel</span>                   <span class="n">Rint</span>                    <span class="n">Temperature</span>             <span class="n">Humidity</span>
+<span class="n">padNumber</span><span class="p">[</span><span class="c1">#]            current[A]              res[Ohm]                current[A]              cap[F]                  cap[F]                  current[A]              res[Ohm]                degree[C]               rel. percent[rel%]</span>
+<span class="mf">1.0</span>                     <span class="o">--</span>                      <span class="o">--</span>                      <span class="o">--</span>                      <span class="o">--</span>                      <span class="o">--</span>                      <span class="o">--</span>                      <span class="o">--</span>                      <span class="mf">21.2</span>                    <span class="mf">20.3</span>
+<span class="mf">2.0</span>                     <span class="o">-</span><span class="mf">1.203639e-10</span>           <span class="mf">1938115.94709</span>           <span class="o">-</span><span class="mf">1.84013333333e-07</span>      <span class="mf">1.48189666667e-10</span>       <span class="mf">4.71583e-12</span>             <span class="o">-</span><span class="mf">3.35330366667e-11</span>      <span class="o">--</span>                      <span class="mf">21.2</span>                    <span class="mf">20.3</span>
+<span class="mf">3.0</span>                     <span class="o">-</span><span class="mf">9.079903e-11</span>           <span class="mf">1932907.86233</span>           <span class="o">-</span><span class="mf">1.83905333333e-07</span>      <span class="mf">1.48212333333e-10</span>       <span class="mf">4.73185e-12</span>             <span class="o">-</span><span class="mf">2.40601026667e-11</span>      <span class="o">--</span>                      <span class="mf">21.2</span>                    <span class="mf">20.3</span>
+<span class="mf">4.0</span>                     <span class="o">-</span><span class="mf">1.02729356667e-10</span>      <span class="mf">1936311.72302</span>           <span class="o">-</span><span class="mf">1.83022e-07</span>            <span class="mf">1.48234666667e-10</span>       <span class="mf">4.7338e-12</span>              <span class="mf">2.82378533333e-11</span>       <span class="o">--</span>                      <span class="mf">21.2</span>                    <span class="mf">20.2</span>
+<span class="mf">5.0</span>                     <span class="o">-</span><span class="mf">1.16085966667e-10</span>      <span class="mf">1936726.82213</span>           <span class="o">-</span><span class="mf">1.8326e-07</span>             <span class="mf">1.48238e-10</span>             <span class="mf">4.74095666667e-12</span>       <span class="mf">1.35758e-12</span>             <span class="o">--</span>                      <span class="mf">21.2</span>                    <span class="mf">20.2</span>
+</pre></div>
+</div>
+<p>The entry in the xml template: RUN_TYPE: &lt;Project&gt; is therefore searching for the word &quot;Project&quot; and is inserting the value &quot;HPK 6 inch 2018&quot; in this case. To every entry the script does not find a valid regex result to, a &quot;None&quot; will be inserted instead.
+Another feature is the possibility to insert data with a separate template. This is done with the: &quot;DATA: //DATA_DUMP_template//&quot; entry. The &quot;//&quot; here signals that it must search for a cloneable template. In the configuration file you will find an entry with exact the same name.
+Insider are again keys. The first keys signal what data should be looked at. For instance the first entry is the &quot;Istrip&quot; entry. Therefore, a XML file will be generated for this measurement.</p>
+<p>The first thing the script does is a loop over all values of in this case &quot;Istrip&quot; form the data. With each data entry, the following template will be executed to generate the data entry. Here the keys are again the entry name in the XML file and the value enclosed in the &lt;...&gt; is now
+a column descriptor. If the script encounters such a value the corresponding value from this column will be used and inserted. To show this a part of a final XML file can be seen here:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>&lt;?xml version=&quot;1.0&quot; ?&gt;
+&lt;root&gt;
+  &lt;HEADER&gt;
+    &lt;TYPE&gt;
+      &lt;EXTENSION_TABLE_NAME&gt;None&lt;/EXTENSION_TABLE_NAME&gt;
+      &lt;NAME&gt;None&lt;/NAME&gt;
+    &lt;/TYPE&gt;
+    &lt;RUN&gt;
+      &lt;RUN_TYPE&gt;HPK 6 inch 2018&lt;/RUN_TYPE&gt;
+      &lt;RUN_NUMBER&gt;None&lt;/RUN_NUMBER&gt;
+      &lt;LOCATION&gt;None&lt;/LOCATION&gt;
+      &lt;INITIATED_BY_USER&gt;Dominic&lt;/INITIATED_BY_USER&gt;
+      &lt;RUN_BEGIN_TIMESTAMP&gt;Tue Feb 26 11:16:57 2019&lt;/RUN_BEGIN_TIMESTAMP&gt;
+      &lt;RUN_END_TIMESTAMP&gt;None&lt;/RUN_END_TIMESTAMP&gt;
+      &lt;COMMENT_DESCRIPTION&gt;None&lt;/COMMENT_DESCRIPTION&gt;
+    &lt;/RUN&gt;
+  &lt;/HEADER&gt;
+  &lt;DATA_SET&gt;
+    &lt;COMMENT_DESCRIPTION&gt;None&lt;/COMMENT_DESCRIPTION&gt;
+    &lt;VERSION&gt;None&lt;/VERSION&gt;
+    &lt;PART&gt;
+      &lt;KIND_OF_PART&gt;2S&lt;/KIND_OF_PART&gt;
+      &lt;SERIAL_NUMBER&gt;VPX28442_04_2S&lt;/SERIAL_NUMBER&gt;
+    &lt;/PART&gt;
+    &lt;DATA&gt;
+      &lt;STRIP&gt;1.0&lt;/STRIP&gt;
+      &lt;CURRNT_NAMPR&gt;nan&lt;/CURRNT_NAMPR&gt;
+      &lt;TEMP_DEGC&gt;21.2&lt;/TEMP_DEGC&gt;
+      &lt;RH_PRCNT&gt;20.3&lt;/RH_PRCNT&gt;
+      &lt;BIASCURRNT_NAMPR&gt;nan&lt;/BIASCURRNT_NAMPR&gt;
+    &lt;/DATA&gt;
+    &lt;DATA&gt;
+      &lt;STRIP&gt;2.0&lt;/STRIP&gt;
+      &lt;CURRNT_NAMPR&gt;-1.203639e-10&lt;/CURRNT_NAMPR&gt;
+      &lt;TEMP_DEGC&gt;21.2&lt;/TEMP_DEGC&gt;
+      &lt;RH_PRCNT&gt;20.3&lt;/RH_PRCNT&gt;
+      &lt;BIASCURRNT_NAMPR&gt;-1.84013333333e-07&lt;/BIASCURRNT_NAMPR&gt;
+    &lt;/DATA&gt;
+    &lt;DATA&gt;
+      &lt;STRIP&gt;3.0&lt;/STRIP&gt;
+      &lt;CURRNT_NAMPR&gt;-9.079903e-11&lt;/CURRNT_NAMPR&gt;
+      &lt;TEMP_DEGC&gt;21.2&lt;/TEMP_DEGC&gt;
+      &lt;RH_PRCNT&gt;20.3&lt;/RH_PRCNT&gt;
+      &lt;BIASCURRNT_NAMPR&gt;-1.83905333333e-07&lt;/BIASCURRNT_NAMPR&gt;
+    &lt;/DATA&gt;
+</pre></div>
+</div>
+<p>The same procedure will be done for the &quot;Cac&quot; entry in a separate file.</p>
+</div>
 </div>
 
 
