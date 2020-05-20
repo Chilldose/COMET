@@ -29,5 +29,11 @@
         TEMP_DEGC: <Temperature>
         RH_PRCNT: <Humidity>
         BIASCURRNT_NAMPR: <Idark>
+    Cac:
+        STRIP: <Pad>
+        CAPCTNC_PFRD: <Cac>
+        TEMP_DEGC: <Temperature>
+        RH_PRCNT: <Humidity>
+        BIASCURRNT_NAMPR: <Idark>
         
         

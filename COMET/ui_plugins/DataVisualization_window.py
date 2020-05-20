@@ -526,17 +526,19 @@ class DataVisualization_window:
             for key, dat in data.items():
                 header_dict = self.insert_values_from_header(self.variables.framework_variables["Configs"]["config"]["CMSxmlTemplate"], dat["header"])
                 final_xml = convert_dict_to_xml(header_dict)
-                final_xml = self.insert_templates(dat, final_xml, self.variables.framework_variables["Configs"]["config"]["CMSxmlTemplate"])
+                final_xml_dict = self.insert_templates(dat, final_xml, self.variables.framework_variables["Configs"]["config"]["CMSxmlTemplate"])
 
-                save_dict_as_xml(final_xml, os.path.join(os.path.normpath(dirr), "data"), "{}_".format(key)+base_name)
+                for subkey, value in final_xml_dict.items():
+                    save_dict_as_xml(value, os.path.join(os.path.normpath(dirr), "data"), "{}_{}_".format(key, subkey))
 
     def insert_templates(self, dat, xml_string, xml_config_file):
         """Inserts any template for data into the XML string and returns a XML string"""#
         import xml.etree.ElementTree as ET
-        template_re = re.compile(r"//(.*)//")
-        root = ET.fromstring(xml_string)
+        template_re = re.compile(r"//(.*)//") # Regex for the template
+        root = ET.fromstring(xml_string) # convert the xml string to a xmltree
 
         def validate_node(elem, path):
+            """This just validates the node from a given path for easy access"""
             for child in elem.getchildren():
                 if path[0] == child.tag:
                     if len(path[1:]): # If len is left, the full path is not yet resolved
@@ -553,30 +555,39 @@ class DataVisualization_window:
                 for key, entry in template.items():
                     data_key = keyword_re.findall(entry)
                     if data_key:
-                        element = ET.SubElement(root, key)
-                        element.text = data["data"][key][i]
-
+                        try:
+                            element = ET.SubElement(root, key)
+                            element.text = str(data["data"][entry.replace("<", "").replace(">","")][i])
+                        except IndexError:
+                            self.log.warning("The Index {} seems to be missing in the data".format(entry.replace("<", "").replace(">","")))
+                            break
+            pass
 
         def dict_template_insert_iter(diction, path):
             """Goes over all entries in the dict and inserts single values from the header"""
+            final_tree = {}
             for key, item in diction.items():
-                path.append(key)
                 if isinstance(item, dict):
-                    dict_template_insert_iter(item, path)
+                    path.append(key)
+                    final_tree.update(dict_template_insert_iter(item, path))
                     path.pop()
                 else:
                     keyword = template_re.match(str(item))
+                    subtrees = {}  # Todo: only one template allowed here, fix
                     if keyword:
-                        subtrees = {} # Todo: only one template allowed here, fix
+                        path.append(key)
                         for kdim in xml_config_file[keyword.string.replace("/", "")]:
                             if kdim in dat["data"].keys(): # Todo: this may fail, and I am using raw data here,
                                 subtrees[kdim] = deepcopy(root)
                                 node = validate_node(subtrees[kdim], path[:-1]) # Since we dont want the actual entry, just where to put it
                                 generate_template_xml_elements(kdim, path[-1], node, xml_config_file[keyword.string.replace("/", "")][kdim], dat)
-                    path.pop()
+                        final_tree.update(subtrees)
+                        path.pop()
+                    #return final_tree
+            return final_tree
 
-        dict_template_insert_iter(xml_config_file["Template"], path=[])
-        return xml_string
+        xml_dicts = dict_template_insert_iter(xml_config_file["Template"], path=[])
+        return xml_dicts
 
 
     def insert_values_from_header(self, xml_config_file, header=""):
