@@ -235,10 +235,6 @@ class DataVisualization_window:
 
         except Exception as err:
             self.log.error("An error happened during plotting with error {}".format(err), exc_info=True)
-            try:
-                raise
-            except:
-                self.log.error(traceback.format_exc())
             # Try to extract data until crash (this is just wishfull thinking, in most cases this will fail)
             try:
                 self.update_plt_tree(plotting)
