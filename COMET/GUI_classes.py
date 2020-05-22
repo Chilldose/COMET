@@ -176,7 +176,7 @@ class GUI_classes(QWidget):
                 self.add_rendering_function(widget, module.split("_")[0])
 
             except AttributeError as err:
-                self.log.error("The Module {} for the GUI app generation could not be found. Error: {}".format(module, err))
+                self.log.error("The Module {} for the GUI app generation could not be found. Error: {}".format(module, err), exc_info=True)
 
     def load_QtUi_file(self, filename, widget):
         '''This function returns a qt generated Ui object.'''
@@ -297,7 +297,7 @@ class GUI_classes(QWidget):
                    if answer:
                        return answer
                 except Exception as err:
-                    self.log.error("An error happened while processing TCP message function {} with error: {}".format(str(obj), err))
+                    self.log.error("An error happened while processing TCP message function {}".format(str(obj)), stack_info=True, exc_info=True)
         else:
             self.log.info("Got a message via TCP, with Action: {} and Value: {}. No actions are made on this message, since" \
                    "no function has been given to process".format(action, value))

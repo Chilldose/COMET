@@ -14,7 +14,7 @@ import json
 import yaml
 from threading import Thread
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QApplication
+from PyQt5.QtWidgets import QApplication, QMessageBox
 import pyqtgraph as pg
 from .globals import message_to_main, message_from_main, queue_to_GUI
 
@@ -55,39 +55,59 @@ class ErrorMessageBoxHandler:
         :param message:
         """
         from PyQt5 import QtCore, QtWidgets
-        self.last_message_time = time.time()
-        self.message_buffer = ""
-        self.timeout = 0.1 # seconds
+        self.QiD = QiD
+        self.message_buffer = []
         self.title = title
-        self.timer = QtCore.QTimer()
-        self.timer.setSingleShot(True)
-        self.timer.timeout.connect(self.show_messages)
-        self.error_dialog = QtWidgets.QErrorMessage(QiD)
-        self.error_dialog.setModal(False)
-        self.error_dialog.setWindowTitle(title)
-        self.error_dialog.setGeometry((1920-450)/2, (1080-250)/2, 450, 250)
-        self.start = time.time()
+        self.message_counter = 0
+        self.msg = None
 
-        if message:
+        if message: # Only if called directly
             self.message_buffer = message
-            self.show_messages()
+            self.showdialog()
+
+    def event_loop(self):
+        """Watches if the buffer is not empty and displeys the messages."""
+        if self.message_counter:
+            if not self.msg:
+                self.showdialog()
+            else:
+                self.msg.setText("COMET encounterd {} error(s)".format(self.message_counter).ljust(70))
 
     def new_message(self, message):
-        """Adds a new message"""
-        self.message_buffer += str(message) + "\n"
-        display_message = True if (time.time()-self.last_message_time) >= self.timeout else False
-        self.last_message_time = time.time()
-        if display_message:
-            self.show_messages()
-        else:
-            self.timer.start(int(self.timeout*1000))
+        """Adds a new message, all new message will/must be added this way"""
+        self.message_counter += 1
+        self.message_buffer.append(str(message))
+        self.event_loop()
 
-    def show_messages(self):
-        """Simply shows all messages"""
-        #message = "".join(self.message_buffer)
-        self.error_dialog.showMessage(self.message_buffer)
-        self.error_dialog.activateWindow()
-        self.message_buffer = ""
+    def showdialog(self):
+        self.msg = QMessageBox(self.QiD)
+        self.msg.setIcon(QMessageBox.Information)
+
+        Errormessage = self.message_buffer[0].split("\n\n")[0]
+        try:
+            trace = "".join(self.message_buffer[0].split("\n\n")[1:])
+        except:
+            trace = ""
+
+        self.msg.setText("COMET encounterd {} error(s)".format(self.message_counter).ljust(70))
+        self.msg.setInformativeText(Errormessage)
+        self.msg.setWindowTitle(self.title)
+        self.msg.setDetailedText(trace)
+        self.msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
+
+        self.retval = self.msg.exec_()
+
+        if self.retval == QMessageBox.Cancel:
+            self.message_counter = 0
+            self.message_buffer = []
+        elif self.retval == QMessageBox.Ok:
+            self.message_counter -= 1
+            self.message_buffer.pop(0)
+
+        self.msg = None
+        if self.message_counter:
+            self.showdialog() # If messages are left show again
+
 
 class QueueEmitHandler(logging.Handler):
     def __init__(self, queue):
@@ -101,7 +121,12 @@ class QueueEmitHandler(logging.Handler):
             msg = None
             try:
                 if record.levelno == self.log_LEVELS["ERROR"]:
-                    msg = {"Error": record.message}
+                    message = record.message
+                    if record.exc_info:
+                        message += "\n\n Exc_info:" + str(record.exc_text)
+                    #if record.stack_info:
+                    #    message += "\n\n stack_info:" + str(record.stack_info)
+                    msg = {"Error": message}
                 elif record.levelno == self.log_LEVELS["CRITICAL"]:
                     msg = {"CRITICAL": record.message}
                 elif record.levelno == self.log_LEVELS["WARNING"]:
@@ -258,7 +283,7 @@ def run_with_lock( method):
                 l.debug("Lock released by program: " + str(method.__name__))
             # raise the exception and print the stack trace
             except Exception as error:
-                l.error("A lock could not be acquired in "  + str(method.__name__) +". With Error:", repr(error)) # this is optional but sometime the raise does not work
+                l.error("A lock could not be acquired in "  + str(method.__name__), exc_info=True) # this is optional but sometime the raise does not work
                 raise  # this raises the error with stack backtrace
             return result
 
@@ -338,9 +363,9 @@ def close_file( fp):
             except:
                 fp.close()
         except GeneratorExit:
-            l.error("Closing the file: " + str(fp) + " was not possible")
+            l.error("Closing the file: " + str(fp) + " was not possible", exc_info=True)
         except:
-            l.error("Unknown error occured, while closing file " + str(fp) + "Error: ", sys.exc_info()[0])
+            l.error("Unknown error occured, while closing file " + str(fp), exc_info=True)
 
     # This flushes a string to a file
 
@@ -366,7 +391,7 @@ def write_to_file( content, filename="default.txt", filepath = "default_path"):
         except IOError:
             l.error("Writing to file " + filename + " was not possible")
         except:
-            l.error("Unknown error occured, while writing to file " + str(filename) + "Error: ", sys.exc_info()[0])
+            l.error("Unknown error occured, while writing to file " + str(filename), exc_info=True)
 
         close_file(fp)
 
@@ -384,7 +409,7 @@ def read_from_file( filename="default.txt", filepath = "default_path"):
             l.error("Could not read from file.")
             return []
         except:
-            l.error("Unknown error occured, while reading from file " + str(filename) + "Error: ", sys.exc_info()[0])
+            l.error("Unknown error occured, while reading from file " + str(filename), exc_info=True)
 
         close_file(fp)
 
@@ -470,7 +495,7 @@ def build_command(device, command_tuple, single_commands = False):
             try:
                 com = device[command_tuple[0]]["command"]
             except:
-                l.error("Dict command structure recognised but no actual command found for passed order {}".format(command_tuple))
+                l.error("Dict command structure recognised but no actual command found for passed order {}".format(command_tuple), exc_info=True)
                 return None
         else:
             com = device[command_tuple[0]]
@@ -480,7 +505,7 @@ def build_command(device, command_tuple, single_commands = False):
                 return com.format(command_tuple[1])
             except IndexError:
                 l.error("You attempted to send a command with the wrong number of parameters the command structure is: {}"
-                               " but you passed: [{}] as parameter(s)".format(com, command_tuple[1]))
+                               " but you passed: [{}] as parameter(s)".format(com, command_tuple[1]), exc_info=True)
 
         elif single_commands:
             if isinstance(command_tuple[1], list) or isinstance(command_tuple[1], tuple) :
@@ -909,7 +934,7 @@ class transformation:
             # Offset
             V0 = np.subtract(t2,np.transpose(s2[0:2]).dot(T))
         except Exception as e:
-            self.log.error("An error occured during the transformation with error: " + str(e))
+            self.log.error("An error occured during the transformation.", exc_info=True)
             return -1, -1
 
         return T, V0
@@ -1108,7 +1133,7 @@ class table_control_class:
                     self.device["z_pos"] = float(pos[2])
                     return [float(i) for i in pos]
                 except:
-                    self.log.error("The corvus has replied with a non valid position string: " + str(string))
+                    self.log.error("The corvus has replied with a non valid position string: " + str(string), exc_info=True)
                     max_attempts += 1
 
     def check_if_ready(self, timeout = 0, maxcounter = -1):
@@ -1130,7 +1155,7 @@ class table_control_class:
                 try:
                     done = float(done.strip())
                 except:
-                    self.log.error("Table status query failed to interpret: {} must be a float convertible".format(done))
+                    self.log.error("Table status query failed to interpret: {} must be a float convertible".format(done), exc_info=True)
                     done = -1
             else:
                 sleep(0.1)
@@ -1833,7 +1858,7 @@ def convert_to_df(to_convert, abs = False):
             data["data"]["Name"] = [key for i in range(len(data["data"][list(data["data"].keys())[0]]))]
             df = pd.DataFrame(data=data["data"])
         except KeyError as err:
-            l.error("In order to convert the data to panda dataframe, the data structure needs to have a key:'data'")
+            l.error("In order to convert the data to panda dataframe, the data structure needs to have a key:'data'" , exc_info=True)
             raise err
         return_dict[key]["data"] = df
         return_dict["All"] = pd.concat([return_dict["All"],df], sort=True)

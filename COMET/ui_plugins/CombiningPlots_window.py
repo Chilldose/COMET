@@ -259,7 +259,7 @@ class CombiningPlots_window:
             # Store current session
             self.plotting_Object = plotting
         except Exception as err:
-            self.log.error("An error happened during plotting with error {}".format(err))
+            self.log.error("An error happened during plotting with error {}".format(err), exc_info=True)
             # Try to extract data until crash (this is just wishfull thinking, in most cases this will fail)
             try:
                 self.update_plt_tree(plotting)

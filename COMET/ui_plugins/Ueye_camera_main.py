@@ -48,7 +48,7 @@ class Ueye_main:
 
 
         except Exception as err:
-            self.log.error("Ueye camera interface could not be started... Error: {}".format(err))
+            self.log.error("Ueye camera interface could not be started...", exc_info=True)
 
 
     def start(self):

@@ -234,7 +234,7 @@ class DataVisualization_window:
             self.save_session(self.widget.session_name_lineEdit.text(), self.plotting_Object)
 
         except Exception as err:
-            self.log.error("An error happened during plotting with error {}".format(err))
+            self.log.error("An error happened during plotting with error {}".format(err), exc_info=True)
             try:
                 raise
             except:
@@ -472,7 +472,7 @@ class DataVisualization_window:
                     self.plot_path[Allplots._group_param_value] = ()
                     self.plot_analysis[Allplots._group_param_value] = analy["Name"]
                 except Exception as err:
-                    self.log.error("An error happened during plot object access. Error: {}".format(err))
+                    self.log.error("An error happened during plot object access.", exc_info=True)
             else:
                 try:
                     tree = QTreeWidgetItem(["Plot"])
@@ -480,7 +480,7 @@ class DataVisualization_window:
                     self.plot_analysis["Plot"] = analy.get("Name", "")
                     self.widget.output_tree.addTopLevelItem(tree)
                 except Exception as err:
-                    self.log.error("An error happened during plot object access. Error: {}".format(err))
+                    self.log.error("An error happened during plot object access.", exc_info=True)
 
 
 

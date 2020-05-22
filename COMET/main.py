@@ -99,7 +99,7 @@ def main():
             log.info(o.fetch())
             log.info(o.pull())
         except Exception as err:
-            log.error("An error happened while updating COMET source code. Error: {}...".format(err))
+            log.error("An error happened while updating COMET source code.", exc_info=True)
 
         log.critical("Checking conda environment requirements...")
         try:
@@ -112,7 +112,7 @@ def main():
                 version = "requirements_MacOS.yml"
             os.system("conda env update --prefix ./env --file {}  --prune".format(version))
         except Exception as err:
-            log.error("An error happened while updating COMET environment. Error: {}...".format(err))
+            log.error("An error happened while updating COMET environment.", exc_info=True)
 
         log.critical("Please restart COMET for the updates to have an effect!")
         sys.exit(0)
@@ -223,7 +223,7 @@ def main():
                 aux["Django"] = Django
 
             except Exception as err:
-                log.error("Django server could not be started. Error: {}".format(err))
+                log.error("Django server could not be started.", exc_info=True)
 
     if "Socket_connection" in aux["Configs"]["config"]["settings"]:
         from .misc_plugins.ServerClientApp.socket_connections import Client_, Server_

@@ -241,7 +241,7 @@ class FrequencyScan_class(Stripscan_class):
                         self.main.measurement_data[str(sub)][1][self.strip_iter] = float(values[i])
                         self.main.queue_to_main.put({str(sub): [float(xvalue), float(values[i])]})
                 except IndexError as err:
-                    self.log.error("An error happened during values indexing in multi value return with error: {}".format(err))
+                    self.log.error("An error happened during values indexing in multi value return", exc_info=True)
 
         return values
 

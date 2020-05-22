@@ -133,7 +133,7 @@ class GUI_event_loop(QThread):
                     with open(os.path.normpath('./COMET/resources/session_save.pkl'), 'wb') as output:
                         pickle.dump(self.default_values_dict, output, pickle.HIGHEST_PROTOCOL)
                 except Exception as err:
-                    self.log.error("Saving session was not possible... Error {}".format(err))
+                    self.log.error("Saving session was not possible...", exc_info=True)
 
             elif event == "LOAD_SESSION":
                 self.log.critical("Loading saved session...")
@@ -142,7 +142,7 @@ class GUI_event_loop(QThread):
                     with open(os.path.normpath('./COMET/resources/session_save.pkl'), 'rb') as input:
                         self.default_values_dict = pickle.load(input)
                 except Exception as err:
-                    self.log.error("Loading session was not possible... Error {}".format(err))
+                    self.log.error("Loading session was not possible...", exc_info=True)
 
             elif event == "CLOSE_PROGRAM":
                 if not self.measurement_running: #Prevents closing the program if a measurement is currently running

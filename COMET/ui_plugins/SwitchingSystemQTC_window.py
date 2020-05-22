@@ -17,7 +17,7 @@ class SwitchingSystemQTC_window:
             self.num_7072_cards = self.variables["Devices"]["Matrix"].get("Cards",1) # Todo: Potential error if you rename Matrix
             self.Keithley_7072 = self.settings.devices_dict["LVSwitching"]
         except Exception as err:
-            self.log.error("Switching system seems not correctly configured. System will start, but errors and crashed can/will happen. Error: {}".format(err))
+            self.log.error("Switching system seems not correctly configured. System will start, but errors and crashed can/will happen.", exc_info=True)
 
         self.measurements = self.settings.default_values_dict["Switching"]["Switching_Schemes"].copy()
         # Settings tab

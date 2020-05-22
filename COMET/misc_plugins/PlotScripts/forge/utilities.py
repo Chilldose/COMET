@@ -313,9 +313,9 @@ def close_file(fp):
         except:
             fp.close()
     except GeneratorExit:
-        l.error("Closing the file: " + str(fp) + " was not possible")
+        l.error("Closing the file: " + str(fp) + " was not possible", exc_info=True)
     except:
-        l.error("Unknown error occured, while closing file " + str(fp) + "Error: ", sys.exc_info()[0])
+        l.error("Unknown error occured, while closing file " + str(fp), exc_info=True )
 
 
 # This flushes a string to a file
@@ -341,9 +341,9 @@ def write_to_file(content, filename="default.txt", filepath="default_path"):
         for line in content:
             fp.write(str(line))
     except IOError:
-        l.error("Writing to file " + filename + " was not possible")
+        l.error("Writing to file " + filename + " was not possible", exc_info=True)
     except:
-        l.error("Unknown error occured, while writing to file " + str(filename) + "Error: ", sys.exc_info()[0])
+        l.error("Unknown error occured, while writing to file " + str(filename), exc_info=True)
 
     close_file(fp)
 
@@ -359,10 +359,10 @@ def read_from_file(filename="default.txt", filepath="default_path"):
     try:
         return fp.readlines()
     except IOError:
-        l.error("Could not read from file.")
+        l.error("Could not read from file.", exc_info=True)
         return []
     except:
-        l.error("Unknown error occured, while reading from file " + str(filename) + "Error: ", sys.exc_info()[0])
+        l.error("Unknown error occured, while reading from file " + str(filename), exc_info=True)
 
     close_file(fp)
 
@@ -417,8 +417,7 @@ def run_with_lock(method):
                 l.debug("Lock released by program: " + str(method.__name__))
             # raise the exception and print the stack trace
             except Exception as error:
-                l.error("A lock could not be acquired in " + str(method.__name__) + ". With Error:",
-                        repr(error))  # this is optional but sometime the raise does not work
+                l.error("A lock could not be acquired in " + str(method.__name__), exc_info=True)  # this is optional but sometime the raise does not work
                 raise  # this raises the error with stack backtrace
             return result
 

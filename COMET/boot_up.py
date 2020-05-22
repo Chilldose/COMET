@@ -72,7 +72,7 @@ class SetupLoader(object):
                 # Create a raw data entry, so other parts can parse them as they please
                 parent_dict[os.path.basename(file).split(".")[0]]["raw"] = function(file)
             except Exception as err:
-                self.log.error("An error occured while applying function {} to path {}".format(str(function), file))
+                self.log.error("An error occured while applying function {} to path {}".format(str(function), file), exc_info=True)
 
     def read_file(self, path):
         with open(path) as f:
@@ -232,10 +232,9 @@ class connect_to_devices:
 
                 except Exception as err:
                     self.log.error(
-                        "Unknown error happened, during connection attempt to device: {} with error: {}".format(device,
-                                                                                                                err))
+                        "Unknown error happened, during connection attempt to device: {}".format(device), exc_info=True)
             except KeyError:
-                self.log.error("Device " + device_dict[device]["Device_name"] + " has no IDN.")
+                self.log.error("Device " + device_dict[device]["Device_name"] + " has no IDN.", exc_info=True)
 
     def get_new_device_dict(self):
         """Returns all connected devices."""

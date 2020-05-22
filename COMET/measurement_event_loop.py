@@ -66,7 +66,7 @@ class measurement_event_loop(Thread):
                 self.temphumhread.start() # Starts the thread
                 self.framework["background_Env_task"] = self.temphumhread
             except Exception as err:
-                self.log.error("An error happened while starting the temphum control thread: {}".format(err))
+                self.log.error("An error happened while starting the temphum control thread", exc_info=True, stack_info=True)
 
         # This starts the loop to get the messages from the main thread
         self.start_loop()
@@ -98,17 +98,17 @@ class measurement_event_loop(Thread):
                     try:
                         self.measurements_to_conduct.update(message[self.order_types[0]]) # Assign the dict for the measurements
                     except:
-                        self.log.error("Data type error while translating message for measurement event loop")
+                        self.log.error("Data type error while translating message for measurement event loop", exc_info=True)
 
                 elif self.order_types[1] in message: # Status
                     try:
                         self.status_query.update(message[self.order_types[1]])
                     except:
-                        self.log.error("Data type error while translating message for measurement event loop")
+                        self.log.error("Data type error while translating message for measurement event loop", exc_info=True)
                 else:
                     self.log.error("Wrong order delivered to measurement event loop. Order: " + "\"" + str(message) + "\"")
         except Exception as err:
-            self.log.error("An unknown error occured while translating the message: {} with error {}".format(message, err))
+            self.log.error("An unknown error occured while translating the message: {}.".format(message), exc_info=True)
 
     def process_message(self):
         '''This function will do some actions in case of a valid new operation'''

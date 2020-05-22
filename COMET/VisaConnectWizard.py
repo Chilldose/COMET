@@ -76,7 +76,7 @@ class VisaConnectWizard:
                 self.myInstruments.append(self.rm.open_resource(arg[0]))
                 # Important ----------------------------------------------------------------
         except:
-            self.log.error("Attempt to connect to visa resource " + str(arg[0]) + " failed.")
+            self.log.error("Attempt to connect to visa resource " + str(arg[0]) + " failed.", exc_info=True)
 
     def reset_GBIP_interface(self):
         """Resets the GPIB interface, if none is present nothing will happen, but a log will be written"""
@@ -90,7 +90,7 @@ class VisaConnectWizard:
                 self.log.info("No GPIB interface to reset...")
                 return True
         except Exception as e:
-            self.log.error("Reset of interface was not successfull. Error: " + str(e))
+            self.log.error("Reset of interface was not successfull.", exc_info=True)
             return False
 
     #Lists all connected resources (no sniff)
@@ -157,7 +157,7 @@ class VisaConnectWizard:
             except visa.VisaIOError as err:
                 device_dict["State"] = "NOT CONNECTED"
                 device_dict["Visa_Resource"] = None
-                self.log.error("VISA resource {} could not be found in active resource or the connection attempt failed. Error: {}".format(resource_name, err))
+                self.log.error("VISA resource {} could not be found in active resource or the connection attempt failed.".format(resource_name), exc_info=True)
                 return
 
         self.config_resource(resource, **device_dict.get("VISA_attributes", {}))
@@ -176,7 +176,7 @@ class VisaConnectWizard:
                 self.log.error("Connection to the device: " + device_dict["Device_name"] +
                                "could not be reestablished , due to IDN query mismatch. Responded IDN was: '{}'".format(str(IDN_query).strip()))
         except Exception as err:
-            self.log.error("Could not query device {}, if this error persists, please restart software... Error: {}".format(err))
+            self.log.error("Could not query device {}, if this error persists, please restart software...", exc_info=True)
 
 
 
@@ -218,7 +218,7 @@ class VisaConnectWizard:
                 return device_resource
 
         except Exception as err:
-            self.log.error("Attempt to connect to device: " + str(device) + " failed. with error: {}".format(err))
+            self.log.error("Attempt to connect to device: " + str(device) + " failed.", exc_info=True)
             return False
 
 
@@ -236,9 +236,9 @@ class VisaConnectWizard:
             try:
                 setattr(resource, att, value)
             except AttributeError:
-                self.log.error("Could not set VISA attribute {} due to an attribute error. Is the attribute valid?".format(att))
+                self.log.error("Could not set VISA attribute {} due to an attribute error. Is the attribute valid?".format(att), exc_info=True)
             except Exception as err:
-                self.log.error("Could not set VISA attribute {}, Error: {}".format(att, err))
+                self.log.error("Could not set VISA attribute {}".format(att), exc_info=True)
 
 
     #Verifing the ID of connected resources typing -1 asks for all id of all resources
@@ -275,7 +275,7 @@ class VisaConnectWizard:
             #reconnect = True # if dict a reconection attempt is possible
         except KeyError:
             self.log.error("Could not access Visa Resource for device: " + str(resource_dict["Device_name"] +
-                       ". This usually happens when the device is not connected."))
+                       ". This usually happens when the device is not connected."), exc_info=True)
             return False
         except TypeError:
             resource = resource_dict
@@ -291,8 +291,8 @@ class VisaConnectWizard:
 
         except Exception as err:
             # Try to reconnect to the device if no answer comes from the device in the timeout
-            self.log.error("The query of device {} with query {} failed with error: {}".format(resource_dict["Device_name"],
-                                                                                               code, err))
+            self.log.error("The query of device {} with query {} failed. ".format(resource_dict["Device_name"],
+                                                                                               code), exc_info=True)
 
             if reconnect and type(resource_dict) == dict:
                 self.log.warning("Trying to reconnect to device and reset interfaces...")
@@ -324,10 +324,10 @@ class VisaConnectWizard:
             try:
                 resource = resource_dict["Visa_Resource"]
             except KeyError:
-                self.log.error("A key error occured in dict " + str(resource_dict["Device_name"] + ". This usually happens when the device is not connected."))
+                self.log.error("A key error occured in dict " + str(resource_dict["Device_name"] + ". This usually happens when the device is not connected."), exc_info=True)
                 return False
             except Exception as e:
-                self.log.error("An unknown error occured while accessing a Visa resource " + str(e))
+                self.log.error("An unknown error occured while accessing a Visa resource " + str(e), exc_info=True)
                 return False
         else:
             resource = resource_dict

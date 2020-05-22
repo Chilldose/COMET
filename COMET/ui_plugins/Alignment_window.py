@@ -190,13 +190,16 @@ class Alignment_window(Table_widget):
             msg.exec_()
             return
 
-        if not self.variables.table.table_ready:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setText("It seems that no table is connected to this machine...")
-            msg.setWindowTitle("Sorry Bro...")
-            msg.exec_()
-            return
+        try:
+            if not self.variables.table.table_ready:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setText("It seems that no table is connected to this machine...")
+                msg.setWindowTitle("Sorry Bro...")
+                msg.exec_()
+                return
+        except:
+            self.log.error("Table seems to be missing", exc_info=True)
 
         reply = QMessageBox.question(None, 'Warning', "Are you sure to start the alignment proceedure? A previous alignement will be deleted", QMessageBox.Yes, QMessageBox.No)
         if reply == QMessageBox.Yes:
