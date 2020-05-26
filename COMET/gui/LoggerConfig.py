@@ -1,11 +1,7 @@
 import logging
 from PyQt5 import QtWidgets
 import os
-from PyQt5 import QtCore
 from PyQt5 import uic
-
-
-from .. import utilities
 
 def setCurrentEntry(widget, text):
     """Set current combo box entry by test, provided for convenince."""

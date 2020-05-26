@@ -79,5 +79,6 @@ class Stripscan:
 
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.analysisName].get("Layout", {}))
+        self.PlotDict["data"] = self.data
         return self.PlotDict
 

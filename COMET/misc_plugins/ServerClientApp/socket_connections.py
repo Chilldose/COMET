@@ -65,7 +65,6 @@ class Client_(socket_connections):
                      data=message)  # Sock should be monitored for read or write actions, and message is the object to do something with it
 
     def run(self):
-        #request = self.create_request(action, value)
         if self.request:
             self.start_connection(self.HOST, self.PORT, self.request)
             try:
@@ -103,7 +102,7 @@ class Server_(socket_connections):
         with the server. This function must return a valid python object. Which is then send to the Client"""
         super().__init__(HOST, PORT)
         self.keep_running = False
-        self.responder = responder_funct
+        self.responder = responder_funct # The function which should be called if a request comes in
 
     def start_connection(self):
 
@@ -138,21 +137,22 @@ class Server_(socket_connections):
         conn, addr = sock.accept()  # Should be ready to read
         self.log.debug("accepted connection from"+str(addr))
         conn.setblocking(False)
-        message = MessageServer(self.sel, conn, addr, responder_funct=self.responder)
-        self.sel.register(conn, selectors.EVENT_READ, data=message)
+        message = MessageServer(self.sel, conn, addr, responder_funct=self.responder) # Open new Message process class
+        self.sel.register(conn, selectors.EVENT_READ, data=message) # Register the message class in the selector framework
+        # Set the event as a read event, aka. 'mask'
 
     def run(self):
         self.start_connection()
         try:
-            while True:
+            while True: # Main loop of the server. It waits for the selector until a request comes in
                 events = self.sel.select(timeout=None)
                 for key, mask in events:
-                    if key.data is None:
+                    if key.data is None: # If data is not present in event, then accept the connection first.
                         self.accept_wrapper(key.fileobj)
                     else:
-                        message = key.data
+                        message = key.data # Get the data (aka. the Message process class)
                         try:
-                            message.process_events(mask)
+                            message.process_events(mask) # Execute the message process class and process the message
                         except Exception:
                             self.log.error("main: error: exception for {}:{}".format(message.addr,traceback.format_exc()))
                             message.close()
@@ -216,15 +216,29 @@ class BaseMessage:
             self.log.debug("sending " + str(repr(self._send_buffer)) + "to" + str(self.addr))
             try:
                 # Should be ready to write
+                sent = self.sock.send(self._send_buffer) # Should return the bytes sent
+            except BlockingIOError:
+                # Resource temporarily unavailable (errno EWOULDBLOCK)
+                pass
+            else:
+                self._send_buffer = self._send_buffer[sent:] # Get the bytes not yet sent
+                # Close when the buffer is drained. The response has been sent.
+                if sent and not self._send_buffer:
+                    self.close()
+
+    def _query_write(self):
+        """Checks if the send buffer contains data and sends the data over the socket.
+        Same as write, but lets the socket connection open for a read later on!"""
+        if self._send_buffer:
+            self.log.debug("sending " + str(repr(self._send_buffer)) + "to" + str(self.addr))
+            try:
+                # Should be ready to write
                 sent = self.sock.send(self._send_buffer)
             except BlockingIOError:
                 # Resource temporarily unavailable (errno EWOULDBLOCK)
                 pass
             else:
                 self._send_buffer = self._send_buffer[sent:]
-                # Close when the buffer is drained. The response has been sent.
-                if sent and not self._send_buffer:
-                    self.close()
 
     def _json_encode(self, obj, encoding):
         """Simply encodes a python dictionary to a json encoded message to be send over a socket connection"""
@@ -232,9 +246,7 @@ class BaseMessage:
 
     def _json_decode(self, json_bytes, encoding):
         """Simply decodes a json encoded message to a python dictionary"""
-        tiow = io.TextIOWrapper(
-            io.BytesIO(json_bytes), encoding=encoding, newline=""
-        )
+        tiow = io.TextIOWrapper(io.BytesIO(json_bytes), encoding=encoding, newline="")
         obj = json.load(tiow)
         tiow.close()
         return obj
@@ -293,18 +305,14 @@ class BaseMessage:
         Its an unsign integer containing the length of the message header."""
         hdrlen = 2
         if len(self._recv_buffer) >= hdrlen:
-            self._jsonheader_len = struct.unpack(
-                ">H", self._recv_buffer[:hdrlen]
-            )[0]
+            self._jsonheader_len = struct.unpack(">H", self._recv_buffer[:hdrlen])[0]
             self._recv_buffer = self._recv_buffer[hdrlen:]
 
     def process_jsonheader(self):
         """Processes the json header it needs the header length already known"""
         hdrlen = self._jsonheader_len
         if len(self._recv_buffer) >= hdrlen: # Only process if the header is already fully there
-            self.jsonheader = self._json_decode(
-                self._recv_buffer[:hdrlen], "utf-8"
-            )
+            self.jsonheader = self._json_decode(self._recv_buffer[:hdrlen], "utf-8")
             self._recv_buffer = self._recv_buffer[hdrlen:]
             for reqhdr in (
                 "byteorder",
@@ -317,7 +325,7 @@ class BaseMessage:
 
 
 class MessageServer(BaseMessage):
-    """Basic Message class for server messages"""
+    """Basic Message class for server messages. This class will be registered in the selector"""
 
     def __init__(self, selector, sock, addr, request=None, responder_funct=None):
         super(MessageServer, self).__init__(selector, sock, addr, request=None)
@@ -328,8 +336,12 @@ class MessageServer(BaseMessage):
         action = self.request.get("action", None)
         value = self.request.get("value", None)
         if action and value:
-            answer = self.responder_funct(action, value)
-            content = {"result": answer}
+            if self.responder_funct:
+                answer = self.responder_funct(action, value) # Pass the action and value to the responder function
+                content = {"result": answer} # Pack the response to a python dict
+            else:
+                self.log.error("No responder function defined for TCP/IP server... Returning empty message")
+                content = {"result": "No responder function defined for TCP/IP server... Returning empty message"}
         else:
             content = {"result": 'Error: invalid action and or value {}, {}'.format(action, value)}
         content_encoding = "utf-8"
@@ -352,11 +364,11 @@ class MessageServer(BaseMessage):
     def read(self):
         self._read()
 
-        if self._jsonheader_len is None:
+        if self._jsonheader_len is None: # Process the protoheader first
             self.process_protoheader()
 
         if self._jsonheader_len is not None:
-            if self.jsonheader is None:
+            if self.jsonheader is None: # Process jsonheader
                 self.process_jsonheader()
 
         if self.jsonheader:
@@ -365,18 +377,18 @@ class MessageServer(BaseMessage):
 
 
     def write(self):
-        if self.request:
-            if not self.response_created:
-                self.create_response()
+        if self.request: # Check if a request was there
+            if not self.response_created: # Check if not a response was already created and sent
+                self.create_response() # Create the response
 
         self._write()
 
     def process_request(self):
         content_len = self.jsonheader["content-length"]
-        if not len(self._recv_buffer) >= content_len:
+        if not len(self._recv_buffer) >= content_len: # Check if the bytes already there are the full message, otherwise wait.
             return
-        data = self._recv_buffer[:content_len]
-        self._recv_buffer = self._recv_buffer[content_len:]
+        data = self._recv_buffer[:content_len] # Only take the length it should have if some additional garbage is there
+        self._recv_buffer = self._recv_buffer[content_len:] # Leave the rest for further decoding
         if self.jsonheader["content-type"] == "text/json":
             encoding = self.jsonheader["content-encoding"]
             self.request = self._json_decode(data, encoding)
@@ -386,8 +398,7 @@ class MessageServer(BaseMessage):
             self.request = data
             self.log.debug('received {} request from {}'.format(self.jsonheader["content-type"], self.addr))
         # Set selector to listen for write events, we're done reading.
-        self._set_selector_events_mask("w")
-
+        self._set_selector_events_mask("w") # Set the selector mask to write for this event, so the answer can be send
 
     def create_response(self):
         if self.jsonheader["content-type"] == "text/json":
@@ -443,7 +454,7 @@ class MessageClient(BaseMessage):
         if not self._request_queued:
             self.queue_request()
 
-        self._write()
+        self._query_write()  # Lets the socket open for a read, after the read process the connection will be closed
 
         if self._request_queued:
             if not self._send_buffer:

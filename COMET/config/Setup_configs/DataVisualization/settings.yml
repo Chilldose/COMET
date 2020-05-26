@@ -12,5 +12,6 @@
         - DataBrowser
         
     xml_template: CMSxmlTemplate
+    override_data: true # If data was changed during an analyis this supresses the prompt which data you want to use. And either overrides it automatically or not
 
 
