@@ -9,6 +9,7 @@ import traceback
 import logging.config
 import datetime
 import logging
+import pandas as pd
 from .misc_plugins.engineering_notation import EngUnit
 import json
 import yaml
@@ -1866,16 +1867,20 @@ def convert_to_df(to_convert, abs = False):
     return return_dict
 
 
-class NumpyEncoder(json.JSONEncoder):
+class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray):
-           return obj.tolist()
+            return obj.tolist()
+        if isinstance(obj, pd.Series):
+            return obj.tolist()
+        if isinstance(obj, pd.DataFrame):
+            return {i: obj[i].tolist() for i in obj.keys()}
         return json.JSONEncoder.default(self, obj)
 
 def save_dict_as_json(data, dirr, base_name):
 
     # Create a json dump
-    json_dump = json.dumps(data, cls=NumpyEncoder)
+    json_dump = json.dumps(data, cls=CustomJSONEncoder)
     # Write the data to file, the whole dic
     with open(os.path.join(dirr, "{}.json".format(base_name)), 'w') as outfile:
         json.dump(json_dump, outfile)
@@ -1896,7 +1901,7 @@ def save_dict_as_json(data, dirr, base_name):
         # If the data contains several measurement json files eg from the plotter
         for name, file in data.items():
              with open(os.path.join(dirr, "singledata", "{}.json".format(name)), 'w') as outfile:
-                    json_dump = json.dumps(file, cls=NumpyEncoder)
+                    json_dump = json.dumps(file, cls=CustomJSONEncoder)
                     json.dump(json_dump, outfile)
 
 def save_dict_as_hdf5(data, dirr, base_name):
