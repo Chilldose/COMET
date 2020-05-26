@@ -730,11 +730,11 @@ class DataVisualization_window:
                     self.change_data(originals, file, analys)
 
                 else: # Ask user what data to take
-                    self.variables.app.restoreOverrideCursor()
+                    #self.variables.app.restoreOverrideCursor()
                     dialog = SaveOptionDialog(self.change_data, file, originals)
                     dialog.exec_()
                     del dialog
-                    self.variables.app.setOverrideCursor(Qt.WaitCursor)
+                    #self.variables.app.setOverrideCursor(Qt.WaitCursor)
 
 
 
