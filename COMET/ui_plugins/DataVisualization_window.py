@@ -4,13 +4,14 @@ from PyQt5.QtCore import QUrl, Qt
 from PyQt5 import QtGui
 from PyQt5 import QtCore
 import threading
-import traceback
+import numpy as np
 import ast
 import re
 from time import asctime
 from ..utilities import save_dict_as_hdf5, save_dict_as_json, save_dict_as_xml, convert_dict_to_xml
 import yaml
 from warnings import filterwarnings
+from .SaveOptionsDataVIS_widget import SaveOptionDialog
 filterwarnings('ignore', message='yaml.load()', category=yaml.YAMLLoadWarning)
 
 
@@ -518,9 +519,10 @@ class DataVisualization_window:
             self.log.info("Saving xml file...")
 
             # Convert to CMS database xml
-            data = self.plotting_Object.data
+            template_name = self.variables.framework_variables["Configs"]["config"]["settings"].get("xml_template",
+                                                                                                    None)
+            data = self.plotting_Object.data # Loop over the initial data sets
             for key, dat in data.items():
-                template_name = self.variables.framework_variables["Configs"]["config"]["settings"].get("xml_template", None)
                 if template_name:
                     template = self.variables.framework_variables["Configs"]["config"][template_name]
                     header_dict = self.insert_values_from_header(template, dat["header"])
@@ -661,12 +663,14 @@ class DataVisualization_window:
                 # Get save option
                 options = self.widget.save_as_comboBox.currentText().split("/")
 
-                plotters = ["html", "png", "svg"]
-                data = ["json", "hdf5", "xml"]
+                plotters = np.intersect1d(["html", "png", "svg"], options)
+                data = np.intersect1d(["json", "hdf5", "xml"], options)
 
                 # Start data saver
-                for ty in data:
-                    if ty in options:
+
+                if data:
+                    self.check_if_data_changed() # Check if data has changed during analysis
+                    for ty in data:
                         self.save_data(ty, directory, os.path.basename(directory))
 
                 # Start renderer
@@ -674,8 +678,7 @@ class DataVisualization_window:
                     self.plotting_Object.config["Save_as"] = []
                     self.plotting_Object.config["Output"] = directory
                     for plot in plotters:
-                        if plot in options:
-                            self.plotting_Object.config["Save_as"].append(plot)
+                        self.plotting_Object.config["Save_as"].append(plot)
                     if not self.plotting_thread:
                         self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
                             self.variables.framework_variables["Message_to_main"],))
@@ -697,6 +700,48 @@ class DataVisualization_window:
 
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()
+
+    def check_if_data_changed(self):
+        """Checks if data has changed during a analysis and asks if and what you want data you want to save"""
+        originals = {i:{"original":j} for i, j in self.plotting_Object.data.items()}
+        for analysisout in self.plotting_Object.plotObjects:
+            if "data" in analysisout: # Check if new data is present, if not ignore
+                data = {k: analysisout["data"][k] for k in analysisout["data"]["keys"]}
+                try:
+                    for key, value in data.items():
+                        if key not in originals:
+                            originals[key] = {}
+                        else:
+                            originals[key].update({analysisout["Name"]: value})
+                except KeyError:
+                    self.log.error("New data was found for potential save but no name for analysis could be found. Please add a 'Name' entry to you analysis return!", exc_info=True)
+
+        for file in originals:
+            if "original" not in originals[file] and len(originals[file].keys()) == 1: # If new data is present not included in the original data, add it
+                self.plotting_Object.data[file] = originals[file][list(originals[file].keys())[0]]
+
+            if len(originals[file].keys())>1: # Check if more than the original data is present
+                # Check if len is 2 and originals is present and override is enabled then override
+                if len(originals[file].keys())==2 and "original" in originals[file] and self.plotting_Object.config.get("override_data",False):
+                    originals[file].pop("original")
+                    analys = list(originals[file].keys())[0]
+                    self.log.warning("Overriding data was set to true, overrdiding loaded data with data changed by analysis {}"
+                                     " for file {}".format(analys, file))
+                    self.change_data(originals, file, analys)
+
+                else: # Ask user what data to take
+                    self.variables.app.restoreOverrideCursor()
+                    dialog = SaveOptionDialog(self.change_data, file, originals)
+                    dialog.exec_()
+                    del dialog
+                    self.variables.app.setOverrideCursor(Qt.WaitCursor)
+
+
+
+    def change_data(self, newdata, file, tosave):
+        """Changes the data which will be saved in the end"""
+        self.log.info("Setting new data {} for file {}.".format(tosave, file))
+        self.plotting_Object.data[file] = newdata[file][tosave]
 
     def get_image_size(self, fname):
         '''Determine the image type of fhandle and return its size.
