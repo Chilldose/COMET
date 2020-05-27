@@ -487,7 +487,7 @@ class DataVisualization_window:
 
     def config_save_options(self):
         """Configs the save options like json,hdf5,etc"""
-        options = ["html/png/xml", "html/png/json/hdf5", "html", "html/png", "html/json", "html/png/json", "png", "html/hdf5", "hdf5/json", "svg", "xml"]
+        options = ["html/png/json/xml", "html/png/xml", "json/xml", "html/xml","html/png/json/hdf5", "html", "html/png", "html/json", "html/png/json", "png", "html/hdf5", "hdf5/json", "svg", "xml"]
         self.widget.save_as_comboBox.addItems(options)
 
     def config_selectable_templates(self, select=None):
@@ -664,7 +664,7 @@ class DataVisualization_window:
                 options = self.widget.save_as_comboBox.currentText().split("/")
 
                 plotters = np.intersect1d(["html", "png", "svg"], options)
-                data = np.intersect1d(["json", "hdf5", "xml"], options)
+                data = list(np.intersect1d(["json", "hdf5", "xml"], options))
 
                 # Start data saver
 
