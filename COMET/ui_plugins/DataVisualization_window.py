@@ -201,9 +201,6 @@ class DataVisualization_window:
         # Add the parameters
         template["Files"] = [self.widget.files_comboBox.itemText(i) for i in range(self.widget.files_comboBox.count())]
         template["Output"] = self.widget.save_lineEdit.text()
-        #if "backend" in template:
-        #    self.set_backend(template["backend"])
-        #else:
         template["backend"] = self.backend
 
         # Dump the yaml file in the output directory
@@ -519,8 +516,7 @@ class DataVisualization_window:
             self.log.info("Saving xml file...")
 
             # Convert to CMS database xml
-            template_name = self.variables.framework_variables["Configs"]["config"]["settings"].get("xml_template",
-                                                                                                    None)
+            template_name = self.variables.framework_variables["Configs"]["config"]["settings"].get("xml_template", None)
             data = self.plotting_Object.data # Loop over the initial data sets
             for key, dat in data.items():
                 if template_name:
@@ -633,7 +629,6 @@ class DataVisualization_window:
 
         return template
 
-
     def config_files_combo_box(self, items):
         """Set dragable combobox"""
         model = QtGui.QStandardItemModel()
@@ -650,7 +645,6 @@ class DataVisualization_window:
 
         # Sets the cursor to wait
         self.variables.app.setOverrideCursor(Qt.WaitCursor)
-
         if self.not_saving:
             # Check if valid dir was given
             directory = self.widget.save_lineEdit.text()
@@ -662,22 +656,16 @@ class DataVisualization_window:
 
                 # Get save option
                 options = self.widget.save_as_comboBox.currentText().split("/")
-
-                plotters = np.intersect1d(["html", "png", "svg"], options)
-                data = list(np.intersect1d(["json", "hdf5", "xml"], options))
-
-                # Start data saver
-                if data:
-                    self.check_if_data_changed() # Check if data has changed during analysis
-                    for ty in data:
-                        self.save_data(ty, directory, os.path.basename(directory))
+                self.plotting_Object.config["Save_as"] = options
+                if list(np.intersect1d(options, ["xml", "json", "hdf5"])):
+                    self.check_if_data_changed()
+                self.plotting_Object.config["Output"] = directory
+                template_name = self.variables.framework_variables["Configs"]["config"]["settings"].get("xml_template", None)
+                if template_name:
+                    self.plotting_Object.config["xml_template"] = self.variables.framework_variables["Configs"]["config"][template_name]
 
                 # Start renderer
                 if self.plotting_Object.config:
-                    self.plotting_Object.config["Save_as"] = []
-                    self.plotting_Object.config["Output"] = directory
-                    for plot in plotters:
-                        self.plotting_Object.config["Save_as"].append(plot)
                     if not self.plotting_thread:
                         self.plotting_thread = threading.Thread(target=self.plotting_Object.save_to, args=(
                             self.variables.framework_variables["Message_to_main"],))
@@ -696,7 +684,6 @@ class DataVisualization_window:
             if not self.plotting_thread.is_alive():
                 self.not_saving = True
                 self.save_as_action() # Start it here.
-
         # Restore Cursor
         self.variables.app.restoreOverrideCursor()
 
@@ -715,27 +702,28 @@ class DataVisualization_window:
                 except KeyError:
                     self.log.error("New data was found for potential save but no name for analysis could be found. Please add a 'Name' entry to you analysis return!", exc_info=True)
 
+        changed = False
         for file in originals:
             if "original" not in originals[file] and len(originals[file].keys()) == 1: # If new data is present not included in the original data, add it
                 self.plotting_Object.data[file] = originals[file][list(originals[file].keys())[0]]
 
             if len(originals[file].keys())>1: # Check if more than the original data is present
                 # Check if len is 2 and originals is present and override is enabled then override
-                if len(originals[file].keys())==2 and "original" in originals[file] and self.plotting_Object.config.get("override_data",False):
-                    originals[file].pop("original")
-                    analys = list(originals[file].keys())[0]
-                    self.log.warning("Overriding data was set to true, overrdiding loaded data with data changed by analysis {}"
-                                     " for file {}".format(analys, file))
-                    self.change_data(originals, file, analys)
+                data_override = self.plotting_Object.config.get("override_data", None)
+                if len(originals[file].keys()) == 2 and "original" in originals[file] and data_override == True:
+                    pass # Nothing to do since this will now be handled inside plot scripts
+
+                elif len(originals[file].keys()) == 2 and "original" in originals[file] and data_override == False:
+                    pass # Nothing to do since this will now be handled inside plot scripts
 
                 else: # Ask user what data to take
-                    #self.variables.app.restoreOverrideCursor()
                     dialog = SaveOptionDialog(self.change_data, file, originals)
                     dialog.exec_()
                     del dialog
-                    #self.variables.app.setOverrideCursor(Qt.WaitCursor)
+                    changed = True
 
-
+        if changed:
+            self.plotting_Object.config["override_data"] = False
 
     def change_data(self, newdata, file, tosave):
         """Changes the data which will be saved in the end"""

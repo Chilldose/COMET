@@ -17,7 +17,7 @@
   # These options are entirely up to you and what you need in your analysis
   
   # Converts all arrays to their absolute
-  override_data: True
+  #override_data: False
   abs_value_only: False
   Measurement_aliases:
       Temperature: temp

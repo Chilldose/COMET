@@ -871,10 +871,14 @@ def save_data(plotting_Object, types, dirr, base_name="data", to_call=None):
             if typ == "xml":
                 # XML serialize
                 log.info("Saving xml file...")
-                xml_template_dict = plotting_Object.config.get("xml_template_path", None)
+                if "xml_template" in plotting_Object.config:
+                    xml_template_dict = plotting_Object.config["xml_template"]
+                else:
+                    xml_template_dict = plotting_Object.config.get("xml_template_path", None)
+                    xml_template_dict = load_yaml(xml_template_dict)
                 if xml_template_dict:
                     try:
-                        xml_template_dict = load_yaml(xml_template_dict)
+
                         save_dict_as_xml(deepcopy(plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name, xml_template_dict)
                     except:
                         log.error("An error happened during xml save.", exc_info=True)
@@ -1018,23 +1022,25 @@ def check_if_data_changed(plotting_Object, to_call = None):
         if len(originals[file].keys()) > 1:  # Check if more than the original data is present
             # Check if len is 2 and originals is present and override is enabled then override
             data_override = plotting_Object.config.get("override_data", None)
-            if len(originals[file].keys()) == 2 and "original" in originals[file] and data_override == True:
-                originals[file].pop("original")
-                analys = list(originals[file].keys())[0]
-                log.warning(
-                    "Overriding data was set to true, overrding loaded data with data changed by analysis {}"
-                    " for file {}".format(analys, file))
-                change_data(plotting_Object, originals, file, analys)
+            # If a specific dataset was selected
+            if isinstance(data_override, bool):
+                if len(originals[file].keys()) == 2 and "original" in originals[file] and data_override == True:
+                    originals[file].pop("original")
+                    analys = list(originals[file].keys())[0]
+                    log.warning(
+                        "Overriding data was set to true, overrding loaded data with data changed by analysis {}"
+                        " for file {}".format(analys, file))
+                    change_data(plotting_Object, originals, file, analys)
 
-            elif len(originals[file].keys()) == 2 and "original" in originals[file] and data_override == False:
-                # do nothing
-                pass
+                elif len(originals[file].keys()) == 2 and "original" in originals[file] and data_override == False:
+                    # do nothing
+                    pass
 
-            else:
-                if not to_call:
-                    log.error("Either more than one analysis changed the output data for file {}, or override of data was not permitted... Saving data aborted!".format(file))
                 else:
-                    to_call(change_data, file, originals) # Legacy since it was ported from a different part
+                    if not to_call:
+                        log.error("Either more than one analysis changed the output data for file {}, or override of data was not permitted... Saving data aborted!".format(file))
+                    else:
+                        to_call(file, originals) # Legacy since it was ported from a different part
 
 def change_data(plotting_Object, newdata, file, tosave):
     """Changes the data which will be saved in the end"""
@@ -1057,7 +1063,7 @@ def save_as_xml(data_dict, filepath, name):
     """
     file = os.path.join(os.path.normpath(filepath), name.split(".")[0]+".xml")
     file = os.path.join(os.getcwd(), file)
-    log.info("Saving file {}.")
+    log.info("Saving file {}.".format(file))
     if isinstance(data_dict, ET.Element):
         dom = parseString(ET.tostring(data_dict))
         with open(file, "w+") as fp:

@@ -117,7 +117,7 @@ class PlottingMain:
             else:
                 self.log.info("No 'all' plot defined, skipping...")
 
-    def save_to(self, progress_queue=None, backend=None):
+    def save_to(self, progress_queue=None, backend=None, to_call=None):
         """This function saves all plots from every analysis for each datasets"""
 
         # Generate base folder
@@ -129,7 +129,7 @@ class PlottingMain:
 
         self.log.info("Saving data...")
         from forge.tools import save_data
-        save_data(self, self.config.get("Save_as", []), save_dir, to_call=None)
+        save_data(self, self.config.get("Save_as", []), save_dir, to_call=to_call)
 
         self.log.critical("Saving plots...")
         progress_steps = 0
@@ -177,6 +177,8 @@ class PlottingMain:
                         save_plot(plot.get("Name", "All Plots"), plot["All"], save_dir, backend=self.backend)
                         if progress_queue:
                             progress_queue.put({"PROGRESS": 1})
+                    else:
+                        progress_queue.put({"PROGRESS": 1})
                 except:
                     self.log.warning("'All plots' could not be saved....", exc_info=True)
 
