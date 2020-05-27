@@ -6,6 +6,20 @@
     measurement_description: 20
     units_line: 21
     data_start: 22
+    
+
+  Files:
+    - ".\\testdata\\Stripfile_1.txt"
+    - ".\\testdata\\Stripfile_2.txt"
+    - ".\\testdata\\Stripfile_3.txt"
+    
+  Output: ".\\testdata\\test_export"
+  xml_template_path: ".\\CONFIGS\\CMSxmlTemplate.yml"
+  Save_as:
+    - png
+    - html
+    - json
+    - xml
 
   Analysis:
     - Stripscan
@@ -19,6 +33,8 @@
   # Converts all arrays to their absolute
   override_data: True
   abs_value_only: False
+  override_data: True
+  
   Measurement_aliases:
       Temperature: temp
       Humidity: hum
@@ -42,13 +58,6 @@
         singleHistogram:
             bins: 50
             iqr: 0.1
-            
-
-      #DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measuremnt has this special plot stated
-      #    - concatHistogram
-      #    - Violin
-      #    - BoxWhisker
-       #   - Histogram
 
       HistogramOptions:
           shared_axes: False

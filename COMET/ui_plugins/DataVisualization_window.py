@@ -530,7 +530,7 @@ class DataVisualization_window:
                     final_xml_dict = self.insert_templates(dat, final_xml, template)
 
                     for subkey, value in final_xml_dict.items():
-                        save_dict_as_xml(value, os.path.join(os.path.normpath(dirr), "data"), "{}_{}_".format(key, subkey))
+                        save_dict_as_xml(value, os.path.join(os.path.normpath(dirr), "data"), "{}_{}".format(key, subkey))
                 else:
                     self.log.error("No xml template stated in settings. Please add 'xml_template' to your configs.")
 
@@ -667,7 +667,6 @@ class DataVisualization_window:
                 data = list(np.intersect1d(["json", "hdf5", "xml"], options))
 
                 # Start data saver
-
                 if data:
                     self.check_if_data_changed() # Check if data has changed during analysis
                     for ty in data:

@@ -7,7 +7,7 @@ import sys, os
 try:
     from .forge.utilities import parse_args, LogFile, load_yaml
     from .forge.utilities import load_plugins, reload_plugins
-    from .forge.tools import read_in_files, save_plot
+    from .forge.tools import read_in_files, save_plot, save_data
 except:
     from forge.utilities import parse_args, LogFile, load_yaml
     from forge.utilities import load_plugins, reload_plugins
@@ -119,16 +119,22 @@ class PlottingMain:
 
     def save_to(self, progress_queue=None, backend=None):
         """This function saves all plots from every analysis for each datasets"""
-        self.log.critical("Saving plots...")
-        progress_steps = 0
-        saved = 0
+
         # Generate base folder
         save_dir = os.path.normpath(self.config.get("Output", "Plots"))
         try:
-            #Todo:directory tree generation
             os.mkdir(save_dir)
         except:
             self.log.warning("The directory: {} already exists, files inside can/will be overwritten!".format(save_dir))
+
+        self.log.info("Saving data...")
+        from forge.tools import save_data
+        save_data(self, self.config.get("Save_as", []), save_dir, to_call=None)
+
+        self.log.critical("Saving plots...")
+        progress_steps = 0
+        saved = 0
+
         if os.path.exists(os.path.normpath(save_dir)):
             if progress_queue:
                 progress_queue.put({"STATE": "Saving plots..."})
@@ -166,12 +172,13 @@ class PlottingMain:
                         save_plot(key, subplot, save_dir, backend=backend)
                         saved += 1
                 try:
-                    self.log.info("Export the 'All' plot...")
-                    save_plot(plot.get("Name", "All Plots"), plot["All"], save_dir, backend=self.backend)
-                    if progress_queue:
-                        progress_queue.put({"PROGRESS": 1})
+                    if "html" in self.config.get("Save_as", []) or "png" in self.config.get("Save_as", []):
+                        self.log.info("Export the 'All' plot...")
+                        save_plot(plot.get("Name", "All Plots"), plot["All"], save_dir, backend=self.backend)
+                        if progress_queue:
+                            progress_queue.put({"PROGRESS": 1})
                 except:
-                    self.log.warning("'All plots' could not be saved....")
+                    self.log.warning("'All plots' could not be saved....", exc_info=True)
 
         else:
             self.log.error("The path: {} does not exist...".format(save_dir))

@@ -194,7 +194,7 @@ def save_plot(name, subplot, save_dir, save_as=("default"), backend="bokeh"):
                     os.mkdir(save_dir)
                 hv.save(subplot, os.path.join(save_dir,name)+".svg", backend=backend)
             else:
-                log.error("Saving format {} not recognised. Saving not possible!".format(save_format))
+                log.debug("Saving format {} for plot save not recognised.".format(save_format))
 
 
         except Exception as err:
@@ -802,20 +802,24 @@ def parse_file_data(filecontent, settings):
     return return_dict
 
 
-class NumpyEncoder(json.JSONEncoder):
+class CustomJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray):
-           return obj.tolist()
+            return obj.tolist()
+        if isinstance(obj, pd.Series):
+            return obj.tolist()
+        if isinstance(obj, pd.DataFrame):
+            return {i: obj[i].tolist() for i in obj.keys()}
         return json.JSONEncoder.default(self, obj)
 
 def save_dict_as_json(data, dirr, base_name):
-    json_dump = json.dumps(data, cls=NumpyEncoder)
+    json_dump = json.dumps(data, cls=CustomJSONEncoder)
     with open(os.path.join(dirr, base_name+".json"), 'w') as outfile:
         json.dump(json_dump, outfile)
 
     for key in data:
         with open(os.path.join(dirr, "{}.json".format(key)), 'w') as outfile:
-            json_dump = json.dumps(data[key], cls=NumpyEncoder)
+            json_dump = json.dumps(data[key], cls=CustomJSONEncoder)
             json.dump(json_dump, outfile)
 
 def save_dict_as_hdf5(data, dirr, base_name):
@@ -825,24 +829,246 @@ def save_dict_as_hdf5(data, dirr, base_name):
         data[key]["data"].to_hdf(os.path.join(dirr, "{}.hdf5".format(key)), key='df', mode='w')
 
 
-def save_dict_as_xml(data_dict, filepath, name):
-    from json import loads
-    from dicttoxml import dicttoxml
-    from xml.dom.minidom import parseString
+def save_dict_as_xml(data, filepath, name, xml_template_dict):
     """
-    Writes out the data as xml file, for the CMS DB
+    Writes out the data as xml file, from a xml template
 
     :param filepath: Filepath where to store the xml
     :param name: name of the file
     :param data_dict: The data to store in this file. It has to be the dict representation of the xml file
+    :param xml_template_dict: The xml template dict
+    :return:
+    """
+    for key, dat in data.items():
+        if xml_template_dict:
+            template = xml_template_dict
+            header_dict = insert_values_from_header(template, dat["header"])
+            final_xml = convert_dict_to_xml(header_dict)
+            final_xml_dict = insert_templates(dat, final_xml, template)
+
+            for subkey, value in final_xml_dict.items():
+                save_as_xml(value, os.path.join(os.path.normpath(filepath)), "{}_{}".format( key, subkey))
+        else:
+            log.error("No xml template stated in settings. Please add 'xml_template' to your configs.")
+
+
+def save_data(plotting_Object, types, dirr, base_name="data", to_call=None):
+        """Saves the data in the specified type"""
+        try:
+            os.mkdir(os.path.join(os.path.normpath(dirr), "data"))
+        except:
+            pass
+        check_if_data_changed(plotting_Object, to_call=to_call)  # Check if data has changed during analysis
+        for typ in types:
+            if typ == "json":
+                # JSON serialize
+                log.info("Saving JSON file...")
+                save_dict_as_json(deepcopy(plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
+            if typ == "hdf5":
+                # HDF5 serialize
+                log.info("Saving HDF5 file...")
+                save_dict_as_hdf5(deepcopy(plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
+            if typ == "xml":
+                # XML serialize
+                log.info("Saving xml file...")
+                xml_template_dict = plotting_Object.config.get("xml_template_path", None)
+                if xml_template_dict:
+                    try:
+                        xml_template_dict = load_yaml(xml_template_dict)
+                        save_dict_as_xml(deepcopy(plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name, xml_template_dict)
+                    except:
+                        log.error("An error happened during xml save.", exc_info=True)
+                else:
+                    log.error("Could not save data as xml since no 'xml_template_path' was stated in the configs")
+
+def text_box(text, xpos, ypos, boxsize, fontsize=30, fontcolor="black", bgcolor="white"):
+    """Generates a box with text in it"""
+    hvtext = hv.Text(xpos, ypos, text).opts(fontsize=fontsize, color=fontcolor)
+    box = hv.Polygons(hv.Box(xpos, ypos, boxsize).opts(color="black")).opts(color=bgcolor)
+    return box*hvtext
+
+def insert_templates(dat, xml_string, xml_config_file):
+    """Inserts any template for data into the XML string and returns a XML string"""  #
+    import xml.etree.ElementTree as ET
+    template_re = re.compile(r"//(.*)//")  # Regex for the template
+    root = ET.fromstring(xml_string)  # convert the xml string to a xmltree
+
+    def validate_node(elem, path):
+        """This just validates the node from a given path for easy access"""
+        for child in elem.getchildren():
+            if path[0] == child.tag:
+                if len(path[1:]):  # If len is left, the full path is not yet resolved
+                    validate_node(child, path[1:])
+                else:
+                    return child
+
+    def generate_template_xml_elements(kdim, element_name, xml_node, template, data):
+        """Genrerates a xml template entry"""
+        xml_node.remove(xml_node.find(element_name))  # So that the template entry is gone
+        keyword_re = re.compile(r"<(.*)>")
+        for i, value in enumerate(data["data"][kdim]):
+            root = ET.SubElement(xml_node, element_name)
+            for key, entry in template.items():
+                data_key = keyword_re.findall(entry)
+                if data_key:
+                    try:
+                        element = ET.SubElement(root, key)
+                        element.text = str(data["data"][entry.replace("<", "").replace(">", "")][i])
+                    except IndexError:
+                        log.warning("The Index {} seems to be missing in the data".format(
+                            entry.replace("<", "").replace(">", "")))
+                        break
+        pass
+
+    def dict_template_insert_iter(diction, path):
+        """Goes over all entries in the dict and inserts single values from the header"""
+        final_tree = {}
+        for key, item in diction.items():
+            if isinstance(item, dict):
+                path.append(key)
+                final_tree.update(dict_template_insert_iter(item, path))
+                path.pop()
+            else:
+                keyword = template_re.match(str(item))
+                subtrees = {}  # Todo: only one template allowed here, fix
+                if keyword:
+                    path.append(key)
+                    for kdim in xml_config_file[keyword.string.replace("/", "")]:
+                        if kdim in dat["data"].keys():  # Todo: this may fail, and I am using raw data here,
+                            subtrees[kdim] = deepcopy(root)
+                            node = validate_node(subtrees[kdim],
+                                                 path[:-1])  # Since we dont want the actual entry, just where to put it
+                            generate_template_xml_elements(kdim, path[-1], node,
+                                                           xml_config_file[keyword.string.replace("/", "")][kdim], dat)
+                    final_tree.update(subtrees)
+                    path.pop()
+                # return final_tree
+        return final_tree
+
+    xml_dicts = dict_template_insert_iter(xml_config_file["Template"], path=[])
+    return xml_dicts
+
+def insert_values_from_header(xml_config_file, header=""):
+    """
+    Converts data to a specific form, as a dict stated in the config parameter.
+    The config file must have a key named 'template' in it must be the dict representation of the xml file.
+    Subkeys with a value enclosed by <..> are keywords. The header of the file will be searched for such key words.
+    If it finds the regular expression r'<EXPR>\W\s?(.*)'
+
+    :param data: data structure
+    :param xml_config_file: the configs on how to convert data to xml
+    :param header: a header (str) with key values like "Operator: Batman", the function tries to extract the data for the xml from there
+    :return: None
+    """
+    template = deepcopy(xml_config_file["Template"])
+    keyword_re = re.compile(r"<(.*)>")
+
+    def dict_value_insert_iter(diction):
+        """Goes over all entries in the dict and inserts single values from the header"""
+        for key, item in diction.items():
+            if isinstance(item, dict):
+                dict_value_insert_iter(item)
+            else:
+                keyword = keyword_re.match(str(item))
+                if keyword:
+                    for line in header:
+                        newvalue = re.search(r"{}\W\s?(.*)".format(keyword[1]), line)
+                        if newvalue:
+                            diction[key] = str(newvalue[1]).strip()
+                            break
+                        else:
+                            # pass
+                            diction[key] = str(None)
+                else:
+                    diction[key] = str(None)
+
+    # Insert the simple values from the header
+    dict_value_insert_iter(template)
+    # Insert the templates
+
+    return template
+
+def convert_dict_to_xml(data_dict):
+    """Converts a dictionary to a xml conform string"""
+    from dicttoxml import dicttoxml
+    return dicttoxml(data_dict, attr_type=False)
+
+def check_if_data_changed(plotting_Object, to_call = None):
+    """Checks if data has changed during a analysis and asks if and what you want data you want to save"""
+    originals = {i: {"original": j} for i, j in plotting_Object.data.items()}
+    for analysisout in plotting_Object.plotObjects:
+        if "data" in analysisout:  # Check if new data is present, if not ignore
+            data = {k: analysisout["data"][k] for k in analysisout["data"]["keys"]}
+            try:
+                for key, value in data.items():
+                    if key not in originals:
+                        originals[key] = {}
+                    else:
+                        originals[key].update({analysisout["Name"]: value})
+            except KeyError:
+                log.error(
+                    "New data was found for potential save but no name for analysis could be found. Please add a 'Name' entry to you analysis return!",
+                    exc_info=True)
+
+    for file in originals:
+        if "original" not in originals[file] and len(
+                originals[file].keys()) == 1:  # If new data is present not included in the original data, add it
+            plotting_Object.data[file] = originals[file][list(originals[file].keys())[0]]
+
+        if len(originals[file].keys()) > 1:  # Check if more than the original data is present
+            # Check if len is 2 and originals is present and override is enabled then override
+            data_override = plotting_Object.config.get("override_data", None)
+            if len(originals[file].keys()) == 2 and "original" in originals[file] and data_override == True:
+                originals[file].pop("original")
+                analys = list(originals[file].keys())[0]
+                log.warning(
+                    "Overriding data was set to true, overrding loaded data with data changed by analysis {}"
+                    " for file {}".format(analys, file))
+                change_data(plotting_Object, originals, file, analys)
+
+            elif len(originals[file].keys()) == 2 and "original" in originals[file] and data_override == False:
+                # do nothing
+                pass
+
+            else:
+                if not to_call:
+                    log.error("Either more than one analysis changed the output data for file {}, or override of data was not permitted... Saving data aborted!".format(file))
+                else:
+                    to_call(change_data, file, originals) # Legacy since it was ported from a different part
+
+def change_data(plotting_Object, newdata, file, tosave):
+    """Changes the data which will be saved in the end"""
+    log.info("Setting new data from anlysis {} for file {}.".format(tosave, file))
+    plotting_Object.data[file] = newdata[file][tosave]
+
+def save_as_xml(data_dict, filepath, name):
+    from json import loads
+    from dicttoxml import dicttoxml
+    from xml.dom.minidom import parseString
+    import xml.etree.ElementTree as ET
+
+    """
+    Writes out the data as xml file
+
+    :param filepath: Filepath where to store the xml
+    :param name: name of the file 
+    :param data_dict: The data to store in this file. It has to be the dict representation of the xml file
     :return:
     """
     file = os.path.join(os.path.normpath(filepath), name.split(".")[0]+".xml")
-    if isinstance(data_dict, dict):
+    file = os.path.join(os.getcwd(), file)
+    log.info("Saving file {}.")
+    if isinstance(data_dict, ET.Element):
+        dom = parseString(ET.tostring(data_dict))
+        with open(file, "w+") as fp:
+            fp.write(dom.toprettyxml())
+
+    elif isinstance(data_dict, dict):
         xml = dicttoxml(data_dict, attr_type=False)
         dom = parseString(xml) # Pretty print style
         with open(file, "w+") as fp:
             fp.write(dom.toprettyxml())
+
     elif isinstance(data_dict, str):
         xml = dicttoxml(loads(data_dict), attr_type=False)
         dom = parseString(xml)  # Pretty print style
@@ -850,28 +1076,3 @@ def save_dict_as_xml(data_dict, filepath, name):
             fp.write(dom.toprettyxml())
     else:
         log.error("Could not save data as xml, the data type is not correct. Must be dict or json")
-
-def save_data(self, type, dirr, base_name="data"):
-        """Saves the data in the specified type"""
-        try:
-            os.mkdir(os.path.join(os.path.normpath(dirr), "data"))
-        except:
-            pass
-
-        if type == "json":
-            # JSON serialize
-            self.log.info("Saving JSON file...")
-            save_dict_as_json(deepcopy(self.plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
-        if type == "hdf5":
-            self.log.info("Saving HDF5 file...")
-            save_dict_as_hdf5(deepcopy(self.plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
-        if type == "xml":
-            self.log.info("Saving xml file...")
-            xml_dict = deepcopy(self.plotting_Object.data.get("xml_dict", self.plotting_Object.data)) # Either take the special xml representation or if not present take the normal dict representation
-            save_dict_as_xml(xml_dict, os.path.join(os.path.normpath(dirr), "data"), base_name)
-
-def text_box(text, xpos, ypos, boxsize, fontsize=30, fontcolor="black", bgcolor="white"):
-    """Generates a box with text in it"""
-    hvtext = hv.Text(xpos, ypos, text).opts(fontsize=fontsize, color=fontcolor)
-    box = hv.Polygons(hv.Box(xpos, ypos, boxsize).opts(color="black")).opts(color=bgcolor)
-    return box*hvtext
