@@ -41,7 +41,7 @@ The core program features easy device implementation through plugin support. The
 
 .. toctree::
    :maxdepth: 1
-   :caption: General Purpose Plugins
+   :caption: General Purpose Plugins/features
 
    GUI_plugins/resources
    GUI_plugins/Device_Com
@@ -49,6 +49,9 @@ The core program features easy device implementation through plugin support. The
    GUI_plugins/Data_Visualization
    GUI_plugins/Documentation
    GUI_plugins/Switching_Control
+   misc/TCPIPserver
+   misc/BugReport
+
 
 
 
