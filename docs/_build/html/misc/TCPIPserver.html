@@ -1,0 +1,295 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="Python 3.7" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="Python 3.7" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>TCP/IP Server &mdash; COMET beta documentation</title>
+  
+
+  
+  
+  
+  
+
+  
+  <script type="text/javascript" src="../_static/js/modernizr.min.js"></script>
+  
+    
+      <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
+    
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+
+    
+
+  
+  <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="COMET crashed or I found a BUG, what should I do" href="BugReport.html" />
+    <link rel="prev" title="Switching Matrix Control" href="../GUI_plugins/Switching_Control.html" /> 
+</head>
+
+<body class="wy-body-for-nav">
+
+   
+  <div class="wy-grid-for-nav">
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> COMET
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.10.0
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+              
+            
+            
+              <p class="caption"><span class="caption-text">COMET Guides</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../programstructure.html">COMET layout</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../gettingstarted.html">Getting Started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../tutorial.html">How to</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../measurementjobgen.html">Measurement Job Generation</a></li>
+</ul>
+<p class="caption"><span class="caption-text">COMET Structure</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../datastructure.html">Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../dataexchange.html">Data Exchange</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Measurement Plugins</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../measurement_plugins/IVCV.html">IVCV</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../measurement_plugins/Stripscan.html">Stripscan</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
+</ul>
+<p class="caption"><span class="caption-text">General Purpose Plugins/features</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/resources.html">Resources Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Data_Visualization.html">Data Visualization and Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Data_Visualization.html#gui-specific-functions">GUI specific functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Documentation.html">Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Switching_Control.html">Switching Matrix Control</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">TCP/IP Server</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-set-up-a-server-and-or-client">How to set up a Server and/or Client</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-receive-a-message">How to receive a message</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#how-to-send-a-message">How to send a message</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="BugReport.html">COMET crashed or I found a BUG, what should I do</a></li>
+</ul>
+<p class="caption"><span class="caption-text">Code references</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html">Measurement Tool Box functions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html#vcw-visa-connect-wizard">VCW - Visa Connect Wizard</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html#xyz-stage-control-class">XYZ-Stage Control Class</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../Tools.html#switching-system-control-class">Switching System Control Class</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" aria-label="top navigation">
+        
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">COMET</a>
+        
+      </nav>
+
+
+      <div class="wy-nav-content">
+        
+        <div class="rst-content">
+        
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+
+  <ul class="wy-breadcrumbs">
+    
+      <li><a href="../index.html">Docs</a> &raquo;</li>
+        
+      <li>TCP/IP Server</li>
+    
+    
+      <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/misc/TCPIPserver.rst.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+    
+  </ul>
+
+  
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="tcp-ip-server">
+<h1>TCP/IP Server<a class="headerlink" href="#tcp-ip-server" title="Permalink to this headline">¶</a></h1>
+<p>COMET supports a simple TCP/IP Server and Client app. Whit it JSON styled objects can
+be transmitted to another TCP/IP Server or be received.</p>
+<div class="section" id="how-to-set-up-a-server-and-or-client">
+<h2>How to set up a Server and/or Client<a class="headerlink" href="#how-to-set-up-a-server-and-or-client" title="Permalink to this headline">¶</a></h2>
+<p>In order to set up a Server and/or Client you have to add the entry <code class="docutils literal notranslate"><span class="pre">Socket_connection</span></code>
+to you main config insider can be two entries the <code class="docutils literal notranslate"><span class="pre">Host</span></code> and/or the <code class="docutils literal notranslate"><span class="pre">Client</span></code> entry.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Host</span></code> must have the entries: <code class="docutils literal notranslate"><span class="pre">IP</span></code> and <code class="docutils literal notranslate"><span class="pre">Port</span></code> which designate the IP and the Host the server
+should listen to.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">Client</span></code> must have keys for the different clients you want to establish, insider
+each of this clients the <code class="docutils literal notranslate"><span class="pre">IP</span></code> and <code class="docutils literal notranslate"><span class="pre">Port</span></code> entries like the server, (so the IP and Port it should send messages to)
+must be present.</p>
+<p>A possible configuration can look like:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Socket_connection</span><span class="p">:</span>
+
+    <span class="n">Host</span><span class="p">:</span>
+      <span class="n">IP</span><span class="p">:</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.2</span>
+      <span class="n">Port</span><span class="p">:</span> <span class="mi">65432</span>
+
+    <span class="n">Client</span><span class="p">:</span>
+      <span class="n">Telegram</span><span class="p">:</span>
+        <span class="n">IP</span><span class="p">:</span> <span class="mf">127.0</span><span class="o">.</span><span class="mf">0.4</span>
+        <span class="n">Port</span><span class="p">:</span> <span class="mi">65432</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="how-to-receive-a-message">
+<h2>How to receive a message<a class="headerlink" href="#how-to-receive-a-message" title="Permalink to this headline">¶</a></h2>
+<p>Adding a handler for incoming messages is rather simple. The main GUI object, that what is passed
+to every GUI plugin has a member function called <code class="docutils literal notranslate"><span class="pre">.add_TCP_message_action_function</span></code>. Passing this
+function a function object will add this object to the queue if messages arrive.</p>
+<p>If a new message then arrives this function you passed will be given two parameters:
+Firstly the action value: A some kind of flag, what this message is for. For example the telegram bot
+inside COMET has the action &quot;Telegram&quot;. You can use it to skim all messages for the correct ones.
+The second value is an python object of type str or dict.</p>
+<p>You can define a return value of your function if you like which must be a str serializable object,
+which will be send to the client as acknowledgment/answer.</p>
+</div>
+<div class="section" id="how-to-send-a-message">
+<h2>How to send a message<a class="headerlink" href="#how-to-send-a-message" title="Permalink to this headline">¶</a></h2>
+<p>Sending a message is a bit more complicated. To access a Client to send a message you have to navigate
+to the framework variables, which are passed to every measurement and GUI plugin.
+This is usually done via <code class="docutils literal notranslate"><span class="pre">.client[&quot;Your_client_name&quot;]</span></code>.</p>
+<p>The you have to import the function <code class="docutils literal notranslate"><span class="pre">send_TCP_message</span></code> from the utilities module.
+This function needs the client, the action name, and the actual message it should send.</p>
+<p>Und this conditions the tcp connection handler will be run in a new thread to not
+corrupt the program flow. This inhibits the possibility to access the answer from the server.
+To get the answer you have to add the parameter <code class="docutils literal notranslate"><span class="pre">no_thread=True</span></code> to the parameters.
+The communication will then run in the main thread and the answer can be recovered.</p>
+</div>
+</div>
+
+
+           </div>
+           
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="BugReport.html" class="btn btn-neutral float-right" title="COMET crashed or I found a BUG, what should I do" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="../GUI_plugins/Switching_Control.html" class="btn btn-neutral float-left" title="Switching Matrix Control" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2018, Dominic Bloech
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/rtfd/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script>
+
+  
+  
+    
+   
+
+</body>
+</html>

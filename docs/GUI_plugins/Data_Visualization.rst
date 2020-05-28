@@ -81,7 +81,7 @@ in order for the framework to recognise your template you have to add the parame
 
   xml_template: CMSxmlTemplate
 
-to your main config file.
+to your main plotting config file.
 
 .. note:: The name can be changed to your liking here!
 
