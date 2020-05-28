@@ -1951,7 +1951,7 @@ def save_dict_as_xml(data_dict, filepath, name):
     else:
         l.error("Could not save data as xml, the data type is not correct. Must be dict or json")
 
-def send_TCP_message(client, action, message):
+def send_TCP_message(client, action, message, no_thread=False):
     """
     This function sends a message to a IP address. This function will run in a new thread. This way the framework
     will not be halted should the connection fail, or wait for a timeout
@@ -1968,16 +1968,18 @@ def send_TCP_message(client, action, message):
         except Exception as err:
             l.info("Server Error {}".format(err))
             return False
-        l.info("Server responded with {}".format(response))
         if response:
-            return True
+            l.info("Server responded with {}".format(response))
+            return response
         else:
             l.info("Server seems to be offline.".format(response))
             return False
 
-    if client:
+    if client and not no_thread:
         x = Thread(target=func, args=(client, action, message))
         x.run()
+    elif client and no_thread:
+        return func(client, action, message)
     else:
         l.warning("No client defined for sending TCP packages. No message dispatched!")
 
@@ -1992,10 +1994,15 @@ def send_telegram_message(person, message, configs, client):
     :return: bool
     """
     # Telegram bot - Find user and its ID
+    if not "Telegram" in client:
+        l.debug("Telegram message could not be dispatched since no TCP/IP client was specified!")
+        return False
+
     if "TelegramBot" in configs:
         if person in configs["TelegramBot"]:
             l.debug("Operator found to send telegram message to. Operator: {}".format(person))
-            send_TCP_message(client, "TelegramBot", {str(configs["TelegramBot"][person]): message})
+            send_TCP_message(client["Telegram"], "TelegramBot", {str(configs["TelegramBot"][person]): message})
+            return True
         else:
             l.debug("No telegram ID defined for Operator: {}. No message send. Message: {}".format(person, message))
             return False

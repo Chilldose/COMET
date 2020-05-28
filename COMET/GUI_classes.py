@@ -17,7 +17,10 @@ from .gui.PluginWidget import PluginWidget
 from .GUI_event_loop import *
 import os, sys
 from .utilities import send_telegram_message
-from .misc_plugins.TelegramBotResponder import TelegramBotResponder
+try:
+    from .misc_plugins.TelegramBotResponder import TelegramBotResponder
+except:
+    pass
 
 
 QT_UI_DIR = 'QT_Designer_UI'
@@ -52,6 +55,7 @@ class GUI_classes(QWidget):
         self.default_values_dict["settings"]["new_data"] = False
         self.default_values_dict["settings"]["Measurement_running"] = False
         self.TCP_message_function = []
+        self.telBot = None
 
         self.states = {"Measurement running": "background : rgb(50,20,200); border-radius: 5px",
                        "IDLE": "background : rgb(50,100,100); border-radius: 5px",
@@ -60,8 +64,12 @@ class GUI_classes(QWidget):
         # Config response function for the server
         if self.server:
             self.server.responder = self.process_messages_from_server
+        # try adding the telegram bot
+        try:
             self.telBot = TelegramBotResponder(self)
             self.add_TCP_message_action_function(self.telBot.run)
+        except:
+            pass
 
         # Some Variables
         self.functions = [] # Function for the framework to update

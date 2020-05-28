@@ -201,7 +201,7 @@ def main():
            "rootdir": rootdir, "App": app,
            "Message_from_main": message_from_main, "Message_to_main": message_to_main,
            "Queue_to_GUI": queue_to_GUI, "Configs": setup_loader.configs, "Django": None, "Server": None,
-           "Client": None, "background_Env_task": None, "args": args}
+           "Client": {}, "background_Env_task": None, "args": args}
 
     # Starts a new Thread for the measurement event loop
     MEL = measurement_event_loop(aux)
@@ -227,15 +227,22 @@ def main():
 
     if "Socket_connection" in aux["Configs"]["config"]["settings"]:
         from .misc_plugins.ServerClientApp.socket_connections import Client_, Server_
+        config_socket = aux["Configs"]["config"]["settings"]["Socket_connection"]
         try:
-            config_socket = aux["Configs"]["config"]["settings"]["Socket_connection"]
-            Server = Server_(HOST=config_socket["Host"]["IP"], PORT=config_socket["Host"]["Port"])
-            Server.start()  # Starts the Server thread
-            Client = Client_(HOST=config_socket["Client"]["IP"], PORT=config_socket["Client"]["Port"])
-            aux["Server"] = Server
-            aux["Client"] = Client
-        except Exception as err:
-            log.error("TCP socket connection could not be started. Error: {}".format(err))
+            if "Host" in config_socket:
+                Server = Server_(HOST=config_socket["Host"]["IP"], PORT=config_socket["Host"]["Port"])
+                Server.start()  # Starts the Server thread
+                aux["Server"] = Server
+        except:
+            log.error("TCP server connection could not be started.", exc_info=True)
+        try:
+            if "Client" in config_socket:
+                aux["Client"] = {}
+                for name, client in config_socket["Client"].items():
+                    Client = Client_(HOST=client["IP"], PORT=client["Port"])
+                    aux["Client"][name] = Client
+        except:
+            log.error("Some TCP clients connection could not be started.", exc_info=True)
 
     log.critical("Starting GUI ...")
     gui = GUI_classes(aux)
