@@ -183,8 +183,8 @@ class measurement_class(Thread):
                 return False
 
         # Check if lights and environment is valid
-        if "internal_lights" in  self.settings["settings"]:
-            if self.settings["settings"]["internal_lights"]:
+        if "lights" in  self.settings["settings"]:
+            if self.settings["settings"]["lights"]:
                 # Wait a few seconds for the controller to send the data if the box was open previously
                 counter = 0
                 lights_ON = True
@@ -192,7 +192,7 @@ class measurement_class(Thread):
                 self.log.warning("The box seems to be open or the lights are still on in the Box")
                 while lights_ON:
                     sleep(5)
-                    if self.settings["settings"]["internal_lights"]:
+                    if self.settings["settings"]["lights"]:
                         counter += 1
                     else: lights_ON = False
 

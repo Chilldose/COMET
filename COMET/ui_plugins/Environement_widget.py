@@ -131,8 +131,8 @@ class Environement_widget(object):
         if self.variables.default_values_dict["settings"]["new_data"]:
 
             # Change the LCD display objects as well
-            if self.variables.meas_data["temperature"][1].any() and self.variables.meas_data["humidity"][1].any():
-                temp = self.variables.meas_data["temperature"][1][-1]
+            if self.variables.meas_data["temperature_chuck"][1].any() and self.variables.meas_data["humidity"][1].any():
+                temp = self.variables.meas_data["temperature_chuck"][1][-1]
                 hum = self.variables.meas_data["humidity"][1][-1]
                 self.Env_Widget.temp_lcd.display(temp)
                 self.Env_Widget.hum_lcd.display(hum)
@@ -165,13 +165,13 @@ class Environement_widget(object):
             self.__cut_arrays(self.variables.meas_data,
                               float(self.variables.default_values_dict["settings"].get("temp_history",
                               3600)),
-                              ["temperature", "humidity"])
-            ax.setTicks([get_thicks_for_timestamp_plot(self.variables.meas_data["temperature"][0], 5,
+                              ["temperature_chuck", "humidity"])
+            ax.setTicks([get_thicks_for_timestamp_plot(self.variables.meas_data["temperature_chuck"][0], 5,
                                                        self.variables.default_values_dict["settings"]["time_format"])])
 
             try:
-                if len(self.variables.meas_data["temperature"][0]) == len(self.variables.meas_data["humidity"][1]):  # sometimes it happens that the values are not yet ready
-                    p1.plot(self.variables.meas_data["temperature"][0], self.variables.meas_data["temperature"][1],
+                if len(self.variables.meas_data["temperature_chuck"][0]) == len(self.variables.meas_data["humidity"][1]):  # sometimes it happens that the values are not yet ready
+                    p1.plot(self.variables.meas_data["temperature_chuck"][0], self.variables.meas_data["temperature_chuck"][1],
                             pen={'color': "#cc1414", 'width': 2}, clear=True)
                     plot_item = pyqtgraph.PlotCurveItem(self.variables.meas_data["humidity"][0],
                                                     self.variables.meas_data["humidity"][1],
@@ -191,11 +191,21 @@ class Environement_widget(object):
         self.variables.default_values_dict["settings"]["control_environment"] = self.Env_Widget.env_control_check.isChecked()
         self.variables.default_values_dict["settings"]["Log_environment"] = self.Env_Widget.log_env_check.isChecked()
 
-        max = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummax", self.Env_Widget.max_hum_spin.value()))
-        min = build_command(self.variables.devices_dict["temphum_controller"], ("set_hummin", self.Env_Widget.min_hum_spin.value()))
+        max = self.Env_Widget.max_hum_spin.value()
+        min = self.Env_Widget.min_hum_spin.value()
 
-        self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], max)
-        self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], min)
+        meanval = abs(max+min)/2
+        humcommand = build_command(self.variables.devices_dict["temphum_controller"], ("set_hum", meanval))
+        offcommand = build_command(self.variables.devices_dict["temphum_controller"], ("set_environement_control", "OFF"))
+        oncommand = build_command(self.variables.devices_dict["temphum_controller"], ("set_environement_control", "ON"))
+
+
+        self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], offcommand)
+        self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], humcommand)
+
+        if self.Env_Widget.env_control_check.isChecked():
+            self.variables.vcw.write(self.variables.devices_dict["temphum_controller"], oncommand)
+
 
     def update_bars_and_spinboxes(self):
         """This function simply updates the spin bixes and bars to min max values etc."""

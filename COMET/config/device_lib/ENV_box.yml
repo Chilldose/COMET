@@ -1,5 +1,5 @@
 ---
-    Device_name: SWITCH_BrandBox
+    Device_name: ENV_BrandBox
     get_relay_state: "GET:"
 
     # All set parameters
@@ -36,11 +36,11 @@
       success: "1"
 
     reset:
-        #- clear_log: "YES"
+        - clear_log: "YES"
         #- terminal: "OFF"
-        #- external_light: "OFF"
-        - open_channel: "A1,A2,B1,B2,C1,C2"
-        #- control: "HUM"
+        - external_light: "OFF"
+        #- open_channel: "A1,A2,B1,B2,C1,C2"
+        - control: "HUM"
         #- box_light: "OFF"
         #- microscope_light: "OFF"
 
@@ -50,5 +50,6 @@
     bias_relay: A
     LCR_relay: B
     Device_type:
-            - Switching relay
+            - Light controller
+            - Environment controller
     requires_read_on_set: True # If an acc is comming from the device after a set parameter

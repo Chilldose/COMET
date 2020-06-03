@@ -66,7 +66,7 @@ class measurement_event_loop(Thread):
                 self.temphumhread.start() # Starts the thread
                 self.framework["background_Env_task"] = self.temphumhread
             except Exception as err:
-                self.log.error("An error happened while starting the temphum control thread", exc_info=True, stack_info=True)
+                self.log.error("An error happened while starting the temphum control thread.", exc_info=True)
 
         # This starts the loop to get the messages from the main thread
         self.start_loop()

@@ -994,10 +994,10 @@ class Main_window:
                 self.variables.default_values_dict["settings"]["external_lights"] = False
 
         def check_light_state():
-            if self.variables.default_values_dict["settings"]["internal_lights"] and not light_btn.text() == "Lights on": # Checks if the lights are on and the button is off
+            if self.variables.default_values_dict["settings"]["lights"] and not light_btn.text() == "Lights on": # Checks if the lights are on and the button is off
                 light_btn.setText("Lights on")
                 light_btn.setStyleSheet("background : rgb(0,255,0); border-radius: 5px")
-            elif not self.variables.default_values_dict["settings"]["internal_lights"] and not light_btn.text() == "Lights off":
+            elif not self.variables.default_values_dict["settings"]["lights"] and not light_btn.text() == "Lights off":
                 light_btn.setText("Lights off")
                 light_btn.setStyleSheet("background : rgb(255,0,0); border-radius: 5px")
 
