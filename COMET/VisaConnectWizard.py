@@ -205,11 +205,20 @@ class VisaConnectWizard:
                     self.log.debug("Successfully connected to device {}".format(device_resource))
                     return device_resource # this means success
 
-                elif device_idn_return == "False":
-                    self.log.error("Connection error happend during IDN query... Connection could not be established to device {}".format(device_resource))
+                elif IDN in device_idn_return:
+                    self.log.warning("Device output queue for device {} not empty but IDN string seems to be included. Wiping queue and retry...".format(device_resource))
+                    device_idn_return = str(self.verify_ID(device_resource, command=device_IDN_query)).strip()
+                    if IDN == device_idn_return:
+                        self.myInstruments_dict.update(
+                            {IDN: device_resource})  # Adds the device ID for each instrument into the dict
+                        self.log.debug("Successfully connected to device {}".format(device_resource))
+                        return device_resource  # this means success
+
+                if device_idn_return == "False":
+                    self.log.error("Connection error happened during IDN query... Connection could not be established to device {}".format(device_resource))
 
                 else:
-                    self.log.error("Could not connect to device {} to to IDN string mismatch. Devices IDN return :'{}', does not match"
+                    self.log.error("Could not connect to device {} IDN string mismatch. Devices IDN return :'{}', does not match"
                                    "the IDN '{}' this device should have.".format(device_resource, device_idn_return, IDN))
                     self.myInstruments.pop().close()  # removes the item from the list
                     return False
