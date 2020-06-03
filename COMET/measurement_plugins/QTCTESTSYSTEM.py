@@ -33,10 +33,10 @@ class QTCTESTSYSTEM_class(tools):
             # Devices Configs
             "BiasSMU": "BiasSMU",
             "LCRMeter": "LCRMeter",
-            "DischargeSMU": "2410SMU",
+            "DischargeSMU": "DischargeSMU",
             "Switching": "temphum_controller",
             "Elmeter": "Elektrometer",
-            "SMU2": "2410SMU",
+            "SMU2": "DischargeSMU",
 
             # Commands Configs
             "Discharge": ("set_terminal", "FRONT"),
@@ -84,6 +84,7 @@ class QTCTESTSYSTEM_class(tools):
         self.sensor_pad_data = self.main.framework["Configs"]["additional_files"]["Pad_files"].get("KIT_probecard", {}).get("CARD", None)
         self.height = 5000 # 5 mm height movement
         self.samples = 1000 # The amount of samples each measurement must have
+        self.subsamples = 1 # Number of samples for filtering
         self.T = self.main.framework['Configs']['config']['settings'].get("trans_matrix", None)
         self.V0 = self.main.framework['Configs']['config']['settings'].get("V0", None)
         self.justlength = 24
@@ -94,6 +95,18 @@ class QTCTESTSYSTEM_class(tools):
 
         # Data arrays
         self.data = {
+            "Switching": [
+                ("Chuckleakage", "IV", self.bias_SMU),
+                ("Cacempty", "Cac", self.LCR_meter),
+                ("Cintempty", "Cint", self.LCR_meter),
+                ("Rpolyempty", "Rpoly", self.SMU2),
+                ("Rintempty", "Rint", self.elmeter),
+                ("Idielempty", "Idiel",  self.SMU2),
+                ("CVempty", "CV", self.LCR_meter),
+                ("IVempty", "IV", self.bias_SMU),
+
+            ],
+
             "Empty": {
                 "Chuckleakage": np.zeros(self.samples),
                 "Cacempty": np.zeros(self.samples),
@@ -178,8 +191,45 @@ class QTCTESTSYSTEM_class(tools):
         else:
             self.empty_measurements_test()
 
+    def empty_measurements(self):
+        """Does all the empty measurements"""
+
+        # DO loop
+        self.main.framework['Configs']['config']['settings']["QTC_test"]['branch'] = "Empty"
+        for j, meas in enumerate(list(self.data["Empty"].keys())):
+            self.main.framework['Configs']['config']['settings']["QTC_test"]['overallprogress'] = j / len(
+                list(self.data["Empty"].keys()))
+            self.main.framework['Configs']['config']['settings']["QTC_test"]['currenttest'] = meas
+            idx = [k[0] for k in self.data["Switching"]].index(meas)
+            self.switching.switch_to_measurement(self.data["Switching"][idx][1])
+            command = self.main.build_command(self.data["Switching"][idx][2], "get_read")
+
+            # If output can be switched on turn it on
+            if "set_output" in self.data["Switching"][idx][2]:
+                outputon = self.main.build_command(self.data["Switching"][idx][2], ("set_output", "1"))
+                self.vcw.write(self.data["Switching"][idx][2], outputon)
+
+            for i in range(self.samples):
+                self.main.framework['Configs']['config']['settings']["QTC_test"]['partialprogress'] = i / self.samples
+                values = []
+                for k in range(self.subsamples):  # takes samples
+                    val = self.vcw.query(self.data["Switching"][idx][2], command)
+                    values.append(float(val.split(",")[0].split()[0]))
+                value = np.mean(values)
+                self.data["Empty"][meas][i] = value
+                force_plot_update(self.main.framework['Configs']['config']['settings'])
+
+            # If output can be switched on turn it on
+            if "set_output" in self.data["Switching"][idx][2]:
+                outputoff = self.main.build_command(self.data["Switching"][idx][2], ("set_output", "0"))
+                self.vcw.write(self.data["Switching"][idx][2], outputoff)
+
+
+
+
+
     def empty_measurements_test(self):
-        """Does the device empty measurement. It switches to the measurement and then takes samples. The card is
+        """Does the device empty measurement (TEST). It switches to the measurement and then takes samples. The card is
         not contacted at this time"""
         mu, sigma = 0, 0.1  # mean and standard deviation
         s = np.random.normal(mu, sigma, self.samples)
