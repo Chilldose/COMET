@@ -15,7 +15,7 @@ from forge.tools import plot_all_measurements, convert_to_EngUnits
 from forge.utilities import line_intersection
 # Generate lists that are used later on to store different parameter values for all the files used in the analysis
 # For analysis mos
-cv_files = []
+mos_files = []
 fbvoltage = []
 fbvoltage_firstderivative = []
 Accum_capacitance_list = []
@@ -35,8 +35,8 @@ Surface_recombination_velocity_average = []
 
 class IV_PQC:
     def __init__(self, data, configs):
-        # Do the analysis of the gate diode files as the last one.
-        if not all(analysis_type[0:6] == 'IV_GCD' for analysis_type in data[list(data.keys())[0]]['header'][2]):
+        # Do the analysis of the CV_MOS files as the first one.
+        if not all(analysis_type[0:6] == 'IV_GCD' for analysis_type in data[list(data.keys())[0]]['header'][2]) and len(list(data.keys()))>1 and "CV_MOS" in data[list(data.keys())[0]]['header'][2]:
             data = self.file_order(data)
 
         self.log = logging.getLogger(__name__)
@@ -81,29 +81,49 @@ class IV_PQC:
 
             # Start the Diode Analysis
             elif self.data[df]['header'][1][0:8] == 'CV_Diode':
-                self.PlotDict["BasePlots_MOS"] = self.analysis_diode(df)
+                self.PlotDict["BasePlots_diode"] = self.analysis_diode(df)
 
             # Start the Gate diode analysis
             else:
-                self.PlotDict["BasePlots_MOS"] = self.analysis_gate(df)
+                self.PlotDict["BasePlots_gate"] = self.analysis_gate(df)
 
-        self.PlotDict["All"] = self.plot(self.PlotDict["BasePlots_diode"], self.PlotDict["BasePlots_MOS"], self.PlotDict["BasePlots_gate"], cv_files, diode_files, gate_files)
+        self.PlotDict["All"] = self.plot(self.PlotDict["BasePlots_diode"], self.PlotDict["BasePlots_MOS"], self.PlotDict["BasePlots_gate"], mos_files, diode_files, gate_files)
 
         return self.PlotDict
 
     def file_order(self, data):
-        # Do the analysis of the gate diode files as the last one.
+        # Do the analysis of the CV_MOS files as the first one, otherwise the analysis crashes.
         i = 0
-        while data[list(data.keys())[0]]['header'][1][0:6] == 'IV_GCD':
-            data[list(data.keys())[0] + str(i)] = data[list(data.keys())[0]] # Push the gate diode files to the last elements of the list
-            del data[list(data.keys())[0]] # Delete previous position of the gate diode files in the list
+        while data[list(data.keys())[0]]['header'][1][0:6] == 'IV_GCD' or data[list(data.keys())[0]]['header'][1][0:8] == 'CV_Diode':
+            data[list(data.keys())[0] + str(i)] = data[list(data.keys())[0]] # Duplicate the file and store it in the last element of the list
+            del data[list(data.keys())[0]] # Delete previous position of the file in the list
             i += 1
 
         return data
 
     def analysis_mos(self, df):
-        #global fBestimation
-        cv_files.append(df)  # Append data-frame to a list containing all the cv mos files that you want to analyze.
+        if "derivative2" not in self.data["columns"]:
+            self.data["columns"].insert(3, "derivative2")
+        if "Capacity" not in self.data["columns"]:
+            self.data["columns"].insert(4, "Capacity")
+        try:
+            self.data["columns"].remove("derivative")
+        except Exception:
+            pass
+        try:
+            self.data["columns"].remove("1C2")
+        except Exception:
+            pass
+        try:
+            self.data["columns"].remove("derivative1C2")
+        except Exception:
+            pass
+        try:
+            self.data["columns"].remove("firstderivative_gate")
+        except Exception:
+            pass
+
+        mos_files.append(df)  # Append data-frame to a list containing all the cv mos files that you want to analyze.
 
         # Double check that the voltage values have increasing order.
         if 'Voltage' in self.data[df]['data'] and self.data[df]["data"]["Voltage"][0] > 0: # If the first element is positive signifies that the voltage values have been stored in decreasing order
@@ -137,7 +157,7 @@ class IV_PQC:
 
         # Plot all Measurements
         self.donts_mos = ["timestamp", "voltage", "Voltage", "Stepsize", "Wait", "Stepsize", "Frequency", "x", "N", "Current"]  # don't plot these.
-        self.basePlots5 = plot_all_measurements(self.data, self.config, self.xaxis, self.name, do_not_plot=self.donts_mos, keys=cv_files)
+        self.basePlots5 = plot_all_measurements(self.data, self.config, self.xaxis, self.name, do_not_plot=self.donts_mos, keys=mos_files)
         self.PlotDict["BasePlots_MOS"] = self.basePlots5
 
         # Add flat bandage voltage point to the Capacity curve
@@ -147,12 +167,12 @@ class IV_PQC:
                     clone_plot = self.basePlots5.Overlay.MOS_CV_CURVES.opts(clone=True)
                 else:
                     clone_plot = self.basePlots5.Curve.MOS_CV_CURVES.opts(clone=True)
-                fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax, indexMin, df, cv_files, voltage_value_of_max_firstder, PlotLabel="Flat band voltage estimation")
+                fBestimation = self.find_flatBand_voltage(clone_plot, self.data, self.config, indexMax, indexMin, df, mos_files, voltage_value_of_max_firstder, PlotLabel="Flat band voltage estimation")
             except Exception as err:
                 self.log.warning("No flat band voltage calculation possible... Error: {}".format(err))
 
         # Do these plots for the analysis of one single cv mos file
-        if len(cv_files) == 1:
+        if len(mos_files) == 1:
             self.PlotDict["BasePlots_MOS"] += fBestimation[0]
             self.PlotDict["BasePlots_MOS"] += derivative_interpolation_plot
             self.PlotDict["BasePlots_MOS"] += secondderivative_interp_plot
@@ -161,7 +181,7 @@ class IV_PQC:
             self.PlotDict["BasePlots_MOS"] += fBestimation[6] * max_firstder_plot * derivative_interpolation_plot
 
         # Add a Table that shows the differents analysis parameters values
-        df2 = pd.DataFrame({"Name": cv_files, "Flatband Voltage second_derivative (V)": fbvoltage,
+        df2 = pd.DataFrame({"Name": mos_files, "Flatband Voltage second_derivative (V)": fbvoltage,
              'Flatband Voltage first_derivative (V)': fbvoltage_firstderivative,
              'Accumulation capacitance (F)': Accum_capacitance_list,
              'Accumulation capacitance normalized (F/cm^2)': Accum_capacitance_normalized_list, 'Tox (nm)': Tox_list,
@@ -174,12 +194,33 @@ class IV_PQC:
         return self.PlotDict["BasePlots_MOS"]
 
     def analysis_diode(self, df):
-        #global fdestimation
+
+        if "1C2" not in self.data["columns"]:
+            self.data["columns"].insert(3, "1C2")
+            self.data["columns"].insert(4, "derivative1C2")
+        try:
+            self.data["columns"].remove("CapacityCopy")
+        except Exception:
+            pass
+        try:
+            self.data["columns"].remove("derivative")
+        except Exception:
+            pass
+        try:
+            self.data["columns"].remove("derivative2")
+        except Exception:
+            pass
+        try:
+            self.data["columns"].remove("firstderivative_gate")
+        except Exception:
+            pass
+
+
         diode_files.append(df)  # Append to a list containing all the diode files
         self.data[df]["data"]["Voltage"] = list(map(abs, self.data[df]["data"]["Voltage"]))  # take absolute value of Voltage
 
         # Try interpolation + filtered savitzy-golay derivative plot
-        capacity_curve, derivative_onec2_curve, deronec2_savgol_plot = self.interp_derivative_diode(df, self.data[df]["data"][self.xaxis], self.data[df]["data"]["Capacity"])
+        ##capacity_curve, derivative_onec2_curve, deronec2_savgol_plot = self.interp_derivative_diode(df, self.data[df]["data"][self.xaxis], self.data[df]["data"]["Capacity"])
         self.insert_in_df(df, 3, "1C2", 1 / self.data[df]["data"]["Capacity"].pow(2))
 
         # Compute first derivative of 1/C2
@@ -188,7 +229,7 @@ class IV_PQC:
 
         # Calculate deep x
         x = (self.config['IV_PQC_parameter']['epsilonNull'] * (1e-6) * float(self.data[df]['header'][0].split(':')[1]) * self.config['IV_PQC_parameter']['epsilonSiliconOxide']) / self.data[df]["data"]["Capacity"][:42]
-        self.insert_in_df(df, 5, "x", x)
+        self.insert_in_df(df, 5, "x", x) #You can choose also more or less than 42 data points, depending on how the curve looks like. I used the first 42 because the end of the curve was oscillating.
 
         # Calculate doping profile
         N = (2) / (self.config['IV_PQC_parameter']['epsilonNull'] * (1e-2) \
@@ -214,6 +255,7 @@ class IV_PQC:
                 else:
                     c2plot = self.basePlots4.Curve.A_1C2.opts(clone=True)
                 fdestimation = self.find_full_depletion_c2(c2plot, self.data, self.config, diode_files, PlotLabel="Full depletion estimation")
+
             except Exception as err:
                 self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
@@ -230,7 +272,7 @@ class IV_PQC:
         if len(diode_files) == 1:
             self.PlotDict["BasePlots_diode"] += fdestimation[0]
             # Add trial plots
-            self.PlotDict["BasePlots_diode"] += capacity_curve
+            #self.PlotDict["BasePlots_diode"] += capacity_curve
             ##self.PlotDict["BasePlots_diode"] += derivative_onec2_curve * deronec2_savgol_plot
             ##self.PlotDict["BasePlots_diode"] += deronec2_savgol_plot
             # Add table
@@ -248,7 +290,34 @@ class IV_PQC:
         return self.PlotDict["BasePlots_diode"]
 
     def analysis_gate(self, df):
-        #global curr_savgol_plot, maxsavgol
+
+        if "firstderivative_gate" not in self.data["columns"]:
+            self.data["columns"].insert(10, "firstderivative_gate")
+        try:
+            self.data["columns"].remove("Capacity")
+        except Exception:
+            pass
+        try:
+            self.data["columns"].remove("CapacityCopy")
+        except Exception:
+            pass
+        try:
+            self.data["columns"].remove("derivative")
+        except Exception:
+            pass
+        try:
+            self.data["columns"].remove("derivative2")
+        except Exception:
+            pass
+        try:
+            self.data["columns"].remove("1C2")
+        except Exception:
+            pass
+        try:
+            self.data["columns"].remove("derivative1C2")
+        except Exception:
+            pass
+
         gate_files.append(df)  # append to a list containing all the gate diode files
 
         # Remove initial kink from the data
@@ -353,11 +422,11 @@ class IV_PQC:
             self.PlotDict["BasePlots_gate"] += dif_intep_plot
             self.PlotDict["BasePlots_gate"] += dif2_intep_plot
             self.PlotDict["BasePlots_gate"] += curr_interp_plot
-            try:
-                self.PlotDict["BasePlots_gate"] += curr_savgol_plot
-                self.PlotDict["BasePlots_gate"] += curr_savgol_plot * plot_not_kink
-            except Exception:
-                self.log.warning("No savgol plot possible... Error: {}")
+            #try:
+            #    self.PlotDict["BasePlots_gate"] += curr_savgol_plot
+            #    self.PlotDict["BasePlots_gate"] += curr_savgol_plot * plot_not_kink
+            #except Exception:
+            #    self.log.warning("No savgol plot possible... Error: {}")
             self.PlotDict["BasePlots_gate"] += text * plot_not_kink * Path_min * Path_mxx * Path_average * Path_Isurf * Path_Isurf_average #* Path_savgolmax
             self.PlotDict["BasePlots_gate"] += curr_interp_plot * dif_intep_plot * dif2_intep_plot * plot_not_kink
 
@@ -449,7 +518,7 @@ class IV_PQC:
 
         return capacity_curve, derivative_onec2_curve, deronec2_savgol_plot
 
-    def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, df, cv_files, voltage_value_of_max_firstder, **addConfigs): #cv is the list containing all the cvmos files
+    def find_flatBand_voltage(self, plot, data, configs, indexMax, indexMin, df, mos_files, voltage_value_of_max_firstder, **addConfigs): #cv is the list containing all the cvmos files
         """
         Finds the full depletion voltage of all data samples and adds a vertical line for the full depletion in the
         plot. Vertical line is the mean of all measurements. Furthermore, adds a text with the statistics.
@@ -482,10 +551,8 @@ class IV_PQC:
             # See if the r2 value has increased and store it
             if r2_right >= RR2:
                 RR2 = r2_right
-                RightEndPoints = (
-                    (df1["xaxis"][idx], slope_right * df1["xaxis"][idx] + intercept_right),
-                    (df1["xaxis"][len(df1["xaxis"]) - 1], slope_right * df1["xaxis"][len(df1["xaxis"]) - 1] + intercept_right)
-                )
+                RightEndPoints = ((df1["xaxis"][idx], slope_right * df1["xaxis"][idx] + intercept_right),
+                    (df1["xaxis"][len(df1["xaxis"]) - 1], slope_right * df1["xaxis"][len(df1["xaxis"]) - 1] + intercept_right))
                 Right_stats = [RightEndPoints, slope_right, intercept_right, r_right, p_value, std_err_right]
 
         # Fit central region
@@ -498,10 +565,8 @@ class IV_PQC:
             # See if the r2 value has increased and store it
             if r2_fit >= fitR2:
                 fitR2 = r2_fit
-                fitEndPoints = (
-                    (df1["xaxis"][indexMax], slope_fit * df1["xaxis"][indexMax] + intercept_fit),
-                    (df1["xaxis"][idx+1], slope_fit * df1["xaxis"][idx+1] + intercept_fit) # use idx +1 to avoid having the same end points
-                )
+                fitEndPoints = ((df1["xaxis"][indexMax], slope_fit * df1["xaxis"][indexMax] + intercept_fit),
+                    (df1["xaxis"][idx+1], slope_fit * df1["xaxis"][idx+1] + intercept_fit)) # use idx +1 to avoid having the same end points
                 fit_stats = [fitEndPoints, slope_fit, intercept_fit, r_fit, p_valuefit, std_err_fit]
 
         # Add central slope
@@ -554,12 +619,12 @@ class IV_PQC:
             np.format_float_scientific(Nox, 2))).opts(style=dict(text_font_size='25pt'))
 
         # If more than one file do not do the derivates plots
-        if not len(cv_files) == 1:
+        if not len(mos_files) == 1:
             returnPlot = plot
             returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
             return returnPlot, flatband_voltage[0], Accum_capacitance_table, Accum_capacitance_normalized_table, Tox_table, Nox_table
 
-        elif len(cv_files) == 1:
+        elif len(mos_files) == 1:
             # Plot a vertical line in the value of the fb voltage
             vline = hv.VLine(flatband_voltage[0]).opts(color='black', line_width=1.0)
 
@@ -584,7 +649,6 @@ class IV_PQC:
         :param **addConfigs: the configs special for the 1/C2 plot, it is recomended to pass the same options here again, like in the original plot!
         :return: The updated plot
         """
-        #global LeftEndPoints, df
         Left_stats = np.zeros((len(diode_files), 6), dtype=np.object)
         self.log.info("Searching for full depletion voltage in all files...")
 
@@ -636,19 +700,19 @@ class IV_PQC:
 
         return returnPlot, full_depletion_voltages[0]
 
-    def plot(self, diodePlots, mos_Plots, gate_Plots, cv_files, diode_files, gate_files):
+    def plot(self, diodePlots, mos_Plots, gate_Plots, mos_files, diode_files, gate_files):
         # Select the plots to show depending on the kind of files you have
-        if len(cv_files) != 0 and len(diode_files) != 0 and len(gate_files) != 0:
+        if len(mos_files) != 0 and len(diode_files) != 0 and len(gate_files) != 0:
             self.PlotDict['All'] = gate_Plots + diodePlots + mos_Plots
-        elif len(cv_files) != 0 and len(diode_files) != 0 and len(gate_files) == 0:
+        elif len(mos_files) != 0 and len(diode_files) != 0 and len(gate_files) == 0:
             self.PlotDict['All'] = diodePlots + mos_Plots
-        elif len(cv_files) == 0 and len(diode_files) != 0 and len(gate_files) == 0:
+        elif len(mos_files) == 0 and len(diode_files) != 0 and len(gate_files) == 0:
             self.PlotDict['All'] = diodePlots
-        elif len(cv_files) != 0 and len(diode_files) == 0 and len(gate_files) == 0:
+        elif len(mos_files) != 0 and len(diode_files) == 0 and len(gate_files) == 0:
             self.PlotDict['All'] = mos_Plots
-        elif len(cv_files) == 0 and len(diode_files) == 0 and len(gate_files) != 0:
+        elif len(mos_files) == 0 and len(diode_files) == 0 and len(gate_files) != 0:
             self.PlotDict['All'] = gate_Plots
-        elif len(cv_files) != 0 and len(diode_files) == 0 and len(gate_files) != 0:
+        elif len(mos_files) != 0 and len(diode_files) == 0 and len(gate_files) != 0:
             self.PlotDict['All'] = gate_Plots + mos_Plots
         else:
             self.PlotDict['All'] = diodePlots + gate_Plots
