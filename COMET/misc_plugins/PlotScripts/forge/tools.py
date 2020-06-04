@@ -12,17 +12,18 @@ from holoviews import opts
 import numpy as np
 import pandas as pd
 from bokeh.models import LinearAxis, Range1d
-#from bokeh.io import export_svgs, export_png
-#from bokeh.io import save
+
+# from bokeh.io import export_svgs, export_png
+# from bokeh.io import save
 import json, yaml
 from copy import deepcopy
 from bokeh.models import HoverTool
 import importlib.util
+
 try:
     import pdfkit
 except:
     pass
-
 
 
 log = logging.getLogger("tools")
@@ -36,32 +37,37 @@ def convert_to_EngUnits(data, dataType, unit="nano"):
     """
     log.info("Converting {} for all measurements to '{}'".format(dataType, unit))
     engUnits = {
-        ("T","tera") : 1e12,
-        ("G","giga") : 1e9,
-        ("M","mega") : 1e6,
-        ("k","kilo") : 1e3,
-        ("","") :     1e0,
-        ("m","milli") : 1e-3,
-        ("u","micro") : 1e-6,
-        ("n","nano") : 1e-9,
-        ("p","pico") :  1e-12,
+        ("T", "tera"): 1e12,
+        ("G", "giga"): 1e9,
+        ("M", "mega"): 1e6,
+        ("k", "kilo"): 1e3,
+        ("", ""): 1e0,
+        ("m", "milli"): 1e-3,
+        ("u", "micro"): 1e-6,
+        ("n", "nano"): 1e-9,
+        ("p", "pico"): 1e-12,
         ("f", "femto"): 1e-15,
-        ("a", "atto"): 1e-18
+        ("a", "atto"): 1e-18,
     }
     old_unit_key = None
     for file in data["keys"]:
         # Find current order of magnitude
         if not data[file]["units"]:
-            log.warning("No units defined for file {}. No conversion possible".format(file))
+            log.warning(
+                "No units defined for file {}. No conversion possible".format(file)
+            )
             continue
         if dataType in data[file]["measurements"]:
             idx = data[file]["measurements"].index(dataType)
             if len(data[file]["units"][idx]) > 1:
-                oldunit = data[file]["units"][idx][0] # The first should be the correct magnitude
-            else: oldunit = ""
+                oldunit = data[file]["units"][idx][
+                    0
+                ]  # The first should be the correct magnitude
+            else:
+                oldunit = ""
 
             # find unit to convert to old and new
-            old_unit_key = ("","")
+            old_unit_key = ("", "")
             for keys in engUnits.keys():
                 if unit in keys:
                     to_convert = keys
@@ -69,8 +75,8 @@ def convert_to_EngUnits(data, dataType, unit="nano"):
                     old_unit_key = keys
 
             # Calc difference between the units
-            factor = engUnits[old_unit_key]/engUnits[to_convert]
-            data[file]["data"][dataType] = data[file]["data"][dataType]*factor
+            factor = engUnits[old_unit_key] / engUnits[to_convert]
+            data[file]["data"][dataType] = data[file]["data"][dataType] * factor
 
             if len(data[file]["units"][idx]) > 1:
                 # Todo: error in units if several conversions are made!!!!
@@ -79,7 +85,11 @@ def convert_to_EngUnits(data, dataType, unit="nano"):
             else:
                 data[file]["units"][idx] = to_convert[0] + data[file]["units"][idx]
         else:
-            log.warning("Conversion of units could not be done due to missing data! Data set: {}".format(file))
+            log.warning(
+                "Conversion of units could not be done due to missing data! Data set: {}".format(
+                    file
+                )
+            )
             return data
 
     # Convert the all df as well
@@ -89,7 +99,17 @@ def convert_to_EngUnits(data, dataType, unit="nano"):
 
     return data
 
-def Simple2DPlot(data, configs, measurement_to_plot, xaxis_measurement, analysis_name, vdims="Name", keys=None, **kwargs):
+
+def Simple2DPlot(
+    data,
+    configs,
+    measurement_to_plot,
+    xaxis_measurement,
+    analysis_name,
+    vdims="Name",
+    keys=None,
+    **kwargs
+):
     """
     Generates a 2D Plot out of a pandas data frame for the DataVis
     :param data: the data structure for one measurement
@@ -105,31 +125,72 @@ def Simple2DPlot(data, configs, measurement_to_plot, xaxis_measurement, analysis
     log.debug("Started plotting {} curve...".format(measurement_to_plot))
     conf = deepcopy(configs.get(analysis_name, {}))
 
-    if "Bars" in conf.get(measurement_to_plot, {}).get("PlotStyles", ["Curve"]) or False:
-        conf[measurement_to_plot]["PlotStyles"].pop(conf[measurement_to_plot]["PlotStyles"].index("Bars"))
-        plots = holoplot(measurement_to_plot, data,
-                        conf,
-                        kdims = [xaxis_measurement, measurement_to_plot],
-                        vdims=vdims, keys=keys, **kwargs)
+    if (
+        "Bars" in conf.get(measurement_to_plot, {}).get("PlotStyles", ["Curve"])
+        or False
+    ):
+        conf[measurement_to_plot]["PlotStyles"].pop(
+            conf[measurement_to_plot]["PlotStyles"].index("Bars")
+        )
+        plots = holoplot(
+            measurement_to_plot,
+            data,
+            conf,
+            kdims=[xaxis_measurement, measurement_to_plot],
+            vdims=vdims,
+            keys=keys,
+            **kwargs
+        )
         conf[measurement_to_plot]["PlotStyles"] = ["Bars"]
-        bars = holoplot(measurement_to_plot, data,
-                        conf,
-                        kdims = [xaxis_measurement],
-                        vdims=measurement_to_plot, keys=keys, **kwargs)
+        bars = holoplot(
+            measurement_to_plot,
+            data,
+            conf,
+            kdims=[xaxis_measurement],
+            vdims=measurement_to_plot,
+            keys=keys,
+            **kwargs
+        )
         if plots:
-            return bars+plots
+            return bars + plots
         else:
             return bars
     else:
-        return holoplot(measurement_to_plot, data,
-                        conf,
-                        kdims = [xaxis_measurement, measurement_to_plot],
-                        vdims=vdims, keys=keys, **kwargs)
+        return holoplot(
+            measurement_to_plot,
+            data,
+            conf,
+            kdims=[xaxis_measurement, measurement_to_plot],
+            vdims=vdims,
+            keys=keys,
+            **kwargs
+        )
 
-def plot_all_measurements(data, config, xaxis_measurement, analysis_name, do_not_plot=(), keys=None, **kwargs):
-    return plot(data, config, xaxis_measurement, analysis_name, do_not_plot=do_not_plot, keys=keys, **kwargs)
 
-def plot(data, config, xaxis_measurement, analysis_name, do_not_plot=(), plot_only=(), keys=None, **kwargs):
+def plot_all_measurements(
+    data, config, xaxis_measurement, analysis_name, do_not_plot=(), keys=None, **kwargs
+):
+    return plot(
+        data,
+        config,
+        xaxis_measurement,
+        analysis_name,
+        do_not_plot=do_not_plot,
+        keys=keys,
+        **kwargs
+    )
+
+
+def plot(
+    data,
+    config,
+    xaxis_measurement,
+    analysis_name,
+    do_not_plot=(),
+    plot_only=(),
+    keys=None,
+    **kwargs
+):
     """
     Simply plots all available measurements from data frames against one xaxsis measurement.
     The data structure needs a entry for 'measurements' containing a list of all measurements
@@ -148,13 +209,30 @@ def plot(data, config, xaxis_measurement, analysis_name, do_not_plot=(), plot_on
         if measurement not in do_not_plot:
             try:
                 if finalPlot:
-                    finalPlot += Simple2DPlot(data, config, measurement, xaxis_measurement, analysis_name, keys=keys, **kwargs)
+                    finalPlot += Simple2DPlot(
+                        data,
+                        config,
+                        measurement,
+                        xaxis_measurement,
+                        analysis_name,
+                        keys=keys,
+                        **kwargs
+                    )
                 else:
-                    finalPlot = Simple2DPlot(data, config, measurement, xaxis_measurement, analysis_name, keys=keys, **kwargs)
+                    finalPlot = Simple2DPlot(
+                        data,
+                        config,
+                        measurement,
+                        xaxis_measurement,
+                        analysis_name,
+                        keys=keys,
+                        **kwargs
+                    )
             except:
                 pass
 
     return config_layout(finalPlot, **config.get(analysis_name, {}).get("Layout", {}))
+
 
 def save_plot(name, subplot, save_dir, save_as=("default"), backend="bokeh"):
     """Saves a plot object"""
@@ -166,7 +244,7 @@ def save_plot(name, subplot, save_dir, save_as=("default"), backend="bokeh"):
     if "default" in save_as:
         stdformat = "html" if backend == "bokeh" else "png"
         save_dir = os.path.join(path, name)
-        save_dir+="."+stdformat
+        save_dir += "." + stdformat
         log.info("Saving default plot {} as {} to {}".format(name, stdformat, save_dir))
         hv.save(subplot, save_dir, backend=backend)
         return
@@ -180,44 +258,58 @@ def save_plot(name, subplot, save_dir, save_as=("default"), backend="bokeh"):
                     save_dir = os.path.join(path, "html")
                     if not os.path.exists(save_dir):
                         os.mkdir(save_dir)
-                    hv.save(subplot.opts(toolbar='above'), os.path.join(save_dir,name)+".html", backend=backend)
-                    subplot.opts(toolbar='disable')
+                    hv.save(
+                        subplot.opts(toolbar="above"),
+                        os.path.join(save_dir, name) + ".html",
+                        backend=backend,
+                    )
+                    subplot.opts(toolbar="disable")
 
                 elif save_format.lower() == "png":
                     save_dir = os.path.join(path, "png")
                     if not os.path.exists(save_dir):
                         os.mkdir(save_dir)
-                    hv.save(subplot, os.path.join(save_dir,name)+".png", backend=backend)
+                    hv.save(
+                        subplot, os.path.join(save_dir, name) + ".png", backend=backend
+                    )
                 elif save_format.lower() == "svg":
                     save_dir = os.path.join(path, "svg")
                     if not os.path.exists(save_dir):
                         os.mkdir(save_dir)
-                    hv.save(subplot, os.path.join(save_dir,name)+".svg", backend=backend)
+                    hv.save(
+                        subplot, os.path.join(save_dir, name) + ".svg", backend=backend
+                    )
                 else:
-                    log.debug("Saving format {} for plot save not recognised.".format(save_format))
-
+                    log.debug(
+                        "Saving format {} for plot save not recognised.".format(
+                            save_format
+                        )
+                    )
 
             except Exception as err:
-                log.warning("Exporting plot {} was not possible. Error: {}".format(name, err))
+                log.warning(
+                    "Exporting plot {} was not possible. Error: {}".format(name, err)
+                )
 
 
 def twiny(plot, element):
     # Setting the second y axis range name and range
     # Usage:
     # >>> curve_acc = hv.Scatter(options)(plot=dict(finalize_hooks=[twinx]))
-    start, end = (element.range(1))
+    start, end = element.range(1)
     label = element.dimensions()[1].pprint_label
     plot.state.extra_y_ranges = {"foo": Range1d(start=start, end=end)}
     # Adding the second axis to the plot.
-    linaxis = LinearAxis(axis_label=label, y_range_name='foo')
-    plot.state.add_layout(linaxis, 'right')
+    linaxis = LinearAxis(axis_label=label, y_range_name="foo")
+    plot.state.add_layout(linaxis, "right")
 
 
 def reject_outliers(sr, iq_range=0.5):
     pcnt = (1 - iq_range) / 2
-    qlow, median, qhigh = sr.dropna().quantile([pcnt, 0.50, 1-pcnt])
+    qlow, median, qhigh = sr.dropna().quantile([pcnt, 0.50, 1 - pcnt])
     iqr = qhigh - qlow
-    return sr[ (sr - median).abs() <= iqr]
+    return sr[(sr - median).abs() <= iqr]
+
 
 def config_layout(PlotItem, **kwargs):
     """Configs the layout of the output"""
@@ -225,14 +317,12 @@ def config_layout(PlotItem, **kwargs):
         try:
             getattr(PlotItem, key)(value)
         except AttributeError as err:
-            log.warning("Option '{}' for plot not possible with error: {}".format(key, err))
+            log.warning(
+                "Option '{}' for plot not possible with error: {}".format(key, err)
+            )
 
     try:
-        TOOLTIPS =  [
-            ("File", "@Name"),
-            ("index", "$index"),
-            ("(x,y)", "($x, $y)")
-            ]
+        TOOLTIPS = [("File", "@Name"), ("index", "$index"), ("(x,y)", "($x, $y)")]
         hover = HoverTool(tooltips=TOOLTIPS)
         PlotItem.opts(
             opts.Curve(tools=[hover], toolbar="disable"),
@@ -240,19 +330,30 @@ def config_layout(PlotItem, **kwargs):
             opts.Histogram(tools=[hover], toolbar="disable"),
             opts.Points(tools=[hover], toolbar="disable"),
             opts.BoxWhisker(tools=[hover], toolbar="disable"),
-            opts.Bars(tools=[HoverTool(tooltips=[('Value of ID:',' $x'),('Value:','$y')])], toolbar="disable"),
-            opts.Violin(tools=[hover], toolbar="disable")
+            opts.Bars(
+                tools=[HoverTool(tooltips=[("Value of ID:", " $x"), ("Value:", "$y")])],
+                toolbar="disable",
+            ),
+            opts.Violin(tools=[hover], toolbar="disable"),
         )
     except AttributeError as err:
-        log.error("Nonetype object encountered while configuring final plots layout. This should not happen! Error: {}".format(err))
+        log.error(
+            "Nonetype object encountered while configuring final plots layout. This should not happen! Error: {}".format(
+                err
+            )
+        )
     except ValueError as err:
-        if "unexpected option 'tools'" in str(err).lower() or "unexpected option 'toolbar'" in str(err).lower():
+        if (
+            "unexpected option 'tools'" in str(err).lower()
+            or "unexpected option 'toolbar'" in str(err).lower()
+        ):
             pass
         else:
             raise
     return PlotItem
 
-def convert_to_df(convert, abs = False, keys = "all"):
+
+def convert_to_df(convert, abs=False, keys="all"):
     """
     Converts a dict to panda dataframes for easy manipulation etc.
     Warning: All data arrays ust have the same length otherwise conversion not possible!
@@ -274,25 +375,29 @@ def convert_to_df(convert, abs = False, keys = "all"):
             if key in precol:
                 columns.append(key)
         if not columns:
-            raise Exception("No passed keys: {} matched the possible columns of the passed data: {}. "
-                            "DataFrame generation failed!".format(keys, precol))
+            raise Exception(
+                "No passed keys: {} matched the possible columns of the passed data: {}. "
+                "DataFrame generation failed!".format(keys, precol)
+            )
     elif keys == "all":
         columns = precol
     if not columns:
         raise Exception("DataFrame generation failed! No valid columns found!")
 
-
-
-    return_dict = {"All": pd.DataFrame(columns=columns), "keys": index, "columns":columns}
+    return_dict = {
+        "All": pd.DataFrame(columns=columns),
+        "keys": index,
+        "columns": columns,
+    }
     for key, data in to_convert.items():
         return_dict[key] = data
         try:
-            if abs: # Build abs of data or not
+            if abs:  # Build abs of data or not
                 for meas, arr in data["data"].items():
                     if meas in columns:
                         try:
                             data["data"][meas] = np.abs(arr)
-                        except: # If the value is some non float or int etc
+                        except:  # If the value is some non float or int etc
                             pass
 
             sub_set = {}
@@ -300,8 +405,12 @@ def convert_to_df(convert, abs = False, keys = "all"):
                 try:
                     sub_set[ind] = data["data"][ind]
                 except:
-                    log.warning("Key {} was not present, no data conversion".format(ind))
-            sub_set["Name"] = [key for i in range(len(sub_set[list(sub_set.keys())[0]]))]
+                    log.warning(
+                        "Key {} was not present, no data conversion".format(ind)
+                    )
+            sub_set["Name"] = [
+                key for i in range(len(sub_set[list(sub_set.keys())[0]]))
+            ]
             df = pd.DataFrame(data=sub_set)
 
             # Convert all datatypes that are not float or int to np.nan
@@ -310,13 +419,18 @@ def convert_to_df(convert, abs = False, keys = "all"):
                 df[meas] = df[meas].mask(mask, np.nan)
 
         except KeyError as err:
-            log.error("In order to convert the data to panda dataframe, the data structure needs to have a key:'data'")
+            log.error(
+                "In order to convert the data to panda dataframe, the data structure needs to have a key:'data'"
+            )
             raise err
 
-        return_dict[key]["data"] = df # DF for every single file
-        return_dict["All"] = pd.concat([return_dict["All"],df], sort=True) # all files together
+        return_dict[key]["data"] = df  # DF for every single file
+        return_dict["All"] = pd.concat(
+            [return_dict["All"], df], sort=True
+        )  # all files together
 
     return return_dict
+
 
 def rename_columns(df, new_names):
     """Renames columns in a data frame. Needs the dataframe and a dict of the desired names"""
@@ -330,7 +444,9 @@ def rename_columns(df, new_names):
     return df
 
 
-def plainPlot(plotType, xdata, ydata, label="NOName", plotName=None, configs={}, **addConfigs):
+def plainPlot(
+    plotType, xdata, ydata, label="NOName", plotName=None, configs={}, **addConfigs
+):
     """
 
     :param plotType: The type of plot you want (bars, Curve etc.)
@@ -355,6 +471,7 @@ def plainPlot(plotType, xdata, ydata, label="NOName", plotName=None, configs={},
     else:
         log.error("Holovies has no attribute with name: {}".format(plotType))
 
+
 def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConfigs):
     """
     Simply plots an configs a plot
@@ -373,9 +490,12 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
     finalPlot = None
 
     if len(kdims) < 2:
-        log.debug("Holoplots usually needs at least two kdims to work with! Plotting may fail")
+        log.debug(
+            "Holoplots usually needs at least two kdims to work with! Plotting may fail"
+        )
         ind = 0
-    else: ind = 1
+    else:
+        ind = 1
 
     # Loop over all types of plots which should be created
     for type in configs.get(plotType, {}).get("PlotStyles", ["Curve"]):
@@ -383,21 +503,42 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
         # Loop over all data
         log.info("Generating plot {} in Style {}".format(plotType, type))
         if hasattr(hv, type):
-            for key in keys if keys else df_list["keys"]: # Loop over all files
+            for key in keys if keys else df_list["keys"]:  # Loop over all files
                 if kdims[ind] in df_list[key]["data"]:
                     log.debug("Generating plot {} for {}".format(key, plotType))
                     # get labels from the configs
                     try:
                         xlabel, ylabel = get_axis_labels(df_list, key, kdims, vdims)
                     except Exception as err:
-                        log.error("Could not generate x and y label for plot {}. Error: {}".format(plotType, err))
+                        log.error(
+                            "Could not generate x and y label for plot {}. Error: {}".format(
+                                plotType, err
+                            )
+                        )
                         xlabel, ylabel = "X-Axis", "Y-Axis"
                     if plot:
-                        plot *= getattr(hv, type)(df_list[key]["data"], kdims=kdims, vdims=vdims, label=key, group=type)
-                    else: plot = getattr(hv, type)(df_list[key]["data"], kdims=kdims, vdims=vdims, label=key, group=type)
+                        plot *= getattr(hv, type)(
+                            df_list[key]["data"],
+                            kdims=kdims,
+                            vdims=vdims,
+                            label=key,
+                            group=type,
+                        )
+                    else:
+                        plot = getattr(hv, type)(
+                            df_list[key]["data"],
+                            kdims=kdims,
+                            vdims=vdims,
+                            label=key,
+                            group=type,
+                        )
                     plot.opts(xlabel=xlabel, ylabel=ylabel)
                 else:
-                    log.warning("The data key: {} is not present in dataset {}. Skipping this particular plot.".format(kdims[1], key))
+                    log.warning(
+                        "The data key: {} is not present in dataset {}. Skipping this particular plot.".format(
+                            kdims[1], key
+                        )
+                    )
         else:
             log.error("The plot type {} is not part of Holoviews.".format(type))
         log.debug("Generated plot: {} of type {}".format(plot, type))
@@ -416,17 +557,24 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
 
     return finalPlot
 
+
 def get_axis_labels(df_list, key, kdims, vdims):
     """Generates the axis labels"""
     try:
         if df_list[key]["units"][df_list[key]["measurements"].index(kdims[1])]:
-            ylabel = "{} ({})".format(kdims[1], df_list[key]["units"][df_list[key]["measurements"].index(kdims[1])])
+            ylabel = "{} ({})".format(
+                kdims[1],
+                df_list[key]["units"][df_list[key]["measurements"].index(kdims[1])],
+            )
         else:
             ylabel = "{}".format(kdims[1])
     except:
         try:
             if df_list[key]["units"][df_list[key]["measurements"].index(vdims)]:
-                ylabel = "{} ({})".format(vdims, df_list[key]["units"][df_list[key]["measurements"].index(vdims)])
+                ylabel = "{} ({})".format(
+                    vdims,
+                    df_list[key]["units"][df_list[key]["measurements"].index(vdims)],
+                )
             else:
                 ylabel = "{}".format(vdims)
         except:
@@ -434,7 +582,10 @@ def get_axis_labels(df_list, key, kdims, vdims):
 
     try:
         if df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])]:
-            xlabel = "{} ({})".format(kdims[0], df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])])
+            xlabel = "{} ({})".format(
+                kdims[0],
+                df_list[key]["units"][df_list[key]["measurements"].index(kdims[0])],
+            )
         else:
             xlabel = "{}".format(kdims[0])
     except:
@@ -442,14 +593,17 @@ def get_axis_labels(df_list, key, kdims, vdims):
 
     return xlabel, ylabel
 
+
 def relabelPlot(plot, label, group=None):
     return plot.relabel(label, **{"group": group} if group else {})
+
 
 def applyPlotOptions(plot, optionsdict):
     """Applies user defined options directly to the plot without changing previous options"""
     # Now convert the non converted values in the dict
     options = ast_evaluate_dict_values(optionsdict)
     return plot.opts(options)
+
 
 def customize_plot(plot, plotName, configs, **addConfigs):
     """
@@ -464,13 +618,15 @@ def customize_plot(plot, plotName, configs, **addConfigs):
     if "PlotLabel" in addConfigs:
         newlabel = addConfigs.pop("PlotLabel")
         plotName = newlabel
-    else: newlabel = None
-
+    else:
+        newlabel = None
 
     # Get options
-    log.debug("Configuring plot with holoviews parameters for plot {}...".format(plotName))
+    log.debug(
+        "Configuring plot with holoviews parameters for plot {}...".format(plotName)
+    )
     gen_opts = configs.get("General", {})
-    specific_opts = configs.get(plotName,{}).get("PlotOptions", {})
+    specific_opts = configs.get(plotName, {}).get("PlotOptions", {})
     options = {}
     options.update(gen_opts)
     options.update(specific_opts)
@@ -482,13 +638,23 @@ def customize_plot(plot, plotName, configs, **addConfigs):
     try:
         if not newlabel:
             label = configs.get(plotName, {}).get("PlotLabel", "")
-        else: label = newlabel
+        else:
+            label = newlabel
         plot = plot.relabel(label).opts(**options)
     except AttributeError as err:
-        log.error("Relabeling plot {} was not possible! Error: {}".format(configs.get(plotName, {}).get("PlotLabel", ""), err))
+        log.error(
+            "Relabeling plot {} was not possible! Error: {}".format(
+                configs.get(plotName, {}).get("PlotLabel", ""), err
+            )
+        )
     except ValueError as err:
-        log.error("Configuring plot {} was not possible! Error: {}".format(configs.get(plotName, {}).get("PlotLabel", ""), err))
+        log.error(
+            "Configuring plot {} was not possible! Error: {}".format(
+                configs.get(plotName, {}).get("PlotLabel", ""), err
+            )
+        )
     return plot
+
 
 def ast_evaluate_dict_values(edict):
     """Ast evaluates dict entries and returns the evaluated dict."""
@@ -496,14 +662,19 @@ def ast_evaluate_dict_values(edict):
     for key, value in edict.items():
         if isinstance(value, dict):
             value = ast_evaluate_dict_values(value)
-        if isinstance(value, str): # Only evaluate str values all other must be correct
+        if isinstance(value, str):  # Only evaluate str values all other must be correct
             try:
                 value = eval(value)
             except Exception as err:
-                log.debug("Could not interpret '{}' in key '{}' as a valid object. Stays as is! Error: {}".format(value, key, err))
+                log.debug(
+                    "Could not interpret '{}' in key '{}' as a valid object. Stays as is! Error: {}".format(
+                        value, key, err
+                    )
+                )
 
         returndict[key] = value
     return returndict
+
 
 def read_in_files(filepathes, configs):
     """
@@ -521,7 +692,9 @@ def read_in_files(filepathes, configs):
             if ascii_specs:
                 return read_in_ASCII_measurement_files(filepathes, ascii_specs)
             else:
-                log.error("ASCII file type files must be given with specifications how to interpret data.")
+                log.error(
+                    "ASCII file type files must be given with specifications how to interpret data."
+                )
         elif filetype.upper() == "JSON":
             return read_in_JSON_measurement_files(filepathes)
         elif filetype.upper() == "CSV":
@@ -535,13 +708,21 @@ def read_in_files(filepathes, configs):
                     for key, value in data_raw.items():
                         try:
                             if isinstance(value, dict):
-                                processed_data = {"analysed": False, "plots":False}
+                                processed_data = {"analysed": False, "plots": False}
                                 processed_data["data"] = value["data"]
                                 if "measurements" not in value:
-                                    processed_data["measurements"] = list(value["data"].keys())
-                                else: processed_data["measurements"] = value["measurements"]
+                                    processed_data["measurements"] = list(
+                                        value["data"].keys()
+                                    )
+                                else:
+                                    processed_data["measurements"] = value[
+                                        "measurements"
+                                    ]
                                 if "units" not in value:
-                                    processed_data["units"] = ["arb. units" for i in processed_data["measurements"]]
+                                    processed_data["units"] = [
+                                        "arb. units"
+                                        for i in processed_data["measurements"]
+                                    ]
                                 else:
                                     processed_data["units"] = value["units"]
                                 if "header" not in value:
@@ -552,17 +733,29 @@ def read_in_files(filepathes, configs):
                                     processed_data["additional"] = value["additional"]
                                 final_data[key] = processed_data
                             else:
-                                log.error("Data format for custom data array {} is not dict. Discarding data.".format(key))
+                                log.error(
+                                    "Data format for custom data array {} is not dict. Discarding data.".format(
+                                        key
+                                    )
+                                )
                         except Exception as err:
-                            log.error("An error happened during parsind data from CUSTOM importer output. Most likely the outpot did not had the correct form. Error: {}".format(err))
+                            log.error(
+                                "An error happened during parsind data from CUSTOM importer output. Most likely the outpot did not had the correct form. Error: {}".format(
+                                    err
+                                )
+                            )
                     return final_data, []
                 else:
-                    log.error("Return data from CUSTOM file parsing did not yield valid data. Data must be a dictionary!")
+                    log.error(
+                        "Return data from CUSTOM file parsing did not yield valid data. Data must be a dictionary!"
+                    )
                     return {}, []
 
             else:
-                log.error("If you want to use custom file import you must specifiy a 'Custom_specs' section in "
-                          "your configuration.")
+                log.error(
+                    "If you want to use custom file import you must specifiy a 'Custom_specs' section in "
+                    "your configuration."
+                )
                 return {}
 
     data = {}
@@ -572,16 +765,24 @@ def read_in_files(filepathes, configs):
             filename, file_extension = os.path.splitext(file)
             if file_extension.lower() == ".txt" or file_extension.lower == ".dat":
                 if ascii_specs:
-                    data_new, load = read_in_ASCII_measurement_files([file], ascii_specs)
+                    data_new, load = read_in_ASCII_measurement_files(
+                        [file], ascii_specs
+                    )
                     data.update(data_new)
                     load_order.append(load)
                 else:
-                    log.error("ASCII file type files must be given with specifications how to interpret data.")
-            elif file_extension.lower() == ".json" or file_extension.lower == ".yml" or file_extension.lower == ".yaml":
+                    log.error(
+                        "ASCII file type files must be given with specifications how to interpret data."
+                    )
+            elif (
+                file_extension.lower() == ".json"
+                or file_extension.lower == ".yml"
+                or file_extension.lower == ".yaml"
+            ):
                 data_new, order = read_in_JSON_measurement_files([file])
                 load_order.append(order)
                 data.update(data_new)
-                continue # In order to prevent the next load order to be executed
+                continue  # In order to prevent the next load order to be executed
             elif file_extension.lower() == ".csv":
                 data_new, load = read_in_CSV_measurement_files([file])
                 data.update(data_new)
@@ -589,6 +790,7 @@ def read_in_files(filepathes, configs):
         else:
             log.error("Path {} does not exists, skipping file!".format(file))
     return data, load_order
+
 
 def read_in_CUSTOM_measurement_files(filepathes, configs):
     """
@@ -611,7 +813,11 @@ def read_in_CUSTOM_measurement_files(filepathes, configs):
         log.error("Could not load module for custom import with error: {}".format(err))
         return None
     except Exception as err:
-        log.error("An error happened while performing custom import: {}".format(traceback.format_exc()))
+        log.error(
+            "An error happened while performing custom import: {}".format(
+                traceback.format_exc()
+            )
+        )
         return None
 
 
@@ -630,8 +836,6 @@ def read_in_CSV_measurement_files(filepathes):
         all_data[os.path.basename(file).split(".")[0]] = data_dict
 
     return all_data, load_order
-
-
 
 
 def read_in_JSON_measurement_files(filepathes):
@@ -655,7 +859,7 @@ def read_in_JSON_measurement_files(filepathes):
                 all_data[filename] = data
                 load_order.append(filename)
 
-            else: # This is true for DataVIS outputs wiht several files in one json file
+            else:  # This is true for DataVIS outputs wiht several files in one json file
                 for filename, item in data.items():
                     item.update({"analysed": False, "plots": False})
                     # Convert all lists to np.ndarrays
@@ -666,10 +870,13 @@ def read_in_JSON_measurement_files(filepathes):
 
         return all_data, load_order
 
-
     except Exception as e:
-        log.warning("Something went wrong while importing the file " + str(files) + " with error: " + str(e))
-
+        log.warning(
+            "Something went wrong while importing the file "
+            + str(files)
+            + " with error: "
+            + str(e)
+        )
 
 
 def read_in_ASCII_measurement_files(filepathes, settings):
@@ -693,20 +900,31 @@ def read_in_ASCII_measurement_files(filepathes, settings):
         return all_data, load_order
 
     except Exception as e:
-        log.error("Something went wrong while importing the file " + str(current_file) + " with error: " + str(e))
+        log.error(
+            "Something went wrong while importing the file "
+            + str(current_file)
+            + " with error: "
+            + str(e)
+        )
+
 
 def parse_file_data(filecontent, settings):
     """This function parses the ADCII file content to the needed data types"""
     filecontent = filecontent.split("\n")
 
-    header = filecontent[:settings.get("header_lines", 0)]
+    header = filecontent[: settings.get("header_lines", 0)]
     if "measurement_description" in settings:
-        measurements = filecontent[settings["measurement_description"] - 1:settings["measurement_description"]]
-    else: measurements = [""]
+        measurements = filecontent[
+            settings["measurement_description"]
+            - 1 : settings["measurement_description"]
+        ]
+    else:
+        measurements = [""]
     if "units_line" in settings:
-        units = filecontent[settings["units_line"] - 1:settings["units_line"]]
-    else: units = [""]
-    data = filecontent[settings["data_start"] - 1:]
+        units = filecontent[settings["units_line"] - 1 : settings["units_line"]]
+    else:
+        units = [""]
+    data = filecontent[settings["data_start"] - 1 :]
     separator = settings.get("data_separator", None)
     preunits = settings.get("units", None)
     premeasurement_cols = settings.get("measurements", None)
@@ -717,13 +935,19 @@ def parse_file_data(filecontent, settings):
     regex = [re.compile(data_exp, re.MULTILINE), re.compile(units_exp)]
 
     # First parse the units and measurement types
-    parsed_obj = [[],[]]
-    if not preunits or not premeasurement_cols: # If you have defined both dont do that, otherwise make best effort
+    parsed_obj = [[], []]
+    if (
+        not preunits or not premeasurement_cols
+    ):  # If you have defined both dont do that, otherwise make best effort
         log.info("Trying to extract measurements and units from file...")
         for k, data_to_split in enumerate((measurements, units)):
-            for i, meas in enumerate(data_to_split):  # This is just for safety there is usually one line here
+            for i, meas in enumerate(
+                data_to_split
+            ):  # This is just for safety there is usually one line here
                 to_del_ind = []
-                meas = re.findall(regex[k], meas.strip())  # usually all spaces should be excluded but not sure if tab is removed as well
+                meas = re.findall(
+                    regex[k], meas.strip()
+                )  # usually all spaces should be excluded but not sure if tab is removed as well
                 for j, singleitem in enumerate(meas):
                     if isinstance(singleitem, tuple):
                         found = False
@@ -732,14 +956,15 @@ def parse_file_data(filecontent, settings):
                                 meas[j] = singlemeas.strip()
                                 found = True
                                 break
-                        if not found: to_del_ind.append(j)
+                        if not found:
+                            to_del_ind.append(j)
 
                     elif isinstance(singleitem, str):
                         if singleitem.strip():
                             meas[j] = singleitem.strip()
                         else:
                             to_del_ind.append(j)
-                for j in reversed(to_del_ind): # Delete empty or non valid ones
+                for j in reversed(to_del_ind):  # Delete empty or non valid ones
                     meas.pop(j)
                 parsed_obj[k] = meas
 
@@ -754,7 +979,9 @@ def parse_file_data(filecontent, settings):
         log.error("No measurements and units extracted. Plotting will fail!")
 
     # Now parse the actual data and build the tree dict structure needed
-    data_lists = []  # is a list containing all entries from one measurement, while having the same order like the measurements object
+    data_lists = (
+        []
+    )  # is a list containing all entries from one measurement, while having the same order like the measurements object
     parsed_data = []
     data_dict = {}
     for dat in data:
@@ -767,38 +994,59 @@ def parse_file_data(filecontent, settings):
                 except:
                     dat[j] = np.nan  # singleentry.strip()
 
-        if parsed_data: #This prevents zero len error
+        if parsed_data:  # This prevents zero len error
             if dat:
-                if len(dat) == len(parsed_data[-1]): # This prevents empty line or malformed data entry line error
+                if len(dat) == len(
+                    parsed_data[-1]
+                ):  # This prevents empty line or malformed data entry line error
                     parsed_data.append(dat)
                 else:
-                    dat.extend([np.nan for i in range(len(parsed_data[-1])-len(dat))])
+                    dat.extend([np.nan for i in range(len(parsed_data[-1]) - len(dat))])
             else:
                 log.debug("Data shape is not consistent. Droping data: {}".format(dat))
         else:
             parsed_data.append(dat)
 
-    for i, meas in enumerate(parsed_obj[0][:len(parsed_data[0])]): # Prevents wolfgangs header error
+    for i, meas in enumerate(
+        parsed_obj[0][: len(parsed_data[0])]
+    ):  # Prevents wolfgangs header error
         data_lists.append([parsed_data[x][i] for x in range(len(parsed_data))])
         # Construct dict
         if meas not in data_dict:
             data_dict.update({str(meas): np.array(data_lists[i], dtype=np.float64)})
         else:
             filenum = 1
-            while meas+"_{}".format(filenum) in data_dict:
+            while meas + "_{}".format(filenum) in data_dict:
                 filenum += 1
-            new_name = meas+"_{}".format(filenum)
-            log.critical("Name {} already exists. Data array will be renamed to {}".format(meas, new_name))
+            new_name = meas + "_{}".format(filenum)
+            log.critical(
+                "Name {} already exists. Data array will be renamed to {}".format(
+                    meas, new_name
+                )
+            )
             data_dict.update({new_name: np.array(data_lists[i], dtype=np.float64)})
             # Adapt the measurements name as well
             parsed_obj[0][i] = new_name
 
-    log.critical("Extracted measurements are: {} with len {}".format(parsed_obj[0], len(parsed_obj[0])))
-    log.critical("Extracted units are: {} with len {}".format(parsed_obj[1], len(parsed_obj[1])))
+    log.critical(
+        "Extracted measurements are: {} with len {}".format(
+            parsed_obj[0], len(parsed_obj[0])
+        )
+    )
+    log.critical(
+        "Extracted units are: {} with len {}".format(parsed_obj[1], len(parsed_obj[1]))
+    )
     if len(parsed_obj[0]) != len(parsed_obj[1]):
-        log.error("Parsed measurement decription len is not equal to len of extracted units. Errors may rise! If this error persists please change units_regex and measurement_regex in the"
-                  " ASCII parameters to fit your data! Or define your own correctly.")
-    return_dict = {"data": data_dict, "header": header, "measurements": parsed_obj[0], "units": parsed_obj[1]}
+        log.error(
+            "Parsed measurement decription len is not equal to len of extracted units. Errors may rise! If this error persists please change units_regex and measurement_regex in the"
+            " ASCII parameters to fit your data! Or define your own correctly."
+        )
+    return_dict = {
+        "data": data_dict,
+        "header": header,
+        "measurements": parsed_obj[0],
+        "units": parsed_obj[1],
+    }
     return return_dict
 
 
@@ -812,21 +1060,25 @@ class CustomJSONEncoder(json.JSONEncoder):
             return {i: obj[i].tolist() for i in obj.keys()}
         return json.JSONEncoder.default(self, obj)
 
+
 def save_dict_as_json(data, dirr, base_name):
     json_dump = json.dumps(data, cls=CustomJSONEncoder)
-    with open(os.path.join(dirr, base_name+".json"), 'w') as outfile:
+    with open(os.path.join(dirr, base_name + ".json"), "w") as outfile:
         json.dump(json_dump, outfile)
 
     for key in data:
-        with open(os.path.join(dirr, "{}.json".format(key)), 'w') as outfile:
+        with open(os.path.join(dirr, "{}.json".format(key)), "w") as outfile:
             json_dump = json.dumps(data[key], cls=CustomJSONEncoder)
             json.dump(json_dump, outfile)
 
+
 def save_dict_as_hdf5(data, dirr, base_name):
     df = convert_to_df(data)
-    df["All"].to_hdf(os.path.join(dirr, base_name+".hdf5"), key='df', mode='w')
+    df["All"].to_hdf(os.path.join(dirr, base_name + ".hdf5"), key="df", mode="w")
     for key in df.get("keys", []):
-        data[key]["data"].to_hdf(os.path.join(dirr, "{}.hdf5".format(key)), key='df', mode='w')
+        data[key]["data"].to_hdf(
+            os.path.join(dirr, "{}.hdf5".format(key)), key="df", mode="w"
+        )
 
 
 def save_dict_as_xml(data, filepath, name, xml_template_dict):
@@ -847,55 +1099,87 @@ def save_dict_as_xml(data, filepath, name, xml_template_dict):
             final_xml_dict = insert_templates(dat, final_xml, template)
 
             for subkey, value in final_xml_dict.items():
-                save_as_xml(value, os.path.join(os.path.normpath(filepath)), "{}_{}".format( key, subkey))
+                save_as_xml(
+                    value,
+                    os.path.join(os.path.normpath(filepath)),
+                    "{}_{}".format(key, subkey),
+                )
         else:
-            log.error("No xml template stated in settings. Please add 'xml_template' to your configs.")
+            log.error(
+                "No xml template stated in settings. Please add 'xml_template' to your configs."
+            )
 
 
 def save_data(plotting_Object, types, dirr, base_name="data", to_call=None):
-        """Saves the data in the specified type"""
+    """Saves the data in the specified type"""
 
-        check_if_data_changed(plotting_Object, to_call=to_call)  # Check if data has changed during analysis
-        for typ in types:
-            if typ in ["json", "hdf5", "xml"]:
+    check_if_data_changed(
+        plotting_Object, to_call=to_call
+    )  # Check if data has changed during analysis
+    for typ in types:
+        if typ in ["json", "hdf5", "xml"]:
+            try:
+                os.mkdir(os.path.join(os.path.normpath(dirr), "data"))
+            except:
+                pass
+        if typ == "json":
+            # JSON serialize
+            log.info("Saving JSON file...")
+            save_dict_as_json(
+                deepcopy(plotting_Object.data),
+                os.path.join(os.path.normpath(dirr), "data"),
+                base_name,
+            )
+        if typ == "hdf5":
+            # HDF5 serialize
+            log.info("Saving HDF5 file...")
+            save_dict_as_hdf5(
+                deepcopy(plotting_Object.data),
+                os.path.join(os.path.normpath(dirr), "data"),
+                base_name,
+            )
+        if typ == "xml":
+            # XML serialize
+            log.info("Saving xml file...")
+            if "xml_template" in plotting_Object.config:
+                xml_template_dict = plotting_Object.config["xml_template"]
+            else:
+                xml_template_dict = plotting_Object.config.get(
+                    "xml_template_path", None
+                )
+                xml_template_dict = load_yaml(xml_template_dict)
+            if xml_template_dict:
                 try:
-                    os.mkdir(os.path.join(os.path.normpath(dirr), "data"))
+
+                    save_dict_as_xml(
+                        deepcopy(plotting_Object.data),
+                        os.path.join(os.path.normpath(dirr), "data"),
+                        base_name,
+                        xml_template_dict,
+                    )
                 except:
-                    pass
-            if typ == "json":
-                # JSON serialize
-                log.info("Saving JSON file...")
-                save_dict_as_json(deepcopy(plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
-            if typ == "hdf5":
-                # HDF5 serialize
-                log.info("Saving HDF5 file...")
-                save_dict_as_hdf5(deepcopy(plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name)
-            if typ == "xml":
-                # XML serialize
-                log.info("Saving xml file...")
-                if "xml_template" in plotting_Object.config:
-                    xml_template_dict = plotting_Object.config["xml_template"]
-                else:
-                    xml_template_dict = plotting_Object.config.get("xml_template_path", None)
-                    xml_template_dict = load_yaml(xml_template_dict)
-                if xml_template_dict:
-                    try:
+                    log.error("An error happened during xml save.", exc_info=True)
+            else:
+                log.error(
+                    "Could not save data as xml since no 'xml_template_path' was stated in the configs"
+                )
 
-                        save_dict_as_xml(deepcopy(plotting_Object.data), os.path.join(os.path.normpath(dirr), "data"), base_name, xml_template_dict)
-                    except:
-                        log.error("An error happened during xml save.", exc_info=True)
-                else:
-                    log.error("Could not save data as xml since no 'xml_template_path' was stated in the configs")
 
-def text_box(text, xpos, ypos, boxsize, fontsize=30, fontcolor="black", bgcolor="white"):
+def text_box(
+    text, xpos, ypos, boxsize, fontsize=30, fontcolor="black", bgcolor="white"
+):
     """Generates a box with text in it"""
     hvtext = hv.Text(xpos, ypos, text).opts(fontsize=fontsize, color=fontcolor)
-    box = hv.Polygons(hv.Box(xpos, ypos, boxsize).opts(color="black")).opts(color=bgcolor)
-    return box*hvtext
+    box = hv.Polygons(hv.Box(xpos, ypos, boxsize).opts(color="black")).opts(
+        color=bgcolor
+    )
+    return box * hvtext
+
 
 def insert_templates(dat, xml_string, xml_config_file):
     """Inserts any template for data into the XML string and returns a XML string"""  #
     import xml.etree.ElementTree as ET
+
     template_re = re.compile(r"//(.*)//")  # Regex for the template
     root = ET.fromstring(xml_string)  # convert the xml string to a xmltree
 
@@ -910,7 +1194,9 @@ def insert_templates(dat, xml_string, xml_config_file):
 
     def generate_template_xml_elements(kdim, element_name, xml_node, template, data):
         """Genrerates a xml template entry"""
-        xml_node.remove(xml_node.find(element_name))  # So that the template entry is gone
+        xml_node.remove(
+            xml_node.find(element_name)
+        )  # So that the template entry is gone
         keyword_re = re.compile(r"<(.*)>")
         for i, value in enumerate(data["data"][kdim]):
             root = ET.SubElement(xml_node, element_name)
@@ -919,10 +1205,15 @@ def insert_templates(dat, xml_string, xml_config_file):
                 if data_key:
                     try:
                         element = ET.SubElement(root, key)
-                        element.text = str(data["data"][entry.replace("<", "").replace(">", "")][i])
+                        element.text = str(
+                            data["data"][entry.replace("<", "").replace(">", "")][i]
+                        )
                     except IndexError:
-                        log.warning("The Index {} seems to be missing in the data".format(
-                            entry.replace("<", "").replace(">", "")))
+                        log.warning(
+                            "The Index {} seems to be missing in the data".format(
+                                entry.replace("<", "").replace(">", "")
+                            )
+                        )
                         break
         pass
 
@@ -940,12 +1231,20 @@ def insert_templates(dat, xml_string, xml_config_file):
                 if keyword:
                     path.append(key)
                     for kdim in xml_config_file[keyword.string.replace("/", "")]:
-                        if kdim in dat["data"].keys():  # Todo: this may fail, and I am using raw data here,
+                        if (
+                            kdim in dat["data"].keys()
+                        ):  # Todo: this may fail, and I am using raw data here,
                             subtrees[kdim] = deepcopy(root)
-                            node = validate_node(subtrees[kdim],
-                                                 path[:-1])  # Since we dont want the actual entry, just where to put it
-                            generate_template_xml_elements(kdim, path[-1], node,
-                                                           xml_config_file[keyword.string.replace("/", "")][kdim], dat)
+                            node = validate_node(
+                                subtrees[kdim], path[:-1]
+                            )  # Since we dont want the actual entry, just where to put it
+                            generate_template_xml_elements(
+                                kdim,
+                                path[-1],
+                                node,
+                                xml_config_file[keyword.string.replace("/", "")][kdim],
+                                dat,
+                            )
                     final_tree.update(subtrees)
                     path.pop()
                 # return final_tree
@@ -953,6 +1252,7 @@ def insert_templates(dat, xml_string, xml_config_file):
 
     xml_dicts = dict_template_insert_iter(xml_config_file["Template"], path=[])
     return xml_dicts
+
 
 def insert_values_from_header(xml_config_file, header=""):
     """
@@ -994,12 +1294,15 @@ def insert_values_from_header(xml_config_file, header=""):
 
     return template
 
+
 def convert_dict_to_xml(data_dict):
     """Converts a dictionary to a xml conform string"""
     from dicttoxml import dicttoxml
+
     return dicttoxml(data_dict, attr_type=False)
 
-def check_if_data_changed(plotting_Object, to_call = None):
+
+def check_if_data_changed(plotting_Object, to_call=None):
     """Checks if data has changed during a analysis and asks if and what you want data you want to save"""
     originals = {i: {"original": j} for i, j in plotting_Object.data.items()}
     for analysisout in plotting_Object.plotObjects:
@@ -1014,40 +1317,63 @@ def check_if_data_changed(plotting_Object, to_call = None):
             except KeyError:
                 log.error(
                     "New data was found for potential save but no name for analysis could be found. Please add a 'Name' entry to you analysis return!",
-                    exc_info=True)
+                    exc_info=True,
+                )
 
     for file in originals:
-        if "original" not in originals[file] and len(
-                originals[file].keys()) == 1:  # If new data is present not included in the original data, add it
-            plotting_Object.data[file] = originals[file][list(originals[file].keys())[0]]
+        if (
+            "original" not in originals[file] and len(originals[file].keys()) == 1
+        ):  # If new data is present not included in the original data, add it
+            plotting_Object.data[file] = originals[file][
+                list(originals[file].keys())[0]
+            ]
 
-        if len(originals[file].keys()) > 1:  # Check if more than the original data is present
+        if (
+            len(originals[file].keys()) > 1
+        ):  # Check if more than the original data is present
             # Check if len is 2 and originals is present and override is enabled then override
             data_override = plotting_Object.config.get("override_data", None)
             # If a specific dataset was selected
             if isinstance(data_override, bool):
-                if len(originals[file].keys()) == 2 and "original" in originals[file] and data_override == True:
+                if (
+                    len(originals[file].keys()) == 2
+                    and "original" in originals[file]
+                    and data_override == True
+                ):
                     originals[file].pop("original")
                     analys = list(originals[file].keys())[0]
                     log.warning(
                         "Overriding data was set to true, overrding loaded data with data changed by analysis {}"
-                        " for file {}".format(analys, file))
+                        " for file {}".format(analys, file)
+                    )
                     change_data(plotting_Object, originals, file, analys)
 
-                elif len(originals[file].keys()) == 2 and "original" in originals[file] and data_override == False:
+                elif (
+                    len(originals[file].keys()) == 2
+                    and "original" in originals[file]
+                    and data_override == False
+                ):
                     # do nothing
                     pass
 
                 else:
                     if not to_call:
-                        log.error("Either more than one analysis changed the output data for file {}, or override of data was not permitted... Saving data aborted!".format(file))
+                        log.error(
+                            "Either more than one analysis changed the output data for file {}, or override of data was not permitted... Saving data aborted!".format(
+                                file
+                            )
+                        )
                     else:
-                        to_call(file, originals) # Legacy since it was ported from a different part
+                        to_call(
+                            file, originals
+                        )  # Legacy since it was ported from a different part
+
 
 def change_data(plotting_Object, newdata, file, tosave):
     """Changes the data which will be saved in the end"""
     log.info("Setting new data from anlysis {} for file {}.".format(tosave, file))
     plotting_Object.data[file] = newdata[file][tosave]
+
 
 def save_as_xml(data_dict, filepath, name):
     from json import loads
@@ -1063,7 +1389,7 @@ def save_as_xml(data_dict, filepath, name):
     :param data_dict: The data to store in this file. It has to be the dict representation of the xml file
     :return:
     """
-    file = os.path.join(os.path.normpath(filepath), name.split(".")[0]+".xml")
+    file = os.path.join(os.path.normpath(filepath), name.split(".")[0] + ".xml")
     file = os.path.join(os.getcwd(), file)
     log.info("Saving file {}.".format(file))
     if isinstance(data_dict, ET.Element):
@@ -1073,7 +1399,7 @@ def save_as_xml(data_dict, filepath, name):
 
     elif isinstance(data_dict, dict):
         xml = dicttoxml(data_dict, attr_type=False)
-        dom = parseString(xml) # Pretty print style
+        dom = parseString(xml)  # Pretty print style
         with open(file, "w+") as fp:
             fp.write(dom.toprettyxml())
 
@@ -1083,4 +1409,6 @@ def save_as_xml(data_dict, filepath, name):
         with open(file, "wb") as fp:
             fp.write(dom.toprettyxml())
     else:
-        log.error("Could not save data as xml, the data type is not correct. Must be dict or json")
+        log.error(
+            "Could not save data as xml, the data type is not correct. Must be dict or json"
+        )

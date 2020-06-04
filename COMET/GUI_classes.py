@@ -17,13 +17,14 @@ from .gui.PluginWidget import PluginWidget
 from .GUI_event_loop import *
 import os, sys
 from .utilities import send_telegram_message
+
 try:
     from .misc_plugins.TelegramBotResponder import TelegramBotResponder
 except:
     pass
 
 
-QT_UI_DIR = 'QT_Designer_UI'
+QT_UI_DIR = "QT_Designer_UI"
 """Name of directory containing all plugin UI files."""
 
 
@@ -33,7 +34,7 @@ class GUI_classes(QWidget):
 
         super(GUI_classes, self).__init__()
 
-        #Intialize the QT classes
+        # Intialize the QT classes
         self.app = framework_variables["App"]
         self.log = logging.getLogger(__name__)
 
@@ -57,9 +58,11 @@ class GUI_classes(QWidget):
         self.TCP_message_function = []
         self.telBot = None
 
-        self.states = {"Measurement running": "background : rgb(50,20,200); border-radius: 5px",
-                       "IDLE": "background : rgb(50,100,100); border-radius: 5px",
-                       "DEFAULT": "background : rgb(50,200,200); border-radius: 5px"}
+        self.states = {
+            "Measurement running": "background : rgb(50,20,200); border-radius: 5px",
+            "IDLE": "background : rgb(50,100,100); border-radius: 5px",
+            "DEFAULT": "background : rgb(50,200,200); border-radius: 5px",
+        }
 
         # Config response function for the server
         if self.server:
@@ -72,13 +75,14 @@ class GUI_classes(QWidget):
             pass
 
         # Some Variables
-        self.functions = [] # Function for the framework to update
-
+        self.functions = []  # Function for the framework to update
 
         if "GUI_update_interval" not in self.default_values_dict["settings"]:
             self.default_values_dict["settings"]["GUI_update_interval"] = 200
             self.log.warning("No time_format defined, defaulting to 200")
-        self.update_interval = float(self.default_values_dict["settings"]["GUI_update_interval"])  # msec
+        self.update_interval = float(
+            self.default_values_dict["settings"]["GUI_update_interval"]
+        )  # msec
 
         self.meas_data = {}
         self.all_plugin_modules = {}
@@ -86,8 +90,8 @@ class GUI_classes(QWidget):
         self.ui_widgets = {}
         self.final_tabs = []
         self.ui_plugins = {}
-        self.plot_objs = {} # pyqtgraph plot objects
-        self.plot_objs_axis = {} # Axis, tuple for the plots (optional)
+        self.plot_objs = {}  # pyqtgraph plot objects
+        self.plot_objs_axis = {}  # Axis, tuple for the plots (optional)
 
         # Load ui plugins
         self.load_GUI_plugins()
@@ -96,57 +100,71 @@ class GUI_classes(QWidget):
         # Data type Dict for what kind of measurement (keys) values are tuple of numpy arrays (x,y)
         # Extend as you please in the config file
         if "measurement_types" in self.default_values_dict["settings"]:
-            for measurments in self.default_values_dict["settings"].get("measurement_types",[]):
+            for measurments in self.default_values_dict["settings"].get(
+                "measurement_types", []
+            ):
                 self.meas_data.update({measurments: [np.array([]), np.array([])]})
         else:
-            self.log.warning("No measurement_types specified, no data storage initiated!")
-
+            self.log.warning(
+                "No measurement_types specified, no data storage initiated!"
+            )
 
         # This is the main Tab Widget in which all other tabs are implemented
-        self.main_window = MainWindow(self.message_to_main, toolbar=self.default_values_dict["settings"].get("show_toolbar", True))
+        self.main_window = MainWindow(
+            self.message_to_main,
+            toolbar=self.default_values_dict["settings"].get("show_toolbar", True),
+        )
         if "Measurement_running" not in self.default_values_dict["settings"]:
-            self.variables.default_values_dict["settings"]["Measurement_running"] = False
+            self.variables.default_values_dict["settings"][
+                "Measurement_running"
+            ] = False
         self.add_update_function(self.update_progress_bar)
         self.add_update_function(self.update_current_state)
-
 
         # Base config for all qtgraph plots
         plot_style = QtCore.QSettings().value("plot_style")
         if plot_style == "light":
-            pq.setConfigOption('background', 'w')
-            pq.setConfigOption('foreground', 'k')
+            pq.setConfigOption("background", "w")
+            pq.setConfigOption("foreground", "k")
         if plot_style == "dark":
-            pq.setConfigOption('background', '#323232')
-            pq.setConfigOption('foreground', '#bec4ce')
+            pq.setConfigOption("background", "#323232")
+            pq.setConfigOption("foreground", "#bec4ce")
         else:
             self.log.warning("No plot style selected standard style selected...")
 
-        pq.setConfigOption('antialias', True)
-        pq.setConfigOption('crashWarning', True)
+        pq.setConfigOption("antialias", True)
+        pq.setConfigOption("crashWarning", True)
 
-
-        sleep(0.2) # That gives the threads time to initialize all values before missmatch in gui can occur
+        sleep(
+            0.2
+        )  # That gives the threads time to initialize all values before missmatch in gui can occur
 
         # Run plugins and generate a widget for every plugin
         self.construct_ui()
 
-        self.begin_rendering() # Starts the rendering process for all tabs
+        self.begin_rendering()  # Starts the rendering process for all tabs
 
         # Initialise and start the GUI_event_loop
-        self.event_loop_thread = GUI_event_loop(self, self.framework_variables, self.meas_data)
-        if not self.args.minimal: # Only do this in the non minimal version since this costs a lot of computing power
+        self.event_loop_thread = GUI_event_loop(
+            self, self.framework_variables, self.meas_data
+        )
+        if (
+            not self.args.minimal
+        ):  # Only do this in the non minimal version since this costs a lot of computing power
             self.event_loop_thread.Errsig.connect(self.main_window.errMsg.new_message)
         self.event_loop_thread.start()
 
         self.log.info("Starting GUI ... ")
         operator = self.default_values_dict["settings"].get("Current_operator", "None")
-        send_telegram_message(operator,
-                              "COMET has started and is ready!",
-                              self.default_values_dict["settings"], self.client)
-
+        send_telegram_message(
+            operator,
+            "COMET has started and is ready!",
+            self.default_values_dict["settings"],
+            self.client,
+        )
 
     def add_rendering_function(self, widget, name):
-        '''This function adds a widget for rendering in the main tab widget. Widgets must be added before begin rendering!'''
+        """This function adds a widget for rendering in the main tab widget. Widgets must be added before begin rendering!"""
         self.log.debug("Adding rendering function: %s", name)
         self.final_tabs.append((widget, name))
 
@@ -158,7 +176,7 @@ class GUI_classes(QWidget):
         return widget, layout
 
     def construct_ui(self):
-        '''This function generates all ui elements in form of tab widgets'''
+        """This function generates all ui elements in form of tab widgets"""
         for module in self.all_plugin_modules:
             self.log.debug("Constructing UI module: {!s}".format(module))
             # Create plugin widget
@@ -184,17 +202,22 @@ class GUI_classes(QWidget):
                 self.add_rendering_function(widget, module.split("_")[0])
 
             except AttributeError as err:
-                self.log.error("The Module {} for the GUI app generation could not be found. Error: {}".format(module, err), exc_info=True)
+                self.log.error(
+                    "The Module {} for the GUI app generation could not be found. Error: {}".format(
+                        module, err
+                    ),
+                    exc_info=True,
+                )
 
     def load_QtUi_file(self, filename, widget):
-        '''This function returns a qt generated Ui object.'''
+        """This function returns a qt generated Ui object."""
         package_dir = os.path.normpath(os.path.dirname(__file__))
         qtCreatorFile = os.path.join(package_dir, QT_UI_DIR, filename)
         Ui_Window, QtBaseClass = uic.loadUiType(qtCreatorFile)
         return self.add_QtUi_to_window(Ui_Window, widget)
 
     def add_QtUi_to_window(self, Qt_ui_class, widget):
-        '''This function just adds a qt generated Ui (python file needed)'''
+        """This function just adds a qt generated Ui (python file needed)"""
         UI = Qt_ui_class()
         UI.setupUi(widget)
         return UI
@@ -213,10 +236,14 @@ class GUI_classes(QWidget):
             return modules
 
         # Load all measurement functions
-        #install_directory = os.getcwd() # Obtain the install path of this module
+        # install_directory = os.getcwd() # Obtain the install path of this module
         package_dir = os.path.normpath(os.path.dirname(__file__))
-        self.ui_classes = locate_modules(os.path.join(package_dir, 'ui_plugins', '*.py'))
-        self.qt_designer_ui = locate_modules(os.path.join(package_dir, QT_UI_DIR, '*.ui'))
+        self.ui_classes = locate_modules(
+            os.path.join(package_dir, "ui_plugins", "*.py")
+        )
+        self.qt_designer_ui = locate_modules(
+            os.path.join(package_dir, QT_UI_DIR, "*.ui")
+        )
 
         self.log.debug("Located %s Ui classes:", len(self.ui_classes))
         for module in self.ui_classes:
@@ -226,15 +253,29 @@ class GUI_classes(QWidget):
             self.log.debug(module)
 
         if "GUI_render_order" in self.default_values_dict["settings"]:
-            for modules in self.default_values_dict["settings"]["GUI_render_order"]:  # import all modules from all files in the plugins folder
-                if modules+"_window" in self.ui_classes:
-                    self.all_plugin_modules.update({modules+"_window": importlib.import_module("COMET.ui_plugins." + str(modules+"_window"))})
+            for modules in self.default_values_dict["settings"][
+                "GUI_render_order"
+            ]:  # import all modules from all files in the plugins folder
+                if modules + "_window" in self.ui_classes:
+                    self.all_plugin_modules.update(
+                        {
+                            modules
+                            + "_window": importlib.import_module(
+                                "COMET.ui_plugins." + str(modules + "_window")
+                            )
+                        }
+                    )
                 else:
-                    self.log.error("The GUI element {} was specified but could not be found as resource!".format(modules+"_window"))
+                    self.log.error(
+                        "The GUI element {} was specified but could not be found as resource!".format(
+                            modules + "_window"
+                        )
+                    )
         else:
             self.log.error("No GUI_render_order defined, no GUI can be rendered!")
+
     def updateWidget(self, widget):
-        '''This function updates the QApplication'''
+        """This function updates the QApplication"""
         widget.repaint()
         self.log.debug("Updating widgets...")
 
@@ -242,22 +283,32 @@ class GUI_classes(QWidget):
 
         self.log.debug("Starting rendering main window...")
 
-        if "GUI_render_order" in self.default_values_dict["settings"]: # Renders taps in specific order
+        if (
+            "GUI_render_order" in self.default_values_dict["settings"]
+        ):  # Renders taps in specific order
             for elements in self.default_values_dict["settings"]["GUI_render_order"]:
-                for ui_obj in self.final_tabs: # Not very pretty
+                for ui_obj in self.final_tabs:  # Not very pretty
                     if elements in ui_obj:
-                        self.log.debug("Adding UI module to widget: {!s}".format(elements))
-                        self.main_window.addTab(ui_obj[0], ui_obj[1])  # elements consits of a tupel object, first is the ui object the second the name of the tab
+                        self.log.debug(
+                            "Adding UI module to widget: {!s}".format(elements)
+                        )
+                        self.main_window.addTab(
+                            ui_obj[0], ui_obj[1]
+                        )  # elements consits of a tupel object, first is the ui object the second the name of the tab
 
-        else: # If no order is implied, also renders all plugins found
+        else:  # If no order is implied, also renders all plugins found
             for ui_obj in self.final_tabs:
-                self.main_window.addTab(ui_obj[0], ui_obj[1]) #elements consits of a tupel object, first is the ui object the second the name of the tab
+                self.main_window.addTab(
+                    ui_obj[0], ui_obj[1]
+                )  # elements consits of a tupel object, first is the ui object the second the name of the tab
 
         # Show me what you goooot!!!!
         self.main_window.show()
         self.main_window.raise_()
 
-    def add_update_function(self, func): # This function adds function objects to a list which will later on be executed by updated periodically
+    def add_update_function(
+        self, func
+    ):  # This function adds function objects to a list which will later on be executed by updated periodically
         self.functions.append(func)
         self.log.debug("Added framework function: " + str(func))
 
@@ -267,17 +318,18 @@ class GUI_classes(QWidget):
     def reset_plot_data(self):
         """Simply resets all plots"""
         self.log.debug("Resetting Plots...")
-        for data in self.meas_data: # resets the plot data when new measurement is conducted
+        for (
+            data
+        ) in self.meas_data:  # resets the plot data when new measurement is conducted
             # called by e.g. the start button
             self.meas_data[data][0] = np.array([])
             self.meas_data[data][1] = np.array([])
         sleep(0.05)
         self.default_values_dict["settings"]["new_data"] = True
 
-
     # Todo: Not sure if this is the correct place ot place the server_client_thing
-    #def send_plot_data(self, measurement="all"):
-     #   """This function sends the data for a specified measurement over a socket connection
+    # def send_plot_data(self, measurement="all"):
+    #   """This function sends the data for a specified measurement over a socket connection
     #    If 'all' is stated then all data will be send."""
     #    if measurement != "all":
     #        if measurement in self.meas_data:
@@ -301,36 +353,60 @@ class GUI_classes(QWidget):
         if self.TCP_message_function:
             for obj in self.TCP_message_function:
                 try:
-                   answer = obj(action, value)
-                   if answer:
-                       return answer
+                    answer = obj(action, value)
+                    if answer:
+                        return answer
                 except Exception as err:
-                    self.log.error("An error happened while processing TCP message function {}".format(str(obj)), stack_info=True, exc_info=True)
+                    self.log.error(
+                        "An error happened while processing TCP message function {}".format(
+                            str(obj)
+                        ),
+                        stack_info=True,
+                        exc_info=True,
+                    )
         else:
-            self.log.info("Got a message via TCP, with Action: {} and Value: {}. No actions are made on this message, since" \
-                   "no function has been given to process".format(action, value))
+            self.log.info(
+                "Got a message via TCP, with Action: {} and Value: {}. No actions are made on this message, since"
+                "no function has been given to process".format(action, value)
+            )
 
     def update_progress_bar(self):
         """Updates the progress bar in the main window"""
-        self.main_window.progressBar.setValue(self.default_values_dict["settings"].get("progress", 0.0)*100)
-
+        self.main_window.progressBar.setValue(
+            self.default_values_dict["settings"].get("progress", 0.0) * 100
+        )
 
     def update_current_state(self):
         """Updates the label of the state of the program. Either IDLE or Measurement running"""
 
-        if self.main_window.StatusLabel.text() != self.default_values_dict["settings"]["State"]:
-            self.main_window.StatusLabel.setText(self.default_values_dict["settings"]["State"])
-            self.main_window.StatusLabel.setStyleSheet(self.states.get(self.default_values_dict["settings"]["State"], "DEFAULT"))
+        if (
+            self.main_window.StatusLabel.text()
+            != self.default_values_dict["settings"]["State"]
+        ):
+            self.main_window.StatusLabel.setText(
+                self.default_values_dict["settings"]["State"]
+            )
+            self.main_window.StatusLabel.setStyleSheet(
+                self.states.get(
+                    self.default_values_dict["settings"]["State"], "DEFAULT"
+                )
+            )
 
-        if self.default_values_dict["settings"]["Measurement_running"] and self.main_window.startAct.isEnabled():
+        if (
+            self.default_values_dict["settings"]["Measurement_running"]
+            and self.main_window.startAct.isEnabled()
+        ):
             self.main_window.startAct.setEnabled(False)
             self.main_window.stopAct.setEnabled(True)
-        elif not self.default_values_dict["settings"]["Measurement_running"] and self.main_window.stopAct.isEnabled():
+        elif (
+            not self.default_values_dict["settings"]["Measurement_running"]
+            and self.main_window.stopAct.isEnabled()
+        ):
             self.main_window.startAct.setEnabled(True)
             self.main_window.stopAct.setEnabled(False)
 
     def default_onStart(self):
         """What should be done on default, if tab has no onStart function defined"""
-        self.log.error("The current selected tab does not support external start signal.")
-
-
+        self.log.error(
+            "The current selected tab does not support external start signal."
+        )

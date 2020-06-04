@@ -2,35 +2,35 @@ from decimal import Decimal
 from string import digits
 
 _suffix_lookup = {
-    'y': 'e-24',
-    'z': 'e-21',
-    'a': 'e-18',
-    'f': 'e-15',
-    'p': 'e-12',
-    'n': 'e-9',
-    'u': 'e-6',
-    'm': 'e-3',
-    '': 'e0',
-    'k': 'e3',
-    'M': 'e6',
-    'G': 'e9',
-    'T': 'e12'
+    "y": "e-24",
+    "z": "e-21",
+    "a": "e-18",
+    "f": "e-15",
+    "p": "e-12",
+    "n": "e-9",
+    "u": "e-6",
+    "m": "e-3",
+    "": "e0",
+    "k": "e3",
+    "M": "e6",
+    "G": "e9",
+    "T": "e12",
 }
 
 _exponent_lookup_scaled = {
-    '-48': 'y',
-    '-45': 'z',
-    '-42': 'a',
-    '-39': 'f',
-    '-36': 'p',
-    '-33': 'n',
-    '-30': 'u',
-    '-27': 'm',
-    '-24': '',
-    '-21': 'k',
-    '-18': 'M',
-    '-15': 'G',
-    '-12': 'T'
+    "-48": "y",
+    "-45": "z",
+    "-42": "a",
+    "-39": "f",
+    "-36": "p",
+    "-33": "n",
+    "-30": "u",
+    "-27": "m",
+    "-24": "",
+    "-21": "k",
+    "-18": "M",
+    "-15": "G",
+    "-12": "T",
 }
 
 
@@ -38,21 +38,22 @@ class EngUnit:
     """
     Represents an engineering number, complete with units
     """
-    def __init__(self, value, precision = 2 ):
+
+    def __init__(self, value, precision=2):
         """
         Initialize engineering with units
         :param value:
         :param precision:
         """
-        suffix_keys = [key for key in _suffix_lookup.keys() if key != '']
+        suffix_keys = [key for key in _suffix_lookup.keys() if key != ""]
         self.unit = None
 
         if isinstance(value, str):
             # parse the string into unit and engineering number
-            new_value = ''
+            new_value = ""
             v_index = 0
             for c in value:
-                if (c in digits) or (c in ['.', '-']) or (c in suffix_keys):
+                if (c in digits) or (c in [".", "-"]) or (c in suffix_keys):
                     new_value += c
                     v_index += 1
                 else:
@@ -71,7 +72,7 @@ class EngUnit:
         Returns the object representation
         :return: a string representing the engineering number
         """
-        unit = self.unit if self.unit else ''
+        unit = self.unit if self.unit else ""
         return str(self.eng_num) + unit
 
     def __str__(self):
@@ -105,7 +106,7 @@ class EngUnit:
             other = EngUnit(str(other))
 
         if self.unit != other.unit:
-            raise AttributeError('units do not match')
+            raise AttributeError("units do not match")
 
         return EngUnit(str(self.eng_num + other.eng_num) + self.unit)
 
@@ -127,7 +128,7 @@ class EngUnit:
             other = EngUnit(str(other))
 
         if self.unit != other.unit:
-            raise AttributeError('units do not match')
+            raise AttributeError("units do not match")
 
         return EngUnit(str(self.eng_num - other.eng_num) + self.unit)
 
@@ -141,7 +142,7 @@ class EngUnit:
             other = EngUnit(str(other))
 
         if self.unit != other.unit:
-            raise AttributeError('units do not match')
+            raise AttributeError("units do not match")
 
         return EngUnit(str(other.eng_num - self.eng_num) + self.unit)
 
@@ -154,8 +155,7 @@ class EngUnit:
         if not isinstance(other, EngNumber):
             other = EngUnit(str(other))
 
-        return EngUnit(str(self.eng_num * other.eng_num)
-                       + self.unit + other.unit)
+        return EngUnit(str(self.eng_num * other.eng_num) + self.unit + other.unit)
 
     def __rmul__(self, other):
         """
@@ -174,11 +174,11 @@ class EngUnit:
         if not isinstance(other, EngNumber):
             other = EngUnit(str(other))
 
-        new_unit = ''
+        new_unit = ""
         if self.unit:
             new_unit += self.unit
         if other.unit:
-            new_unit += '/' + other.unit
+            new_unit += "/" + other.unit
 
         return EngUnit(str(self.eng_num / other.eng_num) + new_unit)
 
@@ -191,8 +191,9 @@ class EngUnit:
         if not isinstance(other, EngNumber):
             other = EngUnit(str(other))
 
-        return EngUnit(str(other.eng_num / self.eng_num)
-                       + (other.unit + '/' + self.unit))
+        return EngUnit(
+            str(other.eng_num / self.eng_num) + (other.unit + "/" + self.unit)
+        )
 
     def __lt__(self, other):
         """
@@ -204,7 +205,7 @@ class EngUnit:
             other = EngUnit(str(other))
 
         if self.unit != other.unit:
-            raise AttributeError('units do not match')
+            raise AttributeError("units do not match")
 
         return self.eng_num < other.eng_num
 
@@ -218,7 +219,7 @@ class EngUnit:
             other = EngUnit(str(other))
 
         if self.unit != other.unit:
-            raise AttributeError('units do not match')
+            raise AttributeError("units do not match")
 
         return self.eng_num > other.eng_num
 
@@ -232,7 +233,7 @@ class EngUnit:
             other = EngUnit(str(other))
 
         if self.unit != other.unit:
-            raise AttributeError('units do not match')
+            raise AttributeError("units do not match")
 
         return self.eng_num <= other.eng_num
 
@@ -246,7 +247,7 @@ class EngUnit:
             other = EngUnit(str(other))
 
         if self.unit != other.unit:
-            raise AttributeError('units do not match')
+            raise AttributeError("units do not match")
 
         return self.eng_num >= other.eng_num
 
@@ -260,7 +261,7 @@ class EngUnit:
             other = EngUnit(str(other))
 
         if self.unit != other.unit:
-            raise AttributeError('units do not match')
+            raise AttributeError("units do not match")
 
         return self.eng_num == other.eng_num
 
@@ -281,7 +282,7 @@ class EngNumber:
         self.precision = precision
 
         if isinstance(value, str):
-            suffix_keys = [key for key in _suffix_lookup.keys() if key != '']
+            suffix_keys = [key for key in _suffix_lookup.keys() if key != ""]
 
             for suffix in suffix_keys:
                 if suffix in value:
@@ -290,9 +291,11 @@ class EngNumber:
 
             self.number = Decimal(value)
 
-        elif (isinstance(value, int)
-              or isinstance(value, float)
-              or isinstance(value, EngNumber)):
+        elif (
+            isinstance(value, int)
+            or isinstance(value, float)
+            or isinstance(value, EngNumber)
+        ):
             self.number = Decimal(str(value))
 
     def to_pn(self, sub_letter=None):
@@ -303,18 +306,18 @@ class EngNumber:
         :return:
         """
         string = str(self)
-        if '.' not in string:
+        if "." not in string:
             return string
 
         # take care of the case of when there is no scaling unit
         if not string[-1].isalpha():
             if sub_letter is not None:
-                return string.replace('.', sub_letter)
+                return string.replace(".", sub_letter)
 
             return string
 
         letter = string[-1]
-        return string.replace('.', letter)[:-1]
+        return string.replace(".", letter)[:-1]
 
     def __repr__(self):
         """
@@ -324,13 +327,13 @@ class EngNumber:
         # since Decimal class only really converts number that are very small
         # into engineering notation, then we will simply make all number a
         # small number and take advantage of Decimal class
-        num_str = self.number * Decimal('10e-25')
+        num_str = self.number * Decimal("10e-25")
         num_str = num_str.to_eng_string().lower()
 
-        base, exponent = num_str.split('e')
+        base, exponent = num_str.split("e")
 
         base = str(round(Decimal(base), self.precision))
-        if '.00' in base:
+        if ".00" in base:
             base = base[:-3]
 
         return base + _exponent_lookup_scaled[exponent]

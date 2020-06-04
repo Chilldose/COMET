@@ -6,16 +6,16 @@ import logging
 import queue
 import selectors, types, json, io, sys, struct, traceback
 
-class socket_connections(threading.Thread):
 
-    def __init__(self, HOST='127.0.0.1', PORT=65432):
+class socket_connections(threading.Thread):
+    def __init__(self, HOST="127.0.0.1", PORT=65432):
         super().__init__()
         self.HOST = HOST  # Standard loopback interface address (localhost)
         self.PORT = PORT  # Port to listen on (non-privileged ports are > 1023)
         self.log = logging.getLogger(__name__)
         self.message_queue = queue.Queue()
         self.sel = selectors.DefaultSelector()
-        self.num_conns = 10 # Maximum number of simultaneous connections
+        self.num_conns = 10  # Maximum number of simultaneous connections
 
         # Connection type
         self.protocol = socket.SOCK_STREAM
@@ -24,10 +24,11 @@ class socket_connections(threading.Thread):
         # Deamon thread
         self.daemon = True
 
+
 class Client_(socket_connections):
     """Handles a Client connection"""
 
-    def __init__(self, HOST='127.0.0.1', PORT=65432):
+    def __init__(self, HOST="127.0.0.1", PORT=65432):
         super().__init__(HOST, PORT)
         self.log.info("Initialized client at {}:{}".format(self.HOST, self.PORT))
         self.request = None
@@ -36,7 +37,9 @@ class Client_(socket_connections):
         """This function creates a request and sends it to the server
         This function can be called as often as you want"""
         self.request = self.create_request(action, value)
-        return self.run() # Do not start a thread here, otherwise you will not get the output!
+        return (
+            self.run()
+        )  # Do not start a thread here, otherwise you will not get the output!
 
     def create_request(self, action, value):
         """This function creates a request """
@@ -55,14 +58,15 @@ class Client_(socket_connections):
 
     def start_connection(self, host, port, request):
         addr = (host, int(port))
-        self.log.debug("starting connection to"+str(addr))
+        self.log.debug("starting connection to" + str(addr))
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.setblocking(False)
         sock.connect_ex(addr)  # Starts the connection
         events = selectors.EVENT_READ | selectors.EVENT_WRITE
         message = MessageClient(self.sel, sock, addr, request)
-        self.sel.register(sock, events,
-                     data=message)  # Sock should be monitored for read or write actions, and message is the object to do something with it
+        self.sel.register(
+            sock, events, data=message
+        )  # Sock should be monitored for read or write actions, and message is the object to do something with it
 
     def run(self):
         if self.request:
@@ -70,12 +74,23 @@ class Client_(socket_connections):
             try:
                 while True:
                     events = self.sel.select(timeout=1)  # Select the socket
-                    for key, mask in events:  # Key, mask gives you the sockets which are ready to read/write, mask gives you which thing is ready, read or write e.g.
-                        message = key.data  # gives me my message class instance, previously passed to sel.register
+                    for (
+                        key,
+                        mask,
+                    ) in (
+                        events
+                    ):  # Key, mask gives you the sockets which are ready to read/write, mask gives you which thing is ready, read or write e.g.
+                        message = (
+                            key.data
+                        )  # gives me my message class instance, previously passed to sel.register
                         try:
                             message.process_events(mask)
                         except Exception:
-                            self.log.error("main: error: exception for }:{}".format(message.addr, traceback.format_exc()))
+                            self.log.error(
+                                "main: error: exception for }:{}".format(
+                                    message.addr, traceback.format_exc()
+                                )
+                            )
                             message.close()
                     # Check for a socket being monitored to continue.
                     if not self.sel.get_map():
@@ -83,7 +98,7 @@ class Client_(socket_connections):
             except KeyboardInterrupt:
                 self.log.critical("caught keyboard interrupt, exiting")
             finally:
-                #self.sel.close()
+                # self.sel.close()
                 self.request = None
                 try:
                     return message.response
@@ -93,16 +108,17 @@ class Client_(socket_connections):
             self.log.error("No valid request placed. No data sent!")
 
 
-
 class Server_(socket_connections):
     """Handles a Server connection"""
 
-    def __init__(self, responder_funct=None, HOST='127.0.0.1', PORT=65432):
+    def __init__(self, responder_funct=None, HOST="127.0.0.1", PORT=65432):
         """This class has a responder member, define a function which should be called if a connection is established
         with the server. This function must return a valid python object. Which is then send to the Client"""
         super().__init__(HOST, PORT)
         self.keep_running = False
-        self.responder = responder_funct # The function which should be called if a request comes in
+        self.responder = (
+            responder_funct  # The function which should be called if a request comes in
+        )
 
     def start_connection(self):
 
@@ -115,7 +131,6 @@ class Server_(socket_connections):
         lsock.listen()
         lsock.setblocking(False)
         self.sel.register(lsock, selectors.EVENT_READ, data=None)
-
 
     def get_message(self):
         """Returns one messege for the message queue if the queue is not empty. None
@@ -130,40 +145,57 @@ class Server_(socket_connections):
 
     def close_server(self):
         """Closes the server if opened"""
-        #Todo: IF the server is waiting for a connection, it does not check if it should run, it always needs one extra message to do the loop again anddo it right.
+        # Todo: IF the server is waiting for a connection, it does not check if it should run, it always needs one extra message to do the loop again anddo it right.
         self.keep_running = False
 
     def accept_wrapper(self, sock):
         conn, addr = sock.accept()  # Should be ready to read
-        self.log.debug("accepted connection from"+str(addr))
+        self.log.debug("accepted connection from" + str(addr))
         conn.setblocking(False)
-        message = MessageServer(self.sel, conn, addr, responder_funct=self.responder) # Open new Message process class
-        self.sel.register(conn, selectors.EVENT_READ, data=message) # Register the message class in the selector framework
+        message = MessageServer(
+            self.sel, conn, addr, responder_funct=self.responder
+        )  # Open new Message process class
+        self.sel.register(
+            conn, selectors.EVENT_READ, data=message
+        )  # Register the message class in the selector framework
         # Set the event as a read event, aka. 'mask'
 
     def run(self):
         self.start_connection()
         try:
-            while True: # Main loop of the server. It waits for the selector until a request comes in
+            while (
+                True
+            ):  # Main loop of the server. It waits for the selector until a request comes in
                 events = self.sel.select(timeout=None)
                 for key, mask in events:
-                    if key.data is None: # If data is not present in event, then accept the connection first.
+                    if (
+                        key.data is None
+                    ):  # If data is not present in event, then accept the connection first.
                         self.accept_wrapper(key.fileobj)
                     else:
-                        message = key.data # Get the data (aka. the Message process class)
+                        message = (
+                            key.data
+                        )  # Get the data (aka. the Message process class)
                         try:
-                            message.process_events(mask) # Execute the message process class and process the message
+                            message.process_events(
+                                mask
+                            )  # Execute the message process class and process the message
                         except Exception:
-                            self.log.error("main: error: exception for {}:{}".format(message.addr,traceback.format_exc()))
+                            self.log.error(
+                                "main: error: exception for {}:{}".format(
+                                    message.addr, traceback.format_exc()
+                                )
+                            )
                             message.close()
                     # Check for a socket being monitored to continue.
-                    #if not self.sel.get_map():
+                    # if not self.sel.get_map():
                     #    break
 
         except KeyboardInterrupt:
             self.log.critical("caught keyboard interrupt, exiting")
         finally:
             self.sel.close()
+
 
 class BaseMessage:
     """Generate a Message Class for the client/server"""
@@ -180,7 +212,9 @@ class BaseMessage:
         self.jsonheader = None
         self.response = None
         self.response_created = False
-        self.responder_funct = None # The function which respond to a request, only needed for the server
+        self.responder_funct = (
+            None  # The function which respond to a request, only needed for the server
+        )
 
         self.log = logging.getLogger(__name__)
 
@@ -213,15 +247,19 @@ class BaseMessage:
     def _write(self):
         """Checks if the send buffer contains data and sends the data over the socket"""
         if self._send_buffer:
-            self.log.debug("sending " + str(repr(self._send_buffer)) + "to" + str(self.addr))
+            self.log.debug(
+                "sending " + str(repr(self._send_buffer)) + "to" + str(self.addr)
+            )
             try:
                 # Should be ready to write
-                sent = self.sock.send(self._send_buffer) # Should return the bytes sent
+                sent = self.sock.send(self._send_buffer)  # Should return the bytes sent
             except BlockingIOError:
                 # Resource temporarily unavailable (errno EWOULDBLOCK)
                 pass
             else:
-                self._send_buffer = self._send_buffer[sent:] # Get the bytes not yet sent
+                self._send_buffer = self._send_buffer[
+                    sent:
+                ]  # Get the bytes not yet sent
                 # Close when the buffer is drained. The response has been sent.
                 if sent and not self._send_buffer:
                     self.close()
@@ -230,7 +268,9 @@ class BaseMessage:
         """Checks if the send buffer contains data and sends the data over the socket.
         Same as write, but lets the socket connection open for a read later on!"""
         if self._send_buffer:
-            self.log.debug("sending " + str(repr(self._send_buffer)) + "to" + str(self.addr))
+            self.log.debug(
+                "sending " + str(repr(self._send_buffer)) + "to" + str(self.addr)
+            )
             try:
                 # Should be ready to write
                 sent = self.sock.send(self._send_buffer)
@@ -251,9 +291,7 @@ class BaseMessage:
         tiow.close()
         return obj
 
-    def _create_message(
-        self, *_, content_bytes, content_type, content_encoding
-    ):
+    def _create_message(self, *_, content_bytes, content_type, content_encoding):
         """Creates the structure header of a message, to be send over a socket
         It contains the byte order of your system, the content type e.g. text/json
         and the content encoding e.g. utf-8 and the length of the message in byte"""
@@ -264,8 +302,12 @@ class BaseMessage:
             "content-length": len(content_bytes),
         }
         jsonheader_bytes = self._json_encode(jsonheader, "utf-8")
-        message_hdr = struct.pack(">H", len(jsonheader_bytes)) # Unsign short, for the len of the message header
-        message = message_hdr + jsonheader_bytes + content_bytes # Constructing a message encoded in bytes
+        message_hdr = struct.pack(
+            ">H", len(jsonheader_bytes)
+        )  # Unsign short, for the len of the message header
+        message = (
+            message_hdr + jsonheader_bytes + content_bytes
+        )  # Constructing a message encoded in bytes
         return message
 
     def process_events(self, mask):
@@ -277,20 +319,26 @@ class BaseMessage:
 
     def read(self):
         """Dummy read function which does nothing, needs to be overwritten by client or server function"""
-        self.log.error("You used the the standard read function which does nothing. Please overwrite!")
+        self.log.error(
+            "You used the the standard read function which does nothing. Please overwrite!"
+        )
 
     def write(self):
         """Dummy read function which does nothing, needs to be overwritten by client or server function"""
-        self.log.error("You used the the standard write function which does nothing. Please overwrite!")
+        self.log.error(
+            "You used the the standard write function which does nothing. Please overwrite!"
+        )
 
     def close(self):
         """Closes the connection to the socket by unregistering it from the selector
         so it does not listen anymore and then closes the connection on the socket"""
-        self.log.debug("closing connection to"+str(self.addr))
+        self.log.debug("closing connection to" + str(self.addr))
         try:
             self.selector.unregister(self.sock)
         except Exception as e:
-            self.log.error("error: selector.unregister() exception for".format(self.addr, e))
+            self.log.error(
+                "error: selector.unregister() exception for".format(self.addr, e)
+            )
 
         try:
             self.sock.close()
@@ -311,7 +359,9 @@ class BaseMessage:
     def process_jsonheader(self):
         """Processes the json header it needs the header length already known"""
         hdrlen = self._jsonheader_len
-        if len(self._recv_buffer) >= hdrlen: # Only process if the header is already fully there
+        if (
+            len(self._recv_buffer) >= hdrlen
+        ):  # Only process if the header is already fully there
             self.jsonheader = self._json_decode(self._recv_buffer[:hdrlen], "utf-8")
             self._recv_buffer = self._recv_buffer[hdrlen:]
             for reqhdr in (
@@ -337,13 +387,23 @@ class MessageServer(BaseMessage):
         value = self.request.get("value", None)
         if action and value:
             if self.responder_funct:
-                answer = self.responder_funct(action, value) # Pass the action and value to the responder function
-                content = {"result": answer} # Pack the response to a python dict
+                answer = self.responder_funct(
+                    action, value
+                )  # Pass the action and value to the responder function
+                content = {"result": answer}  # Pack the response to a python dict
             else:
-                self.log.error("No responder function defined for TCP/IP server... Returning empty message")
-                content = {"result": "No responder function defined for TCP/IP server... Returning empty message"}
+                self.log.error(
+                    "No responder function defined for TCP/IP server... Returning empty message"
+                )
+                content = {
+                    "result": "No responder function defined for TCP/IP server... Returning empty message"
+                }
         else:
-            content = {"result": 'Error: invalid action and or value {}, {}'.format(action, value)}
+            content = {
+                "result": "Error: invalid action and or value {}, {}".format(
+                    action, value
+                )
+            }
         content_encoding = "utf-8"
         response = {
             "content_bytes": self._json_encode(content, content_encoding),
@@ -354,8 +414,7 @@ class MessageServer(BaseMessage):
 
     def _create_response_binary_content(self):
         response = {
-            "content_bytes": b"First 10 bytes of request: "
-            + self.request[:10],
+            "content_bytes": b"First 10 bytes of request: " + self.request[:10],
             "content_type": "binary/custom-server-binary-type",
             "content_encoding": "binary",
         }
@@ -364,41 +423,58 @@ class MessageServer(BaseMessage):
     def read(self):
         self._read()
 
-        if self._jsonheader_len is None: # Process the protoheader first
+        if self._jsonheader_len is None:  # Process the protoheader first
             self.process_protoheader()
 
         if self._jsonheader_len is not None:
-            if self.jsonheader is None: # Process jsonheader
+            if self.jsonheader is None:  # Process jsonheader
                 self.process_jsonheader()
 
         if self.jsonheader:
             if self.request is None:
                 self.process_request()
 
-
     def write(self):
-        if self.request: # Check if a request was there
-            if not self.response_created: # Check if not a response was already created and sent
-                self.create_response() # Create the response
+        if self.request:  # Check if a request was there
+            if (
+                not self.response_created
+            ):  # Check if not a response was already created and sent
+                self.create_response()  # Create the response
 
         self._write()
 
     def process_request(self):
         content_len = self.jsonheader["content-length"]
-        if not len(self._recv_buffer) >= content_len: # Check if the bytes already there are the full message, otherwise wait.
+        if (
+            not len(self._recv_buffer) >= content_len
+        ):  # Check if the bytes already there are the full message, otherwise wait.
             return
-        data = self._recv_buffer[:content_len] # Only take the length it should have if some additional garbage is there
-        self._recv_buffer = self._recv_buffer[content_len:] # Leave the rest for further decoding
+        data = self._recv_buffer[
+            :content_len
+        ]  # Only take the length it should have if some additional garbage is there
+        self._recv_buffer = self._recv_buffer[
+            content_len:
+        ]  # Leave the rest for further decoding
         if self.jsonheader["content-type"] == "text/json":
             encoding = self.jsonheader["content-encoding"]
             self.request = self._json_decode(data, encoding)
-            self.log.debug('received {} request from {}'.format(self.jsonheader["content-type"], self.addr))
+            self.log.debug(
+                "received {} request from {}".format(
+                    self.jsonheader["content-type"], self.addr
+                )
+            )
         else:
             # Binary or unknown content-type
             self.request = data
-            self.log.debug('received {} request from {}'.format(self.jsonheader["content-type"], self.addr))
+            self.log.debug(
+                "received {} request from {}".format(
+                    self.jsonheader["content-type"], self.addr
+                )
+            )
         # Set selector to listen for write events, we're done reading.
-        self._set_selector_events_mask("w") # Set the selector mask to write for this event, so the answer can be send
+        self._set_selector_events_mask(
+            "w"
+        )  # Set the selector mask to write for this event, so the answer can be send
 
     def create_response(self):
         if self.jsonheader["content-type"] == "text/json":
@@ -409,6 +485,7 @@ class MessageServer(BaseMessage):
         message = self._create_message(**response)
         self.response_created = True
         self._send_buffer += message
+
 
 class MessageClient(BaseMessage):
     """Basic Message class for client messages"""
@@ -486,29 +563,40 @@ class MessageClient(BaseMessage):
     def process_response(self):
         """Processes the actual message"""
         content_len = self.jsonheader["content-length"]
-        if not len(self._recv_buffer) >= content_len: # Checks if message was recieved
+        if not len(self._recv_buffer) >= content_len:  # Checks if message was recieved
             return
-        data = self._recv_buffer[:content_len] # If garbage data is extended discard it
+        data = self._recv_buffer[:content_len]  # If garbage data is extended discard it
         self._recv_buffer = self._recv_buffer[content_len:]
         if self.jsonheader["content-type"] == "text/json":
             encoding = self.jsonheader["content-encoding"]
             self.response = self._json_decode(data, encoding)
-            self.log.debug('received {} request from {}'.format(self.jsonheader["content-type"], self.addr))
+            self.log.debug(
+                "received {} request from {}".format(
+                    self.jsonheader["content-type"], self.addr
+                )
+            )
             self._process_response_json_content()
         else:
             # Binary or unknown content-type
             self.response = data
-            self.log.debug('received {} request from {}'.format(self.jsonheader["content-type"], self.addr))
+            self.log.debug(
+                "received {} request from {}".format(
+                    self.jsonheader["content-type"], self.addr
+                )
+            )
             self._process_response_binary_content()
         # Close when response has been processed
         self.close()
 
+
 if __name__ == "__main__":
 
-    def func(a,b):
-        return "Recieved: {}, {}".format(a,b)
+    def func(a, b):
+        return "Recieved: {}, {}".format(a, b)
 
-    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
-    logging.debug('This is a log message.')
-    server = Server_(responder_funct = func)
+    logging.basicConfig(
+        level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
+    )
+    logging.debug("This is a log message.")
+    server = Server_(responder_funct=func)
     server.run()

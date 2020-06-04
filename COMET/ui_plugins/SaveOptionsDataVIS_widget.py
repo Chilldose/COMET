@@ -3,20 +3,24 @@ from PyQt5 import QtWidgets
 import os
 from PyQt5 import uic
 
+
 class SaveOptionDialog(QtWidgets.QDialog):
     """Preferences dialog for application settings."""
 
     def __init__(self, tocall, file, data, parent=None):
         super(SaveOptionDialog, self).__init__(parent)
         dialogBox, QtBaseClass = uic.loadUiType(
-            os.path.join(os.getcwd(),
-            os.path.normpath("COMET/QT_Designer_UI/DataChanged.ui")
-                         ))
+            os.path.join(
+                os.getcwd(), os.path.normpath("COMET/QT_Designer_UI/DataChanged.ui")
+            )
+        )
         self.log = logging.getLogger("ChangeDataVIS")
         self.diaologBox = dialogBox()
         self.diaologBox.setupUi(self)
         self.diaologBox.LevelComboBox.clear()
-        self.tocall = tocall # A function that should be called after the apply button was called
+        self.tocall = (
+            tocall  # A function that should be called after the apply button was called
+        )
         self.file = file
         self.data = data
 
@@ -33,4 +37,3 @@ class SaveOptionDialog(QtWidgets.QDialog):
     def onClose(self):
         """On dialog close."""
         self.close()
-

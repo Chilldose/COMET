@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #                 PyuEye example - utilities modul
 #
 # Copyright (c) 2017 by IDS Imaging Development Systems GmbH.
@@ -28,18 +28,19 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 from pyueye import ueye
 from threading import Thread
 import numpy
+
 
 def get_bits_per_pixel(color_mode):
     """
     returns the number of bits per pixel for the given color mode
     raises exception if color mode is not is not in dict
     """
-    
+
     return {
         ueye.IS_CM_SENSOR_RAW8: 8,
         ueye.IS_CM_SENSOR_RAW10: 16,
@@ -60,13 +61,14 @@ def get_bits_per_pixel(color_mode):
         ueye.IS_CM_UYVY_PACKED: 16,
         ueye.IS_CM_UYVY_MONO_PACKED: 16,
         ueye.IS_CM_UYVY_BAYER_PACKED: 16,
-        ueye.IS_CM_CBYCRY_PACKED: 16,        
-    } [color_mode]
+        ueye.IS_CM_CBYCRY_PACKED: 16,
+    }[color_mode]
 
 
 class uEyeException(Exception):
     def __init__(self, error_code):
         self.error_code = error_code
+
     def __str__(self):
         return "Err: " + str(self.error_code)
 
@@ -91,14 +93,25 @@ class MemoryInfo:
         self.img_buff = img_buff
 
         rect_aoi = ueye.IS_RECT()
-        check(ueye.is_AOI(h_cam,
-                          ueye.IS_AOI_IMAGE_GET_AOI, rect_aoi, ueye.sizeof(rect_aoi)))
+        check(
+            ueye.is_AOI(
+                h_cam, ueye.IS_AOI_IMAGE_GET_AOI, rect_aoi, ueye.sizeof(rect_aoi)
+            )
+        )
         self.width = rect_aoi.s32Width.value
         self.height = rect_aoi.s32Height.value
-        
-        check(ueye.is_InquireImageMem(h_cam,
-                                      self.img_buff.mem_ptr,
-                                      self.img_buff.mem_id, self.x, self.y, self.bits, self.pitch))
+
+        check(
+            ueye.is_InquireImageMem(
+                h_cam,
+                self.img_buff.mem_ptr,
+                self.img_buff.mem_id,
+                self.x,
+                self.y,
+                self.bits,
+                self.pitch,
+            )
+        )
 
 
 class ImageData:
@@ -108,23 +121,33 @@ class ImageData:
         self.mem_info = MemoryInfo(h_cam, img_buff)
         self.color_mode = ueye.is_SetColorMode(h_cam, ueye.IS_GET_COLOR_MODE)
         self.bits_per_pixel = get_bits_per_pixel(self.color_mode)
-        self.array = ueye.get_data(self.img_buff.mem_ptr,
-                                   self.mem_info.width,
-                                   self.mem_info.height,
-                                   self.mem_info.bits,
-                                   self.mem_info.pitch,
-                                   True)
+        self.array = ueye.get_data(
+            self.img_buff.mem_ptr,
+            self.mem_info.width,
+            self.mem_info.height,
+            self.mem_info.bits,
+            self.mem_info.pitch,
+            True,
+        )
 
-    def as_1d_image(self):        
+    def as_1d_image(self):
         channels = int((7 + self.bits_per_pixel) / 8)
         if channels > 1:
-            return numpy.reshape(self.array, (self.mem_info.height, self.mem_info.width, channels))
+            return numpy.reshape(
+                self.array, (self.mem_info.height, self.mem_info.width, channels)
+            )
         else:
-            return numpy.reshape(self.array, (self.mem_info.height, self.mem_info.width))
-
+            return numpy.reshape(
+                self.array, (self.mem_info.height, self.mem_info.width)
+            )
 
     def unlock(self):
-        check(ueye.is_UnlockSeqBuf(self.h_cam, self.img_buff.mem_id, self.img_buff.mem_ptr))
+        check(
+            ueye.is_UnlockSeqBuf(
+                self.h_cam, self.img_buff.mem_id, self.img_buff.mem_ptr
+            )
+        )
+
 
 class Rect:
     def __init__(self, x=0, y=0, width=0, height=0):
@@ -132,7 +155,6 @@ class Rect:
         self.y = y
         self.width = width
         self.height = height
-
 
 
 class FrameThread(Thread):
@@ -147,14 +169,13 @@ class FrameThread(Thread):
     def run(self):
         while self.running:
             img_buffer = ImageBuffer()
-            ret = ueye.is_WaitForNextImage(self.cam.handle(),
-                                           self.timeout,
-                                           img_buffer.mem_ptr,
-                                           img_buffer.mem_id)
+            ret = ueye.is_WaitForNextImage(
+                self.cam.handle(), self.timeout, img_buffer.mem_ptr, img_buffer.mem_id
+            )
             if ret == ueye.IS_SUCCESS:
                 self.notify(ImageData(self.cam.handle(), img_buffer))
 
-            #break
+            # break
 
     def notify(self, image_data):
         if self.views:

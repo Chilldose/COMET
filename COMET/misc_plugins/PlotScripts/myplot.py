@@ -20,13 +20,13 @@ from pathlib import Path
 from copy import deepcopy
 from time import sleep
 from warnings import filterwarnings
-filterwarnings('ignore', message='save()', category=UserWarning)
+
+filterwarnings("ignore", message="save()", category=UserWarning)
 sys.path.append(os.path.dirname(os.path.realpath(__file__)))
 
 
 class PlottingMain:
-
-    def __init__(self, configs = None):
+    def __init__(self, configs=None):
         """Configs must be a list representation of valid args!"""
 
         self.data = {}
@@ -56,10 +56,11 @@ class PlottingMain:
         hv.extension(self.backend)
         self.log.info("Plotting backend is {}".format(self.backend))
 
-
         self.log.critical("Loading data files...")
         self.data, load_order = read_in_files(self.config["Files"], self.config)
-        self.config["file_order"] = load_order  # To keep easy track of the names and not the pathes
+        self.config[
+            "file_order"
+        ] = load_order  # To keep easy track of the names and not the pathes
 
         self.log.critical("Loading data files completed.")
 
@@ -83,7 +84,16 @@ class PlottingMain:
                 # All plot scripts must return the plot objects, in which all plots are included. Saving of plots will
                 # be done via the main script.
                 # config_data = [(analysis, analysis_obj, deepcopy(self.data), self.config.copy(), self.log) for analysis, analysis_obj in self.plugins.items()]
-                config_data = [(analysis, analysis_obj, deepcopy(self.data), self.config.copy(), self.log) for analysis, analysis_obj in self.plugins.items()]
+                config_data = [
+                    (
+                        analysis,
+                        analysis_obj,
+                        deepcopy(self.data),
+                        self.config.copy(),
+                        self.log,
+                    )
+                    for analysis, analysis_obj in self.plugins.items()
+                ]
                 self.plotObjects = []
                 for conf in config_data:
                     self.plotObjects.append(self.start_analysis(*conf))
@@ -94,13 +104,17 @@ class PlottingMain:
     def temp_png_output(self, plot_object, backend=None):
         """This function plots a object, by saving the plot as png file in a temporary file and returning the path
         to the file"""
-        save_plot("temp_plot", plot_object, self.rootdir, save_as=["png"], backend=backend)
+        save_plot(
+            "temp_plot", plot_object, self.rootdir, save_as=["png"], backend=backend
+        )
         return os.path.join(self.rootdir, "png", "temp_plot.png")
 
     def temp_html_output(self, plot_object, backend=None):
         """This function plots a object, by saving the plot as html file in a temporary file and returning the path
         to the file"""
-        save_plot("temp_plot", plot_object, self.rootdir, save_as=["html"], backend=backend)
+        save_plot(
+            "temp_plot", plot_object, self.rootdir, save_as=["html"], backend=backend
+        )
         return os.path.join(self.rootdir, "html", "temp_plot.html")
 
     def show_results(self):
@@ -111,9 +125,9 @@ class PlottingMain:
                     renderer = hv.renderer(self.backend)
                     renderer.show(plot["All"])
                 if self.backend == "bokeh":
-                    finalfig = hv.render(plot["All"], backend='bokeh')
+                    finalfig = hv.render(plot["All"], backend="bokeh")
                     show(finalfig)
-                sleep(1.)
+                sleep(1.0)
             else:
                 self.log.info("No 'all' plot defined, skipping...")
 
@@ -125,10 +139,15 @@ class PlottingMain:
         try:
             os.mkdir(save_dir)
         except:
-            self.log.warning("The directory: {} already exists, files inside can/will be overwritten!".format(save_dir))
+            self.log.warning(
+                "The directory: {} already exists, files inside can/will be overwritten!".format(
+                    save_dir
+                )
+            )
 
         self.log.info("Saving data...")
         from forge.tools import save_data
+
         save_data(self, self.config.get("Save_as", []), save_dir, to_call=to_call)
 
         # check if any plot should be saved
@@ -157,7 +176,9 @@ class PlottingMain:
                         progress_steps += len(plotslist_tuple)
                         for path in plotslist_tuple:
                             if progress_queue:
-                                progress_queue.put({"PROGRESS": saved/(progress_steps + 1)})
+                                progress_queue.put(
+                                    {"PROGRESS": saved / (progress_steps + 1)}
+                                )
                             plots = Allplots
                             for attr in path:
                                 plots = getattr(plots, attr)
@@ -166,31 +187,56 @@ class PlottingMain:
                             except:
                                 label = plots._label
 
-                            save_plot(label, plots, save_dir, save_as=self.config.get("Save_as", ["png"]), backend=backend)
+                            save_plot(
+                                label,
+                                plots,
+                                save_dir,
+                                save_as=self.config.get("Save_as", ["png"]),
+                                backend=backend,
+                            )
                             saved += 1
                     except:
-                        save_plot(Allplots.group, Allplots, save_dir, save_as=self.config.get("Save_as", ["png"]), backend=backend)
+                        save_plot(
+                            Allplots.group,
+                            Allplots,
+                            save_dir,
+                            save_as=self.config.get("Save_as", ["png"]),
+                            backend=backend,
+                        )
                         saved += 1
 
                 else:
-                    self.log.info("Saving all subplots from the 'All' not possible due to missing key...")
+                    self.log.info(
+                        "Saving all subplots from the 'All' not possible due to missing key..."
+                    )
                     self.log.info("Saving all plots across the dictionary instead...")
                     progress_steps = len(plot.items())
                     for key, subplot in plot.items():
                         if progress_queue:
-                            progress_queue.put({"progress": saved/(progress_steps + 1)})
+                            progress_queue.put(
+                                {"progress": saved / (progress_steps + 1)}
+                            )
                         save_plot(key, subplot, save_dir, backend=backend)
                         saved += 1
                 try:
-                    if "html" in self.config.get("Save_as", []) or "png" in self.config.get("Save_as", []):
+                    if "html" in self.config.get(
+                        "Save_as", []
+                    ) or "png" in self.config.get("Save_as", []):
                         self.log.info("Export the 'All' plot...")
-                        save_plot(plot.get("Name", "All Plots"), plot["All"], save_dir, backend=self.backend)
+                        save_plot(
+                            plot.get("Name", "All Plots"),
+                            plot["All"],
+                            save_dir,
+                            backend=self.backend,
+                        )
                         if progress_queue:
                             progress_queue.put({"PROGRESS": 1})
                     else:
                         progress_queue.put({"PROGRESS": 1})
                 except:
-                    self.log.warning("'All plots' could not be saved....", exc_info=True)
+                    self.log.warning(
+                        "'All plots' could not be saved....", exc_info=True
+                    )
 
         else:
             self.log.error("The path: {} does not exist...".format(save_dir))
@@ -209,15 +255,24 @@ class PlottingMain:
             try:
                 exc_info = sys.exc_info()
             except Exception as err2:
-                log.error("A really bad error happened in analysis process {}! "
-                               "System exception info could not be obtained correctly. "
-                               "The thing I have is the exception itself: {}"
-                               ", and the error while obtaining the stack trace: {}".format(analysis, err, err2))
+                log.error(
+                    "A really bad error happened in analysis process {}! "
+                    "System exception info could not be obtained correctly. "
+                    "The thing I have is the exception itself: {}"
+                    ", and the error while obtaining the stack trace: {}".format(
+                        analysis, err, err2
+                    )
+                )
             finally:
-                log.error("An error happened during execution of analysis process: {} with error {}\n"
-                                "Traceback: {}".format(analysis, err, traceback.print_exception(*exc_info)))
+                log.error(
+                    "An error happened during execution of analysis process: {} with error {}\n"
+                    "Traceback: {}".format(
+                        analysis, err, traceback.print_exception(*exc_info)
+                    )
+                )
                 del exc_info
                 raise
+
 
 if __name__ == "__main__":
     plot = PlottingMain()

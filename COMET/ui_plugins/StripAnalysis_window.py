@@ -16,36 +16,44 @@ from ..utilities import change_axis_ticks, show_cursor_position, raise_exception
 
 l = logging.getLogger(__name__)
 
-class StripAnalysis_window:
 
+class StripAnalysis_window:
     def __init__(self, GUI, layout):
 
         self.variables = GUI
         self.layout = layout
         self.analysis = stripanalysis(GUI)
-                                # Label: X-Axis, Y-Axis, Logx, Logy, InvertY
-        self.measurement_dict = {"Idark": (["Strip", "#"], ["Current", "A"], [False, False], True),
-                                 "Idiel": (["Strip", "#"], ["Current", "A"], [False, False], True),
-                                 "Istrip": (["Strip", "#"], ["Current", "A"], [False, False], True),
-                                 "Rpoly": (["Strip", "#"], ["Resistance", "Ohm"], [False, False], False),
-                                 "Rint": (["Strip", "#"], ["Resistance", "Ohm"], [False, False], False),
-                                 "Cac": (["Strip", "#"], ["Capacitance", "F"], [False, False], False),
-                                 "Cint": (["Strip", "#"], ["Capacitance", "F"], [False, False], False),
-                                 "Cback": (["Strip", "#"], ["Capacitance", "F"], [False, False], False),
-                                 "Humidity": (["Strip", "#"], ["Humidity", "relH"], [False, False], False),
-                                 "Temperature": (["Strip", "#"], ["Termperature", "C"], [False, False], False)
-                                 }
+        # Label: X-Axis, Y-Axis, Logx, Logy, InvertY
+        self.measurement_dict = {
+            "Idark": (["Strip", "#"], ["Current", "A"], [False, False], True),
+            "Idiel": (["Strip", "#"], ["Current", "A"], [False, False], True),
+            "Istrip": (["Strip", "#"], ["Current", "A"], [False, False], True),
+            "Rpoly": (["Strip", "#"], ["Resistance", "Ohm"], [False, False], False),
+            "Rint": (["Strip", "#"], ["Resistance", "Ohm"], [False, False], False),
+            "Cac": (["Strip", "#"], ["Capacitance", "F"], [False, False], False),
+            "Cint": (["Strip", "#"], ["Capacitance", "F"], [False, False], False),
+            "Cback": (["Strip", "#"], ["Capacitance", "F"], [False, False], False),
+            "Humidity": (["Strip", "#"], ["Humidity", "relH"], [False, False], False),
+            "Temperature": (
+                ["Strip", "#"],
+                ["Termperature", "C"],
+                [False, False],
+                False,
+            ),
+        }
 
-        #self.plot_data = {"QTC":{"data": {"ab": 2}},
+        # self.plot_data = {"QTC":{"data": {"ab": 2}},
         #                  "QTC2": {"data": {"ab": 2, "c": 2, "b": 2}}} # should be a tree structure of dictionaries containig all data loaded, this must be the object from the bad strip detection!!!
         self.plot_data = self.analysis.all_data
-        self.output_directory = self.variables.default_values_dict["Badstrip"].get("output_folder", str(os.getcwd()))
+        self.output_directory = self.variables.default_values_dict["Badstrip"].get(
+            "output_folder", str(os.getcwd())
+        )
         self.bins = 100
         self.setpg = pq
         self.ticksStyle = {"pixelsize": 10}
-        self.labelStyle = {'color': '#FFF', 'font-size': '24px'}
-        self.titleStyle = {'color': '#FFF', 'size': '15pt'}
-        #self.pdf_viewbox = self.setpg.ViewBox()
+        self.labelStyle = {"color": "#FFF", "font-size": "24px"}
+        self.titleStyle = {"color": "#FFF", "size": "15pt"}
+        # self.pdf_viewbox = self.setpg.ViewBox()
 
         # Badstrip detection tab
         badstrip = QWidget()
@@ -71,62 +79,79 @@ class StripAnalysis_window:
         self.badstrip.which_plot.activated[str].connect(self.update_analysis_plots)
         self.badstrip.Slider_bins.valueChanged.connect(self.update_bins)
         self.badstrip.which_measurement.activated[str].connect(self.update_plot)
-        #self.badstrip.cb_Save_results.clicked.connect(self.export_action)
-        #self.badstrip.cb_Save_plots.clicked.connect(self.export_action)
+        # self.badstrip.cb_Save_results.clicked.connect(self.export_action)
+        # self.badstrip.cb_Save_plots.clicked.connect(self.export_action)
         self.badstrip.analyse_button.clicked.connect(self.analyse_action)
-        #self.badstrip.save_plots_button.clicked.connect(self.export_plots)
-
+        # self.badstrip.save_plots_button.clicked.connect(self.export_plots)
 
     def update_specs_bars(self, data_label, data):
         """Adds specs bars for the absolute values and median +- values"""
         # Add a ViewBox below with two rectangles
         vb = self.badstrip.strip_plot
-        ax = vb.getAxis('bottom').range
-        ay = vb.getAxis('left').range
+        ax = vb.getAxis("bottom").range
+        ay = vb.getAxis("left").range
 
         settings = self.variables.default_values_dict["Badstrip"]
         median = np.median(data[np.logical_not(np.isnan(data))])
 
-
-
         if self.measurement_dict[data_label][3]:
             # If y axis is flipped
             # Absolute values cut
-            r1 = self.setpg.QtGui.QGraphicsRectItem(ax[0], float(settings[data_label][1][1]),
-                                                    abs(ax[0]-ax[1]), # width
-                                            -abs(float(settings[data_label][1][1])-float(settings[data_label][1][0])))
+            r1 = self.setpg.QtGui.QGraphicsRectItem(
+                ax[0],
+                float(settings[data_label][1][1]),
+                abs(ax[0] - ax[1]),  # width
+                -abs(
+                    float(settings[data_label][1][1])
+                    - float(settings[data_label][1][0])
+                ),
+            )
             # Median +- box
-            r2 = self.setpg.QtGui.QGraphicsRectItem(ax[0], median * (1 - float(settings[data_label][2]) / 100),
-                                                    abs(ax[0] - ax[1]),
-                                                    -abs(median * (1 - float(settings[data_label][2]) / 100)-
-                                                        median * (1 + float(settings[data_label][2]) / 100)))
+            r2 = self.setpg.QtGui.QGraphicsRectItem(
+                ax[0],
+                median * (1 - float(settings[data_label][2]) / 100),
+                abs(ax[0] - ax[1]),
+                -abs(
+                    median * (1 - float(settings[data_label][2]) / 100)
+                    - median * (1 + float(settings[data_label][2]) / 100)
+                ),
+            )
         else:
             # If y axis is NOT flipped
-            r1 = self.setpg.QtGui.QGraphicsRectItem(ax[0], float(settings[data_label][1][0]),
-                                                    abs(ax[0] - ax[1]),  # width
-                                                    abs(float(settings[data_label][1][1]) - float(
-                                                        settings[data_label][1][0])))
+            r1 = self.setpg.QtGui.QGraphicsRectItem(
+                ax[0],
+                float(settings[data_label][1][0]),
+                abs(ax[0] - ax[1]),  # width
+                abs(
+                    float(settings[data_label][1][1])
+                    - float(settings[data_label][1][0])
+                ),
+            )
             # Median +- box
-            r2 = self.setpg.QtGui.QGraphicsRectItem(ax[0], median * (1 + float(settings[data_label][2]) / 100),
-                                                    abs(ax[0] - ax[1]),
-                                                    -abs(median * (1 - float(settings[data_label][2]) / 100) -
-                                                        median * (1 + float(settings[data_label][2]) / 100)))
+            r2 = self.setpg.QtGui.QGraphicsRectItem(
+                ax[0],
+                median * (1 + float(settings[data_label][2]) / 100),
+                abs(ax[0] - ax[1]),
+                -abs(
+                    median * (1 - float(settings[data_label][2]) / 100)
+                    - median * (1 + float(settings[data_label][2]) / 100)
+                ),
+            )
         r1.setPen(self.setpg.mkPen(None))
         r1.setOpacity(0.2)
-        r1.setBrush(self.setpg.mkBrush('g'))
+        r1.setBrush(self.setpg.mkBrush("g"))
         vb.addItem(r1)
 
         r2.setPen(self.setpg.mkPen(None))
         r2.setOpacity(0.2)
-        r2.setBrush(self.setpg.mkBrush('y'))
+        r2.setBrush(self.setpg.mkBrush("y"))
         vb.addItem(r2)
 
         # Make the ViewBox flat
-        #vb.setMaximumHeight(70)
+        # vb.setMaximumHeight(70)
 
         # Force x-axis to match the plot above
         vb.setXLink(vb)
-
 
     def analyse_action(self):
         """This starts the analysis of the loaded measurements"""
@@ -137,11 +162,13 @@ class StripAnalysis_window:
             self.update_plot(measurement)
             self.update_results_text()
 
-
     def export_action(self):
-        self.variables.default_values_dict["Badstrip"]["export_results"] = self.badstrip.cb_Save_results.isChecked()
-        self.variables.default_values_dict["Badstrip"]["export_plot"] = self.badstrip.cb_Save_plots.isChecked()
-
+        self.variables.default_values_dict["Badstrip"][
+            "export_results"
+        ] = self.badstrip.cb_Save_results.isChecked()
+        self.variables.default_values_dict["Badstrip"][
+            "export_plot"
+        ] = self.badstrip.cb_Save_plots.isChecked()
 
     def update_results_text(self):
         """Updates the result text for a measurement"""
@@ -149,12 +176,13 @@ class StripAnalysis_window:
         # Get selected measurement
         measurement = self.badstrip.which_plot.currentText()
         if "Analysis_conclusion" in self.analysis.all_data[measurement]:
-            self.badstrip.report_label.setText(self.analysis.all_data[measurement]["Analysis_conclusion"])
-            #self.badstrip.radioData.setChecked(True)
+            self.badstrip.report_label.setText(
+                self.analysis.all_data[measurement]["Analysis_conclusion"]
+            )
+            # self.badstrip.radioData.setChecked(True)
         else:
             self.badstrip.report_label.setText("")
-            #self.badstrip.radioData.setChecked(False)
-
+            # self.badstrip.radioData.setChecked(False)
 
     def update_stats(self):
         """Updates the text of the loaded files and such shit"""
@@ -163,8 +191,8 @@ class StripAnalysis_window:
         for keys in self.plot_data.keys():
             meas += str(keys) + ","
 
-        #self.badstrip.cb_Save_plots.setChecked(self.variables.default_values_dict["Badstrip"]["export_plot"])
-        #self.badstrip.cb_Save_results.setChecked(self.variables.default_values_dict["Badstrip"]["export_results"])
+        # self.badstrip.cb_Save_plots.setChecked(self.variables.default_values_dict["Badstrip"]["export_plot"])
+        # self.badstrip.cb_Save_results.setChecked(self.variables.default_values_dict["Badstrip"]["export_results"])
 
     def update_meas_selector(self):
         """This function updates the combo box selectors for the measurements"""
@@ -183,11 +211,16 @@ class StripAnalysis_window:
         # Then add all new ones
         try:
             # Get the current selected measurement
-            self.badstrip.which_measurement.addItems(self.plot_data[current_item]["measurements"][1:])
+            self.badstrip.which_measurement.addItems(
+                self.plot_data[current_item]["measurements"][1:]
+            )
             self.update_plot(self.badstrip.which_measurement.currentText())
             self.update_results_text()
         except Exception as e:
-            l.error("An error occured while accessing data from the bad strip detection: " + str(e))
+            l.error(
+                "An error occured while accessing data from the bad strip detection: "
+                + str(e)
+            )
 
     def update_bins(self):
         """Updates the bins for the histogram"""
@@ -196,15 +229,21 @@ class StripAnalysis_window:
         self.update_plot(measurement)
 
     def plot_config(self):
-        '''This function configurates the strip plot'''
-        self.badstrip.strip_plot.setTitle("Strip results on: No measurement selected", **self.titleStyle)
-        self.badstrip.strip_plot.setLabel('left', "current", units='A', **self.labelStyle)
-        self.badstrip.strip_plot.setLabel('bottom', "voltage", units='V', **self.labelStyle)
-        self.badstrip.strip_plot.showAxis('top', show=True)
-        self.badstrip.strip_plot.showAxis('right', show=True)
+        """This function configurates the strip plot"""
+        self.badstrip.strip_plot.setTitle(
+            "Strip results on: No measurement selected", **self.titleStyle
+        )
+        self.badstrip.strip_plot.setLabel(
+            "left", "current", units="A", **self.labelStyle
+        )
+        self.badstrip.strip_plot.setLabel(
+            "bottom", "voltage", units="V", **self.labelStyle
+        )
+        self.badstrip.strip_plot.showAxis("top", show=True)
+        self.badstrip.strip_plot.showAxis("right", show=True)
         self.badstrip.strip_plot.plotItem.showGrid(x=True, y=True)
 
-        #self.badstrip.badstrip_plot.plotItem.setLogMode(False, True)
+        # self.badstrip.badstrip_plot.plotItem.setLogMode(False, True)
         # Force x-axis to be always auto-scaled
         self.badstrip.strip_plot.setMouseEnabled(x=False)
         self.badstrip.strip_plot.enableAutoRange(x=True)
@@ -213,45 +252,75 @@ class StripAnalysis_window:
         # Add tooltip functionality
         self.tooltip = show_cursor_position(self.badstrip.strip_plot)
 
-        self.badstrip.strip_plot_histogram.setTitle("Histogram results on: No measurement selected", **self.titleStyle)
-        self.badstrip.strip_plot_histogram.setLabel('left', "count", units='#', **self.labelStyle)
-        self.badstrip.strip_plot_histogram.setLabel('bottom', "current", units='A', **self.labelStyle)
-        self.badstrip.strip_plot_histogram.showAxis('top', show=True)
-        self.badstrip.strip_plot_histogram.showAxis('right', show=True)
+        self.badstrip.strip_plot_histogram.setTitle(
+            "Histogram results on: No measurement selected", **self.titleStyle
+        )
+        self.badstrip.strip_plot_histogram.setLabel(
+            "left", "count", units="#", **self.labelStyle
+        )
+        self.badstrip.strip_plot_histogram.setLabel(
+            "bottom", "current", units="A", **self.labelStyle
+        )
+        self.badstrip.strip_plot_histogram.showAxis("top", show=True)
+        self.badstrip.strip_plot_histogram.showAxis("right", show=True)
         self.badstrip.strip_plot_histogram.plotItem.showGrid(x=True, y=True)
 
         # For second plot item on histogram plot (the pdf of the gauss)
-        #plot = self.badstrip.strip_plot_histogram.plotItem
-        #plot.scene().addItem(self.pdf_viewbox)  # inserts the second plot into the scene of the first
-        #self.pdf_viewbox.setGeometry(plot.vb.sceneBoundingRect())
-        #plot.getAxis('right').linkToView(self.pdf_viewbox)  # links the second y axis to the second plot
-        #self.pdf_viewbox.setXLink(plot)  # sync the x axis of both plots
+        # plot = self.badstrip.strip_plot_histogram.plotItem
+        # plot.scene().addItem(self.pdf_viewbox)  # inserts the second plot into the scene of the first
+        # self.pdf_viewbox.setGeometry(plot.vb.sceneBoundingRect())
+        # plot.getAxis('right').linkToView(self.pdf_viewbox)  # links the second y axis to the second plot
+        # self.pdf_viewbox.setXLink(plot)  # sync the x axis of both plots
 
-        change_axis_ticks(self.badstrip.strip_plot,self.ticksStyle)
-        change_axis_ticks(self.badstrip.strip_plot_histogram,self.ticksStyle)
-
+        change_axis_ticks(self.badstrip.strip_plot, self.ticksStyle)
+        change_axis_ticks(self.badstrip.strip_plot_histogram, self.ticksStyle)
 
     def reconfig_plot(self, Title, plot_settings):
-        '''Reconfigs the plot for the different plots
+        """Reconfigs the plot for the different plots
         :param - Title must be string, containing the name of the plot (title)
         :param - plot_settings must be a tuple consisting elements like it is in the config defined
                         "Idark": (["Strip", "#"], ["Current", "A"], [False, False], True)
-        '''
-        self.badstrip.strip_plot.setTitle("Strip results on: " + str(Title), **self.titleStyle)
-        self.badstrip.strip_plot.setLabel('bottom', str(plot_settings[0][0]), units=str(plot_settings[0][1]), **self.labelStyle)
-        self.badstrip.strip_plot.setLabel('left', str(plot_settings[1][0]), units=str(plot_settings[1][1]), **self.labelStyle)
-        self.badstrip.strip_plot.plotItem.setLogMode(x=plot_settings[2][0], y=plot_settings[2][1])
+        """
+        self.badstrip.strip_plot.setTitle(
+            "Strip results on: " + str(Title), **self.titleStyle
+        )
+        self.badstrip.strip_plot.setLabel(
+            "bottom",
+            str(plot_settings[0][0]),
+            units=str(plot_settings[0][1]),
+            **self.labelStyle
+        )
+        self.badstrip.strip_plot.setLabel(
+            "left",
+            str(plot_settings[1][0]),
+            units=str(plot_settings[1][1]),
+            **self.labelStyle
+        )
+        self.badstrip.strip_plot.plotItem.setLogMode(
+            x=plot_settings[2][0], y=plot_settings[2][1]
+        )
         self.badstrip.strip_plot.getPlotItem().invertY(plot_settings[3])
 
-        self.badstrip.strip_plot_histogram.setTitle("Histogram results on: " + str(Title), **self.titleStyle)
-        self.badstrip.strip_plot_histogram.setLabel('left', "Count", units="#", **self.labelStyle)
-        self.badstrip.strip_plot_histogram.setLabel('bottom', str(plot_settings[1][0]), units=str(plot_settings[1][1]), **self.labelStyle)
-        self.badstrip.strip_plot_histogram.plotItem.setLogMode(x=plot_settings[2][0], y=plot_settings[2][1])
+        self.badstrip.strip_plot_histogram.setTitle(
+            "Histogram results on: " + str(Title), **self.titleStyle
+        )
+        self.badstrip.strip_plot_histogram.setLabel(
+            "left", "Count", units="#", **self.labelStyle
+        )
+        self.badstrip.strip_plot_histogram.setLabel(
+            "bottom",
+            str(plot_settings[1][0]),
+            units=str(plot_settings[1][1]),
+            **self.labelStyle
+        )
+        self.badstrip.strip_plot_histogram.plotItem.setLogMode(
+            x=plot_settings[2][0], y=plot_settings[2][1]
+        )
         self.badstrip.strip_plot_histogram.getPlotItem().invertX(plot_settings[3])
-        #self.pdf_viewbox.invertX(plot_settings[3])
+        # self.pdf_viewbox.invertX(plot_settings[3])
 
     def update_plot(self, measurement_name):
-        '''This handles the update of the plot'''
+        """This handles the update of the plot"""
         # This clear here erases all data from the viewbox each time this function is called and draws all points again!
         # Without this old plot data will still be visible and redrawn again! High memory usage and cpu usage
         # With the clear statement medium cpu und low memory usage
@@ -259,23 +328,46 @@ class StripAnalysis_window:
         if measurement:
             ydata = self.plot_data[measurement]["data"][measurement_name]
             xdata = np.arange(len(self.plot_data[measurement]["data"]["Strip"]))
-            self.reconfig_plot(measurement_name, self.measurement_dict.get(measurement_name, (["X-Axis", "arb. units"], ["Y-Axis", "arb. units"], [False, False], False),))
-            if ydata.any(): # Checks if data is available or if all is empty
-                if len(xdata) == len(ydata):  # sometimes it happens that the values are not yet ready (fucking multithreading)
+            self.reconfig_plot(
+                measurement_name,
+                self.measurement_dict.get(
+                    measurement_name,
+                    (
+                        ["X-Axis", "arb. units"],
+                        ["Y-Axis", "arb. units"],
+                        [False, False],
+                        False,
+                    ),
+                ),
+            )
+            if ydata.any():  # Checks if data is available or if all is empty
+                if len(xdata) == len(
+                    ydata
+                ):  # sometimes it happens that the values are not yet ready (fucking multithreading)
 
                     # Make the normal line Plot
-                    self.badstrip.strip_plot.plot(xdata, ydata, pen="r", clear=True, width=8, connect="finite")
+                    self.badstrip.strip_plot.plot(
+                        xdata, ydata, pen="r", clear=True, width=8, connect="finite"
+                    )
 
                     # Make the histogram of the data
                     # y, x = np.histogram(np.array(ydata), bins=int(self.bins))
                     yout, ind = self.analysis.remove_outliner(ydata)
                     x, y = self.analysis.do_histogram(yout, self.bins)
-                    self.badstrip.strip_plot_histogram.plot(x, y, stepMode=True, fillLevel=0, brush=(0, 0, 255, 80), clear=True, connect="finite")
+                    self.badstrip.strip_plot_histogram.plot(
+                        x,
+                        y,
+                        stepMode=True,
+                        fillLevel=0,
+                        brush=(0, 0, 255, 80),
+                        clear=True,
+                        connect="finite",
+                    )
 
                     try:
                         self.update_specs_bars(measurement_name, ydata)
                     except KeyError:
-                        pass # Error if no errorbars are specified for this particular measurement
+                        pass  # Error if no errorbars are specified for this particular measurement
 
                     if self.plot_data[measurement]["analysed"] and False:
                         # Todo: plot the lms piecewise here as well
@@ -285,11 +377,13 @@ class StripAnalysis_window:
                         # containst first and last point for the slope y = kx+d
                         k = float(anadata["lms_fit"][measurement_name][0])
                         d = float(anadata["lms_fit"][measurement_name][1])
-                        lmsdata = [[0, len(xdata)],[d, k*len(xdata)+d]]
+                        lmsdata = [[0, len(xdata)], [d, k * len(xdata) + d]]
                         self.badstrip.strip_plot.plot(lmsdata[0], lmsdata[1], pen="g")
 
                         # Update report text
-                        self.badstrip.report_label.setText(anadata["report"][measurement_name])
+                        self.badstrip.report_label.setText(
+                            anadata["report"][measurement_name]
+                        )
 
             self.badstrip.strip_plot.enableAutoRange(y=True)
             self.tooltip = show_cursor_position(self.badstrip.strip_plot)
@@ -301,7 +395,6 @@ class StripAnalysis_window:
         fileDialog.setFileMode(QFileDialog.ExistingFiles)
         file = fileDialog.getOpenFileNames()
         return file
-
 
     def load_measurement_action(self):
         """Loading measurement files, not analysed"""
@@ -333,7 +426,9 @@ class StripAnalysis_window:
 
         old_measurement = self.badstrip.which_measurement.currentText()
         old_plot = self.badstrip.which_plot.currentText()
-        for meas in self.plot_data[old_plot]["data"].keys(): # Loop over all possible plots
+        for meas in self.plot_data[old_plot][
+            "data"
+        ].keys():  # Loop over all possible plots
             if meas != "Strip":
                 plot, hist = self.update_plot(meas)
                 win = pg.GraphicsLayoutWidget()
@@ -342,6 +437,6 @@ class StripAnalysis_window:
                     plt.addItem(pl.plotItem)
                 exporter = pg.exporters.ImageExporter(win.scene())
                 # set export parameters if needed
-                exporter.params['width'] = 1000
+                exporter.params["width"] = 1000
                 # save to file
-                exporter.export('fileName.png')
+                exporter.export("fileName.png")

@@ -2,8 +2,8 @@ import logging
 from PyQt5.QtWidgets import QWidget
 from ..utilities import build_command
 
-class DeviceCommunication_window:
 
+class DeviceCommunication_window:
     def __init__(self, GUI, layout):
 
         self.variables = GUI
@@ -15,13 +15,13 @@ class DeviceCommunication_window:
 
         # Device communication widget
         self.ComWidget = QWidget()
-        self.gui = self.variables.load_QtUi_file("DeviceCommunication.ui",  self.ComWidget)
+        self.gui = self.variables.load_QtUi_file(
+            "DeviceCommunication.ui", self.ComWidget
+        )
         self.layout.addWidget(self.ComWidget)
-
 
         # Add all devices to the dropdown menu
         self.gui.device_comboBox.addItems(self.variables.devices_dict.keys())
-
 
         # Connect all gui elements
         self.gui.device_comboBox.activated[str].connect(self.change_device_action)
@@ -30,10 +30,12 @@ class DeviceCommunication_window:
         self.gui.send_Button.clicked.connect(self.write_action)
         self.gui.connect_Button.clicked.connect(self.connect_to)
         self.gui.list_all_Button.clicked.connect(self.list_all_action)
-        #self.gui.disconnect_Button.clicked.connect(self.write_action)
+        # self.gui.disconnect_Button.clicked.connect(self.write_action)
 
         try:
-            self.currentDevice = self.variables.devices_dict[self.gui.device_comboBox.currentText()]
+            self.currentDevice = self.variables.devices_dict[
+                self.gui.device_comboBox.currentText()
+            ]
             self.get_device_commands()
         except:
             self.log.warning("It seems no devices are connected...")
@@ -50,13 +52,20 @@ class DeviceCommunication_window:
         try:
             new_device = self.variables.vcw.rm.open_resource(device)
             if new_device:
-                self.session_connections[device] = {"Visa_Resource": new_device, "Device_name": device}
+                self.session_connections[device] = {
+                    "Visa_Resource": new_device,
+                    "Device_name": device,
+                }
                 self.gui.device_comboBox.addItem(device)
                 self.currentDevice = new_device
                 self.gui.device_comboBox.setCurrentIndex(-1)
         except:
-            self.log.error("Could not connect to device {}, this device may be already used by the framework or is not"
-                           " correctly configured. This happens especially with ASRL device types".format(device))
+            self.log.error(
+                "Could not connect to device {}, this device may be already used by the framework or is not"
+                " correctly configured. This happens especially with ASRL device types".format(
+                    device
+                )
+            )
 
     def change_device_action(self, device):
         """What happens when a new device is selected in the drop down menu"""
@@ -76,7 +85,7 @@ class DeviceCommunication_window:
 
     def query_action(self):
         """What to do when the query button is pressed"""
-        #self.gui.response_label.setText("")
+        # self.gui.response_label.setText("")
         message = self.get_message()
         count = int(self.gui.spinBox.value())
         total_message = ""
@@ -84,7 +93,9 @@ class DeviceCommunication_window:
             count = 1
         try:
             for i in range(count):
-                resp = self.variables.vcw.query(self.currentDevice, message, reconnect=False)
+                resp = self.variables.vcw.query(
+                    self.currentDevice, message, reconnect=False
+                )
                 currenttext = self.gui.response_label.text()
                 self.gui.response_label.setText(currenttext + resp)
                 total_message += "\n" + resp
@@ -94,7 +105,7 @@ class DeviceCommunication_window:
 
     def read_action(self):
         """What to do when the read button is pressed"""
-        #self.gui.response_label.setText("")
+        # self.gui.response_label.setText("")
         try:
             resp = self.variables.vcw.read(self.currentDevice)
             currenttext = self.gui.response_label.text()
@@ -109,8 +120,13 @@ class DeviceCommunication_window:
         if lineedit:
             return lineedit
         else:
-            command = build_command(self.currentDevice, (self.gui.commands_comboBox.currentText(),
-                                                         self.gui.value_lineEdit.text()))
+            command = build_command(
+                self.currentDevice,
+                (
+                    self.gui.commands_comboBox.currentText(),
+                    self.gui.value_lineEdit.text(),
+                ),
+            )
             return command
 
     def get_device_commands(self):
@@ -120,4 +136,3 @@ class DeviceCommunication_window:
         for comm in sorted(commands):
             if "set_" in comm or "get_" in comm:
                 self.gui.commands_comboBox.addItem(comm)
-

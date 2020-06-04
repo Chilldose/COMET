@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #                 PyuEye example - main modul
 #
 # Copyright (c) 2017 by IDS Imaging Development Systems GmbH.
@@ -28,7 +28,7 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 from pyueye_example_camera import Camera
 from pyueye_example_utils import FrameThread
@@ -37,39 +37,43 @@ from PyQt5 import QtGui
 
 from pyueye import ueye
 
-#import cv2
+# import cv2
 import numpy as np
+
 
 def process_image(image_data):
 
     # reshape the image data as 1dimensional array
-    image = image_data.as_1d_image()    
+    image = image_data.as_1d_image()
     # make a gray image
     image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    #image = cv2.medianBlur(image,5)
+    # image = cv2.medianBlur(image,5)
     # find circles in the image
     circles = cv2.HoughCircles(image, cv2.cv.CV_HOUGH_GRADIENT, 1.2, 100)
     # make a color image again to mark the circles in green
     image = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
-    
+
     if circles is not None:
         # convert the (x, y) coordinates and radius of the circles to integers
-	    circles = np.round(circles[0, :]).astype("int")
+        circles = np.round(circles[0, :]).astype("int")
         # loop over the (x, y) coordinates and radius of the circles
-	    for (x, y, r) in circles:
+        for (x, y, r) in circles:
             # draw the circle in the output image, then draw a rectangle
-	        # corresponding to the center of the circle
-		    cv2.circle(image, (x, y), r, (0, 255, 0), 6)
-    
+            # corresponding to the center of the circle
+            cv2.circle(image, (x, y), r, (0, 255, 0), 6)
+
     # show the image with Qt
-    return QtGui.QImage(image.data,
-                        image_data.mem_info.width,
-                        image_data.mem_info.height,
-                        QtGui.QImage.Format_RGB888)
+    return QtGui.QImage(
+        image.data,
+        image_data.mem_info.width,
+        image_data.mem_info.height,
+        QtGui.QImage.Format_RGB888,
+    )
+
 
 def main():
 
-    # we need a QApplication, that runs our QT Gui Framework    
+    # we need a QApplication, that runs our QT Gui Framework
     app = PyuEyeQtApp()
 
     # a basic qt window
@@ -81,7 +85,7 @@ def main():
     cam = Camera()
     cam.init()
     cam.set_colormode(ueye.IS_CM_BGR8_PACKED)
-    cam.set_aoi(0,0, 1280, 1024)
+    cam.set_aoi(0, 0, 1280, 1024)
     cam.alloc()
     cam.capture_video()
 
@@ -99,6 +103,6 @@ def main():
     cam.stop_video()
     cam.exit()
 
+
 if __name__ == "__main__":
     main()
-

@@ -1,15 +1,17 @@
 """This class responds to Telegram messages. Send by a Client"""
 import re
-#import pyqtgraph.exporters #This does not work currently
+
+# import pyqtgraph.exporters #This does not work currently
 import os
 import importlib
+
 try:
     from .PyqtgraphExporter import PQG_ImageExporter
 except:
     pass
 
-class TelegramBotResponder:
 
+class TelegramBotResponder:
     def __init__(self, parent_class):
         """
         :param parent_class: the GUI class
@@ -18,11 +20,10 @@ class TelegramBotResponder:
         self.main = parent_class
         self.answer = ""
         self.RPI_modules = False
-        self.current_light = None # The current light config
-        self.function_helps = {} # The help text of all available functions
+        self.current_light = None  # The current light config
+        self.function_helps = {}  # The help text of all available functions
         self.load_plugins()
         self.settings = self.main.framework_variables["Configs"]["config"]["settings"]
-
 
     def run(self, action, value):
         """
@@ -31,15 +32,21 @@ class TelegramBotResponder:
         :return: str response
         """
         if action == "TelegramBot":
-            self.answer = "" # The final answer
+            self.answer = ""  # The final answer
             try:
                 for func in self.function_helps:
                     getattr(self, func)(value, self)
                 if not self.answer:
                     self.answer = "Command not supported by COMET, please give a valid command. Type 'Help' for all commands."
             except Exception as err:
-                self.main.log.critical("Could not understand query {} from TCP Client. Errorcode: {}".format(value, err))
-                return "Could not understand query {} from TCP Client. Errorcode: {}".format(value, err)
+                self.main.log.critical(
+                    "Could not understand query {} from TCP Client. Errorcode: {}".format(
+                        value, err
+                    )
+                )
+                return "Could not understand query {} from TCP Client. Errorcode: {}".format(
+                    value, err
+                )
             return self.answer
         else:
             return None
@@ -57,14 +64,23 @@ class TelegramBotResponder:
                     pass
 
         # Load the other plugins make them a member and add the doc string
-        if "TelegramResponderPlugins" in self.main.framework_variables["Configs"]["config"]["settings"]:
-            for plugin in self.main.framework_variables["Configs"]["config"]["settings"]["TelegramResponderPlugins"]:
+        if (
+            "TelegramResponderPlugins"
+            in self.main.framework_variables["Configs"]["config"]["settings"]
+        ):
+            for plugin in self.main.framework_variables["Configs"]["config"][
+                "settings"
+            ]["TelegramResponderPlugins"]:
                 try:
-                    module = importlib.import_module("COMET.misc_plugins.TelegramResponderPlugins.{}".format(plugin))
+                    module = importlib.import_module(
+                        "COMET.misc_plugins.TelegramResponderPlugins.{}".format(plugin)
+                    )
                     for members in dir(module):
                         if "do_" in members:
                             setattr(self, members, getattr(module, members))
-                            self.function_helps[members] = getattr(self, members).__doc__
+                            self.function_helps[members] = getattr(
+                                self, members
+                            ).__doc__
                 except:
                     pass
 
@@ -83,11 +99,15 @@ class TelegramBotResponder:
                 keyboard = {}
                 arrangement = []
                 for plots in self.main.meas_data.keys():
-                    keyboard[plots] = 'Plot {}'.format(plots)
+                    keyboard[plots] = "Plot {}".format(plots)
                     arrangement.append([plots])
-                self.answer = {"CALLBACK": {"info": "Choose a plot you want to see:",
-                                                         "keyboard": keyboard,
-                                                         "arrangement": arrangement}}
+                self.answer = {
+                    "CALLBACK": {
+                        "info": "Choose a plot you want to see:",
+                        "keyboard": keyboard,
+                        "arrangement": arrangement,
+                    }
+                }
 
     def do_send_plot(self, value, *args):
         """Plot <xyz> - Plots you a certain plot"""
@@ -98,7 +118,9 @@ class TelegramBotResponder:
             if plot:
                 if plot[0] in self.main.meas_data.keys():
                     plt_data = self.main.meas_data[plot[0]]
-                    exporter = self.main.default_values_dict['settings'].get('Telegram_exporter', 'matplotlib')
+                    exporter = self.main.default_values_dict["settings"].get(
+                        "Telegram_exporter", "matplotlib"
+                    )
 
                     # Matplotlib exporter
                     if exporter == "matplotlib":
@@ -109,38 +131,59 @@ class TelegramBotResponder:
                             import datetime as dt
 
                             # Try to get the x and y axis
-                            axis = self.main.plot_objs_axis.get(plot[0], ("X-Axis", "Y-Axis"))
+                            axis = self.main.plot_objs_axis.get(
+                                plot[0], ("X-Axis", "Y-Axis")
+                            )
                             date = [dt.datetime.fromtimestamp(ts) for ts in plt_data[0]]
                             fig, ax = plt.subplots()
                             ax.plot(date, plt_data[1])
-                            ax.set(xlabel=axis[0], ylabel=axis[1],
-                                   title=plot[0])
+                            ax.set(xlabel=axis[0], ylabel=axis[1], title=plot[0])
                             ax.grid()
 
                             time = True if "time" in axis[0] else False
                             if time and plt_data[0].any():
                                 # matplotlib date format object
-                                hfmt = dates.DateFormatter('%d/%m %H:%M')
+                                hfmt = dates.DateFormatter("%d/%m %H:%M")
                                 ax.xaxis.set_major_formatter(hfmt)
                                 plt.xticks(rotation=25)
 
                             # save to file
-                            filepath = os.path.join(os.path.dirname(__file__), "__temp__")
-                            if os.mkdir(filepath) if not os.path.isdir(filepath) else True:
+                            filepath = os.path.join(
+                                os.path.dirname(__file__), "__temp__"
+                            )
+                            if (
+                                os.mkdir(filepath)
+                                if not os.path.isdir(filepath)
+                                else True
+                            ):
                                 for file in os.listdir(filepath):
                                     os.remove(os.path.join(filepath, file))
-                            fig.savefig(os.path.join(filepath, '{}_plot.png'.format(plot[0])))
-                            self.answer = {"PLOT": str(os.path.join(filepath, '{}_plot.png'.format(plot[0])))}
+                            fig.savefig(
+                                os.path.join(filepath, "{}_plot.png".format(plot[0]))
+                            )
+                            self.answer = {
+                                "PLOT": str(
+                                    os.path.join(
+                                        filepath, "{}_plot.png".format(plot[0])
+                                    )
+                                )
+                            }
 
                         except ImportError:
-                            self.main.log.error("It seem matplotlib is not installed, no plotting can be done.")
+                            self.main.log.error(
+                                "It seem matplotlib is not installed, no plotting can be done."
+                            )
                             self.answer = "It seem matplotlib is not installed, no plotting can be done."
                         except Exception as err:
-                            self.main.log.error("An error occured while plotting: Error {}".format(err))
-                            self.answer = "An error occured while plotting: Error {}".format(err)
+                            self.main.log.error(
+                                "An error occured while plotting: Error {}".format(err)
+                            )
+                            self.answer = "An error occured while plotting: Error {}".format(
+                                err
+                            )
 
                     elif exporter == "pyqtgraph":
-                        #PYqtexporter
+                        # PYqtexporter
                         try:
                             plt = self.main.plot_objs[plot[0]]
                             plt = plt.plotItem
@@ -148,24 +191,48 @@ class TelegramBotResponder:
                             pass
 
                         try:
-                            #exporter = pg.exporters.ImageExporter(plt) # Original exporter but he has a bug. --> Selfwritten one from stackoverflow
-                            exporter = PQG_ImageExporter(plt) # This may fail
+                            # exporter = pg.exporters.ImageExporter(plt) # Original exporter but he has a bug. --> Selfwritten one from stackoverflow
+                            exporter = PQG_ImageExporter(plt)  # This may fail
                             # set export parameters if needed
-                            exporter.parameters()['width'] = 1920  # (note this also affects height parameter)
+                            exporter.parameters()[
+                                "width"
+                            ] = 1920  # (note this also affects height parameter)
                             # save to file
-                            filepath = os.path.join(os.path.dirname(__file__), "__temp__")
-                            if os.mkdir(filepath) if not os.path.isdir(filepath) else True:
-                                for file in  os.listdir(filepath):
+                            filepath = os.path.join(
+                                os.path.dirname(__file__), "__temp__"
+                            )
+                            if (
+                                os.mkdir(filepath)
+                                if not os.path.isdir(filepath)
+                                else True
+                            ):
+                                for file in os.listdir(filepath):
                                     os.remove(os.path.join(filepath, file))
-                                exporter.export(os.path.join(filepath, '{}_plot.jpg'.format(plot[0])))
-                                self.answer = {"PLOT": str(os.path.join(filepath, '{}_plot.jpg'.format(plot[0])))}
+                                exporter.export(
+                                    os.path.join(
+                                        filepath, "{}_plot.jpg".format(plot[0])
+                                    )
+                                )
+                                self.answer = {
+                                    "PLOT": str(
+                                        os.path.join(
+                                            filepath, "{}_plot.jpg".format(plot[0])
+                                        )
+                                    )
+                                }
 
                         except Exception as err:
-                            self.main.log.error("Export of png for plot {} did not work. Error: {}".format(plot[0], err))
+                            self.main.log.error(
+                                "Export of png for plot {} did not work. Error: {}".format(
+                                    plot[0], err
+                                )
+                            )
                 else:
-                    self.answer += "The plot '{}' is not a possible plot. Type: 'Plots?' to see valid plots.".format(val)
+                    self.answer += "The plot '{}' is not a possible plot. Type: 'Plots?' to see valid plots.".format(
+                        val
+                    )
 
-    def do_give_help(self,value, *args):
+    def do_give_help(self, value, *args):
         """Help - Gives you a list of all commands"""
         for val in value.values():
             if re.findall(r"Help\b", val) or re.findall(r"help\b", val):
@@ -178,12 +245,14 @@ class TelegramBotResponder:
             if re.findall(r"Error\b", val) or re.findall(r"errors\b", val):
                 errors = self.main.event_loop_thread.error_log
                 num = val.split()
-                if len(num)>1:
-                    for error in errors[-int(num[-1]):]:
+                if len(num) > 1:
+                    for error in errors[-int(num[-1]) :]:
                         self.answer += ":\n ".join(error) + "\n\n"
                 else:
-                    self.answer += "The event log printer must be called with a number! Like 'Error 5'. This will give " \
-                                   "you the last 5 entries in the event log."
+                    self.answer += (
+                        "The event log printer must be called with a number! Like 'Error 5'. This will give "
+                        "you the last 5 entries in the event log."
+                    )
 
     def do_respond_to_PING(self, value, *args):
         """ping - Just returns success"""
@@ -208,9 +277,12 @@ class TelegramBotResponder:
                     fetch_out = o.fetch()
                     pull_out = o.pull()
                     self.answer = "Code successfully updated!"
-                except: self.answer = "Could not pull from remote repo. No update done. \n" \
-                                      "FETCH MESSAGE: {} \n" \
-                                      "PULL MESSAGE: {} \n".format(fetch_out, pull_out)
+                except:
+                    self.answer = (
+                        "Could not pull from remote repo. No update done. \n"
+                        "FETCH MESSAGE: {} \n"
+                        "PULL MESSAGE: {} \n".format(fetch_out, pull_out)
+                    )
 
     def do_update_settings_from_repo(self, value, *args):
         """Update settings - Tries to update the settings. This only works if you have a assigned repo in the configs dir."""
@@ -232,9 +304,9 @@ class TelegramBotResponder:
                     fetch_out = o.fetch()
                     pull_out = o.pull()
                     self.answer = "Code successfully updated!"
-                except: self.answer = "Could not pull from remote repo. No update done. \n" \
-                                      "FETCH MESSAGE: {} \n" \
-                                      "PULL MESSAGE: {} \n".format(fetch_out, pull_out)
-
-
-
+                except:
+                    self.answer = (
+                        "Could not pull from remote repo. No update done. \n"
+                        "FETCH MESSAGE: {} \n"
+                        "PULL MESSAGE: {} \n".format(fetch_out, pull_out)
+                    )
