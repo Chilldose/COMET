@@ -153,9 +153,13 @@ class Environement_widget(object):
                 elif hum < self.Env_Widget.min_hum_spin.value():
                     self.Env_Widget.humidity_bar.setValue(self.Env_Widget.min_hum_spin.value())
 
-                # Very approyximate Dew point calc
-                dew = temp-(100-hum)/5
-                self.Env_Widget.dew_point_lcd.display(dew)
+                if not "dew_point" in self.variables.meas_data:
+                    # Very approyximate Dew point calc
+                    dew = temp-(100-hum)/5
+                    self.Env_Widget.dew_point_lcd.display(dew)
+                else:
+                    dew = self.variables.meas_data["dew_point"][1][-1]
+                    self.Env_Widget.dew_point_lcd.display(dew)
 
             self.temphum_plot.clear()  # clears the plot and prevents a memory leak
             self.hum_plot_obj.clear()
