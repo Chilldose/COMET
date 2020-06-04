@@ -31,7 +31,6 @@
   # These options are entirely up to you and what you need in your analysis
   
   # Converts all arrays to their absolute
-  override_data: True
   abs_value_only: False
   override_data: True
   

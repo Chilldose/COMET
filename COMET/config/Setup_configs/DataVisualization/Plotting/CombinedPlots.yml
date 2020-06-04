@@ -18,8 +18,7 @@
                       minor_ygrid_line_color: lightgray
                       xgrid_line_dash: [4, 4]
                       ygrid_line_dash: [10, 4]
-                  shared_axes: False # If the axes should be shared with other plots, usually it is False
-                  #xformatter: None
+            #xformatter: None
                   #yformatter: None
                   fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
                   responsive: False
