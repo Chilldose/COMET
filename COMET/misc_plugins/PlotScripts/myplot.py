@@ -131,6 +131,16 @@ class PlottingMain:
         from forge.tools import save_data
         save_data(self, self.config.get("Save_as", []), save_dir, to_call=to_call)
 
+        # check if any plot should be saved
+        anyplot = False
+        for ploti in ["png", "html", "svg"]:
+            if ploti in self.config.get("Save_as", []):
+                anyplot = True
+
+        if not anyplot:
+            self.log.info("No plot type specified for saving...")
+            return
+
         self.log.critical("Saving plots...")
         progress_steps = 0
         saved = 0

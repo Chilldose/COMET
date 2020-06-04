@@ -162,7 +162,6 @@ def save_plot(name, subplot, save_dir, save_as=("default"), backend="bokeh"):
         os.mkdir(save_dir)
     path = os.path.normpath(save_dir)
 
-
     # Generate the figure
     if "default" in save_as:
         stdformat = "html" if backend == "bokeh" else "png"
@@ -174,31 +173,32 @@ def save_plot(name, subplot, save_dir, save_as=("default"), backend="bokeh"):
 
     # Save the figure
     for save_format in save_as:
-        try:
-            log.info("Saving plot {} as {} to {}".format(name, save_format, path))
-            if save_format.lower() == "html":
-                save_dir = os.path.join(path, "html")
-                if not os.path.exists(save_dir):
-                    os.mkdir(save_dir)
-                hv.save(subplot.opts(toolbar='above'), os.path.join(save_dir,name)+".html", backend=backend)
-                subplot.opts(toolbar='disable')
+        if save_format in ["png", "html", "svg"]:
+            try:
+                log.info("Saving plot {} as {} to {}".format(name, save_format, path))
+                if save_format.lower() == "html":
+                    save_dir = os.path.join(path, "html")
+                    if not os.path.exists(save_dir):
+                        os.mkdir(save_dir)
+                    hv.save(subplot.opts(toolbar='above'), os.path.join(save_dir,name)+".html", backend=backend)
+                    subplot.opts(toolbar='disable')
 
-            elif save_format.lower() == "png":
-                save_dir = os.path.join(path, "png")
-                if not os.path.exists(save_dir):
-                    os.mkdir(save_dir)
-                hv.save(subplot, os.path.join(save_dir,name)+".png", backend=backend)
-            elif save_format.lower() == "svg":
-                save_dir = os.path.join(path, "svg")
-                if not os.path.exists(save_dir):
-                    os.mkdir(save_dir)
-                hv.save(subplot, os.path.join(save_dir,name)+".svg", backend=backend)
-            else:
-                log.debug("Saving format {} for plot save not recognised.".format(save_format))
+                elif save_format.lower() == "png":
+                    save_dir = os.path.join(path, "png")
+                    if not os.path.exists(save_dir):
+                        os.mkdir(save_dir)
+                    hv.save(subplot, os.path.join(save_dir,name)+".png", backend=backend)
+                elif save_format.lower() == "svg":
+                    save_dir = os.path.join(path, "svg")
+                    if not os.path.exists(save_dir):
+                        os.mkdir(save_dir)
+                    hv.save(subplot, os.path.join(save_dir,name)+".svg", backend=backend)
+                else:
+                    log.debug("Saving format {} for plot save not recognised.".format(save_format))
 
 
-        except Exception as err:
-            log.warning("Exporting plot {} was not possible. Error: {}".format(name, err))
+            except Exception as err:
+                log.warning("Exporting plot {} was not possible. Error: {}".format(name, err))
 
 
 def twiny(plot, element):
@@ -854,12 +854,14 @@ def save_dict_as_xml(data, filepath, name, xml_template_dict):
 
 def save_data(plotting_Object, types, dirr, base_name="data", to_call=None):
         """Saves the data in the specified type"""
-        try:
-            os.mkdir(os.path.join(os.path.normpath(dirr), "data"))
-        except:
-            pass
+
         check_if_data_changed(plotting_Object, to_call=to_call)  # Check if data has changed during analysis
         for typ in types:
+            if typ in ["json", "hdf5", "xml"]:
+                try:
+                    os.mkdir(os.path.join(os.path.normpath(dirr), "data"))
+                except:
+                    pass
             if typ == "json":
                 # JSON serialize
                 log.info("Saving JSON file...")
