@@ -89,7 +89,7 @@ class QTCTESTSYSTEM_class(tools):
         self.V0 = self.main.framework['Configs']['config']['settings'].get("V0", None)
         self.justlength = 24
         self.current_voltage = self.main.framework['Configs']['config']['settings'].get("bias_voltage", 0)
-        self.cal_to = {"Cac": 1000, "Cac_beta": 1000, "Cint": 1000000, "Cint_beta": 1000000} # Hz
+        self.cal_to = {"Cac": 1000, "Cint": 1000000, "CV": 1000} # Hz
         self.open_corrections = {}
         self.progress = 0
 
@@ -142,10 +142,6 @@ class QTCTESTSYSTEM_class(tools):
             }
         }
 
-        # Add measurements to the framework
-        #self.main.measurement_data.update(self.data["Empty"])
-        #self.main.measurement_data.update(self.data["TestCard"])
-
         # Vars for testsystem and GUI
         self.main.framework['Configs']['config']['settings']["QTC_test"] = {}
         self.main.framework['Configs']['config']['settings']["QTC_test"]['proceed'] = False
@@ -169,9 +165,6 @@ class QTCTESTSYSTEM_class(tools):
             self.validalignment = True
 
         self.log = logging.getLogger(__name__)
-
-        #
-
         self.main.queue_to_main.put({"INFO": "Initialization of Setup test finished."})
 
 
@@ -180,6 +173,7 @@ class QTCTESTSYSTEM_class(tools):
 
         # Do device empty tests - Do switching uncontacted and do self.samples measurements
         if not self.testmode:
+            self.perform_open_correction(self.LCR_meter, self.cal_to, count=50)
             self.empty_measurements()
 
             # Do the probe card measurements - Contact the probe card and measurer the KIT resistors and capacitors
@@ -197,6 +191,8 @@ class QTCTESTSYSTEM_class(tools):
         # DO loop
         self.main.framework['Configs']['config']['settings']["QTC_test"]['branch'] = "Empty"
         for j, meas in enumerate(list(self.data["Empty"].keys())):
+
+            # Get the necessary data
             self.main.framework['Configs']['config']['settings']["QTC_test"]['overallprogress'] = j / len(
                 list(self.data["Empty"].keys()))
             self.main.framework['Configs']['config']['settings']["QTC_test"]['currenttest'] = meas
@@ -204,11 +200,48 @@ class QTCTESTSYSTEM_class(tools):
             self.switching.switch_to_measurement(self.data["Switching"][idx][1])
             command = self.main.build_command(self.data["Switching"][idx][2], "get_read")
 
-            # If output can be switched on turn it on
+            # Check if not the IVempty measurement######################################################################
+            if meas == "IVempty":
+
+                set_voltage_0 = self.main.build_command(self.data["Switching"][idx][2], ("set_voltage", "0"))
+                self.vcw.write(self.data["Switching"][idx][2], set_voltage_0)
+
+                outputon = self.main.build_command(self.data["Switching"][idx][2], ("set_output", "1"))
+                self.vcw.write(self.data["Switching"][idx][2], outputon)
+
+                # Ramping up
+                for i in range(0, -1020, -20):
+                    set_voltage = self.main.build_command(self.data["Switching"][idx][2], ("set_voltage", "{}".format(i)))
+                    self.vcw.write(self.data["Switching"][idx][2], set_voltage)
+                    sleep(0.1)
+                    values = []
+                    for k in range(self.subsamples):  # takes samples
+                        val = self.vcw.query(self.data["Switching"][idx][2], command)
+                        values.append(float(val.split(",")[0].split()[0]))
+                    value = np.mean(values)
+                    self.data["Empty"][meas][i] = value
+
+                # Ramping down
+                for i in range(-1000, 20, 20):
+                    set_voltage = self.main.build_command(self.data["Switching"][idx][2], ("set_voltage", "{}".format(i)))
+                    self.vcw.write(self.data["Switching"][idx][2], set_voltage)
+
+                # Return to normal
+                self.vcw.write(self.data["Switching"][idx][2], set_voltage_0)
+                outputoff = self.main.build_command(self.data["Switching"][idx][2], ("set_output", "0"))
+                self.vcw.write(self.data["Switching"][idx][2], outputoff)
+
+                continue
+            ############################################################################################################
+
+
+
+            # If output can be switched on, turn it on
             if "set_output" in self.data["Switching"][idx][2]:
                 outputon = self.main.build_command(self.data["Switching"][idx][2], ("set_output", "1"))
                 self.vcw.write(self.data["Switching"][idx][2], outputon)
 
+            # Perform the measurements
             for i in range(self.samples):
                 self.main.framework['Configs']['config']['settings']["QTC_test"]['partialprogress'] = i / self.samples
                 values = []
@@ -219,7 +252,7 @@ class QTCTESTSYSTEM_class(tools):
                 self.data["Empty"][meas][i] = value
                 force_plot_update(self.main.framework['Configs']['config']['settings'])
 
-            # If output can be switched on turn it on
+            # If output can be switched off, turn it off
             if "set_output" in self.data["Switching"][idx][2]:
                 outputoff = self.main.build_command(self.data["Switching"][idx][2], ("set_output", "0"))
                 self.vcw.write(self.data["Switching"][idx][2], outputoff)
@@ -287,6 +320,22 @@ class QTCTESTSYSTEM_class(tools):
             filecontent += "\n"
 
         #self.main.write(self.main.measurement_files["SQC_test"], header+filecontent)
+
+    def perform_open_correction(self, LCR, measurements, count=15):
+        read_command = self.main.build_command(LCR, "get_read")
+        for meas, freq in measurements.items():
+            data = []
+            self.main.queue_to_main.put({"INFO": "LCR open calibration on {} path...".format(meas)})
+            if not self.switching.switch_to_measurement(meas):
+                self.stop_everything()
+                return
+            self.change_value(LCR, "set_frequency", freq)
+            sleep(0.2)
+            for i in range(count):
+                data.append(self.vcw.query(LCR, read_command).split(LCR.get("separator", ","))[0])
+            self.open_corrections[meas] = np.mean(np.array(data, dtype=float), dtype=float)
+        self.switching.switch_to_measurement("IV")
+        self.main.queue_to_main.put({"INFO": "LCR open calibration finished!"})
 
     def stop_everything(self):
         """Stops the measurement
