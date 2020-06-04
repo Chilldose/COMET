@@ -270,7 +270,7 @@ class IV_PQC:
 
         # Add a table that show the results of the analysis
         if len(diode_files) == 1:
-            self.PlotDict["BasePlots_diode"] += fdestimation[0]
+            self.PlotDict["BasePlots_diode"] += fdestimation[0].opts(show_grid=True, yformatter="%.1e", ylabel= "C/A (F/cm^2)", xlabel= "voltage (V)")
             # Add trial plots
             #self.PlotDict["BasePlots_diode"] += capacity_curve
             ##self.PlotDict["BasePlots_diode"] += derivative_onec2_curve * deronec2_savgol_plot
@@ -528,7 +528,6 @@ class IV_PQC:
         :param **addConfigs: the configs special for the 1/C2 plot, it is recommended to pass the same options here again, like in the original plot!
         :return: The updated plot
         """
-        #global Right_stats, fit_stats
         self.log.info("Searching for flat band voltage in all files...")
         sample = deepcopy(data[df])
 
@@ -621,7 +620,7 @@ class IV_PQC:
         # If more than one file do not do the derivates plots
         if not len(mos_files) == 1:
             returnPlot = plot
-            returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
+            returnPlot = customize_plot(returnPlot, "", configs["IV_PQC"], **addConfigs)
             return returnPlot, flatband_voltage[0], Accum_capacitance_table, Accum_capacitance_normalized_table, Tox_table, Nox_table
 
         elif len(mos_files) == 1:
@@ -635,7 +634,7 @@ class IV_PQC:
             right_line = hv.Curve(right_line).opts(color='blue',line_width=1.0)
             fit_line = hv.Curve(fit_line).opts(color='red', line_width=1.5)
             returnPlot = plot * right_line * fit_line * secondDerivativePlot * vline
-            returnPlot = customize_plot(returnPlot, "1C2", configs["IV_PQC"], **addConfigs)
+            returnPlot = customize_plot(returnPlot, "", configs["IV_PQC"], **addConfigs)
             returnplot2 = plot * fit_line * right_line * vline * text
             return returnPlot, flatband_voltage[0], Accum_capacitance_table, Accum_capacitance_normalized_table, Tox_table, Nox_table, returnplot2
 
