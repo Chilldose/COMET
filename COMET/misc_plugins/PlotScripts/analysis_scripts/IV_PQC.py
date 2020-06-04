@@ -74,7 +74,6 @@ class IV_PQC:
         self.PlotDict["BasePlots_gate"] = []
 
         for df in self.data["keys"]:
-
             # Start the cv_mos analysis
             if self.data[df]['header'][1][0:6] == "CV_MOS": #check analysis type
                 self.PlotDict["BasePlots_MOS"] = self.analysis_mos(df)
@@ -91,17 +90,8 @@ class IV_PQC:
 
         return self.PlotDict
 
-    def file_order(self, data):
-        # Do the analysis of the CV_MOS files as the first one, otherwise the analysis crashes.
-        i = 0
-        while data[list(data.keys())[0]]['header'][1][0:6] == 'IV_GCD' or data[list(data.keys())[0]]['header'][1][0:8] == 'CV_Diode':
-            data[list(data.keys())[0] + str(i)] = data[list(data.keys())[0]] # Duplicate the file and store it in the last element of the list
-            del data[list(data.keys())[0]] # Delete previous position of the file in the list
-            i += 1
-
-        return data
-
     def analysis_mos(self, df):
+        #Add or remove necessary or not necessary columns to the data-frame
         if "derivative2" not in self.data["columns"]:
             self.data["columns"].insert(3, "derivative2")
         if "Capacity" not in self.data["columns"]:
@@ -124,7 +114,6 @@ class IV_PQC:
             pass
 
         mos_files.append(df)  # Append data-frame to a list containing all the cv mos files that you want to analyze.
-
         # Double check that the voltage values have increasing order.
         if 'Voltage' in self.data[df]['data'] and self.data[df]["data"]["Voltage"][0] > 0: # If the first element is positive signifies that the voltage values have been stored in decreasing order
             self.data[df]["data"]["Voltage"] = list(reversed(self.data[df]["data"]["Voltage"]))  # If voltage values have decreasing order, reverse them.
@@ -194,7 +183,7 @@ class IV_PQC:
         return self.PlotDict["BasePlots_MOS"]
 
     def analysis_diode(self, df):
-
+        # Add or remove necessary or not necessary columns to the data-frame
         if "1C2" not in self.data["columns"]:
             self.data["columns"].insert(3, "1C2")
             self.data["columns"].insert(4, "derivative1C2")
@@ -214,7 +203,6 @@ class IV_PQC:
             self.data["columns"].remove("firstderivative_gate")
         except Exception:
             pass
-
 
         diode_files.append(df)  # Append to a list containing all the diode files
         self.data[df]["data"]["Voltage"] = list(map(abs, self.data[df]["data"]["Voltage"]))  # take absolute value of Voltage
@@ -290,7 +278,7 @@ class IV_PQC:
         return self.PlotDict["BasePlots_diode"]
 
     def analysis_gate(self, df):
-
+        # Add or remove necessary or not necessary columns to the data-frame
         if "firstderivative_gate" not in self.data["columns"]:
             self.data["columns"].insert(10, "firstderivative_gate")
         try:
@@ -319,7 +307,6 @@ class IV_PQC:
             pass
 
         gate_files.append(df)  # append to a list containing all the gate diode files
-
         # Remove initial kink from the data
         start_value = np.mean(self.data[df]['data']['Current'][10:20])
         CurrentCopy = self.data[df]["data"]["Current"].copy()
@@ -731,3 +718,13 @@ class IV_PQC:
         self.data[df]["data"].insert(column, name, measurement)
         self.data[df]["units"].append("arb. units")
         self.data[df]["measurements"].append(name)
+
+    def file_order(self, data):
+        # Do the analysis of the CV_MOS files as the first one, otherwise the analysis crashes.
+        i = 0
+        while data[list(data.keys())[0]]['header'][1][0:6] == 'IV_GCD' or data[list(data.keys())[0]]['header'][1][0:8] == 'CV_Diode':
+            data[list(data.keys())[0] + str(i)] = data[list(data.keys())[0]] # Duplicate the file and store it in the last element of the list
+            del data[list(data.keys())[0]] # Delete previous position of the file in the list
+            i += 1
+
+        return data
