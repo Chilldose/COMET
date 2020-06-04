@@ -1,4 +1,4 @@
-# This is the config for the environement widget.
+# This is the config for the environment widget.
 # This is not intended to be used as stand alone Tab in the framework
 # Use it as a simple configurer for the Environement widget
 
@@ -39,15 +39,15 @@ class Environement_widget(object):
             self.envlog.warning("No time_format defined, defaulting to %H:%M:%S")
 
         # Config the Spin boxes for min and max
-        self.Env_Widget.max_hum_spin.setRange(21,100)
+        self.Env_Widget.max_hum_spin.setRange(0,100)
         self.Env_Widget.min_hum_spin.setRange(0,100)
-        self.Env_Widget.min_hum_spin.setValue(20)
-        self.Env_Widget.max_hum_spin.setValue(25)
+        self.Env_Widget.min_hum_spin.setValue(9)
+        self.Env_Widget.max_hum_spin.setValue(11)
 
-        self.Env_Widget.max_temp_spin.setRange(21, 100)
+        self.Env_Widget.max_temp_spin.setRange(0, 100)
         self.Env_Widget.min_temp_spin.setRange(0, 100)
         self.Env_Widget.min_temp_spin.setValue(20)
-        self.Env_Widget.max_temp_spin.setValue(25)
+        self.Env_Widget.max_temp_spin.setValue(23)
 
         self.update_bars_and_spinboxes()
 
