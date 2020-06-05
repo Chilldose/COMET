@@ -1,0 +1,37 @@
+---
+  Template:
+    HEADER:
+      TYPE:
+        EXTENSION_TABLE_NAME: <EXTENSION_TABLE_NAME>
+        NAME: <NAME>
+      RUN:
+        RUN_TYPE: <Project> # Mandatory: ??? > IS Test Measurement
+        RUN_NUMBER: <RUN_NUMBER> # Mandatory: ??? > 3
+        LOCATION: <LOCATION> # HEPHY
+        INITIATED_BY_USER: <Operator> # The Operator of this measurement
+        RUN_BEGIN_TIMESTAMP: <Date> # Optional but good to have
+        RUN_END_TIMESTAMP: <ENDTIME> # Optional
+        COMMENT_DESCRIPTION: <RUN_COMMENT> # Optional
+    DATA_SET:
+      COMMENT_DESCRIPTION: <DATA_COMMENT> # Optional
+      VERSION: <VERSION> # The data version? How many times I started the measurement?
+      PART:
+        KIND_OF_PART: <Sensor Type> # Hamamatsu 2S Sensor
+        SERIAL_NUMBER: <ID> # HPK_VPX28441_1002_2S
+      DATA: //DATA_DUMP_template//
+
+  DATA_DUMP_template:
+    Istrip:
+        STRIP: <Pad>
+        CURRNT_NAMPR: <Istrip>
+        TEMP_DEGC: <Temperature>
+        RH_PRCNT: <Humidity>
+        BIASCURRNT_NAMPR: <Idark>
+    Cac:
+        STRIP: <Pad>
+        CAPCTNC_PFRD: <Cac>
+        TEMP_DEGC: <Temperature>
+        RH_PRCNT: <Humidity>
+        BIASCURRNT_NAMPR: <Idark>
+        
+        

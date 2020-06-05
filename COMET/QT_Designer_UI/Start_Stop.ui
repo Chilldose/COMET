@@ -108,8 +108,8 @@
          <rect>
           <x>0</x>
           <y>0</y>
-          <width>1117</width>
-          <height>362</height>
+          <width>1121</width>
+          <height>377</height>
          </rect>
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
@@ -149,6 +149,9 @@
            </property>
            <property name="text">
             <string>TextLabel</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::RichText</enum>
            </property>
            <property name="alignment">
             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>

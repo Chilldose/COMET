@@ -8,8 +8,7 @@ import pyqtgraph as pq
 import numpy as np
 
 
-class FrequencyScan_window(Controls_widget,SettingsControl_widget):
-
+class FrequencyScan_window(Controls_widget, SettingsControl_widget):
     def __init__(self, GUI, layout):
 
         self.variables = GUI
@@ -18,32 +17,42 @@ class FrequencyScan_window(Controls_widget,SettingsControl_widget):
         self.setpg = pq
         # Generate Colormap for plots
         self.color_steps = 5
-        self.cmap = self.setpg.ColorMap([1.0, 2.0, 3.0], [[0, 0, 255, 255], [0, 255, 0, 255], [255, 0, 0, 255]])
-        self.cmapLookup = self.cmap.getLookupTable(0.0,1.0,1)
+        self.cmap = self.setpg.ColorMap(
+            [1.0, 2.0, 3.0], [[0, 0, 255, 255], [0, 255, 0, 255], [255, 0, 0, 255]]
+        )
+        self.cmapLookup = self.cmap.getLookupTable(0.0, 1.0, 1)
         self.cmapLookup = self.cmap.getLookupTable(1.0, 3.0, 15)
-
-
 
         # Style for the pyqtgraph plots
         self.ticksStyle = {"pixelsize": 10}
-        self.labelStyle = {'color': '#FFF', 'font-size': '15px'}
-        self.titleStyle = {'color': '#FFF', 'size': '18px'}
+        self.labelStyle = {"color": "#FFF", "font-size": "15px"}
+        self.titleStyle = {"color": "#FFF", "size": "18px"}
 
         # Settings Main tab
         self.FreqWidget = QWidget()
-        self.SettingsGui = self.variables.load_QtUi_file("Frequencyscan.ui", self.FreqWidget)
+        self.SettingsGui = self.variables.load_QtUi_file(
+            "Frequencyscan.ui", self.FreqWidget
+        )
         self.layout.addWidget(self.FreqWidget)
 
-        self.generate_job = self.get_measurement_job_generation_function  # for the gui element with the start button
+        self.generate_job = (
+            self.get_measurement_job_generation_function
+        )  # for the gui element with the start button
 
         # Define the layouts for the individual plugins
-        self.child_layouts = {"Settings": self.SettingsGui.Settings_verticalLayout,
-                              "Start": self.SettingsGui.Start_Stop_verticalLayout}
+        self.child_layouts = {
+            "Settings": self.SettingsGui.Settings_verticalLayout,
+            "Start": self.SettingsGui.Start_Stop_verticalLayout,
+        }
         super(FrequencyScan_window, self).__init__(self)
 
-        self.settings_widget.select_settings_comboBox.currentTextChanged.connect(self.check_configs)
-        self.settings_widget.select_settings_comboBox.currentTextChanged.connect(self.config_plot)
-        #self.settings_widget.select_settings_comboBox.currentTextChanged.connect(self.update_plot)
+        self.settings_widget.select_settings_comboBox.currentTextChanged.connect(
+            self.check_configs
+        )
+        self.settings_widget.select_settings_comboBox.currentTextChanged.connect(
+            self.config_plot
+        )
+        # self.settings_widget.select_settings_comboBox.currentTextChanged.connect(self.update_plot)
         self.SettingsGui.Plot_comboBox.currentTextChanged.connect(self.config_plot)
         self.config_plot()
 
@@ -62,23 +71,38 @@ class FrequencyScan_window(Controls_widget,SettingsControl_widget):
                 if datalabel in self.variables.meas_data:
                     if self.variables.meas_data[datalabel][0].any():
                         step = 0
-                        for i, vstepdata in enumerate(self.variables.meas_data[datalabel][0]):
+                        for i, vstepdata in enumerate(
+                            self.variables.meas_data[datalabel][0]
+                        ):
                             if isinstance(vstepdata, np.ndarray):
-                                if vstepdata.any():  # To exclude exception spawning when measurement is not conducted
+                                if (
+                                    vstepdata.any()
+                                ):  # To exclude exception spawning when measurement is not conducted
                                     if i > self.color_steps:
                                         step = 0
                                     else:
                                         step += 1
-                                    self.SettingsGui.freqPlot_graphicsView.plot(vstepdata, self.variables.meas_data[datalabel][1][i],
-                                                                   pen=self.setpg.mkPen(tuple(self.cmapLookup[step])))
+                                    self.SettingsGui.freqPlot_graphicsView.plot(
+                                        vstepdata,
+                                        self.variables.meas_data[datalabel][1][i],
+                                        pen=self.setpg.mkPen(
+                                            tuple(self.cmapLookup[step])
+                                        ),
+                                    )
                             else:
-                                self.SettingsGui.freqPlot_graphicsView.plot(self.variables.meas_data[datalabel][0],
-                                                                                self.variables.meas_data[datalabel][1],
-                                                                                pen=self.setpg.mkPen(tuple(self.cmapLookup[i])))
+                                self.SettingsGui.freqPlot_graphicsView.plot(
+                                    self.variables.meas_data[datalabel][0],
+                                    self.variables.meas_data[datalabel][1],
+                                    pen=self.setpg.mkPen(tuple(self.cmapLookup[i])),
+                                )
                                 break
 
             except Exception as e:
-                self.log.error("An exception in the frequency scan plot occured, with error {error!s}".format(error=e))
+                self.log.error(
+                    "An exception in the frequency scan plot occured, with error {error!s}".format(
+                        error=e
+                    )
+                )
 
     def check_configs(self):
         """Looks for a MeasurementConfig tab and renders the Frequencyscan group,
@@ -88,8 +112,15 @@ class FrequencyScan_window(Controls_widget,SettingsControl_widget):
             self.log.error("Could not find MeasurementConfigs widget, please reload...")
             return False
 
-        if "Frequency Scan" in self.variables.ui_plugins["MeasurementConfig_window"].ui_groups:
-            keys = list(self.variables.ui_plugins["MeasurementConfig_window"].ui_groups["Frequency Scan"].keys())
+        if (
+            "Frequency Scan"
+            in self.variables.ui_plugins["MeasurementConfig_window"].ui_groups
+        ):
+            keys = list(
+                self.variables.ui_plugins["MeasurementConfig_window"]
+                .ui_groups["Frequency Scan"]
+                .keys()
+            )
             for key in keys:
                 if key != "Group_Ui" and key != "General":
                     self.SettingsGui.Plot_comboBox.addItem(key)
@@ -101,14 +132,20 @@ class FrequencyScan_window(Controls_widget,SettingsControl_widget):
         The MeasurementConfig UI has an function which returns a dict containing all information for IVCV and stripscan
         measurements. This GUI has to be rendered, otherwise this will fail after some time"""
         try:
-            fun =  self.variables.ui_plugins["MeasurementConfig_window"].generate_job_for_group
+            fun = self.variables.ui_plugins[
+                "MeasurementConfig_window"
+            ].generate_job_for_group
             Freq = fun("Frequency Scan")
             if Freq:
                 return Freq
             else:
-                self.log.critical("Frequency scan job generation failed, please make sure the settings are correct...")
+                self.log.critical(
+                    "Frequency scan job generation failed, please make sure the settings are correct..."
+                )
         except KeyError:
-            self.log.error("The GUI MesaurementConfig must be present and redered. Otherwise no job generation possible.")
+            self.log.error(
+                "The GUI MesaurementConfig must be present and redered. Otherwise no job generation possible."
+            )
             return {}
 
     def config_plot(self):
@@ -116,9 +153,9 @@ class FrequencyScan_window(Controls_widget,SettingsControl_widget):
         self.plot = plot
         plottitle = self.SettingsGui.Plot_comboBox.currentText()
         plot.setTitle("Frequency Scan Plot: {}".format(plottitle), **self.titleStyle)
-        plot.setLabel('left', "Capacitance", units='F', **self.labelStyle)
-        plot.setLabel('bottom', "Frequency", units='Hz', **self.labelStyle)
-        plot.showAxis('right', show=True)
+        plot.setLabel("left", "Capacitance", units="F", **self.labelStyle)
+        plot.setLabel("bottom", "Frequency", units="Hz", **self.labelStyle)
+        plot.showAxis("right", show=True)
         plot.showGrid(x=True, y=True)
         plot.plotItem.setLogMode(x=True)
 
@@ -126,4 +163,3 @@ class FrequencyScan_window(Controls_widget,SettingsControl_widget):
         plot.plot(pen="#cddb32")
 
         self.update_plot(force=True)
-

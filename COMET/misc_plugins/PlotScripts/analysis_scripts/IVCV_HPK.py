@@ -20,16 +20,19 @@ from forge.utilities import line_intersection
 
 
 class IVCV_HPK:
-
     def __init__(self, data, configs):
 
         self.log = logging.getLogger(__name__)
         self.config = configs
         self.analysisName = "IVCV_HPK"
         self.data = convert_to_df(data, abs=True)
-        self.data = rename_columns(self.data, self.config[self.analysisName].get("Measurement_aliases", {}))
+        self.data = rename_columns(
+            self.data, self.config[self.analysisName].get("Measurement_aliases", {})
+        )
         self.basePlots = None
-        self.PlotDict = {"Name": "IVCV"} # Name of analysis and cnavas for all plots generated during this analysis
+        self.PlotDict = {
+            "Name": "IVCV"
+        }  # Name of analysis and cnavas for all plots generated during this analysis
         self.capincluded = False
         self.measurements = self.data["columns"]
         self.measurements.remove("VR")
@@ -40,9 +43,14 @@ class IVCV_HPK:
             if "CV" in file:
                 self.data["keys"].append("1C2")
                 self.data["1C2"] = self.data[file].copy()
-                self.data["1C2"]["data"] = 1/(self.data[file]["data"][self.measurements]*self.data[file]["data"][self.measurements])
+                self.data["1C2"]["data"] = 1 / (
+                    self.data[file]["data"][self.measurements]
+                    * self.data[file]["data"][self.measurements]
+                )
                 self.data["1C2"]["data"]["VR"] = self.data[file]["data"]["VR"]
-                self.data["1C2"]["data"]["Name"] =  self.data[file]["data"]["Name"]+"1c2"
+                self.data["1C2"]["data"]["Name"] = (
+                    self.data[file]["data"]["Name"] + "1c2"
+                )
                 self.capincluded = True
         self.xaxis = "VR"
 
@@ -60,8 +68,19 @@ class IVCV_HPK:
         for file in self.data["keys"]:
             if "IV" in file:
                 for meas in self.measurements:
-                    self.config[self.analysisName][meas+"IV"] = self.config[self.analysisName]["current"]
-                    tempplot = plot(self.data, self.config, self.xaxis, self.analysisName, plot_only=(meas,), keys=(file,), do_not_plot = self.donts, PlotLabel=meas+"IV")
+                    self.config[self.analysisName][meas + "IV"] = self.config[
+                        self.analysisName
+                    ]["current"]
+                    tempplot = plot(
+                        self.data,
+                        self.config,
+                        self.xaxis,
+                        self.analysisName,
+                        plot_only=(meas,),
+                        keys=(file,),
+                        do_not_plot=self.donts,
+                        PlotLabel=meas + "IV",
+                    )
                     if IVplot:
                         IVplot *= tempplot
                     else:
@@ -74,32 +93,50 @@ class IVCV_HPK:
         for file in self.data["keys"]:
             if "CV" in file:
                 for meas in self.measurements:
-                    self.config[self.analysisName][meas+"CV"] = self.config[self.analysisName]["capacitance"]
-                    tempplot = plot(self.data, self.config, self.xaxis, self.analysisName, plot_only=(meas,),
-                                    keys=(file,), do_not_plot=self.donts, PlotLabel=meas+"CV")
+                    self.config[self.analysisName][meas + "CV"] = self.config[
+                        self.analysisName
+                    ]["capacitance"]
+                    tempplot = plot(
+                        self.data,
+                        self.config,
+                        self.xaxis,
+                        self.analysisName,
+                        plot_only=(meas,),
+                        keys=(file,),
+                        do_not_plot=self.donts,
+                        PlotLabel=meas + "CV",
+                    )
                     if CVplot:
                         CVplot *= tempplot
                     else:
                         CVplot = tempplot
         CVplot = customize_plot(CVplot, "capacitance", self.config[self.analysisName])
 
-
-
         # Add full depletion point to 1/c^2 curve
         c2plot = None
         for file in self.data["keys"]:
             if "1C2" in file:
                 for meas in self.measurements:
-                    self.config[self.analysisName][meas+"1c2"] = self.config[self.analysisName]["1C2"]
-                    tempplot = plot(self.data, self.config, self.xaxis, self.analysisName, plot_only=(meas,),
-                                    keys=(file,), do_not_plot=self.donts, PlotLabel=meas+"1c2")
+                    self.config[self.analysisName][meas + "1c2"] = self.config[
+                        self.analysisName
+                    ]["1C2"]
+                    tempplot = plot(
+                        self.data,
+                        self.config,
+                        self.xaxis,
+                        self.analysisName,
+                        plot_only=(meas,),
+                        keys=(file,),
+                        do_not_plot=self.donts,
+                        PlotLabel=meas + "1c2",
+                    )
                     if c2plot:
                         c2plot *= tempplot
                     else:
                         c2plot = tempplot
         c2plot = customize_plot(c2plot, "1C2", self.config[self.analysisName])
 
-        #if self.config[self.analysisName].get("1C2", {}).get("DoFullDepletionCalculation", False):
+        # if self.config[self.analysisName].get("1C2", {}).get("DoFullDepletionCalculation", False):
         #    try:
         #        if self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.children:
         #            c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.opts(clone = True)
@@ -111,11 +148,13 @@ class IVCV_HPK:
         #        self.log.warning("No full depletion calculation possible... Error: {}".format(err))
 
         # Reconfig the plots to be sure
-        #self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.analysisName].get("Layout", {}))
+        # self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.analysisName].get("Layout", {}))
 
         self.PlotDict["All"] = IVplot + CVplot + c2plot
         # Reconfig the plots to be sure
-        self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.analysisName].get("Layout", {}))
+        self.PlotDict["All"] = config_layout(
+            self.PlotDict["All"], **self.config[self.analysisName].get("Layout", {})
+        )
         return self.PlotDict
 
     def calculate_slopes(self, df, minSize, startidx=0):
@@ -135,40 +174,75 @@ class IVCV_HPK:
         rpp = 9999
         Right_stats = 0
         Left_stats = 0
-        for endidx in range(minSize+startidx, len(df)-startidx-minSize+1):  # Start a 5 since the linear fit needs at least a few values to work
+        for endidx in range(
+            minSize + startidx, len(df) - startidx - minSize + 1
+        ):  # Start a 5 since the linear fit needs at least a few values to work
             # Left slope
-            slope_left, intercept_left, r_left, lp_value, std_err_left = linregress(df["xaxis"][startidx:endidx], df["yaxis"][startidx:endidx])
+            slope_left, intercept_left, r_left, lp_value, std_err_left = linregress(
+                df["xaxis"][startidx:endidx], df["yaxis"][startidx:endidx]
+            )
             r2_left = r_left * r_left
-            self.log.debug("Left side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
-                slope_left, intercept_left, r2_left, std_err_left)
+            self.log.debug(
+                "Left side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+                    slope_left, intercept_left, r2_left, std_err_left
+                )
             )
 
             # Right slope
-            slope_right, intercept_right, r_right, rp_value, std_err_right = linregress(df["xaxis"][-endidx:-startidx-1], df["yaxis"][-endidx:-startidx-1])
+            slope_right, intercept_right, r_right, rp_value, std_err_right = linregress(
+                df["xaxis"][-endidx : -startidx - 1],
+                df["yaxis"][-endidx : -startidx - 1],
+            )
             r2_right = r_right * r_right
-            self.log.debug("Right side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
-                slope_right, intercept_right, r2_right, std_err_right)
+            self.log.debug(
+                "Right side fit: Slope {}, intercept: {}, r^2: {}, std: {}".format(
+                    slope_right, intercept_right, r2_right, std_err_right
+                )
             )
 
             # See if the r2 value has increased and store end points
-            if r2_left>LR2 and lp_value<lpp:
+            if r2_left > LR2 and lp_value < lpp:
                 LR2 = r2_left
-                lpp =lp_value
+                lpp = lp_value
                 LeftEndPoints = (
                     (df["xaxis"][0], intercept_left),
-                    (df["xaxis"][endidx], slope_left * df["xaxis"][endidx] + intercept_left)
+                    (
+                        df["xaxis"][endidx],
+                        slope_left * df["xaxis"][endidx] + intercept_left,
+                    ),
                 )
-                Left_stats = (LeftEndPoints, slope_left, intercept_left, r_left, lp_value, std_err_left)
+                Left_stats = (
+                    LeftEndPoints,
+                    slope_left,
+                    intercept_left,
+                    r_left,
+                    lp_value,
+                    std_err_left,
+                )
 
             # See if the r2 value has increased and store it
-            if r2_right>RR2 and rp_value<rpp:
+            if r2_right > RR2 and rp_value < rpp:
                 RR2 = r2_right
                 rpp = rp_value
                 RightEndPoints = (
-                    (df["xaxis"][endidx], slope_right * df["xaxis"][endidx] + intercept_right),
-                    (df["xaxis"][len(df["xaxis"]) - 1], slope_right * df["xaxis"][len(df["xaxis"]) - 1] + intercept_right),
+                    (
+                        df["xaxis"][endidx],
+                        slope_right * df["xaxis"][endidx] + intercept_right,
+                    ),
+                    (
+                        df["xaxis"][len(df["xaxis"]) - 1],
+                        slope_right * df["xaxis"][len(df["xaxis"]) - 1]
+                        + intercept_right,
+                    ),
                 )
-                Right_stats = (RightEndPoints, slope_right, intercept_right, r_right, rp_value, std_err_right)
+                Right_stats = (
+                    RightEndPoints,
+                    slope_right,
+                    intercept_right,
+                    r_right,
+                    rp_value,
+                    std_err_right,
+                )
 
         return LR2, Left_stats, RR2, Right_stats
 
@@ -190,59 +264,100 @@ class IVCV_HPK:
 
         for i, samplekey in enumerate(data["keys"]):
             if "1C2" not in data[samplekey]["data"]:
-                self.log.warning("Full depletion calculation could not be done for data set: {}".format(samplekey))
+                self.log.warning(
+                    "Full depletion calculation could not be done for data set: {}".format(
+                        samplekey
+                    )
+                )
 
             else:
                 self.log.debug("Data: {}".format(samplekey))
                 sample = deepcopy(data[samplekey])
                 try:
-                    df = sample["data"][["voltage", "1C2"]].rename(columns={"voltage": "xaxis", "1C2": "yaxis"})
+                    df = sample["data"][["voltage", "1C2"]].rename(
+                        columns={"voltage": "xaxis", "1C2": "yaxis"}
+                    )
                 except:
-                    df = sample["data"][["Voltage", "1C2"]].rename(columns={"Voltage": "xaxis", "1C2": "yaxis"})
+                    df = sample["data"][["Voltage", "1C2"]].rename(
+                        columns={"Voltage": "xaxis", "1C2": "yaxis"}
+                    )
                 df = df.dropna()
 
                 # Loop one time from the right side and from the left, to get both slopes
-                LR2, Left_stats[i], RR2, Right_stats[i] = self.calculate_slopes(df, minSize=5, startidx=5)
+                LR2, Left_stats[i], RR2, Right_stats[i] = self.calculate_slopes(
+                    df, minSize=5, startidx=5
+                )
 
                 # Make the line intersection
-                full_depletion_voltages[i] = line_intersection(Left_stats[i][0], Right_stats[i][0])
-                self.log.info("Full depletion voltage to data file {} is {}, with LR^2={} and RR^2={}".format(samplekey, full_depletion_voltages[i], LR2, RR2))
+                full_depletion_voltages[i] = line_intersection(
+                    Left_stats[i][0], Right_stats[i][0]
+                )
+                self.log.info(
+                    "Full depletion voltage to data file {} is {}, with LR^2={} and RR^2={}".format(
+                        samplekey, full_depletion_voltages[i], LR2, RR2
+                    )
+                )
 
         # Add vertical line for full depletion
         # Calculate the mean of all full depeltion voltages and draw a line there
         valid_indz = np.nonzero(full_depletion_voltages[:, 0])
-        vline = hv.VLine(np.mean(full_depletion_voltages[valid_indz], axis=0)[0]).opts(color='black', line_width=5.0)
+        vline = hv.VLine(np.mean(full_depletion_voltages[valid_indz], axis=0)[0]).opts(
+            color="black", line_width=5.0
+        )
 
         # Add slopes
-        xmax = df["xaxis"][len(df["yaxis"])-1]
-        left_line = np.array([[0, np.median(Left_stats[:,2])],[xmax, np.median(Left_stats[:,1])*xmax + np.median(Left_stats[:,2])]])
-        left_line = hv.Curve(left_line).opts(color='grey')
+        xmax = df["xaxis"][len(df["yaxis"]) - 1]
+        left_line = np.array(
+            [
+                [0, np.median(Left_stats[:, 2])],
+                [
+                    xmax,
+                    np.median(Left_stats[:, 1]) * xmax + np.median(Left_stats[:, 2]),
+                ],
+            ]
+        )
+        left_line = hv.Curve(left_line).opts(color="grey")
 
-        right_line = np.array([[0, np.median(Right_stats[:,2])],[xmax, np.median(Right_stats[:,1])*xmax + np.median(Right_stats[:,2])]])
-        right_line = hv.Curve(right_line).opts(color='grey')
+        right_line = np.array(
+            [
+                [0, np.median(Right_stats[:, 2])],
+                [
+                    xmax,
+                    np.median(Right_stats[:, 1]) * xmax + np.median(Right_stats[:, 2]),
+                ],
+            ]
+        )
+        right_line = hv.Curve(right_line).opts(color="grey")
 
         # Add text
-        self.log.info('Full depletion voltage: {} V, '
-                        'Error: {} V'.format(np.round(np.median(full_depletion_voltages[valid_indz, 0]), 2),
-                                           np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2)))
-        #text = hv.Text(np.mean(full_depletion_voltages[valid_indz], axis=0)[0]*2, np.mean(full_depletion_voltages[valid_indz], axis=0)[1]*1.2, 'Depletion voltage: {} V \n'
+        self.log.info(
+            "Full depletion voltage: {} V, "
+            "Error: {} V".format(
+                np.round(np.median(full_depletion_voltages[valid_indz, 0]), 2),
+                np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2),
+            )
+        )
+        # text = hv.Text(np.mean(full_depletion_voltages[valid_indz], axis=0)[0]*2, np.mean(full_depletion_voltages[valid_indz], axis=0)[1]*1.2, 'Depletion voltage: {} V \n'
         #                'Error: {} V'.format(np.round(np.mean(full_depletion_voltages[:, 0]), 2),
         #                                   np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2))
         #               ).opts(fontsize=30)
 
         bounds = np.mean(full_depletion_voltages[valid_indz], axis=0)
-        text = text_box('Depletion voltage: {} V \n'
-                        'Error: {} V'.format(np.round(np.mean(full_depletion_voltages[:, 0]), 2),
-                                           np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2)),
-                       np.mean(full_depletion_voltages[valid_indz], axis=0)[0] * 2,
-                       np.mean(full_depletion_voltages[valid_indz], axis=0)[1] * 1.3,
-                       boxsize= (200, bounds[1]*0.3)
-                       )
+        text = text_box(
+            "Depletion voltage: {} V \n"
+            "Error: {} V".format(
+                np.round(np.mean(full_depletion_voltages[:, 0]), 2),
+                np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2),
+            ),
+            np.mean(full_depletion_voltages[valid_indz], axis=0)[0] * 2,
+            np.mean(full_depletion_voltages[valid_indz], axis=0)[1] * 1.3,
+            boxsize=(200, bounds[1] * 0.3),
+        )
         # Update the plot specific options if need be
         returnPlot = vline * right_line * left_line * text * plot
-        #returnPlot = relabelPlot(returnPlot, "CV CURVES - Full depletion calculation")
-        returnPlot = customize_plot(returnPlot, "1C2", configs[self.analysisName], **addConfigs)
-
-
+        # returnPlot = relabelPlot(returnPlot, "CV CURVES - Full depletion calculation")
+        returnPlot = customize_plot(
+            returnPlot, "1C2", configs[self.analysisName], **addConfigs
+        )
 
         return returnPlot

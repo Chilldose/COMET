@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #                 PyuEye example - gui application modul
 #
 # Copyright (c) 2017 by IDS Imaging Development Systems GmbH.
@@ -28,26 +28,28 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 from PyQt5 import QtCore
 from PyQt5 import QtGui
-#from PyQt5.QtWidgets import QGraphicsScene, QApplication
-#from PyQt5.QtWidgets import QGraphicsView
-#from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QSlider, QWidget
+
+# from PyQt5.QtWidgets import QGraphicsScene, QApplication
+# from PyQt5.QtWidgets import QGraphicsView
+# from PyQt5.QtWidgets import QHBoxLayout, QVBoxLayout, QSlider, QWidget
 import numpy
 
 from pyueye import ueye
 
 
 def get_qt_format(ueye_color_format):
-    return { ueye.IS_CM_SENSOR_RAW8: QtGui.QImage.Format_Mono,
-             ueye.IS_CM_MONO8: QtGui.QImage.Format_Mono,
-             ueye.IS_CM_RGB8_PACKED: QtGui.QImage.Format_RGB888,
-             ueye.IS_CM_BGR8_PACKED: QtGui.QImage.Format_RGB888,
-             ueye.IS_CM_RGBA8_PACKED: QtGui.QImage.Format_RGB32,
-             ueye.IS_CM_BGRA8_PACKED: QtGui.QImage.Format_RGB32
-    } [ueye_color_format]
+    return {
+        ueye.IS_CM_SENSOR_RAW8: QtGui.QImage.Format_Mono,
+        ueye.IS_CM_MONO8: QtGui.QImage.Format_Mono,
+        ueye.IS_CM_RGB8_PACKED: QtGui.QImage.Format_RGB888,
+        ueye.IS_CM_BGR8_PACKED: QtGui.QImage.Format_RGB888,
+        ueye.IS_CM_RGBA8_PACKED: QtGui.QImage.Format_RGB32,
+        ueye.IS_CM_BGRA8_PACKED: QtGui.QImage.Format_RGB32,
+    }[ueye_color_format]
 
 
 class PyuEyeQtView(QtGui.QWidget):
@@ -62,7 +64,7 @@ class PyuEyeQtView(QtGui.QWidget):
         self.graphics_view = QtGui.QGraphicsView(self)
         self.v_layout = QtGui.QVBoxLayout(self)
         self.h_layout = QtGui.QHBoxLayout()
-        
+
         self.scene = QtGui.QGraphicsScene()
         self.graphics_view.setScene(self.scene)
         self.v_layout.addWidget(self.graphics_view)
@@ -73,20 +75,25 @@ class PyuEyeQtView(QtGui.QWidget):
 
         self.processors = []
         self.resize(640, 512)
-                
+
         self.v_layout.addLayout(self.h_layout)
         self.setLayout(self.v_layout)
 
     def on_update_canny_1_slider(self, value):
-        pass # print(value)
+        pass  # print(value)
 
     def on_update_canny_2_slider(self, value):
-        pass # print(value)
-        
+        pass  # print(value)
+
     def draw_background(self, painter, rect):
         if self.image.any():
-            img = QtGui.QImage(self.image, self.image.shape[1], self.image.shape[0], self.image.strides[0],
-                               QtGui.QImage.Format_RGB888)
+            img = QtGui.QImage(
+                self.image,
+                self.image.shape[1],
+                self.image.shape[0],
+                self.image.strides[0],
+                QtGui.QImage.Format_RGB888,
+            )
             img = img.scaled(rect.width(), rect.height(), QtCore.Qt.KeepAspectRatio)
             painter.drawImage(rect.x(), rect.y(), img)
 
@@ -94,13 +101,18 @@ class PyuEyeQtView(QtGui.QWidget):
         self.scene.update()
 
     def user_callback(self, image_data):
-        #return image_data.as_cv_image()
+        # return image_data.as_cv_image()
         return image_data.as_1d_image()
-
 
     def handle(self, image_data):
         self.image = self.user_callback(image_data)
-        img = QtGui.QImage(self.image, self.image.shape[1], self.image.shape[0], self.image.strides[0], QtGui.QImage.Format_RGB888)
+        img = QtGui.QImage(
+            self.image,
+            self.image.shape[1],
+            self.image.shape[0],
+            self.image.strides[0],
+            QtGui.QImage.Format_RGB888,
+        )
         self.update_signal.emit(img)
 
         # unlock the buffer so we can use it again
@@ -111,12 +123,12 @@ class PyuEyeQtView(QtGui.QWidget):
 
     def add_processor(self, callback):
         self.processors.append(callback)
-    
+
 
 class PyuEyeQtApp:
-    def __init__(self, args=[]):        
+    def __init__(self, args=[]):
         self.qt_app = QtGui.QApplication(args)
-            
+
     def exec_(self):
         self.qt_app.exec_()
 

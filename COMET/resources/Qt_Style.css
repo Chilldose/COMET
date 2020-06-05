@@ -151,7 +151,7 @@ QComboBox::drop-down
      subcontrol-position: top right;
      width: 15px;
 
-     border-left-width: 0px;
+     border-left-width: 0;
      border-left-color: darkgray;
      border-left-style: solid; /* just a single line */
      border-top-right-radius: 3px; /* same radius as the QComboBox */
@@ -177,7 +177,7 @@ QScrollBar:horizontal {
      border: 1px solid #222222;
      background: QLinearGradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0.0 #121212, stop: 0.2 #282828, stop: 1 #484848);
      height: 7px;
-     margin: 0px 10px 0 10px;
+     margin: 0 10px 0 10px;
 }
 
 QScrollBar::handle:horizontal
@@ -389,7 +389,7 @@ QTabBar::tab:last
 
 QTabBar::tab:first:!selected
 {
- margin-left: 0px; /* the last selected tab has nothing to overlap with on the right */
+ margin-left: 0; /* the last selected tab has nothing to overlap with on the right */
 
 
     border-top-left-radius: 3px;
@@ -407,7 +407,7 @@ QTabBar::tab:selected
 {
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
-    margin-bottom: 0px;
+    margin-bottom: 0;
 }
 
 QTabBar::tab:!selected:hover

@@ -8,20 +8,24 @@ from PyQt5.QtCore import Qt
 from ..utilities import ErrorMessageBoxHandler
 from .CentralWidget import CentralWidget
 from .PreferencesDialog import PreferencesDialog
+from .LoggerConfig import LoggerConfig
 
 ContentsURL = "https://chilldose.github.io/COMET/_build/html/index.html"
 """URL to primary documentation."""
 
-ResourcePath = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images')
+ResourcePath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "images")
+
 
 class MainWindow(QtWidgets.QMainWindow):
     """Main window containing plugin tabs as central widget."""
 
-    def __init__(self, message_to_main, parent=None, toolbar = True):
+    def __init__(self, message_to_main, parent=None, toolbar=True):
         super(MainWindow, self).__init__(parent)
         self.message_to_main = message_to_main
         self.setWindowTitle(self.tr("COMET"))
-        icon_filename = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'images', 'logo.png')
+        icon_filename = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "images", "logo.png"
+        )
         self.setWindowIcon(QtGui.QIcon(icon_filename))
         # Only minimize and maximize button are active
         self.setWindowFlags(Qt.WindowMaximizeButtonHint | Qt.WindowMinimizeButtonHint)
@@ -39,8 +43,12 @@ class MainWindow(QtWidgets.QMainWindow):
         # Create error message dialog
         self.errMsg = ErrorMessageBoxHandler(QiD=self)
 
+        # Init Dialogs
         self.preferencesDialog = PreferencesDialog(self)
         self.preferencesDialog.hide()
+
+        self.loggerDialog = LoggerConfig(self)
+        self.loggerDialog.hide()
 
     def createActions(self):
         """Create actions, for the toolbar etc"""
@@ -53,15 +61,23 @@ class MainWindow(QtWidgets.QMainWindow):
         self.preferencesAct = QtWidgets.QAction(self.tr("&Preferences"), self)
         self.preferencesAct.setStatusTip(self.tr("Configure the application"))
         self.preferencesAct.triggered.connect(self.onPreferences)
+        # Load session.
+        self.LoadAct = QtWidgets.QAction(self.tr("&Load saved session"), self)
+        self.LoadAct.setStatusTip(self.tr("Loads a previously saved session"))
+        self.LoadAct.triggered.connect(self.onLoadSession)
+        # Save session.
+        self.SaveAct = QtWidgets.QAction(self.tr("&Save session"), self)
+        self.SaveAct.setStatusTip(self.tr("Saves the current session"))
+        self.SaveAct.triggered.connect(self.onSaveSession)
         # Action for starting a measurement.
         self.startAct = QtWidgets.QAction(self.tr("&Start"), self)
-        self.startAct.setIcon(QtGui.QIcon(os.path.join(ResourcePath, 'start.svg')))
+        self.startAct.setIcon(QtGui.QIcon(os.path.join(ResourcePath, "start.svg")))
         self.startAct.setStatusTip(self.tr("Start measurement"))
         self.startAct.triggered.connect(self.onStart)
         self.startAct.setCheckable(True)
         # Action for stopping a measurement.
         self.stopAct = QtWidgets.QAction(self.tr("S&top"), self)
-        self.stopAct.setIcon(QtGui.QIcon(os.path.join(ResourcePath, 'stop.svg')))
+        self.stopAct.setIcon(QtGui.QIcon(os.path.join(ResourcePath, "stop.svg")))
         self.stopAct.setStatusTip(self.tr("Stop measurement"))
         self.stopAct.triggered.connect(self.onStop)
         self.stopAct.setCheckable(True)
@@ -79,16 +95,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.contentsAct.triggered.connect(self.onShowContents)
         # Create progressBar
         self.progressBar = QtWidgets.QProgressBar()
-        self.progressBar.setRange(0,100)
-        self.progressBar.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        self.progressBar.setRange(0, 100)
+        self.progressBar.setSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         self.progressBar.setFixedWidth(400)
         self.progressBar.setValue(0)
         # Create State indicator
         self.StatusLabel = QtWidgets.QLabel()
-        self.StatusLabel.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred)
+        self.StatusLabel.setSizePolicy(
+            QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
+        )
         self.StatusLabel.setFixedWidth(150)
         self.StatusLabel.setAlignment(Qt.AlignCenter)
         self.StatusLabel.setText("Start up")
+        # Stream logging level.
+        self.streamLogger = QtWidgets.QAction(self.tr("Set Logging Level"), self)
+        self.streamLogger.setStatusTip(
+            self.tr("Define the logging level of different loggers")
+        )
+        self.streamLogger.triggered.connect(self.onLogger)
 
     def createMenus(self):
         """Create menus."""
@@ -98,9 +124,14 @@ class MainWindow(QtWidgets.QMainWindow):
         # Edit menu
         self.editMenu = self.menuBar().addMenu(self.tr("&Edit"))
         self.editMenu.addAction(self.preferencesAct)
+        self.editMenu.addAction(self.LoadAct)
+        self.editMenu.addAction(self.SaveAct)
         # Measurement menu
         self.measureMenu = self.menuBar().addMenu(self.tr("&Measure"))
         self.measureMenu.addActions(self.measureActGroup.actions())
+        # Logging menu
+        self.LogMenu = self.menuBar().addMenu(self.tr("&Logging"))
+        self.LogMenu.addAction(self.streamLogger)
         # Help menu
         self.helpMenu = self.menuBar().addMenu(self.tr("&Help"))
         self.helpMenu.addAction(self.contentsAct)
@@ -116,11 +147,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.toolbar.addWidget(self.progressBar)
 
         # Add a spacer
-        #self.verticalSpacer = QtWidgets.QWidget()
-        #self.verticalSpacer.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
-        #self.toolbar.addWidget(self.verticalSpacer)
-
-
+        # self.verticalSpacer = QtWidgets.QWidget()
+        # self.verticalSpacer.setSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Expanding)
+        # self.toolbar.addWidget(self.verticalSpacer)
 
     def createStatusBar(self):
         """Create status bar."""
@@ -134,6 +163,11 @@ class MainWindow(QtWidgets.QMainWindow):
         """Show preferences dialog."""
         self.preferencesDialog.show()
         self.preferencesDialog.raise_()
+
+    def onLogger(self):
+        """Shows the Logger configuration"""
+        self.loggerDialog.show()
+        self.loggerDialog.raise_()
 
     def onStart(self):
         """Starting a measurement."""
@@ -153,14 +187,34 @@ class MainWindow(QtWidgets.QMainWindow):
         """Open web browser and open contents."""
         webbrowser.open_new_tab(ContentsURL)
 
+    def onLoadSession(self):
+        """Loads a previous session"""
+        self.message_to_main.put({"LOAD_SESSION": True})
+
+    def onSaveSession(self):
+        """Loads a previous session"""
+        self.message_to_main.put({"SAVE_SESSION": True})
+
     def closeEvent(self, event):
         """On window close event."""
-        result = QtWidgets.QMessageBox.question(None,
+        result = QtWidgets.QMessageBox.question(
+            None,
             self.tr("Confirm quit"),
             self.tr("Are you sure to quit?"),
-            QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+            QtWidgets.QMessageBox.Yes,
+            QtWidgets.QMessageBox.No,
+        )
         if result == QtWidgets.QMessageBox.Yes:
             # Send close message to main thread
+            result = QtWidgets.QMessageBox.question(
+                None,
+                self.tr("Save session?"),
+                self.tr("Do you want to save the current session?"),
+                QtWidgets.QMessageBox.Yes,
+                QtWidgets.QMessageBox.No,
+            )
+            if result == QtWidgets.QMessageBox.Yes:
+                self.message_to_main.put({"SAVE_SESSION": True})
             self.message_to_main.put({"CLOSE_PROGRAM": True})
             event.accept()
         else:

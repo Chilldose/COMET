@@ -21,14 +21,12 @@ import sys
 import os
 from . import utilities
 from . import boot_up
-from .core.config import DeviceLib
-from .core.config import Setup
 from .measurement_event_loop import (
-            measurement_event_loop,
-            message_to_main,
-            message_from_main,
-            queue_to_GUI
-        )
+    measurement_event_loop,
+    message_to_main,
+    message_from_main,
+    queue_to_GUI,
+)
 
 from .gui.PreferencesDialog import PreferencesDialog
 from .GUI_classes import GUI_classes
@@ -43,8 +41,14 @@ try:
 except:
     pass
 
+
 def main():
     """Main application entry point."""
+
+    # Add some pathes to make things easier
+    sys.path.append(os.path.abspath("COMET/"))
+    sys.path.append(os.path.abspath("COMET/resources"))
+    sys.path.append(os.path.abspath("COMET/misc_plugins"))
 
     # Parse Arguments
     args = utilities.parse_args()
@@ -54,7 +58,7 @@ def main():
     rootdir = os.path.dirname(os.path.abspath(__file__))
 
     # Load Style sheet
-    config = os.path.join(rootdir, "Qt_Style.css")
+    config = os.path.join(rootdir, "resources/Qt_Style.css")
     StyleSheet = utilities.load_QtCSS_StyleSheet(config)
 
     # Create app
@@ -84,19 +88,22 @@ def main():
     # Get logger
     log = logging.getLogger(__name__)
     log.info("Logfile initiated...")
-    log.critical("Initializing programm:")
+    log.critical("Initializing program:")
 
     # Check the environment if something has changed
     if args.update:
         log.critical("Try getting Git remote repo...")
         try:
             import git
+
             repo = git.Repo()
             o = repo.remotes.origin
             log.info(o.fetch())
             log.info(o.pull())
         except Exception as err:
-            log.error("An error happened while updating COMET source code. Error: {}...".format(err))
+            log.error(
+                "An error happened while updating COMET source code.", exc_info=True
+            )
 
         log.critical("Checking conda environment requirements...")
         try:
@@ -107,9 +114,13 @@ def main():
                 version = "requirements_LINUX_x86_64.yml"
             else:
                 version = "requirements_MacOS.yml"
-            os.system("conda env update --prefix ./env --file {}  --prune".format(version))
+            os.system(
+                "conda env update --prefix ./env --file {}  --prune".format(version)
+            )
         except Exception as err:
-            log.error("An error happened while updating COMET environment. Error: {}...".format(err))
+            log.error(
+                "An error happened while updating COMET environment.", exc_info=True
+            )
 
         log.critical("Please restart COMET for the updates to have an effect!")
         sys.exit(0)
@@ -119,34 +130,31 @@ def main():
         try:
             sys.excepthook = utilities.exception_handler
         except Exception as err:
-            log.critical("Except hook handler could not be loaded! Error: {}".format(err))
+            log.critical(
+                "Except hook handler could not be loaded! Error: {}".format(err)
+            )
 
     # Loading all config files
     if args.loadGUI:
-        QtCore.QSettings().setValue('active_setup', args.loadGUI)
+        QtCore.QSettings().setValue("active_setup", args.loadGUI)
 
-    active_setup = QtCore.QSettings().value('active_setup', None)
+    active_setup = QtCore.QSettings().value("active_setup", None)
     # The reinit is a overwrite, so the window can be called after e.g. failure with a gui.
     if active_setup is None or args.reinit:
         dialog = PreferencesDialog(None)
         dialog.exec_()
         del dialog
         # Re-load active setup after configuration dialog.
-        active_setup = QtCore.QSettings().value('active_setup', None)
+        active_setup = QtCore.QSettings().value("active_setup", None)
 
     log.critical("Loading setup '%s'...", active_setup)
-    # TODO load config
-    path = os.path.join(rootdir, 'config', 'device_lib')
-    device_lib = DeviceLib()
-    device_lib.load(path)
-
-    path = os.path.join(rootdir, 'config', 'Setup_configs', active_setup)
-    setup = Setup()
-    setup.load(path)
 
     setup_loader = boot_up.SetupLoader()
-    setup_loader.load(active_setup) # TODO
-    setup_loader.default_values_dict = boot_up.update_defaults_dict(setup_loader.configs["config"], setup_loader.configs["config"].get("framework_variables", {}))
+    setup_loader.load(active_setup)  # TODO
+    setup_loader.default_values_dict = boot_up.update_defaults_dict(
+        setup_loader.configs["config"],
+        setup_loader.configs["config"].get("framework_variables", {}),
+    )
 
     # Initializing all modules
     log.critical("Initializing modules ...")
@@ -154,12 +162,15 @@ def main():
         vcw = VisaConnectWizard()
     except:
         try:
-            log.critical("NI-VISA backend could not be loaded, trying with pure python backend for VISA!")
+            log.critical(
+                "NI-VISA backend could not be loaded, trying with pure python backend for VISA!"
+            )
             vcw = VisaConnectWizard("@py")
         except:
-            log.critical("Pure python backend for VISA backend could not be loaded either. No ConnectWizard initiated...")
+            log.critical(
+                "Pure python backend for VISA backend could not be loaded either. No ConnectWizard initiated..."
+            )
             vcw = None
-
 
     # Tries to connect to all available devices in the network, it returns a dict of
     # a dict. First dict contains the the device names as keys, the value is a dict
@@ -170,11 +181,16 @@ def main():
     # Cut out all devices which are not specified in the settings
     devices = []
     if "Devices" in setup_loader.configs["config"]["settings"]:
-        for to_connect in setup_loader.configs["config"]["settings"]["Devices"].values():
+        for to_connect in setup_loader.configs["config"]["settings"][
+            "Devices"
+        ].values():
             devices.append(to_connect["Device_name"])
-        #cuted_device_lib = {x: v for x, v in setup_loader.configs.get("device_lib", {}).items() if x in devices}
-        devices_dict = boot_up.connect_to_devices(vcw, setup_loader.configs["config"]["settings"]["Devices"],
-                                                  setup_loader.configs.get("device_lib", {}))
+        # cuted_device_lib = {x: v for x, v in setup_loader.configs.get("device_lib", {}).items() if x in devices}
+        devices_dict = boot_up.connect_to_devices(
+            vcw,
+            setup_loader.configs["config"]["settings"]["Devices"],
+            setup_loader.configs.get("device_lib", {}),
+        )
         devices_dict = devices_dict.get_new_device_dict()
         devices_dict = setup_loader.config_device_notation(devices_dict)
     else:
@@ -187,26 +203,31 @@ def main():
         table = None
     else:
         table = utilities.table_control_class(
-            setup_loader.configs["config"],
-            devices_dict,
-            message_to_main,
-            vcw
+            setup_loader.configs["config"], devices_dict, message_to_main, vcw
         )
 
     switching = utilities.switching_control(
-        setup_loader.configs["config"],
-        devices_dict,
-        message_to_main,
-        vcw
+        setup_loader.configs["config"], devices_dict, message_to_main, vcw
     )
 
     # Gather auxiliary modules
-    aux = {"Table": table, "Switching": switching,
-           "VCW": vcw, "Devices": devices_dict,
-           "rootdir": rootdir, "App": app,
-           "Message_from_main": message_from_main, "Message_to_main": message_to_main,
-           "Queue_to_GUI": queue_to_GUI, "Configs": setup_loader.configs, "Django": None, "Server": None,
-           "Client": None, "background_Env_task": None, "args": args}
+    aux = {
+        "Table": table,
+        "Switching": switching,
+        "VCW": vcw,
+        "Devices": devices_dict,
+        "rootdir": rootdir,
+        "App": app,
+        "Message_from_main": message_from_main,
+        "Message_to_main": message_to_main,
+        "Queue_to_GUI": queue_to_GUI,
+        "Configs": setup_loader.configs,
+        "Django": None,
+        "Server": None,
+        "Client": {},
+        "background_Env_task": None,
+        "args": args,
+    }
 
     # Starts a new Thread for the measurement event loop
     MEL = measurement_event_loop(aux)
@@ -215,32 +236,59 @@ def main():
 
     # Starting Django Server if need be
     if "Django_server" in aux["Configs"]["config"]["settings"]:
-        if aux["Configs"]["config"]["settings"]["Django_server"].get("Start_Server", False):
-            log.info("Starting Django server at {}:{}...".format(aux["Configs"]["config"]["settings"]["Django_server"]["IP"],
-                                                                 aux["Configs"]["config"]["settings"]["Django_server"]["Port"]))
+        if aux["Configs"]["config"]["settings"]["Django_server"].get(
+            "Start_Server", False
+        ):
+            log.info(
+                "Starting Django server at {}:{}...".format(
+                    aux["Configs"]["config"]["settings"]["Django_server"]["IP"],
+                    aux["Configs"]["config"]["settings"]["Django_server"]["Port"],
+                )
+            )
             try:
                 config = aux["Configs"]["config"]["settings"]["Django_server"]
                 import subprocess
+
                 # Import Server and Client class for communication with the Django server
 
-                path = os.path.normpath(config["Path"])#
-                Django = subprocess.Popen(["python", path, "runserver", str(config["IP"])+":"+str(config["Port"])], shell=True)
+                path = os.path.normpath(config["Path"])  #
+                Django = subprocess.Popen(
+                    [
+                        "python",
+                        path,
+                        "runserver",
+                        str(config["IP"]) + ":" + str(config["Port"]),
+                    ],
+                    shell=True,
+                )
                 aux["Django"] = Django
 
             except Exception as err:
-                log.error("Django server could not be started. Error: {}".format(err))
+                log.error("Django server could not be started.", exc_info=True)
 
     if "Socket_connection" in aux["Configs"]["config"]["settings"]:
         from .misc_plugins.ServerClientApp.socket_connections import Client_, Server_
+
+        config_socket = aux["Configs"]["config"]["settings"]["Socket_connection"]
         try:
-            config_socket = aux["Configs"]["config"]["settings"]["Socket_connection"]
-            Server = Server_(HOST=config_socket["Host"]["IP"], PORT=config_socket["Host"]["Port"])
-            Server.start()  # Starts the Server thread
-            Client = Client_(HOST=config_socket["Client"]["IP"], PORT=config_socket["Client"]["Port"])
-            aux["Server"] = Server
-            aux["Client"] = Client
-        except Exception as err:
-            log.error("TCP socket connection could not be started. Error: {}".format(err))
+            if "Host" in config_socket:
+                Server = Server_(
+                    HOST=config_socket["Host"]["IP"], PORT=config_socket["Host"]["Port"]
+                )
+                Server.start()  # Starts the Server thread
+                aux["Server"] = Server
+        except:
+            log.error("TCP server connection could not be started.", exc_info=True)
+        try:
+            if "Client" in config_socket:
+                aux["Client"] = {}
+                for name, client in config_socket["Client"].items():
+                    Client = Client_(HOST=client["IP"], PORT=client["Port"])
+                    aux["Client"][name] = Client
+        except:
+            log.error(
+                "Some TCP clients connection could not be started.", exc_info=True
+            )
 
     log.critical("Starting GUI ...")
     gui = GUI_classes(aux)
@@ -251,15 +299,14 @@ def main():
     # Starts the timer
     frame.start_timer()
 
-
     log.critical("Start rendering GUI...")
-    if args.fullscreen: # Shows the app in fullscreen mode
+    if args.fullscreen:  # Shows the app in fullscreen mode
         gui.main_window.showFullScreen()
         log.critical("App started in fullscreen mode...")
-    gui.app.exec_() # Starts the actual event loop for the GUI
+    gui.app.exec_()  # Starts the actual event loop for the GUI
     end_time = time.time()
 
-    log.critical("Run time: %s seconds.", round(end_time-start_time, 2))
+    log.critical("Run time: %s seconds.", round(end_time - start_time, 2))
     log.critical("Reset all devices...")
 
     log.critical("Close visa connections...")
@@ -267,5 +314,6 @@ def main():
     log.critical("Exiting Main Thread")
     sys.exit(0)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

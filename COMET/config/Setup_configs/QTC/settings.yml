@@ -21,8 +21,10 @@
         - CVQValue
         - Stripscan
         - IV_longterm
-        - temperature
+        - temperature_air
+        - temperature_chuck
         - humidity
+        - dew_point
         - Cback
         - Cback_freq
         - Cint
@@ -45,7 +47,8 @@
         - IVCV
         - Stripscan
         - Frequency Scan
-        - Dynamicwaiting
+        - dynamicwaiting
+        - QTCTESTSYSTEM
 
 
     # Optional parameters
@@ -57,11 +60,7 @@
     GUI_update_interval: 200.0 # How often should the GUI be updated in ms
     store_data_as: json # Additional parameter, usually data will be stored as ascii during measurement, but for the database it is easier to store data as json
     # but if you need the data in another format you can specify it here
-    Django_server:
-        Start_Server: False
-        Path: C:/Users/dbloech/PycharmProjects/DoHoCo/manage.py
-        IP: 127.0.0.1
-        Port: 8000
+    Current_directory: "./__temp__" # A directory which you can choose, for the start value for saving files
 
     Socket_connection: # Config for the socket connection, for data transfer between processes
         Host:
@@ -69,8 +68,9 @@
           Port: 65432
 
         Client:
-          IP: 127.0.0.4
-          Port: 65432
+          Telegram:
+            IP: 127.0.0.4
+            Port: 65432
 
     GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
 
@@ -86,61 +86,69 @@
         - FrequencyScan
         - DynamicWaiting
         - DataVisualization
+        - QTCSelfTest
         - Documentation
 
     # Devices aliases for internal use, the key will then be the frameworks internal representation and the value is the display name
-#    Aliases:
-#        #temphum_controller: BrandBox
-#        HVSwitching: BrandBox
-#        LVSwitching: Keithley 708B Switching
-#        BiasSMU: 2657 Keithley SMU
-#        LCRMeter: Agilent E4980A
-#        #BiasSMU: 2410 Keithley SMU
-#        Table_control: ITK Corvus
-#        #lights_controller: BrandBox
-#
-#    Devices:
-#       2410SMU:
-#            Device_name: 2410 Keithley SMU                                                                  # The actual device name from which it should get all commands
-#            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H
-#            Connection_resource: IP:TCPIP0::10.0.0.5::10001::SOCKET
-#            VISA_attributes:
-#              read_termination: "\r"
-#
-#       Corvus:
-#            Device_name: ITK Corvus
-#            Device_IDN: Corvus 1 462 1 0
-#            Connection_resource: IP:TCPIP0::10.0.0.5::10003::SOCKET
-#            VISA_attributes:
-#              read_termination: "\r"
-#
-#       2657SMU:
-#            Device_name: 2657 Keithley SMU
-#            Connection_resource: IP:TCPIP0::10.0.0.3::inst0::INSTR
-#            Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.8
-#
-#       BrandBox:
-#            Device_name: BrandBox
-#            Connection_resource: IP:TCPIP0::10.0.0.7::10001::SOCKET
-#            Device_IDN: Brandbox Controller V1.0/04.Nov.2019
-#            VISA_attributes:
-#              read_termination: "\r"
-#
-#       Elektrometer:
-#            Device_name: 6517B Keithley Elektrometer
-#            Connection_resource: IP:TCPIP0::10.0.0.5::10002::SOCKET
-#            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E
-#            VISA_attributes:
-#              read_termination: "\r"
-#              timeout: 5000
-#
-#       Matrix:
-#            Device_name: Keithley 708B Switching
-#            Connection_resource: IP:TCPIP0::10.0.0.4::inst0::INSTR
-#            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
-#            Cards: 1 # Device specific variable used to determine how many cards are inserted
-#
-#       LCRmeter:
-#            Device_name: Agilent E4980A
-#            Device_IDN: Agilent Technologies,E4980A,MY46415053,A.06.15
-#            Connection_resource: IP:TCPIP0::10.0.0.6::inst0::INSTR
+    Aliases:
+        temphum_controller: ENV_BrandBox
+        HVSwitching: SWITCH_BrandBox
+        LVSwitching: Keithley 708B Switching
+        BiasSMU: 2657 Keithley SMU
+        LCRMeter: Agilent E4980A
+        DischargeSMU: 2410 Keithley SMU
+        Table_control: ITK Corvus
+        lights_controller: ENV_BrandBox
+
+    Devices:
+       2410SMU:
+            Device_name: 2410 Keithley SMU                                                                  # The actual device name from which it should get all commands
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 2410,0854671,C33   Mar 31 2015 09:32:39/A02  /J/H
+            Connection_resource: IP:TCPIP0::10.0.0.5::10001::SOCKET
+            VISA_attributes:
+              read_termination: "\r"
+
+       Corvus:
+            Device_name: ITK Corvus
+            Device_IDN: Corvus 1 462 1 0
+            Connection_resource: IP:TCPIP0::10.0.0.5::10003::SOCKET
+            VISA_attributes:
+              read_termination: "\r"
+
+       2657SMU:
+            Device_name: 2657 Keithley SMU
+            Connection_resource: IP:TCPIP0::10.0.0.3::inst0::INSTR
+            Device_IDN: Keithley Instruments Inc., Model 2657A, 4356871, 1.1.8
+
+       ENV_BrandBox:
+            Device_name: ENV_BrandBox
+            Connection_resource: IP:TCPIP0::10.0.0.8::10001::SOCKET
+            Device_IDN: ENV Box V1.1/18.May.2020
+            VISA_attributes:
+              read_termination: "\r"
+
+       SWITCH_BrandBox:
+            Device_name: SWITCH_BrandBox
+            Connection_resource: IP:TCPIP0::10.0.0.7::10001::SOCKET
+            Device_IDN: Brandbox Controller V1.0/04.Nov.2019
+            VISA_attributes:
+              read_termination: "\r"
+
+       Elektrometer:
+            Device_name: 6517B Keithley Elektrometer
+            Connection_resource: IP:TCPIP0::10.0.0.5::10002::SOCKET
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 6514,4022702,A13   Aug 30 2011 15:09:19/A02  /E
+            VISA_attributes:
+              read_termination: "\r"
+              timeout: 5000
+
+       Matrix:
+            Device_name: Keithley 708B Switching
+            Connection_resource: IP:TCPIP0::10.0.0.4::inst0::INSTR
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
+            Cards: 1 # Device specific variable used to determine how many cards are inserted
+
+       LCRmeter:
+            Device_name: Agilent E4980A
+            Device_IDN: Agilent Technologies,E4980A,MY46415053,A.06.15
+            Connection_resource: IP:TCPIP0::10.0.0.6::inst0::INSTR

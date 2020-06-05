@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>Overview: module code &mdash; COMET beta documentation</title>
+  <title>COMET crashed or I found a BUG, what should I do &mdash; COMET beta documentation</title>
   
 
   
@@ -34,7 +34,9 @@
   <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
   <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
     <link rel="index" title="Index" href="../genindex.html" />
-    <link rel="search" title="Search" href="../search.html" /> 
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Measurement Tool Box functions" href="../Tools.html" />
+    <link rel="prev" title="TCP/IP Server" href="TCPIPserver.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -101,14 +103,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../measurement_plugins/Stripscan.html">Stripscan</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../measurement_plugins/RelaxTimeAnalysis.html">Relaxation Time Analysis</a></li>
 </ul>
-<p class="caption"><span class="caption-text">General Purpose Plugins</span></p>
-<ul>
+<p class="caption"><span class="caption-text">General Purpose Plugins/features</span></p>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/resources.html">Resources Tab</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Device_Com.html">Device Communication Tab</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Data_Explorer.html">Data Explorer</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Data_Visualization.html">Data Visualization and Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Data_Visualization.html#gui-specific-functions">GUI specific functions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Documentation.html">Documentation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../GUI_plugins/Switching_Control.html">Switching Matrix Control</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TCPIPserver.html">TCP/IP Server</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">COMET crashed or I found a BUG, what should I do</a></li>
 </ul>
 <p class="caption"><span class="caption-text">Code references</span></p>
 <ul>
@@ -161,10 +166,14 @@
     
       <li><a href="../index.html">Docs</a> &raquo;</li>
         
-      <li>Overview: module code</li>
+      <li>COMET crashed or I found a BUG, what should I do</li>
     
     
       <li class="wy-breadcrumbs-aside">
+        
+            
+            <a href="../_sources/misc/BugReport.rst.txt" rel="nofollow"> View page source</a>
+          
         
       </li>
     
@@ -176,14 +185,59 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <h1>All modules for which code is available</h1>
-<ul><li><a href="measurement_plugins/forge_tools.html">measurement_plugins.forge_tools</a></li>
+  <div class="section" id="comet-crashed-or-i-found-a-bug-what-should-i-do">
+<h1>COMET crashed or I found a BUG, what should I do<a class="headerlink" href="#comet-crashed-or-i-found-a-bug-what-should-i-do" title="Permalink to this headline">¶</a></h1>
+<p>This section is dedicated how to report BUGs and crashes correctly</p>
+<p>Before submitting a BUG report please check the following things:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Have you tried turn it off and on again?</p></li>
+<li><p>Have you read the manual?</p></li>
+<li><p>Are you sure it is a BUG?</p></li>
+<li><p>Have you correctly configured the software?</p></li>
+<li><p>Is the data you provided correct?</p></li>
+<li><p>Have you downloaded the newest version? If not do <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">COMET.py</span> <span class="pre">--update</span></code> and try again.</p></li>
+<li><p>Have you NOT tempered with some code beforehand?</p></li>
+<li><p>Have you checked the logging stream handler for the error message?</p></li>
+<li><p>Have you read and understood the logging stream handler for the error message?</p></li>
+<li><p>Have you googled the error code of the error message?</p></li>
+<li><p>Have you used the software as intended? No random button pressing?</p></li>
 </ul>
+</div></blockquote>
+<p>If the answer is &quot;yes&quot; to all of these above questions. Then please file a report/issue
+on my GitHub page under the COMET repository with as many details as possible like:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>What was it you wanted to do.</p></li>
+<li><p>What did you actually do.</p></li>
+<li><p>When did it happen.</p></li>
+</ul>
+</div></blockquote>
+<p>Please always provide the most recent logging output and the actual error message.</p>
+<p>If the logging output does not yield useful information, to backtrace the problem, please change the
+logging level in the option &quot;Logging/Set Logging Level&quot;. Here you can change the logging level of all logging handlers.
+I would recommend to change the logging level of the &quot;FileRotationHandler&quot;, since it is persistent. Then trigger the error and
+provide the last few logging messages from this.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>In my experience the most errors happen due to wrong use or wrong configurations. So please make sure you have read the manual and use the software as intended.</p>
+</div>
+</div>
+
 
            </div>
            
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../Tools.html" class="btn btn-neutral float-right" title="Measurement Tool Box functions" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="TCPIPserver.html" class="btn btn-neutral float-left" title="TCP/IP Server" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>

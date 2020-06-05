@@ -1,6 +1,7 @@
-if __name__ == '__main__':
+if __name__ == "__main__":
     import os
     import platform
+
     OS = platform.system()
     dir_path = os.path.dirname(os.path.realpath(__file__))
     os.system("cd {}".format(dir_path))
@@ -12,5 +13,6 @@ if __name__ == '__main__':
             os.system("export DISPLAY:=0.0")
         except:
             pass
-    from COMET.main import main # This starts the actual measurement software
+    from COMET.main import main  # This starts the actual measurement software
+
     main()

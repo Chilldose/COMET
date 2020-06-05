@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 #                 PyuEye example - camera modul
 #
 # Copyright (c) 2017 by IDS Imaging Development Systems GmbH.
@@ -28,10 +28,11 @@
 # CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
-#------------------------------------------------------------------------------
+# ------------------------------------------------------------------------------
 
 from pyueye import ueye
-from .pyueye_utils import (uEyeException, Rect, get_bits_per_pixel, ImageBuffer, check)
+from .pyueye_utils import uEyeException, Rect, get_bits_per_pixel, ImageBuffer, check
+
 
 class Camera:
     def __init__(self, device_id=0):
@@ -57,10 +58,10 @@ class Camera:
 
         for i in range(buffer_count):
             buff = ImageBuffer()
-            ueye.is_AllocImageMem(self.h_cam,
-                                  rect.width, rect.height, bpp,
-                                  buff.mem_ptr, buff.mem_id)
-            
+            ueye.is_AllocImageMem(
+                self.h_cam, rect.width, rect.height, bpp, buff.mem_ptr, buff.mem_id
+            )
+
             check(ueye.is_AddToSequence(self.h_cam, buff.mem_ptr, buff.mem_id))
 
             self.img_buffers.append(buff)
@@ -72,7 +73,7 @@ class Camera:
         if ret != ueye.IS_SUCCESS:
             self.h_cam = None
             raise uEyeException(ret)
-            
+
         return ret
 
     def exit(self):
@@ -84,12 +85,16 @@ class Camera:
 
     def get_aoi(self):
         rect_aoi = ueye.IS_RECT()
-        ueye.is_AOI(self.h_cam, ueye.IS_AOI_IMAGE_GET_AOI, rect_aoi, ueye.sizeof(rect_aoi))
+        ueye.is_AOI(
+            self.h_cam, ueye.IS_AOI_IMAGE_GET_AOI, rect_aoi, ueye.sizeof(rect_aoi)
+        )
 
-        return Rect(rect_aoi.s32X.value,
-                    rect_aoi.s32Y.value,
-                    rect_aoi.s32Width.value,
-                    rect_aoi.s32Height.value)
+        return Rect(
+            rect_aoi.s32X.value,
+            rect_aoi.s32Y.value,
+            rect_aoi.s32Width.value,
+            rect_aoi.s32Height.value,
+        )
 
     def set_aoi(self, x, y, width, height):
         rect_aoi = ueye.IS_RECT()
@@ -98,7 +103,9 @@ class Camera:
         rect_aoi.s32Width = ueye.int(width)
         rect_aoi.s32Height = ueye.int(height)
 
-        return ueye.is_AOI(self.h_cam, ueye.IS_AOI_IMAGE_SET_AOI, rect_aoi, ueye.sizeof(rect_aoi))
+        return ueye.is_AOI(
+            self.h_cam, ueye.IS_AOI_IMAGE_SET_AOI, rect_aoi, ueye.sizeof(rect_aoi)
+        )
 
     def capture_video(self, wait=False):
         wait_param = ueye.IS_WAIT if wait else ueye.IS_DONT_WAIT
@@ -106,24 +113,34 @@ class Camera:
 
     def stop_video(self):
         return ueye.is_StopLiveVideo(self.h_cam, ueye.IS_FORCE_VIDEO_STOP)
-    
+
     def freeze_video(self, wait=False):
         wait_param = ueye.IS_WAIT if wait else ueye.IS_DONT_WAIT
         return ueye.is_FreezeVideo(self.h_cam, wait_param)
 
     def set_colormode(self, colormode):
         check(ueye.is_SetColorMode(self.h_cam, colormode))
-        
+
     def get_colormode(self):
         ret = ueye.is_SetColorMode(self.h_cam, ueye.IS_GET_COLOR_MODE)
         return ret
 
     def get_format_list(self):
         count = ueye.UINT()
-        check(ueye.is_ImageFormat(self.h_cam, ueye.IMGFRMT_CMD_GET_NUM_ENTRIES, count, ueye.sizeof(count)))
+        check(
+            ueye.is_ImageFormat(
+                self.h_cam, ueye.IMGFRMT_CMD_GET_NUM_ENTRIES, count, ueye.sizeof(count)
+            )
+        )
         format_list = ueye.IMAGE_FORMAT_LIST(ueye.IMAGE_FORMAT_INFO * count.value)
         format_list.nSizeOfListEntry = ueye.sizeof(ueye.IMAGE_FORMAT_INFO)
         format_list.nNumListElements = count.value
-        check(ueye.is_ImageFormat(self.h_cam, ueye.IMGFRMT_CMD_GET_LIST,
-                                  format_list, ueye.sizeof(format_list)))
+        check(
+            ueye.is_ImageFormat(
+                self.h_cam,
+                ueye.IMGFRMT_CMD_GET_LIST,
+                format_list,
+                ueye.sizeof(format_list),
+            )
+        )
         return format_list

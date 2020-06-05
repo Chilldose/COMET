@@ -1,0 +1,8 @@
+# Measurement file: 
+ # Project: Cabel Tests
+ # Sensor Type: Cabel
+ # ID: sdef
+ # Operator: Dominic
+ # Date: Wed May 20 18:43:00 2020
+
+

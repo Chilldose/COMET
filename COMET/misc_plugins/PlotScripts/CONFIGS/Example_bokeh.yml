@@ -18,25 +18,26 @@
   
   # The backend which will be used for plotting
   backend: bokeh
-  
+  override_data: True
   
   # if you dont want to use the extracted ones (only works wit
 
-  
-
-    
   Files:
     - ".\\testdata\\DiodeIVCV_1.txt"
     - ".\\testdata\\DiodeIVCV_2.txt"
     - ".\\testdata\\DiodeIVCV_3.txt"
     
-  Output: ".\\testdata\\plots"
+  Output: ".\\testdata\\test_export"
 
   Analysis:
     - IVCV_QTC # The type of analysis, which will be performed
   Save_as:
     - png
     - html
+    - json
+    - xml
+    
+  xml_template_path: ".\\CONFIGS\\CMSxmlTemplate.yml"
 
 # Optional Parameters
 

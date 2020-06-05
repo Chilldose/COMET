@@ -12,9 +12,10 @@ class keyPress_handler(QObject):
     def on_key(key):
         # test for a specific key
         if key == QtCore.Qt.Key_Return:
-            print('return key pressed')
+            print("return key pressed")
         else:
-            print('key pressed: %i' % key)
+            print("key pressed: %i" % key)
+
 
 # usage:
-#self.widget.keyPressed.connect(on_key)
+# self.widget.keyPressed.connect(on_key)

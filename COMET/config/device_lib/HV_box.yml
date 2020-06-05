@@ -1,23 +1,31 @@
 ---
-    Device_name: BrandBox
+    Device_name: SWITCH_BrandBox
     get_relay_state: "GET:"
 
     # All set parameters
-    set_terminal: SET:TERM
+    #set_terminal: SET:TERM
     set_discharge: SET:DISCHARGE {} # ON/OFF
-    set_external_light: SET:BOX_LED {} # ON/OFF
+    set_external_light: SET:BOX_LIGHT {} # ON/OFF
     set_environement_control: SET:CTRL {} # ON/OFF
     set_open_channel: :open {}
     set_open_channel_all: :open A1,A2,B1,B2,C1,C2 {}
-    set_mode: SET:MOD {} 
+    set_mode: SET:MOD {}
     set_relay: "SET: {}"
     set_close_channel: :clos {}
-    set_hummin: SET:HUM_MIN {}
-    set_hummax: SET:HUM_MAX {}
+    set_hum: SET:SETPOINT {}
+    set_control:  SET:CTRL_MODE {}
     set_lock_switches: SET:TST {}
+    set_clear_log: SET:CLEAR_LOG {}
+    set_box_light: SET:BOX_LIGHT {}
+    set_microscope_light:  SET:MICROSCOPE_LIGHT {}
 
     # All get parameters
-    get_enviroment: GET:ENV ?
+    get_environment: GET:ENV ? # Airtemp, airhum, chucktemp
+    get_box_environment: GET:DATA_BOX ? # airhum, Airtemp, dew_point
+    get_lux: GET:LUX ?
+    #get_door: GET:DOOR ?
+    get_vacuum: GET:VALVE_ON ?
+    get_vavuum_controller: GET:CTRL ?
     get_status: "*STB?"
     get_open_channels: :open:STAT?
     get_lock_switch: GET:TST
@@ -28,16 +36,19 @@
       success: "1"
 
     reset:
-        - terminal: "OFF"
-        - external_light: "OFF"
+        #- clear_log: "YES"
+        #- terminal: "OFF"
+        #- external_light: "OFF"
         - open_channel: "A1,A2,B1,B2,C1,C2"
+        #- control: "HUM"
+        #- box_light: "OFF"
+        #- microscope_light: "OFF"
 
     # Misc
+    reset_device: []
     separator: ","
     bias_relay: A
     LCR_relay: B
     Device_type:
             - Switching relay
-            - Light controller
-            - Environment controller
     requires_read_on_set: True # If an acc is comming from the device after a set parameter

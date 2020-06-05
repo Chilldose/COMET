@@ -1,6 +1,7 @@
 from PyQt5 import QtCore
 from PyQt5 import QtWidgets
 
+
 class PluginWidget(QtWidgets.QWidget):
     """Widget for plugins tabs."""
 
