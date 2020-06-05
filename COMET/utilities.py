@@ -1098,17 +1098,63 @@ class LogFile:
 
         self.welcome_string = (
             "\n"
-            "\t\t\t\t\t\t\t\t  __         ______     ______     ______   __     __         ______           ______     ______   ______\n  \
-                               /\ \       /\  __ \   /\  ___\   /\  ___\ /\ \   /\ \       /\  ___\         /\  __ \   /\__  _\ /\  ___\ \n   \
-                              \ \ \____  \ \ \/\ \  \ \ \__ \  \ \  __\ \ \ \  \ \ \____  \ \  __\         \ \ \/\_\  \/_/\ \/ \ \ \____ \n  \
-                                \ \_____\  \ \_____\  \ \_____\  \ \_\    \ \_\  \ \_____\  \ \_____\        \ \___\_\    \ \_\  \ \_____\ \n \
-                                  \/_____/   \/_____/   \/_____/   \/_/     \/_/   \/_____/   \/_____/         \/___/_/     \/_/   \/_____\n\n\n"
+            "  __         ______     ______     ______   __     __         ______ \n"  
+            " /\ \       /\  __ \   /\  ___\   /\  ___\ /\ \   /\ \       /\  ___\ \n"  
+            " \ \ \____  \ \ \/\ \  \ \ \__ \  \ \  __\ \ \ \  \ \ \____  \ \  __\  \n"   
+            "  \ \_____\  \ \_____\  \ \_____\  \ \_\    \ \_\  \ \_____\  \ \_____\  \n"  
+            "   \/_____/   \/_____/   \/_____/   \/_/     \/_/   \/_____/   \/_____/ _\n\n\n"
         )
+
+        snoopy = ("\n\n\n             XXXX\n"
+        "             X    XX\n"
+        "            X  ***  X                XXXXX\n"
+        "           X  *****  X            XXX     XX\n"
+        "        XXXX ******* XXX      XXXX          XX\n"
+    "      XX   X ******  XXXXXXXXX                XX XXX\n"
+    "    XX      X ****  X                           X** X\n"
+"   X        XX    XX     X                      X***X\n"
+"  X         //XXXX       X                      XXXX\n"
+" X         //   X                             XX\n"
+"X         //    X          XXXXXXXXXXXXXXXXXX/ \n"
+"X     XXX//    X          X\n"
+"X    X   X     X         X\n"
+"X    X    X    X        X\n"
+" X   X    X    X        X                    XX\n"
+" X    X   X    X        X                 XXX  XX\n"
+"  X    XXX      X        X               X  X X  X\n"
+"  X             X         X              XX X  XXXX\n"
+"   X             X         XXXXXXXX/     XX   XX  X\n"
+"    XX            XX              X     X    X  XX\n"
+"      XX            XXXX   XXXXXX/     X     XXXX\n"
+"        XXX             XX***         X     X\n"
+"           XXXXXXXXXXXXX *   *       X     X\n"
+"                        *---* X     X     X\n"
+"                       *-* *   XXX X     X\n"
+"                       *- *       XXX   X\n"
+"                      *- *X          XXX\n"
+"                      *- *X  X          XXX\n"
+"                     *- *X    X            XX\n"
+"                     *- *XX    X             X\n"
+"                    *  *X* X    X             X\n"
+"                    *  *X * X    X             X\n"
+"                   *  * X**  X   XXXX          X\n"
+"                   *  * X**  XX     X          X\n"
+"                  *  ** X** X     XX          X\n"
+"                 *  **  X*  XXX   X         X\n"
+"                 *  **    XX   XXXX       XXX\n"
+"                *  * *      XXXX      X     X\n"
+"               *   * *          X     X     X\n"
+" >>>>>>>*******   * *           X     X      XXXXXXXX/ \n"
+"        *         * *      /XXXXX      XXXXXXXX/      <\n"
+"   >>>>>**********  *     X                     <  /  <\n"
+"     >>>>*         *     X               /  /   <XXXXX\n"
+">>>>>>>>>**********       XXXXXXXXXXXXXXXXXXXXXX\n")
 
         # Create a logger Object
         self.LOG = logging.getLogger("Logfile")
         # Print welcome message
         self.LOG.info(self.welcome_string)
+        self.LOG.debug(snoopy)
         if to_log:
             self.LOG.info(to_log)
 
