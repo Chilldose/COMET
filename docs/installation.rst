@@ -10,9 +10,12 @@ I recommended to use COMET with an Anaconda python distribution which you can do
 
 .. warning:: Make sure to download the 64-bit version!
 
+.. note:: You can alternatively install a miniconda version, if the full anaconda is to heavy.
+
 it will work with a normal python version too, but I have not tested it. Furthermore, i have set up an Anaconda environment,
 so you do not need to painfully install all modules by hand.
 
+.. note:: The next step is only needed if you intend to use the probe station device communication functionality. If you do not need it skip the next part.
 
 **Secondly** you need to install National Instrument VISA drivers. These drivers can be found here:
 
@@ -33,11 +36,18 @@ The program is known to be running on Windows, Linux (Centos7) and Mac.
 Setting Up The Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-With python up and running, you can run the **environement_setup.py <your_system_req_file.yml** file by e.g.::
+With python up and running, you can run the **setup.py** file.
+This will then install all packages the software needs to be fully functional. ::
 
-    python environment_setup.py requiremnts_Winx86.yml
+    python setup.py
 
-this will (if Anaconda is installed) automatically install all required modules for the program to run. If you don't have Anaconda installed and don't want to use it, you can look in the "requirements.yml" file to see what dependencies the program needs.
+If something does not go as intended you can try to install a specific OS setup file by e.g. ::
+
+    python setup.py COMET/resources/<your_system_req_file.yml>
+
+this will (if Anaconda is installed) automatically install all required modules for the program to run.
+If you don't have Anaconda installed and don't want to use it, you can look in the "COMET/resources/requirements.yml" file to see what dependencies the program needs.
+If the software cannot find anaconda installed it will ask you to directly install the "normal" python pip file.
 
 Once installed, test (Only SQC)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

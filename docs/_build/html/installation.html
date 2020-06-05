@@ -202,8 +202,16 @@ I recommended to use COMET with an Anaconda python distribution which you can do
 <p class="admonition-title">Warning</p>
 <p>Make sure to download the 64-bit version!</p>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can alternatively install a miniconda version, if the full anaconda is to heavy.</p>
+</div>
 <p>it will work with a normal python version too, but I have not tested it. Furthermore, i have set up an Anaconda environment,
 so you do not need to painfully install all modules by hand.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The next step is only needed if you intend to use the probe station device communication functionality. If you do not need it skip the next part.</p>
+</div>
 <p><strong>Secondly</strong> you need to install National Instrument VISA drivers. These drivers can be found here:</p>
 <p><a class="reference external" href="http://www.ni.com/download/ni-visa-17.0/6646/en/">NI-Visa drivers</a></p>
 <p>You will need drivers higher than 17.0 for COMET to work properly. If you have installed a LabView version it is usually already
@@ -222,11 +230,18 @@ BUT these drivers are far from perfect and not as sophisticated as the NI driver
 </div>
 <div class="section" id="setting-up-the-environment">
 <h2>Setting Up The Environment<a class="headerlink" href="#setting-up-the-environment" title="Permalink to this headline">¶</a></h2>
-<p>With python up and running, you can run the <strong>environement_setup.py &lt;your_system_req_file.yml</strong> file by e.g.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">py</span> <span class="n">requiremnts_Winx86</span><span class="o">.</span><span class="n">yml</span>
+<p>With python up and running, you can run the <strong>setup.py</strong> file.
+This will then install all packages the software needs to be fully functional.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
-<p>this will (if Anaconda is installed) automatically install all required modules for the program to run. If you don't have Anaconda installed and don't want to use it, you can look in the &quot;requirements.yml&quot; file to see what dependencies the program needs.</p>
+<p>If something does not go as intended you can try to install a specific OS setup file by e.g.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">COMET</span><span class="o">/</span><span class="n">resources</span><span class="o">/&lt;</span><span class="n">your_system_req_file</span><span class="o">.</span><span class="n">yml</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>this will (if Anaconda is installed) automatically install all required modules for the program to run.
+If you don't have Anaconda installed and don't want to use it, you can look in the &quot;COMET/resources/requirements.yml&quot; file to see what dependencies the program needs.
+If the software cannot find anaconda installed it will ask you to directly install the &quot;normal&quot; python pip file.</p>
 </div>
 <div class="section" id="once-installed-test-only-sqc">
 <h2>Once installed, test (Only SQC)<a class="headerlink" href="#once-installed-test-only-sqc" title="Permalink to this headline">¶</a></h2>

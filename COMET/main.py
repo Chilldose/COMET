@@ -109,11 +109,11 @@ def main():
         try:
             osType = sys.platform
             if "win" in osType.lower():
-                version = "requirements_Winx86.yml"
+                version = "COMET/resources/requirements_Winx86.yml"
             elif "linux" in osType.lower():
-                version = "requirements_LINUX_x86_64.yml"
+                version = "COMET/resources/requirements_LINUX_x86_64.yml"
             else:
-                version = "requirements_MacOS.yml"
+                version = "COMET/resources/requirements_MacOS.yml"
             os.system(
                 "conda env update --prefix ./env --file {}  --prune".format(version)
             )
