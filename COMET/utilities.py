@@ -2518,3 +2518,36 @@ def force_plot_update(settings_dict):
     """Forces the GUI to replot all plots. Needs the settings dict """
     settings_dict["new_data"] = True  # Initiates the update of the plots
     settings_dict["last_plot_update"] = settings_dict["update_counter"]
+
+def update_envrionment():
+    """Tries to pull from the remote git and updates the env"""
+    l.critical("Try getting Git remote repo...")
+    try:
+        import git
+        repo = git.Repo()
+        o = repo.remotes.origin
+        l.info(o.fetch())
+        l.info(o.pull())
+    except Exception as err:
+        l.error(
+            "An error happened while updating COMET source code.", exc_info=True
+        )
+
+    l.critical("Checking conda environment requirements...")
+    try:
+        osType = sys.platform
+        if "win" in osType.lower():
+            version = "COMET/resources/requirements_Winx86.yml"
+        elif "linux" in osType.lower():
+            version = "COMET/resources/requirements_LINUX_x86_64.yml"
+        else:
+            version = "COMET/resources/requirements_MacOS.yml"
+        os.system(
+            "conda env update --prefix ./env --file {}  --prune".format(version)
+        )
+    except Exception as err:
+        l.error(
+            "An error happened while updating COMET environment.", exc_info=True
+        )
+
+    l.critical("Please restart COMET for the updates to have an effect!")
