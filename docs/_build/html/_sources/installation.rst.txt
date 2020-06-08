@@ -75,3 +75,27 @@ If you just want the latest version of COMET, download it from my GitHub reposit
 `Git repo <https://github.com/Chilldose/COMET>`_.
 
 Once you have the version you like, continue with the :ref:`Getting Started` section.
+
+
+I want to start COMET with point an click
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Since python scripts are usually started via the command line. In the case of COMET ::
+
+  python COMET.py
+
+it is not intended to have a "double-click" function. Furthermore, COMET comes with some command line arguments you can use.
+But if you really want to have a icon to click. You can do the following.
+
+In the operating system of your choice you have to find the installation directory of you anaconda installation.
+Under win10 its something like ``C:\Users\MyUserName\anaconda3``. For linux and Mac it is similar.
+
+The create a .bat (for win) or .sh (for linux) file inside the commands ::
+
+  call C:\Users\MyUserName\anaconda3\Scripts\activate.bat C:\Users\MyUserName\anaconda3\envs\COMET
+  call cd C:\<path_to_the_COMET_dir>\
+  call python COMET.py
+  pause
+
+need to be executed. In this case for a .bat file. If you do not have Anaconda installed you can delete the first entry, which simply activates
+the conda env for COMET.

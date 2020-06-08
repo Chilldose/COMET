@@ -1074,7 +1074,7 @@ class LogFile:
                 # If directory is non existent create it
                 # Todo: Here a dir will be made after installation, so if this prohibited go to the other dir
                 if "file" in config["handlers"]:
-                    pathtologfile = config["handlers"]["file"]["filename"].split("/")
+                    pathtologfile = os.path.normpath(config["handlers"]["file"]["filename"]).split(os.sep)
                     if not os.path.isdir(
                         os.path.join(os.getcwd(), *pathtologfile[:-1])
                     ):

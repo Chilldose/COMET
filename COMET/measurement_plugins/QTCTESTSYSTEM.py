@@ -90,8 +90,12 @@ class QTCTESTSYSTEM_class(tools):
             .get("CARD", None)
         )
         self.height = 5000  # 5 mm height movement
+        self.T = self.main.framework["Configs"]["config"]["settings"]["trans_matrix"]
+        self.V0 = self.main.framework["Configs"]["config"]["settings"]["V0"]
+
         self.samples = 1000  # The amount of samples each measurement must have
         self.subsamples = 1  # Number of samples for filtering
+        self.do_IV = False # If a chuck IV should be done or not
         self.T = self.main.framework["Configs"]["config"]["settings"].get(
             "trans_matrix", None
         )
@@ -241,7 +245,7 @@ class QTCTESTSYSTEM_class(tools):
             )
 
             # Check if not the IVempty measurement######################################################################
-            if meas == "IVempty":
+            if meas == "IVempty" and self.do_IV:
 
                 set_voltage_0 = self.main.build_command(
                     self.data["Switching"][idx][2], ("set_voltage", "0")
@@ -342,7 +346,19 @@ class QTCTESTSYSTEM_class(tools):
     def test_card_measurements(self):
         """Does the KIT test card measurements. It switches either to Rpoly, Cac, or Cint and conducts the measurement
         on the card. Each measurement will be repeated self.samples times and the table will recontact every time."""
-        pass
+        for part in self.self.data["TestCard"]: # Loop over all testcard entries
+            if self.main.table.move_to_strip(
+                    self.sensor_pad_data,
+                    part,
+                    self.trans,
+                    self.T,
+                    self.V0,
+                    self.height,
+            ):
+
+                # Do the individual measurements
+                pass
+
 
     def save_results(self):
         """Saves everything to a file"""

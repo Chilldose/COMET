@@ -92,6 +92,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-the-environment">Setting Up The Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#once-installed-test-only-sqc">Once installed, test (Only SQC)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#download-the-comet-source-code">Download the COMET source code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#i-want-to-start-comet-with-point-an-click">I want to start COMET with point an click</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
@@ -266,6 +267,26 @@ connected to your system these should be listed now.</p>
 <p>If you just want the latest version of COMET, download it from my GitHub repository.</p>
 <p><a class="reference external" href="https://github.com/Chilldose/COMET">Git repo</a>.</p>
 <p>Once you have the version you like, continue with the <a class="reference internal" href="gettingstarted.html#getting-started"><span class="std std-ref">Getting Started</span></a> section.</p>
+</div>
+<div class="section" id="i-want-to-start-comet-with-point-an-click">
+<h2>I want to start COMET with point an click<a class="headerlink" href="#i-want-to-start-comet-with-point-an-click" title="Permalink to this headline">¶</a></h2>
+<p>Since python scripts are usually started via the command line. In the case of COMET</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">COMET</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>it is not intended to have a &quot;double-click&quot; function. Furthermore, COMET comes with some command line arguments you can use.
+But if you really want to have a icon to click. You can do the following.</p>
+<p>In the operating system of your choice you have to find the installation directory of you anaconda installation.
+Under win10 its something like <code class="docutils literal notranslate"><span class="pre">C:\Users\MyUserName\anaconda3</span></code>. For linux and Mac it is similar.</p>
+<p>The create a .bat (for win) or .sh (for linux) file inside the commands</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">call</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">MyUserName</span>\<span class="n">anaconda3</span>\<span class="n">Scripts</span>\<span class="n">activate</span><span class="o">.</span><span class="n">bat</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">MyUserName</span>\<span class="n">anaconda3</span>\<span class="n">envs</span>\<span class="n">COMET</span>
+<span class="n">call</span> <span class="n">cd</span> <span class="n">C</span><span class="p">:</span>\<span class="o">&lt;</span><span class="n">path_to_the_COMET_dir</span><span class="o">&gt;</span>\
+<span class="n">call</span> <span class="n">python</span> <span class="n">COMET</span><span class="o">.</span><span class="n">py</span>
+<span class="n">pause</span>
+</pre></div>
+</div>
+<p>need to be executed. In this case for a .bat file. If you do not have Anaconda installed you can delete the first entry, which simply activates
+the conda env for COMET.</p>
 </div>
 </div>
 
