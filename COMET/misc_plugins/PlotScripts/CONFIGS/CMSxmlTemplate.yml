@@ -1,4 +1,6 @@
 ---
+  Settings_name: CMSxmlTemplate
+
   Template:
     HEADER:
       TYPE:
@@ -30,6 +32,30 @@
     Cac:
         STRIP: <Pad>
         CAPCTNC_PFRD: <Cac>
+        TEMP_DEGC: <Temperature>
+        RH_PRCNT: <Humidity>
+        BIASCURRNT_NAMPR: <Idark>
+    Cint:
+        STRIPCOUPLE: <Pad>
+        CAPCTNC_PFRD: <Cint>
+        TEMP_DEGC: <Temperature>
+        RH_PRCNT: <Humidity>
+        BIASCURRNT_NAMPR: <Idark>
+    Rpoly:
+        STRIP: <Pad>
+        RESSTNC_MOHM: <Rpoly>
+        TEMP_DEGC: <Temperature>
+        RH_PRCNT: <Humidity>
+        BIASCURRNT_NAMPR: <Idark>
+    Rint:
+        STRIPCOUPLE: <Pad>
+        RESSTNC_GOHM: <Rint>
+        TEMP_DEGC: <Temperature>
+        RH_PRCNT: <Humidity>
+        BIASCURRNT_NAMPR: <Idark>
+    Idiel:
+        STRIP: <Pad>
+        CURRNTPH_NAMPR: <Idiel>
         TEMP_DEGC: <Temperature>
         RH_PRCNT: <Humidity>
         BIASCURRNT_NAMPR: <Idark>
