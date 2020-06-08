@@ -180,7 +180,7 @@ class IVCV_QTC:
         Left_stats = 0
         for endidx in range(
             minSize + startidx, len(df) - startidx - minSize + 1
-        ):  # Start a 5 since the linear fit needs at least a few values to work
+        ):  # Start at 5 since the linear fit needs at least a few values to work
             # Left slope
             slope_left, intercept_left, r_left, lp_value, std_err_left = linregress(
                 df["xaxis"][startidx:endidx], df["yaxis"][startidx:endidx]
