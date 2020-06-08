@@ -263,7 +263,7 @@ def save_plot(name, subplot, save_dir, save_as=("default"), backend="bokeh"):
                         os.path.join(save_dir, name) + ".html",
                         backend=backend,
                     )
-                    subplot.opts(toolbar="disable")
+                    subplot.opts(toolbar=None)
 
                 elif save_format.lower() == "png":
                     save_dir = os.path.join(path, "png")
