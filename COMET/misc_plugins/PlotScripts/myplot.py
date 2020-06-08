@@ -148,7 +148,11 @@ class PlottingMain:
         self.log.info("Saving data...")
         from forge.tools import save_data
 
+        if progress_queue:
+            progress_queue.put({"STATE": "Saving Data..."})
         save_data(self, self.config.get("Save_as", []), save_dir, to_call=to_call)
+        if progress_queue:
+            progress_queue.put({"STATE": "IDLE"})
 
         # check if any plot should be saved
         anyplot = False
