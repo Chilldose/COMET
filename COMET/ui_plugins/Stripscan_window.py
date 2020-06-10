@@ -207,15 +207,19 @@ class Stripscan_window:
     def update_strip(self):
         """Updates the strip number and the progress bar"""
         # Loop over all possible measurement and find the highest strip number, which defines the current strip
-        current_strip = int(
-            self.variables.default_values_dict["settings"]["current_strip"]
-        )
+
+        current_strip = self.variables.default_values_dict["settings"]["current_strip"]
         self.stripscan.currentstrip_lcd.display(
-            int(current_strip)
+            current_strip
         )  # sets the display to the desired value
-        self.stripscan.stripscan_progressBar.setValue(
-            ((float(current_strip) + 1.0) / self.number_of_strips) * 100
-        )
+        try:
+            self.stripscan.stripscan_progressBar.setValue(
+                ((float(current_strip) + 1.0) / self.number_of_strips) * 100
+            )
+        except:
+            self.stripscan.stripscan_progressBar.setValue(
+                (1.0 / self.number_of_strips) * 100
+            )
 
     def update_bad_strip(self):
         """Updates the bad strip number"""

@@ -71,6 +71,7 @@ class QTCTESTSYSTEM_class(tools):
             self.discharge_SMU = self.main.devices[self.device_configs["DischargeSMU"]]
             self.elmeter = self.main.devices[self.device_configs["Elmeter"]]
             self.SMU2 = self.main.devices[self.device_configs["SMU2"]]
+            self.discharge_dev = self.main.devices[self.device_configs["Switching"]]
             self.discharge_switching = self.main.devices[
                 self.device_configs["Switching"]
             ]
@@ -87,14 +88,14 @@ class QTCTESTSYSTEM_class(tools):
         self.job = self.main.job_details
         self.sensor_pad_data = (
             self.main.framework["Configs"]["additional_files"]["Pad_files"]
-            .get("KIT_probecard", {})
-            .get("CARD", None)
+            .get("KIT Test Card", {})
+            .get("KIT Test Card", None)
         )
-        self.height = 5000  # 5 mm height movement
+        self.height = 3000  # 5 mm height movement
         self.T = self.main.framework["Configs"]["config"]["settings"]["trans_matrix"]
         self.V0 = self.main.framework["Configs"]["config"]["settings"]["V0"]
 
-        self.samples = 1000 # The amount of samples each measurement must have
+        self.samples = 5 # The amount of samples each measurement must have
         self.subsamples = 1  # Number of samples for filtering
         self.do_IV = False # If a chuck IV should be done or not
         self.T = self.main.framework["Configs"]["config"]["settings"].get(
@@ -119,7 +120,11 @@ class QTCTESTSYSTEM_class(tools):
                 ("Rintempty", "Rint", self.elmeter),
                 ("Idielempty", "Idiel", self.SMU2),
                 ("CVempty", "CV", self.LCR_meter),
-                ("IVempty", "IV", self.bias_SMU),
+                ("R1", "Rpoly", self.SMU2),
+                ("R2", "Rint", self.elmeter),
+                ("C1", "Cac", self.LCR_meter),
+                ("C2", "Cint", self.LCR_meter),
+
             ],
             "Empty": {
                 "Chuckleakage": np.zeros(self.samples),
@@ -128,7 +133,6 @@ class QTCTESTSYSTEM_class(tools):
                 "Rpolyempty": np.zeros(self.samples),
                 "Rintempty": np.zeros(self.samples),
                 "Idielempty": np.zeros(self.samples),
-                "IVempty": np.zeros(self.samples),
                 "CVempty": np.zeros(self.samples),
             },
             "units": {
@@ -138,7 +142,6 @@ class QTCTESTSYSTEM_class(tools):
                 "Rpolyempty": "A",
                 "Rintempty": "A",
                 "Idielempty": "A",
-                "IVempty": "A",
                 "CVempty": "F",
                 "R1": "Ohm",
                 "R2": "Ohm",
@@ -150,7 +153,6 @@ class QTCTESTSYSTEM_class(tools):
                 "R2": np.zeros(self.samples),
                 "C1": np.zeros(self.samples),
                 "C2": np.zeros(self.samples),
-                "RC1": np.zeros(self.samples),
             },
         }
 
@@ -191,9 +193,9 @@ class QTCTESTSYSTEM_class(tools):
         # Check if alignment is present or not, if not stop measurement
         if (
             not self.main.framework["Configs"]["config"]["settings"].get(
-                "Alignment", None
+                "Alignment", False
             )
-            or not self.T
+            or not isinstance(self.T, np.ndarray)
             or not self.sensor_pad_data
         ):
             self.log.error(
@@ -212,6 +214,13 @@ class QTCTESTSYSTEM_class(tools):
         # Do device empty tests - Do switching uncontacted and do self.samples measurements
         if not self.testmode:
             self.main.table.move_down(1000.)
+            if not self.capacitor_discharge(
+                    self.discharge_SMU,
+                    self.discharge_dev,
+                    *self.device_configs["Discharge"],
+                    do_anyway=True
+            ):
+                self.stop_everything()
             self.perform_open_correction(self.LCR_meter, self.cal_to, count=50)
             self.empty_measurements()
             self.main.table.move_up(1000.)
@@ -240,7 +249,7 @@ class QTCTESTSYSTEM_class(tools):
             # Get the necessary data
             self.main.framework["Configs"]["config"]["settings"]["QTC_test"][
                 "overallprogress"
-            ] = j / len(list(self.data["Empty"].keys()))
+            ] = (j+1) / len(list(self.data["Empty"].keys()))
             self.main.framework["Configs"]["config"]["settings"]["QTC_test"][
                 "currenttest"
             ] = meas
@@ -347,7 +356,7 @@ class QTCTESTSYSTEM_class(tools):
             for k, sam in enumerate(s):
                 self.main.framework["Configs"]["config"]["settings"]["QTC_test"][
                     "partialprogress"
-                ] = (k / self.samples)
+                ] = ((k+1) / self.samples)
                 self.data["Empty"][meas][i] = sam
                 i += 1
                 sleep(0.05)
@@ -357,10 +366,12 @@ class QTCTESTSYSTEM_class(tools):
     def test_card_measurements(self):
         """Does the KIT test card measurements. It switches either to Rpoly, Cac, or Cint and conducts the measurement
         on the card. Each measurement will be repeated self.samples times and the table will recontact every time."""
-        for j, part in enumerate(self.self.data["TestCard"]): # Loop over all testcard entries
+        for j, part in enumerate(self.data["TestCard"]): # Loop over all testcard entries
 
             if self.main.event_loop.stop_all_measurements_query():
                 break # If the stop signal was send
+
+            switching = {v[0]: v[1] for v in self.data["Switching"]}
 
             if self.main.table.move_to_strip(
                     self.sensor_pad_data,
@@ -369,14 +380,14 @@ class QTCTESTSYSTEM_class(tools):
                     self.T,
                     self.V0,
                     self.height,
-            ) and self.switching.switch_to_measurement(part):
+            ) and self.switching.switch_to_measurement(switching[part]):
                 idx = [k[0] for k in self.data["Switching"]].index(part)
                 device = self.data["Switching"][idx][2]
 
                 # Update the framework
                 self.main.framework["Configs"]["config"]["settings"]["QTC_test"][
                     "overallprogress"
-                ] = j / len(list(self.data["TestCard"].keys()))
+                ] = (j+1) / len(list(self.data["TestCard"].keys()))
                 self.main.framework["Configs"]["config"]["settings"]["QTC_test"][
                     "currenttest"
                 ] = part
@@ -394,7 +405,7 @@ class QTCTESTSYSTEM_class(tools):
                     self.vcw.write(device, set_voltage)
                     sleep(1.0)
                     # Perform the measurements
-                    self.perform_measurement_loop(idx, read, part)
+                    self.perform_measurement_loop(idx, read, part, corr=0, type="TestCard", precommand=self.move_up_down)
                     voltage = 0.
                     set_voltage = self.main.build_command(device, ("set_voltage", voltage))
                     self.vcw.write(device, set_voltage)
@@ -403,36 +414,59 @@ class QTCTESTSYSTEM_class(tools):
 
                 elif part == "R2": # Rint measurement
                     read = self.main.build_command(device, "get_read")
-                    set_output = self.main.build_command(device, ("set_output", "ON"))
-                    self.vcw.write(device, set_output)
+                    set_output = self.main.build_command(self.SMU2, ("set_output", "ON"))
+                    self.vcw.write(self.SMU2, set_output)
 
                     for i in range(self.samples):
                         self.main.framework["Configs"]["config"]["settings"]["QTC_test"][
                             "partialprogress"
-                        ] = (i / self.samples)
+                        ] = ((i+1) / self.samples)
 
                         if not self.main.event_loop.stop_all_measurements_query():
                             values = []
-                            for voltage in np.linspace(-1.0, 1.0, num=10, endpoint=True):
-                                set_voltage = self.main.build_command(device, ("set_voltage", voltage))
-                                self.vcw.write(device, set_voltage)
-                                values.append(self.query_values(self, idx, read, self.subsamples))
-                                slope, intercept, r_value, p_value, std_err = stats.linregress(
-                                    np.linspace(-1.0, 1.0, num=10, endpoint=True), values
-                                )
-                                self.data["Empty"][part][i] = 1/slope
-                                force_plot_update(self.main.framework["Configs"]["config"]["settings"])
 
-                    set_voltage = self.main.build_command(device, ("set_voltage", 0))
-                    self.vcw.write(device, set_voltage)
-                    set_output = self.main.build_command(device, ("set_output", "OFF"))
-                    self.vcw.write(device, set_output)
+                            self.move_up_down()
+
+                            # Zero check off
+                            zero = self.main.build_command(
+                                self.data["Switching"][idx][2],
+                                ("set_zero_check", "OFF"))
+                            self.vcw.write(self.data["Switching"][idx][2], zero)
+
+                            for voltage in np.linspace(-1.0, 1.0, num=10, endpoint=True):
+                                set_voltage = self.main.build_command(self.SMU2, ("set_voltage", voltage))
+                                self.vcw.write(self.SMU2, set_voltage)
+                                values.append(float(self.query_values(idx, read, self.subsamples)))
+                            slope, intercept, r_value, p_value, std_err = stats.linregress(
+                                np.linspace(-1.0, 1.0, num=10, endpoint=True), values
+                            )
+                            self.data["TestCard"][part][i] = 1/slope
+                            force_plot_update(self.main.framework["Configs"]["config"]["settings"])
+
+                            # Zero check on
+                            zero = self.main.build_command(
+                                self.data["Switching"][idx][2],
+                                ("set_zero_check", "ON"))
+                            self.vcw.write(self.data["Switching"][idx][2], zero)
+
+                    set_voltage = self.main.build_command(self.SMU2, ("set_voltage", 0))
+                    self.vcw.write(self.SMU2, set_voltage)
+                    set_output = self.main.build_command(self.SMU2, ("set_output", "OFF"))
+                    self.vcw.write(self.SMU2, set_output)
+                    # Zero check on
+                    zero = self.main.build_command(
+                        self.data["Switching"][idx][2],
+                        ("set_zero_check", "ON"))
+                    self.vcw.write(self.data["Switching"][idx][2], zero)
 
                 elif part == "C1" or part == "C2":
                     read = self.main.build_command(device, "get_read")
-                    corr = self.open_corrections[part]
+                    corr = self.open_corrections[switching[part]]
+                    freq = self.cal_to[switching[part]]
+                    self.main.build_command(self.LCR_meter, ("set_frequency", freq))
+                    self.vcw.write(self.LCR_meter, freq)
                     # Perform the measurements
-                    self.perform_measurement_loop(idx, read, part, corr)
+                    self.perform_measurement_loop(idx, read, part, corr=corr, type="TestCard", precommand=self.move_up_down)
 
 
 
@@ -512,20 +546,30 @@ class QTCTESTSYSTEM_class(tools):
             values.append(float(val.split(",")[0].split()[0]))
         return np.mean(values)
 
-    def perform_measurement_loop(self, idx, command, meas, corr=0):
+    def perform_measurement_loop(self, idx, command, meas, corr=0, type = "Empty", precommand=None, postcommand=None):
         """Performs the loop"""
         for i in range(self.samples):
             if not self.main.event_loop.stop_all_measurements_query():
+
+                if precommand:
+                    precommand()
+
                 self.main.framework["Configs"]["config"]["settings"]["QTC_test"][
                     "partialprogress"
-                ] = (i / self.samples)
+                ] = ((i+1) / self.samples)
                 value = self.query_values(idx, command, self.subsamples)
-                self.data["Empty"][meas][i] = value-corr
+                self.data[type][meas][i] = value-corr
                 force_plot_update(self.main.framework["Configs"]["config"]["settings"])
+
+                if postcommand:
+                    postcommand()
 
     def move_up_down(self):
         """Moves the table up and down for recontacting to the pad"""
-        pass
+        if self.main.table.move_down(1000.):
+            self.main.table.move_up(1000.)
+        else:
+            self.log.error("Table movement failed in test!!!")
 
     def stop_everything(self):
         """Stops the measurement
