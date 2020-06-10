@@ -136,7 +136,7 @@ class SetupLoader(object):
             new_param = {}
             for i, lines in enumerate(header):
                 if "reference pad" in lines:
-                    reference_pad_list.append(int(lines.split(":")[1]))
+                    reference_pad_list.append(lines.split(":")[1].strip())
 
                 # Find additional parameters
                 elif ":" in lines:

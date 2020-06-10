@@ -94,7 +94,7 @@ class QTCTESTSYSTEM_class(tools):
         self.T = self.main.framework["Configs"]["config"]["settings"]["trans_matrix"]
         self.V0 = self.main.framework["Configs"]["config"]["settings"]["V0"]
 
-        self.samples = 1000  # The amount of samples each measurement must have
+        self.samples = 1000 # The amount of samples each measurement must have
         self.subsamples = 1  # Number of samples for filtering
         self.do_IV = False # If a chuck IV should be done or not
         self.T = self.main.framework["Configs"]["config"]["settings"].get(
@@ -135,8 +135,8 @@ class QTCTESTSYSTEM_class(tools):
                 "Chuckleakage": "A",
                 "Cacempty": "F",
                 "Cintempty": "F",
-                "Rpolyempty": "Ohm",
-                "Rintempty": "Ohm",
+                "Rpolyempty": "A",
+                "Rintempty": "A",
                 "Idielempty": "A",
                 "IVempty": "A",
                 "CVempty": "F",
@@ -211,8 +211,10 @@ class QTCTESTSYSTEM_class(tools):
 
         # Do device empty tests - Do switching uncontacted and do self.samples measurements
         if not self.testmode:
+            self.main.table.move_down(1000.)
             self.perform_open_correction(self.LCR_meter, self.cal_to, count=50)
             self.empty_measurements()
+            self.main.table.move_up(1000.)
 
             # Do the probe card measurements - Contact the probe card and measurer the KIT resistors and capacitors
             if self.validalignment:
@@ -294,9 +296,23 @@ class QTCTESTSYSTEM_class(tools):
                     self.data["Switching"][idx][2], ("set_output", "1")
                 )
                 self.vcw.write(self.data["Switching"][idx][2], outputon)
+            if meas[:-5] in self.open_corrections:
+                freq = self.main.build_command(
+                    self.data["Switching"][idx][2], ("set_frequency", self.cal_to[meas[:-5]])
+                )
+                self.vcw.write(self.data["Switching"][idx][2], freq)
+            if meas == "Rintempty":
+                curr = self.main.build_command(
+                    self.data["Switching"][idx][2],("set_measure_current", ""))
+                zero = self.main.build_command(
+                    self.data["Switching"][idx][2],
+                    ("set_zero_check", "OFF"))
+                self.vcw.write(self.data["Switching"][idx][2], curr)
+                self.vcw.write(self.data["Switching"][idx][2], zero)
 
             # Perform the measurements
-            self.perform_measurement_loop(idx, command, meas)
+            corr = self.open_corrections.get(meas[:-5],0)
+            self.perform_measurement_loop(idx, command, meas, corr)
 
             # If output can be switched off, turn it off
             if "set_output" in self.data["Switching"][idx][2]:
@@ -304,6 +320,11 @@ class QTCTESTSYSTEM_class(tools):
                     self.data["Switching"][idx][2], ("set_output", "0")
                 )
                 self.vcw.write(self.data["Switching"][idx][2], outputoff)
+            if meas == "Rintempty":
+                zero = self.main.build_command(
+                    self.data["Switching"][idx][2],
+                    ("set_zero_check", "ON"))
+                self.vcw.write(self.data["Switching"][idx][2], zero)
 
     def empty_measurements_test(self):
         """Does the device empty measurement (TEST). It switches to the measurement and then takes samples. The card is
@@ -457,7 +478,7 @@ class QTCTESTSYSTEM_class(tools):
                 filecontent += str(entry).ljust(padding)
             filecontent += "\n"
 
-        # self.main.write(self.main.measurement_files["SQC_test"], header+filecontent)
+        self.main.write(self.main.measurement_files["QTCTESTSYSTEM"], header+filecontent)
 
     def perform_open_correction(self, LCR, measurements, count=15):
         read_command = self.main.build_command(LCR, "get_read")

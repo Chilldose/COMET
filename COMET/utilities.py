@@ -1356,9 +1356,9 @@ class table_control_class:
 
         if not "height_movement" in self.variables:
             self.log.warning(
-                "No height_movement for table specified, defaulting to 800"
+                "No height_movement for table specified, defaulting to 1200"
             )
-            self.variables["height_movement"] = 800
+            self.variables["height_movement"] = 1200
 
         if not "clearance" in self.variables:
             self.log.warning("No clearance for table specified, defaulting to 200")
