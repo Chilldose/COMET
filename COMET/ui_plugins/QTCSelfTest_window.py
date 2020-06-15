@@ -122,7 +122,10 @@ class QTCSelfTest_window:
         # With the clear statement medium cpu und low memory usage
         measurement = self.widget.which_measurement.currentText()
         if measurement and self.variables.default_values_dict["settings"]["new_data"]:
-            branch = self.settings["QTC_test"]["branch"]
+            branch = "Empty" if measurement in self.settings["QTC_test"]["data"]["Empty"] else "TestCard"
+            if not branch or not measurement:
+                return
+
             ydata = self.settings["QTC_test"]["data"][branch][measurement][
                 np.nonzero(self.settings["QTC_test"]["data"][branch][measurement])[0]
             ]
@@ -154,6 +157,9 @@ class QTCSelfTest_window:
                         clear=True,
                         connect="finite",
                     )
+            else:
+                self.widget.strip_plot.clear()
+                self.widget.strip_plot_histogram.clear()
 
             # self.widget.strip_plot.enableAutoRange(y=True)
             # self.tooltip = show_cursor_position(self.widget.strip_plot)
@@ -193,6 +199,6 @@ class QTCSelfTest_window:
         )
 
         self.final_job.update({"QTCTESTSYSTEM": {"Samples": 1000,}})
-        self.final_job.update({"Header": header})
+        self.final_job.update({"Header": header, "Save_data": True, "Filename": "SELFTEST", "Filepath": self.widget.label_output.text()})
         self.variables.message_from_main.put({"Measurement": self.final_job})
         self.log.info("Sendet job: " + str({"Measurement": self.final_job}))
