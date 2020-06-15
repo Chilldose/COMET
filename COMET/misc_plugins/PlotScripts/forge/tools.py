@@ -507,6 +507,8 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
                 if kdims[ind] in df_list[key]["data"]:
                     log.debug("Generating plot {} for {}".format(key, plotType))
                     # get labels from the configs
+                    legend_name = configs.get("Files_legend_aliases", {}).get(key, None)
+                    legend_name = legend_name if legend_name else key
                     try:
                         xlabel, ylabel = get_axis_labels(df_list, key, kdims, vdims)
                     except Exception as err:
@@ -521,7 +523,7 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
                             df_list[key]["data"],
                             kdims=kdims,
                             vdims=vdims,
-                            label=key,
+                            label=legend_name,
                             group=type,
                         )
                     else:
@@ -529,7 +531,7 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
                             df_list[key]["data"],
                             kdims=kdims,
                             vdims=vdims,
-                            label=key,
+                            label=legend_name,
                             group=type,
                         )
                     plot.opts(xlabel=xlabel, ylabel=ylabel)
