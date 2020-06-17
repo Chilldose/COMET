@@ -45,7 +45,7 @@
   # These options are entirely up to you and what you need in your analysis
   IVCV_QTC:
   
-      Files_legend_aliases:
+      Files_legend_aliases: # Define the legend entry for your input files
         DiodeIVCV_1: File1
         DiodeIVCV_2: File2
         DiodeIVCV_3: File3
