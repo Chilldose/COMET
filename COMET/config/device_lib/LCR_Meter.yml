@@ -1,6 +1,6 @@
 ---
-    Device_name: Agilent E4980A 
-    Device_type: LCRmeter 
+    Device_name: Agilent E4980A
+    Device_type: LCRmeter
 
     reset:
         - integration_time: LONG
@@ -8,11 +8,11 @@
         - apply_load_correction: "OFF"
         - apply_open_correction: "ON"
         - apply_short_correction: "OFF"
-        - frequency: 1000 
-        - output_format: ASC 
-        - correction_type: :CPRP 
-        - cable_length: 4  
-        - measurement_type: CPRP 
+        - frequency: 1000
+        - output_format: ASC
+        - correction_type: :CPRP
+        - cable_length: 4
+        - measurement_type: CPRP
 
     set_cable_length: :CORR:LENG {}
     set_measurement_type: :FUNC:IMP {}
@@ -22,16 +22,13 @@
     set_apply_short_correction: :CORR:SHORT:STAT {}
     set_correction_type: :CORR:LOAD:TYPE {}
     set_voltage: :VOLT {}
-    set_output_format: :FORM:DATA {} 
+    set_output_format: :FORM:DATA {}
     set_perform_short_correction: :CORR:SHORT
     set_clear_display: DISP:CCL {}
     set_frequency: :FREQ {}
     set_integration_time: :APER {}
 
-    
-    get_all_done: "*OPC?" 
+
+    get_all_done: "*OPC?"
     get_read: :FETC?
     get_error: SYST:ERR:NEXT?
-
-
-

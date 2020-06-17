@@ -36,6 +36,7 @@ class QTCSelfTest_window:
         self.widget.Slider_bins.valueChanged.connect(self.update_bins)
         self.widget.which_measurement.activated[str].connect(self.update_plot)
         self.widget.start_button.clicked.connect(self.Start_action)
+        self.widget.done_Button.clicked.connect(self.done_action)
 
         self.update_stats()
         self.update_bins()
@@ -53,7 +54,10 @@ class QTCSelfTest_window:
             "Measurement_running", False
         ):
             # Set text label
-            self.widget.report_label.setText(self.settings["QTC_test"]["text"])
+            self.widget.report_label.setText(self.settings["QTC_test"]["usertext"])
+
+            # Enable button or not
+            self.widget.done_Button.setEnabled(self.settings["QTC_test"]["waitforuser"])
 
             # Set progress bars
             self.widget.Overall_progressBar.setValue(
@@ -65,6 +69,10 @@ class QTCSelfTest_window:
             self.widget.label_partial.setText(
                 "Progress: {}".format(self.settings["QTC_test"]["currenttest"])
             )
+
+    def done_action(self):
+        self.settings["QTC_test"]["waitforuser"] = False
+        self.settings["QTC_test"]["usertext"] = "Nothing to do..."
 
     def plot_config(self):
         """This function configurates the strip plot"""

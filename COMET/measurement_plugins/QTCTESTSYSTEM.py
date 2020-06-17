@@ -95,7 +95,7 @@ class QTCTESTSYSTEM_class(tools):
         self.T = self.main.framework["Configs"]["config"]["settings"]["trans_matrix"]
         self.V0 = self.main.framework["Configs"]["config"]["settings"]["V0"]
 
-        self.samples = 5 # The amount of samples each measurement must have
+        self.samples = 1000 # The amount of samples each measurement must have
         self.subsamples = 1  # Number of samples for filtering
         self.do_IV = False # If a chuck IV should be done or not
         self.T = self.main.framework["Configs"]["config"]["settings"].get(
@@ -180,6 +180,13 @@ class QTCTESTSYSTEM_class(tools):
         self.main.framework["Configs"]["config"]["settings"]["QTC_test"][
             "branch"
         ] = None
+        self.main.framework["Configs"]["config"]["settings"]["QTC_test"][
+            "waitforuser"
+        ] = False
+        self.main.framework["Configs"]["config"]["settings"]["QTC_test"][
+            "usertext"
+        ] = "Nothing to do for you..."
+
 
         if "Rint_MinMax" not in self.main.framework["Configs"]["config"]["settings"]:
             self.main.framework["Configs"]["config"]["settings"]["Rint_MinMax"] = [
@@ -367,7 +374,7 @@ class QTCTESTSYSTEM_class(tools):
     def test_card_measurements(self):
         """Does the KIT test card measurements. It switches either to Rpoly, Cac, or Cint and conducts the measurement
         on the card. Each measurement will be repeated self.samples times and the table will recontact every time."""
-        for j, part in enumerate(self.data["TestCard"]): # Loop over all testcard entries
+        for j, part in enumerate(["R1", "C1", "R2", "C2"]): # Loop over all testcard entries
 
             if self.main.event_loop.stop_all_measurements_query():
                 break # If the stop signal was send
@@ -395,6 +402,12 @@ class QTCTESTSYSTEM_class(tools):
 
                 # Move table up and down
                 self.move_up_down()
+
+                # User must change the kabeling
+                self.main.framework["Configs"]["config"]["settings"]["QTC_test"]["waitforuser"] = True
+                self.main.framework["Configs"]["config"]["settings"]["QTC_test"]["usertext"] = "Please change the kabeling for the {} measurement".format(part)
+                while self.main.framework["Configs"]["config"]["settings"]["QTC_test"]["waitforuser"]:
+                    sleep(0.5) # Waits until the user changed the kabeling
 
                 if part == "R1":  # Rpoly measurement
                     # Set the voltage to -1
@@ -478,7 +491,7 @@ class QTCTESTSYSTEM_class(tools):
                     read = self.main.build_command(device, "get_read")
                     corr = self.open_corrections[switching[part]]
                     freq = self.cal_to[switching[part]]
-                    self.main.build_command(self.LCR_meter, ("set_frequency", freq))
+                    freq = self.main.build_command(self.LCR_meter, ("set_frequency", freq))
                     self.vcw.write(self.LCR_meter, freq)
                     # Perform the measurements
                     self.perform_measurement_loop(idx, read, part, corr=corr, type="TestCard", precommand=self.move_up_down)
@@ -595,6 +608,7 @@ class QTCTESTSYSTEM_class(tools):
             self.main.table.move_up(1000.)
         else:
             self.log.error("Table movement failed in test!!!")
+        sleep(0.2)
 
     def stop_everything(self):
         """Stops the measurement
