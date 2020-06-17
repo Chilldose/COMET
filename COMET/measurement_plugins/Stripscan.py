@@ -384,6 +384,16 @@ class Stripscan_class(tools):
                 return
             self.change_value(LCR, "set_frequency", freq)
             sleep(0.2)
+
+            # Performe cap discharge
+            if not self.capacitor_discharge(
+                    self.discharge_SMU,
+                    self.discharge_switching,
+                    *self.IVCV_configs["Discharge"],
+                    do_anyway=True
+            ):
+                self.stop_everything()
+
             for i in range(count):
                 data.append(
                     self.vcw.query(LCR, read_command).split(LCR.get("separator", ","))[
@@ -1147,6 +1157,16 @@ class Stripscan_class(tools):
         # Config the LCR to the correct freq of 1 MHz
         self.change_value(device_dict, "set_frequency", frequency)
         if not self.main.event_loop.stop_all_measurements_query():
+
+            # Performe cap discharge
+            if not self.capacitor_discharge(
+                    self.discharge_SMU,
+                    self.discharge_switching,
+                    *self.IVCV_configs["Discharge"],
+                    do_anyway=True
+            ):
+                self.stop_everything()
+
             if not self.switching.switch_to_measurement(
                 self.get_switching_for_measurement("Cint", alternative_switching)
             ):

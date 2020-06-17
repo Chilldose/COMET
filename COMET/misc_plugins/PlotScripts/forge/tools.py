@@ -415,8 +415,9 @@ def convert_to_df(convert, abs=False, keys="all"):
 
             # Convert all datatypes that are not float or int to np.nan
             for meas in df.keys():
-                mask = df[meas].apply(type) == str
-                df[meas] = df[meas].mask(mask, np.nan)
+                if meas != "Name":
+                    mask = df[meas].apply(type) == str
+                    df[meas] = df[meas].mask(mask, np.nan)
 
         except KeyError as err:
             log.error(
@@ -507,6 +508,8 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
                 if kdims[ind] in df_list[key]["data"]:
                     log.debug("Generating plot {} for {}".format(key, plotType))
                     # get labels from the configs
+                    legend_name = configs.get("Files_legend_aliases", {}).get(key, None)
+                    legend_name = legend_name if legend_name else key
                     try:
                         xlabel, ylabel = get_axis_labels(df_list, key, kdims, vdims)
                     except Exception as err:
@@ -521,7 +524,7 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
                             df_list[key]["data"],
                             kdims=kdims,
                             vdims=vdims,
-                            label=key,
+                            label=legend_name,
                             group=type,
                         )
                     else:
@@ -529,7 +532,7 @@ def holoplot(plotType, df_list, configs, kdims, vdims=None, keys=None, **addConf
                             df_list[key]["data"],
                             kdims=kdims,
                             vdims=vdims,
-                            label=key,
+                            label=legend_name,
                             group=type,
                         )
                     plot.opts(xlabel=xlabel, ylabel=ylabel)
@@ -968,10 +971,10 @@ def parse_file_data(filecontent, settings):
                     meas.pop(j)
                 parsed_obj[k] = meas
 
-    elif premeasurement_cols:
+    if premeasurement_cols:
         log.info("Using predefined columns...")
         parsed_obj[0] = premeasurement_cols
-    elif preunits:
+    if preunits:
         log.info("Using predefined units...")
         parsed_obj[1] = preunits
 
