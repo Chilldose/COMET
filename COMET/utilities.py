@@ -1717,6 +1717,7 @@ class table_control_class:
 
             # Move the table to the position
             if relative_move:
+                # list(np.array(old_pos)+np.array(desired_pos))
                 move_command = self.build_command(
                     self.device, ("set_relative_move_to", desired_pos)
                 )
@@ -1724,10 +1725,14 @@ class table_control_class:
                 move_command = self.build_command(
                     self.device, ("set_move_to", desired_pos)
                 )
+
+            # Set axis
+            self.set_axis([True, True, True])
             self.vcw.write(self.device, move_command)
             success = self.check_if_ready()
             if not success:
                 return False
+            self.set_axis([True, True, False])
 
             # State that the table is not moving anymore
             self.variables["table_is_moving"] = False
