@@ -102,6 +102,7 @@ class QTCTESTSYSTEM_class(tools):
             "trans_matrix", None
         )
         self.V0 = self.main.framework["Configs"]["config"]["settings"].get("V0", None)
+        self.main.framework["Configs"]["config"]["settings"]["height_movement"] = self.height
         self.justlength = 24
         self.current_voltage = self.main.framework["Configs"]["config"]["settings"].get(
             "bias_voltage", 0
@@ -400,7 +401,9 @@ class QTCTESTSYSTEM_class(tools):
                     voltage = -1.0
                     set_voltage = self.main.build_command(device, ("set_voltage", voltage))
                     set_output_on = self.main.build_command(device, ("set_output", "ON"))
+                    set_comp = self.main.build_command(device, ("set_compliance", "100e-6"))
                     read = self.main.build_command(device, "get_read")
+                    self.vcw.write(device, set_comp)
                     self.vcw.write(device, set_output_on)
                     self.vcw.write(device, set_voltage)
                     sleep(1.0)
@@ -415,6 +418,18 @@ class QTCTESTSYSTEM_class(tools):
                 elif part == "R2": # Rint measurement
                     read = self.main.build_command(device, "get_read")
                     set_output = self.main.build_command(self.SMU2, ("set_output", "ON"))
+
+                    commands = [
+                        ("set_zero_check", "ON"),
+                        ("set_measure_current", ""),
+                        ("set_auto_current_range", "OFF"),
+                        ("set_current_range", "20e-12"),
+                        ("set_zero_correlation", "ON"),
+                        ("set_current_range", "20e-9"),
+                        ("set_auto_current_range", "ON"),
+                    ]
+                    self.config_setup(self.elmeter, commands)
+
                     self.vcw.write(self.SMU2, set_output)
 
                     for i in range(self.samples):
@@ -526,6 +541,16 @@ class QTCTESTSYSTEM_class(tools):
                 return
             self.change_value(LCR, "set_frequency", freq)
             sleep(0.2)
+
+            # Performe cap discharge
+            if not self.capacitor_discharge(
+                    self.discharge_SMU,
+                    self.discharge_dev,
+                    *self.device_configs["Discharge"],
+                    do_anyway=True
+            ):
+                self.stop_everything()
+
             for i in range(count):
                 data.append(
                     self.vcw.query(LCR, read_command).split(LCR.get("separator", ","))[
