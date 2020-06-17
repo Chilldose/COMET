@@ -84,14 +84,12 @@ def BoxWhisker(dfs, measurement, configs, analysisType, **addConfigs):
     try:
         plot = hv.BoxWhisker(
             dfs["All"],
-            kdims="Name",
-            vdims=measurement,
+            kdims=["Name"],
+            vdims=[measurement],
             label="BoxWhisker: {}".format(measurement),
             group="BoxWhisker: {}".format(measurement),
         )
-        # plot = relabelPlot(plot, label="{}".format(measurement))
-        # get labels from the configs
-        # ylabel = "{} [{}]".format(measurement, dfs[dfs["keys"][0]]["units"][dfs[dfs["keys"][0]]["measurements"].index(measurement)])
+
         try:
             ylabel = "{} [{}]".format(
                 measurement,

@@ -415,8 +415,9 @@ def convert_to_df(convert, abs=False, keys="all"):
 
             # Convert all datatypes that are not float or int to np.nan
             for meas in df.keys():
-                mask = df[meas].apply(type) == str
-                df[meas] = df[meas].mask(mask, np.nan)
+                if meas != "Name":
+                    mask = df[meas].apply(type) == str
+                    df[meas] = df[meas].mask(mask, np.nan)
 
         except KeyError as err:
             log.error(
@@ -970,10 +971,10 @@ def parse_file_data(filecontent, settings):
                     meas.pop(j)
                 parsed_obj[k] = meas
 
-    elif premeasurement_cols:
+    if premeasurement_cols:
         log.info("Using predefined columns...")
         parsed_obj[0] = premeasurement_cols
-    elif preunits:
+    if preunits:
         log.info("Using predefined units...")
         parsed_obj[1] = preunits
 
