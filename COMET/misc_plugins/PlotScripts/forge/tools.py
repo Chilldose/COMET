@@ -1100,6 +1100,7 @@ def save_dict_as_xml(data, filepath, name, xml_template_dict):
             header_dict = insert_values_from_header(template, dat["header"])
             final_xml = convert_dict_to_xml(header_dict)
             final_xml_dict = insert_templates(dat, final_xml, template)
+            final_xml_dict = change_file_specific_xml_header(final_xml_dict, template)
 
             for subkey, value in final_xml_dict.items():
                 save_as_xml(
@@ -1111,6 +1112,32 @@ def save_dict_as_xml(data, filepath, name, xml_template_dict):
             log.error(
                 "No xml template stated in settings. Please add 'xml_template' to your configs."
             )
+
+def change_file_specific_xml_header(final_xml_dict, template):
+    """Changes the file specific header for each file"""
+    import xml.etree.ElementTree as ET
+
+    def validate_node(parent, temdict):
+        try:
+            for key, value in temdict.items():
+                if isinstance(value, dict):
+                    newvalue = validate_node(parent.find(key), value)
+                else:
+                    newvalue = value
+
+                if newvalue:
+                    child = parent.find(key)
+                    child.text = value
+        except:
+            log.error("Child {} could not be found in xmltree. Skipping.".format(key))
+            return None
+
+
+
+    for file_header, new_header in template["File_specific_header"].items():
+        if file_header in final_xml_dict:
+            validate_node(final_xml_dict[file_header], new_header)
+    return final_xml_dict
 
 
 def save_data(plotting_Object, types, dirr, base_name="data", to_call=None):

@@ -22,6 +22,16 @@
         SERIAL_NUMBER: <ID> # HPK_VPX28441_1002_2S
       DATA: //DATA_DUMP_template//
 
+  File_specific_header:
+    Istrip:
+        HEADER:
+            TYPE:
+                EXTENSION_TABLE_NAME: TEST_SENSOR_IS
+                NAME: TrackerStrip-Sensor IS Test
+            RUN:
+                RUN_TYPE: IS Test Measurements
+
+
   DATA_DUMP_template:
     Istrip:
         STRIP: <Pad>
