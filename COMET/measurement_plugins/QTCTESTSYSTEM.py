@@ -193,12 +193,12 @@ class QTCTESTSYSTEM_class(tools):
 
         if "Rint_MinMax" not in self.main.framework["Configs"]["config"]["settings"]:
             self.main.framework["Configs"]["config"]["settings"]["Rint_MinMax"] = [
-                -1.0,
-                1.0,
-                0.1,
+                -5.0,
+                5.0,
+                0.5,
             ]
             self.log.warning(
-                "No Rint boundaries given, defaulting to [-1.,1.,0.1]. Consider adding it to your settings"
+                "No Rint boundaries given, defaulting to [-5.,5.,0.5]. Consider adding it to your settings"
             )
 
         # Check if alignment is present or not, if not stop measurement
