@@ -8,6 +8,7 @@
     data_start: 12
     units:
         - A
+        - A
         - F
         - F
         - A
@@ -53,6 +54,7 @@
           singleHistogram:
               bins: 50
               iqr: 0.9
+              commas: 6
 
       DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measurements has this special plot stated
           - BoxWhisker
@@ -69,13 +71,27 @@
 
       Chuckleakage:
           PlotLabel: Cuck-leakage currents path
-          UnitConversion: femto # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
+          UnitConversion: pico # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
           AdditionalPlots:
               - Histogram
               - BoxWhisker
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               xlabel: measurement [#]
-              ylabel: current [fA] # This overrides the automatic generated ylabel
+              ylabel: current [pA] # This overrides the automatic generated ylabel
+              shared_axes: False # If the axes should be shared with other plots, usually it is False
+              xformatter: "%.0f"
+              yformatter: "%.0f"
+          ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
+              yaxisENG: True # If you want to plot the y axis in engineering representation
+      Istripempty:
+          PlotLabel: Istrip currents path
+          UnitConversion: pico # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
+          AdditionalPlots:
+              - Histogram
+              - BoxWhisker
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              xlabel: measurement [#]
+              ylabel: current [pA] # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
@@ -111,13 +127,13 @@
               yaxisENG: True # If you want to plot the y axis in engineering representation
       Rpolyempty:
           PlotLabel: Bias resistor path
-          UnitConversion: femto # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
+          UnitConversion: pico # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
           AdditionalPlots:
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               xlabel: measurement [#]
-              ylabel: current [fA] # This overrides the automatic generated ylabel
+              ylabel: current [pA] # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
@@ -139,7 +155,7 @@
               yaxisENG: True
       Idielempty:
           PlotLabel: Idiel path
-          UnitConversion: femto # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
+          UnitConversion: pico # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
           AdditionalPlots:
               - BoxWhisker
               - Histogram
@@ -173,24 +189,24 @@
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               xlabel: measurement [#]
-              ylabel: resistance [mOhm] # This overrides the automatic generated ylabel
+              ylabel: resistance [MOhm] # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
-              yformatter: "%.0f"
+              yformatter: "%.4f"
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               yaxisENG: True
       R2:
           PlotLabel: KIT R2 - Rint resistor
-          UnitConversion: mega # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
+          UnitConversion: giga # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
           AdditionalPlots:
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               xlabel: measurement [#]
-              ylabel: resistance [mOhm] # This overrides the automatic generated ylabel
+              ylabel: resistance [GOhm] # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
-              yformatter: "%.0f"
+              yformatter: "%.3f"
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               yaxisENG: True
       C2:
@@ -201,23 +217,23 @@
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               xlabel: measurement [#]
-              ylabel: resistance [fF] # This overrides the automatic generated ylabel
+              ylabel: capacitance [fF] # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
-              yformatter: "%.0f"
+              yformatter: "%.2f"
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               yaxisENG: True
       C1:
           PlotLabel: KIT C1 - Cac capacitor
-          UnitConversion: nano # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
+          UnitConversion: pico # Converts the units to nano (Warning: The correct units your data is in must be extractable from the measurement file!)
           AdditionalPlots:
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               xlabel: measurement [#]
-              ylabel: resistance [nF] # This overrides the automatic generated ylabel
+              ylabel: capacitance [pF] # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
-              yformatter: "%.0f"
+              yformatter: "%.2f"
           ToolsOptions: # These options are for the PlotScripts tool box, or for the self written customizations
               yaxisENG: True
