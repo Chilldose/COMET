@@ -115,6 +115,7 @@ class QTCTESTSYSTEM_class(tools):
         self.data = {
             "Switching": [
                 ("Chuckleakage", "IV", self.bias_SMU),
+                ("Istripempty", "Istrip", self.elmeter),
                 ("Cacempty", "Cac", self.LCR_meter),
                 ("Cintempty", "Cint", self.LCR_meter),
                 ("Rpolyempty", "Rpoly", self.SMU2),
@@ -128,16 +129,18 @@ class QTCTESTSYSTEM_class(tools):
 
             ],
             "Empty": {
-                "Chuckleakage": np.zeros(self.samples),
+                #"Chuckleakage": np.zeros(self.samples),
+                #"Istripempty": np.zeros(self.samples),
                 "Cacempty": np.zeros(self.samples),
                 "Cintempty": np.zeros(self.samples),
-                "Rpolyempty": np.zeros(self.samples),
-                "Rintempty": np.zeros(self.samples),
-                "Idielempty": np.zeros(self.samples),
+                #"Rpolyempty": np.zeros(self.samples),
+                #"Rintempty": np.zeros(self.samples),
+                #"Idielempty": np.zeros(self.samples),
                 "CVempty": np.zeros(self.samples),
             },
             "units": {
                 "Chuckleakage": "A",
+                "Istripempty": "A",
                 "Cacempty": "F",
                 "Cintempty": "F",
                 "Rpolyempty": "A",
@@ -318,7 +321,7 @@ class QTCTESTSYSTEM_class(tools):
                     self.data["Switching"][idx][2], ("set_frequency", self.cal_to[meas[:-5]])
                 )
                 self.vcw.write(self.data["Switching"][idx][2], freq)
-            if meas == "Rintempty":
+            if meas == "Rintempty" or meas == "Istripempty":
                 curr = self.main.build_command(
                     self.data["Switching"][idx][2],("set_measure_current", ""))
                 zero = self.main.build_command(
@@ -337,7 +340,7 @@ class QTCTESTSYSTEM_class(tools):
                     self.data["Switching"][idx][2], ("set_output", "0")
                 )
                 self.vcw.write(self.data["Switching"][idx][2], outputoff)
-            if meas == "Rintempty":
+            if meas == "Rintempty" or meas == "Istripempty":
                 zero = self.main.build_command(
                     self.data["Switching"][idx][2],
                     ("set_zero_check", "ON"))
@@ -374,7 +377,7 @@ class QTCTESTSYSTEM_class(tools):
     def test_card_measurements(self):
         """Does the KIT test card measurements. It switches either to Rpoly, Cac, or Cint and conducts the measurement
         on the card. Each measurement will be repeated self.samples times and the table will recontact every time."""
-        for j, part in enumerate(["R1", "C1", "R2", "C2"]): # Loop over all testcard entries
+        for j, part in enumerate(["C1", "C2"]): # Loop over all testcard entries
 
             if self.main.event_loop.stop_all_measurements_query():
                 break # If the stop signal was send
@@ -412,13 +415,14 @@ class QTCTESTSYSTEM_class(tools):
                 if part == "R1":  # Rpoly measurement
                     # Set the voltage to -1
                     voltage = -1.0
-                    set_voltage = self.main.build_command(device, ("set_voltage", voltage))
-                    set_output_on = self.main.build_command(device, ("set_output", "ON"))
-                    set_comp = self.main.build_command(device, ("set_compliance", "100e-6"))
+                    commands = [
+                        ("set_voltage_range","2"),
+                        ("set_voltage", voltage),
+                        ("set_compliance", "10e-6"),
+                        ("set_output", "ON")
+                    ]
+                    self.config_setup(device, commands)
                     read = self.main.build_command(device, "get_read")
-                    self.vcw.write(device, set_comp)
-                    self.vcw.write(device, set_output_on)
-                    self.vcw.write(device, set_voltage)
                     sleep(1.0)
                     # Perform the measurements
                     self.perform_measurement_loop(idx, read, part, corr=0, type="TestCard", precommand=self.move_up_down)
@@ -430,6 +434,7 @@ class QTCTESTSYSTEM_class(tools):
 
                 elif part == "R2": # Rint measurement
                     read = self.main.build_command(device, "get_read")
+                    voltrange = self.main.build_command(self.SMU2, ("set_voltage_range","20"))
                     set_output = self.main.build_command(self.SMU2, ("set_output", "ON"))
 
                     commands = [
@@ -443,6 +448,7 @@ class QTCTESTSYSTEM_class(tools):
                     ]
                     self.config_setup(self.elmeter, commands)
 
+                    self.vcw.write(self.SMU2, voltrange)
                     self.vcw.write(self.SMU2, set_output)
 
                     for i in range(self.samples):
@@ -461,12 +467,12 @@ class QTCTESTSYSTEM_class(tools):
                                 ("set_zero_check", "OFF"))
                             self.vcw.write(self.data["Switching"][idx][2], zero)
 
-                            for voltage in np.linspace(-1.0, 1.0, num=10, endpoint=True):
+                            for voltage in np.linspace(-5.0, 5.0, num=10, endpoint=True):
                                 set_voltage = self.main.build_command(self.SMU2, ("set_voltage", voltage))
                                 self.vcw.write(self.SMU2, set_voltage)
-                                values.append(float(self.query_values(idx, read, self.subsamples)))
+                                values.append(float(self.query_values(idx, read, 5)))
                             slope, intercept, r_value, p_value, std_err = stats.linregress(
-                                np.linspace(-1.0, 1.0, num=10, endpoint=True), values
+                                np.linspace(-5.0, 5.0, num=10, endpoint=True), values
                             )
                             self.data["TestCard"][part][i] = 1/slope
                             force_plot_update(self.main.framework["Configs"]["config"]["settings"])

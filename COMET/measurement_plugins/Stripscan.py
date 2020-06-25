@@ -841,8 +841,9 @@ class Stripscan_class(tools):
                 [
                     ("set_source_voltage", ""),
                     ("set_measure_current", ""),
+                    ("set_voltage_range", "2"),
                     ("set_voltage", voltage),
-                    ("set_compliance", 90e-6),
+                    ("set_compliance", 10e-6),
                     ("set_output", "ON"),
                 ],
             )  # config the 2410 for 1V bias on bias and DC pad
@@ -914,7 +915,7 @@ class Stripscan_class(tools):
                 self.stop_everything()
                 return
             self.config_setup(
-                voltage_device, [("set_voltage", 0), ("set_compliance", 50e-6)]
+                voltage_device, [("set_voltage", 0), ("set_voltage_range","20"), ("set_compliance", 50e-6)]
             )  # config the 2410
             self.config_setup(device_dict, config_commands)  # config the elmeter
             self.change_value(

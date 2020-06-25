@@ -36,7 +36,7 @@
     # All reset device parameters
     reset:
         - resistance_mode: MANUAL
-        - voltage_range: 1000
+        - voltage_range: 20
         - source_function: VOLT
         - compliance_voltage: 1000
         #- current_range: AUTO
