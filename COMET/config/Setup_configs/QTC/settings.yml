@@ -145,7 +145,7 @@
        Matrix:
             Device_name: Keithley 708B Switching
             Connection_resource: IP:TCPIP0::10.0.0.4::inst0::INSTR
-            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402824,01.04c
+            Device_IDN: KEITHLEY INSTRUMENTS INC.,MODEL 708B,04402825,01.04c
             Cards: 1 # Device specific variable used to determine how many cards are inserted
 
        LCRmeter:

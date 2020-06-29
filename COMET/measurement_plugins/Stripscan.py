@@ -1151,12 +1151,13 @@ class Stripscan_class(tools):
         freqscan=False,
         write_to_main=True,
         alternative_switching=False,
-        frequency=1000000,
+        frequency=600000,
     ):
         """Does the cint measurement"""
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 MHz
         self.change_value(device_dict, "set_frequency", frequency)
+        #self.change_value(device_dict, "set_apply_load_correction", "ON")
         if not self.main.event_loop.stop_all_measurements_query():
 
             # Performe cap discharge
@@ -1195,6 +1196,7 @@ class Stripscan_class(tools):
                 "Cint_beta" if alternative_switching else "Cint", 0.0
             )
             value[0] += corr
+            #self.change_value(device_dict, "set_apply_load_correction", "OFF")
             return value
 
     def do_CintAC(

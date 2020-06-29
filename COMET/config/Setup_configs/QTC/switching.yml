@@ -106,10 +106,10 @@
           - C2
 
         LVSwitching:
-          - 1E05
-          - 1E06
-          - 1F07
-          - 1F08
+          - 1G05
+          - 1G06
+          - 1H07
+          - 1H08
 
       Cac_beta:
         HVSwitching:
@@ -118,10 +118,10 @@
           - C2
 
         LVSwitching:
-          - 1E01
-          - 1E02
-          - 1F03
-          - 1F04
+          - 1G01
+          - 1G02
+          - 1H03
+          - 1H04
 
       Cint:
         HVSwitching:
@@ -130,10 +130,10 @@
           - C2
 
         LVSwitching:
-          - 1E01
-          - 1E02
-          - 1F05
-          - 1F06
+          - 1G01
+          - 1G02
+          - 1H05
+          - 1H06
 
       Cint_beta:
         HVSwitching:
@@ -142,10 +142,10 @@
           - C2
 
         LVSwitching:
-          - 1E01
-          - 1E02
-          - 1F05
-          - 1F06
+          - 1G01
+          - 1G02
+          - 1H05
+          - 1H06
 
       CintAC:
         HVSwitching:
@@ -154,10 +154,10 @@
           - C2
 
         LVSwitching:
-          - 1E03
-          - 1E04
-          - 1F07
-          - 1F08
+          - 1G03
+          - 1G04
+          - 1H07
+          - 1H08
 
       Rint:
         HVSwitching:
