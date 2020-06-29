@@ -984,7 +984,6 @@ class Stripscan_class(tools):
                     slope, intercept, r_value, p_value, std_err = stats.linregress(
                         voltage_list[2:], values_list[2:]
                     )
-                    # TODO: make some comparision if it is ok, write this to a separate file etc.
                     rint = 1.0 / slope
                     self.rintslopes.append(
                         [

@@ -284,7 +284,7 @@ def concatHistogram(
     return plots
 
 
-def Histogram(dfs, measurement, configs, analysisType, bins=50, iqr=None, **addConfigs):
+def Histogram(dfs, measurement, configs, analysisType, bins=50, iqr=None, commas=2, **addConfigs):
     """Generates a Points Plot with a corresponding Histogram"""
     newConfigs = addConfigs
     log.info("Generating histograms for measurement {}...".format(measurement))
@@ -301,10 +301,10 @@ def Histogram(dfs, measurement, configs, analysisType, bins=50, iqr=None, **addC
             if iqr:
                 log.info("Outliers correction with iqr: {}".format(iqr))
                 data = reject_outliers(data, iqr)
-            mean = np.round(np.mean(data), 2)
-            rms = np.round(np.sqrt(np.mean(data ** 2)), 2)
-            std = np.round(np.std(data), 2)
-            median = np.round(np.median(data), 2)
+            mean = np.round(np.mean(data), commas)
+            rms = np.round(np.sqrt(np.mean(data ** 2)), commas)
+            std = np.round(np.std(data), commas)
+            median = np.round(np.median(data), commas)
             data = np.histogram(data, bins=bins)
             plt = hv.Histogram(
                 data,

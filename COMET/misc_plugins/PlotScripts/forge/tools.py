@@ -1442,3 +1442,9 @@ def save_as_xml(data_dict, filepath, name):
         log.error(
             "Could not save data as xml, the data type is not correct. Must be dict or json"
         )
+
+
+def moving_average(array, N):
+    """Returns a moving average of the given array with mean over N values.
+    Warning resulting array will be (N-1) shorter!"""
+    return np.convolve(array, np.ones(N), 'valid') / N
