@@ -97,6 +97,7 @@
         BiasSMU: 2657 Keithley SMU
         LCRMeter: Agilent E4980A
         DischargeSMU: 2410 Keithley SMU
+        2410SMU: 2410 Keithley SMU # So both devices are inside
         Table_control: ITK Corvus
         lights_controller: ENV_BrandBox
 

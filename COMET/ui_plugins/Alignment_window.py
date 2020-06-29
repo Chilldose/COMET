@@ -100,14 +100,14 @@ class Alignment_window(Table_widget):
 
         self.what_to_do_text(-1)  # Initializes the text
 
-    def set_needle_contact_lamp(self, state):
+    def set_needle_contact_lamp(self, state, addinfo=""):
         states = {
             "contact unclear": "QFrame { background :rgb(255, 215, 0) }",
             "contact": "QFrame { background :rgb(36, 216, 93) }",
             "no contact": "QFrame { background :rgb(214, 40, 49) }",
         }
         self.alignment.Needle_connection_label.setStyleSheet(states.get(state.lower()))
-        self.alignment.Needle_connection_label.setText(state.upper())
+        self.alignment.Needle_connection_label.setText(state.upper() + addinfo)
 
     def test_needle_contact_action(self):
         """Test the needle contact"""
@@ -124,7 +124,9 @@ class Alignment_window(Table_widget):
                 self.set_needle_contact_lamp("contact")
             else:
                 self.log.critical("Needles {} have no contact!".format(res))
-                self.set_needle_contact_lamp("no contact")
+                self.set_needle_contact_lamp("no contact".format(res), addinfo=" on {}".format(res))
+        else:
+            self.log.error("Cannot test needle contact since one or more needed devices are not ready.")
 
     def parse_pad_files(self, parent_dict):
         """
@@ -622,7 +624,7 @@ class Alignment_window(Table_widget):
         self.alignment.project.setText("Project: " + str(self.project))
 
         self.check_strip = str(randint(2, int(self.number_of_pads) - 1))
-        if str(self.check_strip) not in self.sensor_pad_file:
+        if str(self.check_strip) not in self.sensor_pad_file["data"]:
             self.check_strip = self.reference_pads[0]
 
         self.alignment.first_co_label.setText(

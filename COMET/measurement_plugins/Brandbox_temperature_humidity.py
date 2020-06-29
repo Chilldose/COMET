@@ -23,6 +23,7 @@ class Brandbox_temperature_humidity(Thread):
         self.log = logging.getLogger(__name__)
         self.testmode = False
         self.running = False
+        self.readqueue = False
 
         # First try if visa_resource is valid
         self.success = False
@@ -65,60 +66,75 @@ class Brandbox_temperature_humidity(Thread):
                 )
                 boxvalues = boxvalues.split(",")
 
-                # get light
-                luxvalues = self.vcw.query(self.resource, self.resource["get_lux"])
-                luxvalues = luxvalues.split(",")[0]
-                if float(luxvalues) >= 0.5:
-                    self.framework["Configs"]["config"]["settings"]["lights"] = True
-                else:
-                    self.framework["Configs"]["config"]["settings"]["lights"] = False
-
-                # get door
-                # doorvalues = self.vcw.query(self.resource, self.resource["get_door"])
-                # doorvalues = doorvalues.split(",")[0]
-                # if doorvalues == "1":
-                #    self.framework["Configs"]["config"]["settings"]["door"] = False
-                # else:
-                #    self.framework["Configs"]["config"]["settings"]["door"] = True
-
-                # get light
                 vacuumvalues = self.vcw.query(
                     self.resource, self.resource["get_vacuum"]
                 )
-                vacuumvalues = vacuumvalues.split(",")[0]
-                if vacuumvalues == "1":
-                    self.framework["Configs"]["config"]["settings"]["vacuum"] = True
-                else:
-                    self.framework["Configs"]["config"]["settings"]["vacuum"] = False
 
-                # Here a list
-                self.main.humidity_history = np.append(
-                    self.main.humidity_history, float(envvalues[1])
-                )  # todo: memory leak since no values will be deleted
-                self.main.temperatur_history = np.append(
-                    self.main.humidity_history, float(envvalues[3])
-                )
+                # get light
+                luxvalues = self.vcw.query(self.resource, self.resource["get_lux"])
+                luxvalues = luxvalues.split(",")[0]
 
-                # Write the pt100 and light status and environement in the box to the global variables
-                self.framework["Configs"]["config"]["settings"][
-                    "chuck_temperature"
-                ] = float(envvalues[3])
-                self.framework["Configs"]["config"]["settings"][
-                    "air_temperature"
-                ] = float(envvalues[0])
-                self.framework["Configs"]["config"]["settings"]["dew_point"] = float(
-                    boxvalues[2]
-                )
+                # if an error happen, as so often with the brandbox read the queue
+                if self.readqueue:
+                    try:
+                        ans = self.vcw.read(self.resource)
+                        self.log.critical("Brandbox had an non empty queue: {}".format(ans))
+                    except:
+                        self.log.info("Brandbox indicated an non empty queue, reading queue yielded no queue...", exc_info=True)
 
-                # Send data to main
-                self.queue_to_main.put(
-                    {
-                        "temperature_air": [float(time()), float(envvalues[0])],
-                        "temperature_chuck": [float(time()), float(envvalues[3])],
-                        "dew_point": [float(time()), float(boxvalues[2])],
-                        "humidity": [float(time()), float(envvalues[1])],
-                    }
-                )
+
+                try:
+                    if float(luxvalues) >= 0.5:
+                        self.framework["Configs"]["config"]["settings"]["lights"] = True
+                    else:
+                        self.framework["Configs"]["config"]["settings"]["lights"] = False
+
+                    # get door
+                    # doorvalues = self.vcw.query(self.resource, self.resource["get_door"])
+                    # doorvalues = doorvalues.split(",")[0]
+                    # if doorvalues == "1":
+                    #    self.framework["Configs"]["config"]["settings"]["door"] = False
+                    # else:
+                    #    self.framework["Configs"]["config"]["settings"]["door"] = True
+
+                    # get light
+                    vacuumvalues = vacuumvalues.split(",")[0]
+                    if vacuumvalues == "1":
+                        self.framework["Configs"]["config"]["settings"]["vacuum"] = True
+                    else:
+                        self.framework["Configs"]["config"]["settings"]["vacuum"] = False
+
+                    # Here a list
+                    self.main.humidity_history = np.append(
+                        self.main.humidity_history, float(envvalues[1])
+                    )  # todo: memory leak since no values will be deleted
+                    self.main.temperatur_history = np.append(
+                        self.main.humidity_history, float(envvalues[3])
+                    )
+
+                    # Write the pt100 and light status and environement in the box to the global variables
+                    self.framework["Configs"]["config"]["settings"][
+                        "chuck_temperature"
+                    ] = float(envvalues[3])
+                    self.framework["Configs"]["config"]["settings"][
+                        "air_temperature"
+                    ] = float(envvalues[0])
+                    self.framework["Configs"]["config"]["settings"]["dew_point"] = float(
+                        boxvalues[2]
+                    )
+
+                    # Send data to main
+                    self.queue_to_main.put(
+                        {
+                            "temperature_air": [float(time()), float(envvalues[0])],
+                            "temperature_chuck": [float(time()), float(envvalues[3])],
+                            "dew_point": [float(time()), float(boxvalues[2])],
+                            "humidity": [float(time()), float(envvalues[1])],
+                        }
+                    )
+                except:
+                    self.readqueue = True
+
             except Exception as err:
                 self.log.error(
                     "The temperature and humidity controller seems not to be responding. Error: {!s}".format(

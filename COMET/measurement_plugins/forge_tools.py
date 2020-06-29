@@ -333,7 +333,7 @@ class tools(object):
         return self.vcw.query(device_dict, command)
 
     def change_value_query(
-        self, device_dict, order, value="", answer="1", ignore_answer=False
+        self, device_dict, order, value="", answer="1", ignore_answer=False,
     ):
         """
         This function query a command to a device and waits for a return value and compares
@@ -498,7 +498,7 @@ class tools(object):
         self.queue_to_main.put(order)
 
     def capacitor_discharge(
-        self, device_dict, relay_dict, Setterminal=None, terminal=None, do_anyway=False
+        self, device_dict, relay_dict, Setterminal=None, terminal=None, do_anyway=False,
     ):
         """
         This function is rather special for SQC. It checks if the capacitor of the decouple box is correctly discharged
@@ -513,6 +513,7 @@ class tools(object):
 
         # Todo: this function needs clean up and generalization
         self.toolslog.info("Discharging capacitors...")
+        answer_from_device = "OK"
 
         if not device_dict or not relay_dict:
             self.toolslog.info(
@@ -526,12 +527,12 @@ class tools(object):
 
         # Set the switching for the discharge (a relay must be switched in the decouple box by applying 5V
         # sleep(1.) # Slow switching shit on BB
-        error = self.change_value_query(relay_dict, "set_discharge", "ON", "OK")
+        error = self.change_value_query(relay_dict, "set_discharge", "ON", answer_from_device)
         if error:
             self.queue_to_main.put(
                 {
                     "RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: "
-                    + str("OK")
+                    + str(answer_from_device)
                     + " got "
                     + str(error)
                     + " instead."
@@ -539,7 +540,7 @@ class tools(object):
             )
             self.toolslog.error(
                 "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: "
-                + str("OK")
+                + str(answer_from_device)
                 + " got "
                 + str(error)
                 + " instead."
@@ -567,14 +568,14 @@ class tools(object):
                 # return to default mode for this switching
                 sleep(1.0)  # Slow switching shit on BB
                 error = self.change_value_query(
-                    relay_dict, "set_discharge", "OFF", "OK"
+                    relay_dict, "set_discharge", "OFF", answer_from_device
                 )
                 if error:
                     self.queue_to_main.put(
                         {
                             "RequestError": "Capacitor discharged failed! Switching the discharge"
                             " relay failed! Expected reply from device would be: "
-                            + str("OK")
+                            + str(answer_from_device)
                             + " got "
                             + str(error)
                             + " instead."
@@ -582,7 +583,7 @@ class tools(object):
                     )
                     self.toolslog.error(
                         "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: "
-                        + str("OK")
+                        + str(answer_from_device)
                         + " got "
                         + str(error)
                         + " instead."

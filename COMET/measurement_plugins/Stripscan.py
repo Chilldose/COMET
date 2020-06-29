@@ -701,7 +701,7 @@ class Stripscan_class(tools):
                 string_to_write = ""
                 if self.main.job_details.get("environment", False):
                     string_to_write = str(
-                        self.main.measurement_data["temperature"][1][-1]
+                        self.main.measurement_data["temperature_chuck"][1][-1]
                     ).ljust(self.justlength) + str(
                         self.main.measurement_data["humidity"][-1]
                     ).ljust(
