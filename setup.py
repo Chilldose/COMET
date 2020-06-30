@@ -3,7 +3,6 @@
 import os
 import sys
 
-
 class environement_setup:
     def install_env(self):
         """This function checks the python version and what kind of python (anaconda or not)"""
@@ -20,25 +19,36 @@ class environement_setup:
             )
 
         try:
-            requirement_file = sys.argv[1]
+            requirement_file = sys.argv[1] # If an arg was passed
+        except:
+
+            # If no arg was passed find system and try install conda env
+            osType = sys.platform
+            if "win" in osType.lower():
+                requirement_file = "COMET/resources/requirements_Winx86.yml"
+            elif "linux" in osType.lower():
+                requirement_file = "COMET/resources/requirements_LINUX_x86_64.yml"
+            else:
+                requirement_file = "COMET/resources/requirements_MacOS.yml"
+        try:
+            # Install anaconda env
+            cmd = "conda env create -f {}".format(os.path.normpath(requirement_file))
+            os.system(cmd)
+            sys.exit(0)
+
         except:
             print(
                 "You did not pass a conda environment file. Do you want to install the non conda environment? [Y/n]?"
             )
             x = input()
             if x.upper() == "Y" or x.upper() == "Yes":
-                requirement_file = "requirements_pip.yml"
+                requirement_file = "COMET/resources/requirements_pip.yml"
                 # Install pip env
-                os.system("pip install -r {}".format(requirement_file))
+                os.system("pip install -r {}".format(os.path.normpath(requirement_file)))
                 sys.exit(0)
             else:
                 print("Aborting...")
                 sys.exit(0)
-
-        # Install anaconda env
-        cmd = "conda env create -f {}".format(requirement_file)
-        os.system(cmd)
-        sys.exit(0)
 
 
 if __name__ == "__main__":

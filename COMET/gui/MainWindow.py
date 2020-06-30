@@ -6,6 +6,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt
 
 from ..utilities import ErrorMessageBoxHandler
+from ..utilities import update_envrionment
 from .CentralWidget import CentralWidget
 from .PreferencesDialog import PreferencesDialog
 from .LoggerConfig import LoggerConfig
@@ -57,6 +58,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.quitAct.setShortcut(QtGui.QKeySequence.Quit)
         self.quitAct.setStatusTip(self.tr("Quit the program"))
         self.quitAct.triggered.connect(self.close)
+        # Update the software
+        self.updateAct = QtWidgets.QAction(self.tr("&Update COMET"), self)
+        self.updateAct.setStatusTip(self.tr("Updates the program in the background"))
+        self.updateAct.triggered.connect(self.UpdateAction)
         # Preferences.
         self.preferencesAct = QtWidgets.QAction(self.tr("&Preferences"), self)
         self.preferencesAct.setStatusTip(self.tr("Configure the application"))
@@ -120,6 +125,7 @@ class MainWindow(QtWidgets.QMainWindow):
         """Create menus."""
         # File menu
         self.fileMenu = self.menuBar().addMenu(self.tr("&File"))
+        self.fileMenu.addAction(self.updateAct)
         self.fileMenu.addAction(self.quitAct)
         # Edit menu
         self.editMenu = self.menuBar().addMenu(self.tr("&Edit"))
@@ -219,3 +225,7 @@ class MainWindow(QtWidgets.QMainWindow):
             event.accept()
         else:
             event.ignore()
+
+    def UpdateAction(self):
+        """Updates the program"""
+        update_envrionment()

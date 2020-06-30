@@ -5,7 +5,7 @@
     path: C:\Users\Viktoria\OneDrive\Hephy\Dokumente\PhD\PQCnew\UniDAQ\COMET\misc_plugins\PlotScripts\CONFIGS\importer\importer_PQC.py # The path to your python file where the importer is
     module: importer_PQC # The module name
     name: importer # The function name inside you want to load
-    parameters: # Additional parameters your importer needs. Do not use if you dont need ones
+    parameters: # Additional parameters your importer needs. Do not use if you don't need ones
       param1: "Some optional"
       param2: "parameters"
 

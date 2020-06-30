@@ -1074,7 +1074,7 @@ class LogFile:
                 # If directory is non existent create it
                 # Todo: Here a dir will be made after installation, so if this prohibited go to the other dir
                 if "file" in config["handlers"]:
-                    pathtologfile = config["handlers"]["file"]["filename"].split("/")
+                    pathtologfile = os.path.normpath(config["handlers"]["file"]["filename"]).split(os.sep)
                     if not os.path.isdir(
                         os.path.join(os.getcwd(), *pathtologfile[:-1])
                     ):
@@ -1098,17 +1098,63 @@ class LogFile:
 
         self.welcome_string = (
             "\n"
-            "\t\t\t\t\t\t\t\t  __         ______     ______     ______   __     __         ______           ______     ______   ______\n  \
-                               /\ \       /\  __ \   /\  ___\   /\  ___\ /\ \   /\ \       /\  ___\         /\  __ \   /\__  _\ /\  ___\ \n   \
-                              \ \ \____  \ \ \/\ \  \ \ \__ \  \ \  __\ \ \ \  \ \ \____  \ \  __\         \ \ \/\_\  \/_/\ \/ \ \ \____ \n  \
-                                \ \_____\  \ \_____\  \ \_____\  \ \_\    \ \_\  \ \_____\  \ \_____\        \ \___\_\    \ \_\  \ \_____\ \n \
-                                  \/_____/   \/_____/   \/_____/   \/_/     \/_/   \/_____/   \/_____/         \/___/_/     \/_/   \/_____\n\n\n"
+            "  __         ______     ______     ______   __     __         ______ \n"  
+            " /\ \       /\  __ \   /\  ___\   /\  ___\ /\ \   /\ \       /\  ___\ \n"  
+            " \ \ \____  \ \ \/\ \  \ \ \__ \  \ \  __\ \ \ \  \ \ \____  \ \  __\  \n"   
+            "  \ \_____\  \ \_____\  \ \_____\  \ \_\    \ \_\  \ \_____\  \ \_____\  \n"  
+            "   \/_____/   \/_____/   \/_____/   \/_/     \/_/   \/_____/   \/_____/\n\n\n"
         )
+
+        snoopy = ("\n\n\n             XXXX\n"
+        "             X    XX\n"
+        "            X  ***  X                XXXXX\n"
+        "           X  *****  X            XXX     XX\n"
+        "        XXXX ******* XXX      XXXX          XX\n"
+    "      XX   X ******  XXXXXXXXX                XX XXX\n"
+    "    XX      X ****  X                           X** X\n"
+"   X        XX    XX     X                      X***X\n"
+"  X         //XXXX       X                      XXXX\n"
+" X         //   X                             XX\n"
+"X         //    X          XXXXXXXXXXXXXXXXXX/ \n"
+"X     XXX//    X          X\n"
+"X    X   X     X         X\n"
+"X    X    X    X        X\n"
+" X   X    X    X        X                    XX\n"
+" X    X   X    X        X                 XXX  XX\n"
+"  X    XXX      X        X               X  X X  X\n"
+"  X             X         X              XX X  XXXX\n"
+"   X             X         XXXXXXXX/     XX   XX  X\n"
+"    XX            XX              X     X    X  XX\n"
+"      XX            XXXX   XXXXXX/     X     XXXX\n"
+"        XXX             XX***         X     X\n"
+"           XXXXXXXXXXXXX *   *       X     X\n"
+"                        *---* X     X     X\n"
+"                       *-* *   XXX X     X\n"
+"                       *- *       XXX   X\n"
+"                      *- *X          XXX\n"
+"                      *- *X  X          XXX\n"
+"                     *- *X    X            XX\n"
+"                     *- *XX    X             X\n"
+"                    *  *X* X    X             X\n"
+"                    *  *X * X    X             X\n"
+"                   *  * X**  X   XXXX          X\n"
+"                   *  * X**  XX     X          X\n"
+"                  *  ** X** X     XX          X\n"
+"                 *  **  X*  XXX   X         X\n"
+"                 *  **    XX   XXXX       XXX\n"
+"                *  * *      XXXX      X     X\n"
+"               *   * *          X     X     X\n"
+" >>>>>>>*******   * *           X     X      XXXXXXXX/ \n"
+"        *         * *      /XXXXX      XXXXXXXX/      <\n"
+"   >>>>>**********  *     X                     <  /  <\n"
+"     >>>>*         *     X               /  /   <XXXXX\n"
+">>>>>>>>>**********       XXXXXXXXXXXXXXXXXXXXXX\n")
 
         # Create a logger Object
         self.LOG = logging.getLogger("Logfile")
         # Print welcome message
         self.LOG.info(self.welcome_string)
+        self.LOG.debug(snoopy)
         if to_log:
             self.LOG.info(to_log)
 
@@ -1310,9 +1356,9 @@ class table_control_class:
 
         if not "height_movement" in self.variables:
             self.log.warning(
-                "No height_movement for table specified, defaulting to 800"
+                "No height_movement for table specified, defaulting to 1000"
             )
-            self.variables["height_movement"] = 800
+            self.variables["height_movement"] = 1000
 
         if not "clearance" in self.variables:
             self.log.warning("No clearance for table specified, defaulting to 200")
@@ -1671,6 +1717,7 @@ class table_control_class:
 
             # Move the table to the position
             if relative_move:
+                # list(np.array(old_pos)+np.array(desired_pos))
                 move_command = self.build_command(
                     self.device, ("set_relative_move_to", desired_pos)
                 )
@@ -1678,10 +1725,14 @@ class table_control_class:
                 move_command = self.build_command(
                     self.device, ("set_move_to", desired_pos)
                 )
+
+            # Set axis
+            self.set_axis([True, True, True])
             self.vcw.write(self.device, move_command)
             success = self.check_if_ready()
             if not success:
                 return False
+            self.set_axis([True, True, False])
 
             # State that the table is not moving anymore
             self.variables["table_is_moving"] = False
@@ -2472,3 +2523,36 @@ def force_plot_update(settings_dict):
     """Forces the GUI to replot all plots. Needs the settings dict """
     settings_dict["new_data"] = True  # Initiates the update of the plots
     settings_dict["last_plot_update"] = settings_dict["update_counter"]
+
+def update_envrionment():
+    """Tries to pull from the remote git and updates the env"""
+    l.critical("Try getting Git remote repo...")
+    try:
+        import git
+        repo = git.Repo()
+        o = repo.remotes.origin
+        l.info(o.fetch())
+        l.info(o.pull())
+    except Exception as err:
+        l.error(
+            "An error happened while updating COMET source code.", exc_info=True
+        )
+
+    l.critical("Checking conda environment requirements...")
+    try:
+        osType = sys.platform
+        if "win" in osType.lower():
+            version = "COMET/resources/requirements_Winx86.yml"
+        elif "linux" in osType.lower():
+            version = "COMET/resources/requirements_LINUX_x86_64.yml"
+        else:
+            version = "COMET/resources/requirements_MacOS.yml"
+        os.system(
+            "conda env update --prefix ./env --file {}  --prune".format(version)
+        )
+    except Exception as err:
+        l.error(
+            "An error happened while updating COMET environment.", exc_info=True
+        )
+
+    l.critical("Please restart COMET for the updates to have an effect!")

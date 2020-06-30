@@ -4,8 +4,8 @@ Campaign: Hamamatsu 6inch PSlight
 Creator: Dominic Bloech 23.11.2018
 				
 reference pad: 1			
-reference pad: 32					
-reference pad: 64
+reference pad: 63					
+reference pad: 65
 
 # Additional parameters
 implant_length: 20036
@@ -81,3 +81,4 @@ strip	x	y	z
 62	0	5490	0
 63	0	5580	0
 64	0	5670	0
+65	8330	5580	0

@@ -89,15 +89,15 @@ class IVCV_class(tools):
         voltage_Start = []
         voltage_steps = []
         self.log.info("Acquiring devices for IVCV measurements...")
-        discharge_SMU = None
+        self.discharge_SMU = None
         bias_SMU = None
         LCR_meter = None
-        discharge_switching = None
+        self.discharge_switching = None
         try:
             bias_SMU = self.main.devices[self.IVCV_configs["BiasSMU"]]
             LCR_meter = self.main.devices[self.IVCV_configs["LCRMeter"]]
-            discharge_SMU = self.main.devices[self.IVCV_configs["DischargeSMU"]]
-            discharge_switching = self.main.devices[self.IVCV_configs["Switching"]]
+            self.discharge_SMU = self.main.devices[self.IVCV_configs["DischargeSMU"]]
+            self.discharge_switching = self.main.devices[self.IVCV_configs["Switching"]]
         except KeyError as valErr:
             self.log.critical(
                 "One or more devices could not be found for the IVCV measurements. Error: {}".format(
@@ -106,9 +106,9 @@ class IVCV_class(tools):
             )
 
         # First perform a discharge of the decouple box capacitor and stop if there is a problem
-        if discharge_SMU and discharge_switching:
+        if self.discharge_SMU and self.discharge_switching:
             if not self.capacitor_discharge(
-                discharge_SMU, discharge_switching, *self.IVCV_configs["Discharge"]
+                self.discharge_SMU, self.discharge_switching, *self.IVCV_configs["Discharge"]
             ):
                 return  # Exits the Measurement if need be
         else:
@@ -237,10 +237,10 @@ class IVCV_class(tools):
                 )
 
         self.change_value(bias_SMU, *self.IVCV_configs["OutputOFF"])
-        if discharge_SMU and discharge_switching:
+        if self.discharge_SMU and self.discharge_switching:
             self.capacitor_discharge(
-                discharge_SMU,
-                discharge_switching,
+                self.discharge_SMU,
+                self.discharge_switching,
                 *self.IVCV_configs["Discharge"],
                 do_anyway=True
             )
@@ -262,8 +262,16 @@ class IVCV_class(tools):
                 meas in self.main.job_details["IVCV"]
                 and not self.main.event_loop.stop_all_measurements_query()
             ):
-                for i, voltage in enumerate(voltage_step_list):
+                # Discharge cap
+                if self.discharge_SMU and self.discharge_switching:
+                    self.capacitor_discharge(
+                        self.discharge_SMU,
+                        self.discharge_switching,
+                        *self.IVCV_configs["Discharge"],
+                        do_anyway=True
+                    )
 
+                for i, voltage in enumerate(voltage_step_list):
                     # Change the progress
                     self.main.settings["settings"]["progress"] = (i + 1) / len(
                         voltage_step_list

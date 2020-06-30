@@ -92,6 +92,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#setting-up-the-environment">Setting Up The Environment</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#once-installed-test-only-sqc">Once installed, test (Only SQC)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#download-the-comet-source-code">Download the COMET source code</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#i-want-to-start-comet-with-point-an-click">I want to start COMET with point an click</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="gettingstarted.html">Getting Started</a></li>
@@ -202,8 +203,16 @@ I recommended to use COMET with an Anaconda python distribution which you can do
 <p class="admonition-title">Warning</p>
 <p>Make sure to download the 64-bit version!</p>
 </div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>You can alternatively install a miniconda version, if the full anaconda is to heavy.</p>
+</div>
 <p>it will work with a normal python version too, but I have not tested it. Furthermore, i have set up an Anaconda environment,
 so you do not need to painfully install all modules by hand.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The next step is only needed if you intend to use the probe station device communication functionality. If you do not need it skip the next part.</p>
+</div>
 <p><strong>Secondly</strong> you need to install National Instrument VISA drivers. These drivers can be found here:</p>
 <p><a class="reference external" href="http://www.ni.com/download/ni-visa-17.0/6646/en/">NI-Visa drivers</a></p>
 <p>You will need drivers higher than 17.0 for COMET to work properly. If you have installed a LabView version it is usually already
@@ -222,11 +231,18 @@ BUT these drivers are far from perfect and not as sophisticated as the NI driver
 </div>
 <div class="section" id="setting-up-the-environment">
 <h2>Setting Up The Environment<a class="headerlink" href="#setting-up-the-environment" title="Permalink to this headline">¶</a></h2>
-<p>With python up and running, you can run the <strong>environement_setup.py &lt;your_system_req_file.yml</strong> file by e.g.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">environment_setup</span><span class="o">.</span><span class="n">py</span> <span class="n">requiremnts_Winx86</span><span class="o">.</span><span class="n">yml</span>
+<p>With python up and running, you can run the <strong>setup.py</strong> file.
+This will then install all packages the software needs to be fully functional.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span>
 </pre></div>
 </div>
-<p>this will (if Anaconda is installed) automatically install all required modules for the program to run. If you don't have Anaconda installed and don't want to use it, you can look in the &quot;requirements.yml&quot; file to see what dependencies the program needs.</p>
+<p>If something does not go as intended you can try to install a specific OS setup file by e.g.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">setup</span><span class="o">.</span><span class="n">py</span> <span class="n">COMET</span><span class="o">/</span><span class="n">resources</span><span class="o">/&lt;</span><span class="n">your_system_req_file</span><span class="o">.</span><span class="n">yml</span><span class="o">&gt;</span>
+</pre></div>
+</div>
+<p>this will (if Anaconda is installed) automatically install all required modules for the program to run.
+If you don't have Anaconda installed and don't want to use it, you can look in the &quot;COMET/resources/requirements.yml&quot; file to see what dependencies the program needs.
+If the software cannot find anaconda installed it will ask you to directly install the &quot;normal&quot; python pip file.</p>
 </div>
 <div class="section" id="once-installed-test-only-sqc">
 <h2>Once installed, test (Only SQC)<a class="headerlink" href="#once-installed-test-only-sqc" title="Permalink to this headline">¶</a></h2>
@@ -251,6 +267,26 @@ connected to your system these should be listed now.</p>
 <p>If you just want the latest version of COMET, download it from my GitHub repository.</p>
 <p><a class="reference external" href="https://github.com/Chilldose/COMET">Git repo</a>.</p>
 <p>Once you have the version you like, continue with the <a class="reference internal" href="gettingstarted.html#getting-started"><span class="std std-ref">Getting Started</span></a> section.</p>
+</div>
+<div class="section" id="i-want-to-start-comet-with-point-an-click">
+<h2>I want to start COMET with point an click<a class="headerlink" href="#i-want-to-start-comet-with-point-an-click" title="Permalink to this headline">¶</a></h2>
+<p>Since python scripts are usually started via the command line. In the case of COMET</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="n">COMET</span><span class="o">.</span><span class="n">py</span>
+</pre></div>
+</div>
+<p>it is not intended to have a &quot;double-click&quot; function. Furthermore, COMET comes with some command line arguments you can use.
+But if you really want to have a icon to click. You can do the following.</p>
+<p>In the operating system of your choice you have to find the installation directory of you anaconda installation.
+Under win10 its something like <code class="docutils literal notranslate"><span class="pre">C:\Users\MyUserName\anaconda3</span></code>. For linux and Mac it is similar.</p>
+<p>The create a .bat (for win) or .sh (for linux) file inside the commands</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">call</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">MyUserName</span>\<span class="n">anaconda3</span>\<span class="n">Scripts</span>\<span class="n">activate</span><span class="o">.</span><span class="n">bat</span> <span class="n">C</span><span class="p">:</span>\<span class="n">Users</span>\<span class="n">MyUserName</span>\<span class="n">anaconda3</span>\<span class="n">envs</span>\<span class="n">COMET</span>
+<span class="n">call</span> <span class="n">cd</span> <span class="n">C</span><span class="p">:</span>\<span class="o">&lt;</span><span class="n">path_to_the_COMET_dir</span><span class="o">&gt;</span>\
+<span class="n">call</span> <span class="n">python</span> <span class="n">COMET</span><span class="o">.</span><span class="n">py</span>
+<span class="n">pause</span>
+</pre></div>
+</div>
+<p>need to be executed. In this case for a .bat file. If you do not have Anaconda installed you can delete the first entry, which simply activates
+the conda env for COMET.</p>
 </div>
 </div>
 

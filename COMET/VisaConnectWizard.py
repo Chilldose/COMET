@@ -379,7 +379,7 @@ class VisaConnectWizard:
             query = str(resource.query(str(code)))  # try to query
             self.log.debug(
                 "Query of: {} to device: {} was answered with: {}".format(
-                    code, resource_dict["Device_name"], query.strip()
+                    code, str(resource_dict["Device_name"]), query.strip()
                 )
             )
             return query
@@ -388,7 +388,7 @@ class VisaConnectWizard:
             # Try to reconnect to the device if no answer comes from the device in the timeout
             self.log.error(
                 "The query of device {} with query {} failed. ".format(
-                    resource_dict["Device_name"], code
+                    str(resource_dict["Device_name"]), code
                 ),
                 exc_info=True,
             )
@@ -436,7 +436,7 @@ class VisaConnectWizard:
                 self.log.error(
                     "A key error occured in dict "
                     + str(
-                        resource_dict["Device_name"]
+                        str(resource_dict["Device_name"])
                         + ". This usually happens when the device is not connected."
                     ),
                     exc_info=True,

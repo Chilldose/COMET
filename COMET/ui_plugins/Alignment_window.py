@@ -157,7 +157,7 @@ class Alignment_window(Table_widget):
 
                 # Get reference pads alone
                 reference_pad_pattern = re.compile(
-                    r"(reference.?pad.?\d?):\s+(\d+)", re.MULTILINE
+                    r"(reference.?pad.?\d?):\s+(\w+)", re.MULTILINE
                 )
                 parent_dict[project][sensor]["reference_pads"] = [
                     x[2] for x in reference_pad_pattern.finditer(raw_data["raw"])
@@ -319,7 +319,7 @@ class Alignment_window(Table_widget):
                 self.update_static()
             except Exception as err:
                 self.log.error(
-                    "An error while accessing the pad files with error: {}".format(err)
+                    "An error while accessing the pad files with error: {}".format(err), exc_info=True
                 )
                 self.error_action(
                     "An error while accessing the pad files with error: {}".format(err)
@@ -553,16 +553,22 @@ class Alignment_window(Table_widget):
         """If the alignment point are changed"""
         if self.alignment_started:
             ref = int(self.alignment.ref_1.value())
-            self.reference_pads[0] = int(ref)
-            self.update_reference_pad_positions()
+            try:
+                self.reference_pads[0] = int(ref)
+                self.update_reference_pad_positions()
+            except:
+                self.log.debug("Value for spin box must be number")
         self.update_static()
 
     def spin_box_action_2(self):
         """If the alignment point are changed"""
         if self.alignment_started:
             ref = int(self.alignment.ref_2.value())
-            self.reference_pads[1] = int(ref)
-            self.update_reference_pad_positions()
+            try:
+                self.reference_pads[1] = int(ref)
+                self.update_reference_pad_positions()
+            except:
+                self.log.debug("Value for spin box must be number")
             # self.adjust_alignment_points(2)
         self.update_static()
 
@@ -570,15 +576,21 @@ class Alignment_window(Table_widget):
         """If the alignment point are changed"""
         if self.alignment_started:
             ref = int(self.alignment.ref_3.value())
-            self.reference_pads[2] = int(ref)
-            self.update_reference_pad_positions()
+            try:
+                self.reference_pads[2] = int(ref)
+                self.update_reference_pad_positions()
+            except:
+                self.log.debug("Value for spin box must be number")
         self.update_static()
 
     def update_reference_pad_positions(self):
-        self.reference_pads_positions = [
-            self.sensor_pad_file["data"][str(item)] for item in self.reference_pads
-        ]
-        self.adjust_alignment_points(2, 1)  # not so good
+        try:
+            self.reference_pads_positions = [
+                self.sensor_pad_file["data"][str(item)] for item in self.reference_pads
+            ]
+            self.adjust_alignment_points(2, 1)  # not so good
+        except IndexError:
+            self.log.critical("Could not update reference pad position spin boxes. This can happen if the pads are not intager")
 
     def update_static(self):
         """This updates the static text of the gui, like sensor type"""
@@ -591,9 +603,12 @@ class Alignment_window(Table_widget):
         self.alignment.ref_2.setRange(1, 10000)
         self.alignment.ref_3.setRange(1, 10000)
 
-        self.alignment.ref_1.setValue(int(self.reference_pads[0]))
-        self.alignment.ref_2.setValue(int(self.reference_pads[1]))
-        self.alignment.ref_3.setValue(int(self.reference_pads[2]))
+        try:
+            self.alignment.ref_1.setValue(int(self.reference_pads[0]))
+            self.alignment.ref_2.setValue(int(self.reference_pads[1]))
+            self.alignment.ref_3.setValue(int(self.reference_pads[2]))
+        except:
+            pass
 
         self.alignment.ref_1.setRange(1, int(self.number_of_pads))
         self.alignment.ref_2.setRange(1, int(self.number_of_pads))
@@ -607,8 +622,8 @@ class Alignment_window(Table_widget):
         self.alignment.project.setText("Project: " + str(self.project))
 
         self.check_strip = str(randint(2, int(self.number_of_pads) - 1))
-        if self.check_strip not in self.sensor_pad_file:
-            self.check_strip = "2"
+        if str(self.check_strip) not in self.sensor_pad_file:
+            self.check_strip = self.reference_pads[0]
 
         self.alignment.first_co_label.setText(
             "First alignment coord: " + str(self.first_ref)

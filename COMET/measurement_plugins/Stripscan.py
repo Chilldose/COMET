@@ -384,6 +384,16 @@ class Stripscan_class(tools):
                 return
             self.change_value(LCR, "set_frequency", freq)
             sleep(0.2)
+
+            # Performe cap discharge
+            if not self.capacitor_discharge(
+                    self.discharge_SMU,
+                    self.discharge_switching,
+                    *self.IVCV_configs["Discharge"],
+                    do_anyway=True
+            ):
+                self.stop_everything()
+
             for i in range(count):
                 data.append(
                     self.vcw.query(LCR, read_command).split(LCR.get("separator", ","))[
@@ -831,8 +841,9 @@ class Stripscan_class(tools):
                 [
                     ("set_source_voltage", ""),
                     ("set_measure_current", ""),
+                    ("set_voltage_range", "2"),
                     ("set_voltage", voltage),
-                    ("set_compliance", 90e-6),
+                    ("set_compliance", 10e-6),
                     ("set_output", "ON"),
                 ],
             )  # config the 2410 for 1V bias on bias and DC pad
@@ -904,7 +915,7 @@ class Stripscan_class(tools):
                 self.stop_everything()
                 return
             self.config_setup(
-                voltage_device, [("set_voltage", 0), ("set_compliance", 50e-6)]
+                voltage_device, [("set_voltage", 0), ("set_voltage_range","20"), ("set_compliance", 50e-6)]
             )  # config the 2410
             self.config_setup(device_dict, config_commands)  # config the elmeter
             self.change_value(
@@ -973,7 +984,6 @@ class Stripscan_class(tools):
                     slope, intercept, r_value, p_value, std_err = stats.linregress(
                         voltage_list[2:], values_list[2:]
                     )
-                    # TODO: make some comparision if it is ok, write this to a separate file etc.
                     rint = 1.0 / slope
                     self.rintslopes.append(
                         [
@@ -1140,13 +1150,24 @@ class Stripscan_class(tools):
         freqscan=False,
         write_to_main=True,
         alternative_switching=False,
-        frequency=1000000,
+        frequency=600000,
     ):
         """Does the cint measurement"""
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 MHz
         self.change_value(device_dict, "set_frequency", frequency)
+        #self.change_value(device_dict, "set_apply_load_correction", "ON")
         if not self.main.event_loop.stop_all_measurements_query():
+
+            # Performe cap discharge
+            if not self.capacitor_discharge(
+                    self.discharge_SMU,
+                    self.discharge_switching,
+                    *self.IVCV_configs["Discharge"],
+                    do_anyway=True
+            ):
+                self.stop_everything()
+
             if not self.switching.switch_to_measurement(
                 self.get_switching_for_measurement("Cint", alternative_switching)
             ):
@@ -1174,6 +1195,7 @@ class Stripscan_class(tools):
                 "Cint_beta" if alternative_switching else "Cint", 0.0
             )
             value[0] += corr
+            #self.change_value(device_dict, "set_apply_load_correction", "OFF")
             return value
 
     def do_CintAC(

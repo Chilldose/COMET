@@ -202,15 +202,15 @@ class Environement_widget(object):
             p1 = self.temphum_plot.plotItem
 
             ax = p1.getAxis("bottom")  # This is the trick
-            self.__cut_arrays(
-                self.variables.meas_data,
-                float(
-                    self.variables.default_values_dict["settings"].get(
-                        "temp_history", 3600
-                    )
-                ),
-                ["temperature_chuck", "humidity"],
-            )
+            #self.__cut_arrays(
+            #    self.variables.meas_data,
+            #    float(
+            #        self.variables.default_values_dict["settings"].get(
+            #            "temp_history", 3600
+            #        )
+            #    ),
+            #    ["temperature_chuck", "humidity"],
+            #)
             ax.setTicks(
                 [
                     get_thicks_for_timestamp_plot(
@@ -244,7 +244,7 @@ class Environement_widget(object):
                     )  # resize the second plot!
             except Exception as err:
                 self.envlog.error(
-                    "An error happened while updating the environement with error: {}".format(
+                    "An error happened while updating the environement with error: {}.".format(
                         err
                     )
                 )

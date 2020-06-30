@@ -10,7 +10,7 @@
   Analysis:
     - IVCV_QTC # The type of analysis, which will be performed
 
-
+  abs_value_only: True
 # Optional Parameters
 
   # Options for the different Analyses scripts
@@ -145,6 +145,26 @@
               ylabel: capacitance [nF]
               shared_axes: False
 
+      Full depletion estimation:
+          PlotLabel: Full depletion estimation
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+              logy: False
+              logx: False
+              invert_xaxis: False
+              invert_yaxis: False
+              padding: !!python/tuple [0, 0.1]
+              show_grid: True
+              gridstyle:
+                  grid_line_color: black
+                  grid_line_width: 1.5
+                  minor_xgrid_line_color: lightgray
+                  minor_ygrid_line_color: lightgray
+                  xgrid_line_dash: [4, 4]
+                  ygrid_line_dash: [10, 4]
+              xlabel: voltage (V)
+              ylabel: 1/c^2 (arb. units)
+              shared_axes: False
+
       1C2:
           PlotLabel: CV CURVES - Full depletion
           DoFullDepletionCalculation: True
@@ -167,7 +187,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               #xlabel: voltage [V]
-              ylabel: 1/c^2 [arb. units]
+              ylabel: 1/c^2 (arb. units)
               shared_axes: False
               #ylim: !!python/tuple [0, 0.08]
               #xlim: !!python/tuple [0, 500]

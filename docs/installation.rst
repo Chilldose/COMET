@@ -10,9 +10,12 @@ I recommended to use COMET with an Anaconda python distribution which you can do
 
 .. warning:: Make sure to download the 64-bit version!
 
+.. note:: You can alternatively install a miniconda version, if the full anaconda is to heavy.
+
 it will work with a normal python version too, but I have not tested it. Furthermore, i have set up an Anaconda environment,
 so you do not need to painfully install all modules by hand.
 
+.. note:: The next step is only needed if you intend to use the probe station device communication functionality. If you do not need it skip the next part.
 
 **Secondly** you need to install National Instrument VISA drivers. These drivers can be found here:
 
@@ -33,11 +36,18 @@ The program is known to be running on Windows, Linux (Centos7) and Mac.
 Setting Up The Environment
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-With python up and running, you can run the **environement_setup.py <your_system_req_file.yml** file by e.g.::
+With python up and running, you can run the **setup.py** file.
+This will then install all packages the software needs to be fully functional. ::
 
-    python environment_setup.py requiremnts_Winx86.yml
+    python setup.py
 
-this will (if Anaconda is installed) automatically install all required modules for the program to run. If you don't have Anaconda installed and don't want to use it, you can look in the "requirements.yml" file to see what dependencies the program needs.
+If something does not go as intended you can try to install a specific OS setup file by e.g. ::
+
+    python setup.py COMET/resources/<your_system_req_file.yml>
+
+this will (if Anaconda is installed) automatically install all required modules for the program to run.
+If you don't have Anaconda installed and don't want to use it, you can look in the "COMET/resources/requirements.yml" file to see what dependencies the program needs.
+If the software cannot find anaconda installed it will ask you to directly install the "normal" python pip file.
 
 Once installed, test (Only SQC)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -65,3 +75,27 @@ If you just want the latest version of COMET, download it from my GitHub reposit
 `Git repo <https://github.com/Chilldose/COMET>`_.
 
 Once you have the version you like, continue with the :ref:`Getting Started` section.
+
+
+I want to start COMET with point an click
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Since python scripts are usually started via the command line. In the case of COMET ::
+
+  python COMET.py
+
+it is not intended to have a "double-click" function. Furthermore, COMET comes with some command line arguments you can use.
+But if you really want to have a icon to click. You can do the following.
+
+In the operating system of your choice you have to find the installation directory of you anaconda installation.
+Under win10 its something like ``C:\Users\MyUserName\anaconda3``. For linux and Mac it is similar.
+
+The create a .bat (for win) or .sh (for linux) file inside the commands ::
+
+  call C:\Users\MyUserName\anaconda3\Scripts\activate.bat C:\Users\MyUserName\anaconda3\envs\COMET
+  call cd C:\<path_to_the_COMET_dir>\
+  call python COMET.py
+  pause
+
+need to be executed. In this case for a .bat file. If you do not have Anaconda installed you can delete the first entry, which simply activates
+the conda env for COMET.

@@ -32,9 +32,9 @@ The program is known to be running on Windows, Linux (Centos7) and Mac.
 
 ## Setting Up The Environment
 
-With python up and running, you can run the **environement_setup.py <your_system_req_file.yml** file by e.g.::
+With python up and running, you can run the **setup.py** file by e.g.::
 
-    python environment_setup.py requirements_Winx86.yml
+    python setup.py 
 
 this will (if Anaconda is installed) automatically install all required modules for the program to run.
 If you don't have Anaconda installed and don't want to use it, you can look in the "requirements.yml" file to see what dependencies the program needs.
