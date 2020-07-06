@@ -46,7 +46,7 @@ class IVCV_class(tools):
             "Meas_order": "sequential",  # Or: interlaced
             "BaseConfig": [],
             "IVConfig": [],
-            "CVConfig": [],
+            "CVConfig": [("set_frequency", 1000), ("set_voltage","0.5")],
         }
         # Important commands which has to be available: set_compliance_current
         #                                               set_voltage
@@ -64,7 +64,7 @@ class IVCV_class(tools):
                     {"INFO": "Performing open correction on LCR Meter..."}
                 )
                 self.perform_open_correction(
-                    self.main.devices[self.IVCV_configs["LCRMeter"]], "None"
+                    self.main.devices[self.IVCV_configs["LCRMeter"]], "CV"
                 )
                 self.main.queue_to_main.put({"INFO": "Open correction done..."})
         except KeyError:
@@ -298,14 +298,14 @@ class IVCV_class(tools):
                             self.change_value(bias_SMU, "set_voltage", str(voltage))
                             # Calculate the maximum slope for the steady state check
                             maxslope = (
-                                self.biascurrent * 0.01 if self.biascurrent else 1e-8
+                                self.biascurrent * 0.05 if self.biascurrent else 1e-8
                             )
                             if not self.steady_state_check(
                                 bias_SMU,
                                 self.IVCV_configs["GetReadSMU"],
                                 max_slope=maxslope,
-                                wait=0.1,
-                                samples=10,
+                                wait=0.05,
+                                samples=5,
                                 Rsq=0.8,
                                 compliance=compliance,
                             ):  # Is a dynamic waiting time for the measurements
@@ -670,6 +670,7 @@ class IVCV_class(tools):
         self.vcw.write(LCR, ready_command)
         while True:
             done = self.vcw.read(LCR)
+            sleep(5.)
             if done:
                 break
             else:

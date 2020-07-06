@@ -78,7 +78,8 @@ class Brandbox_temperature_humidity(Thread):
                 if self.readqueue:
                     try:
                         ans = self.vcw.read(self.resource)
-                        self.log.critical("Brandbox had an non empty queue: {}".format(ans))
+                        if ans:
+                            self.log.critical("Brandbox had an non empty queue: {}".format(ans))
                     except:
                         self.log.info("Brandbox indicated an non empty queue, reading queue yielded no queue...", exc_info=True)
 

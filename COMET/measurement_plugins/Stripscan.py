@@ -118,6 +118,8 @@ class Stripscan_class(tools):
             "Pad_files"
         ][self.job["Project"]][self.job["Sensor"]]
         self.strips = len(self.sensor_pad_data["data"])
+        self.maximumstrip = 0
+        self.minimumstrip = 0
         self.current_strip = self.main.framework["Configs"]["config"]["settings"][
             "current_strip"
         ]  # Current pad position of the table
@@ -147,9 +149,9 @@ class Stripscan_class(tools):
 
         if "Rint_MinMax" not in self.main.framework["Configs"]["config"]["settings"]:
             self.main.framework["Configs"]["config"]["settings"]["Rint_MinMax"] = [
-                -1.0,
+                -5.0,
+                5.0,
                 1.0,
-                0.1,
             ]
             self.log.warning(
                 "No Rint boundaries given, defaulting to [-1.,1.,0.1]. Consider adding it to your settings"
@@ -372,8 +374,26 @@ class Stripscan_class(tools):
             {"INFO": "{} preparation done...".format(measurement)}
         )
 
-    def perform_open_correction(self, LCR, measurements, count=15):
+    def perform_open_correction(self, LCR, measurements, count=50):
         read_command = self.main.build_command(LCR, "get_read")
+
+        # Performe cap discharge
+        if not self.capacitor_discharge(
+            self.discharge_SMU,
+            self.discharge_switching,
+            *self.IVCV_configs["Discharge"],
+            do_anyway=True
+        ):
+            self.stop_everything()
+
+        # perform a device open correction on the cint path
+        if not self.switching.switch_to_measurement("Cint"):
+            self.stop_everything()
+            return
+        sleep(0.2)
+        self.change_value(LCR, "set_perform_open_correction", "")
+        self.change_value(LCR, "set_apply_open_correction", "ON")
+
         for meas, freq in measurements.items():
             data = []
             self.main.queue_to_main.put(
@@ -385,15 +405,7 @@ class Stripscan_class(tools):
             self.change_value(LCR, "set_frequency", freq)
             sleep(0.2)
 
-            # Performe cap discharge
-            if not self.capacitor_discharge(
-                    self.discharge_SMU,
-                    self.discharge_switching,
-                    *self.IVCV_configs["Discharge"],
-                    do_anyway=True
-            ):
-                self.stop_everything()
-
+            #sleep(5.0)
             for i in range(count):
                 data.append(
                     self.vcw.query(LCR, read_command).split(LCR.get("separator", ","))[
@@ -427,12 +439,14 @@ class Stripscan_class(tools):
                     measurement in self.main.job_details["Stripscan"]
                 ):  # looks if measurement should be done
                     # Now generate a list of strips from the settings of the measurement
-                    min = self.main.job_details["Stripscan"][measurement]["Start Strip"]
-                    max = self.main.job_details["Stripscan"][measurement]["End Strip"]
+                    mini = self.main.job_details["Stripscan"][measurement]["Start Strip"]
+                    maxi = self.main.job_details["Stripscan"][measurement]["End Strip"]
                     delta = self.main.job_details["Stripscan"][measurement][
                         "Measure Every"
                     ]
-                    strip_list = self.ramp_value(min, max, delta)
+                    self.maximumstrip = maxi if maxi > self.maximumstrip else self.maximumstrip
+                    self.minimumstrip = mini if mini > self.minimumstrip else self.minimumstrip
+                    strip_list = self.ramp_value(mini, maxi, delta)
                     self.main.job_details["Stripscan"][measurement].update(
                         {"strip_list": strip_list}
                     )
@@ -472,13 +486,13 @@ class Stripscan_class(tools):
                 )
 
             # Discharge the capacitors in the decouple box
-            if not self.capacitor_discharge(
-                self.discharge_SMU,
-                self.discharge_switching,
-                *self.IVCV_configs["Discharge"],
-                do_anyway=True
-            ):
-                self.stop_everything()
+            #if not self.capacitor_discharge(
+            #    self.discharge_SMU,
+            #    self.discharge_switching,
+            #    *self.IVCV_configs["Discharge"],
+            #    do_anyway=True
+            #):
+            #    self.stop_everything()
 
             #  Do the actual measurements
             ###############################################################################
@@ -486,7 +500,7 @@ class Stripscan_class(tools):
             if "second_side_start" in self.sensor_pad_data["additional_params"]:
                 partials = (
                     (
-                        1,
+                        self.minimumstrip,
                         int(
                             self.sensor_pad_data["additional_params"][
                                 "second_side_start"
@@ -499,11 +513,11 @@ class Stripscan_class(tools):
                                 "second_side_start"
                             ]
                         ),
-                        int(self.strips) + 1,
+                        int(self.maximumstrip) + 1,
                     ),
                 )
             else:
-                partials = ((1, int(self.strips) + 1),)
+                partials = ((self.minimumstrip, int(self.maximumstrip) + 1),)
 
             for reverse_needles, part in enumerate(partials):
                 if not self.main.event_loop.stop_all_measurements_query():
@@ -694,7 +708,7 @@ class Stripscan_class(tools):
 
             # Find bad contact
             badthread = Thread(target=self.find_bad_contact)
-            badthread.start()
+            #badthread.start() # Todo: comment this in
 
             if not self.main.event_loop.stop_all_measurements_query():
                 # After all measurements are conducted write the environment variables to the file
@@ -1031,7 +1045,8 @@ class Stripscan_class(tools):
         config_commands = [
             ("set_source_voltage", ""),
             ("set_measure_current", ""),
-            ("set_current_range", 2.0e-6),
+            ("set_voltage_range", "20"),
+            ("set_current_range", 1.0e-6),
             ("set_compliance", 1.0e-6),
             ("set_voltage", "5.0"),
             ("set_output", "ON"),
@@ -1150,9 +1165,19 @@ class Stripscan_class(tools):
         freqscan=False,
         write_to_main=True,
         alternative_switching=False,
-        frequency=600000,
+        frequency=1000000,
     ):
         """Does the cint measurement"""
+
+        def apply_correction(values):
+            """apply a correction to the measurement"""
+            # Apply the correction fort this measurement
+            corr = self.open_corrections.get(
+                "Cint_beta" if alternative_switching else "Cint", 0.0
+            )
+            values[0] -= corr
+            return values[0]
+
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 MHz
         self.change_value(device_dict, "set_frequency", frequency)
@@ -1160,13 +1185,13 @@ class Stripscan_class(tools):
         if not self.main.event_loop.stop_all_measurements_query():
 
             # Performe cap discharge
-            if not self.capacitor_discharge(
-                    self.discharge_SMU,
-                    self.discharge_switching,
-                    *self.IVCV_configs["Discharge"],
-                    do_anyway=True
-            ):
-                self.stop_everything()
+            #if not self.capacitor_discharge(
+            #       self.discharge_SMU,
+             #       self.discharge_switching,
+            #        *self.IVCV_configs["Discharge"],
+            #        do_anyway=True
+            #):
+            #    self.stop_everything()
 
             if not self.switching.switch_to_measurement(
                 self.get_switching_for_measurement("Cint", alternative_switching)
@@ -1186,16 +1211,12 @@ class Stripscan_class(tools):
                 check_compliance=False,
             ):  # Is a dynamic waiting time for the measuremnt
                 value = self.__do_simple_measurement(
-                    "Cint", device_dict, xvalue, samples, write_to_main=not freqscan
+                    "Cint", device_dict, xvalue, samples, write_to_main=not freqscan, apply_to=apply_correction
                 )
             else:
                 return False
-            # Apply the correction fort this measurement
-            corr = self.open_corrections.get(
-                "Cint_beta" if alternative_switching else "Cint", 0.0
-            )
-            value[0] += corr
             #self.change_value(device_dict, "set_apply_load_correction", "OFF")
+            self.change_value(device_dict, "set_frequency", 1000)
             return value
 
     def do_CintAC(
@@ -1205,7 +1226,7 @@ class Stripscan_class(tools):
         freqscan=False,
         write_to_main=True,
         alternative_switching=False,
-        frequency=1000000,
+        frequency=800000,
     ):
         """Does the cint measurement on the AC strips"""
         device_dict = self.LCR_meter
@@ -1249,6 +1270,17 @@ class Stripscan_class(tools):
         frequency=1000,
     ):
         """Does the cac measurement"""
+
+        def apply_correction(values):
+            """apply a correction to the measurement"""
+            corr = self.open_corrections.get(
+                "Cac_beta" if alternative_switching else "Cac", 0.0
+            )
+            # Apply the correction fort this measurement
+            values[0] -= corr
+            return values[0]
+
+
         device_dict = self.LCR_meter
         # Config the LCR to the correct freq of 1 kHz
         self.change_value(device_dict, "set_frequency", frequency)
@@ -1271,16 +1303,10 @@ class Stripscan_class(tools):
                 check_compliance=False,
             ):  # Is a dynamic waiting time for the measuremnt
                 value = self.__do_simple_measurement(
-                    "Cac", device_dict, xvalue, samples, write_to_main=not freqscan
+                    "Cac", device_dict, xvalue, samples, write_to_main=not freqscan, apply_to=apply_correction
                 )
             else:
                 return False
-
-            # Apply the correction fort this measurement
-            corr = self.open_corrections.get(
-                "Cac_beta" if alternative_switching else "Cac", 0.0
-            )
-            value[0] += corr
             return value
 
     def do_Cback(

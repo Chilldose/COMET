@@ -108,8 +108,8 @@
         LVSwitching:
           - 1G05
           - 1G06
-          - 1H07
-          - 1H08
+          - 1B07
+          - 1B08
 
       Cac_beta:
         HVSwitching:
@@ -120,8 +120,8 @@
         LVSwitching:
           - 1G01
           - 1G02
-          - 1H03
-          - 1H04
+          - 1B03
+          - 1B04
 
       Cint:
         HVSwitching:
@@ -132,8 +132,8 @@
         LVSwitching:
           - 1G01
           - 1G02
-          - 1H05
-          - 1H06
+          - 1B05
+          - 1B06
 
       Cint_beta:
         HVSwitching:
@@ -144,8 +144,8 @@
         LVSwitching:
           - 1G01
           - 1G02
-          - 1H05
-          - 1H06
+          - 1B05
+          - 1B06
 
       CintAC:
         HVSwitching:
@@ -156,8 +156,8 @@
         LVSwitching:
           - 1G03
           - 1G04
-          - 1H07
-          - 1H08
+          - 1B07
+          - 1B08
 
       Rint:
         HVSwitching:
