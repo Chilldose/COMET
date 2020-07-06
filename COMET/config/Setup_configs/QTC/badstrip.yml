@@ -6,10 +6,10 @@
   author_email: dominic.bloech@oeaw.ac.at
   fit_cluster_size: 10 # How large should be the cluster size for fitting
   output_folder: C:\Users\dbloech\PycharmProjects\Doktorat\QTC-Software\COMET\rubbish
-  header_lines: 19 # How many header lines are there
-  measurement_description: 20 # line where the different measurements are described
-  units_line: 21 # Which line ist the units line
-  data_start: 22
+  header_lines: 13 # How many header lines are there
+  measurement_description: 14 # line where the different measurements are described
+  units_line: 15 # Which line ist the units line
+  data_start: 16
   quantile: 0.95 # Quantile for the lms_line fit from Rudi
   remove_outliner: True # Just for plotting important
   outlier_std: 3 # Excludes all values which are outlier compared to the std*n
@@ -96,5 +96,3 @@
   do_plot: True # Should plots be done or not
   export_plot: True # Should the plots be exported, is False when do_plots = False
   export_results: True # Export analysis object for later import
-
-

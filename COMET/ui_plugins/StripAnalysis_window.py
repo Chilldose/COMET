@@ -327,7 +327,10 @@ class StripAnalysis_window:
         measurement = self.badstrip.which_plot.currentText()
         if measurement:
             ydata = self.plot_data[measurement]["data"][measurement_name]
-            xdata = np.arange(len(self.plot_data[measurement]["data"]["Strip"]))
+            try:
+                xdata = np.arange(len(self.plot_data[measurement]["data"]["Strip"]))
+            except:
+                xdata = np.arange(len(self.plot_data[measurement]["data"]["Pad"]))
             self.reconfig_plot(
                 measurement_name,
                 self.measurement_dict.get(
@@ -429,7 +432,7 @@ class StripAnalysis_window:
         for meas in self.plot_data[old_plot][
             "data"
         ].keys():  # Loop over all possible plots
-            if meas != "Strip":
+            if meas != "Strip" or meas != "Pad":
                 plot, hist = self.update_plot(meas)
                 win = pg.GraphicsLayoutWidget()
                 for i, pl in enumerate([plot, hist]):
