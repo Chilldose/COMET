@@ -445,7 +445,7 @@ class stripanalysis:
             DCerror, ind_bad_Cint, ind_bad_Cap = self.find_bad_DC_contact(
                 data["Istrip"],
                 data["Rpoly"],
-                data["Cint"],
+                data.get("Cint", np.array([])),
                 data["Cac"],
                 shift=shift,
                 suppress_warning=True,
@@ -776,7 +776,7 @@ class stripanalysis:
                 badDC, badCint, badCap = self.find_bad_DC_contact(
                     working_data["Istrip"],
                     working_data["Rpoly"],
-                    working_data["Cint"],
+                    working_data.get("Cint", np.array([])),
                     working_data["Cac"],
                     cutted_array,
                 )  # last value optional, used to calc the shift in the strip number
