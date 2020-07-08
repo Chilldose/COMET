@@ -527,25 +527,29 @@ class tools(object):
 
         # Set the switching for the discharge (a relay must be switched in the decouple box by applying 5V
         # sleep(1.) # Slow switching shit on BB
-        error = self.change_value_query(relay_dict, "set_discharge", "ON", answer_from_device)
-        if error:
-            self.queue_to_main.put(
-                {
-                    "RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: "
+        all_ok = False
+        while not all_ok:
+            error = self.change_value_query(relay_dict, "set_discharge", "ON", answer_from_device)
+            if error:
+                self.queue_to_main.put(
+                    {
+                        "RequestError": "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: "
+                        + str(answer_from_device)
+                        + " got "
+                        + str(error)
+                        + " instead."
+                    }
+                )
+                self.toolslog.error(
+                    "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: "
                     + str(answer_from_device)
                     + " got "
                     + str(error)
                     + " instead."
-                }
-            )
-            self.toolslog.error(
-                "Capacitor discharged failed! Switching the discharge relay failed! Expected reply from device would be: "
-                + str(answer_from_device)
-                + " got "
-                + str(error)
-                + " instead."
-            )
-            return False
+                )
+                all_ok = False
+            else: all_ok = True
+
         sleep(1.0)  # relay is really slow
         self.change_value(device_dict, "set_source_current")
         self.change_value(device_dict, "set_measure_voltage")

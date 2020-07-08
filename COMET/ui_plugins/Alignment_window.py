@@ -117,7 +117,7 @@ class Alignment_window(Table_widget):
                 self.variables.switching,
                 self.variables.vcw,
                 self.connection_test_device,
-                target_resistance=2.5,
+                target_resistance=50.,
                 abs_err=5.0,
             )
             if isinstance(res, bool):

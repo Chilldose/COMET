@@ -321,6 +321,10 @@ class Stripscan_class(tools):
         # Move the table down while ramp
         self.main.table.move_down(self.height)
 
+        # Check if relay state is ok
+        if not self.perform_relay_switch_state_check():
+            return
+
         # Ramps the voltage, if ramp voltage returns false something went wrong -> stop
         self.main.queue_to_main.put({"INFO": "Ramping up to bias voltage..."})
         if not self.do_ramp_value(
@@ -374,6 +378,44 @@ class Stripscan_class(tools):
             {"INFO": "{} preparation done...".format(measurement)}
         )
 
+    def perform_relay_switch_state_check(self):
+        """Checks if the relay in the brandbox is correctly switched so that not more than 200 V can be applied to the matrix"""
+
+        if not self.capacitor_discharge(
+            self.discharge_SMU,
+            self.discharge_switching,
+            *self.IVCV_configs["Discharge"],
+            do_anyway=True
+        ):
+            self.stop_everything()
+
+        self.change_value(self.LCR_meter, "set_voltage", 0.1)
+        self.change_value(self.bias_SMU, "set_output", "1")
+        self.change_value(self.bias_SMU, "set_voltage", -3)
+        self.change_value(self.SMU2, "set_terminal", "FRONT")
+        self.change_value(self.SMU2, "set_measure_voltage", "")
+        self.change_value(self.SMU2, "set_reading_mode", "VOLT")
+        self.change_value(self.SMU2, "set_output", "ON")
+        sleep(1.)
+
+        voltage = self.vcw.query(self.SMU2, "READ?").split(",")
+
+        if abs(float(voltage[0])) >= 1.:
+            self.stop_everything()
+            self.log.error("It seems that the brandbox is not correctly switched or the relay is malfunctioning!!! ABORT!")
+            return False
+
+        self.change_value(self.bias_SMU, "set_voltage", 0.)
+        self.change_value(self.LCR_meter, "set_voltage", 1.)
+        #self.change_value(self.bias_SMU, "set_output", "0")
+        self.change_value(self.SMU2, "set_output", "OFF")
+        self.change_value(self.SMU2, "set_measure_current", "")
+        self.change_value(self.SMU2, "set_terminal", "REAR")
+        self.change_value(self.SMU2, "set_reading_mode", "CURR")
+
+        return True
+
+
     def perform_open_correction(self, LCR, measurements, count=50):
         read_command = self.main.build_command(LCR, "get_read")
 
@@ -392,6 +434,15 @@ class Stripscan_class(tools):
             return
         sleep(0.2)
         self.change_value(LCR, "set_perform_open_correction", "")
+
+        done = 0
+        self.vcw.write(LCR, "*OPC?")
+        while not done :
+            try:
+                done = self.vcw.read(LCR)
+            except:
+                done = 0
+
         self.change_value(LCR, "set_apply_open_correction", "ON")
 
         for meas, freq in measurements.items():
@@ -715,9 +766,9 @@ class Stripscan_class(tools):
                 string_to_write = ""
                 if self.main.job_details.get("environment", False):
                     string_to_write = str(
-                        self.main.measurement_data["temperature_chuck"][1][-1]
+                        self.main.event_loop.temperatur_history[-1]
                     ).ljust(self.justlength) + str(
-                        self.main.measurement_data["humidity"][-1]
+                        self.main.event_loop.humidity_history[-1]
                     ).ljust(
                         self.justlength
                     )

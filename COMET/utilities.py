@@ -1297,7 +1297,7 @@ def connection_test(
     for name in schemes:
         switching.switch_to_measurement(name)
         res.append(float(vcw.query(device, read)))
-        l.debug("Resistances of Needle {}: {} Ohms".format(name, res[-1]))
+        l.info("Resistances of Needle {}: {} Ohms".format(name, res[-1]))
     switching.switch_to_measurement("None")
     vcw.write(device, readingModeOLD)
     vcw.write(device, outputOFF)
