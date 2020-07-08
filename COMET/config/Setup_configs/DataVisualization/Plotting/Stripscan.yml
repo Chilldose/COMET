@@ -2,10 +2,10 @@
 
 # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files
-    header_lines: 19
-    measurement_description: 20
-    units_line: 21
-    data_start: 22
+    header_lines: 13
+    measurement_description: 14
+    units_line: 15
+    data_start: 16
 
   Analysis:
     - Stripscan
@@ -18,7 +18,7 @@
   
   # Converts all arrays to their absolute
   #override_data: False
-  abs_value_only: False
+  abs_value_only: True
   Measurement_aliases:
       Temperature: temp
       Humidity: hum
@@ -40,15 +40,15 @@
             bins: 50
             iqr: 0.1
         singleHistogram:
-            bins: 50
-            iqr: 0.1
+            bins: 20
+            iqr: 0.9
             
 
-      #DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measuremnt has this special plot stated
+      DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measuremnt has this special plot stated
       #    - concatHistogram
       #    - Violin
       #    - BoxWhisker
-       #   - Histogram
+          - Histogram
 
       HistogramOptions:
           shared_axes: False
@@ -105,13 +105,14 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 10
               #ylabel: current [A]
               #ylim: !!python/tuple [0, -800]
 
       Idiel:
           PlotLabel: Current through dielectric
           PlotStyles: # Here you can state some plot types you want to have, possible Options are Curve, Spike, Histogram, if non is stated, curve is selected
-              - Curve
+              - Scatter
           AdditionalPlots:
               - Violin
               - concatHistogram
@@ -129,6 +130,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 10
               #ylabel: current [A]
 
       Idark:
@@ -151,6 +153,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 10
               #ylabel: current [A]
 
       Rpoly:
@@ -173,6 +176,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 10
               #ylabel: resistance [Ohm]
               #ylim: !!python/tuple [0, 2.5]
       Rint:
@@ -195,6 +199,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 15
               #ylabel: resistance [Ohm]
       Cac:
           PlotLabel: Coupling Capacitance
@@ -216,6 +221,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 10
               #ylabel: capacitance [F]
               #ylim: !!python/tuple [120, 160]
 
@@ -239,6 +245,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 10
               #ylabel: capacitance [F]
 
   # If you do the bad_strip_detection analysis

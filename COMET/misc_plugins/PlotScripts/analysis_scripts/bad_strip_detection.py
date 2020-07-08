@@ -963,18 +963,19 @@ class stripanalysis:
                 )[0]
                 glob_len = len(dat)
 
-                self.log.warning(
-                    "{}% of the strips are NOT inside {} specifications.".format(
-                        round((1 - (len(inside_specs) / glob_len)) * 100, 2), meas
+                if glob_len:
+                    self.log.warning(
+                        "{}% of the strips are NOT inside {} specifications.".format(
+                            round((1 - (len(inside_specs) / glob_len)) * 100, 2), meas
+                        )
                     )
-                )
-                self.log.warning(
-                    "{}% of the strips are NOT inside median({meas})+-{perc}%".format(
-                        round((1 - (len(median_ok) / glob_len)) * 100, 2),
-                        meas=meas,
-                        perc=self.settings[meas][2],
+                    self.log.warning(
+                        "{}% of the strips are NOT inside median({meas})+-{perc}%".format(
+                            round((1 - (len(median_ok) / glob_len)) * 100, 2),
+                            meas=meas,
+                            perc=self.settings[meas][2],
+                        )
                     )
-                )
                 return_dict[meas] = (inside_specs, median_ok, glob_len)
         return return_dict
 
