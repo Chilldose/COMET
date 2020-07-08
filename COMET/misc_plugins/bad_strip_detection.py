@@ -130,32 +130,74 @@ class stripanalysis:
             )
 
     def parse_file_data(self, filecontent):
-        """This function parses the file content to the needed data type"""
+        """This function parses the ADCII file content to the needed data types"""
         filecontent = filecontent.split("\n")
 
-        header = filecontent[: self.settings["header_lines"]]
-        measurements = filecontent[
-            self.settings["measurement_description"]
-            - 1 : self.settings["measurement_description"]
-        ]
-        units = filecontent[
-            self.settings["units_line"] - 1 : self.settings["units_line"]
-        ]
+        header = filecontent[: self.settings.get("header_lines", 0)]
+        if "measurement_description" in self.settings:
+            measurements = filecontent[
+                self.settings["measurement_description"]
+                - 1 : self.settings["measurement_description"]
+            ]
+        else:
+            measurements = [""]
+        if "units_line" in self.settings:
+            units = filecontent[self.settings["units_line"] - 1 : self.settings["units_line"]]
+        else:
+            units = [""]
         data = filecontent[self.settings["data_start"] - 1 :]
         separator = self.settings.get("data_separator", None)
+        preunits = self.settings.get("units", None)
+        premeasurement_cols = self.settings.get("measurements", None)
+
+        units_exp = r"{}".format(self.settings.get("units_regex", r"(#?)\w*\s?\W?(#|\w*)\W*\s*"))
+        data_exp = r"{}".format(self.settings.get("measurement_regex", r"(#|\w+)\s?\W?\w*\W?"))
+
+        regex = [re.compile(data_exp, re.MULTILINE), re.compile(units_exp)]
 
         # First parse the units and measurement types
-        parsed_obj = []
-        for k, data_to_split in enumerate((measurements, units)):
-            for i, meas in enumerate(
-                data_to_split
-            ):  # This is just for safety ther is usually one line here
-                meas = meas.split(
-                    separator
-                )  # usually all spaces should be excluded but not sure if tab is removed as well
-                for j, singlemeas in enumerate(meas):
-                    meas[j] = singlemeas.strip()
-                parsed_obj.append(meas)
+        parsed_obj = [[], []]
+        if (
+            not preunits or not premeasurement_cols
+        ):  # If you have defined both dont do that, otherwise make best effort
+            self.log.info("Trying to extract measurements and units from file...")
+            for k, data_to_split in enumerate((measurements, units)):
+                for i, meas in enumerate(
+                    data_to_split
+                ):  # This is just for safety there is usually one line here
+                    to_del_ind = []
+                    meas = re.findall(
+                        regex[k], meas.strip()
+                    )  # usually all spaces should be excluded but not sure if tab is removed as well
+                    for j, singleitem in enumerate(meas):
+                        if isinstance(singleitem, tuple):
+                            found = False
+                            for singlemeas in singleitem:
+                                if singlemeas.strip():
+                                    meas[j] = singlemeas.strip()
+                                    found = True
+                                    break
+                            if not found:
+                                to_del_ind.append(j)
+
+                        elif isinstance(singleitem, str):
+                            if singleitem.strip():
+                                meas[j] = singleitem.strip()
+                            else:
+                                to_del_ind.append(j)
+                    for j in reversed(to_del_ind):  # Delete empty or non valid ones
+                        meas.pop(j)
+                    parsed_obj[k] = meas
+
+        if premeasurement_cols:
+            self.log.info("Using predefined columns...")
+            parsed_obj[0] = premeasurement_cols
+        if preunits:
+            self.log.info("Using predefined units...")
+            parsed_obj[1] = preunits
+
+        if not parsed_obj[0] and not parsed_obj[1]:
+            self.log.error("No measurements and units extracted. Plotting will fail!")
 
         # Now parse the actual data and build the tree dict structure needed
         data_lists = (
@@ -165,19 +207,61 @@ class stripanalysis:
         data_dict = {}
         for dat in data:
             dat = dat.split(separator)
-            for j, singleentry in enumerate(dat):
-                try:  # try to convert to number
-                    dat[j] = float(singleentry.strip())
-                except:
-                    dat[j] = np.nan  # singleentry.strip()
-            if len(dat) == len(parsed_obj[0]):
+            dat = [ind.strip() for ind in dat]
+            if len(dat):
+                for j, singleentry in enumerate(dat):
+                    try:  # try to convert to number
+                        dat[j] = float(singleentry)
+                    except:
+                        dat[j] = np.nan  # singleentry.strip()
+
+            if parsed_data:  # This prevents zero len error
+                if dat:
+                    if len(dat) == len(
+                        parsed_data[-1]
+                    ):  # This prevents empty line or malformed data entry line error
+                        parsed_data.append(dat)
+                    else:
+                        dat.extend([np.nan for i in range(len(parsed_data[-1]) - len(dat))])
+                else:
+                    self.log.debug("Data shape is not consistent. Droping data: {}".format(dat))
+            else:
                 parsed_data.append(dat)
 
-        for i, meas in enumerate(parsed_obj[0]):
+        for i, meas in enumerate(
+            parsed_obj[0][: len(parsed_data[0])]
+        ):  # Prevents wolfgangs header error
             data_lists.append([parsed_data[x][i] for x in range(len(parsed_data))])
             # Construct dict
-            data_dict.update({str(meas): np.array(data_lists[i], dtype=np.float32)})
+            if meas not in data_dict:
+                data_dict.update({str(meas): np.array(data_lists[i], dtype=np.float64)})
+            else:
+                filenum = 1
+                while meas + "_{}".format(filenum) in data_dict:
+                    filenum += 1
+                new_name = meas + "_{}".format(filenum)
+                self.log.critical(
+                    "Name {} already exists. Data array will be renamed to {}".format(
+                        meas, new_name
+                    )
+                )
+                data_dict.update({new_name: np.array(data_lists[i], dtype=np.float64)})
+                # Adapt the measurements name as well
+                parsed_obj[0][i] = new_name
 
+        self.log.critical(
+            "Extracted measurements are: {} with len {}".format(
+                parsed_obj[0], len(parsed_obj[0])
+            )
+        )
+        self.log.critical(
+            "Extracted units are: {} with len {}".format(parsed_obj[1], len(parsed_obj[1]))
+        )
+        if len(parsed_obj[0]) != len(parsed_obj[1]):
+            self.log.error(
+                "Parsed measurement decription len is not equal to len of extracted units. Errors may rise! If this error persists please change units_regex and measurement_regex in the"
+                " ASCII parameters to fit your data! Or define your own correctly."
+            )
         return_dict = {
             "data": data_dict,
             "header": header,
@@ -212,7 +296,10 @@ class stripanalysis:
         """
 
         results = []
-        padarray = data["Strip"][tokeep[data_label]]
+        try:
+            padarray = data["Strip"][tokeep[data_label]]
+        except:
+            padarray = data["Pad"][tokeep[data_label]]
         start = np.arange(0, len(padarray) - piecesize, piecesize)
         end = np.arange(piecesize, len(padarray), piecesize)
         if len(end):
@@ -314,7 +401,10 @@ class stripanalysis:
         single_lms = lms_fit[measurement]
         single_cutted = cutted[measurement]
 
-        xvalues = data["Strip"]
+        try:
+            xvalues = data["Strip"]
+        except:
+            xvalues = data["Pad"]
         xvalues = xvalues[single_cutted]
 
         start, stop = self.create_piecewise_arrays(xvalues, piecesize)
@@ -355,7 +445,7 @@ class stripanalysis:
             DCerror, ind_bad_Cint, ind_bad_Cap = self.find_bad_DC_contact(
                 data["Istrip"],
                 data["Rpoly"],
-                data["Cint"],
+                data.get("Cint", np.array([])),
                 data["Cac"],
                 shift=shift,
                 suppress_warning=True,
@@ -522,7 +612,11 @@ class stripanalysis:
                 )
             )
 
-        xvalues = data["Strip"]
+        try:
+            xvalues = data["Strip"]
+        except:
+            xvalues = data["Pad"]
+
         Fxval = xvalues[Firstcut]
         Sxval = xvalues[Secondcut]
 
@@ -682,7 +776,7 @@ class stripanalysis:
                 badDC, badCint, badCap = self.find_bad_DC_contact(
                     working_data["Istrip"],
                     working_data["Rpoly"],
-                    working_data["Cint"],
+                    working_data.get("Cint", np.array([])),
                     working_data["Cac"],
                     cutted_array,
                 )  # last value optional, used to calc the shift in the strip number

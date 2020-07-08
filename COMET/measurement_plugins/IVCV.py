@@ -46,7 +46,7 @@ class IVCV_class(tools):
             "Meas_order": "sequential",  # Or: interlaced
             "BaseConfig": [],
             "IVConfig": [],
-            "CVConfig": [],
+            "CVConfig": [("set_frequency", 1000), ("set_voltage","0.5")],
         }
         # Important commands which has to be available: set_compliance_current
         #                                               set_voltage
@@ -64,7 +64,7 @@ class IVCV_class(tools):
                     {"INFO": "Performing open correction on LCR Meter..."}
                 )
                 self.perform_open_correction(
-                    self.main.devices[self.IVCV_configs["LCRMeter"]], "None"
+                    self.main.devices[self.IVCV_configs["LCRMeter"]], "CV"
                 )
                 self.main.queue_to_main.put({"INFO": "Open correction done..."})
         except KeyError:
@@ -106,15 +106,12 @@ class IVCV_class(tools):
             )
 
         # First perform a discharge of the decouple box capacitor and stop if there is a problem
-        if self.discharge_SMU and self.discharge_switching:
-            if not self.capacitor_discharge(
-                self.discharge_SMU, self.discharge_switching, *self.IVCV_configs["Discharge"]
-            ):
-                return  # Exits the Measurement if need be
-        else:
-            self.log.critical(
-                "No discharge SMU specified. Therefore, no discharge of capacitors done!"
-            )
+
+        if not self.capacitor_discharge(
+            self.discharge_SMU, self.discharge_switching, *self.IVCV_configs["Discharge"]
+        ):
+            return  # Exits the Measurement if need be
+
 
         if "IV" in self.main.job_details["IVCV"]:  # Creates the actual measurement plan
             job_list.append(self.do_IV)
@@ -237,13 +234,14 @@ class IVCV_class(tools):
                 )
 
         self.change_value(bias_SMU, *self.IVCV_configs["OutputOFF"])
-        if self.discharge_SMU and self.discharge_switching:
-            self.capacitor_discharge(
-                self.discharge_SMU,
-                self.discharge_switching,
-                *self.IVCV_configs["Discharge"],
-                do_anyway=True
-            )
+
+        self.capacitor_discharge(
+            self.discharge_SMU,
+            self.discharge_switching,
+            *self.IVCV_configs["Discharge"],
+            do_anyway=True
+        )
+
         return None
 
     def change_bias_voltage(self, volt):
@@ -263,22 +261,20 @@ class IVCV_class(tools):
                 and not self.main.event_loop.stop_all_measurements_query()
             ):
                 # Discharge cap
-                if self.discharge_SMU and self.discharge_switching:
-                    self.capacitor_discharge(
-                        self.discharge_SMU,
-                        self.discharge_switching,
-                        *self.IVCV_configs["Discharge"],
-                        do_anyway=True
-                    )
-
+                self.capacitor_discharge(
+                    self.discharge_SMU,
+                    self.discharge_switching,
+                    *self.IVCV_configs["Discharge"],
+                    do_anyway=True
+                )
+                env_array = (
+                    []
+                )  # Warning: if you do IV and CV only the IV data will be stored finally
                 for i, voltage in enumerate(voltage_step_list):
                     # Change the progress
                     self.main.settings["settings"]["progress"] = (i + 1) / len(
                         voltage_step_list
                     )
-                    env_array = (
-                        []
-                    )  # Warning: if you do IV and CV only the IV data will be stored finally
                     if self.main.job_details["environment"]:
                         env_array.append(
                             str(self.main.event_loop.temperatur_history[-1]).ljust(
@@ -298,14 +294,14 @@ class IVCV_class(tools):
                             self.change_value(bias_SMU, "set_voltage", str(voltage))
                             # Calculate the maximum slope for the steady state check
                             maxslope = (
-                                self.biascurrent * 0.01 if self.biascurrent else 1e-8
+                                self.biascurrent * 0.05 if self.biascurrent else 1e-8
                             )
                             if not self.steady_state_check(
                                 bias_SMU,
                                 self.IVCV_configs["GetReadSMU"],
                                 max_slope=maxslope,
-                                wait=0.1,
-                                samples=10,
+                                wait=0.05,
+                                samples=5,
                                 Rsq=0.8,
                                 compliance=compliance,
                             ):  # Is a dynamic waiting time for the measurements
@@ -413,6 +409,12 @@ class IVCV_class(tools):
                         string_to_write += str(
                             self.main.measurement_data["CV"][1][entry]
                         ).ljust(self.justlength)
+
+                    # Add temp and hum
+                    string_to_write += str(
+                        env_array[entry]
+                    ).ljust(self.justlength)
+
 
                     # Write everything to the file
                     self.main.write(
@@ -670,6 +672,7 @@ class IVCV_class(tools):
         self.vcw.write(LCR, ready_command)
         while True:
             done = self.vcw.read(LCR)
+            sleep(5.)
             if done:
                 break
             else:

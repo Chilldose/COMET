@@ -104,12 +104,12 @@ class measurement_class(Thread):
                 self.log.info("No external lights controller found")
             self.close_measurement_files()
             # Stop the humidity/temperature control if checked
-            if "temphum_controller" in self.devices:
-                self.change_value(
-                    self.devices["temphum_controller"],
-                    "set_environement_control",
-                    "OFF",
-                )
+            #if "temphum_controller" in self.devices:
+            #    self.change_value(
+            #        self.devices["temphum_controller"],
+            #        "set_environement_control",
+            #        "OFF",
+            #    )
 
         elif (
             self.skip_tests
@@ -306,6 +306,16 @@ class measurement_class(Thread):
                 self.log.warning(
                     "Variable missing for humidity_control settings. No humidity check made!"
                 )
+
+            # Test if realy of the brandbox is ok
+            try:
+                if not self.perform_relay_switch_state_check():
+                    self.log.error("Relay state could not be verified. Please check and try again!")
+                    return False
+            except:
+                self.log.error("Relay state could not be verified. Most likely a deivce is not present. Please check and try again")
+                abort = True
+
         return True  # If everything worked
 
     def make_measurement_plan(self):
@@ -615,3 +625,35 @@ class measurement_class(Thread):
             )
         else:
             self.log.warning("No data for saving found...")
+
+    def perform_relay_switch_state_check(self):
+        """Checks if the relay in the brandbox is correctly switched so that not more than 200 V can be applied to the matrix"""
+
+        self.bias_SMU = self.devices["BiasSMU"]
+        self.LCR_meter = self.devices["LCRMeter"]
+        self.SMU2 = self.devices["2410SMU"]
+
+        self.change_value(self.LCR_meter, "set_voltage", "0.1")
+        self.change_value(self.bias_SMU, "set_voltage", "-3")
+        self.change_value(self.bias_SMU, "set_output", "1")
+        self.change_value(self.SMU2, "set_terminal", "FRONT")
+        self.change_value(self.SMU2, "set_measure_voltage", "")
+        self.change_value(self.SMU2, "set_reading_mode", "VOLT")
+        self.change_value(self.SMU2, "set_output", "ON")
+        sleep(1.)
+
+        voltage = self.vcw.query(self.SMU2, "READ?").split(",")
+
+        if abs(float(voltage[0])) >= 1.:
+            self.log.error("It seems that the brandbox is not correctly switched or the relay is malfunctioning!!! ABORT!")
+            return False
+
+        self.change_value(self.bias_SMU, "set_voltage", "0.")
+        self.change_value(self.bias_SMU, "set_output", "0")
+        self.change_value(self.LCR_meter, "set_voltage", "1.")
+        self.change_value(self.SMU2, "set_output", "OFF")
+        self.change_value(self.SMU2, "set_measure_current", "")
+        self.change_value(self.SMU2, "set_terminal", "REAR")
+        self.change_value(self.SMU2, "set_reading_mode", "CURR")
+
+        return True

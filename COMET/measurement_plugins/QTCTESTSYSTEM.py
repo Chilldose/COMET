@@ -131,12 +131,12 @@ class QTCTESTSYSTEM_class(tools):
             "Empty": {
                 #"Chuckleakage": np.zeros(self.samples),
                 #"Istripempty": np.zeros(self.samples),
-                "Cacempty": np.zeros(self.samples),
-                "Cintempty": np.zeros(self.samples),
+                #"Cacempty": np.zeros(self.samples),
+                #"Cintempty": np.zeros(self.samples),
                 #"Rpolyempty": np.zeros(self.samples),
                 #"Rintempty": np.zeros(self.samples),
                 #"Idielempty": np.zeros(self.samples),
-                "CVempty": np.zeros(self.samples),
+                #"CVempty": np.zeros(self.samples),
             },
             "units": {
                 "Chuckleakage": "A",
@@ -377,7 +377,7 @@ class QTCTESTSYSTEM_class(tools):
     def test_card_measurements(self):
         """Does the KIT test card measurements. It switches either to Rpoly, Cac, or Cint and conducts the measurement
         on the card. Each measurement will be repeated self.samples times and the table will recontact every time."""
-        for j, part in enumerate(["C1", "C2"]): # Loop over all testcard entries
+        for j, part in enumerate(["C2"]): # Loop over all testcard entries
 
             if self.main.event_loop.stop_all_measurements_query():
                 break # If the stop signal was send
@@ -498,9 +498,20 @@ class QTCTESTSYSTEM_class(tools):
                     corr = self.open_corrections[switching[part]]
                     freq = self.cal_to[switching[part]]
                     freq = self.main.build_command(self.LCR_meter, ("set_frequency", freq))
+                    #load = self.main.build_command(self.LCR_meter, ("set_apply_load_correction", "ON"))
                     self.vcw.write(self.LCR_meter, freq)
+                    #self.vcw.write(self.LCR_meter, load)
+                    #if part == "C2":
+                     #   open = self.main.build_command(self.LCR_meter, ("set_apply_open_correction", "OFF"))
+                     #   self.vcw.write(self.LCR_meter, open)
+                    #    corr = 0
                     # Perform the measurements
                     self.perform_measurement_loop(idx, read, part, corr=corr, type="TestCard", precommand=self.move_up_down)
+                    #load = self.main.build_command(self.LCR_meter, ("set_apply_load_correction", "OFF"))
+                    #self.vcw.write(self.LCR_meter, load)
+                    #if part == "C2":
+                    #    open = self.main.build_command(self.LCR_meter, ("set_apply_open_correction", "ON"))
+                    #    self.vcw.write(self.LCR_meter, open)
 
 
 

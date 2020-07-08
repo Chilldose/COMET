@@ -2,7 +2,7 @@
 ---
   Filetype: CUSTOM # If CUSTOM you must define this custom specs section to tell where to find the file etc
   Custom_specs:
-    path: C:\Users\cmsbo\Documents\GitHub\COMET\COMET\misc_plugins\PlotScripts\CONFIGS\importer\importer_PQC.py # The path to your python file where the importer is
+    path: C:\Users\Viktoria\OneDrive\Hephy\Dokumente\PhD\PQCnew\UniDAQ\COMET\misc_plugins\PlotScripts\CONFIGS\importer\importer_PQC.py # The path to your python file where the importer is
     module: importer_PQC # The module name
     name: importer # The function name inside you want to load
     parameters: # Additional parameters your importer needs. Do not use if you don't need ones
