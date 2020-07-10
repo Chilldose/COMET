@@ -435,7 +435,15 @@ class DataVisualization_window:
 
     def apply_options_to_plot(self, plot, **opts):
         """Applies the opts to the plot"""
-        plot.opts(**opts)
+        try:
+            plot.opts(**opts)
+        except:
+            self.log.warning("Value error occured during plot customization. Trying to apply option on per-subplot-level...")
+            for path in plot.keys():
+                subplot = plot
+                for subpath in path:
+                    subplot = getattr(subplot, subpath)
+                subplot.opts(**opts)
 
     def update_plot_options_tree(self, plot):
         """Updates the plot options tree for the plot"""

@@ -5,7 +5,7 @@
 import logging
 import numpy as np
 
-from forge.tools import customize_plot, holoplot, convert_to_df, config_layout
+from forge.tools import customize_plot, holoplot, convert_to_df, config_layout, moving_average
 from forge.tools import twiny, relabelPlot
 from forge.tools import plot_all_measurements, plot, convert_to_EngUnits
 from forge.specialPlots import dospecialPlots
@@ -17,23 +17,19 @@ class SQC_SELFTEST:
 
         self.log = logging.getLogger(__name__)
 
-        for entry in data:
-            data[entry]["data"]["measurement"] = np.array(range(0,1000))
-            data[entry]["measurements"].insert(0, "measurement")
-            data[entry]["units"].insert(0, "#")
-
-        self.data = convert_to_df(data, abs=False)
+        self.data = data
         self.config = configs
         self.df = []
         self.basePlots = None
         self.analysisname = "SQC_SELFTEST"
         self.PlotDict = {"Name": self.analysisname}
-        self.measurements = self.data["columns"]
-        self.xaxis = "measurement"
+
 
 
     def run(self):
         """Runs the script"""
+
+        self.analysis()
 
         # Convert the units to the desired ones
         for meas in self.measurements:
@@ -76,18 +72,32 @@ class SQC_SELFTEST:
         if self.WhiskerPlots:
             self.PlotDict["Whiskers"] = self.WhiskerPlots
             self.PlotDict["All"] = self.PlotDict["All"] + self.WhiskerPlots
-
-        # Violin Plot
-#        self.Violin = dospecialPlots(
-#            self.data, self.config, self.analysisname, "Violin", self.measurements
-#        )
-#        if self.Violin:
-#            self.PlotDict["Violin"] = self.Violin
-#            self.PlotDict["All"] = self.PlotDict["All"] + self.Violin
-
-        # Reconfig the plots to be sure
-#        self.PlotDict["All"] = config_layout(
-#            self.PlotDict["All"],
-#            **self.config.get(self.analysisname, {}).get("Layout", {})
-#        )
         return self.PlotDict
+
+    def analysis(self):
+        """Does the analysis"""
+
+        average_len = 1
+
+        # Manipulate data
+        for entry in self.data:
+            self.data[entry]["data"]["measurement"] = np.array(range(0,1000-(average_len-1)))
+            self.data[entry]["measurements"].insert(0, "measurement")
+            self.data[entry]["units"].insert(0, "#")
+
+            # Do moving average over all data arrays
+            for col in self.data[entry]["data"]:
+                if col != "measurement":
+                    self.data[entry]["data"][col] = moving_average(self.data[entry]["data"][col], average_len)
+
+        # Do rpoly conversion
+        rpolyvoltage = -1
+        for file in self.data:
+            self.data[file]["data"]["R1"] = rpolyvoltage/self.data[file]["data"]["R1"]
+            indx = self.data[file]["measurements"].index("R1")
+            self.data[file]["units"][indx] = "Ohm"
+
+        # Convert to df
+        self.data = convert_to_df(self.data, abs=False)
+        self.measurements = self.data["columns"]
+        self.xaxis = "measurement"

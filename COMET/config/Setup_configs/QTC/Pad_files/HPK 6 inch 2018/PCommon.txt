@@ -5,7 +5,7 @@ Creator: Dominic Bloech 18.02.2018
 				
 reference pad: 1			
 reference pad: 126					
-reference pad: 128
+reference pad: 129
 
 strip	x	y	z
 1	0	0	0
@@ -135,4 +135,5 @@ strip	x	y	z
 125	0	-11160	0
 126	0	-11250	0
 127	0	-11340	0
-128	47426	-11250  0
+128	19532	-11250  0
+129	19532	-11250  0

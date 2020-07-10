@@ -651,11 +651,21 @@ def customize_plot(plot, plotName, configs, **addConfigs):
             )
         )
     except ValueError as err:
-        log.error(
-            "Configuring plot {} was not possible! Error: {}".format(
-                configs.get(plotName, {}).get("PlotLabel", ""), err
+        log.warning("Value error occured during plot customization. Trying to apply option on per-subplot-level...")
+        try:
+            for path in plot.keys():
+                subplot = plot
+                for subpath in path:
+                    subplot = getattr(subplot, subpath)
+                subplot.opts(**options)
+            plot = plot.relabel(label)
+
+        except Exception as err:
+            log.error(
+                "Configuring plot {} was not possible! Error: {}".format(
+                    configs.get(plotName, {}).get("PlotLabel", ""), err
+                )
             )
-        )
     return plot
 
 
@@ -1442,3 +1452,9 @@ def save_as_xml(data_dict, filepath, name):
         log.error(
             "Could not save data as xml, the data type is not correct. Must be dict or json"
         )
+
+
+def moving_average(array, N):
+    """Returns a moving average of the given array with mean over N values.
+    Warning resulting array will be (N-1) shorter!"""
+    return np.convolve(array, np.ones(N), 'valid') / N

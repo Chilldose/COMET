@@ -22,7 +22,7 @@ class StripAnalysis_window:
 
         self.variables = GUI
         self.layout = layout
-        self.analysis = stripanalysis(GUI)
+
         # Label: X-Axis, Y-Axis, Logx, Logy, InvertY
         self.measurement_dict = {
             "Idark": (["Strip", "#"], ["Current", "A"], [False, False], True),
@@ -44,7 +44,7 @@ class StripAnalysis_window:
 
         # self.plot_data = {"QTC":{"data": {"ab": 2}},
         #                  "QTC2": {"data": {"ab": 2, "c": 2, "b": 2}}} # should be a tree structure of dictionaries containig all data loaded, this must be the object from the bad strip detection!!!
-        self.plot_data = self.analysis.all_data
+
         self.output_directory = self.variables.default_values_dict["Badstrip"].get(
             "output_folder", str(os.getcwd())
         )
@@ -61,6 +61,7 @@ class StripAnalysis_window:
         self.layout.addWidget(badstrip)
 
         # Config the plots and init everything
+        self.load_analysis()
         self.plot_config()
         self.update_stats()
 
@@ -83,6 +84,11 @@ class StripAnalysis_window:
         # self.badstrip.cb_Save_plots.clicked.connect(self.export_action)
         self.badstrip.analyse_button.clicked.connect(self.analyse_action)
         # self.badstrip.save_plots_button.clicked.connect(self.export_plots)
+
+    def load_analysis(self):
+        """Reinstatiate the anlysis"""
+        self.analysis = stripanalysis(self.variables)
+        self.plot_data = self.analysis.all_data
 
     def update_specs_bars(self, data_label, data):
         """Adds specs bars for the absolute values and median +- values"""
@@ -155,7 +161,7 @@ class StripAnalysis_window:
 
     def analyse_action(self):
         """This starts the analysis of the loaded measurements"""
-        if self.badstrip.which_plot.currentText():
+        if self.badstrip.which_plot.currentText():#
 
             self.analysis.do_analysis()
             measurement = self.badstrip.which_measurement.currentText()
@@ -327,7 +333,10 @@ class StripAnalysis_window:
         measurement = self.badstrip.which_plot.currentText()
         if measurement:
             ydata = self.plot_data[measurement]["data"][measurement_name]
-            xdata = np.arange(len(self.plot_data[measurement]["data"]["Strip"]))
+            try:
+                xdata = np.arange(len(self.plot_data[measurement]["data"]["Strip"]))
+            except:
+                xdata = np.arange(len(self.plot_data[measurement]["data"]["Pad"]))
             self.reconfig_plot(
                 measurement_name,
                 self.measurement_dict.get(
@@ -398,6 +407,7 @@ class StripAnalysis_window:
 
     def load_measurement_action(self):
         """Loading measurement files, not analysed"""
+        self.load_analysis()
         files = self.files_selector_action()
         text = ""
 
@@ -429,7 +439,7 @@ class StripAnalysis_window:
         for meas in self.plot_data[old_plot][
             "data"
         ].keys():  # Loop over all possible plots
-            if meas != "Strip":
+            if meas != "Strip" or meas != "Pad":
                 plot, hist = self.update_plot(meas)
                 win = pg.GraphicsLayoutWidget()
                 for i, pl in enumerate([plot, hist]):
