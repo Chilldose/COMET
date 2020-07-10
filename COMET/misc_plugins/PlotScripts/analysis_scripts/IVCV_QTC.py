@@ -353,9 +353,9 @@ class IVCV_QTC:
                 np.round(np.mean(full_depletion_voltages[:, 0]), 2),
                 np.round(np.std(full_depletion_voltages[valid_indz, 0]), 2),
             ),
-            np.mean(full_depletion_voltages[valid_indz], axis=0)[0] * 2,
+            np.mean(full_depletion_voltages[valid_indz], axis=0)[0] * 2.,
             np.mean(full_depletion_voltages[valid_indz], axis=0)[1] * 1.3,
-            boxsize=(200, bounds[1] * 0.3),
+            boxsize=(220, bounds[1] * 0.3),
         )
         # Update the plot specific options if need be
         returnPlot = vline * right_line * left_line * text * plot
