@@ -46,6 +46,18 @@ class Stripscan:
     def run(self):
         """Runs the script"""
 
+        # Check if Idiel is high on strips and if so change it to 10nA max
+        for file in self.data["keys"]:
+            if "Idiel" in self.data[file]["data"]:
+                self.data[file]["data"]["Idiel"].where(self.data[file]["data"]["Idiel"] < 10., 10.,
+                                                       inplace=True)
+
+        # Check if Rint is high on strips and if so change it to 500 GOhm
+        for file in self.data["keys"]:
+            if "Rint" in self.data[file]["data"]:
+                self.data[file]["data"]["Rint"].where(self.data[file]["data"]["Rint"] < 500., 500.,
+                                                               inplace=True)
+
         # Plot all Measurements
         self.basePlots = plot_all_measurements(
             self.data, self.config, self.xrow, self.analysisName, do_not_plot=self.donts
