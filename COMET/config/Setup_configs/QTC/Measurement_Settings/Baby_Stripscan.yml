@@ -1,0 +1,278 @@
+Frequency Scan:
+  Do: false
+  Measurements:
+    Cac:
+      Amplitude:
+      - 0
+      - 1
+      - 0.1
+      - 0.5
+      Bias Voltage:
+      - 0
+      - -1000
+      - 10
+      - 300
+      Do: true
+      EndFreq:
+      - 0
+      - 1000000
+      - 10000
+      - 1000000
+    Cint:
+      Amplitude:
+      - 0
+      - 1
+      - 0.1
+      - 0.5
+      Bias Voltage:
+      - 0
+      - -1000
+      - 10
+      - 300
+      Do: true
+      EndFreq:
+      - 0
+      - 1000000
+      - 10000
+      - 1000000
+IVCV:
+  Do: false
+  Measurements:
+    CV:
+      Compliance [uA]:
+      - 0
+      - 1000
+      - 10
+      - 50
+      Do: true
+      End Voltage [V]:
+      - -1000
+      - 0
+      - -10
+      - -250
+      Voltage Step [V]:
+      - -100
+      - 0
+      - -10
+      - -5
+    IV:
+      Compliance [uA]:
+      - 0
+      - 1000
+      - 10
+      - 50
+      Do: true
+      End Voltage [V]:
+      - -1000
+      - 0
+      - -5
+      - -1000
+      Voltage Step [V]:
+      - -100
+      - 0
+      - -5
+      - -5
+    Voltage Steps Refinement:
+      Do: false
+      End Voltage[V]:
+      - -1000
+      - 0
+      - -1000
+      - -100
+      Start Voltage[V]:
+      - -1000
+      - 0
+      - 0
+      - 0
+      Voltage Step [V]:
+      - -100
+      - 0
+      - -1
+      - -1
+  Units:
+    CV:
+    - capacitance
+    - F
+    CVQValue:
+    - Q value
+    - arb. units
+    IV:
+    - current
+    - A
+    Voltage:
+    - Voltage
+    - V
+    X-Axis:
+    - Voltage
+    - V
+Settings_name: Baby_Stripscan.yml
+Stripscan:
+  Do: true
+  Measurements:
+    Cac:
+      Do: true
+      End Strip:
+      - 0
+      - 2032
+      - 1
+      - 127
+      Measure Every:
+      - 0
+      - 2032
+      - 1
+      - 1
+      Start Strip:
+      - 0
+      - 2032
+      - 1
+      - 1
+    Cint:
+      Do: true
+      End Strip:
+      - 0
+      - 2032
+      - 1
+      - 127
+      Measure Every:
+      - 0
+      - 2032
+      - 1
+      - 5
+      Start Strip:
+      - 0
+      - 2032
+      - 1
+      - 0
+    General:
+      Bias Voltage [V]:
+      - -1000
+      - 0
+      - -10
+      - -600
+      Compliance [uA]:
+      - 0
+      - 1000
+      - 10
+      - 255
+      Do: true
+      Voltage Step [V]:
+      - -100
+      - 0
+      - -1
+      - -10
+    Idark:
+      Do: true
+      End Strip:
+      - 0
+      - 2032
+      - 1
+      - 127
+      Measure Every:
+      - 0
+      - 2032
+      - 1
+      - 1
+      Start Strip:
+      - 0
+      - 2032
+      - 1
+      - 1
+    Idiel:
+      Do: true
+      End Strip:
+      - 0
+      - 2032
+      - 1
+      - 127
+      Measure Every:
+      - 0
+      - 2032
+      - 1
+      - 1
+      Start Strip:
+      - 0
+      - 2032
+      - 1
+      - 1
+    Istrip:
+      Do: true
+      End Strip:
+      - 0
+      - 2032
+      - 1
+      - 127
+      Measure Every:
+      - 0
+      - 2032
+      - 1
+      - 1
+      Start Strip:
+      - 0
+      - 2032
+      - 1
+      - 1
+    Rint:
+      Do: true
+      End Strip:
+      - 0
+      - 2032
+      - 1
+      - 127
+      Measure Every:
+      - 0
+      - 2032
+      - 1
+      - 5
+      Start Strip:
+      - 0
+      - 2032
+      - 1
+      - 1
+    Rpoly:
+      Do: true
+      End Strip:
+      - 0
+      - 2032
+      - 1
+      - 127
+      Measure Every:
+      - 0
+      - 2032
+      - 1
+      - 1
+      Start Strip:
+      - 0
+      - 2032
+      - 1
+      - 1
+  Units:
+    Cac:
+    - capacitance
+    - F
+    Cint:
+    - capacitance
+    - F
+    Idark:
+    - current
+    - A
+    Idiel:
+    - current
+    - A
+    Istrip:
+    - current
+    - A
+    Rint:
+    - resistance
+    - Ohm
+    Rint_scan:
+    - current
+    - A
+    Rpoly:
+    - resistance
+    - Ohm
+    Strip:
+    - Stripposition
+    - '#'
+    X-Axis:
+    - Strip
+    - '#'

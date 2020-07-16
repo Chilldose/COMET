@@ -313,7 +313,7 @@ def Histogram(dfs, measurement, configs, analysisType, bins=50, iqr=None, commas
             )
 
             try:
-                xlabel = "{} [{}]".format(
+                xlabel = "{} ({})".format(
                     measurement,
                     dfs[dfs["keys"][0]]["units"][
                         dfs[dfs["keys"][0]]["measurements"].index(measurement)

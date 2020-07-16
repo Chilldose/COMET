@@ -48,6 +48,7 @@ class DataVisualization_window:
         self.not_saving = True
         self.plotting_thread = None
         self.backend = None
+        self.current_session_name = None
 
         # Device communication widget
         self.VisWidget = QWidget()
@@ -261,6 +262,7 @@ class DataVisualization_window:
             self.update_plt_tree(plotting)
 
             # Name the session with a ascii time stamp
+            self.current_session_name = None
             session_name = self.widget.session_name_lineEdit.text()
             if not session_name:
                 self.log.critical(
@@ -274,6 +276,8 @@ class DataVisualization_window:
                     )
                 )
                 self.widget.session_name_lineEdit.setText("{}".format(asctime()))
+            else:
+                self.current_session_name = session_name
 
             # Store current session
             self.plotting_Object = plotting
@@ -431,7 +435,15 @@ class DataVisualization_window:
 
     def apply_options_to_plot(self, plot, **opts):
         """Applies the opts to the plot"""
-        plot.opts(**opts)
+        try:
+            plot.opts(**opts)
+        except:
+            self.log.warning("Value error occured during plot customization. Trying to apply option on per-subplot-level...")
+            for path in plot.keys():
+                subplot = plot
+                for subpath in path:
+                    subplot = getattr(subplot, subpath)
+                subplot.opts(**opts)
 
     def update_plot_options_tree(self, plot):
         """Updates the plot options tree for the plot"""
@@ -642,9 +654,12 @@ class DataVisualization_window:
 
                 # Save the config.yml file
                 self.log.info("Saving config file...")
+                if self.current_session_name:
+                    config_name = self.current_session_name + ".yml"
+                else: config_name = "CONFIG.yml"
                 self.save_config_yaml(
                     self.plotting_Object.config,
-                    os.path.join(os.path.normpath(directory), "CONFIG.yml"),
+                    os.path.join(os.path.normpath(directory), config_name),
                 )
 
                 # Get save option

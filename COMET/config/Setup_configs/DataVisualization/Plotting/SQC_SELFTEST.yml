@@ -12,12 +12,13 @@
         - F
         - F
         - A
+        - A 
+        - A 
         - A
-        - A
-        - F
-        - A
-        - Ohm
-        - F
+        - F                       
+        - Ohm                     
+        - Ohm                     
+        - F                       
         - F
         
   Analysis:
@@ -54,10 +55,10 @@
           singleHistogram:
               bins: 50
               iqr: 0.9
-              commas: 6
+              commas: 9
 
       DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measurements has this special plot stated
-          - BoxWhisker
+          #- BoxWhisker
           - Histogram
 
       HistogramOptions:
@@ -76,8 +77,8 @@
               - Histogram
               - BoxWhisker
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              xlabel: measurement [#]
-              ylabel: current [pA] # This overrides the automatic generated ylabel
+              xlabel: measurement (#)
+              ylabel: current (pA) # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
@@ -90,8 +91,8 @@
               - Histogram
               - BoxWhisker
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              xlabel: measurement [#]
-              ylabel: current [pA] # This overrides the automatic generated ylabel
+              xlabel: measurement (#)
+              ylabel: current (pA) # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
@@ -104,8 +105,8 @@
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              xlabel: measurement [#]
-              ylabel: capacitance [fF] # This overrides the automatic generated ylabel
+              xlabel: measurement (#)
+              ylabel: capacitance (fF) # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
@@ -118,8 +119,8 @@
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              xlabel: measurement [#]
-              ylabel: capacitance [fF] # This overrides the automatic generated ylabel
+              xlabel: measurement (#)
+              ylabel: capacitance (fF) # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
@@ -132,8 +133,8 @@
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              xlabel: measurement [#]
-              ylabel: current [pA] # This overrides the automatic generated ylabel
+              xlabel: measurement (#)
+              ylabel: current (pA) # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
@@ -146,8 +147,8 @@
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              xlabel: measurement [#]
-              ylabel: current [fA] # This overrides the automatic generated ylabel
+              xlabel: measurement (#)
+              ylabel: current (fA) # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
@@ -160,8 +161,8 @@
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              xlabel: measurement [#]
-              ylabel: current [fA] # This overrides the automatic generated ylabel
+              xlabel: measurement (#)
+              ylabel: current (fA) # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
@@ -174,8 +175,8 @@
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              xlabel: measurement [#]
-              ylabel: capacitance [fF] # This overrides the automatic generated ylabel
+              xlabel: measurement (#)
+              ylabel: capacitance (fF) # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.0f"
@@ -188,8 +189,8 @@
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              xlabel: measurement [#]
-              ylabel: resistance [MOhm] # This overrides the automatic generated ylabel
+              xlabel: measurement (#)
+              ylabel: resistance (MOhm) # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.4f"
@@ -202,8 +203,8 @@
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              xlabel: measurement [#]
-              ylabel: resistance [GOhm] # This overrides the automatic generated ylabel
+              xlabel: measurement (#)
+              ylabel: resistance (GOhm) # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.3f"
@@ -216,8 +217,8 @@
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              xlabel: measurement [#]
-              ylabel: capacitance [fF] # This overrides the automatic generated ylabel
+              xlabel: measurement (#)
+              ylabel: capacitance (fF) # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.2f"
@@ -230,8 +231,8 @@
               - BoxWhisker
               - Histogram
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
-              xlabel: measurement [#]
-              ylabel: capacitance [pF] # This overrides the automatic generated ylabel
+              xlabel: measurement (#)
+              ylabel: capacitance (pF) # This overrides the automatic generated ylabel
               shared_axes: False # If the axes should be shared with other plots, usually it is False
               xformatter: "%.0f"
               yformatter: "%.2f"

@@ -651,11 +651,21 @@ def customize_plot(plot, plotName, configs, **addConfigs):
             )
         )
     except ValueError as err:
-        log.error(
-            "Configuring plot {} was not possible! Error: {}".format(
-                configs.get(plotName, {}).get("PlotLabel", ""), err
+        log.warning("Value error occured during plot customization. Trying to apply option on per-subplot-level...")
+        try:
+            for path in plot.keys():
+                subplot = plot
+                for subpath in path:
+                    subplot = getattr(subplot, subpath)
+                subplot.opts(**options)
+            plot = plot.relabel(label)
+
+        except Exception as err:
+            log.error(
+                "Configuring plot {} was not possible! Error: {}".format(
+                    configs.get(plotName, {}).get("PlotLabel", ""), err
+                )
             )
-        )
     return plot
 
 
