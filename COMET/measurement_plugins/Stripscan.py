@@ -700,29 +700,58 @@ class Stripscan_class(tools):
                             self.bias_SMU, self.compliance
                         ):
                             value_found = False
-                            try:
-                                self.log.info(
-                                    "Conducting measurement: {!s}".format(measurement)
-                                )
-                                value = getattr(self, "do_" + measurement)(
-                                    strip,
-                                    self.samples,
-                                    alternative_switching=move
-                                    if reverse_needles
-                                    else not move,
-                                )
-                                if isinstance(value, np.ndarray):
-                                    value_found = True
-                                elif isinstance(value, float) or isinstance(value, int):
-                                    value_found = True
-                                    value = np.array([value])
-                            except Exception as err:
-                                self.log.error(
-                                    "During strip measurement {!s} a fatal error occured: {!s}".format(
-                                        measurement, err
-                                    ),
-                                    exc_info=True,
-                                )  # log exception info at FATAL log level
+
+                            # try 5 times to aquire a value
+                            for i in range(3):
+                                try:
+                                    self.log.info(
+                                        "Conducting measurement: {!s}".format(measurement)
+                                    )
+                                    value = getattr(self, "do_" + measurement)(
+                                        strip,
+                                        self.samples,
+                                        alternative_switching=move
+                                        if reverse_needles
+                                        else not move,
+                                    )
+                                    if isinstance(value, np.ndarray):
+                                        value_found = True
+                                    elif isinstance(value, float) or isinstance(value, int):
+                                        value_found = True
+                                        value = np.array([value])
+
+                                    if len(self.main.measurement_data[measurement][1]) > 5: # Check if values are theres to compare with
+                                        self.log.debug("Checking closeness of value for measurement {}".format(measurement))
+                                        meanval = np.mean(self.main.measurement_data[measurement][1])
+                                        stdval = np.std(self.main.measurement_data[measurement][1])
+                                        self.log.debug(
+                                            "meanval: {}".format(meanval))
+                                        self.log.debug(
+                                            "std: {}".format(stdval))
+                                        self.log.debug(
+                                            "value: {}".format(value[0]))
+                                        if np.isclose([value[0]], [meanval], atol=stdval*3.)[0]:
+                                            self.log.debug("Closeness reached at {}, compared to {}, 3*std {}".format(value[0],meanval, stdval*3.))
+                                            break
+                                        else:
+                                            # Remove the last value from the array to not corrupt further measurements
+                                            self.main.measurement_data[measurement][1] = self.main.measurement_data[measurement][1][:-1]
+                                            self.main.measurement_data[measurement][0] = self.main.measurement_data[measurement][0][:-1]
+                                            self.log.critical("Value for measurement {} did not match with previous measurements. Mean is: {}, got {} instead. Retrying with iteration {}.".format(measurement, meanval, value[0], i))
+                                            self.move_up_down()
+                                    else:
+                                        self.log.info(
+                                            "Skipping closeness check of value for measurement {}, not enough data".format(measurement))
+                                        break
+
+                                except Exception as err:
+                                    self.log.error(
+                                        "During strip measurement {!s} a fatal error occured: {!s}".format(
+                                            measurement, err
+                                        ),
+                                        exc_info=True,
+                                    )  # log exception info at FATAL log level
+                                    break
 
                             # Write this to the file
                             if self.main.save_data and value_found:
@@ -1356,6 +1385,7 @@ class Stripscan_class(tools):
                 value = self.__do_simple_measurement(
                     "Cac", device_dict, xvalue, samples, write_to_main=not freqscan, apply_to=apply_correction
                 )
+
             else:
                 return False
             return value
@@ -1409,3 +1439,13 @@ class Stripscan_class(tools):
             return "{}_beta".format(meas)
         else:
             return meas
+
+    def move_up_down(self, offset=0.):
+        """Moves the table up and down for recontacting to the pad"""
+        self.log.critical("Moving table down and up again!")
+        if self.main.table.move_down(200.):
+            self.main.table.move_up(200.+float(offset))
+        else:
+            self.log.error("Table movement failed in test!!!")
+            self.stop_everything()
+        sleep(0.1)
