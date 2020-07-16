@@ -3,6 +3,7 @@
     # Critical parameters
     Settings_name: settings # The name of the settings which will be shown in the framework and will be the addressing name (settings here is important)
     Operator: # The operators working on this machine
+      - Nina
       - Dominic
       - Viktoria
       - Thomas
