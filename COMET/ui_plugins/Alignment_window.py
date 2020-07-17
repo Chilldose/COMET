@@ -117,8 +117,8 @@ class Alignment_window(Table_widget):
                 self.variables.switching,
                 self.variables.vcw,
                 self.connection_test_device,
-                target_resistance=50.,
-                abs_err=5.0,
+                target_resistance=30.,
+                abs_err=50.,
             )
             if isinstance(res, bool):
                 self.set_needle_contact_lamp("contact")

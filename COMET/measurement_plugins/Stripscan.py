@@ -720,9 +720,9 @@ class Stripscan_class(tools):
                                         value_found = True
                                         value = np.array([value])
 
-                                    if len(self.main.measurement_data[measurement][1]) > 5: # Check if values are theres to compare with
+                                    if len(self.main.measurement_data[measurement][1][~np.isnan(self.main.measurement_data[measurement][1])]) > 5: # Check if values are theres to compare with
                                         self.log.debug("Checking closeness of value for measurement {}".format(measurement))
-                                        meanval = np.mean(self.main.measurement_data[measurement][1])
+                                        meanval = np.median(self.main.measurement_data[measurement][1])
                                         stdval = np.std(self.main.measurement_data[measurement][1])
                                         self.log.debug(
                                             "meanval: {}".format(meanval))
@@ -734,11 +734,16 @@ class Stripscan_class(tools):
                                             self.log.debug("Closeness reached at {}, compared to {}, 3*std {}".format(value[0],meanval, stdval*3.))
                                             break
                                         else:
-                                            # Remove the last value from the array to not corrupt further measurements
-                                            self.main.measurement_data[measurement][1] = self.main.measurement_data[measurement][1][:-1]
-                                            self.main.measurement_data[measurement][0] = self.main.measurement_data[measurement][0][:-1]
-                                            self.log.critical("Value for measurement {} did not match with previous measurements. Mean is: {}, got {} instead. Retrying with iteration {}.".format(measurement, meanval, value[0], i))
-                                            self.move_up_down()
+                                            if measurement not in ["Idark", ]:  # Exceptions for table movement
+                                                # Remove the last value from the array to not corrupt further measurements
+                                                self.main.measurement_data[measurement][1] = self.main.measurement_data[measurement][1][:-1]
+                                                self.main.measurement_data[measurement][0] = self.main.measurement_data[measurement][0][:-1]
+                                                self.log.critical(
+                                                    "Value for measurement {} did not match with previous measurements. Mean is: {}, got {} instead. Retrying with iteration {}.".format(
+                                                        measurement, meanval, value[0], i))
+                                                self.move_up_down()
+                                            else:
+                                                break
                                     else:
                                         self.log.info(
                                             "Skipping closeness check of value for measurement {}, not enough data".format(measurement))
@@ -777,6 +782,12 @@ class Stripscan_class(tools):
                                 self.main.measurement_files["Stripscan"],
                                 "--".ljust(self.justlength),
                             )  # Writes nothing if no value is aquired
+
+                            if measurement in ["Cint", "Cac"]:
+                                self.main.write(
+                                    self.main.measurement_files["Stripscan"],
+                                    "--".ljust(self.justlength),
+                                )  # Writes nothing if no value is aquired
 
                         # If measurement should not be done insert np.nan
                         self.main.measurement_data[measurement][0] = np.append(

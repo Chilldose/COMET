@@ -1252,7 +1252,9 @@ class transformation:
     def vector_trans(self, v, T, V0):
         """This function transforms a Vector from the sensor system to the table system by vs*T+V0=vt"""
         v = np.array(v)
-        return np.add(v[0:2].dot(T), V0)
+        newv = np.add(v[0:2].dot(T), V0)
+        self.log.debug("Transformation of vector {}, with transformation matrix {} nad V0 {}, to: {}".format(v, T, V0, newv))
+        return newv
 
 
 def connection_test(
