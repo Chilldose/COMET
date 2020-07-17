@@ -46,7 +46,7 @@ class IVCV_class(tools):
             "Meas_order": "sequential",  # Or: interlaced
             "BaseConfig": [],
             "IVConfig": [],
-            "CVConfig": [("set_frequency", 1000), ("set_voltage","0.5")],
+            "CVConfig": [("set_frequency", 1000), ("set_voltage","1.0")],
         }
         # Important commands which has to be available: set_compliance_current
         #                                               set_voltage
