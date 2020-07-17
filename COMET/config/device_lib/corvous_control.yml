@@ -51,7 +51,7 @@
     reset: # Warning list values will be send seriel with the command!!! List of list will respect format string of command!!
 
         - units: [1 1, 1 2, 1 3, 1 0]
-        - umotmin: [1000 1, 1000 2, 1000 3]
+        - umotmin: [1200 1, 1200 2, 1200 3]
         - joy_speed: 10000.0
         - mode: 0
         - polepairs: [50 1, 50 2, 50 3]
