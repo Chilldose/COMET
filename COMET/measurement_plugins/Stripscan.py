@@ -720,7 +720,8 @@ class Stripscan_class(tools):
                                         value_found = True
                                         value = np.array([value])
 
-                                    if len(self.main.measurement_data[measurement][1][~np.isnan(self.main.measurement_data[measurement][1])]) > 5: # Check if values are theres to compare with
+                                    # Check if value is comparable with the rest of the values
+                                    if len(self.main.measurement_data[measurement][1][~np.isnan(self.main.measurement_data[measurement][1])]) > 5:
                                         self.log.debug("Checking closeness of value for measurement {}".format(measurement))
                                         meanval = np.median(self.main.measurement_data[measurement][1])
                                         stdval = np.std(self.main.measurement_data[measurement][1])
@@ -745,9 +746,23 @@ class Stripscan_class(tools):
                                             else:
                                                 break
                                     else:
-                                        self.log.info(
-                                            "Skipping closeness check of value for measurement {}, not enough data".format(measurement))
-                                        break
+
+                                        # To catch dominant outlier in the first few measurements
+                                        if len(self.main.measurement_data[measurement][1][
+                                                   ~np.isnan(self.main.measurement_data[measurement][1])]) > 1:
+                                            rtol = 0.1
+                                            self.log.info(
+                                                "Not enough data to check cloesness with rest of data, trying with relative tolerance of {}".format(
+                                                    measurement, rtol))
+                                            meanval = np.median(self.main.measurement_data[measurement][1])
+                                            if np.isclose([value[0]], [meanval], rtol=rtol)[0]:
+                                                self.log.debug(
+                                                    "Closeness reached! With relative error estimation.")
+                                                break
+
+                                        else:
+                                            self.log.info("Not enough data to compare closeness for measurement {}.".format(measurement))
+                                            break
 
                                 except Exception as err:
                                     self.log.error(

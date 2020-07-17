@@ -7,6 +7,7 @@ import holoviews as hv
 from forge.tools import convert_to_df, rename_columns
 from forge.tools import plot_all_measurements, convert_to_EngUnits
 from forge.specialPlots import *
+import numpy as np
 
 
 class Stripscan:
@@ -15,11 +16,19 @@ class Stripscan:
         self.log = logging.getLogger(__name__)
         self.config = configs
         self.analysisName = "Stripscan"
+
+        # Flip the Pad numbering if necessary
+        if self.config["Stripscan"].get("flip_strip_numbering", False):
+            for file in data:
+                data[file]['data']['Pad'] = np.flip(data[file]['data']['Pad'])
+
         self.data = convert_to_df(data, abs=self.config.get("abs_value_only", False))
         self.data = rename_columns(
             self.data,
             self.config.get(self.analysisName, {}).get("Measurement_aliases", {}),
         )
+
+
         self.finalPlot = None
         self.df = []
         self.measurements = self.data["columns"]
@@ -46,17 +55,9 @@ class Stripscan:
     def run(self):
         """Runs the script"""
 
-        # Check if Idiel is high on strips and if so change it to 10nA max
-        for file in self.data["keys"]:
-            if "Idiel" in self.data[file]["data"]:
-                self.data[file]["data"]["Idiel"].where(self.data[file]["data"]["Idiel"] < 10., 10.,
-                                                       inplace=True)
+        # Do the different analyses
+        self.do_Idiel_Rint_check()
 
-        # Check if Rint is high on strips and if so change it to 500 GOhm
-        for file in self.data["keys"]:
-            if "Rint" in self.data[file]["data"]:
-                self.data[file]["data"]["Rint"].where(self.data[file]["data"]["Rint"] < 500., 500.,
-                                                               inplace=True)
 
         # Plot all Measurements
         self.basePlots = plot_all_measurements(
@@ -118,3 +119,18 @@ class Stripscan:
         )
         self.PlotDict["data"] = self.data
         return self.PlotDict
+
+    def do_Idiel_Rint_check(self):
+        """Checks if Idiel/pinholes are prevalent, also checks the Rint value"""
+
+        # Check if Idiel is high on strips and if so change it to 10nA max
+        for file in self.data["keys"]:
+            if "Idiel" in self.data[file]["data"]:
+                self.data[file]["data"]["Idiel"].where(self.data[file]["data"]["Idiel"] < 10., 10.,
+                                                       inplace=True)
+
+        # Check if Rint is high on strips and if so change it to 500 GOhm
+        for file in self.data["keys"]:
+            if "Rint" in self.data[file]["data"]:
+                self.data[file]["data"]["Rint"].where(self.data[file]["data"]["Rint"] < 1000., 1000.,
+                                                      inplace=True)

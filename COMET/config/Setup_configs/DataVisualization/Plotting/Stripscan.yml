@@ -24,6 +24,7 @@
       Humidity: hum
 
   Stripscan:
+      flip_strip_numbering: True
       General: # Options common to all plots
           fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
           responsive: False
