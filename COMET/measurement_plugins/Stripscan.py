@@ -723,8 +723,8 @@ class Stripscan_class(tools):
                                     # Check if value is comparable with the rest of the values
                                     if len(self.main.measurement_data[measurement][1][~np.isnan(self.main.measurement_data[measurement][1])]) > 5:
                                         self.log.debug("Checking closeness of value for measurement {}".format(measurement))
-                                        meanval = np.median(self.main.measurement_data[measurement][1])
-                                        stdval = np.std(self.main.measurement_data[measurement][1])
+                                        meanval = np.nanmedian(self.main.measurement_data[measurement][1])
+                                        stdval = np.nanstd(self.main.measurement_data[measurement][1])
                                         self.log.debug(
                                             "meanval: {}".format(meanval))
                                         self.log.debug(
@@ -749,16 +749,25 @@ class Stripscan_class(tools):
 
                                         # To catch dominant outlier in the first few measurements
                                         if len(self.main.measurement_data[measurement][1][
-                                                   ~np.isnan(self.main.measurement_data[measurement][1])]) > 1:
+                                                   ~np.isnan(self.main.measurement_data[measurement][1])]) > 1 and measurement not in ["Idiel", "Idark", "Rint"]:
                                             rtol = 0.1
                                             self.log.info(
-                                                "Not enough data to check cloesness with rest of data, trying with relative tolerance of {}".format(
-                                                    measurement, rtol))
-                                            meanval = np.median(self.main.measurement_data[measurement][1])
+                                                "Not enough data to check cloesness with rest of data, trying with relative tolerance of {}".format(rtol))
+                                            meanval = np.nanmedian(self.main.measurement_data[measurement][1])
                                             if np.isclose([value[0]], [meanval], rtol=rtol)[0]:
                                                 self.log.debug(
                                                     "Closeness reached! With relative error estimation.")
                                                 break
+                                            else:
+                                                # Remove the last value from the array to not corrupt further measurements
+                                                self.main.measurement_data[measurement][1] = \
+                                                self.main.measurement_data[measurement][1][:-1]
+                                                self.main.measurement_data[measurement][0] = \
+                                                self.main.measurement_data[measurement][0][:-1]
+                                                self.log.critical(
+                                                    "Value for measurement {} did not match with relative error estimation. Mean is: {}, got {} instead. Retrying with iteration {}.".format(
+                                                        measurement, meanval, value[0], i))
+                                                self.move_up_down()
 
                                         else:
                                             self.log.info("Not enough data to compare closeness for measurement {}.".format(measurement))

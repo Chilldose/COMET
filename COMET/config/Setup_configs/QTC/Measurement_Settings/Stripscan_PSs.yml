@@ -43,24 +43,24 @@ IVCV:
       - 0
       - 1000
       - 10
-      - 50
+      - 100
       Do: true
       End Voltage [V]:
       - -1000
       - 0
       - -10
-      - -250
+      - -600
       Voltage Step [V]:
       - -100
       - 0
       - -10
-      - -5
+      - -10
     IV:
       Compliance [uA]:
       - 0
       - 1000
       - 10
-      - 50
+      - 100
       Do: true
       End Voltage [V]:
       - -1000
@@ -71,14 +71,14 @@ IVCV:
       - -100
       - 0
       - -5
-      - -5
+      - -10
     Voltage Steps Refinement:
-      Do: false
+      Do: true
       End Voltage[V]:
       - -1000
       - 0
       - -1000
-      - -100
+      - -400
       Start Voltage[V]:
       - -1000
       - 0
@@ -88,7 +88,7 @@ IVCV:
       - -100
       - 0
       - -1
-      - -1
+      - -5
   Units:
     CV:
     - capacitance
@@ -276,3 +276,53 @@ Stripscan:
     X-Axis:
     - Strip
     - '#'
+raw: "Frequency Scan:\n  Do: false\n  Measurements:\n    Cac:\n      Amplitude:\n\
+  \      - 0\n      - 1\n      - 0.1\n      - 0.5\n      Bias Voltage:\n      - 0\n\
+  \      - -1000\n      - 10\n      - 300\n      Do: true\n      EndFreq:\n      -\
+  \ 0\n      - 1000000\n      - 10000\n      - 1000000\n    Cint:\n      Amplitude:\n\
+  \      - 0\n      - 1\n      - 0.1\n      - 0.5\n      Bias Voltage:\n      - 0\n\
+  \      - -1000\n      - 10\n      - 300\n      Do: true\n      EndFreq:\n      -\
+  \ 0\n      - 1000000\n      - 10000\n      - 1000000\nIVCV:\n  Do: true\n  Measurements:\n\
+  \    CV:\n      Compliance [uA]:\n      - 0\n      - 1000\n      - 10\n      - 100\n\
+  \      Do: true\n      End Voltage [V]:\n      - -1000\n      - 0\n      - -10\n\
+  \      - -600\n      Voltage Step [V]:\n      - -100\n      - 0\n      - -10\n \
+  \     - -10\n    IV:\n      Compliance [uA]:\n      - 0\n      - 1000\n      - 10\n\
+  \      - 100\n      Do: true\n      End Voltage [V]:\n      - -1000\n      - 0\n\
+  \      - -5\n      - -1000\n      Voltage Step [V]:\n      - -100\n      - 0\n \
+  \     - -5\n      - -10\n    Voltage Steps Refinement:\n      Do: true\n      End\
+  \ Voltage[V]:\n      - -1000\n      - 0\n      - -1000\n      - -400\n      Start\
+  \ Voltage[V]:\n      - -1000\n      - 0\n      - 0\n      - 0\n      Voltage Step\
+  \ [V]:\n      - -100\n      - 0\n      - -1\n      - -5\n  Units:\n    CV:\n   \
+  \ - capacitance\n    - F\n    CVQValue:\n    - Q value\n    - arb. units\n    IV:\n\
+  \    - current\n    - A\n    Voltage:\n    - Voltage\n    - V\n    X-Axis:\n   \
+  \ - Voltage\n    - V\nSettings_name: Stripscan_PSs.yml\nStripscan:\n  Do: false\n\
+  \  Measurements:\n    Cac:\n      Do: true\n      End Strip:\n      - 0\n      -\
+  \ 2032\n      - 1\n      - 1920\n      Measure Every:\n      - 0\n      - 2032\n\
+  \      - 1\n      - 1\n      Start Strip:\n      - 0\n      - 2032\n      - 1\n\
+  \      - 1070\n    Cint:\n      Do: true\n      End Strip:\n      - 0\n      - 2032\n\
+  \      - 1\n      - 1920\n      Measure Every:\n      - 0\n      - 2032\n      -\
+  \ 1\n      - 50\n      Start Strip:\n      - 0\n      - 2032\n      - 1\n      -\
+  \ 1070\n    General:\n      Bias Voltage [V]:\n      - -1000\n      - 0\n      -\
+  \ -10\n      - -600\n      Compliance [uA]:\n      - 0\n      - 1000\n      - 10\n\
+  \      - 100\n      Do: true\n      Voltage Step [V]:\n      - -100\n      - 0\n\
+  \      - -1\n      - -10\n    Idark:\n      Do: true\n      End Strip:\n      -\
+  \ 0\n      - 2032\n      - 1\n      - 1920\n      Measure Every:\n      - 0\n  \
+  \    - 2032\n      - 1\n      - 1\n      Start Strip:\n      - 0\n      - 2032\n\
+  \      - 1\n      - 1070\n    Idiel:\n      Do: true\n      End Strip:\n      -\
+  \ 0\n      - 2032\n      - 1\n      - 1920\n      Measure Every:\n      - 0\n  \
+  \    - 2032\n      - 1\n      - 1\n      Start Strip:\n      - 0\n      - 2032\n\
+  \      - 1\n      - 1070\n    Istrip:\n      Do: true\n      End Strip:\n      -\
+  \ 0\n      - 2032\n      - 1\n      - 1920\n      Measure Every:\n      - 0\n  \
+  \    - 2032\n      - 1\n      - 1\n      Start Strip:\n      - 0\n      - 2032\n\
+  \      - 1\n      - 1070\n    Rint:\n      Do: true\n      End Strip:\n      - 0\n\
+  \      - 2032\n      - 1\n      - 1920\n      Measure Every:\n      - 0\n      -\
+  \ 2032\n      - 1\n      - 50\n      Start Strip:\n      - 0\n      - 2032\n   \
+  \   - 1\n      - 1070\n    Rpoly:\n      Do: true\n      End Strip:\n      - 0\n\
+  \      - 2032\n      - 1\n      - 1920\n      Measure Every:\n      - 0\n      -\
+  \ 2032\n      - 1\n      - 1\n      Start Strip:\n      - 0\n      - 2032\n    \
+  \  - 1\n      - 1070\n  Units:\n    Cac:\n    - capacitance\n    - F\n    Cint:\n\
+  \    - capacitance\n    - F\n    Idark:\n    - current\n    - A\n    Idiel:\n  \
+  \  - current\n    - A\n    Istrip:\n    - current\n    - A\n    Rint:\n    - resistance\n\
+  \    - Ohm\n    Rint_scan:\n    - current\n    - A\n    Rpoly:\n    - resistance\n\
+  \    - Ohm\n    Strip:\n    - Stripposition\n    - '#'\n    X-Axis:\n    - Strip\n\
+  \    - '#'\n"
