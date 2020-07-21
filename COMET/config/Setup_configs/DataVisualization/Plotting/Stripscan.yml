@@ -2,10 +2,10 @@
 
 # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files
-    header_lines: 13
-    measurement_description: 14
-    units_line: 15
-    data_start: 16
+    header_lines: 14
+    measurement_description: 15
+    units_line: 16
+    data_start: 17
 
   Analysis:
     - Stripscan
@@ -24,7 +24,7 @@
       Humidity: hum
 
   Stripscan:
-      flip_strip_numbering: True
+      flip_strip_numbering: False
       General: # Options common to all plots
           fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
           responsive: False
@@ -117,7 +117,7 @@
           AdditionalPlots:
               - Violin
               - concatHistogram
-          UnitConversion: pico
+          UnitConversion: nano
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               padding: !!python/tuple [0.1, 0.1]
               show_grid: True
