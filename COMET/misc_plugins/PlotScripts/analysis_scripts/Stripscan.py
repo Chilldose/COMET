@@ -126,11 +126,13 @@ class Stripscan:
         # Check if Idiel is high on strips and if so change it to 10nA max
         for file in self.data["keys"]:
             if "Idiel" in self.data[file]["data"]:
+                self.data[file]["data"]["Idiel"] = self.data[file]["data"]["Idiel"].dropna()
                 self.data[file]["data"]["Idiel"].where(self.data[file]["data"]["Idiel"] < 10., 10.,
                                                        inplace=True)
 
         # Check if Rint is high on strips and if so change it to 500 GOhm
-        for file in self.data["keys"]:
-            if "Rint" in self.data[file]["data"]:
-                self.data[file]["data"]["Rint"].where(self.data[file]["data"]["Rint"] < 1000., 1000.,
-                                                      inplace=True)
+        #for file in self.data["keys"]:
+        #    if "Rint" in self.data[file]["data"]:
+        #        self.data[file]["data"]["Rint"] = self.data[file]["data"]["Rint"].dropna()
+        #        self.data[file]["data"]["Rint"].where(self.data[file]["data"]["Rint"] < 1000., 1000.,
+        #                                              inplace=True)
