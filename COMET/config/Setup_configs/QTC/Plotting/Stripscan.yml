@@ -1,32 +1,30 @@
 --- # Dummy config file for testing
 
-  Filetype: JSON # Other option is json
-
-  Output: C:\Users\dbloech\Desktop\QTC_Plots\VPX28442\Stripscan #Output basename of the plots
-
-  Save_as: # Possible options: html, png, svg, pdf -> Only works if wkhtmltopdf is installed and html plot is generated, (svg)
-    - html
-    #- png
-    #- svg # huge files will not be rendered correctly
-    #- pdf # does not work correctly
-
-  Analysis:
-    - Stripscan # The type of analysis, which will be performed
-    - bad_strip_detection
-
-  Poolsize: 4 # Maximum pool size of simultaneous analysis scripts
-
 # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files
-    header_lines: 18
-    measurement_description: 20
-    units_line: 21
-    data_start: 22
+    header_lines: 14
+    measurement_description: 15
+    units_line: 16
+    data_start: 17
 
+  Analysis:
+    - Stripscan
+    - bad_strip_detection
+
+# Optional Parameters
 
   # Options for the different Analyses scripts
   # These options are entirely up to you and what you need in your analysis
+
+  # Converts all arrays to their absolute
+  #override_data: False
+  abs_value_only: True
+  Measurement_aliases:
+      Temperature: temp
+      Humidity: hum
+
   Stripscan:
+      flip_strip_numbering: False
       General: # Options common to all plots
           fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
           responsive: False
@@ -38,14 +36,24 @@
       Layout:
           cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
 
+      AuxOptions:
+        concatHistogram:
+            bins: 50
+            iqr: 0.1
+        singleHistogram:
+            bins: 20
+            iqr: 0.9
+
+
       DoSpecialPlots: # Whether or not to do the SpecialPlot, it may not succeed if not at least one measuremnt has this special plot stated
-          - concatHistogram
-          - Violin
-          - BoxWhisker
+      #    - concatHistogram
+      #    - Violin
+      #    - BoxWhisker
+          - Histogram
 
       HistogramOptions:
           shared_axes: False
-          alpha: 0.6
+          #alpha: 0.6
 
       BoxWhiskerOptions:
           shared_axes: False
@@ -84,10 +92,12 @@
           AdditionalPlots: # If a special plot is stated here it will be plotted. If the plot is specified in the DoSpecialPlots variable!!!
             - Violin
             - concatHistogram
+            - Histogram
           UnitConversion: pico
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               show_grid: True
               padding: !!python/tuple [0.1, 0.1]
+              legend_position: top_left
               gridstyle:
                   grid_line_color: black
                   grid_line_width: 1.5
@@ -96,8 +106,9 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 10
               #ylabel: current [A]
-              ylim: !!python/tuple [0, -800]
+              #ylim: !!python/tuple [0, -800]
 
       Idiel:
           PlotLabel: Current through dielectric
@@ -106,10 +117,11 @@
           AdditionalPlots:
               - Violin
               - concatHistogram
-          UnitConversion: pico
+          UnitConversion: nano
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               padding: !!python/tuple [0.1, 0.1]
               show_grid: True
+              legend_position: top_left
               #logy: True
               gridstyle:
                   grid_line_color: black
@@ -119,6 +131,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 10
               #ylabel: current [A]
 
       Idark:
@@ -141,6 +154,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 10
               #ylabel: current [A]
 
       Rpoly:
@@ -163,8 +177,9 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 10
               #ylabel: resistance [Ohm]
-              ylim: !!python/tuple [0, 2.5]
+              #ylim: !!python/tuple [0, 2.5]
       Rint:
           PlotLabel: Interstrip Resistance
           UnitConversion: giga
@@ -185,6 +200,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 15
               #ylabel: resistance [Ohm]
       Cac:
           PlotLabel: Coupling Capacitance
@@ -206,8 +222,9 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 10
               #ylabel: capacitance [F]
-              ylim: !!python/tuple [120, 160]
+              #ylim: !!python/tuple [120, 160]
 
       Cint:
           PlotLabel: Interstrip Capacitance
@@ -220,7 +237,7 @@
           PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
               padding: !!python/tuple [0.1, 0.1]
               show_grid: True
-              ylim: !!python/tuple [0, 5]
+              #ylim: !!python/tuple [0, 5]
               gridstyle:
                   grid_line_color: black
                   grid_line_width: 1.5
@@ -229,8 +246,10 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               xlabel: Pad [#]
+              size: 10
               #ylabel: capacitance [F]
-              
+
+  # If you do the bad_strip_detection analysis
   bad_strip_detection:
       General: # Options common to all plots
           fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
@@ -326,7 +345,3 @@
               - 22
               - [18, 27]
               - 10
-
-
-
-

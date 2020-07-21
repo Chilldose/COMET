@@ -37,6 +37,7 @@ class tools(object):
         do_anyway=False,
         check_compliance=True,
         iteration=7,
+        wait_time_factor=1.0
     ):
         """
         This function reads values from a device and fits a linear fit to it. If the fit exceeds a maximum slope it waits a
@@ -50,8 +51,10 @@ class tools(object):
         :param samples: How many samples should be used
         :param Rsq: Minimum R^2 value
         :param compliance: The compliance value which the value should not exceed
-        :param do_anyway:
+        :param do_anyway: If the result should be ignored
         :param check_compliance: If the program should check the compliance value
+        :param iteration: number of iterations
+        :param wait_time_factor: factor the waiting time is increased with every iteration
         :return: Bool - True means steady state reached
         """
         # TODO: I have the feeling that this function is not exactly doing what she is supposed to do, check!
@@ -94,8 +97,8 @@ class tools(object):
                     str(self.vcw.query(device, comm).split()[0]).split(",")[0]
                 )
                 times[i] = time()
-                if (time() - start) <= wait:
-                    sleep(abs(time() - start - wait))
+                if (time() - start) <= wait*wait_time_factor:
+                    sleep(abs(time() - start - wait)*wait_time_factor)
             slope, intercept, r_value, p_value, std_err = stats.linregress(
                 np.append([0], np.diff(times)), values
             )

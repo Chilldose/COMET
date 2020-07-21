@@ -121,7 +121,7 @@ class Brandbox_temperature_humidity(Thread):
                         "air_temperature"
                     ] = float(envvalues[0])
                     self.framework["Configs"]["config"]["settings"]["dew_point"] = float(
-                        boxvalues[2]
+                        boxvalues[3]
                     )
 
                     # Send data to main
@@ -129,7 +129,7 @@ class Brandbox_temperature_humidity(Thread):
                         {
                             "temperature_air": [float(time()), float(envvalues[0])],
                             "temperature_chuck": [float(time()), float(envvalues[3])],
-                            "dew_point": [float(time()), float(boxvalues[2])],
+                            "dew_point": [float(time()), float(boxvalues[3])],
                             "humidity": [float(time()), float(envvalues[1])],
                         }
                     )
