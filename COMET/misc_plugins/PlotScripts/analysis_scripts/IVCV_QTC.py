@@ -191,11 +191,14 @@ class IVCV_QTC:
             if file in self.full_depletion_voltages:
                 if self.full_depletion_voltages[file][0] < minVfd:
                     gradingstr += "***" + "    Full depletion: OK".ljust(padding) + "***\n"
+                else:
+                    gradingstr += "***" + "    Full depletion: NOT OK".ljust(padding) + "***\n"
 
             try:
-                current600 = self.original_data[file]["data"]["current"][self.closest(self.original_data[file]["data"], "voltage", -600)]
-                current800 = self.original_data[file]["data"]["current"][self.closest(self.original_data[file]["data"], "voltage", -800)]
-                current1000 = self.original_data[file]["data"]["current"][self.closest(self.original_data[file]["data"], "voltage", -1000)]
+                absorNot = self.config.get("abs_value_only", False)
+                current600 = self.original_data[file]["data"]["current"][self.closest(self.original_data[file]["data"], "voltage", 600 if absorNot else -600, absorNot)]
+                current800 = self.original_data[file]["data"]["current"][self.closest(self.original_data[file]["data"], "voltage", 800 if absorNot else -800, absorNot)]
+                current1000 = self.original_data[file]["data"]["current"][self.closest(self.original_data[file]["data"], "voltage", 1000 if absorNot else -1000, absorNot)]
 
                 # Check total Current
                 if abs(current600) > abs(current600V2S):
@@ -208,11 +211,12 @@ class IVCV_QTC:
                 else:
                     gradingstr += "***" + "    Total Current PSS: OK".ljust(padding) + "***\n"
 
-                if abs(current1000) < abs(current800*GradeA_breakdown_factor):
+                if abs(current1000) < abs(current800*GradeA_breakdown_factor) and (abs(current1000) != abs(current800)):
                     gradingstr += "***" + "    Breakdown criteria Grade: A".ljust(padding) + "***\n"
-                elif  abs(current800) < abs(current600*GradeB_breakdown_factor):
+                elif  abs(current800) < abs(current600*GradeB_breakdown_factor) and (abs(current800) != abs(current600)):
                     gradingstr += "***" + "    Breakdown criteria Grade: B".ljust(padding) + "***\n"
-
+                else:
+                    gradingstr += "***" + "    Breakdown criteria FAILED.".ljust(padding) + "***\n"
             except:
                 self.log.error("An error happened during grading of sensor.", exc_info=True)
 
@@ -221,9 +225,12 @@ class IVCV_QTC:
 
             self.log.critical(gradingstr)
 
-    def closest(self, df, col, val):
+    def closest(self, df, col, val, positive=True):
         """Finds the index closest to given value. works only with sorted arrays!!!"""
-        n = len(df[df[col] >= val])
+        if positive:
+            n = len(df[df[col] <= val])
+        else:
+            n = len(df[df[col] >= val])
         return n-1
 
     def calculate_slopes(self, df, minSize, startidx=0):
