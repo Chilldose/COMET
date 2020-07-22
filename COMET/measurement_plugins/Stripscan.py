@@ -964,7 +964,7 @@ class Stripscan_class(tools):
             ):
                 self.stop_everything()
                 return
-            voltage = -1.0
+            voltage = -5.0
             self.config_setup(
                 device_dict,
                 [
@@ -1163,7 +1163,7 @@ class Stripscan_class(tools):
             ("set_voltage_range", "20"),
             ("set_current_range", 1.0e-6),
             ("set_compliance", 1.0e-6),
-            ("set_voltage", "5.0"),
+            ("set_voltage", "10.0"),
             ("set_output", "ON"),
         ]
 
