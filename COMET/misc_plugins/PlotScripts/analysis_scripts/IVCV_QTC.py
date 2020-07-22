@@ -42,6 +42,7 @@ class IVCV_QTC:
             self.capincluded = True
         self.measurements = self.data["columns"]
         self.xaxis = self.measurements[0]
+        self.full_depletion_voltages = {}
 
         # The do not plot list, you can extend this list as you like
         self.donts = [
@@ -66,17 +67,18 @@ class IVCV_QTC:
                 "No 'voltage' entry found in data, cannot do IVC analysis. Maybe you have to set an alias for your measurement."
             )
 
+
+    def run(self):
+        """Runs the script"""
+
         # Convert the units to the desired ones
+        self.original_data = deepcopy(self.data) # Is needed for grading
         for meas in self.measurements:
             unit = (
                 self.config[self.analysisName].get(meas, {}).get("UnitConversion", None)
             )
             if unit:
                 self.data = convert_to_EngUnits(self.data, meas, unit)
-        # hv.renderer('bokeh')
-
-    def run(self):
-        """Runs the script"""
 
         # Add the 1/c^2 data to the dataframes
         for df in self.data["keys"]:
@@ -159,7 +161,70 @@ class IVCV_QTC:
         )
         self.PlotDict["data"] = self.data
 
+        # Grade the sensor
+        self.grade_Sensor()
+
         return self.PlotDict
+
+    def grade_Sensor(self):
+        """Estimates the Grade of the sensor in compliance with the SQC specification document"""
+
+        # Hard coded so that this cannot be "easily" be changed by someone in the config file
+        minVfd = 350
+        current600V2S = 7.25e-6
+        current600VPSS = 3.625e-6
+        GradeB_breakdown_factor = 2.5
+        GradeA_breakdown_factor = 2.5
+
+        padding = 36
+
+
+
+        for i, file in enumerate(self.data["keys"]):
+
+            gradingstr = "\n******************************************\n" \
+                         "***                                    ***\n" \
+                         "***           Sensor Grade             ***\n"
+            gradingstr += "***" + "    Sensor: {}".format(file).ljust(padding) + "***\n"
+
+            # Check if the Full depletion voltage is lover than:
+            if file in self.full_depletion_voltages:
+                if self.full_depletion_voltages[file][0] < minVfd:
+                    gradingstr += "***" + "    Full depletion: OK".ljust(padding) + "***\n"
+
+            try:
+                current600 = self.original_data[file]["data"]["current"][self.closest(self.original_data[file]["data"], "voltage", -600)]
+                current800 = self.original_data[file]["data"]["current"][self.closest(self.original_data[file]["data"], "voltage", -800)]
+                current1000 = self.original_data[file]["data"]["current"][self.closest(self.original_data[file]["data"], "voltage", -1000)]
+
+                # Check total Current
+                if abs(current600) > abs(current600V2S):
+                    gradingstr += "***" + "    Total Current 2S: NOT OK".ljust(padding) + "***\n"
+                else:
+                    gradingstr += "***" + "    Total Current 2S: OK".ljust(padding) + "***\n"
+
+                if abs(current600) > abs(current600VPSS):
+                    gradingstr += "***" + "    Total Current PSS: NOT OK".ljust(padding) + "***\n"
+                else:
+                    gradingstr += "***" + "    Total Current PSS: OK".ljust(padding) + "***\n"
+
+                if abs(current1000) < abs(current800*GradeA_breakdown_factor):
+                    gradingstr += "***" + "    Breakdown criteria Grade: A".ljust(padding) + "***\n"
+                elif  abs(current800) < abs(current600*GradeB_breakdown_factor):
+                    gradingstr += "***" + "    Breakdown criteria Grade: B".ljust(padding) + "***\n"
+
+            except:
+                self.log.error("An error happened during grading of sensor.", exc_info=True)
+
+            gradingstr += "***                                    ***\n" \
+                          "******************************************\n"
+
+            self.log.critical(gradingstr)
+
+    def closest(self, df, col, val):
+        """Finds the index closest to given value. works only with sorted arrays!!!"""
+        n = len(df[df[col] >= val])
+        return n-1
 
     def calculate_slopes(self, df, minSize, startidx=0):
         """
@@ -301,6 +366,7 @@ class IVCV_QTC:
                         samplekey, full_depletion_voltages[i], LR2, RR2
                     )
                 )
+                self.full_depletion_voltages[samplekey] = full_depletion_voltages[i]
 
         # Add vertical line for full depletion
         # Calculate the mean of all full depeltion voltages and draw a line there

@@ -48,6 +48,7 @@ class bad_strip_detection:
     def run(self):
         """Runs the script"""
         self.analysis.do_analysis()
+
         if self.configs["bad_strip_detection"].get("do_holoviews_table", False):
             import holoviews as hv
             import pandas as pd
@@ -79,7 +80,12 @@ class bad_strip_detection:
             table = hv.Table(data, [*col_order], group="Bad Strip detection table")
             table.opts(**self.configs["bad_strip_detection"]["General"])
 
-            return {"All": table, "Name": "Bad Strip Analysis"}
+            # Extract bad strip lists
+            bad_strips={}
+            for key, value in self.analysis.all_data.items():
+                bad_strips[key] = value["Detailed_info"]
+
+            return {"All": table, "Name": "Bad Strip Analysis", "Bad_strips": bad_strips}
 
 
 class stripanalysis:
@@ -531,7 +537,7 @@ class stripanalysis:
         """
 
         # Todo: clean up this ugly code
-        # todo: currently if Istrip and rply are measured at different points it will come to a data mismatch in the ned
+        # todo: currently if Istrip and rply are measured at different points it will come to a data mismatch in the end
         # and this method will fail!!!
 
         First = data[compare[0]]
@@ -978,7 +984,6 @@ class stripanalysis:
                     )
                 return_dict[meas] = (inside_specs, median_ok, glob_len)
         return return_dict
-
 
 # This function works as a decorator to measure the time of function to execute
 def timeit(method):

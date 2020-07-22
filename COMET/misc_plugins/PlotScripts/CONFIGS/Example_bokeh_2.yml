@@ -300,13 +300,13 @@
           # Parameters {Name of measurement: [Nominal value, -[dmin, dmax], varianz in percent of mean}
           Rpoly:
               - 1500000
-              - [1200000, 1800000]
+              - [1000000, 2000000]
               - 5
 
           Istrip:
-              - -100e-12
-              - [-200e-12,0]
-              - 20
+              - -50e-12
+              - [-150e-12,0]
+              - 10
 
           Idiel:
               - 1e-12
@@ -314,34 +314,34 @@
               - 20
 
           Idark:
-              - 5e-6
-              - [-500e-9, -150e-9]
+              - 100e-9
+              - [-200e-9, -10e-9]
               - 5.0
 
           Cint:
-              - 0.7e-12
-              - [0.3e-12, 5e-12]
+              - 0.9e-12
+              - [0.6e-12, 1.1e-12]
               - 5
 
           Rint:
-              - 100e9
+              - 300e9
               - [50e9, 1e12]
               - 50.0
 
           # AC pad parameters
           Cac:
-              - 1.4e-10
-              - [120e-12, 160e-12]
+              - 100e-12
+              - [140e-12, 70e-12]
               - 5
 
           # Termperature
           Temperature:
               - 23
-              - [20, 23]
+              - [20, 25]
               - 2
 
           # Humidity
           Humidity:
-              - 22
-              - [18, 27]
+              - 15
+              - [0, 25]
               - 10
