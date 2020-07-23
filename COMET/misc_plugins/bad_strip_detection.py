@@ -439,21 +439,24 @@ class stripanalysis:
         for meas, dat in measurement.items():
             data[meas] = dat[1]
 
-        if len(data["Idark"] > 10):
-            data, shift = self.remove_nan(data)
-            pinholes = self.find_pinhole(data["Idiel"], shift, suppress_warning=True)
-            DCerror, ind_bad_Cint, ind_bad_Cap = self.find_bad_DC_contact(
-                data["Istrip"],
-                data["Rpoly"],
-                data.get("Cint", np.array([])),
-                data["Cac"],
-                shift=shift,
-                suppress_warning=True,
-            )
-            ACerror = self.find_bad_AC_contact(
-                data["Cac"], data["Rpoly"], pinholes, shift=shift, suppress_warning=True
-            )
-        else:
+        try:
+            if len(data["Idark"] > 10):
+                data, shift = self.remove_nan(data)
+                pinholes = self.find_pinhole(data["Idiel"], shift, suppress_warning=True)
+                DCerror, ind_bad_Cint, ind_bad_Cap = self.find_bad_DC_contact(
+                    data["Istrip"],
+                    data["Rpoly"],
+                    data.get("Cint", np.array([])),
+                    data["Cac"],
+                    shift=shift,
+                    suppress_warning=True,
+                )
+                ACerror = self.find_bad_AC_contact(
+                    data["Cac"], data["Rpoly"], pinholes, shift=shift, suppress_warning=True
+                )
+            else:
+                DCerror, ACerror = [], []
+        except:
             DCerror, ACerror = [], []
 
         return DCerror, ACerror
