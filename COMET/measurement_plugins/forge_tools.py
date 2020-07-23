@@ -72,7 +72,7 @@ class tools(object):
         while not steady_state:
             if counter > max_iterations:
                 # If too many attempts where made
-                self.toolslog.critical(
+                self.toolslog.info(
                     "Attempt to reach steady state was not successfully after {} times for device {}".format(
                         max_iterations, device["Device_name"]
                     )
