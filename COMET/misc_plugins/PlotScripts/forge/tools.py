@@ -416,8 +416,8 @@ def convert_to_df(convert, abs=False, keys="all"):
             # Convert all datatypes that are not float or int to np.nan
             for meas in df.keys():
                 if meas != "Name":
-                    mask = df[meas].apply(type) == str
-                    df[meas] = df[meas].mask(mask, np.nan)
+                    df[meas] = pd.to_numeric(df[meas], errors="coerce")
+
 
         except KeyError as err:
             log.error(

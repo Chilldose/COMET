@@ -64,6 +64,7 @@ class IVCV_HPK:
         # Plot all IV measurements
         # (data, config, xaxis_measurement, analysis_name, do_not_plot=(), plot_only=(), keys=None, **kwargs)
         IVplot = None
+        IVSubplot = None
         self.PlotDict["All"] = None
         for file in self.data["keys"]:
             if "IV" in file:
@@ -79,12 +80,18 @@ class IVCV_HPK:
                         plot_only=(meas,),
                         keys=(file,),
                         do_not_plot=self.donts,
-                        PlotLabel=meas + "IV",
+                        PlotLabel= meas,
                     )
+                    tempplot = customize_plot(tempplot, "current", self.config[self.analysisName])
                     if IVplot:
                         IVplot *= tempplot
                     else:
                         IVplot = tempplot
+
+                    if IVSubplot:
+                        IVSubplot += tempplot
+                    else:
+                        IVSubplot = tempplot
         IVplot = customize_plot(IVplot, "current", self.config[self.analysisName])
 
         # Plot all CV measurements
@@ -136,21 +143,15 @@ class IVCV_HPK:
                         c2plot = tempplot
         c2plot = customize_plot(c2plot, "1C2", self.config[self.analysisName])
 
-        # if self.config[self.analysisName].get("1C2", {}).get("DoFullDepletionCalculation", False):
-        #    try:
-        #        if self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.children:
-        #            c2plot = self.basePlots.Overlay.CV_CURVES_hyphen_minus_Full_depletion.opts(clone = True)
-        ##        else: c2plot = self.basePlots.Curve.CV_CURVES_hyphen_minus_Full_depletion.opts(clone = True)
-        #        fdestimation = self.find_full_depletion(c2plot, self.data, self.config, PlotLabel="Full depletion estimation")
-        #        self.PlotDict["All"] += fdestimation
-        #        self.PlotDict["BasePlots"] += fdestimation
-        #    except Exception as err:
-        #        self.log.warning("No full depletion calculation possible... Error: {}".format(err))
+        if IVplot:
+            self.PlotDict["All"] = IVplot
+            self.PlotDict["All"] += IVSubplot
+        if CVplot and self.PlotDict["All"]:
+            self.PlotDict["All"] += CVplot + c2plot
+        elif CVplot and not self.PlotDict["All"]:
+            self.PlotDict["All"] = CVplot + c2plot
 
-        # Reconfig the plots to be sure
-        # self.PlotDict["All"] = config_layout(self.PlotDict["All"], **self.config[self.analysisName].get("Layout", {}))
 
-        self.PlotDict["All"] = IVplot + CVplot + c2plot
         # Reconfig the plots to be sure
         self.PlotDict["All"] = config_layout(
             self.PlotDict["All"], **self.config[self.analysisName].get("Layout", {})

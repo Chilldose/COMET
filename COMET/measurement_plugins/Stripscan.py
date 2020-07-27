@@ -823,7 +823,7 @@ class Stripscan_class(tools):
 
             # Find bad contact
             badthread = Thread(target=self.find_bad_contact)
-            #badthread.start() # Todo: comment this in
+            badthread.start() # Todo: comment this in
 
             if not self.main.event_loop.stop_all_measurements_query():
                 # After all measurements are conducted write the environment variables to the file
