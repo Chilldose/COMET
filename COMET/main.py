@@ -197,6 +197,7 @@ def main():
         "Client": {},
         "background_Env_task": None,
         "args": args,
+        "Stylesheet": StyleSheet
     }
 
     # Starts a new Thread for the measurement event loop

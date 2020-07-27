@@ -970,7 +970,7 @@ class Stripscan_class(tools):
                 [
                     ("set_source_voltage", ""),
                     ("set_measure_current", ""),
-                    ("set_voltage_range", "2"),
+                    ("set_voltage_range", "20"),
                     ("set_voltage", voltage),
                     ("set_compliance", 10e-6),
                     ("set_output", "ON"),
@@ -1196,7 +1196,7 @@ class Stripscan_class(tools):
                     ("set_output", "OFF"),
                     (
                         "set_current_range",
-                        device_dict.get("default_current_range", 10e6),
+                        device_dict.get("default_current_range", 1e-6),
                     ),
                 ],
             )  # unconfig elmeter
