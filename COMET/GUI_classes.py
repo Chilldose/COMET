@@ -202,6 +202,7 @@ class GUI_classes(QWidget):
                 self.add_rendering_function(widget, module.split("_")[0])
 
             except AttributeError as err:
+                self.all_plugin_modules.pop(module)
                 self.log.error(
                     "The Module {} for the GUI app generation could not be found. Error: {}".format(
                         module, err
