@@ -211,10 +211,13 @@ class GUI_classes(QWidget):
 
     def load_QtUi_file(self, filename, widget):
         """This function returns a qt generated Ui object."""
-        package_dir = os.path.normpath(os.path.dirname(__file__))
-        qtCreatorFile = os.path.join(package_dir, QT_UI_DIR, filename)
-        Ui_Window, QtBaseClass = uic.loadUiType(qtCreatorFile)
-        return self.add_QtUi_to_window(Ui_Window, widget)
+        try:
+            package_dir = os.path.normpath(os.path.dirname(__file__))
+            qtCreatorFile = os.path.join(package_dir, QT_UI_DIR, filename)
+            Ui_Window, QtBaseClass = uic.loadUiType(qtCreatorFile)
+            return self.add_QtUi_to_window(Ui_Window, widget)
+        except:
+            self.log.error("While constructing the UI from file {} an error happened.".format(filename), exc_info=True)
 
     def add_QtUi_to_window(self, Qt_ui_class, widget):
         """This function just adds a qt generated Ui (python file needed)"""
