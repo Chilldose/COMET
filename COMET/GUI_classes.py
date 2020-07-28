@@ -177,6 +177,7 @@ class GUI_classes(QWidget):
 
     def construct_ui(self):
         """This function generates all ui elements in form of tab widgets"""
+        to_pop = []
         for module in self.all_plugin_modules:
             self.log.debug("Constructing UI module: {!s}".format(module))
             # Create plugin widget
@@ -202,13 +203,15 @@ class GUI_classes(QWidget):
                 self.add_rendering_function(widget, module.split("_")[0])
 
             except AttributeError as err:
-                self.all_plugin_modules.pop(module)
+                to_pop.append(module)
                 self.log.error(
                     "The Module {} for the GUI app generation could not be found. Error: {}".format(
                         module, err
                     ),
                     exc_info=True,
                 )
+        for popping in to_pop: # Remove uis which failed 
+            self.all_plugin_modules.pop(popping)
 
     def load_QtUi_file(self, filename, widget):
         """This function returns a qt generated Ui object."""
