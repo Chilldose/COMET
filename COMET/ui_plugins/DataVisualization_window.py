@@ -33,6 +33,7 @@ class DataVisualization_window:
     def __init__(self, GUI, layout):
 
         self.variables = GUI
+        self.stylesheet = self.variables.framework_variables.get("Stylesheet", None)
         self.layout = layout
         self.log = logging.getLogger(__name__)
         self.allFiles = []
@@ -191,6 +192,7 @@ class DataVisualization_window:
 
     def select_files_action(self):
         """Opens a file selection window and writes it to the data files drop down menu"""
+        # solution from: https://www.qtcentre.org/threads/34226-QFileDialog-select-multiple-directories?p=220108#post220108
         self.widget.files_comboBox.clear()
         fileDialog = QFileDialog()
         files = fileDialog.getOpenFileNames()
