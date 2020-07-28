@@ -257,14 +257,17 @@ class GUI_classes(QWidget):
                 "GUI_render_order"
             ]:  # import all modules from all files in the plugins folder
                 if modules + "_window" in self.ui_classes:
-                    self.all_plugin_modules.update(
-                        {
-                            modules
-                            + "_window": importlib.import_module(
-                                "COMET.ui_plugins." + str(modules + "_window")
-                            )
-                        }
-                    )
+                    try:
+                        self.all_plugin_modules.update(
+                            {
+                                modules
+                                + "_window": importlib.import_module(
+                                    "COMET.ui_plugins." + str(modules + "_window")
+                                )
+                            }
+                        )
+                    except:
+                        self.log.error("Could not load GUI module {}!".format(modules), exc_info = True)
                 else:
                     self.log.error(
                         "The GUI element {} was specified but could not be found as resource!".format(

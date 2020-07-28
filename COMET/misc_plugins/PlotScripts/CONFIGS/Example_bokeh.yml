@@ -36,7 +36,6 @@
     - png
     - html
     - json
-    - xml
     
   xml_template_path: ".\\CONFIGS\\CMSxmlTemplate.yml"
 

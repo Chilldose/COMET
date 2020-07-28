@@ -47,6 +47,7 @@ class Stripscan_window:
         self.variables.default_values_dict["settings"]["Bad_strips"] = 0
         self.variables.default_values_dict["settings"]["Start_time"] = None
         self.variables.default_values_dict["settings"]["End_time"] = None
+        self.stripscan_time = np.array([])
         self.strip_times = []
         self.variables.default_values_dict["settings"]["strip_scan_time"] = 0
         self.new_meas = True
