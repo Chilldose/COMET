@@ -120,3 +120,4 @@ __temp__/html/temp_combine_plot.html
 COMET/misc_plugins/PlotScripts/.gitattributes
 .dockerignore
 Dockerfile
+COMET.bat
