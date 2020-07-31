@@ -210,7 +210,7 @@ class GUI_classes(QWidget):
                     ),
                     exc_info=True,
                 )
-        for popping in to_pop: # Remove uis which failed 
+        for popping in to_pop: # Remove uis which failed
             self.all_plugin_modules.pop(popping)
 
     def load_QtUi_file(self, filename, widget):

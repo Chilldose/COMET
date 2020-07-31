@@ -139,12 +139,20 @@ class Stripscan_class(tools):
         self.current_voltage = self.main.framework["Configs"]["config"]["settings"].get(
             "bias_voltage", 0
         )
+
+        # The frequency the calobration should be done
         self.cal_to = {
             "Cac": 1000,
             "Cac_beta": 1000,
             "Cint": 1000000,
             "Cint_beta": 1000000,
         }
+
+        # The factor in which the Rint value is allowed to vary around the std of the median, before recontacting
+        self.std_factor = {
+            "Rint": 5
+        }
+
         self.open_corrections = {}
 
         if "Rint_MinMax" not in self.main.framework["Configs"]["config"]["settings"]:
@@ -731,7 +739,7 @@ class Stripscan_class(tools):
                                             "std: {}".format(stdval))
                                         self.log.debug(
                                             "value: {}".format(value[0]))
-                                        if np.isclose([value[0]], [meanval], atol=stdval*3.)[0]:
+                                        if np.isclose([value[0]], [meanval], atol=stdval*(3.0 if measurement not in self.std_factor else float(self.std_factor[measurement])))[0]:
                                             self.log.debug("Closeness reached at {}, compared to {}, 3*std {}".format(value[0],meanval, stdval*3.))
                                             break
                                         else:

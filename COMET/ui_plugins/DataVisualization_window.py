@@ -75,6 +75,7 @@ class DataVisualization_window:
         self.widget.upload_pushButton.clicked.connect(self.upload_to_DB)
         self.widget.save_toolButton.clicked.connect(self.select_save_to_action)
         self.widget.render_pushButton.clicked.connect(self.render_action)
+        self.widget.save_this_plot_pushButton.clicked.connect(self.save_current_displayed_plot_action)
         self.widget.output_tree.itemClicked.connect(self.load_html_to_screen)
         self.widget.plot_options_treeWidget.itemClicked.connect(
             self.tree_option_select_action
@@ -169,6 +170,23 @@ class DataVisualization_window:
             filepath = self.plotting_Object.temp_png_output(plot)
             filepath = self.generate_html_page_for_png_view(filepath)
         self.widget.webEngineView.load(QUrl.fromLocalFile(filepath))
+
+    def save_current_displayed_plot_action(self):
+        """Saves the current displayed plot to the specified location"""
+        directory = self.widget.save_lineEdit.text()
+        options = self.widget.save_as_comboBox.currentText().split("/")
+        options = np.intersect1d(options, ["html", "png", "svg"])
+        try:
+            label = self.current_plot_object._label
+        except:
+            label = "MyPlot"
+        if self.current_plot_object and os.path.exists(directory):
+            save_plot(
+                label, self.current_plot_object, directory, save_as=options, backend=self.backend
+            )
+
+        else:
+            self.log.error("Save directory not valid or no plot selected for saving.")
 
     def select_analysis_template(self):
         """Opens file select for template selection"""

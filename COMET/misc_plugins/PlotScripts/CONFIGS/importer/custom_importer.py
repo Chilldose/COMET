@@ -5,7 +5,7 @@ def myImporter(filepathes, **kwargs):
     """The importer gets one positional argument, which is a list with the passed filepathes.
     Then kwargs are passed, the ones stated in the config file! If you do not pass any, then there are no kwargs!"""
 
-    # In our case there are two optional parametes lets print them:
+    # Here you can print the kwargs:
     print(kwargs)
 
     file_content = []
@@ -20,7 +20,7 @@ def myImporter(filepathes, **kwargs):
     # After importing and parsing the data the return must be a dict of dicts like described in the docs
     return_dict = {}
 
-    # The top level keys are usually the file names and the values is a dict with keys being the measurement names,
+    # The top level keys are usually the file names and the values are a dict with keys being the measurement names,
     # with their values being lists of list like:
     return_dict["FirstFile"] = {
         "data": {

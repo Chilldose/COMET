@@ -15,7 +15,7 @@
   backend: bokeh
     
   Files:
-    - ".\\testdata\\DiodeIVCV_1.txt" # This ios just a dummy file for this example!!
+    - ".\\testdata\\DiodeIVCV_1.txt" # This is just a dummy file for this example!!
    
     
   Output: ".\\testdata\\plots"
