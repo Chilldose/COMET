@@ -130,7 +130,9 @@ class TelegramBotResponder:
                             from matplotlib import dates
                             import datetime as dt
 
-                            # Try to get the x and y axis
+                            # Try to get the x and y axis. Plot_objs_axis is a dict in the gui_classes
+                            # If the plot you want to plot has this entry it takes the axis from there otherwise
+                            # standard axis will be used. You can add the axis labels eg in the measurement routines
                             axis = self.main.plot_objs_axis.get(
                                 plot[0], ("X-Axis", "Y-Axis")
                             )
@@ -140,6 +142,7 @@ class TelegramBotResponder:
                             ax.set(xlabel=axis[0], ylabel=axis[1], title=plot[0])
                             ax.grid()
 
+                            # If the xaxis is time it will convert the axis to a datetime
                             time = True if "time" in axis[0] else False
                             if time and plt_data[0].any():
                                 # matplotlib date format object

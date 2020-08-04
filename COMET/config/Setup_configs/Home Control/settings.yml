@@ -34,6 +34,8 @@
         - Hum_Bedroom
         - Temp_Outside
         - Hum_Outside
+        - Weight
+        - Body_fat
 
     Rooms:
         - Living
@@ -78,6 +80,7 @@
 
     GUI_render_order: # Give a render order if need be, otherwise all found gui elements will be rendered
         - EnvironmentMonitor
+        - WWatcher
 
     Socket_connection: # Config for the socket connection, for data transfer between processes
         Host:

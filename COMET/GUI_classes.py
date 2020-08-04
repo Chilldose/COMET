@@ -91,7 +91,8 @@ class GUI_classes(QWidget):
         self.final_tabs = []
         self.ui_plugins = {}
         self.plot_objs = {}  # pyqtgraph plot objects
-        self.plot_objs_axis = {}  # Axis, tuple for the plots (optional)
+        self.plot_objs_axis = {}  # Axis, tuple for the plots (optional), will be used in the telegrambot plot responder
+        # or wherever you want to use it. Key is the name of the plot and values are tuples with the x and y label
 
         # Load ui plugins
         self.load_GUI_plugins()
