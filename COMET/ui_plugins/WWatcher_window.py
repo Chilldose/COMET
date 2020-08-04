@@ -13,6 +13,7 @@ class WWatcher_window:
         self.layout = layout
         self.log = logging.getLogger(__name__)
         self.settings = self.variables.default_values_dict["settings"]
+        self.height = self.settings.get("Body_height", 1.71)
 
         # Settings Main tab
         self.Wwidget = (
@@ -31,7 +32,7 @@ class WWatcher_window:
         )  # config the plot items
 
         # Add the update function and run some inits
-        #self.variables.add_update_function(self.update_temphum_plots)
+        self.variables.add_update_function(self.update_plots)
 
     def update_lcd_displays(self):
         """Updates the displays"""
@@ -109,58 +110,31 @@ class WWatcher_window:
     def update_plots(self):
         # for rooms in self.rooms:
         if self.variables.default_values_dict["settings"]["new_data"]:
-            for room in self.rooms:
-                # Change the LCD display objects as well
-                if (
-                    self.variables.meas_data["Temp_" + room][1].any()
-                    and self.variables.meas_data["Hum_" + room][1].any()
+            if (
+                self.variables.meas_data["Weight"][1].any()
+                and self.variables.meas_data["Body_fat"][1].any()
                 ):
-                    temp = self.variables.meas_data["Temp_" + room][1][-1]
-                    hum = self.variables.meas_data["Hum_" + room][1][-1]
-                    self.roomsGui[room][0].temp_lcd.display(temp)
-                    self.roomsGui[room][0].hum_lcd.display(hum)
-                    self.roomsGui[room][0].last_update_label.setText(
+                weight = self.variables.meas_data["Weight"][1][-1]
+                fat = self.variables.meas_data["Body_fat"][1][-1]
+                self.WGui.weight_lcd.display(weight)
+                self.WGui.fat_lcd.display(fat)
+                self.WGui.last_update_label.setText(
                         "Last Update: {}".format(asctime(localtime()))
                     )
 
-                    # Set temp bar
-                    max_temp = self.settings["Ranges"][room]["temp_max"]
-                    min_temp = self.settings["Ranges"][room]["temp_min"]
-                    if temp <= max_temp and temp >= min_temp:
-                        self.roomsGui[room][0].temperature_bar.setValue(temp)
-                    elif temp > max_temp:
-                        self.roomsGui[room][0].temperature_bar.setValue(max_temp)
-                    elif temp < min_temp:
-                        self.roomsGui[room][0].temperature_bar.setValue(min_temp)
+                bmi = weight/(self.height*self.height)
+                self.WGui.dew_point_lcd.display(bmi)
 
-                    # Set hum bar
-                    max_hum = self.settings["Ranges"][room]["hum_max"]
-                    min_hum = self.settings["Ranges"][room]["hum_min"]
-                    if hum <= max_hum and temp >= min_hum:
-                        self.roomsGui[room][0].humidity_bar.setValue(hum)
-                    elif hum > max_hum:
-                        self.roomsGui[room][0].humidity_bar.setValue(max_hum)
-                    elif hum < min_hum:
-                        self.roomsGui[room][0].humidity_bar.setValue(min_hum)
-
-                    # Very approyximate Dew point calc
-                    dew = temp - (100 - hum) / 5
-                    self.roomsGui[room][0].dew_point_lcd.display(dew)
-
-                self.temphum_plot[
-                    room
-                ].clear()  # clears the plot and prevents a memory leak
-                self.hum_plot_obj[room].clear()
-                p1 = self.temphum_plot[room].plotItem
+                self.weightfat_plot.clear()  # clears the plot and prevents a memory leak
+                self.fat_plot_obj.clear()
+                p1 = self.weightfat_plot.plotItem
 
                 ax = p1.getAxis("bottom")  # This is the trick
-                # self.__cut_arrays(self.variables.meas_data,
-                #                  float(self.history),
-                #                  ["Temp_"+room, "hum_"+room])
+
                 ax.setTicks(
                     [
                         get_thicks_for_timestamp_plot(
-                            self.variables.meas_data["Temp_" + room][0],
+                            self.variables.meas_data["Weight"][0],
                             5,
                             self.variables.default_values_dict["settings"][
                                 "time_format"
@@ -169,42 +143,40 @@ class WWatcher_window:
                     ]
                 )
                 try:
-                    if len(self.variables.meas_data["Temp_" + room][0]) == len(
-                        self.variables.meas_data["Hum_" + room][1]
+                    if len(self.variables.meas_data["Weight"]) == len(
+                        self.variables.meas_data["Fat"][1]
                     ):  # sometimes it happens that the values are not yet ready
                         p1.plot(
-                            self.variables.meas_data["Temp_" + room][0],
-                            self.variables.meas_data["Temp_" + room][1],
+                            self.variables.meas_data["Weight"][0],
+                            self.variables.meas_data["Weight"][1],
                             pen={"color": "#cc1414", "width": 2},
                             clear=True,
                         )
                         plot_item = pyqtgraph.PlotCurveItem(
-                            self.variables.meas_data["Hum_" + room][0],
-                            self.variables.meas_data["Hum_" + room][1],
+                            self.variables.meas_data["Fat"][0],
+                            self.variables.meas_data["Fat"][1],
                             pen={"color": "#2662e2", "width": 2},
                             clear=True,
                         )
-                        self.hum_plot_obj[room].addItem(plot_item)
+                        self.fat_plot_obj.addItem(plot_item)
                         del plot_item
-                        self.hum_plot_obj[room].setGeometry(
+                        self.weightfat_plot.setGeometry(
                             p1.vb.sceneBoundingRect()
                         )  # resize the second plot!
                 except Exception as err:
                     self.log.error(
-                        "An error happened while updating the environment plot with error: {}".format(
+                        "An error happened while updating the WW plot with error: {}".format(
                             err
                         )
                     )
 
     def refit_data_to_screen(self):
         """Refits the data to screen"""
-        for room in self.rooms:
-            self.temphum_plot[room].plotItem.autoRange()
+        self.weightfat_plot.plotItem.autoRange()
 
     def reset_data(self):
         """Resets data of plots"""
-        for room in self.rooms:
-            # Change the LCD display objects as well
-            self.variables.meas_data["Temp_" + room] = [np.array([]), np.array([])]
-            self.variables.meas_data["Hum_" + room] = [np.array([]), np.array([])]
-            self.variables.default_values_dict["settings"]["new_data"] = True
+        # Change the LCD display objects as well
+        self.variables.meas_data["Weight"] = [np.array([]), np.array([])]
+        self.variables.meas_data["Fat"] = [np.array([]), np.array([])]
+        self.variables.default_values_dict["settings"]["new_data"] = True

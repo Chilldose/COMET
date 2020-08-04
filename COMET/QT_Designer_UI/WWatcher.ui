@@ -34,7 +34,7 @@
       </widget>
      </item>
      <item row="0" column="6">
-      <widget class="QLCDNumber" name="dew_point_lcd">
+      <widget class="QLCDNumber" name="bmi_lcd">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -47,7 +47,7 @@
       </widget>
      </item>
      <item row="0" column="4">
-      <widget class="QLCDNumber" name="hum_lcd">
+      <widget class="QLCDNumber" name="fat_lcd">
        <property name="minimumSize">
         <size>
          <width>0</width>
@@ -147,7 +147,7 @@
       </widget>
      </item>
      <item row="0" column="2">
-      <widget class="QLCDNumber" name="temp_lcd">
+      <widget class="QLCDNumber" name="weight_lcd">
        <property name="minimumSize">
         <size>
          <width>0</width>
