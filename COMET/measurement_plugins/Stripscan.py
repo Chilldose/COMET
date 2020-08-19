@@ -150,8 +150,13 @@ class Stripscan_class(tools):
 
         # The factor in which the Rint value is allowed to vary around the std of the median, before recontacting
         self.std_factor = {
-            "Rint": 5
+            "Rint": 5.0,
+            "Rpoly": 3.5,
+            "Cac": 5.0
         }
+
+        # Len if eval window to determine the goodness of values, place 0 for all values
+        self.eval_len = 50
 
         self.open_corrections = {}
 
@@ -731,8 +736,8 @@ class Stripscan_class(tools):
                                     # Check if value is comparable with the rest of the values
                                     if len(self.main.measurement_data[measurement][1][~np.isnan(self.main.measurement_data[measurement][1])]) > 5:
                                         self.log.debug("Checking closeness of value for measurement {}".format(measurement))
-                                        meanval = np.nanmedian(self.main.measurement_data[measurement][1])
-                                        stdval = np.nanstd(self.main.measurement_data[measurement][1])
+                                        meanval = np.nanmedian(self.main.measurement_data[measurement][1]) if len(self.main.measurement_data[measurement][1]) <= self.eval_len else np.nanmedian(self.main.measurement_data[measurement][1][-self.eval_len:])
+                                        stdval =np.nanstd(self.main.measurement_data[measurement][1]) if len(self.main.measurement_data[measurement][1]) <= self.eval_len else np.nanstd(self.main.measurement_data[measurement][1][-self.eval_len:])
                                         self.log.debug(
                                             "meanval: {}".format(meanval))
                                         self.log.debug(
