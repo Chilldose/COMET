@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -215,13 +214,13 @@ have the basic global parameters in it.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">skip_init</span></code> parameters states if all instruments should be re-initialized prior to the measurement. And the other two
 parameters are self-explanatory.</p>
 <div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>A very handy optional parameter can be the <code class="docutils literal notranslate"><span class="pre">header</span></code> parameter. Here only a string is valid. This string will be written to the file prior to the measurement.</p>
+<p class="first admonition-title">Tip</p>
+<p class="last">A very handy optional parameter can be the <code class="docutils literal notranslate"><span class="pre">header</span></code> parameter. Here only a string is valid. This string will be written to the file prior to the measurement.</p>
 </div>
 <p>The next crucial key entry is the measurement itself. This means whichever measurement you want to conduct.</p>
 <div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>The key of the measurement must be a valid measurement plugin name!</p>
+<p class="first admonition-title">Important</p>
+<p class="last">The key of the measurement must be a valid measurement plugin name!</p>
 </div>
 <p>So e.g. if you want to call the <code class="docutils literal notranslate"><span class="pre">IV_class()</span></code> measurement the key of the dict entry in the job dictionary has to be <code class="docutils literal notranslate"><span class="pre">&quot;IV&quot;:</span> <span class="pre">...</span></code></p>
 <p>The value to this key can be again a dictionary containing all data YOUR measurement pluging needs. Here you are not restricted by the framework.</p>
@@ -255,12 +254,12 @@ parameters are self-explanatory.</p>
 </div>
 <p>You can place more then one measurement in the dictionary. If more then one is prevalent the program conducts all measurements!</p>
 <div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>The order how the measurements are conducted is defined by the config parameter <code class="docutils literal notranslate"><span class="pre">measurement_order</span></code> in you project config file.</p>
+<p class="first admonition-title">Important</p>
+<p class="last">The order how the measurements are conducted is defined by the config parameter <code class="docutils literal notranslate"><span class="pre">measurement_order</span></code> in you project config file.</p>
 </div>
 <div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>It is good practice to always write the job to the log file if something went wrong. This can easily be done via the log system!</p>
+<p class="first admonition-title">Tip</p>
+<p class="last">It is good practice to always write the job to the log file if something went wrong. This can easily be done via the log system!</p>
 </div>
 </div>
 <div class="section" id="accessing-measurement-data">
@@ -276,7 +275,7 @@ If you have followed the <a class="reference internal" href="tutorial.html#how-t
 
     <span class="k">def</span> <span class="nf">show_the_job</span><span class="p">():</span>
         <span class="sd">&quot;&quot;&quot;Simply prints the job details&quot;&quot;&quot;</span>
-        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">)</span>
+        <span class="k">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">main</span><span class="o">.</span><span class="n">job_details</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>

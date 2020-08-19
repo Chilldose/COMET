@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -202,8 +201,8 @@ threads.</p>
 <p>These queue objects are:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Message_to_main</p></li>
-<li><p>Message_from_main</p></li>
+<li>Message_to_main</li>
+<li>Message_from_main</li>
 </ul>
 </div></blockquote>
 <p>and they can be accessed by the <a class="reference internal" href="datastructure.html#framework-variables"><span class="std std-ref">Framework variables</span></a> object, your measurement plugin has access to.</p>
@@ -212,59 +211,62 @@ is for sending data to the GUI event loop (or the Main program). Like with all m
 message send over this queue must be a python dict object. Key being the message type and the value, the value this key should represent.
 The GUI understands the following message types:</p>
 <blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd">Errors</dt>
-<dd class="field-odd"><p>&quot;Critical&quot;, &quot;Info&quot;,&quot;MeasError&quot;, &quot;DataError&quot;, &quot;RequestError&quot;, &quot;MEASUREMENT_FAILED&quot;, &quot;Warning&quot;, &quot;FatalError&quot;, &quot;ThresholdError&quot;, &quot;ERROR&quot;, &quot;Error&quot;</p>
-</dd>
-<dt class="field-even">Measurements</dt>
-<dd class="field-even"><p>All measurements keys you have defined in your project settings file under the key <code class="docutils literal notranslate"><span class="pre">measurement_types</span></code></p>
-</dd>
-<dt class="field-odd">Events</dt>
-<dd class="field-odd"><p>&quot;MEASUREMENT_STATUS&quot;, &quot;MEASUREMENT_FINISHED&quot;, &quot;CLOSE_PROGRAM&quot;, &quot;ABORT_MEASUREMENT&quot;, &quot;START_MEASUREMENT&quot;, &quot;MEASUREMENT_EVENT_LOOP_STOPED&quot;</p>
-</dd>
-</dl>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Errors:</th><td class="field-body">&quot;Critical&quot;, &quot;Info&quot;,&quot;MeasError&quot;, &quot;DataError&quot;, &quot;RequestError&quot;, &quot;MEASUREMENT_FAILED&quot;, &quot;Warning&quot;, &quot;FatalError&quot;, &quot;ThresholdError&quot;, &quot;ERROR&quot;, &quot;Error&quot;</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Measurements:</th><td class="field-body">All measurements keys you have defined in your project settings file under the key <code class="docutils literal notranslate"><span class="pre">measurement_types</span></code></td>
+</tr>
+<tr class="field-odd field"><th class="field-name">Events:</th><td class="field-body">&quot;MEASUREMENT_STATUS&quot;, &quot;MEASUREMENT_FINISHED&quot;, &quot;CLOSE_PROGRAM&quot;, &quot;ABORT_MEASUREMENT&quot;, &quot;START_MEASUREMENT&quot;, &quot;MEASUREMENT_EVENT_LOOP_STOPED&quot;</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
 <p>As a User you only have to concern about the first to message types, so Errors and Measurements.</p>
 <p><strong>Error</strong> messages always looks like <code class="docutils literal notranslate"><span class="pre">{&quot;Info&quot;:</span> <span class="pre">&quot;Some</span> <span class="pre">info</span> <span class="pre">you</span> <span class="pre">want</span> <span class="pre">to</span> <span class="pre">tell</span> <span class="pre">the</span> <span class="pre">GUI&quot;}</span></code>. So the key is the error type
 and the value is a string.</p>
 <div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>It has always to be a string the value! But it is not important what is inside this string, this is up to the user!</p>
+<p class="first admonition-title">Important</p>
+<p class="last">It has always to be a string the value! But it is not important what is inside this string, this is up to the user!</p>
 </div>
 <p>This message is then written to the member variable of the GUI event loop <code class="docutils literal notranslate"><span class="pre">error_log</span></code>, which the user can use to display the errors inside the GUI.
 Other actions will not be taken by the framework with this kind of messages.</p>
 <div class="admonition hint">
-<p class="admonition-title">Hint</p>
-<p>The message types are furthermore color coded. All errors are red, infos are green and warnings etc. are orange.</p>
+<p class="first admonition-title">Hint</p>
+<p class="last">The message types are furthermore color coded. All errors are red, infos are green and warnings etc. are orange.</p>
 </div>
 <p><strong>Measurements</strong> types have the same structure as the error types. The difference being, that the key must be a valid name you specified in your settings
 under the key <code class="docutils literal notranslate"><span class="pre">measurement_types</span></code>. Otherwise COMET will discard this event. The value of this message must always be a list of np.arrays or single values.
 So an example message would be: <code class="docutils literal notranslate"><span class="pre">{&quot;IV&quot;:</span> <span class="pre">[np.array[],</span> <span class="pre">np.array[]]}</span></code> these arrays will be appended to the existing data array for measurement data storage.
 Which is in turn a np.array object.</p>
 <div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>You do not have to send single value arrays over this queue. If you send a longer array of data, it will be appended via the numpy function np.append(measurement_array, yourarray).</p>
+<p class="first admonition-title">Important</p>
+<p class="last">You do not have to send single value arrays over this queue. If you send a longer array of data, it will be appended via the numpy function np.append(measurement_array, yourarray).</p>
 </div>
 <p><strong>Events</strong> are message types which are only used by core features of COMET and the user should never meddle with it. It can compromise the
 stability of COMET. But if you really want to know. These messages are only flag messages so a message would look like:
 <code class="docutils literal notranslate"><span class="pre">{&quot;CLOSE_PROGRAM&quot;:</span> <span class="pre">True}</span></code> which will shut down the program.</p>
 <div class="admonition tip">
-<p class="admonition-title">Tip</p>
-<p>This &quot;CLOSE_PROGRAM&quot; message is with &quot;ABORT_MEASUREMENT&quot; the only messages you as user should use.</p>
+<p class="first admonition-title">Tip</p>
+<p class="last">This &quot;CLOSE_PROGRAM&quot; message is with &quot;ABORT_MEASUREMENT&quot; the only messages you as user should use.</p>
 </div>
 <p><strong>Message_from_main:</strong>
 This queue is for sending data to the measurement event loop. Like with all messages in COMET the
 message send over this queue must be a python dict object. Key being the message type and the value, the value this key should represent.
 The event loop understands the following message types:</p>
 <blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd">Status</dt>
-<dd class="field-odd"><p>&quot;CLOSE&quot;, &quot;MEASUREMENT_FINISHED&quot;, &quot;MEASUREMENT_STATUS&quot;, &quot;ABORT_MEASUREMENT&quot;</p>
-</dd>
-<dt class="field-even">Measurements</dt>
-<dd class="field-even"><p>&quot;Measurement&quot;, &quot;Status&quot;, &quot;Remeasure&quot;, &quot;Alignment&quot;, &quot;Sweep&quot;</p>
-</dd>
-</dl>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Status:</th><td class="field-body">&quot;CLOSE&quot;, &quot;MEASUREMENT_FINISHED&quot;, &quot;MEASUREMENT_STATUS&quot;, &quot;ABORT_MEASUREMENT&quot;</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Measurements:</th><td class="field-body">&quot;Measurement&quot;, &quot;Status&quot;, &quot;Remeasure&quot;, &quot;Alignment&quot;, &quot;Sweep&quot;</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
 <p><strong>Status:</strong>
 These type of messages are message types which are only used by core features of COMET These messages are only flag messages so a message would look like:
@@ -273,8 +275,8 @@ These type of messages are message types which are only used by core features of
 These are messages concerning the starting of a measurement plugin status and so on. To generate a measurement job please
 see the dedicated chapter <a class="reference internal" href="measurementjobgen.html#measurement-job-generation"><span class="std std-ref">Measurement Job Generation</span></a>.</p>
 <div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>&quot;Remeasure&quot;, &quot;Alignment&quot;, &quot;Sweep&quot; are deprecated messages, which will be deleted in future releases.</p>
+<p class="first admonition-title">Warning</p>
+<p class="last">&quot;Remeasure&quot;, &quot;Alignment&quot;, &quot;Sweep&quot; are deprecated messages, which will be deleted in future releases.</p>
 </div>
 </div>
 <div class="section" id="device-data-exchange">
@@ -282,8 +284,8 @@ see the dedicated chapter <a class="reference internal" href="measurementjobgen.
 <p>COMET uses the pyVisa module to exchange data with all kinds of measurement devices. This module is based on the
 National Instruments VISA driver, and therefore needs its dependencies to work.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>There is a pyvisa-py module which is not dependent on the NI-Visa drivers, but its not as stable as the NI variant.</p>
+<p class="first admonition-title">Note</p>
+<p class="last">There is a pyvisa-py module which is not dependent on the NI-Visa drivers, but its not as stable as the NI variant.</p>
 </div>
 <p>To advantage of this driver is, that it abstracts the device connection type to an easy usable interface. Basically, if
 you have established a connection to a device, be it RS232, GPIB, TCP/IP or USB you do not need to concern yourself with

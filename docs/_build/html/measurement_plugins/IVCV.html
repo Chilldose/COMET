@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -187,42 +186,49 @@
             
   <div class="section" id="ivcv">
 <h1>IVCV<a class="headerlink" href="#ivcv" title="Permalink to this headline">¶</a></h1>
-<p>The IVCV plugin is a plugin to conduct a Current-Voltage and a Current-Capacitance measurement. This GUI looks in its
+<p>The IVCV plugin is a plugin for conducting Current-Voltage and a Current-Capacitance measurement. This GUI looks in its
 simples version like this:</p>
-<img alt="Flowchart_main" class="floatingflask" src="../_images/IV_GUI.png" />
-<p>In the top part of the GUI you can selcect the Project, Sensor, Operator and choose the file name the output file should
+<img alt="Flowchart_main" class="floatingflask" src="../_images/QTCMain.png" />
+<p>In the top part of the GUI you can select the Project, Sensor, Operator and choose the file name the output file should
 have. Furthermore, you can choose the directory of the output, by either typing the path or by choosing via the button.</p>
-<p>With the Buttons <strong>Save settings</strong> and <strong>Load settings</strong> you can save or load your IVCV settings, so you do not have to
-change them every time you start up.</p>
-<p>The next part are the settings, on how exactly to conduct the measurement. The radio-Buttons can be switched on or off.
-This will direct the software to either do this part or not. The other spin boxes are for the specific settings on
-bias voltage and step sizes.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You can choose different bias voltages for CV or IV measurement. So stop the CV measurement at 400 V but the IV measurement should continue to 1000 V. Or vice versa.</p>
-</div>
+<p>With the Buttons <strong>Load all settings</strong> load a predefined measurement setting. Choose the one which is best suited for
+the IVCV measurement you want to make.</p>
+<p>If you want to define the measurement parameter yourself you have to change to the <strong>MeasurementConfig</strong> tab. In there
+you can enable the IVCV meausrement and choose the measurement parameters for IV CV and the voltage step refinement yourself.
+You also can decide to switch on or off either the IV or CV measurement all together.</p>
 <p>The voltage step refinement option lets you refine the step size in a specific region of the IVCV ramp. This is especially
 useful, if you want to investigate the behavior near the full depletion point, but you do not want the small step-size for the
 whole measurement, to safe time.</p>
-<p>Next are comming the <strong>Start</strong>, <strong>Stop</strong> and <strong>Quit</strong> button. These buttons handles the start and the stop and quit of the program.</p>
-<div class="admonition hint">
-<p class="admonition-title">Hint</p>
-<p>You can always quit the program via the option <strong>File</strong> in the header of the software!</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">You can choose different bias voltages for CV or IV measurement. So stop the CV measurement at 400 V but the IV measurement should continue to 1000 V. Or vice versa.</p>
 </div>
-<p>Next is a event log. Here all important messages will be displayed which COMET encounters during operation. These events
-are color coded. Red means error, orange means warning and green are infos.</p>
-<p>On the right side you see two plots, which will be populated if a measurement is conducted. Below that is the environment
-control which starts running on start up. Here you can choose the humidity and temperature levels/regions during measurement.</p>
+<p>If the parameters are set to your liking you can go back to the <strong>QTCMain</strong> tab, and save your setting by clicking on the
+<strong>Save current settings</strong> button. Then you will be prompted to save you settings.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you want to have this settings detected automatically when reloading you have to save the settings under <code class="docutils literal notranslate"><span class="pre">`COMET\config\Setup_configs\QTC\Measurement_Settings`</span></code></p>
+</div>
+<p>In order to acquire correct values for the CV measurement the LCR-Meter has to be calibrated with an open correction.
+To do that you have to uncontact all needles from any sensor. Afterwards you have to select the tab <strong>SwitchingSystemQTC</strong>
+which looks like:</p>
+<img alt="Flowchart_main" class="floatingflask" src="../_images/switching1.png" />
+<p>To the right you can see the option <strong>Select Measurement</strong>, here you have to select the option <strong>CV</strong> and then hit the
+button <strong>Apply switching</strong>. If this is done you can do the open correction on the LCR-Meter and when this is done hit
+the button <strong>Reset Switching scheme</strong>.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you are doing several IVCV measurements in succession you only have to do the calibration once for the runs.</p>
+</div>
+<p>Now you can place the sensor on the chuck and contact the needles.</p>
+<p>On the right side of the GUI you see two plots, which will be populated if a measurement is conducted in IV/CV mode.
+Below that is the environment control which starts running on start up. Here you can choose the humidity and temperature levels/regions during measurement.</p>
 <div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>If the environment levels are not reached, COMET will wait for the environment to reach these levels before it proceeds with the measurement.</p>
+<p class="first admonition-title">Important</p>
+<p class="last">If the environment levels are not reached, COMET will wait for the environment to reach these levels before it proceeds with the measurement.</p>
 </div>
-<p>Since COMET heavily rely on GUI plugins you can have different GUI which does basically the same thing like this one.
-One of those is the IVCV_QTC GUI plugin which looks pretty similar to the above shown one</p>
-<img alt="Flowchart_main" class="floatingflask" src="../_images/COMET_GUI1.png" />
-<p>The difference here is that instead of the settings widgets, a table control widget is placed. The settings widget for IVCV is
-here in a separate tab, since for the QTC a stripscan can be conducted as well, see <a class="reference internal" href="Stripscan.html#stripscan"><span class="std std-ref">Stripscan</span></a>.</p>
-<img alt="Flowchart_main" class="floatingflask" src="../_images/QTCSettings.png" />
+<p>If all is set to your liking you can hit the <strong>Start</strong> button or the <strong>Play</strong> button in the top and the measurement will
+automatically start. In the event log you can follow the progress and also see if something is missing and if error happend.</p>
 </div>
 
 

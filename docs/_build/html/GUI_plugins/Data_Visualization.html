@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -199,16 +198,16 @@ directory to store your data/plots.</p>
 <p>To actually see something one has to hit the <strong>Render</strong> button, which initiates the plotting/analysis. And with the save
 as button and the corresponding combo box you can choose to save the data, as well as who the data is stored.</p>
 <div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>The analysis script is actually a stand alone software which can also be found on my github page. So if you are interested in developing your own plotting plugin, please see the corresponding docs of the plotting scripts.</p>
+<p class="first admonition-title">Important</p>
+<p class="last">The analysis script is actually a stand alone software which can also be found on my github page. So if you are interested in developing your own plotting plugin, please see the corresponding docs of the plotting scripts.</p>
 </div>
 <p>After rendering you can choose which generated plot you want to display in the options <strong>Plots</strong>.
 If you are not content with the plotting results, lets say the y-limits are not correct the plotting option for each
 particular plot will be displayed. You can either select one and manipulate it there or, you can add new ones as well in the
 line edit below. By pressing the <strong>Apply</strong> button the software reconfigs the plot and displays it to you.</p>
 <div class="admonition caution">
-<p class="admonition-title">Caution</p>
-<p>If you pass a critical parameter which is somehow malformed in its value. You can damage the current plot object to a degree it is no longer plottable. In this case you have to re-render all plots. By doing so you loose all previous changes to the plots!</p>
+<p class="first admonition-title">Caution</p>
+<p class="last">If you pass a critical parameter which is somehow malformed in its value. You can damage the current plot object to a degree it is no longer plottable. In this case you have to re-render all plots. By doing so you loose all previous changes to the plots!</p>
 </div>
 <p>For the basic structure and usage of the plotting lib please see the ReadMe for the plotting lib at <a class="reference external" href="https://github.com/Chilldose/PlotScripts">Plotting Scripts doc</a></p>
 </div>
@@ -265,8 +264,8 @@ For it work a XML template must be present in the root folder of your GUI config
 </div>
 <p>to your main plotting config file.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The name can be changed to your liking here!</p>
+<p class="first admonition-title">Note</p>
+<p class="last">The name can be changed to your liking here!</p>
 </div>
 <p>How does it work? -  The first entry is the &quot;Template&quot; entry. This defines the general structure of your output XML.
 The Keys inside are the items in the XML file and the values enclosed by &lt;...&gt; are placeholder names.

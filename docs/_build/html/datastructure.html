@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script src="_static/jquery.js"></script>
-        <script src="_static/underscore.js"></script>
-        <script src="_static/doctools.js"></script>
-        <script src="_static/language_data.js"></script>
+        <script type="text/javascript" src="_static/jquery.js"></script>
+        <script type="text/javascript" src="_static/underscore.js"></script>
+        <script type="text/javascript" src="_static/doctools.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -203,10 +202,10 @@ badly written.</p>
 <p>An easy rule of thumb to avoid race conditions and unnecessary variables declarations are:</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>Do you really need this variable global accessible?</p></li>
-<li><p>Only one subprogram can alter the value, all others just reads from it</p></li>
-<li><p>Only binary states allowed for multi access variables</p></li>
-<li><p>Non state critical variables for multi access variables</p></li>
+<li>Do you really need this variable global accessible?</li>
+<li>Only one subprogram can alter the value, all others just reads from it</li>
+<li>Only binary states allowed for multi access variables</li>
+<li>Non state critical variables for multi access variables</li>
 </ul>
 </div></blockquote>
 <p>With these simple rules you should not have problems with this state machine.</p>
@@ -219,52 +218,45 @@ all measurement plugins.</p>
 the amount of entries listed below. So if you see fit or need more variables, which need to be accessible across all threads and parts
 of the program you can add some.</p>
 <div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Some of the variables are crucial for a stable working program, so be careful when edition this dictionary!</p>
+<p class="first admonition-title">Warning</p>
+<p class="last">Some of the variables are crucial for a stable working program, so be careful when edition this dictionary!</p>
 </div>
 <p>When you start a clean instance of COMET this dictionary contains the following entries:</p>
 <blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd"><strong>Configs</strong></dt>
-<dd class="field-odd"><p>The Configs dictionary containing all variables of the state machine and the other dict objects in the setup config.</p>
-</dd>
-<dt class="field-even"><strong>Devices</strong></dt>
-<dd class="field-even"><p>A dictionary containing all connected and loaded devices.</p>
-</dd>
-<dt class="field-odd"><strong>VCW</strong></dt>
-<dd class="field-odd"><p>A Visa Connect Wizard instance which has all functions for communication with devices.</p>
-</dd>
-<dt class="field-even"><strong>rootdir</strong></dt>
-<dd class="field-even"><p>The root directory of the software.</p>
-</dd>
-<dt class="field-odd"><strong>App</strong></dt>
-<dd class="field-odd"><p>The Qt App object this software is running in.</p>
-</dd>
-<dt class="field-even"><strong>Table</strong></dt>
-<dd class="field-even"><p>The xyz-Stage object the software is connected to (None if no table is configured/connected).</p>
-</dd>
-<dt class="field-odd"><strong>Switching</strong></dt>
-<dd class="field-odd"><p>A switching object instance the software is connected to (None if none is configured/connected).</p>
-</dd>
-<dt class="field-even"><strong>Message_to_main</strong></dt>
-<dd class="field-even"><p>A Queue object to the GUI event loop.</p>
-</dd>
-<dt class="field-odd"><strong>Message_from_main</strong></dt>
-<dd class="field-odd"><p>A Queue object to the measurement event loop.</p>
-</dd>
-<dt class="field-even"><strong>Queue_to_GUI</strong></dt>
-<dd class="field-even"><p>Deprecated Queue object, which will be integrated into message_to_main.</p>
-</dd>
-<dt class="field-odd"><strong>Django</strong></dt>
-<dd class="field-odd"><p>The Django web-server object the software is connected to (None if none is configured/connected).</p>
-</dd>
-<dt class="field-even"><strong>Server</strong></dt>
-<dd class="field-even"><p>The TCP/IP server the software is connected to (None if none is configured/connected).</p>
-</dd>
-<dt class="field-odd"><strong>Client</strong></dt>
-<dd class="field-odd"><p>The TCP/IP client the software is connected to (None if none is configured/connected).</p>
-</dd>
-</dl>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name"><strong>Configs</strong>:</th><td class="field-body">The Configs dictionary containing all variables of the state machine and the other dict objects in the setup config.</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>Devices</strong>:</th><td class="field-body">A dictionary containing all connected and loaded devices.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>VCW</strong>:</th><td class="field-body">A Visa Connect Wizard instance which has all functions for communication with devices.</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>rootdir</strong>:</th><td class="field-body">The root directory of the software.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>App</strong>:</th><td class="field-body">The Qt App object this software is running in.</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>Table</strong>:</th><td class="field-body">The xyz-Stage object the software is connected to (None if no table is configured/connected).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>Switching</strong>:</th><td class="field-body">A switching object instance the software is connected to (None if none is configured/connected).</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><strong>Message_to_main</strong>:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">A Queue object to the GUI event loop.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><strong>Message_from_main</strong>:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">A Queue object to the measurement event loop.</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>Queue_to_GUI</strong>:</th><td class="field-body">Deprecated Queue object, which will be integrated into message_to_main.</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>Django</strong>:</th><td class="field-body">The Django web-server object the software is connected to (None if none is configured/connected).</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>Server</strong>:</th><td class="field-body">The TCP/IP server the software is connected to (None if none is configured/connected).</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>Client</strong>:</th><td class="field-body">The TCP/IP client the software is connected to (None if none is configured/connected).</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
 <p>For the normal user the only important keys form this dictionary are: Configs, Devices, VCW, Table and Switching. With these
 few you have everything, that is necessary to build your own setup, with GUI and measurement plugins.</p>
@@ -279,51 +271,52 @@ variables and the measurement job details.</p>
 The <strong>framework</strong> is a dictionary containing all important variables like the state machine variables, for more information see the previous chapter
 <a class="reference internal" href="#framework-variables"><span class="std std-ref">Framework variables</span></a>.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Each measurement plugin gets passed the <code class="docutils literal notranslate"><span class="pre">measurement_class</span></code> object, and therefore your plugin can access these variables, via <code class="docutils literal notranslate"><span class="pre">measurement_class.framework</span></code>.</p>
+<p class="first admonition-title">Note</p>
+<p class="last">Each measurement plugin gets passed the <code class="docutils literal notranslate"><span class="pre">measurement_class</span></code> object, and therefore your plugin can access these variables, via <code class="docutils literal notranslate"><span class="pre">measurement_class.framework</span></code>.</p>
 </div>
 <p>The <strong>job_details</strong> is a dict, that was send by the user, and is containing all information concerning the current measurement job.
 Like with the framework variable this object is accessible via <code class="docutils literal notranslate"><span class="pre">measurement_class.job_details</span></code>.</p>
 <p>To make the access to the important framework variables (and more) easier for the user, the measurement class has some of the
 variables as members.</p>
 <blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd"><strong>.settings</strong></dt>
-<dd class="field-odd"><p>The state machine dict</p>
-</dd>
-<dt class="field-even"><strong>.devices</strong></dt>
-<dd class="field-even"><p>The devices object dict</p>
-</dd>
-<dt class="field-odd"><strong>.VCW</strong></dt>
-<dd class="field-odd"><p>The VCW object</p>
-</dd>
-<dt class="field-even"><strong>.table</strong></dt>
-<dd class="field-even"><p>The table object</p>
-</dd>
-<dt class="field-odd"><strong>.switching</strong></dt>
-<dd class="field-odd"><p>The switching object</p>
-</dd>
-<dt class="field-even"><strong>.queue_to_event_loop</strong></dt>
-<dd class="field-even"><p>Queue object to the measurement event loop</p>
-</dd>
-<dt class="field-odd"><strong>.queue_to_main</strong></dt>
-<dd class="field-odd"><p>Queue object to the GUI event loop</p>
-</dd>
-</dl>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name"><strong>.settings</strong>:</th><td class="field-body">The state machine dict</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>.devices</strong>:</th><td class="field-body">The devices object dict</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>.VCW</strong>:</th><td class="field-body">The VCW object</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>.table</strong>:</th><td class="field-body">The table object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>.switching</strong>:</th><td class="field-body">The switching object</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><strong>.queue_to_event_loop</strong>:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">Queue object to the measurement event loop</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>.queue_to_main</strong>:</th><td class="field-body">Queue object to the GUI event loop</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
 <hr class="docutils" />
 <blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd"><strong>.build_command</strong></dt>
-<dd class="field-odd"><p>A function which can build you device commands. See API for more information</p>
-</dd>
-<dt class="field-even"><strong>.measurement_data</strong></dt>
-<dd class="field-even"><p>A dict containing keys for all measurements and inside are numpy arrays holding the measured data</p>
-</dd>
-<dt class="field-odd"><strong>.measurement_files</strong></dt>
-<dd class="field-odd"><p>The files object for automatic generated output files for each running measurement type.</p>
-</dd>
-</dl>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name"><strong>.build_command</strong>:</th><td class="field-body">A function which can build you device commands. See API for more information</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><strong>.measurement_data</strong>:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">A dict containing keys for all measurements and inside are numpy arrays holding the measured data</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><strong>.measurement_files</strong>:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">The files object for automatic generated output files for each running measurement type.</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
 </div>
 <div class="section" id="gui-main-object">
@@ -335,44 +328,42 @@ from all your GUI plugins, since the GUI object gets passed to every GUI plugin.
 <p>To make the access to the important framework variables (and more) easier for the user, the measurement class has some of the
 variables as members.</p>
 <blockquote>
-<div><dl class="field-list simple">
-<dt class="field-odd"><strong>.default_values_dict</strong></dt>
-<dd class="field-odd"><p>The state machine dict</p>
-</dd>
-<dt class="field-even"><strong>.devices_dict</strong></dt>
-<dd class="field-even"><p>The devices object dict</p>
-</dd>
-<dt class="field-odd"><strong>.VCW</strong></dt>
-<dd class="field-odd"><p>The VCW object</p>
-</dd>
-<dt class="field-even"><strong>.table</strong></dt>
-<dd class="field-even"><p>The table object</p>
-</dd>
-<dt class="field-odd"><strong>.switching</strong></dt>
-<dd class="field-odd"><p>The switching object</p>
-</dd>
-<dt class="field-even"><strong>.message_from_main</strong></dt>
-<dd class="field-even"><p>Queue object to the measurement event loop</p>
-</dd>
-<dt class="field-odd"><strong>.message_to_main</strong></dt>
-<dd class="field-odd"><p>Queue object to the GUI event loop</p>
-</dd>
-<dt class="field-even"><strong>.client</strong></dt>
-<dd class="field-even"><p>TCP/IP client</p>
-</dd>
-<dt class="field-odd"><strong>.server</strong></dt>
-<dd class="field-odd"><p>TCP/IP server</p>
-</dd>
-<dt class="field-even"><strong>.additional_files</strong></dt>
-<dd class="field-even"><p>The dict object for additional files specified in the configs</p>
-</dd>
-</dl>
+<div><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name" colspan="2"><strong>.default_values_dict</strong>:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">The state machine dict</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>.devices_dict</strong>:</th><td class="field-body">The devices object dict</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>.VCW</strong>:</th><td class="field-body">The VCW object</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>.table</strong>:</th><td class="field-body">The table object</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>.switching</strong>:</th><td class="field-body">The switching object</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><strong>.message_from_main</strong>:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">Queue object to the measurement event loop</td>
+</tr>
+<tr class="field-odd field"><th class="field-name" colspan="2"><strong>.message_to_main</strong>:</th></tr>
+<tr class="field-odd field"><td>&#160;</td><td class="field-body">Queue object to the GUI event loop</td>
+</tr>
+<tr class="field-even field"><th class="field-name"><strong>.client</strong>:</th><td class="field-body">TCP/IP client</td>
+</tr>
+<tr class="field-odd field"><th class="field-name"><strong>.server</strong>:</th><td class="field-body">TCP/IP server</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2"><strong>.additional_files</strong>:</th></tr>
+<tr class="field-even field"><td>&#160;</td><td class="field-body">The dict object for additional files specified in the configs</td>
+</tr>
+</tbody>
+</table>
 </div></blockquote>
 <p>One important member of the <code class="docutils literal notranslate"><span class="pre">GUI_classes</span></code> is the <code class="docutils literal notranslate"><span class="pre">GUI_classes.add_update_function</span></code>. If you want to have a function called
 on every update of the GUI, you can pass any function object to this function and it will add it to the GUI update framework.</p>
 <div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>But be aware! If your function draws to much computing power you may experience lags and or crashed or freezes!</p>
+<p class="first admonition-title">Warning</p>
+<p class="last">But be aware! If your function draws to much computing power you may experience lags and or crashed or freezes!</p>
 </div>
 </div>
 <div class="section" id="config-files">
@@ -427,8 +418,8 @@ Here all parameters are explained in detail.</p>
 By placing more than one YAML file in the projects folder, more dictionaries will be created in the <code class="docutils literal notranslate"><span class="pre">Configs</span></code> of the framework variables.
 Each of these YAML files must have a <code class="docutils literal notranslate"><span class="pre">Settings_name</span></code> which is unique!</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The name to access it is the the value you are giving under the entry <code class="docutils literal notranslate"><span class="pre">Settings_name</span></code>.</p>
+<p class="first admonition-title">Note</p>
+<p class="last">The name to access it is the the value you are giving under the entry <code class="docutils literal notranslate"><span class="pre">Settings_name</span></code>.</p>
 </div>
 <p>A special place here is if you create a YAML file with the <code class="docutils literal notranslate"><span class="pre">Settings_name:</span> <span class="pre">framework_variables</span></code>, these are additional
 parameters which you want to have in your <code class="docutils literal notranslate"><span class="pre">settings.yml</span></code> file, but to keep the <code class="docutils literal notranslate"><span class="pre">settings.yml</span></code> file clean you can write
@@ -443,8 +434,8 @@ project directory will get an entry in the <code class="docutils literal notrans
 Every file inside this directory will be interpreted as text file and read in as such. The individual files are again
 accessible by key. So: <code class="docutils literal notranslate"><span class="pre">framework\Configs\&lt;YourDirName&gt;\&lt;File1&gt;</span></code>.</p>
 <div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>If in your directory other directories are present, COMET will do the same with this directory and so on!</p>
+<p class="first admonition-title">Important</p>
+<p class="last">If in your directory other directories are present, COMET will do the same with this directory and so on!</p>
 </div>
 <p>To make this mechanism more clear see the example below, image you have a project directory path structure like:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>│   badstrip.yml

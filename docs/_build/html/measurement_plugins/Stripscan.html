@@ -21,10 +21,9 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script src="../_static/jquery.js"></script>
-        <script src="../_static/underscore.js"></script>
-        <script src="../_static/doctools.js"></script>
-        <script src="../_static/language_data.js"></script>
+        <script type="text/javascript" src="../_static/jquery.js"></script>
+        <script type="text/javascript" src="../_static/underscore.js"></script>
+        <script type="text/javascript" src="../_static/doctools.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -203,9 +202,9 @@ configure it correctly in the settings tab (see below), and then start it over t
 radio button and then each individual measurements radio button you want values from.
 Each measurement hast three parameters.</p>
 <ul class="simple">
-<li><p>Measure every - Measure every n-th pad position</p></li>
-<li><p>Start strip - The n-th pad position the measurement will start</p></li>
-<li><p>End strip - The n-th pad position to stop the measurement</p></li>
+<li>Measure every - Measure every n-th pad position</li>
+<li>Start strip - The n-th pad position the measurement will start</li>
+<li>End strip - The n-th pad position to stop the measurement</li>
 </ul>
 <img alt="Flowchart_main" class="floatingflask" src="../_images/QTCSettings.png" />
 <div class="section" id="bad-strip-detection">
@@ -217,8 +216,8 @@ bad strip detection algorithm.</p>
 measurement and each parameter the results. The top plot shows you the data and the supposed boundaries. The green region
 is the supposed region where the data should be and the yellow region shows you the meadian of the data +- a few precent.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>The data/sensor is good, if the data points are inside the green and the yellow regions. Otherwise something is not correct.</p>
+<p class="first admonition-title">Note</p>
+<p class="last">The data/sensor is good, if the data points are inside the green and the yellow regions. Otherwise something is not correct.</p>
 </div>
 <p>The second plot shows you a histogram representation of the data. With the bin scroller you can adjust the binning.</p>
 <p>On the left side you get the verbose output of the analysis with further information on strip parameters and the faults.</p>
@@ -233,8 +232,8 @@ how to do so. This can easily be done via the <strong>Alignment</strong> tab sho
 all important information about the project and the sensor again, as well as the alignment pads you designated in the configs.
 If you are not content with them, you can change them via the spin boxes.</p>
 <div class="admonition important">
-<p class="admonition-title">Important</p>
-<p>On how to config a specific Project/Sensor for this procedure please see <a class="reference internal" href="#sensor-files"><span class="std std-ref">Sensor Files</span></a>.</p>
+<p class="first admonition-title">Important</p>
+<p class="last">On how to config a specific Project/Sensor for this procedure please see <a class="reference internal" href="#sensor-files"><span class="std std-ref">Sensor Files</span></a>.</p>
 </div>
 <p>The text field below will guide you through the alignment procedure, please follow the steps stated there to successfully
 align your sensor.</p>
@@ -307,14 +306,14 @@ are mandatory and you also can extend these parameters. How you use it in your w
 <p>If you want to make automated measurements in a probe station least three parameters of type <code class="docutils literal notranslate"><span class="pre">reference_pad:</span> <span class="pre">xyz</span></code>.
 These specify (if correctly implemented) the three points/pad numbers for the coordinate transformation.</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This structure is implemented as a plugin, if you write your own plugins for the alignment you can exchange this mechanism with one you like!</p>
+<p class="first admonition-title">Note</p>
+<p class="last">This structure is implemented as a plugin, if you write your own plugins for the alignment you can exchange this mechanism with one you like!</p>
 </div>
 <p>The second part of this file are coordinates. Here the starting line is <code class="docutils literal notranslate"><span class="pre">strip</span> <span class="pre">x</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">y</span>&#160;&#160;&#160;&#160;&#160;&#160; <span class="pre">z</span></code>. This line HAS to start with
 the word strip, otherwise the program will not know where the coordinates start. (Except you teach the program to).</p>
 <div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>You can add more parameters if you want, e.g. an angle or so.</p>
+<p class="first admonition-title">Note</p>
+<p class="last">You can add more parameters if you want, e.g. an angle or so.</p>
 </div>
 <p>After that the program reads in the data separated by tabs or spaces in a list of lists. See accessing data part for clarification.</p>
 <div class="section" id="accessing-pad-data">
@@ -327,10 +326,10 @@ names. Inside the value to this key you find yet again a dictionary with the key
 you find also a dictionary with the keys <code class="docutils literal notranslate"><span class="pre">reference_pads</span></code>, <code class="docutils literal notranslate"><span class="pre">header</span></code>, <code class="docutils literal notranslate"><span class="pre">data</span></code> and <code class="docutils literal notranslate"><span class="pre">additional_params</span></code>.</p>
 <blockquote>
 <div><ul class="simple">
-<li><p>The <code class="docutils literal notranslate"><span class="pre">reference_pads</span></code> entry contains the pad and the locations of the defined reference pads</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">header</span></code> entry contains the whole header</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">additional_params</span></code> entry contains the parameters of the header with : as dictionary</p></li>
-<li><p>The <code class="docutils literal notranslate"><span class="pre">data</span></code> entry is a list of the length of the coordinate lines in the pad file. Each list entry is another list, containing the tab or space separated values form the coordiante section of the pad file.</p></li>
+<li>The <code class="docutils literal notranslate"><span class="pre">reference_pads</span></code> entry contains the pad and the locations of the defined reference pads</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">header</span></code> entry contains the whole header</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">additional_params</span></code> entry contains the parameters of the header with : as dictionary</li>
+<li>The <code class="docutils literal notranslate"><span class="pre">data</span></code> entry is a list of the length of the coordinate lines in the pad file. Each list entry is another list, containing the tab or space separated values form the coordiante section of the pad file.</li>
 </ul>
 </div></blockquote>
 <p>Wow, a lot of dictionaries and list, to clarify a small example how you access data.</p>
@@ -342,8 +341,8 @@ you find also a dictionary with the keys <code class="docutils literal notransla
 </pre></div>
 </div>
 <div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p>Be careful while accessing data from the dictionaries, if the key does not exist python will say No and the program stops. So make sure you check the availability before accessing!!!</p>
+<p class="first admonition-title">Warning</p>
+<p class="last">Be careful while accessing data from the dictionaries, if the key does not exist python will say No and the program stops. So make sure you check the availability before accessing!!!</p>
 </div>
 </div>
 </div>
