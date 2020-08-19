@@ -229,7 +229,7 @@ def concatHistogram(
         # plt = hv.Histogram(data, vdims=to_plot, group="Concatenated Histogram: {}".format(to_plot))
 
         try:
-            xlabel = "{} [{}]".format(
+            xlabel = "{} ({})".format(
                 measurement,
                 dfs[dfs["keys"][0]]["units"][
                     dfs[dfs["keys"][0]]["measurements"].index(measurement)
