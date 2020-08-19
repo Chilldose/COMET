@@ -8,7 +8,7 @@ simples version like this:
    :alt: Flowchart_main
    :class: floatingflask
 
-In the top part of the GUI you can selcect the Project, Sensor, Operator and choose the file name the output file should
+In the top part of the GUI you can select the Project, Sensor, Operator and choose the file name the output file should
 have. Furthermore, you can choose the directory of the output, by either typing the path or by choosing via the button.
 
 With the Buttons **Save settings** and **Load settings** you can save or load your IVCV settings, so you do not have to
@@ -50,4 +50,3 @@ here in a separate tab, since for the QTC a stripscan can be conducted as well, 
 .. image:: ../pictures/QTCSettings.png
    :alt: Flowchart_main
    :class: floatingflask
-
