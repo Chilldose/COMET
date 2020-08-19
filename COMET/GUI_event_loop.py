@@ -190,12 +190,14 @@ class GUI_event_loop(QThread):
                 self.log.critical("Saving current session...")
                 try:
                     import pickle, os
-
+                    from copy import deepcopy
+                    topickle = deepcopy(self.default_values_dict)
+                    del(topickle["settings"]["Devices"])
                     with open(
                         os.path.normpath("./COMET/resources/session_save.pkl"), "wb"
                     ) as output:
                         pickle.dump(
-                            self.default_values_dict, output, pickle.HIGHEST_PROTOCOL
+                            topickle, output, pickle.HIGHEST_PROTOCOL
                         )
                 except Exception as err:
                     self.log.error("Saving session was not possible...", exc_info=True)
@@ -208,7 +210,7 @@ class GUI_event_loop(QThread):
                     with open(
                         os.path.normpath("./COMET/resources/session_save.pkl"), "rb"
                     ) as input:
-                        self.default_values_dict = pickle.load(input)
+                        self.default_values_dict.update(pickle.load(input))
                 except Exception as err:
                     self.log.error("Loading session was not possible...", exc_info=True)
 
