@@ -62,7 +62,10 @@ class PlottingMain:
             "file_order"
         ] = load_order  # To keep easy track of the names and not the pathes
 
-        self.log.critical("Loading data files completed.")
+        if not load_order:
+            self.log.error("No data files could be loaded!")
+        else:
+            self.log.critical("Loading data files completed.")
 
         # Loading measurement plugins
         self.log.critical("Loading plot modules...")

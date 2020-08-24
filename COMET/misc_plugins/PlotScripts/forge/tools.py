@@ -365,6 +365,8 @@ def convert_to_df(convert, abs=False, keys="all"):
     :return: pandas data frame object
     """
     to_convert = deepcopy(convert)
+    if not to_convert:
+        raise Exception("Cannot convert empty data array to DataFrame!")
     # Convert all data to panda data frames
     index = list(to_convert.keys())
     precol = list(to_convert[index[0]]["data"].keys())
