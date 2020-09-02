@@ -52,7 +52,7 @@ If the software cannot find anaconda installed it will ask you to directly insta
 If you have anaconda installed to your system and installed the anaconda environment you must activate this environment by ::
 
     (base) activate COMET
-    (COMET) python COMET
+    (COMET) python COMET.py
 
 after that you can run COMET. If the activation command is not found in your system, you can either extend your path variables
 or try typing ::
