@@ -54,6 +54,11 @@ If you have anaconda installed to your system and installed the anaconda environ
     (base) activate COMET
     (COMET) python COMET
 
+after that you can run COMET. If the activation command is not found in your system, you can either extend your path variables
+or try typing ::
+
+        (base) conda activate COMET
+
 Once installed, test (Only SQC)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you have installed all correctly we can now test if everything is set-up correctly. First go and follow the
