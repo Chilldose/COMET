@@ -21,9 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-        <script type="text/javascript" src="../_static/jquery.js"></script>
-        <script type="text/javascript" src="../_static/underscore.js"></script>
-        <script type="text/javascript" src="../_static/doctools.js"></script>
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/underscore.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/language_data.js"></script>
     
     <script type="text/javascript" src="../_static/js/theme.js"></script>
 
@@ -189,18 +190,18 @@
 <p>The Relaxation time analysis, does in principle, a time dependent IV curve. You can configure the basic IV parameters
 and further the parameters for the &quot;fastness&quot; of IV readings of the SMU.</p>
 <ul class="simple">
-<li><strong>Meas. interval [ms]</strong> - Measurement interval, this can be used to artificially prolong the overall time</li>
-<li><strong>Samples</strong> - How many samples you want to record</li>
-<li><strong>NPLC</strong> - A device specific value which gives the Number of Power Line Cycles. The range is device specific. But smaller values makes the measurement faster.</li>
-<li><strong>Meas. start delay [s]</strong> - Time delay after setting a voltage step, before the measurement begins</li>
-<li><strong>Fix meas delay [s]</strong> - Artificial delay between every measurement</li>
-<li><strong>SMU Range</strong> - MAXIMUM range of the current AUTO range</li>
+<li><p><strong>Meas. interval [ms]</strong> - Measurement interval, this can be used to artificially prolong the overall time</p></li>
+<li><p><strong>Samples</strong> - How many samples you want to record</p></li>
+<li><p><strong>NPLC</strong> - A device specific value which gives the Number of Power Line Cycles. The range is device specific. But smaller values makes the measurement faster.</p></li>
+<li><p><strong>Meas. start delay [s]</strong> - Time delay after setting a voltage step, before the measurement begins</p></li>
+<li><p><strong>Fix meas delay [s]</strong> - Artificial delay between every measurement</p></li>
+<li><p><strong>SMU Range</strong> - MAXIMUM range of the current AUTO range</p></li>
 </ul>
 <p>The other buttons should be self explanatory</p>
 <img alt="Flowchart_main" class="floatingflask" src="../_images/DYN.png" />
 <div class="admonition important">
-<p class="first admonition-title">Important</p>
-<p class="last">The total measurement time cannot be easily determined, since it is dependent on the devices capabilities. The easiest way is to try it out, until you have the desired length. But as a rule of thumb you can multiply the samples with all delays. Then you have roughly an estimation of the recorded time.</p>
+<p class="admonition-title">Important</p>
+<p>The total measurement time cannot be easily determined, since it is dependent on the devices capabilities. The easiest way is to try it out, until you have the desired length. But as a rule of thumb you can multiply the samples with all delays. Then you have roughly an estimation of the recorded time.</p>
 </div>
 </div>
 

@@ -49,6 +49,11 @@ this will (if Anaconda is installed) automatically install all required modules 
 If you don't have Anaconda installed and don't want to use it, you can look in the "COMET/resources/requirements.yml" file to see what dependencies the program needs.
 If the software cannot find anaconda installed it will ask you to directly install the "normal" python pip file.
 
+If you have anaconda installed to your system and installed the anaconda environment you must activate this environment by ::
+
+    (base) activate COMET
+    (COMET) python COMET
+
 Once installed, test (Only SQC)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you have installed all correctly we can now test if everything is set-up correctly. First go and follow the
@@ -57,7 +62,7 @@ the new environment which should have been set-up for you while installation. Af
 try to start a resource manager ::
 
     (base) activate COMET
-    (COMETenv) python
+    (COMET) python
     Python 3.7 |Anaconda, Inc.| (default, May  1 2018, 18:37:09) [MSC v.1500 64 bit (AMD64)] on win32
     Type "help", "copyright", "credits" or "license" for more information.
     >>> import visa
