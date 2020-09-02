@@ -81,7 +81,7 @@ def convert_to_EngUnits(data, dataType, unit="nano"):
             if len(data[file]["units"][idx]) > 1:
                 # Todo: error in units if several conversions are made!!!!
                 # Convert the units to the correct representation
-                data[file]["units"][idx] = to_convert[0] + data[file]["units"][idx][:]
+                data[file]["units"][idx] = to_convert[0] + data[file]["units"][idx][-1:]
             else:
                 data[file]["units"][idx] = to_convert[0] + data[file]["units"][idx]
         else:
@@ -801,6 +801,18 @@ def read_in_files(filepathes, configs):
             elif file_extension.lower() == ".csv":
                 data_new, load = read_in_CSV_measurement_files([file])
                 data.update(data_new)
+            else:
+                log.critical("File type could not be extracted from file {}, trying as ASCII input...".format(filename))
+                if ascii_specs:
+                    data_new, load = read_in_ASCII_measurement_files(
+                        [file], ascii_specs
+                    )
+                    data.update(data_new)
+                    load_order.append(load)
+                else:
+                    log.error(
+                        "ASCII file type files must be given with specifications how to interpret data. No data import!"
+                    )
             load_order.append(file)
         else:
             log.error("Path {} does not exists, skipping file!".format(file))
@@ -985,10 +997,10 @@ def parse_file_data(filecontent, settings):
 
     if premeasurement_cols:
         log.info("Using predefined columns...")
-        parsed_obj[0] = premeasurement_cols
+        parsed_obj[0] = deepcopy(premeasurement_cols)
     if preunits:
         log.info("Using predefined units...")
-        parsed_obj[1] = preunits
+        parsed_obj[1] = deepcopy(preunits)
 
     if not parsed_obj[0] and not parsed_obj[1]:
         log.error("No measurements and units extracted. Plotting will fail!")
