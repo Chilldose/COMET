@@ -81,7 +81,7 @@ def convert_to_EngUnits(data, dataType, unit="nano"):
             if len(data[file]["units"][idx]) > 1:
                 # Todo: error in units if several conversions are made!!!!
                 # Convert the units to the correct representation
-                data[file]["units"][idx] = to_convert[0] + data[file]["units"][idx][-1:]
+                data[file]["units"][idx] = to_convert[0] + data[file]["units"][idx][:]
             else:
                 data[file]["units"][idx] = to_convert[0] + data[file]["units"][idx]
         else:
