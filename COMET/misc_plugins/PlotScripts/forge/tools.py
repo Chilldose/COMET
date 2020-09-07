@@ -700,6 +700,7 @@ def read_in_files(filepathes, configs):
     """
     filetype = configs.get("Filetype", None)
     ascii_specs = configs.get("ASCII_file_specs", None)
+    csv_specs = configs.get("CSV_file_specs", None)
     custom_specs = configs.get("Custom_specs", None)
 
     if filetype:
@@ -713,7 +714,7 @@ def read_in_files(filepathes, configs):
         elif filetype.upper() == "JSON":
             return read_in_JSON_measurement_files(filepathes)
         elif filetype.upper() == "CSV":
-            return read_in_CSV_measurement_files(filepathes)
+            return read_in_CSV_measurement_files(filepathes, csv_specs)
         elif filetype.upper() == "CUSTOM":
             if custom_specs:
                 data_raw = read_in_CUSTOM_measurement_files(filepathes, custom_specs)
@@ -799,7 +800,7 @@ def read_in_files(filepathes, configs):
                 data.update(data_new)
                 continue  # In order to prevent the next load order to be executed
             elif file_extension.lower() == ".csv":
-                data_new, load = read_in_CSV_measurement_files([file])
+                data_new, load = read_in_CSV_measurement_files([file], csv_specs)
                 data.update(data_new)
             else:
                 log.critical("File type could not be extracted from file {}, trying as ASCII input...".format(filename))
@@ -848,17 +849,19 @@ def read_in_CUSTOM_measurement_files(filepathes, configs):
         return None
 
 
-def read_in_CSV_measurement_files(filepathes):
+def read_in_CSV_measurement_files(filepathes, configs=None):
     """This reads in csv files and converts the directly to a pandas data frame!!!"""
     all_data = {}
     load_order = []
+    if not configs:
+        configs = {}
 
     for file in filepathes:
         load_order.append(file)
         data_dict = {"analysed": False, "plots": False, "header": ""}
         data = pd.read_csv(file)
-        data_dict["measurements"] = list(data.columns)
-        data_dict["units"] = ["" for i in data_dict["measurements"]]
+        data_dict["measurements"] = configs.get("measurements", list(data.columns))
+        data_dict["units"] = configs.get("units", ["" for i in data_dict["measurements"]])
         data_dict["data"] = data
         all_data[os.path.basename(file).split(".")[0]] = data_dict
 
