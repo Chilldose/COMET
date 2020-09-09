@@ -193,7 +193,6 @@ class PlottingMain:
                                 label = "_".join(path)
                             except:
                                 label = plots._label
-
                             save_plot(
                                 label,
                                 plots,
@@ -232,8 +231,10 @@ class PlottingMain:
                         self.log.info("Export the 'All' plot...")
                         save_plot(
                             plot.get("Name", "All Plots"),
+                            #self.config.get("plot_name", ["pippo"]),
                             plot["All"],
                             save_dir,
+                            #save_as=self.config.get("Save_as", ["png"]),
                             backend=self.backend,
                         )
                         if progress_queue:

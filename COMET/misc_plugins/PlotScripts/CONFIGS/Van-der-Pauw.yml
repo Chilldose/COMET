@@ -1,0 +1,160 @@
+---
+  Files: # The files which are plotted together
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-08T12-11-22_HPK_VPX33234_016_PSSnvir_HM_EE_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-08T12-17-31_HPK_VPX33234_016_PSSnvir_HM_EE_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T17-49-44_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T17-50-50_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T17-52-37_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T17-53-55_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T17-56-30_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T17-57-47_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T18-00-55_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T18-02-09_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T18-02-09_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T18-08-26_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T18-09-40_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T18-10-46_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T18-12-58_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T18-14-14_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T18-16-35_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/2020-07-16T18-19-16_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-21-21_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-20-28_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-19-34_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-18-38_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-17-43_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-16-50_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-15-56_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-15-03_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-14-13_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-13-19_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-12-21_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-11-29_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-11-29_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-10-36_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-09-36_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-08-23_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-07-28_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-06-02_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T10-03-21_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-31T09-58-06_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesLeft_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T12-08-26_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T12-07-34_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T12-06-37_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T12-05-41_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T12-04-42_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T12-03-47_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T12-02-51_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T12-02-51_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T12-01-54_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T12-00-59_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T12-00-04_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T11-59-10_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T11-58-16_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T11-57-21_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T11-56-30_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T11-55-35_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T11-54-36_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T11-53-44_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-30T11-52-52_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-15-01_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-14-06_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-12-56_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-12-56_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-11-42_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-10-44_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-09-49_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-08-50_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-07-56_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-06-56_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-05-58_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-05-05_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-04-08_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-03-12_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-01-35_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-00-33_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T14-59-21_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T14-58-22_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T14-57-23_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T15-00-33_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T14-54-16_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-29T14-53-14_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-50-25_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-49-30_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-48-35_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-39-17_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-38-11_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-37-18_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-35-59_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-34-19_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-33-15_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-32-00_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-30-31_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-29-15_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-26-44_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-25-49_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-25-49_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-23-48_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-22-01_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-20-48_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-19-45_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-28T14-18-48_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-23T14-09-38_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-23T14-07-08_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_P-stop_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-23T14-02-31_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-23T14-00-05_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-23T13-59-05_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_N+_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-23T13-56-59_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-23T13-55-54_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-23T13-52-41_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Reverse_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-23T13-50-41_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-23T13-49-40_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-07-23T13-47-46_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-08-04T14-26-53_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_3_Reverse_bulk_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-08-04T14-26-53_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_3_Reverse_bulk_cross.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-08-04T14-16-19_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_3_P+_cross-bridge_Van-der-Pauw.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Van-der-Pauw_Probecard/2020-08-04T14-15-25_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_3_Reverse_Metal_clover_leaf_Van-der-Pauw.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/FlatBand/2020-07-17T14-48-28_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_GRtoLO_PQC_Flute_1_MOS_capacitor_HV_Source.txt
+    
+  
+  Filetype: ASCII # What kind of type is my file, other options are CSV,JSON, customizations
+
+  Output: C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Plots #Output folder path for my plots
+  backend: bokeh # Choose the backend for the plotting Warning: Output may change with different backends.
+
+  Save_as: # save the plots in different data formats, if more than one is specified all of them will be plotted
+    - png
+  
+  plot_name: Plotversuch0
+
+  Analysis:
+    - Van_der_Pauw # The analysis Plugin over which the data will be run. These plugins must be located in the foler "analysis_scripts"
+    
+  Poolsize: 4 # Maximum pool size of simultaneous analysis scripts
+  
+  files_to_fit: #only the filename WITHOUT .txt also the path has to be given above in 'Files'
+    - 2020-07-08T12-11-22_HPK_VPX33234_016_PSSnvir_HM_EE_PQC_Flute_1_P-stop_Van-der-Pauw_cross
+    - 2020-08-04T14-15-25_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_3_Reverse_Metal_clover_leaf_Van-der-Pauw
+    - 2020-07-23T13-59-05_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_N+_Van-der-Pauw_cross
+    
+    # Optional Parameters
+  ASCII_file_specs: # The specifications for the ascii file type measurements files
+    header_lines: 11
+    measurement_description: 12
+    units_line: 12
+    data_start: 13
+
+  Van_der_Pauw:
+    plateau: 0.03
+    #UnitConversion: asd    
+    General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 500
+          height: 800
+          shared_axes: False
+          #legend_position: top_left # funktioniert nur wenn oben mehr als ein filepfad angegeben ist
+          
+    Bar_chart:
+          CreateBarChart: HM location #Options are "Batch", "Wafer No." "HM location", "Test structure"
+        
