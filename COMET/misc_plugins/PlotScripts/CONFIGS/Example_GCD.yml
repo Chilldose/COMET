@@ -1,0 +1,44 @@
+---
+  Files: # The files which are plotted together
+    - Misure_EE/HPK_VPX33234-001_PSS_HM-EE/HPK__VPX33234-001_PSS_HM-EE_2ndflute4_GCD_15_6_2020_10h22m44s.txt
+    - Misure_EE/HPK_VPX33234-002_PSS_HM-EE/HPK__VPX33234-002_PSS_HM-EE_2ndflute4_GCD_15_6_2020_11h31m35s.txt
+    - Misure_EE/HPK_VPX33234-003_PSS_HM-EE/HPK__VPX33234-003_PSS_HM-EE_2ndflute4_GCD_17_6_2020_16h10m27s.txt
+    - Misure_EE/HPK_VPX33234-004_PSS_HM-EE/HPK__VPX33234-004_PSS_HM-EE_2ndflute4_GCD_17_6_2020_15h37m26s.txt
+    - Misure_EE/HPK_VPX33234-005_PSS_HM-EE/HPK__VPX33234-005_PSS_HM-EE_2ndflute4_GCD_17_6_2020_11h25m24s.txt
+    - Misure_EE/HPK_VPX33234-006_PSS_HM-EE/HPK__VPX33234-006_PSS_HM-EE_2ndflute4_GCD_17_6_2020_10h59m49s.txt
+    - Misure_EE/HPK_VPX33234-007_PSS_HM-EE/HPK__VPX33234-007_PSS_HM-EE_2ndflute4_GCD_16_6_2020_15h54m6s.txt
+    - Misure_EE/HPK_VPX33234-008_PSS_HM-EE/HPK__VPX33234-008_PSS_HM-EE_2ndflute4_GCD_17_6_2020_8h56m50s.txt
+    - Misure_EE/HPK_VPX33234-009_PSS_HM-EE/HPK__VPX33234-009_PSS_HM-EE_2ndflute4_GCD_17_6_2020_9h30m5s.txt
+
+  Filetype: ASCII # What kind of type is my file, other options are CSV,JSON, customizations
+
+  Output: ./myplot/ #Output folder path for my plots
+  backend: bokeh # Choose the backend for the plotting Warning: Output may change with different backends.
+
+  Save_as: # save the plots in different data formats, if more than one is specified all of them will be plotted
+    - png
+  
+  plot_name: HPK_VPX33234_HM-EE_2ndflute4_GCD
+
+  Analysis:
+    - GCD # The analysis Plugin over which the data will be run. These plugins must be located in the foler "analysis_scripts"
+
+  Poolsize: 4 # Maximum pool size of simultaneous analysis scripts
+
+  # Optional Parameters
+  ASCII_file_specs: # The specifications for the ascii file type measurements files
+    header_lines: 1
+    measurement_description: 2
+    units_line: 2
+    data_start: 3
+
+  GCD:
+    plateau: 0.03
+    UnitConversion: asd    
+    General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 1200
+          height: 800
+          shared_axes: True
+          legend_position: "top_left"

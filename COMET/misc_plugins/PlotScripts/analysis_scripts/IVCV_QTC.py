@@ -162,7 +162,10 @@ class IVCV_QTC:
         self.PlotDict["data"] = self.data
 
         # Grade the sensor
-        self.grade_Sensor()
+        try:
+            self.grade_Sensor()
+        except:
+            self.log.critical("Some error happend while evaluating grade of sensor. This can happen!", exc_info=True)
 
         return self.PlotDict
 

@@ -207,6 +207,15 @@ def concatHistogram(
 ):
     """Concatenates dataframes and generates a Histogram for all passed columns"""
     newConfigs = addConfigs
+
+    # If auxConfigs in measuremnt config for bins and IQR replace them
+    auxOptions = configs.get(analysisType, {}).get(measurement, {}).get("AuxOptions", {}).get("concatHistogram",{})
+    if "bins" in auxOptions:
+        bins = int(auxOptions["bins"])
+    if "iqr" in auxOptions:
+        iqr = float(auxOptions["iqr"])
+
+
     log.info("Generating concat histograms for measurements {}...".format(measurement))
     try:
         df = dfs["All"]
