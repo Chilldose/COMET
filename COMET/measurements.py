@@ -48,7 +48,7 @@ class measurement_class(Thread):
         self.measurement_data = {}
         self.write = None
         self.save_data = False
-        self.env_waiting_time = 60 * 5  # Five minutes
+        self.env_waiting_time = 60 * 15  # Five minutes
         self.build_command = build_command
         self.skip_tests = False  # This must always be False!!! only for debugging !!!
 

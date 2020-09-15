@@ -2043,7 +2043,11 @@ class switching_control:
         #    syntax_list = syntax_list.split("###")# gets me header an footer from syntax
 
         sep = device.get("separator", ",")
-        return current_switching.strip().split(sep)
+        switching = current_switching.strip()
+        if switching: # preventing empty string misinterpretation
+            return switching.split(sep)
+        else:
+            return []
 
         # Warning 7001 keithley sometimes seperates values by , and sometimes by : !!!!!!!!!
         # Sometimes it also happens that it mixes everything -> this means that the channel from to are closed etc.
