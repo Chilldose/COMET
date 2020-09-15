@@ -50,8 +50,8 @@ class Environement_widget(object):
         # Config the Spin boxes for min and max
         self.Env_Widget.max_hum_spin.setRange(0, 100)
         self.Env_Widget.min_hum_spin.setRange(0, 100)
-        self.Env_Widget.min_hum_spin.setValue(9)
-        self.Env_Widget.max_hum_spin.setValue(11)
+        self.Env_Widget.min_hum_spin.setValue(8)
+        self.Env_Widget.max_hum_spin.setValue(10)
 
         self.Env_Widget.max_temp_spin.setRange(0, 100)
         self.Env_Widget.min_temp_spin.setRange(0, 100)
