@@ -1958,7 +1958,6 @@ class switching_control:
             )
             return True
 
-        # Todo: Brandbox is sended twice due to double occurance (humidity controller), but maybe its for the best, since the thing isnt working properly
         # First find measurement
         switching_success = False
         self.log.debug("Switching to measurement: {!s}".format(str(measurement)))
@@ -2044,7 +2043,11 @@ class switching_control:
         #    syntax_list = syntax_list.split("###")# gets me header an footer from syntax
 
         sep = device.get("separator", ",")
-        return current_switching.strip().split(sep)
+        switching = current_switching.strip()
+        if switching: # preventing empty string misinterpretation
+            return switching.split(sep)
+        else:
+            return []
 
         # Warning 7001 keithley sometimes seperates values by , and sometimes by : !!!!!!!!!
         # Sometimes it also happens that it mixes everything -> this means that the channel from to are closed etc.
@@ -2083,7 +2086,7 @@ class switching_control:
     ):  # Has to be a string command or a list of commands containing strings!!
 
         """
-        Fancy name, but just sends the swithing command
+        Fancy name, but just sends the switching command
 
         :device: The device object
         :param config: the list of nodes which need to be switched
@@ -2158,7 +2161,8 @@ class switching_control:
         self.__send_switching_command(device, comm[0], channels[0])
 
         # Open channels
-        self.__send_switching_command(device, comm[1], channels[1])
+        if to_open_channels: # Only opens channels if the list is not empty
+            self.__send_switching_command(device, comm[1], channels[1])
 
         # Check if switching is done (basically the same proceedure like before only in the end there is a check
         return self.check_all_closed_channel(device, configs)

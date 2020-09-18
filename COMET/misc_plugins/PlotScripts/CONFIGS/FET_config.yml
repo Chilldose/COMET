@@ -1,0 +1,43 @@
+---
+  Files: # The files which are plotted together
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/FET_Tests/2020-07-23T14-17-30_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_FET.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/FET_Tests/2020-07-28T14-51-37_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_FET.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/FET_Tests/2020-07-29T15-16-04_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_FET.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/FET_Tests/2020-07-30T12-09-26_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_FET.txt   
+   
+  Filetype: ASCII # What kind of type is my file, other options are CSV,JSON, customizations
+
+  Output: C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Plots #Output folder path for my plots
+  backend: bokeh # Choose the backend for the plotting Warning: Output may change with different backends.
+
+  Save_as: # save the plots in different data formats, if more than one is specified all of them will be plotted
+    - png
+  
+  plot_name: Plotversuch0
+
+  Analysis:
+    - FET # The analysis Plugin over which the data will be run. These plugins must be located in the foler "analysis_scripts"
+    
+  Poolsize: 4 # Maximum pool size of simultaneous analysis scripts
+  
+ 
+  # Optional Parameters
+  ASCII_file_specs: # The specifications for the ascii file type measurements files
+    header_lines: 31
+    measurement_description: 32
+    units_line: 32
+    data_start: 33
+
+  FET:
+    General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          #responsive: False
+          width: 1200
+          height: 800
+          shared_axes: False
+          #legend_position: top_left # funktioniert nur wenn oben mehr als ein filepfad angegeben ist
+      
+    Bar_chart:
+          CreateBarChart: Batch
+
+        

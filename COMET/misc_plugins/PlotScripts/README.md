@@ -175,13 +175,27 @@ in you config file. The sub-parameters:
 + units_line the line where the units a described (can be the same line as measurement_description) the only thing this line need to have is something like curr [A], curr[A] or something like this, so the cript can find the units
 + data_start is the starting line of the data, which can be separated by tabs, whitespace or commas
 
+If you have CSV styled files you need to include the parameters
+
+<pre>
+CSV_file_specs: # The specifications for the ascii file type measurements files
+  	 measurements:
+      - Measurement 1
+      - Measurement 2
+    units:
+      - Unit1
+      - Unit2
+</pre>
+
+With the "units" entry you can define untis for your measurements, otherwise no units will be used.
+
 If you follow this rules the script should be able to interpret your data.
 
 ## Optional parameters:
 Further customization can be done via the optional parameters:
 
 <pre>
-separator: ";"
+data_separator: ";"
 measurement_regex: ""
 units_regex: ""
 measurements:
@@ -192,7 +206,7 @@ units:
     - A
 </pre>
 
-+ separator: Define your own data separator if the data is not separated by a whitespace character
++ data_separator: Define your own data separator if the data is not separated by a whitespace character
 + measurement_regex: If the build in measurement regex, does not yield the correct measurements, here you can define your own regex for that
 + units_regex: If the build in units regex, does not yield the correct measurements, here you can define your own regex for that
 + measurements: Define a list of measurement names, which describe your data (you can use this if the regex totally fails or if you do not have such a header.)

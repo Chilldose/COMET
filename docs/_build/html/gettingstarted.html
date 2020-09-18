@@ -21,9 +21,10 @@
   
     
       <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
-        <script type="text/javascript" src="_static/jquery.js"></script>
-        <script type="text/javascript" src="_static/underscore.js"></script>
-        <script type="text/javascript" src="_static/doctools.js"></script>
+        <script src="_static/jquery.js"></script>
+        <script src="_static/underscore.js"></script>
+        <script src="_static/doctools.js"></script>
+        <script src="_static/language_data.js"></script>
     
     <script type="text/javascript" src="_static/js/theme.js"></script>
 
@@ -222,12 +223,12 @@ needed packages of COMET. This may come in handy if you experience some errors. 
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">If you running COMET in a normal python distribution you have to install all modules by hand. No environment will be set up for you. For needed modules see the requirements.yml file.</p>
+<p class="admonition-title">Note</p>
+<p>If you running COMET in a normal python distribution you have to install all modules by hand. No environment will be set up for you. For needed modules see the requirements.yml file.</p>
 </div>
 <div class="admonition warning">
-<p class="first admonition-title">Warning</p>
-<p class="last">If you run into a problem like, python does not find the environment, python was not recognised or a module cannot be found. Make sure the Anaconda python is accessible from the command prompt.</p>
+<p class="admonition-title">Warning</p>
+<p>If you run into a problem like, python does not find the environment, python was not recognised or a module cannot be found. Make sure the Anaconda python is accessible from the command prompt.</p>
 </div>
 <p>If something does not work out as planned try to test if everything was correctly installed on your system. Just follow
 the instructions on <span class="xref std std-ref">Once installed, test</span></p>
@@ -238,12 +239,12 @@ this.</p>
 After that the main GUI should pop up. Depending on which setup you selected you should see something like:</p>
 <img alt="PyVISA" class="floatingflask" src="_images/COMET_GUI.png" />
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">This GUI selection window will only appear at first start up. Next time you start the software the PC knows which setup you initially loaded and will automatically load this setup. If you want to load another setup you have to pass the cmd argument &quot;--reinit&quot; when starting the script. Or inside the program, navigate to &quot;Edit/Preferences&quot; and choose the setup you want to load.</p>
+<p class="admonition-title">Note</p>
+<p>This GUI selection window will only appear at first start up. Next time you start the software the PC knows which setup you initially loaded and will automatically load this setup. If you want to load another setup you have to pass the cmd argument &quot;--reinit&quot; when starting the script. Or inside the program, navigate to &quot;Edit/Preferences&quot; and choose the setup you want to load.</p>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">In order to add your own setups to this list, please see the chapter <a class="reference internal" href="#getting-started"><span class="std std-ref">Getting Started</span></a>. There everything is explained in detail.</p>
+<p class="admonition-title">Note</p>
+<p>In order to add your own setups to this list, please see the chapter <a class="reference internal" href="#getting-started"><span class="std std-ref">Getting Started</span></a>. There everything is explained in detail.</p>
 </div>
 </div>
 <div class="section" id="i-just-want-the-plotting-thing">
@@ -265,8 +266,8 @@ inside this directory create a &quot;settings.yml&quot; file with the following 
 </div>
 <p>after that restart the software with the cmd parameter <code class="docutils literal notranslate"><span class="pre">--reinit</span></code> and select the your project. Now an empty GUI should disappear.</p>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">You can alternatively copy the project <code class="docutils literal notranslate"><span class="pre">Empty_Project</span></code> and rename it to your liking</p>
+<p class="admonition-title">Note</p>
+<p>You can alternatively copy the project <code class="docutils literal notranslate"><span class="pre">Empty_Project</span></code> and rename it to your liking</p>
 </div>
 <p>This GUI is basically capable of doing nothing. To change that we have to add some GUI elements to it.
 COMET comes with a plugin approach for GUI elements. To add a GUI simply add the entry:</p>
@@ -295,8 +296,8 @@ shown there and their stats as well if they are connected or not.</p>
 </pre></div>
 </div>
 <div class="admonition note">
-<p class="first admonition-title">Note</p>
-<p class="last">Don't panic! If you do not understand everything now what all this means. In the following chapters (<a class="reference internal" href="tutorial.html#add-a-new-device"><span class="std std-ref">Add a new device</span></a>) the correct and in depth explanation is written.</p>
+<p class="admonition-title">Note</p>
+<p>Don't panic! If you do not understand everything now what all this means. In the following chapters (<a class="reference internal" href="tutorial.html#add-a-new-device"><span class="std std-ref">Add a new device</span></a>) the correct and in depth explanation is written.</p>
 </div>
 <p>If you now restart the Software and change to the Resources tab you should see an entry for this device.</p>
 <img alt="Flowchart_main" class="floatingflask" src="_images/Resources1.png" />

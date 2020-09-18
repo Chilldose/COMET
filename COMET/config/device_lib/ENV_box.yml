@@ -45,7 +45,7 @@
         #- microscope_light: "OFF"
 
     # Misc
-    reset_device: ["*rst"]
+    reset_device: []
     separator: ","
     bias_relay: A
     LCR_relay: B

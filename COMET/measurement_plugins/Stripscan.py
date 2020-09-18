@@ -151,8 +151,8 @@ class Stripscan_class(tools):
         # The factor in which the Rint value is allowed to vary around the std of the median, before recontacting
         self.std_factor = {
             "Rint": 5.0,
-            "Rpoly": 3.5,
-            "Cac": 5.0
+            "Rpoly": 5.0,
+            "Cac": 30.0
         }
 
         # Len if eval window to determine the goodness of values, place 0 for all values

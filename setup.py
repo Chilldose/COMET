@@ -34,7 +34,7 @@ class environement_setup:
             # Install anaconda env
             cmd = "conda env create -f {}".format(os.path.normpath(requirement_file))
             os.system(cmd)
-            sys.exit(0)
+            #sys.exit(0)
 
         except:
             print(

@@ -1,0 +1,196 @@
+---
+  Files: # The files which are plotted together
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/FlatBand/2020-07-17T14-48-28_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_GRtoLO_PQC_Flute_1_MOS_capacitor_HV_Source.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/meander/2020-08-03T17-10-45_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesRight_PQC_Flute_2_Polysilicon_meander.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/meander/2020-08-04T08-18-37_HPK_VPX33234_018_PSS_HM-WW_PQCFlutesRight_PQC_Flute_3_Metal_meander.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/meander/2020-08-04T13-52-49_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_2_Polysilicon_meander.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/meander/2020-08-04T14-06-33_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_3_Metal_meander.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/FET_Tests/2020-07-29T15-16-04_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_FET.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/FET_Tests/2020-07-30T12-09-26_HPK_VPX33234_017_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_FET.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/FET_Tests/2020-07-28T14-51-37_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesLeft_PQC_Flute_1_FET.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/FET_Tests/2020-07-23T14-17-30_HPK_VPX33234_016_PSS_HM_WW_PQCFlutesRight_PQC_Flute_1_FET.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Contact_Chain/2020-08-04T09-22-38_HPK_VPX33234_018_PSS_HM-WW_PQCFlutesRight_PQC_Flute_4_Polysilicon_contact_chain.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Contact_Chain/2020-08-04T09-32-29_HPK_VPX33234_018_PSS_HM-WW_PQCFlutesRight_PQC_Flute_4_P+_contact_chain.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Contact_Chain/2020-08-04T09-33-26_HPK_VPX33234_018_PSS_HM-WW_PQCFlutesRight_PQC_Flute_4_N+_contact_chain.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/CBKR/2020-08-04T09-21-42_HPK_VPX33234_018_PSS_HM-WW_PQCFlutesRight_PQC_Flute_4_Polysilicon_CBKR.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/CBKR/2020-08-04T09-19-38_HPK_VPX33234_018_PSS_HM-WW_PQCFlutesRight_PQC_Flute_4_N+_CBKR.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Linewidth/2020-08-03T17-11-42_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesRight_PQC_Flute_2_N+_linewidth_structure.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Linewidth/2020-08-03T17-13-35_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesRight_PQC_Flute_2_P-stop_linewidth_structure_4-wire_.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Linewidth/2020-08-03T17-14-38_HPK_VPX33234_018_PSS_HM-WW_HM_WW_PQCFlutesRight_PQC_Flute_2_P-stop_linewidth_structure_2-wire_.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Linewidth/2020-08-04T08-39-19_HPK_VPX33234_018_PSS_HM-WW_PQCFlutesRight_PQC_Flute_3_P+_cross-bridge_linewidth.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Linewidth/2020-08-04T13-53-39_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_2_N+_linewidth_structure.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Linewidth/2020-08-04T13-54-35_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_2_P-stop_linewidth_structure_4-wire_.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Linewidth/2020-08-04T13-55-31_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_2_P-stop_linewidth_structure_2-wire_.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Linewidth/2020-08-04T14-22-00_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_3_P+_cross-bridge_linewidth.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Linewidth/2020-08-04T14-22-56_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_3_P+_cross-bridge_linewidth.txt
+    - C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Daten/Linewidth/2020-08-04T14-23-54_HPK_VPX33234_019_PSS_HM-WW_PQCFlutesLeft_PQC_Flute_3_P+_cross-bridge_linewidth.txt
+    
+  Filetype: CUSTOM # What kind of type is my file, other options are CSV,JSON, customizations
+  
+  Custom_specs:
+    path: ".\\importer\\f_importer.py" # The path to your python file where the importer is
+    module: f_importer # The module name
+    name: myImporter # The function name inside you want to load
+    
+
+  Output: C:/Users/flohu/OneDrive/Documents/Uni/Bachelor/BachelorArbeit/Plots #Output folder path for my plots
+  backend: bokeh # Choose the backend for the plotting Warning: Output may change with different backends.
+
+  Save_as: # save the plots in different data formats, if more than one is specified all of them will be plotted
+    - png
+  
+  plot_name: Mos_analysis
+
+  Analysis:
+     - CBKR
+     - Meander
+    #- Linewidth
+    #- CBKR
+    #- Contact_Chain
+    #- Van_der_Pauw
+    #- Meander
+    #- MOS_CV 
+    #- FET ?
+    # The analysis Plugin over which the data will be run. These plugins must be located in the foler "analysis_scripts"
+    
+  files_to_fit:
+    - 2020-07-08T11-51-40_HPK_VPX33234_016_PSSnvir_HM_EE_PQC_Flute_1_Polysilicon_Van-der-Pauw_cross #only the filename WITHOUT .txt also the path has to be given above in 'Files'
+    - 2020-07-08T12-11-22_HPK_VPX33234_016_PSSnvir_HM_EE_PQC_Flute_1_P-stop_Van-der-Pauw_cross
+    - 2020-08-04T09-21-42_HPK_VPX33234_018_PSS_HM-WW_PQCFlutesRight_PQC_Flute_4_Polysilicon_CBKR
+   
+  Poolsize: 6 # Maximum pool size of simultaneous analysis scripts
+
+  # Optional Parameters
+  ASCII_file_specs: # The specifications for the ascii file type measurements files
+    header_lines: 13
+    measurement_description: 14
+    units_line: 14
+    data_start: 15
+
+  MOS_CV:
+    plateau: 0.03    
+    General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 1200
+          height: 800
+          shared_axes: False
+          invert_xaxis: False
+          #legend_position: "top_left"
+    Derivative:
+          do: True
+          interpolate: True
+          plot: False
+    Fit:
+          do: True
+          interpolate: True
+    parameter:
+          mos_area: 1.66e-2 #cm²
+          phi_m: 4.08 #aluminum work function
+          epsilon0: 8.85418e-12 #F/m
+          epsilonR: 3.9
+          q: 1.60217e-19 #elementary charge in Coulombs
+          electronAffinity: 4.05 #eV
+          bandGapEnergy: 1.12 #eV
+          intrinsicDopingConcentration: 1.45e+10 #cm^-3
+          SiliconDoping: 5.0e+12 #cm^-3
+          boltzmannConstant: 1.38064e-23 #J/K
+          Temperature: 293.15 #kelvin selbst holen !
+          n_i_intrinsic_carrier_concentration: 5.415e+9 #cm^-3
+      
+      
+  Van_der_Pauw:
+    plateau: 0.03
+    #UnitConversion: asd    
+    General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 500
+          height: 800
+          shared_axes: False
+          #legend_position: top_left # funktioniert nur wenn oben mehr als ein filepfad angegeben ist
+          
+    Bar_chart:
+          CreateBarChart: Batch #Options are "Batch", "Wafer No." "HM location", "Test structure"
+        
+    
+  Meander:
+    parameter:
+           squares_m: 12853
+           squares_poly: 476
+    General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 500
+          height: 800
+          shared_axes: False
+          #legend_position: top_left # funktioniert nur wenn oben mehr als ein filepfad angegeben ist
+      
+    Bar_chart:
+          CreateBarChart: HM location #Options are "Batch", "Wafer No." "HM location", "Test structure"
+          
+          
+  Contact_Chain:  
+    General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 500
+          height: 800
+          shared_axes: False
+          #legend_position: top_left # funktioniert nur wenn oben mehr als ein filepfad angegeben ist
+          
+    Bar_chart:
+          CreateBarChart: Batch #Options are "Batch", "Wafer No." "HM location", "Test structure"
+
+  CBKR:
+    parameter:
+          W: 0.000033 
+          contact_d: 0.000013
+          sheet_r_p: 2500
+          sheet_r_N+: 35
+          std_p: 50
+          std_N+: 0.65
+          
+    General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 500
+          height: 800
+          shared_axes: False
+          #legend_position: top_left # funktioniert nur wenn oben mehr als ein filepfad angegeben ist
+          
+    Bar_chart:
+          CreateBarChart: Batch #Options are "Batch", "Wafer No." "HM location", "Test structure"
+
+  Linewidth:
+  
+    parameter: 
+          contact_d: 0.0001285
+          sheet_r_p+: 1240
+          sheet_r_N+: 35
+          sheet_r_ps: 19200
+          std_p+: 24
+          std_N+: 0.65
+          std_ps: 400
+          
+    General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 500
+          height: 800
+          shared_axes: False
+          #legend_position: top_left # funktioniert nur wenn oben mehr als ein filepfad angegeben ist
+          
+    Bar_chart:
+          CreateBarChart: Batch #Options are "Batch", "Wafer No." "HM location", "Test structure"
+  FET:
+    General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          #responsive: False
+          width: 1200
+          height: 800
+          shared_axes: False
+          #legend_position: top_left # funktioniert nur wenn oben mehr als ein filepfad angegeben ist
+      
+    Bar_chart:
+          CreateBarChart: Batch

@@ -700,6 +700,7 @@ def read_in_files(filepathes, configs):
     """
     filetype = configs.get("Filetype", None)
     ascii_specs = configs.get("ASCII_file_specs", None)
+    csv_specs = configs.get("CSV_file_specs", None)
     custom_specs = configs.get("Custom_specs", None)
 
     if filetype:
@@ -713,7 +714,7 @@ def read_in_files(filepathes, configs):
         elif filetype.upper() == "JSON":
             return read_in_JSON_measurement_files(filepathes)
         elif filetype.upper() == "CSV":
-            return read_in_CSV_measurement_files(filepathes)
+            return read_in_CSV_measurement_files(filepathes, csv_specs)
         elif filetype.upper() == "CUSTOM":
             if custom_specs:
                 data_raw = read_in_CUSTOM_measurement_files(filepathes, custom_specs)
@@ -799,8 +800,20 @@ def read_in_files(filepathes, configs):
                 data.update(data_new)
                 continue  # In order to prevent the next load order to be executed
             elif file_extension.lower() == ".csv":
-                data_new, load = read_in_CSV_measurement_files([file])
+                data_new, load = read_in_CSV_measurement_files([file], csv_specs)
                 data.update(data_new)
+            else:
+                log.critical("File type could not be extracted from file {}, trying as ASCII input...".format(filename))
+                if ascii_specs:
+                    data_new, load = read_in_ASCII_measurement_files(
+                        [file], ascii_specs
+                    )
+                    data.update(data_new)
+                    load_order.append(load)
+                else:
+                    log.error(
+                        "ASCII file type files must be given with specifications how to interpret data. No data import!"
+                    )
             load_order.append(file)
         else:
             log.error("Path {} does not exists, skipping file!".format(file))
@@ -836,17 +849,19 @@ def read_in_CUSTOM_measurement_files(filepathes, configs):
         return None
 
 
-def read_in_CSV_measurement_files(filepathes):
+def read_in_CSV_measurement_files(filepathes, configs=None):
     """This reads in csv files and converts the directly to a pandas data frame!!!"""
     all_data = {}
     load_order = []
+    if not configs:
+        configs = {}
 
     for file in filepathes:
         load_order.append(file)
         data_dict = {"analysed": False, "plots": False, "header": ""}
         data = pd.read_csv(file)
-        data_dict["measurements"] = list(data.columns)
-        data_dict["units"] = ["" for i in data_dict["measurements"]]
+        data_dict["measurements"] = configs.get("measurements", list(data.columns))
+        data_dict["units"] = configs.get("units", ["" for i in data_dict["measurements"]])
         data_dict["data"] = data
         all_data[os.path.basename(file).split(".")[0]] = data_dict
 
@@ -985,10 +1000,10 @@ def parse_file_data(filecontent, settings):
 
     if premeasurement_cols:
         log.info("Using predefined columns...")
-        parsed_obj[0] = premeasurement_cols
+        parsed_obj[0] = deepcopy(premeasurement_cols)
     if preunits:
         log.info("Using predefined units...")
-        parsed_obj[1] = preunits
+        parsed_obj[1] = deepcopy(preunits)
 
     if not parsed_obj[0] and not parsed_obj[1]:
         log.error("No measurements and units extracted. Plotting will fail!")

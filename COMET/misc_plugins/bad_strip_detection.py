@@ -258,7 +258,7 @@ class stripanalysis:
             "Extracted units are: {} with len {}".format(parsed_obj[1], len(parsed_obj[1]))
         )
         if len(parsed_obj[0]) != len(parsed_obj[1]):
-            self.log.error(
+            self.log.critical(
                 "Parsed measurement decription len is not equal to len of extracted units. Errors may rise! If this error persists please change units_regex and measurement_regex in the"
                 " ASCII parameters to fit your data! Or define your own correctly."
             )
