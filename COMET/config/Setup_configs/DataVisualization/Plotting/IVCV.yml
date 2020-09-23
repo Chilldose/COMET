@@ -80,7 +80,7 @@
               #xlim: !!python/tuple [0, 1000]
               #legend_position: "bottom_right"
               #aspect: equal
-              padding: !!python/tuple [0, 0.1]
+              padding: !!python/tuple [0.15, 0.1]
               show_grid: True
               gridstyle:
                   grid_line_color: black
@@ -132,7 +132,7 @@
               #xlim: !!python/tuple [0, 1000]
               #legend_position: "bottom_right"
               #aspect: equal
-              padding: !!python/tuple [0, 0.1]
+              padding: !!python/tuple [0.15, 0.1]
               show_grid: True
               gridstyle:
                   grid_line_color: black
@@ -142,7 +142,7 @@
                   xgrid_line_dash: [4, 4]
                   ygrid_line_dash: [10, 4]
               #xlabel: voltage [V]
-              ylabel: capacitance [nF]
+              #ylabel: capacitance [nF]
               shared_axes: False
 
       Full depletion estimation:
@@ -152,7 +152,7 @@
               logx: False
               invert_xaxis: False
               invert_yaxis: False
-              padding: !!python/tuple [0, 0.1]
+              padding: !!python/tuple [0.15, 0.1]
               show_grid: True
               gridstyle:
                   grid_line_color: black
@@ -177,7 +177,7 @@
               #xlim: !!python/tuple [0, 1000]
               #legend_position: "bottom_right"
               #aspect: equal
-              padding: !!python/tuple [0, 0.1]
+              padding: !!python/tuple [0.15, 0.1]
               show_grid: True
               gridstyle:
                   grid_line_color: black

@@ -659,8 +659,18 @@ def customize_plot(plot, plotName, configs, **addConfigs):
                 subplot = plot
                 for subpath in path:
                     subplot = getattr(subplot, subpath)
-                subplot.opts(**options)
+                # Check if non valid options for single plots are inside, remove them and try applying them later
+                opts = {}
+                valid_opts = deepcopy(options)
+                for forbidden_opt in ["legend_position", "show_legend"]:
+                    if forbidden_opt in options:
+                        opts[forbidden_opt] = valid_opts.pop(forbidden_opt)
+                subplot.opts(**valid_opts)
             plot = plot.relabel(label)
+            try:
+                plot.opts(**opts)
+            except Exception as err:
+                log.error("Invalid option occured during plot custimization on sub-plot level. I could not resolve it. I will ignore this option. Err: {}".format(err))
 
         except Exception as err:
             log.error(
@@ -1032,8 +1042,9 @@ def parse_file_data(filecontent, settings):
                     parsed_data.append(dat)
                 else:
                     dat.extend([np.nan for i in range(len(parsed_data[-1]) - len(dat))])
+                    parsed_data.append(dat)
             else:
-                log.debug("Data shape is not consistent. Droping data: {}".format(dat))
+                log.info("Data shape is not consistent. Droping data: {}".format(dat))
         else:
             parsed_data.append(dat)
 
