@@ -74,6 +74,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.SaveAct = QtWidgets.QAction(self.tr("&Save session"), self)
         self.SaveAct.setStatusTip(self.tr("Saves the current session"))
         self.SaveAct.triggered.connect(self.onSaveSession)
+        # Load alignment.
+        self.LoadALAct = QtWidgets.QAction(self.tr("&Load saved alignment"), self)
+        self.LoadALAct.setStatusTip(self.tr("Loads a previously saved alignment"))
+        self.LoadALAct.triggered.connect(self.onLoadAlignment)
+        # Save Alignment.
+        self.SaveALAct = QtWidgets.QAction(self.tr("&Save alignment"), self)
+        self.SaveALAct.setStatusTip(self.tr("Saves the current alignment"))
+        self.SaveALAct.triggered.connect(self.onSaveAlignment)
         # Action for starting a measurement.
         self.startAct = QtWidgets.QAction(self.tr("&Start"), self)
         self.startAct.setIcon(QtGui.QIcon(os.path.join(ResourcePath, "start.svg")))
@@ -132,6 +140,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.editMenu.addAction(self.preferencesAct)
         self.editMenu.addAction(self.LoadAct)
         self.editMenu.addAction(self.SaveAct)
+        self.editMenu.addAction(self.LoadALAct)
+        self.editMenu.addAction(self.SaveALAct)
         # Measurement menu
         self.measureMenu = self.menuBar().addMenu(self.tr("&Measure"))
         self.measureMenu.addActions(self.measureActGroup.actions())
@@ -200,6 +210,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def onSaveSession(self):
         """Loads a previous session"""
         self.message_to_main.put({"SAVE_SESSION": True})
+
+    def onLoadAlignment(self):
+        """Loads a previous alignment"""
+        self.message_to_main.put({"LOAD_ALIGNMENT": True})
+
+    def onSaveAlignment(self):
+        """Loads a previous alignment"""
+        self.message_to_main.put({"SAVE_ALIGNMENT": True})
 
     def closeEvent(self, event):
         """On window close event."""

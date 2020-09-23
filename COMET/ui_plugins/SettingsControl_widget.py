@@ -227,7 +227,7 @@ class SettingsControl_widget(object):
             self.variables.ui_plugins["Settings_window"].configure_settings()
 
     def save_measurement_settings_file(self):
-        """ This function saves a mesuerment settings file"""
+        """ This function saves a measuerment settings file"""
         fileDialog = QFileDialog()
         file = fileDialog.getSaveFileName()
 

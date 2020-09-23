@@ -1307,9 +1307,9 @@ def connection_test(
     closeness = np.isclose([target_resistance for x in res], res, rtol=0, atol=abs_err)
 
     if np.all(closeness):
-        return True
+        return True, res
     else:
-        return np.array(schemes)[~closeness]
+        return np.array(schemes)[~closeness], res
 
 
 class table_control_class:
@@ -2157,12 +2157,17 @@ class switching_control:
             comm = ["set_close_channel", "set_open_channel"]
             channels = [to_close_channels, to_open_channels]
 
-        # Close channels
-        self.__send_switching_command(device, comm[0], channels[0])
-
-        # Open channels
-        if to_open_channels: # Only opens channels if the list is not empty
+        # Do the switching BBM
+        if BBM:
+            if to_open_channels:  # Only opens channels if the list is not empty
+                self.__send_switching_command(device, comm[0], channels[0])
             self.__send_switching_command(device, comm[1], channels[1])
+
+        # Do the second switching
+        if not BBM:
+            self.__send_switching_command(device, comm[0], channels[0])
+            if to_open_channels: # Only opens channels if the list is not empty
+                self.__send_switching_command(device, comm[1], channels[1])
 
         # Check if switching is done (basically the same proceedure like before only in the end there is a check
         return self.check_all_closed_channel(device, configs)

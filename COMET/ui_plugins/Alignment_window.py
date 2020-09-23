@@ -112,7 +112,7 @@ class Alignment_window(Table_widget):
     def test_needle_contact_action(self):
         """Test the needle contact"""
         if self.variables.switching and self.connection_test_device:
-            res = connection_test(
+            res, mres = connection_test(
                 self.connection_test_switchings,
                 self.variables.switching,
                 self.variables.vcw,
@@ -123,8 +123,8 @@ class Alignment_window(Table_widget):
             if isinstance(res, bool):
                 self.set_needle_contact_lamp("contact")
             else:
-                self.log.critical("Needles {} have no contact!".format(res))
-                self.set_needle_contact_lamp("no contact".format(res), addinfo=" on {}".format(res))
+                self.log.critical("Needles {} have no contact! Res: {}".format(res, mres))
+                self.set_needle_contact_lamp("no contact".format(res), addinfo=" on {}: {}".format(res, mres))
         else:
             self.log.error("Cannot test needle contact since one or more needed devices are not ready.")
 
@@ -182,6 +182,10 @@ class Alignment_window(Table_widget):
             strip_to_move = str(self.alignment.move_to_strip_spin.value())
 
             if self.variables.default_values_dict["settings"]["Alignment"]:
+                self.V0 = self.variables.default_values_dict["settings"].get("V0", None)
+                self.transformation_matrix = self.variables.default_values_dict["settings"].get(
+                    "trans_matrix", None
+                )
                 error = self.variables.table.move_to_strip(
                     self.sensor_pad_file,
                     strip_to_move,
@@ -265,7 +269,7 @@ class Alignment_window(Table_widget):
 
         if step > maximum_step or not self.alignment_started:
             self.what_to_do_text(-1)  # Resets the text
-            if self.variables.default_values_dict["settings"]["Alignment"]:
+            if self.variables.default_values_dict["settings"]["Alignment"] and self.go_to_first_ref:
                 success = self.variables.table.move_to_strip(
                     self.sensor_pad_file,
                     self.reference_pads[0],
@@ -286,6 +290,7 @@ class Alignment_window(Table_widget):
 
         if step == maximum_step:
             self.alignment_started = False
+            self.go_to_first_ref = True
 
     def set_checkboxes(self, list):
         """This function sets the checkboxes for the checklist"""
@@ -301,8 +306,10 @@ class Alignment_window(Table_widget):
             self.variables.default_values_dict["settings"][
                 "Alignment"
             ] = False  # So I cannot do a measuremnt until the alignment is done
+            self.go_to_first_ref = False
 
         if step == 0:
+            self.go_to_first_ref = False
             # Reset some elements and set new elements
             self.set_checkboxes([False, False, False, False, False])
             # Get sensor

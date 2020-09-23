@@ -67,6 +67,8 @@ class GUI_event_loop(QThread):
             "STATE",
             "SAVE_SESSION",
             "LOAD_SESSION",
+            "SAVE_ALIGNMENT",
+            "LOAD_ALIGNMENT",
         ]
         self.error_list = []
         self.measurement_list = []
@@ -185,6 +187,37 @@ class GUI_event_loop(QThread):
                     self.message_to_main.put(
                         {"Critical": "Measurement aborted by user interaction..."}
                     )
+
+            elif event == "SAVE_ALIGNMENT":
+                self.log.critical("Saving current alignment...")
+                try:
+                    import pickle, os
+                    topickle = {"Alignment": self.default_values_dict["settings"]["Alignment"],
+                                "trans_matrix": self.default_values_dict["settings"]["trans_matrix"],
+                                "V0": self.default_values_dict["settings"]["V0"],
+                                }
+
+                    with open(
+                        os.path.normpath("./COMET/resources/alignment_save.pkl"), "wb"
+                    ) as output:
+                        pickle.dump(
+                            topickle, output, pickle.HIGHEST_PROTOCOL
+                        )
+                except Exception as err:
+                    self.log.error("Saving alignment was not possible...", exc_info=True)
+
+            elif event == "LOAD_ALIGNMENT":
+                self.log.critical("Loading saved alignment...")
+                try:
+                    import pickle, os
+                    with open(
+                        os.path.normpath("./COMET/resources/alignment_save.pkl"), "rb"
+                    ) as input:
+                        alignment = pickle.load(input)
+                        for key, value in alignment.items():
+                            self.default_values_dict["settings"][key] = value
+                except Exception as err:
+                    self.log.error("Loading alignment was not possible...", exc_info=True)
 
             elif event == "SAVE_SESSION":
                 self.log.critical("Saving current session...")
