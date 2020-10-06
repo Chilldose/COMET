@@ -27,6 +27,7 @@ except ImportError:
 
 from ..misc_plugins.PlotScripts.myplot import *
 from ..misc_plugins.PlotScripts.forge.tools import relabelPlot
+from .upload_to_db import CMS_DB_loader
 
 
 class DataVisualization_window:
@@ -612,8 +613,11 @@ class DataVisualization_window:
                     )
 
     def upload_to_DB(self):
-        """lets you upload the data to the DB"""
-        self.log.error("Saving to the Data Base is not yet implemented.")
+        """This action shows the db loader for the cms db"""
+        dialog = CMS_DB_loader(self, parent=self.layout)
+        dialog.exec_()
+
+
 
     def config_save_options(self):
         """Configs the save options like json,hdf5,etc"""

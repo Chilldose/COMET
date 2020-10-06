@@ -6,19 +6,19 @@
     measurement_description: 20
     units_line: 21
     data_start: 22
-    
+
 
   Files:
     - ".\\testdata\\Stripfile_1.txt"
     - ".\\testdata\\Stripfile_2.txt"
     - ".\\testdata\\Stripfile_3.txt"
-    
+
   Output: ".\\testdata\\test_export"
-  xml_template_path: ".\\CONFIGS\\CMSxmlTemplate.yml"
+  xml_template_path: ".\\CONFIGS\\CMSxmlTemplate.yml" # The path to xml file
   Save_as:
-    - png
+    #- png
     - html
-    - json
+    #- json
     - xml
 
   Analysis:
@@ -29,11 +29,11 @@
 
   # Options for the different Analyses scripts
   # These options are entirely up to you and what you need in your analysis
-  
+
   # Converts all arrays to their absolute
   abs_value_only: False
   override_data: True
-  
+
   Measurement_aliases:
       Temperature: temp
       Humidity: hum
@@ -49,7 +49,7 @@
           #legend_position: "bottom_left"
       Layout:
           cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
-          
+
       AuxOptions:
         concatHistogram:
             bins: 50

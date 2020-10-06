@@ -180,12 +180,10 @@ class measurement_job_generation:
             "# Sensor Type: " + self.variables["Current_sensor"] + "\n "
             "# ID: " + self.variables["Current_filename"] + "\n "
             "# Operator: " + self.variables["Current_operator"] + "\n "
-            "# Date: "
-            + str(asctime())
-            + "# Version:"
-            + self.variables.get["file_version", str(1.0)]
-            + "# Location:"
-            + self.variables.get["location", "HEPHY"]
+            "# Date: " + str(asctime()) + "\n "
+            "# Version:" + self.variables.get["file_version", str(1.0)] + "\n "
+            "# Location:" + self.variables.get["location", "HEPHY"]  + "\n "
+            "# Comment: "  + "\n "
             + "\n\n"
         )
 

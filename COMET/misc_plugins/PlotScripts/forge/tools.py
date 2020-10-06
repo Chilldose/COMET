@@ -12,6 +12,7 @@ from holoviews import opts
 import numpy as np
 import pandas as pd
 from bokeh.models import LinearAxis, Range1d
+import subprocess
 
 # from bokeh.io import export_svgs, export_png
 # from bokeh.io import save
@@ -1136,6 +1137,7 @@ def save_dict_as_xml(data, filepath, name, xml_template_dict):
         if xml_template_dict:
             template = xml_template_dict
             header_dict = insert_values_from_header(template, dat["header"])
+            header_dict = insert_values_from_external_scripts(template, header_dict)
             final_xml = convert_dict_to_xml(header_dict)
             final_xml_dict = insert_templates(dat, final_xml, template)
             final_xml_dict = change_file_specific_xml_header(final_xml_dict, template)
@@ -1362,6 +1364,49 @@ def insert_values_from_header(xml_config_file, header=""):
 
     return template
 
+def insert_values_from_external_scripts(xml_config_file, header_dict):
+    """
+    Inserts data for entries, witch need data from external scripts like a online run number query from the web
+
+    :param config_file: the configs
+    :param xml_config_file: the configs on how to convert data to xml
+    :param header_dict: the header (dict) with key values like "Operator: Batman", the function tries to extract the data for the xml from there
+    :return: None
+    """
+    template = deepcopy(xml_config_file["Template"])
+    keyword_re = re.compile(r"\[(.*)\]")
+
+    def dict_value_insert_iter(diction, values_dict):
+        """Goes over all entries in the dict and inserts single values from the header"""
+        for key, item in diction.items():
+            if isinstance(item, dict):
+                dict_value_insert_iter(item, values_dict[key])
+            else:
+                keyword = keyword_re.match(str(item))
+                if keyword:
+                    # Start the script in a try except clause
+                    keyword = keyword[0].strip("]").strip("[")
+                    if keyword in xml_config_file:
+                        try:
+                            proc = subprocess.run("python " + xml_config_file[keyword], capture_output=True)
+                            answer = proc.stdout.decode()
+                            if keyword+"_regex" in xml_config_file:
+                                regex = r"{}".format(xml_config_file.get(keyword+"_regex", r".*"))
+                                parse_re = re.compile(regex)
+                                answer = parse_re.findall(str(answer))[0]
+                                values_dict[key] = str(answer).strip()
+                                break
+                            else:
+                                values_dict[key] = str(answer).strip()
+                                break
+                        except:
+                            log.error("Could not insert value from external script handler! Entry Name: {}".format(keyword), exc_info=True)
+
+    # Insert the simple values from the header
+    dict_value_insert_iter(template, header_dict)
+    # Insert the templates
+
+    return header_dict
 
 def convert_dict_to_xml(data_dict):
     """Converts a dictionary to a xml conform string"""

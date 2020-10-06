@@ -1,6 +1,10 @@
 ---
   Settings_name: CMSxmlTemplate
 
+  DB_uploader_API_module: "D:\\GitRepos\\cmsdbldr" # The directory, where the db uploader is located
+  DB_downloader_API_module: "D:\\GitRepos\\resthub\\clients\\python\\src\\main\\python\\rhapi.py --url=http://dbloader-tracker:8113 -f csv 'select r.run_number from trker_cmsr.trk_ot_test_nextrun_v r'" # The directory, where the db downloader is located
+  DB_downloader_API_module_regex: "RUN\\s+NUMBER\\s+(.*)"
+
   Template:
     HEADER:
       TYPE:
@@ -8,18 +12,18 @@
         NAME: <NAME>
       RUN:
         RUN_TYPE: <Project> # Mandatory: ??? > IS Test Measurement
-        RUN_NUMBER: <RUN_NUMBER> # Mandatory: ??? > 3
-        LOCATION: <LOCATION> # HEPHY
+        RUN_NUMBER: "[DB_downloader_API_module]"
+        LOCATION: <Location> # HEPHY
         INITIATED_BY_USER: <Operator> # The Operator of this measurement
         RUN_BEGIN_TIMESTAMP: <Date> # Optional but good to have
         RUN_END_TIMESTAMP: <ENDTIME> # Optional
-        COMMENT_DESCRIPTION: <RUN_COMMENT> # Optional
+        COMMENT_DESCRIPTION: <Comment> # Optional
     DATA_SET:
       COMMENT_DESCRIPTION: <DATA_COMMENT> # Optional
       VERSION: <VERSION> # The data version? How many times I started the measurement?
       PART:
         KIND_OF_PART: <Sensor Type> # Hamamatsu 2S Sensor
-        SERIAL_NUMBER: <ID> # HPK_VPX28441_1002_2S
+        BARCODE: <ID> # HPK_VPX28441_1002_2S
       DATA: //DATA_DUMP_template//
 
   File_specific_header:
@@ -33,6 +37,12 @@
 
 
   DATA_DUMP_template:
+    Idar:
+        STRIP: <Pad>
+        CURRNT_NAMPR: <Istrip>
+        TEMP_DEGC: <Temperature>
+        RH_PRCNT: <Humidity>
+        BIASCURRNT_NAMPR: <Idark>
     Istrip:
         STRIP: <Pad>
         CURRNT_NAMPR: <Istrip>
@@ -69,5 +79,3 @@
         TEMP_DEGC: <Temperature>
         RH_PRCNT: <Humidity>
         BIASCURRNT_NAMPR: <Idark>
-        
-        

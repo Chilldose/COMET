@@ -1,5 +1,5 @@
 # PlotScripts
- These scripts are for simple plotting of data. It uses the holoviews plotting libraries for plotting
+ These scripts are for simple plotting of data. It uses the holoviews plotting libraries for plotting.
 
  # How to use
  First you need to install a Anaconda python 3.x version on your computer. After doing that you can install the conda envrionement by.
@@ -40,28 +40,21 @@ In principle such a file looks like this:
   Files: # The files which are plotted together
     - MyMeasurementfilePath.txt
 
-  Filetype: ASCII # What kind of type is my file, other options are CSV,JSON, customizations
-
-  # If CUSTOM was choosen in 'Filetype', then you must define this custom specs section to tell where to find the file etc
-  Custom_specs:
-    path: <path_to_your_python_file> # The path to your python file where the importer is
-    module: foo # The module name
-    name: bar # The function name inside you want to load
-    parameters: # Additional parameters your importer needs. Do not use if you dont need ones
-      param1: 1
-      param2: "Hello"
-
-  Measurement_aliases:
-    Your_column_name: the_alias
-    Your_column_name2: the_alias2
+  Filetype: ASCII # What kind of type is my file, other options are CSV, JSON, None, CUSTOM customizations
+  # If None is passed, the script tries to read in the files based on their file suffix. .txt, .dat, will be interpreted as ASCII
 
   Output: myplot #Output folder path for my plots
-  backend: bokeh # Choose the backend for the plotting Warning: Output may change with different backends.
+
+  backend: bokeh # Choose the backend for the plotting. Warning: Output may change with different backends. Possible options: bokeh, matplotlib, plotly
 
   Save_as: # save the plots in different data formats, if more than one is specified all of them will be plotted
     - html
     - png
     - svg
+    - xml # Only works if the entry "xml_template_path" points to a correct template!
+    - json
+
+  xml_template_path: ".\\CONFIGS\\CMSxmlTemplate.yml" # Path to the XML template config file
 
   Analysis:
     - myAnalysisPlugin # The analysis Plugin over which the data will be run. These plugins must be located in the foler "analysis_scripts"
@@ -70,10 +63,23 @@ In principle such a file looks like this:
 
   # Optional Parameters
   ASCII_file_specs: # The specifications for the ascii file type measurements files
-    header_lines: 8
-    measurement_description: 9
-    units_line: 9
-    data_start: 10
+    header_lines: 8 # The endline for the header
+    measurement_description: 9 # The line the measurements/column names are stated
+    units_line: 9 # The line the units for each measurement name are stated (can be the same as measurement_desciption)
+    data_start: 10 # The line the data starts
+
+  # If CUSTOM was choosen in 'Filetype', then you must define this custom specs section to tell where to find the file etc
+  Custom_specs: # Optional: Only needed if you have a custom importer --> As a Filetype the entry CUSTOM has to be passed!
+    path: <path_to_your_python_file> # The path to your python file where the custom importer is
+    module: foo # The module name
+    name: bar # The function name inside you want to load
+    parameters: # Additional parameters your importer needs. Do not use if you dont need ones
+      param1: 1
+      param2: "Hello"
+
+  Measurement_aliases: # Internal renaming of the columns from the input files. Can be used to change names to be compliant with other analyses.
+    Your_column_name: the_alias
+    Your_column_name2: the_alias2
 
   # Options for the different Analyses scripts
   # These options are entirely up to you and what you need in your analysis
@@ -146,7 +152,7 @@ specified in the 'parameters' entry in the Custom_specs section. If you do not n
 entry in your config.
 
 After parsing your data, the framework wants as a return a dict. The top level keys must be a kind of representation of your files (I use the filename).
-The values to this keys are again dicts with keys beeing the columns/data sets inside like voltage, capacitance etc. As values it can be any iterable object. But I would recommend a list or a numpy array.  
+The values to this keys are again dicts with keys beeing the columns/data sets inside like voltage, capacitance etc. As values it can be any iterable object. But I would recommend a list or a numpy array. An example for a custom importer is included in the repo!
 
 # Plotting backend
 PlotScripts is build on holoviews, and can plot with different plotting backends. The standard backend is bokeh. But you can choose another backend if you want with the parameter "backend". The options are bokeh, matplotlib and plotly.
@@ -176,7 +182,6 @@ in you config file. The sub-parameters:
 + data_start is the starting line of the data, which can be separated by tabs, whitespace or commas
 
 If you have CSV styled files you need to include the parameters
-
 <pre>
 CSV_file_specs: # The specifications for the ascii file type measurements files
   	 measurements:
@@ -192,28 +197,36 @@ With the "units" entry you can define untis for your measurements, otherwise no 
 If you follow this rules the script should be able to interpret your data.
 
 ## Optional parameters:
-Further customization can be done via the optional parameters:
+Further customization can be done via the optional parameters inside the "ASCII_file_specs" entry:
 
 <pre>
-data_separator: ";"
-measurement_regex: ""
-units_regex: ""
-measurements:
-    - voltage
-    - current
-units:
-    - V
-    - A
+ASCII_file_specs: # The specifications for the ascii file type measurements files
+    header_lines: 18
+    measurement_description: 20
+    units_line: 21
+    data_start: 22
+
+    data_separator: ";"
+    measurement_regex: ""
+    units_regex: ""
+    measurements:
+        - voltage
+        - current
+    units:
+        - V
+        - A
 </pre>
 
 + data_separator: Define your own data separator if the data is not separated by a whitespace character
 + measurement_regex: If the build in measurement regex, does not yield the correct measurements, here you can define your own regex for that
-+ units_regex: If the build in units regex, does not yield the correct measurements, here you can define your own regex for that
++ units_regex: If the build in units regex, does not yield the correct units, here you can define your own regex for that
 + measurements: Define a list of measurement names, which describe your data (you can use this if the regex totally fails or if you do not have such a header.)
 + units: Define a list of units, which describe your data (you can use this if the regex totally fails or if you do not have such a header.)
 
 Warning: Since '\\' is an escape character in python you have to escape this character by typing '\\\\' instead of one. Otherwise the regex will fail.  
 
+
+## Example ASCII file
 A readable ASCII file (with the above config) would be:
 
 <pre>
@@ -248,6 +261,142 @@ Pad                     Istrip                  Rpoly                   Idark   
 
 </pre>
 
+
+# XML template
+Here the principal XML template structure will be explained. The template needs at least the entry "Template" and it must be a dict. \
+After that you can write the principal structure for the xml file as a yml representation.
+
+All values enclosed by <...> are the search parameter the script is searching for in the header. \
+```xml
+Example:
+    XML template: "LOCATION: <Location>"
+    Header: "Locaction: HEPHY"
+    xml file output: "<LOCATION>HEPHY</LOCATION>""
+```
+
+All that is enclosed in //...// is a cloneable template entry. A corresponding template must be present in the config
+
+As seen in the config file the template can be structured as
+```xml
+DATA_DUMP_template:
+  Idark:
+      STRIP: <Pad>
+      CURRNT_NAMPR: <Istrip>
+      TEMP_DEGC: <Temperature>
+      RH_PRCNT: <Humidity>
+      BIASCURRNT_NAMPR: <Idark>
+```
+everything enclosed in <...> are the column names from the file.  Inserted in the final file will then be the iterator values for this meausrement
+
+All that is enclosed by "[...]" is a external script call. The key enclosed must have a matching key in the top level level of the yaml file.
+As a value must be a pointer to a valid python file which will then be executed. The output is captured and the inserted as a value into the final xml.
+If the output must be parsed, the same key with the prefix "_regex" can also be added. This regex will then be used to parse the output, and set as value in the xml, eventually.
+
+```xml
+
+---
+  Settings_name: CMSxmlTemplate
+
+  DB_uploader_API_module: "C:\\GitRepos\\cmsdbldr\\DB_loader.py" # The directory, where the db uploader is located
+  DB_downloader_API_module: "C:\\GitRepos\\cmsdbldr\\DB_grap.py --param some_params" # The directory, where the db downloader is located
+  DB_downloader_API_module_regex: "RUN\\s+NUMBER\\s+(.*)"
+
+  Template:
+    HEADER:
+      TYPE:
+        EXTENSION_TABLE_NAME: <EXTENSION_TABLE_NAME>
+        NAME: <NAME>
+      RUN:
+        RUN_TYPE: <Project> # Mandatory: ??? > IS Test Measurement
+        RUN_NUMBER: "[DB_downloader_API_module]"
+        LOCATION: <Location> # HEPHY
+        INITIATED_BY_USER: <Operator> # The Operator of this measurement
+        RUN_BEGIN_TIMESTAMP: <Date> # Optional but good to have
+        RUN_END_TIMESTAMP: <ENDTIME> # Optional
+        COMMENT_DESCRIPTION: <Comment> # Optional
+    DATA_SET:
+      COMMENT_DESCRIPTION: <DATA_COMMENT> # Optional
+      VERSION: <VERSION> # The data version? How many times I started the measurement?
+      PART:
+        KIND_OF_PART: <Sensor Type> # Hamamatsu 2S Sensor
+        BARCODE: <ID> # HPK_VPX28441_1002_2S
+      DATA: //DATA_DUMP_template//
+
+  File_specific_header:
+    Istrip:
+        HEADER:
+            TYPE:
+                EXTENSION_TABLE_NAME: TEST_SENSOR_IS
+                NAME: TrackerStrip-Sensor IS Test
+            RUN:
+                RUN_TYPE: IS Test Measurements
+
+
+  DATA_DUMP_template:
+    Idark:
+        STRIP: <Pad>
+        CURRNT_NAMPR: <Istrip>
+        TEMP_DEGC: <Temperature>
+        RH_PRCNT: <Humidity>
+        BIASCURRNT_NAMPR: <Idark>
+```
+
+The xml template stated here will output a XML for the given file above and this xml template will read:
+
+```xml
+<?xml version="1.0" ?>
+<root>
+	<HEADER>
+		<TYPE>
+			<EXTENSION_TABLE_NAME>TEST_SENSOR_IS</EXTENSION_TABLE_NAME>
+			<NAME>TrackerStrip-Sensor IS Test</NAME>
+		</TYPE>
+		<RUN>
+			<RUN_TYPE>IS Test Measurements</RUN_TYPE>
+			<RUN_NUMBER>98765</RUN_NUMBER>
+			<LOCATION>None</LOCATION>
+			<INITIATED_BY_USER>Dominic</INITIATED_BY_USER>
+			<RUN_BEGIN_TIMESTAMP>Wed Feb 27 08:48:27 2019</RUN_BEGIN_TIMESTAMP>
+			<RUN_END_TIMESTAMP>None</RUN_END_TIMESTAMP>
+			<COMMENT_DESCRIPTION>None</COMMENT_DESCRIPTION>
+		</RUN>
+	</HEADER>
+	<DATA_SET>
+		<COMMENT_DESCRIPTION>None</COMMENT_DESCRIPTION>
+		<VERSION>None</VERSION>
+		<PART>
+			<KIND_OF_PART>2S</KIND_OF_PART>
+			<BARCODE>VPX28442_11_2S</BARCODE>
+		</PART>
+		<DATA>
+			<STRIP>1.0</STRIP>
+			<CURRNT_NAMPR>nan</CURRNT_NAMPR>
+			<TEMP_DEGC>21.899999618530273</TEMP_DEGC>
+			<RH_PRCNT>23.700000762939453</RH_PRCNT>
+			<BIASCURRNT_NAMPR>nan</BIASCURRNT_NAMPR>
+		</DATA>
+		<DATA>
+			<STRIP>2.0</STRIP>
+			<CURRNT_NAMPR>166.7245647096749</CURRNT_NAMPR>
+			<TEMP_DEGC>21.899999618530273</TEMP_DEGC>
+			<RH_PRCNT>23.799999237060547</RH_PRCNT>
+			<BIASCURRNT_NAMPR>231.59667250638446</BIASCURRNT_NAMPR>
+		</DATA>
+		<DATA>
+			<STRIP>3.0</STRIP>
+			<CURRNT_NAMPR>159.9834015264534</CURRNT_NAMPR>
+			<TEMP_DEGC>21.899999618530273</TEMP_DEGC>
+			<RH_PRCNT>23.899999618530273</RH_PRCNT>
+			<BIASCURRNT_NAMPR>230.3203388009933</BIASCURRNT_NAMPR>
+		</DATA>
+		<DATA>
+			<STRIP>4.0</STRIP>
+			<CURRNT_NAMPR>148.14566240417548</CURRNT_NAMPR>
+			<TEMP_DEGC>21.899999618530273</TEMP_DEGC>
+			<RH_PRCNT>24.100000381469727</RH_PRCNT>
+			<BIASCURRNT_NAMPR>229.96466952918124</BIASCURRNT_NAMPR>
+		</DATA>
+```
 
 # The measurement plugins
 The measurement plugins located in the analysis_scripts folder need to be python classes.
