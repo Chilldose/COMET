@@ -1,0 +1,84 @@
+--- # Dummy config file for testing
+
+# Optional Parameters
+  ASCII_file_specs: # The specifications for the ascii file type measurements files
+    header_lines: 0
+    measurement_description: 1
+    units_line: 1
+    data_start: 2
+
+  Analysis:
+    - MemoryEffect_IMS # The type of analysis, which will be performed
+
+  # Options for the different Analyses scripts
+  # These options are entirely up to you and what you need in your analysis
+  MemoryEffect_IMS:
+
+      General: # Options common to all plots
+          fontsize: {'title': 28, 'labels': 24, 'xticks': 24, 'yticks': 24, 'legend': 11}
+          responsive: False
+          width: 1200
+          height: 800
+          padding: !!python/tuple [ 0.15, 0.1 ]
+          show_grid: True
+          gridstyle:
+              grid_line_color: black
+              grid_line_width: 1.5
+              minor_xgrid_line_color: lightgray
+              minor_ygrid_line_color: lightgray
+              xgrid_line_dash: [ 4, 4 ]
+              ygrid_line_dash: [ 10, 4 ]
+          shared_axes: False
+      Layout:
+          cols: 1 # How many columns there are, these must the the names of the methods!!! and a valid parameter
+
+      C11R11:
+          PlotLabel: C11R11
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+                show_grid: True
+
+      C127R127:
+          PlotLabel: C127R127
+          #PlotStyles: # Here you can state some plot types you want to have, possible Options are Curve, Spike, Histogram, if non is stated, curve is selected
+          #  - Bars
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+                show_grid: True
+
+      C255R257:
+          PlotLabel: C255R257
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+                show_grid: True
+
+      C11R11_absdiff:
+          PlotLabel: C11R11 Absolute delta
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+                show_grid: True
+
+      C127R127_absdiff:
+          PlotLabel: C127R127 Absolute delta
+          #PlotStyles: # Here you can state some plot types you want to have, possible Options are Curve, Spike, Histogram, if non is stated, curve is selected
+          #  - Bars
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+                show_grid: True
+
+      C255R257_absdiff:
+          PlotLabel: C255R257 Absolute delta
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+                show_grid: True
+
+      C11R11_reldiff:
+          PlotLabel: C11R11 relative delta
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+                show_grid: True
+
+      C127R127_reldiff:
+          PlotLabel: C127R127 reative delta
+          #PlotStyles: # Here you can state some plot types you want to have, possible Options are Curve, Spike, Histogram, if non is stated, curve is selected
+          #  - Bars
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+                show_grid: True
+
+      C255R257_reldiff:
+          PlotLabel: C255R257 relative delta
+          PlotOptions: # These options will directly be passed to the renderer, make sure they are valid. Look into holoviews, what options are supported
+                show_grid: True

@@ -206,11 +206,23 @@ def plot(
     """
 
     finalPlot = None
+
+    if "ErrorBars" in kwargs:
+        errorbars = kwargs["ErrorBars"]
+        kwargs.pop("ErrorBars")
+    else:
+        errorbars = False
+
+    errorbars_options = {}
+    if "ErrorBars_options" in kwargs:
+        errorbars_options = kwargs["ErrorBars_options"]
+        kwargs.pop("ErrorBars_options")
+
     for measurement in plot_only if plot_only else data["columns"]:
         if measurement not in do_not_plot:
             try:
                 if finalPlot:
-                    finalPlot += Simple2DPlot(
+                    tempPlot = Simple2DPlot(
                         data,
                         config,
                         measurement,
@@ -219,8 +231,21 @@ def plot(
                         keys=keys,
                         **kwargs
                     )
+
+                    # Add error bars if specified
+                    if errorbars:
+                        if measurement in errorbars:
+                            xy = data["All"][[xaxis_measurement, measurement]].to_numpy()
+                            errors = np.reshape(errorbars[measurement].to_numpy(),
+                                                newshape=(len(errorbars[measurement]), 1))
+                            finalPlot += error_bars(np.append(xy, errors, axis=1), tempPlot, measurement, config[analysis_name], **errorbars_options)
+                        else:
+                            finalPlot += tempPlot
+                    else:
+                        finalPlot += tempPlot
+
                 else:
-                    finalPlot = Simple2DPlot(
+                    tempPlot = Simple2DPlot(
                         data,
                         config,
                         measurement,
@@ -229,10 +254,41 @@ def plot(
                         keys=keys,
                         **kwargs
                     )
+
+                    # Add error bars if specified
+                    if errorbars:
+                        if measurement in errorbars:
+                            xy = data["All"][[xaxis_measurement, measurement]].to_numpy()
+                            errors = np.reshape(errorbars[measurement].to_numpy(), newshape=(len(errorbars[measurement]),1))
+                            finalPlot = error_bars(np.append(xy, errors, axis=1), tempPlot, measurement, config[analysis_name], **errorbars_options)
+                        else:
+                            finalPlot = tempPlot
+                    else:
+                        finalPlot = tempPlot
             except:
                 pass
 
     return config_layout(finalPlot, **config.get(analysis_name, {}).get("Layout", {}))
+
+def error_bars(errors, parent=None, PlotName=None, configs=None, **kwargs):
+    """
+    Draws error bars, if parent is stated it will return the parent with errors
+    :param data: the data array for error bars
+    :param parent: the parent plot
+    :param PlotName: Name of the plot data
+    :param configs: The configuration parameters
+    :return: a plot object
+    """
+    if parent:
+        plot = parent*hv.ErrorBars(errors, **kwargs)
+    else:
+        plot = hv.ErrorBars(errors, **kwargs)
+
+    if configs and PlotName:
+        return customize_plot(plot, PlotName, configs)
+    else:
+        return plot
+
 
 
 def save_plot(name, subplot, save_dir, save_as=("default"), backend="bokeh"):
@@ -388,7 +444,7 @@ def convert_to_df(convert, abs=False, keys="all"):
         raise Exception("DataFrame generation failed! No valid columns found!")
 
     return_dict = {
-        "All": pd.DataFrame(columns=columns),
+        "All": pd.DataFrame(), # old: pd.DataFrame(columsn=columns) this should work, and it did previously, but not anymore
         "keys": index,
         "columns": columns,
     }
